@@ -2,7 +2,7 @@
 
 ## Summary and problem description
 
-Currently, some classes in our codebase use assignment in the constructor (ctor) to avoid code duplication, as seen in issue [#1517](https://github.com/eclipse-iceoryx/iceoryx/issues/1517) . However, it's noted in issue [#1686](https://github.com/eclipse-iceoryx/iceoryx/issues/1686) that self-assignment cannot happen in the ctor. Therefore, an alternative approach should be adopted to replace the current implementation.
+Currently, some classes in our codebase use assignment operator in the constructor (ctor) to avoid code duplication, as seen in issue [#1517](https://github.com/eclipse-iceoryx/iceoryx/issues/1517) . However, it's noted in issue [#1686](https://github.com/eclipse-iceoryx/iceoryx/issues/1686) that self-assignment should not happen in the ctor. Therefore, an alternative approach needs to be adopted to replace the current implementation.
 
 One method involves placing the shared logical code within a separate function, hereafter referred to as `copy_and_move_impl`. This function is then called within the ctor and assignment operations, using template parameters to specify the method of member initialization.
 
@@ -38,7 +38,7 @@ The purpose of the `MoveAndCopyHelper` is:
 
 #include "iox/move_and_copy_helper.hpp"
 
-#define TMP 1024
+constexpr uint64_t CAPACITY {1024};
 
 class Test
 {
@@ -52,7 +52,7 @@ class Test
     uint64_t size();
 
   private:
-    int m_data[TMP];
+    int m_data[CAPACITY];
     uint64_t m_size{0};
 }
 
@@ -69,15 +69,18 @@ Test::Test(Test&& rhs)
 
 Test& Test::operator=(const Test& rhs)
 {
+    // you may do self-assignment check in copy_and_move_impl
     if (this != &rhs)
     {
         copy_and_move_impl<MoveAndCopyOperations::CopyAssignment>(rhs);
     }
+
     return *this;
 }
 
 Test& Test::operator=(Test&& rhs)
 {
+    // you may do self-assignment check in copy_and_move_impl
     if (this != &rhs)
     {
         copy_and_move_impl<MoveAndCopyOperations::MoveAssignment>(std::move(rhs));
@@ -99,6 +102,15 @@ void Test::copy_and_move_impl(RhsType&& rhs)
     // you can determine the current `Opt` at compile time for compile-time branching decisions.
     constexpr bool is_ctor = Helper::is_ctor();
     constexpr bool is_move = Helper::is_move();
+
+    // // self assignment check if needed
+    // if constexpr (!is_ctor)
+    // {
+    //     if (this == &rhs)
+    //     {
+    //         return;
+    //     }
+    // }
 
     // for ctor operation
     if constexpr (is_ctor)
@@ -125,7 +137,3 @@ void Test::copy_and_move_impl(RhsType&& rhs)
 For more examples, see
 
 - `iceoryx_dust/container/detail/fixed_position_container.inl`
-
-## Open issues
-
-[#2113 Move MoveAndCopyHelper to iceoryx_hoofs/design](https://github.com/eclipse-iceoryx/iceoryx/issues/2113)
