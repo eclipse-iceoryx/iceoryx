@@ -129,11 +129,11 @@ inline void FixedPositionContainer<T, CAPACITY>::copy_and_move_impl(RhsType&& rh
             // Therefore, we need to force helper to use ctor create to make sure that the 'FREE' slots get initialized.
             if constexpr (is_move)
             {
-                Helper::ctor_create(m_data[i], std::move(*rhs_it));
+                Helper::create_new(m_data[i], std::move(*rhs_it));
             }
             else
             {
-                Helper::ctor_create(m_data[i], *rhs_it);
+                Helper::create_new(m_data[i], *rhs_it);
             }
         }
 

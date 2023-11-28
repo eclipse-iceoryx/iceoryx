@@ -28,17 +28,17 @@ inline void MoveAndCopyHelper<Opt>::transfer(T& dest, V&& src) noexcept
 {
     if constexpr (is_ctor())
     {
-        ctor_create(dest, std::forward<V>(src));
+        create_new(dest, std::forward<V>(src));
     }
     else
     {
-        assignment_create(dest, std::forward<V>(src));
+        assign(dest, std::forward<V>(src));
     }
 }
 
 template <MoveAndCopyOperations Opt>
 template <typename T, typename V>
-inline void MoveAndCopyHelper<Opt>::ctor_create(T& dest, V&& src) noexcept
+inline void MoveAndCopyHelper<Opt>::create_new(T& dest, V&& src) noexcept
 {
     if constexpr (is_move())
     {
@@ -49,7 +49,7 @@ inline void MoveAndCopyHelper<Opt>::ctor_create(T& dest, V&& src) noexcept
     else
     {
         static_assert(std::is_lvalue_reference_v<decltype(src)>, "src should be lvalue reference");
-        static_assert(std::is_const_v<std::remove_reference_t<decltype(src)>>, "src should has 'const' modifier");
+        static_assert(std::is_const_v<std::remove_reference_t<decltype(src)>>, "src should have 'const' modifier");
         static_assert(std::is_convertible_v<V, T>, "src type is not convertible to dest type");
         new (&dest) T(src);
     }
@@ -57,7 +57,7 @@ inline void MoveAndCopyHelper<Opt>::ctor_create(T& dest, V&& src) noexcept
 
 template <MoveAndCopyOperations Opt>
 template <typename T, typename V>
-inline void MoveAndCopyHelper<Opt>::assignment_create(T& dest, V&& src) noexcept
+inline void MoveAndCopyHelper<Opt>::assign(T& dest, V&& src) noexcept
 {
     if constexpr (is_move())
     {
@@ -67,7 +67,7 @@ inline void MoveAndCopyHelper<Opt>::assignment_create(T& dest, V&& src) noexcept
     else
     {
         static_assert(std::is_lvalue_reference_v<decltype(src)>, "src should be lvalue reference");
-        static_assert(std::is_const_v<std::remove_reference_t<decltype(src)>>, "src should has 'const' modifier");
+        static_assert(std::is_const_v<std::remove_reference_t<decltype(src)>>, "src should have 'const' modifier");
         dest = src;
     }
 }

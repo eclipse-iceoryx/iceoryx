@@ -53,7 +53,7 @@ class MoveAndCopyHelper final
     /// @param[out] dest The destination object where the new object is constructed.
     /// @param[in] src The source object, either for move or copy construction.
     template <typename T, typename V>
-    static void ctor_create(T& dest, V&& src) noexcept;
+    static void create_new(T& dest, V&& src) noexcept;
 
     /// @brief Force to use assignment to assign an object to the destination.
     /// @tparam T The type of the destination object.
@@ -61,7 +61,7 @@ class MoveAndCopyHelper final
     /// @param dest The destination object where the source object is assigned.
     /// @param src The source object, either for move or copy assignment.
     template <typename T, typename V>
-    static void assignment_create(T& dest, V&& src) noexcept;
+    static void assign(T& dest, V&& src) noexcept;
 
     /// @brief Checks if the current special operation is a constructor call.
     /// @return True if the operation is a copy or move constructor, false otherwise.

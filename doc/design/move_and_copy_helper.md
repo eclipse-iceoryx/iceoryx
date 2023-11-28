@@ -31,6 +31,14 @@ The purpose of the `MoveAndCopyHelper` is:
 - Provide the enum class `MoveAndCopyOperations` to describe the expected behavior of member variables during initialization (e.g., using copy or move). Passing this enum as a template parameter to `copy_and_move_impl` ensures whether special constructors are called as expected.
 - Provide functions like `transfer` to ensure that the exchange process of member variables conforms to `MoveAndCopyOperations`.
 
+### Scenario
+
+Presently, there are three functions: `transfer`, `create_new`, and `assign`. The scenarios outlined below briefly describe the appropriate usage for each function.
+
+- `transfer`: This is a general-purpose function for data transfer. It is recommended for use in cases where you are not dealing with potentially uninitialized memory.
+- `create_new`: In certain instances, particularly during constructor operations, some class members are lazy initialization. For these members, the copy or move constructor must be employed, even when they are being accessed via the assignment operator.
+- `assign`: TBD.
+
 ### Code example
 
 ```cpp
