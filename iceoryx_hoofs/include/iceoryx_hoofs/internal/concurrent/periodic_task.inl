@@ -27,7 +27,7 @@ template <typename T>
 template <typename... Args>
 // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter) justification in header
 inline PeriodicTask<T>::PeriodicTask(const PeriodicTaskManualStart_t,
-                                     const posix::ThreadName_t& taskName,
+                                     const ThreadName_t& taskName,
                                      Args&&... args) noexcept
     : m_callable(std::forward<Args>(args)...)
     , m_taskName(taskName)
@@ -41,7 +41,7 @@ template <typename... Args>
 // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter) justification in header
 inline PeriodicTask<T>::PeriodicTask(const PeriodicTaskAutoStart_t,
                                      const units::Duration interval,
-                                     const posix::ThreadName_t& taskName,
+                                     const ThreadName_t& taskName,
                                      Args&&... args) noexcept
     : PeriodicTask(PeriodicTaskManualStart, taskName, std::forward<Args>(args)...)
 {
@@ -60,7 +60,7 @@ inline void PeriodicTask<T>::start(const units::Duration interval) noexcept
     stop();
     m_interval = interval;
     m_taskExecutor = std::thread(&PeriodicTask::run, this);
-    posix::setThreadName(m_taskExecutor.native_handle(), m_taskName);
+    setThreadName(m_taskExecutor.native_handle(), m_taskName);
 }
 
 template <typename T>

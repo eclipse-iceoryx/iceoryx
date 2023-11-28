@@ -13,8 +13,9 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_POSIX_WRAPPER_PTHREAD_HPP
-#define IOX_HOOFS_POSIX_WRAPPER_PTHREAD_HPP
+
+#ifndef IOX_HOOFS_POSIX_SYNC_PTHREAD_HPP
+#define IOX_HOOFS_POSIX_SYNC_PTHREAD_HPP
 
 #include "iceoryx_platform/pthread.hpp"
 #include "iox/builder.hpp"
@@ -27,8 +28,6 @@
 #include <thread>
 
 namespace iox
-{
-namespace posix
 {
 constexpr uint64_t MAX_THREAD_NAME_LENGTH = 15U;
 
@@ -104,7 +103,6 @@ class ThreadBuilder
                                        const Thread::callable_t& callable) noexcept;
 };
 
-} // namespace posix
 } // namespace iox
 
-#endif // IOX_HOOFS_POSIX_WRAPPER_PTHREAD_HPP
+#endif // IOX_HOOFS_POSIX_SYNC_PTHREAD_HPP

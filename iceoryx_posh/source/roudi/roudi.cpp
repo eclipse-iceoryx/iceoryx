@@ -18,7 +18,6 @@
 
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/system_configuration.hpp"
-#include "iceoryx_hoofs/posix_wrapper/thread.hpp"
 #include "iceoryx_posh/internal/runtime/node_property.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
@@ -28,6 +27,7 @@
 #include "iox/logging.hpp"
 #include "iox/posix_user.hpp"
 #include "iox/std_string_support.hpp"
+#include "iox/thread.hpp"
 
 namespace iox
 {
@@ -75,7 +75,7 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
 
     // run the threads
     m_monitoringAndDiscoveryThread = std::thread(&RouDi::monitorAndDiscoveryUpdate, this);
-    posix::setThreadName(m_monitoringAndDiscoveryThread.native_handle(), "Mon+Discover");
+    setThreadName(m_monitoringAndDiscoveryThread.native_handle(), "Mon+Discover");
 
     if (roudiStartupParameters.m_runtimesMessagesThreadStart == RuntimeMessagesThreadStart::IMMEDIATE)
     {
@@ -91,7 +91,7 @@ RouDi::~RouDi() noexcept
 void RouDi::startProcessRuntimeMessagesThread() noexcept
 {
     m_handleRuntimeMessageThread = std::thread(&RouDi::processRuntimeMessages, this);
-    posix::setThreadName(m_handleRuntimeMessageThread.native_handle(), "IPC-msg-process");
+    setThreadName(m_handleRuntimeMessageThread.native_handle(), "IPC-msg-process");
 }
 
 void RouDi::shutdown() noexcept

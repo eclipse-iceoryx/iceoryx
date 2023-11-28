@@ -14,9 +14,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/posix_wrapper/thread.hpp"
 #include "iceoryx_hoofs/testing/barrier.hpp"
 #include "iox/duration.hpp"
+#include "iox/thread.hpp"
 #include "test.hpp"
 
 #include <thread>
@@ -24,7 +24,6 @@
 namespace
 {
 using namespace ::testing;
-using namespace iox::posix;
 using namespace iox::cxx;
 using namespace iox;
 using namespace iox::units;

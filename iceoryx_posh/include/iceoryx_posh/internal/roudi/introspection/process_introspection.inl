@@ -19,8 +19,8 @@
 
 #include "process_introspection.hpp"
 
-#include "iceoryx_hoofs/posix_wrapper/thread.hpp"
 #include "iox/logging.hpp"
+#include "iox/thread.hpp"
 
 #include <chrono>
 

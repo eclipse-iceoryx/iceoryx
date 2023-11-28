@@ -111,7 +111,6 @@ iox_add_library(
         source/posix_wrapper/shared_memory_object/shared_memory.cpp
         source/posix_wrapper/signal_handler.cpp
         source/posix_wrapper/system_configuration.cpp
-        source/posix_wrapper/thread.cpp
         source/error_reporting/custom/default/default_error_handler.cpp
         time/source/duration.cpp
         utility/source/unique_id.cpp
@@ -125,6 +124,7 @@ iox_add_library(
         posix/filesystem/source/posix_acl.cpp
         posix/sync/source/named_semaphore.cpp
         posix/sync/source/semaphore_interface.cpp
+        posix/sync/source/thread.cpp
         posix/sync/source/unnamed_semaphore.cpp
         posix/time/source/adaptive_wait.cpp
         posix/time/source/deadline_timer.cpp
