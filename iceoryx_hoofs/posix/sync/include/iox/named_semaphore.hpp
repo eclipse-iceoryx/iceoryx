@@ -13,12 +13,13 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_POSIX_WRAPPER_NAMED_SEMAPHORE_HPP
-#define IOX_HOOFS_POSIX_WRAPPER_NAMED_SEMAPHORE_HPP
 
-#include "iceoryx_hoofs/internal/posix_wrapper/semaphore_interface.hpp"
+#ifndef IOX_HOOFS_POSIX_SYNC_NAMED_SEMAPHORE_HPP
+#define IOX_HOOFS_POSIX_SYNC_NAMED_SEMAPHORE_HPP
+
 #include "iceoryx_platform/platform_settings.hpp"
 #include "iox/builder.hpp"
+#include "iox/detail/semaphore_interface.hpp"
 #include "iox/expected.hpp"
 #include "iox/filesystem.hpp"
 #include "iox/optional.hpp"
@@ -26,10 +27,8 @@
 
 namespace iox
 {
-namespace posix
-{
 /// @brief A named posix semaphore.
-class NamedSemaphore final : public internal::SemaphoreInterface<NamedSemaphore>
+class NamedSemaphore final : public detail::SemaphoreInterface<NamedSemaphore>
 {
   public:
     static constexpr uint64_t LENGTH_OF_SEMAPHORE_SLASH_PREFIX = 1U;
@@ -44,7 +43,7 @@ class NamedSemaphore final : public internal::SemaphoreInterface<NamedSemaphore>
   private:
     friend class NamedSemaphoreBuilder;
     friend class iox::optional<NamedSemaphore>;
-    friend class internal::SemaphoreInterface<NamedSemaphore>;
+    friend class detail::SemaphoreInterface<NamedSemaphore>;
 
     NamedSemaphore(iox_sem_t* handle, const Name_t& name, const bool hasOwnership) noexcept;
     iox_sem_t* getHandle() noexcept;
@@ -76,7 +75,6 @@ class NamedSemaphoreBuilder
     /// @return an error describing the failure or success
     expected<void, SemaphoreError> create(optional<NamedSemaphore>& uninitializedSemaphore) const noexcept;
 };
-} // namespace posix
 } // namespace iox
 
-#endif
+#endif // IOX_HOOFS_POSIX_SYNC_NAMED_SEMAPHORE_HPP

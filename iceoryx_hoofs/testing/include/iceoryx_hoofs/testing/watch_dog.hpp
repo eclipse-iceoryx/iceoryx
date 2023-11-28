@@ -17,9 +17,9 @@
 #ifndef IOX_HOOFS_TESTUTILS_WATCH_DOG_HPP
 #define IOX_HOOFS_TESTUTILS_WATCH_DOG_HPP
 
-#include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
 #include "iox/duration.hpp"
 #include "iox/logging.hpp"
+#include "iox/unnamed_semaphore.hpp"
 
 #include <functional>
 #include <gtest/gtest.h>
@@ -34,7 +34,7 @@ class Watchdog
     explicit Watchdog(const iox::units::Duration& timeToWait) noexcept
         : m_timeToWait(timeToWait)
     {
-        iox::posix::UnnamedSemaphoreBuilder()
+        iox::UnnamedSemaphoreBuilder()
             .initialValue(0U)
             .isInterProcessCapable(false)
             .create(m_watchdogSemaphore)
@@ -67,7 +67,7 @@ class Watchdog
         m_watchdog = std::thread([=] {
             m_watchdogSemaphore->timedWait(m_timeToWait)
                 .and_then([&](auto& result) {
-                    if (result == iox::posix::SemaphoreWaitState::TIMEOUT)
+                    if (result == iox::SemaphoreWaitState::TIMEOUT)
                     {
                         std::cerr << "Watchdog observed no reaction after " << m_timeToWait.toSeconds()
                                   << "s. Taking measures!" << std::endl;
@@ -88,7 +88,7 @@ class Watchdog
 
   private:
     iox::units::Duration m_timeToWait{0_s};
-    iox::optional<iox::posix::UnnamedSemaphore> m_watchdogSemaphore;
+    iox::optional<iox::UnnamedSemaphore> m_watchdogSemaphore;
     std::thread m_watchdog;
 };
 

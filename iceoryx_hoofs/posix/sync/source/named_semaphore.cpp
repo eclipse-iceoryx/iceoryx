@@ -14,13 +14,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/posix_wrapper/named_semaphore.hpp"
+#include "iox/named_semaphore.hpp"
 #include "iox/logging.hpp"
 #include "iox/posix_call.hpp"
 
 namespace iox
-{
-namespace posix
 {
 static string<NamedSemaphore::Name_t::capacity() + 1> createNameWithSlash(const NamedSemaphore::Name_t& name)
 {
@@ -245,5 +243,4 @@ iox_sem_t* NamedSemaphore::getHandle() noexcept
 {
     return m_handle;
 }
-} // namespace posix
 } // namespace iox

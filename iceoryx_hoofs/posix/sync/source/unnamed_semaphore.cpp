@@ -14,13 +14,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
+#include "iox/unnamed_semaphore.hpp"
 #include "iox/logging.hpp"
 #include "iox/posix_call.hpp"
 
 namespace iox
-{
-namespace posix
 {
 expected<void, SemaphoreError>
 UnnamedSemaphoreBuilder::create(optional<UnnamedSemaphore>& uninitializedSemaphore) const noexcept
@@ -87,5 +85,4 @@ iox_sem_t* UnnamedSemaphore::getHandle() noexcept
 {
     return &m_handle;
 }
-} // namespace posix
 } // namespace iox

@@ -20,7 +20,6 @@
 
 #include "iceoryx_hoofs/concurrent/lockfree_queue.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
-#include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
 #include "iceoryx_platform/semaphore.hpp"
 #include "iox/builder.hpp"
 #include "iox/duration.hpp"
@@ -30,6 +29,7 @@
 #include "iox/posix_ipc_channel.hpp"
 #include "iox/string.hpp"
 #include "iox/uninitialized_array.hpp"
+#include "iox/unnamed_semaphore.hpp"
 
 #include <cstdint>
 
@@ -128,8 +128,8 @@ class NamedPipe
         NamedPipeData& operator=(NamedPipeData&& rhs) = delete;
         ~NamedPipeData() = default;
 
-        posix::UnnamedSemaphore& sendSemaphore() noexcept;
-        posix::UnnamedSemaphore& receiveSemaphore() noexcept;
+        UnnamedSemaphore& sendSemaphore() noexcept;
+        UnnamedSemaphore& receiveSemaphore() noexcept;
 
         expected<void, PosixIpcChannelError> initialize(const uint32_t maxMsgNumber) noexcept;
 
@@ -145,8 +145,8 @@ class NamedPipe
         static constexpr units::Duration WAIT_FOR_INIT_SLEEP_TIME = units::Duration::fromMilliseconds(1);
 
         std::atomic<uint64_t> initializationGuard{INVALID_DATA};
-        optional<posix::UnnamedSemaphore> m_sendSemaphore;
-        optional<posix::UnnamedSemaphore> m_receiveSemaphore;
+        optional<UnnamedSemaphore> m_sendSemaphore;
+        optional<UnnamedSemaphore> m_receiveSemaphore;
     };
 
   private:

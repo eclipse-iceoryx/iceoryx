@@ -230,10 +230,10 @@
     auto semaphore = iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0);
 
     // after
-    #include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
+    #include "iox/unnamed_semaphore.hpp"
 
-    iox::optional<iox::posix::UnnamedSemaphore> semaphore;
-    auto result = iox::posix::UnnamedSemaphoreBuilder()
+    iox::optional<iox::UnnamedSemaphore> semaphore;
+    auto result = iox::UnnamedSemaphoreBuilder()
                     .initialValue(0U)
                     .isInterProcessCapable(true)
                     .create(semaphore);
@@ -250,10 +250,10 @@
                                                S_IRUSR | S_IWUSR,
                                                    0);
     // after
-    #include "iceoryx_hoofs/posix_wrapper/named_semaphore.hpp"
+    #include "iox/named_semaphore.hpp"
 
-    iox::optional<iox::posix::NamedSemaphore> semaphore;
-    auto result = iox::posix::NamedSemaphoreBuilder()
+    iox::optional<iox::NamedSemaphore> semaphore;
+    auto result = iox::NamedSemaphoreBuilder()
                     .name("mySemaphoreName")
                     .openMode(iox::OpenMode::OPEN_OR_CREATE)
                     .permissions(iox::perms::owner_all)

@@ -32,7 +32,7 @@ inline PeriodicTask<T>::PeriodicTask(const PeriodicTaskManualStart_t,
     : m_callable(std::forward<Args>(args)...)
     , m_taskName(taskName)
 {
-    posix::UnnamedSemaphoreBuilder().initialValue(0U).isInterProcessCapable(false).create(m_stop).expect(
+    UnnamedSemaphoreBuilder().initialValue(0U).isInterProcessCapable(false).create(m_stop).expect(
         "Unable to create semaphore for periodic task");
 }
 
@@ -82,7 +82,7 @@ inline bool PeriodicTask<T>::isActive() const noexcept
 template <typename T>
 inline void PeriodicTask<T>::run() noexcept
 {
-    posix::SemaphoreWaitState waitState = posix::SemaphoreWaitState::NO_TIMEOUT;
+    auto waitState = SemaphoreWaitState::NO_TIMEOUT;
     do
     {
         m_callable();
@@ -93,7 +93,7 @@ inline void PeriodicTask<T>::run() noexcept
         IOX_EXPECTS(!waitResult.has_error());
 
         waitState = waitResult.value();
-    } while (waitState == posix::SemaphoreWaitState::TIMEOUT);
+    } while (waitState == SemaphoreWaitState::TIMEOUT);
 }
 
 } // namespace concurrent

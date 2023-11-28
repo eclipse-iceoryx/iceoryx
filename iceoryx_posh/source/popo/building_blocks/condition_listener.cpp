@@ -34,7 +34,7 @@ void ConditionListener::resetSemaphore() noexcept
     while (!hasFatalError
            && getMembers()
                   ->m_semaphore->tryWait()
-                  .or_else([&](posix::SemaphoreError) {
+                  .or_else([&](SemaphoreError) {
                       errorHandler(PoshError::POPO__CONDITION_LISTENER_SEMAPHORE_CORRUPTED_IN_RESET, ErrorLevel::FATAL);
                       hasFatalError = true;
                   })

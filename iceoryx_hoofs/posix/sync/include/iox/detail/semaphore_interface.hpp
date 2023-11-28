@@ -13,16 +13,15 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_POSIX_WRAPPER_SEMAPHORE_INTERFACE_HPP
-#define IOX_HOOFS_POSIX_WRAPPER_SEMAPHORE_INTERFACE_HPP
+
+#ifndef IOX_HOOFS_POSIX_SYNC_SEMAPHORE_INTERFACE_HPP
+#define IOX_HOOFS_POSIX_SYNC_SEMAPHORE_INTERFACE_HPP
 
 #include "iceoryx_platform/semaphore.hpp"
 #include "iox/duration.hpp"
 #include "iox/expected.hpp"
 
 namespace iox
-{
-namespace posix
 {
 enum class SemaphoreError
 {
@@ -44,7 +43,7 @@ enum class SemaphoreWaitState
     NO_TIMEOUT,
 };
 
-namespace internal
+namespace detail
 {
 /// @brief Defines the interface of a named and unnamed semaphore.
 template <typename SemaphoreChild>
@@ -85,8 +84,7 @@ class SemaphoreInterface
   private:
     iox_sem_t* getHandle() noexcept;
 };
-} // namespace internal
-} // namespace posix
+} // namespace detail
 } // namespace iox
 
-#endif
+#endif // IOX_HOOFS_POSIX_SYNC_SEMAPHORE_INTERFACE_HPP

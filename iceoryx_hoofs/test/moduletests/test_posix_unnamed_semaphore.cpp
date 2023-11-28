@@ -14,14 +14,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
+#include "iox/unnamed_semaphore.hpp"
 #include "test.hpp"
 #include "test_posix_semaphore_common.hpp"
 
 namespace
 {
 using namespace ::testing;
-using namespace iox::posix;
 using namespace iox::cxx;
 using namespace iox;
 

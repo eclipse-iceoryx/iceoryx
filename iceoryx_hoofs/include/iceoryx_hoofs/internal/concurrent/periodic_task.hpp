@@ -18,9 +18,9 @@
 #define IOX_HOOFS_CONCURRENT_PERIODIC_TASK_HPP
 
 #include "iceoryx_hoofs/posix_wrapper/thread.hpp"
-#include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
 #include "iox/duration.hpp"
 #include "iox/string.hpp"
+#include "iox/unnamed_semaphore.hpp"
 
 #include <thread>
 
@@ -125,7 +125,7 @@ class PeriodicTask
     T m_callable;
     posix::ThreadName_t m_taskName;
     units::Duration m_interval{units::Duration::fromMilliseconds(0U)};
-    optional<posix::UnnamedSemaphore> m_stop;
+    optional<UnnamedSemaphore> m_stop;
     std::thread m_taskExecutor;
 };
 

@@ -17,9 +17,9 @@
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CONDITION_VARIABLE_DATA_HPP
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CONDITION_VARIABLE_DATA_HPP
 
-#include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iox/unnamed_semaphore.hpp"
 
 #include <atomic>
 
@@ -38,7 +38,7 @@ struct ConditionVariableData
     ConditionVariableData& operator=(ConditionVariableData&& rhs) = delete;
     ~ConditionVariableData() noexcept = default;
 
-    optional<posix::UnnamedSemaphore> m_semaphore;
+    optional<UnnamedSemaphore> m_semaphore;
     RuntimeName_t m_runtimeName;
     std::atomic_bool m_toBeDestroyed{false};
     std::atomic_bool m_activeNotifications[MAX_NUMBER_OF_NOTIFIERS];

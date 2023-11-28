@@ -67,7 +67,7 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
     m_processIntrospection.addProcess(getpid(), IPC_CHANNEL_ROUDI_NAME);
 
     // initialize semaphore for discovery loop finish indicator
-    iox::posix::UnnamedSemaphoreBuilder()
+    UnnamedSemaphoreBuilder()
         .initialValue(0U)
         .isInterProcessCapable(false)
         .create(m_discoveryFinishedSemaphore)

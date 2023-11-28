@@ -141,7 +141,7 @@ class RouDi
     std::atomic_bool m_runHandleRuntimeMessageThread;
 
     popo::UserTrigger m_discoveryLoopTrigger;
-    optional<iox::posix::UnnamedSemaphore> m_discoveryFinishedSemaphore;
+    optional<UnnamedSemaphore> m_discoveryFinishedSemaphore;
 
     const units::Duration m_runtimeMessagesThreadTimeout{100_ms};
 
