@@ -96,7 +96,7 @@ jobs:
     steps:
       - uses: egor-tensin/setup-gcc@v1.3
         with:
-          version: 12
+          version: 13
           platform: x64
       - uses: actions/checkout@v3
       - name: Run Address Sanitizer
