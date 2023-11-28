@@ -16,7 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iox/mutex.hpp"
-#include "iceoryx_hoofs/posix_wrapper/scheduler.hpp"
+#include "iox/detail/posix_scheduler.hpp"
 #include "iox/logging.hpp"
 #include "iox/posix_call.hpp"
 
@@ -155,8 +155,8 @@ struct MutexAttributes
                 return err(MutexCreationError::PRIORITIES_UNSUPPORTED_BY_PLATFORM);
             case EINVAL:
             {
-                auto minimumPriority = posix::getSchedulerPriorityMinimum(posix::Scheduler::FIFO);
-                auto maximumPriority = posix::getSchedulerPriorityMaximum(posix::Scheduler::FIFO);
+                auto minimumPriority = detail::getSchedulerPriorityMinimum(detail::Scheduler::FIFO);
+                auto maximumPriority = detail::getSchedulerPriorityMaximum(detail::Scheduler::FIFO);
 
                 IOX_LOG(ERROR,
                         "The priority ceiling \"" << priorityCeiling << "\" is not in the valid priority range [ "

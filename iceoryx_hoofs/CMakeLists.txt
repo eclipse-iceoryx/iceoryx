@@ -67,6 +67,7 @@ iox_add_library(
                                 ${PROJECT_SOURCE_DIR}/posix/filesystem/include
                                 ${PROJECT_SOURCE_DIR}/posix/sync/include
                                 ${PROJECT_SOURCE_DIR}/posix/time/include
+                                ${PROJECT_SOURCE_DIR}/posix/utility/include
                                 ${PROJECT_SOURCE_DIR}/posix/vocabulary/include
 
                                 ${CMAKE_BINARY_DIR}/generated/iceoryx_hoofs/include
@@ -89,7 +90,9 @@ iox_add_library(
                                 posix/design/include/
                                 posix/ipc/include/
                                 posix/filesystem/include/
+                                posix/sync/include/
                                 posix/time/include/
+                                posix/utility/include/
                                 posix/vocabulary/include/
     FILES
         design/source/functional_interface.cpp
@@ -104,7 +107,6 @@ iox_add_library(
         source/cxx/requires.cpp
         source/error_handling/error_handler.cpp
         source/error_handling/error_handling.cpp
-        source/posix_wrapper/scheduler.cpp
         source/posix_wrapper/shared_memory_object.cpp
         source/posix_wrapper/shared_memory_object/memory_map.cpp
         source/posix_wrapper/shared_memory_object/shared_memory.cpp
@@ -128,6 +130,7 @@ iox_add_library(
         posix/sync/source/unnamed_semaphore.cpp
         posix/time/source/adaptive_wait.cpp
         posix/time/source/deadline_timer.cpp
+        posix/utility/source/posix_scheduler.cpp
         posix/vocabulary/source/file_name.cpp
         posix/vocabulary/source/file_path.cpp
         posix/vocabulary/source/group_name.cpp

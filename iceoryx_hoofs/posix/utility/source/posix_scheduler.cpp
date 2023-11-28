@@ -14,14 +14,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/posix_wrapper/scheduler.hpp"
+#include "iox/detail/posix_scheduler.hpp"
 #include "iceoryx_hoofs/cxx/requires.hpp"
 #include "iox/logging.hpp"
 #include "iox/posix_call.hpp"
 
 namespace iox
 {
-namespace posix
+namespace detail
 {
 int32_t getSchedulerPriorityMinimum(const Scheduler scheduler) noexcept
 {
@@ -60,5 +60,5 @@ int32_t getSchedulerPriorityMaximum(const Scheduler scheduler) noexcept
     }
     return result.value().value;
 }
-} // namespace posix
+} // namespace detail
 } // namespace iox

@@ -1266,3 +1266,5 @@
     // after
     IOX_POSIX_CALL(open)("/hypnotoad");
     ```
+
+57. `iox::posix::getSchedulerPriorityMinimum` and `iox::posix::getSchedulerPriorityMaximum` has become internal API
