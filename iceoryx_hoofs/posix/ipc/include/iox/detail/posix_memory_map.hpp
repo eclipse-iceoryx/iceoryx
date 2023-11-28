@@ -14,8 +14,9 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_MEMORY_MAP_HPP
-#define IOX_HOOFS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_MEMORY_MAP_HPP
+
+#ifndef IOX_HOOFS_POSIX_IPC_POSIX_MEMORY_MAP_HPP
+#define IOX_HOOFS_POSIX_IPC_POSIX_MEMORY_MAP_HPP
 
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
 #include "iceoryx_platform/mman.hpp"
@@ -25,11 +26,10 @@
 
 namespace iox
 {
-namespace posix
+namespace detail
 {
-class SharedMemoryObject;
 
-enum class MemoryMapError
+enum class PosixMemoryMapError
 {
     ACCESS_FAILED,
     UNABLE_TO_LOCK,
@@ -46,7 +46,7 @@ enum class MemoryMapError
 };
 
 /// @brief Flags defining how the mapped data should be handled
-enum class MemoryMapFlags : int32_t
+enum class PosixMemoryMapFlags : int32_t
 {
     /// @brief changes are shared
     SHARE_CHANGES = MAP_SHARED,
@@ -63,9 +63,9 @@ enum class MemoryMapFlags : int32_t
     PRIVATE_CHANGES_AND_FORCE_BASE_ADDRESS_HINT = MAP_PRIVATE | MAP_FIXED,
 };
 
-class MemoryMap;
-/// @brief The builder of a MemoryMap object
-class MemoryMapBuilder
+class PosixMemoryMap;
+/// @brief The builder of a 'PosixMemoryMap' object
+class PosixMemoryMapBuilder
 {
     /// @brief The base address suggestion to which the memory should be mapped. But
     ///        there is no guarantee that it is really mapped at this position.
@@ -84,40 +84,40 @@ class MemoryMapBuilder
     IOX_BUILDER_PARAMETER(AccessMode, accessMode, AccessMode::READ_WRITE)
 
     /// @brief Sets the flags defining how the mapped data should be handled
-    IOX_BUILDER_PARAMETER(MemoryMapFlags, flags, MemoryMapFlags::SHARE_CHANGES)
+    IOX_BUILDER_PARAMETER(PosixMemoryMapFlags, flags, PosixMemoryMapFlags::SHARE_CHANGES)
 
     /// @brief Offset of the memory location
     IOX_BUILDER_PARAMETER(off_t, offset, 0)
 
   public:
-    /// @brief creates a valid MemoryMap object. If the construction failed the expected
-    ///        contains an enum value describing the error.
-    /// @return expected containing MemoryMap on success otherwise MemoryMapError
-    expected<MemoryMap, MemoryMapError> create() noexcept;
+    /// @brief creates a valid 'PosixMemoryMap' object. If the construction failed the
+    ///        expected contains an enum value describing the error.
+    /// @return expected containing 'PosixMemoryMap' on success otherwise 'PosixMemoryMapError'
+    expected<PosixMemoryMap, PosixMemoryMapError> create() noexcept;
 };
 
-/// @brief C++ abstraction of mmap and munmap. When a MemoryMap object is
+/// @brief C++ abstraction of mmap and munmap. When a 'PosixMemoryMap' object is
 ///        created the configured memory is mapped into the process space until
 ///        that object goes out of scope - then munmap is called and the memory
 ///        region is removed from the process space.
-class MemoryMap
+class PosixMemoryMap
 {
   public:
     /// @brief copy operations are removed since we are handling a system resource
-    MemoryMap(const MemoryMap&) = delete;
-    MemoryMap& operator=(const MemoryMap&) = delete;
+    PosixMemoryMap(const PosixMemoryMap&) = delete;
+    PosixMemoryMap& operator=(const PosixMemoryMap&) = delete;
 
     /// @brief move constructor
     /// @param[in] rhs the source object
-    MemoryMap(MemoryMap&& rhs) noexcept;
+    PosixMemoryMap(PosixMemoryMap&& rhs) noexcept;
 
     /// @brief move assignment operator
     /// @param[in] rhs the source object
     /// @return reference to *this
-    MemoryMap& operator=(MemoryMap&& rhs) noexcept;
+    PosixMemoryMap& operator=(PosixMemoryMap&& rhs) noexcept;
 
     /// @brief destructor, calls munmap when the underlying memory is mapped
-    ~MemoryMap() noexcept;
+    ~PosixMemoryMap() noexcept;
 
     /// @brief returns the base address, if the object was moved it returns nullptr
     const void* getBaseAddress() const noexcept;
@@ -125,17 +125,17 @@ class MemoryMap
     /// @brief returns the base address, if the object was moved it returns nullptr
     void* getBaseAddress() noexcept;
 
-    friend class MemoryMapBuilder;
+    friend class PosixMemoryMapBuilder;
 
   private:
-    MemoryMap(void* const baseAddress, const uint64_t length) noexcept;
+    PosixMemoryMap(void* const baseAddress, const uint64_t length) noexcept;
     bool destroy() noexcept;
-    static MemoryMapError errnoToEnum(const int32_t errnum) noexcept;
+    static PosixMemoryMapError errnoToEnum(const int32_t errnum) noexcept;
 
     void* m_baseAddress{nullptr};
     uint64_t m_length{0U};
 };
-} // namespace posix
+} // namespace detail
 } // namespace iox
 
-#endif // IOX_HOOFS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_MEMORY_MAP_HPP
+#endif // IOX_HOOFS_POSIX_IPC_POSIX_MEMORY_MAP_HPP

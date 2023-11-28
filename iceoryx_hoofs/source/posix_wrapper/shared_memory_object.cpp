@@ -113,12 +113,12 @@ expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder:
         return err(SharedMemoryObjectError::REQUESTED_SIZE_EXCEEDS_ACTUAL_SIZE);
     }
 
-    auto memoryMap = MemoryMapBuilder()
+    auto memoryMap = detail::PosixMemoryMapBuilder()
                          .baseAddressHint((m_baseAddressHint) ? *m_baseAddressHint : nullptr)
                          .length(realSize)
                          .fileDescriptor(sharedMemory->getHandle())
                          .accessMode(m_accessMode)
-                         .flags(MemoryMapFlags::SHARE_CHANGES)
+                         .flags(detail::PosixMemoryMapFlags::SHARE_CHANGES)
                          .offset(0)
                          .create();
 
@@ -171,7 +171,7 @@ expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder:
     return ok(SharedMemoryObject(std::move(*sharedMemory), std::move(*memoryMap)));
 }
 
-SharedMemoryObject::SharedMemoryObject(SharedMemory&& sharedMemory, MemoryMap&& memoryMap) noexcept
+SharedMemoryObject::SharedMemoryObject(SharedMemory&& sharedMemory, detail::PosixMemoryMap&& memoryMap) noexcept
     : m_sharedMemory(std::move(sharedMemory))
     , m_memoryMap(std::move(memoryMap))
 {

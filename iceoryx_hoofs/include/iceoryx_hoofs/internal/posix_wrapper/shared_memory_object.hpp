@@ -17,11 +17,11 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_HPP
 
-#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/memory_map.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
 #include "iceoryx_platform/stat.hpp"
 #include "iox/builder.hpp"
 #include "iox/bump_allocator.hpp"
+#include "iox/detail/posix_memory_map.hpp"
 #include "iox/file_management_interface.hpp"
 #include "iox/filesystem.hpp"
 #include "iox/optional.hpp"
@@ -82,14 +82,14 @@ class SharedMemoryObject : public FileManagementInterface<SharedMemoryObject>
     friend class SharedMemoryObjectBuilder;
 
   private:
-    SharedMemoryObject(SharedMemory&& sharedMemory, MemoryMap&& memoryMap) noexcept;
+    SharedMemoryObject(SharedMemory&& sharedMemory, detail::PosixMemoryMap&& memoryMap) noexcept;
 
     friend struct FileManagementInterface<SharedMemoryObject>;
     shm_handle_t get_file_handle() const noexcept;
 
   private:
     SharedMemory m_sharedMemory;
-    MemoryMap m_memoryMap;
+    detail::PosixMemoryMap m_memoryMap;
 };
 
 class SharedMemoryObjectBuilder

@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/memory_map.hpp"
+#include "iox/detail/posix_memory_map.hpp"
 #include "iox/filesystem.hpp"
 #include "iox/logging.hpp"
 #include "iox/posix_call.hpp"
@@ -24,9 +24,9 @@
 
 namespace iox
 {
-namespace posix
+namespace detail
 {
-expected<MemoryMap, MemoryMapError> MemoryMapBuilder::create() noexcept
+expected<PosixMemoryMap, PosixMemoryMapError> PosixMemoryMapBuilder::create() noexcept
 {
     // AXIVION Next Construct AutosarC++19_03-A5.2.3, CertC++-EXP55 : Incompatibility with POSIX definition of mmap
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) low-level memory management
@@ -45,7 +45,7 @@ expected<MemoryMap, MemoryMapError> MemoryMapBuilder::create() noexcept
 
     if (result)
     {
-        return ok(MemoryMap(result.value().value, m_length));
+        return ok(PosixMemoryMap(result.value().value, m_length));
     }
 
     constexpr uint64_t FLAGS_BIT_SIZE = 32U;
@@ -55,10 +55,10 @@ expected<MemoryMap, MemoryMapError> MemoryMapBuilder::create() noexcept
                 << ", fileDescriptor = " << m_fileDescriptor << ", access mode = " << asStringLiteral(m_accessMode)
                 << ", flags = " << std::bitset<FLAGS_BIT_SIZE>(static_cast<uint32_t>(m_flags)).to_string()
                 << ", offset = " << iox::log::hex(m_offset) << " ]");
-    return err(MemoryMap::errnoToEnum(result.error().errnum));
+    return err(PosixMemoryMap::errnoToEnum(result.error().errnum));
 }
 
-MemoryMap::MemoryMap(void* const baseAddress, const uint64_t length) noexcept
+PosixMemoryMap::PosixMemoryMap(void* const baseAddress, const uint64_t length) noexcept
     : m_baseAddress(baseAddress)
     , m_length(length)
 {
@@ -67,7 +67,7 @@ MemoryMap::MemoryMap(void* const baseAddress, const uint64_t length) noexcept
 
 // NOLINTJUSTIFICATION the function size results from the error handling and the expanded log macro
 // NOLINTNEXTLINE(readability-function-size)
-MemoryMapError MemoryMap::errnoToEnum(const int32_t errnum) noexcept
+PosixMemoryMapError PosixMemoryMap::errnoToEnum(const int32_t errnum) noexcept
 {
     switch (errnum)
     {
@@ -79,29 +79,29 @@ MemoryMapError MemoryMap::errnoToEnum(const int32_t errnum) noexcept
                     << "  3. MAP_SHARED is requested and PROT_WRITE is set but the file descriptor is not opened for "
                        "writing.\n"
                     << "  4. PROT_WRITE is set but the file descriptor is set to append-only.");
-        return MemoryMapError::ACCESS_FAILED;
+        return PosixMemoryMapError::ACCESS_FAILED;
     case EAGAIN:
         IOX_LOG(ERROR, "Either too much memory has been locked or the file is already locked.");
-        return MemoryMapError::UNABLE_TO_LOCK;
+        return PosixMemoryMapError::UNABLE_TO_LOCK;
     case EBADF:
         IOX_LOG(ERROR, "Invalid file descriptor provided.");
-        return MemoryMapError::INVALID_FILE_DESCRIPTOR;
+        return PosixMemoryMapError::INVALID_FILE_DESCRIPTOR;
     case EEXIST:
         IOX_LOG(ERROR, "The mapped range that is requested is overlapping with an already mapped memory range.");
-        return MemoryMapError::MAP_OVERLAP;
+        return PosixMemoryMapError::MAP_OVERLAP;
     case EINVAL:
         IOX_LOG(ERROR,
                 "One or more of the following failures happened:\n"
                     << "  1. The address, length or the offset is not aligned on a page boundary.\n"
                     << "  2. The provided length is 0.\n"
                     << "  3. One of the flags of MAP_PRIVATE, MAP_SHARED or MAP_SHARED_VALIDATE is missing.");
-        return MemoryMapError::INVALID_PARAMETERS;
+        return PosixMemoryMapError::INVALID_PARAMETERS;
     case ENFILE:
         IOX_LOG(ERROR, "System limit of maximum open files reached");
-        return MemoryMapError::OPEN_FILES_SYSTEM_LIMIT_EXCEEDED;
+        return PosixMemoryMapError::OPEN_FILES_SYSTEM_LIMIT_EXCEEDED;
     case ENODEV:
         IOX_LOG(ERROR, "Memory mappings are not supported by the underlying filesystem.");
-        return MemoryMapError::FILESYSTEM_DOES_NOT_SUPPORT_MEMORY_MAPPING;
+        return PosixMemoryMapError::FILESYSTEM_DOES_NOT_SUPPORT_MEMORY_MAPPING;
     case ENOMEM:
         IOX_LOG(
             ERROR,
@@ -112,31 +112,31 @@ MemoryMapError MemoryMap::errnoToEnum(const int32_t errnum) noexcept
                 << "  4. The processes maximum size of data segments is exceeded.\n"
                 << "  5. The sum of the number of pages used for length and the pages used for offset would overflow "
                    "and unsigned long. (only 32-bit architecture)");
-        return MemoryMapError::NOT_ENOUGH_MEMORY_AVAILABLE;
+        return PosixMemoryMapError::NOT_ENOUGH_MEMORY_AVAILABLE;
     case EOVERFLOW:
         IOX_LOG(ERROR, "The sum of the number of pages and offset are overflowing. (only 32-bit architecture)");
-        return MemoryMapError::OVERFLOWING_PARAMETERS;
+        return PosixMemoryMapError::OVERFLOWING_PARAMETERS;
     case EPERM:
         IOX_LOG(ERROR,
                 "One or more of the following failures happened:\n"
                     << "  1. Mapping a memory region with PROT_EXEC which belongs to a filesystem that has no-exec.\n"
                     << "  2. The corresponding file is sealed.");
-        return MemoryMapError::PERMISSION_FAILURE;
+        return PosixMemoryMapError::PERMISSION_FAILURE;
     case ETXTBSY:
         IOX_LOG(ERROR, "The memory region was set up with MAP_DENYWRITE but write access was requested.");
-        return MemoryMapError::NO_WRITE_PERMISSION;
+        return PosixMemoryMapError::NO_WRITE_PERMISSION;
     default:
         IOX_LOG(ERROR, "This should never happened. An unknown error occurred!\n");
-        return MemoryMapError::UNKNOWN_ERROR;
+        return PosixMemoryMapError::UNKNOWN_ERROR;
     };
 }
 
-MemoryMap::MemoryMap(MemoryMap&& rhs) noexcept
+PosixMemoryMap::PosixMemoryMap(PosixMemoryMap&& rhs) noexcept
 {
     *this = std::move(rhs);
 }
 
-MemoryMap& MemoryMap::operator=(MemoryMap&& rhs) noexcept
+PosixMemoryMap& PosixMemoryMap::operator=(PosixMemoryMap&& rhs) noexcept
 {
     if (this != &rhs)
     {
@@ -154,7 +154,7 @@ MemoryMap& MemoryMap::operator=(MemoryMap&& rhs) noexcept
     return *this;
 }
 
-MemoryMap::~MemoryMap() noexcept
+PosixMemoryMap::~PosixMemoryMap() noexcept
 {
     if (!destroy())
     {
@@ -162,17 +162,17 @@ MemoryMap::~MemoryMap() noexcept
     }
 }
 
-const void* MemoryMap::getBaseAddress() const noexcept
+const void* PosixMemoryMap::getBaseAddress() const noexcept
 {
     return m_baseAddress;
 }
 
-void* MemoryMap::getBaseAddress() noexcept
+void* PosixMemoryMap::getBaseAddress() noexcept
 {
     return m_baseAddress;
 }
 
-bool MemoryMap::destroy() noexcept
+bool PosixMemoryMap::destroy() noexcept
 {
     if (m_baseAddress != nullptr)
     {
@@ -193,5 +193,5 @@ bool MemoryMap::destroy() noexcept
     return true;
 }
 
-} // namespace posix
+} // namespace detail
 } // namespace iox
