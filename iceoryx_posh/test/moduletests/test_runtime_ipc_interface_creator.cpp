@@ -27,7 +27,6 @@ namespace
 {
 using namespace ::testing;
 using namespace iox;
-using namespace iox::posix;
 using namespace iox::runtime;
 using namespace iox::testing;
 

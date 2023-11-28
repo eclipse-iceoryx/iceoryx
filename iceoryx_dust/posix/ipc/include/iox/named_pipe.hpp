@@ -19,7 +19,6 @@
 #define IOX_DUST_POSIX_IPC_NAMED_PIPE_HPP
 
 #include "iceoryx_hoofs/concurrent/lockfree_queue.hpp"
-#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_platform/semaphore.hpp"
 #include "iox/builder.hpp"
 #include "iox/duration.hpp"
@@ -27,6 +26,7 @@
 #include "iox/iceoryx_dust_deployment.hpp"
 #include "iox/optional.hpp"
 #include "iox/posix_ipc_channel.hpp"
+#include "iox/posix_shared_memory_object.hpp"
 #include "iox/string.hpp"
 #include "iox/uninitialized_array.hpp"
 #include "iox/unnamed_semaphore.hpp"
@@ -108,7 +108,7 @@ class NamedPipe
     friend class NamedPipeBuilder;
 
     class NamedPipeData;
-    NamedPipe(posix::SharedMemoryObject&& sharedMemory, NamedPipeData* data) noexcept;
+    NamedPipe(PosixSharedMemoryObject&& sharedMemory, NamedPipeData* data) noexcept;
 
     template <typename Prefix>
     static PosixIpcChannelName_t mapToSharedMemoryName(const Prefix& p, const PosixIpcChannelName_t& name) noexcept;
@@ -150,7 +150,7 @@ class NamedPipe
     };
 
   private:
-    posix::SharedMemoryObject m_sharedMemory;
+    PosixSharedMemoryObject m_sharedMemory;
     NamedPipeData* m_data = nullptr;
 };
 

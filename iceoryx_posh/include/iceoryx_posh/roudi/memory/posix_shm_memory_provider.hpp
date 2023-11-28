@@ -19,11 +19,11 @@
 
 #include "iceoryx_posh/roudi/memory/memory_provider.hpp"
 
-#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iox/expected.hpp"
 #include "iox/filesystem.hpp"
 #include "iox/optional.hpp"
+#include "iox/posix_shared_memory_object.hpp"
 #include "iox/string.hpp"
 
 #include <cstdint>
@@ -62,7 +62,7 @@ class PosixShmMemoryProvider : public MemoryProvider
     ShmName_t m_shmName;
     AccessMode m_accessMode{AccessMode::READ_ONLY};
     OpenMode m_openMode{OpenMode::OPEN_EXISTING};
-    optional<posix::SharedMemoryObject> m_shmObject;
+    optional<PosixSharedMemoryObject> m_shmObject;
 
     static constexpr access_rights SHM_MEMORY_PERMISSIONS =
         perms::owner_read | perms::owner_write | perms::group_read | perms::group_write;

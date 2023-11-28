@@ -35,7 +35,6 @@ using namespace iox;
 using namespace iox::roudi;
 using namespace iox::popo;
 using namespace iox::runtime;
-using namespace iox::posix;
 using namespace iox::roudi_env;
 using namespace iox::version;
 

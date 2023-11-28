@@ -27,9 +27,6 @@
 
 namespace iox
 {
-using posix::SharedMemoryObject;
-using posix::SharedMemoryObjectBuilder;
-
 /// NOLINTJUSTIFICATION see declaration in header
 /// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
 constexpr const char NamedPipe::NAMED_PIPE_PREFIX[];
@@ -77,7 +74,7 @@ expected<NamedPipe, PosixIpcChannelError> NamedPipeBuilder::create() const noexc
 
     auto namedPipeShmName = NamedPipe::mapToSharedMemoryName(NamedPipe::NAMED_PIPE_PREFIX, m_name);
     auto sharedMemoryResult =
-        SharedMemoryObjectBuilder()
+        PosixSharedMemoryObjectBuilder()
             .name(namedPipeShmName)
             .memorySizeInBytes(sizeof(NamedPipe::NamedPipeData) + alignof(NamedPipe::NamedPipeData))
             .accessMode(AccessMode::READ_WRITE)
@@ -125,7 +122,7 @@ expected<NamedPipe, PosixIpcChannelError> NamedPipeBuilder::create() const noexc
     return ok(NamedPipe{std::move(sharedMemory), data});
 }
 
-NamedPipe::NamedPipe(SharedMemoryObject&& sharedMemory, NamedPipeData* data) noexcept
+NamedPipe::NamedPipe(PosixSharedMemoryObject&& sharedMemory, NamedPipeData* data) noexcept
     : m_sharedMemory(std::move(sharedMemory))
     , m_data(data)
 {

@@ -46,7 +46,6 @@ using namespace iox::roudi_env;
 using namespace iox::capro;
 using namespace iox::cxx;
 using namespace iox::mepoo;
-using namespace iox::posix;
 
 class iox_pub_test : public Test
 {

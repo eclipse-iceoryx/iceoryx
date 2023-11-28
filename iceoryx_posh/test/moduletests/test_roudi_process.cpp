@@ -31,7 +31,6 @@ using namespace iox;
 using namespace iox::roudi;
 using namespace iox::popo;
 using namespace iox::runtime;
-using namespace iox::posix;
 
 class IpcInterfaceUser_Mock : public iox::roudi::Process
 {

@@ -20,6 +20,6 @@ namespace iox
 {
 namespace mepoo
 {
-template class MePooSegment<posix::SharedMemoryObject, MemoryManager>;
+template class MePooSegment<PosixSharedMemoryObject, MemoryManager>;
 } // namespace mepoo
 } // namespace iox

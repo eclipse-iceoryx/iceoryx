@@ -51,7 +51,6 @@ using namespace ::testing;
 using namespace iox::capro;
 using namespace iox::cxx;
 using namespace iox::mepoo;
-using namespace iox::posix;
 
 class iox_sub_test : public Test
 {

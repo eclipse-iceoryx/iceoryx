@@ -15,7 +15,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_hoofs/testing/test_definitions.hpp"
 #include "iceoryx_platform/fcntl.hpp"
 #include "iceoryx_platform/stat.hpp"
@@ -25,6 +24,7 @@
 #include "iox/bump_allocator.hpp"
 #include "iox/expected.hpp"
 #include "iox/posix_group.hpp"
+#include "iox/posix_shared_memory_object.hpp"
 #include "test.hpp"
 
 
@@ -36,7 +36,6 @@ namespace
 using namespace ::testing;
 using namespace iox;
 using namespace iox::mepoo;
-using namespace iox::posix;
 
 class MePooSegment_test : public Test
 {
@@ -110,7 +109,7 @@ class MePooSegment_test : public Test
         IOX_BUILDER_PARAMETER(iox::access_rights, permissions, iox::perms::none)
 
       public:
-        iox::expected<SharedMemoryObject_MOCK, SharedMemoryObjectError> create() noexcept
+        iox::expected<SharedMemoryObject_MOCK, PosixSharedMemoryObjectError> create() noexcept
         {
             return iox::ok(SharedMemoryObject_MOCK(m_name,
                                                    m_memorySizeInBytes,

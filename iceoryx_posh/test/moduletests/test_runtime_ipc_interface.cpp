@@ -30,7 +30,6 @@ namespace
 {
 using namespace ::testing;
 using namespace iox;
-using namespace iox::posix;
 using namespace iox::units::duration_literals;
 
 #if defined(__APPLE__)
