@@ -153,12 +153,7 @@ class MoveOnlyLifetimeAndAssignmentTracker
         move_only_stats.classValue = value;
     }
 
-    MoveOnlyLifetimeAndAssignmentTracker(const MoveOnlyLifetimeAndAssignmentTracker& rhs)
-        : value(rhs.value)
-    {
-        move_only_stats.copyCTor++;
-        move_only_stats.classValue = value;
-    }
+    MoveOnlyLifetimeAndAssignmentTracker(const MoveOnlyLifetimeAndAssignmentTracker& rhs) = delete;
 
     MoveOnlyLifetimeAndAssignmentTracker(MoveOnlyLifetimeAndAssignmentTracker&& rhs) noexcept
         : value(rhs.value)
@@ -167,16 +162,7 @@ class MoveOnlyLifetimeAndAssignmentTracker
         move_only_stats.classValue = value;
     }
 
-    MoveOnlyLifetimeAndAssignmentTracker& operator=(const MoveOnlyLifetimeAndAssignmentTracker& rhs)
-    {
-        if (this != &rhs)
-        {
-            move_only_stats.copyAssignment++;
-            value = rhs.value;
-            move_only_stats.classValue = value;
-        }
-        return *this;
-    }
+    MoveOnlyLifetimeAndAssignmentTracker& operator=(const MoveOnlyLifetimeAndAssignmentTracker& rhs) = delete;
 
     MoveOnlyLifetimeAndAssignmentTracker& operator=(MoveOnlyLifetimeAndAssignmentTracker&& rhs) noexcept
     {
