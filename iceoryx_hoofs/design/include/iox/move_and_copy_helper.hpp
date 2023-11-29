@@ -39,6 +39,12 @@ template <MoveAndCopyOperations Opt>
 class MoveAndCopyHelper
 {
   public:
+    static constexpr bool is_ctor =
+        Opt == MoveAndCopyOperations::CopyConstructor || Opt == MoveAndCopyOperations::MoveConstructor;
+    static constexpr bool is_move =
+        Opt == MoveAndCopyOperations::MoveAssignment || Opt == MoveAndCopyOperations::MoveConstructor;
+
+  public:
     /// @brief Creates or assigns an object to 'dest' based on the specail operation type.
     /// @tparam T The type of the object to be created or assigned.
     /// @tparam V The type of the source object, kept as a universal reference to preserve its lvalue or rvalue nature.
@@ -72,6 +78,7 @@ class MoveAndCopyHelper
     /// @param[in] src The source value to be moved.
     /// @return A reference to the moved value.
     /// @note This overload is selected when the template parameter 'Opt' indicates a move operation.
+    /// @note We use std::remove_reference_t<T>&& as return type for 'T' might be a lvalue reference (for struct)
     /// @example
     /// An example of simplifying the usage of 'if constexpr' branches in a loop.
     /// The original code:
@@ -95,12 +102,10 @@ class MoveAndCopyHelper
     ///     Helper::transfer(m_data[i], Helper::move_or_copy(rhs.data[i]));
     /// }
     /// \endcode
-    template <typename T,
-              typename = std::enable_if_t<Opt == MoveAndCopyOperations::MoveAssignment
-                                              || Opt == MoveAndCopyOperations::MoveConstructor,
-                                          T>>
-    static inline T&& move_or_copy(T&& src) noexcept
+    template <typename T, typename = std::enable_if_t<is_move, T>>
+    static inline std::remove_reference_t<T>&& move_or_copy(T&& src) noexcept
     {
+        static_assert(is_move, "is_move should be true");
         return std::move(std::forward<T>(src));
     }
 
@@ -112,12 +117,10 @@ class MoveAndCopyHelper
     /// @param[in] src The source value to be copied.
     /// @return A const reference to the copied value.
     /// @note This overload is selected when the template parameter 'Opt' does not indicate a move operation.
-    template <typename T,
-              typename = std::enable_if_t<(Opt != MoveAndCopyOperations::MoveAssignment
-                                           && Opt != MoveAndCopyOperations::MoveConstructor),
-                                          T>>
+    template <typename T, typename = std::enable_if_t<!is_move, T>>
     static inline const T& move_or_copy(const T& src) noexcept
     {
+        static_assert(!is_move, "is_move should be false");
         return src;
     }
 
@@ -131,12 +134,10 @@ class MoveAndCopyHelper
     /// @return A moved value from the iterator's pointee.
     /// @note This overload is selected for move operations based on 'Opt'.
     /// @note If the decltype syntax missed, move ctor will be called twice
-    template <typename Iterator,
-              typename = std::enable_if_t<Opt == MoveAndCopyOperations::MoveAssignment
-                                              || Opt == MoveAndCopyOperations::MoveConstructor,
-                                          Iterator>>
-    static inline auto move_or_copy_it(Iterator& it) noexcept -> decltype(std::move(*it))
+    template <typename Iterator, typename = std::enable_if_t<is_move, Iterator>>
+    static inline auto move_or_copy_it(Iterator& it) noexcept -> std::remove_reference_t<decltype(*it)>&&
     {
+        static_assert(is_move, "is_move should be true");
         return std::move(*it);
     }
 
@@ -150,20 +151,13 @@ class MoveAndCopyHelper
     /// @param[in] it The iterator pointing to the value to be accessed.
     /// @return A direct access to the value from the iterator's pointee.
     /// @note This overload is selected for direct access operations when 'Opt' does not indicate a move operation.
-    template <typename Iterator,
-              typename = std::enable_if_t<Opt != MoveAndCopyOperations::MoveAssignment
-                                              && Opt != MoveAndCopyOperations::MoveConstructor,
-                                          Iterator>>
-    static inline auto move_or_copy_it(Iterator& it) noexcept -> decltype(*it)
+    /// @note If the decltype syntax missed, move assignment will be called twice
+    template <typename Iterator, typename = std::enable_if_t<!is_move, Iterator>>
+    static inline auto move_or_copy_it(Iterator& it) noexcept -> const decltype(*it)&
     {
+        static_assert(!is_move, "is_move should be false");
         return *it;
     }
-
-  public:
-    static constexpr bool is_ctor =
-        Opt == MoveAndCopyOperations::CopyConstructor || Opt == MoveAndCopyOperations::MoveConstructor;
-    static constexpr bool is_move =
-        Opt == MoveAndCopyOperations::MoveAssignment || Opt == MoveAndCopyOperations::MoveConstructor;
 };
 
 } // namespace iox
