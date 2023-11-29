@@ -17,7 +17,6 @@
 #ifndef IOX_POSH_ROUDI_PROCESS_MANAGER_HPP
 #define IOX_POSH_ROUDI_PROCESS_MANAGER_HPP
 
-#include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_posh/internal/mepoo/segment_manager.hpp"
 #include "iceoryx_posh/internal/roudi/introspection/process_introspection.hpp"
 #include "iceoryx_posh/internal/roudi/port_manager.hpp"
@@ -28,6 +27,7 @@
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
 #include "iceoryx_posh/version/version_info.hpp"
 #include "iox/list.hpp"
+#include "iox/posix_user.hpp"
 
 #include <cstdint>
 #include <ctime>
@@ -75,7 +75,7 @@ class ProcessManager : public ProcessManagerInterface
     /// @return false if process was already registered, true otherwise
     bool registerProcess(const RuntimeName_t& name,
                          const uint32_t pid,
-                         const posix::PosixUser user,
+                         const PosixUser user,
                          const bool isMonitored,
                          const int64_t transmissionTimestamp,
                          const uint64_t sessionId,
@@ -174,7 +174,7 @@ class ProcessManager : public ProcessManagerInterface
     /// @return Returns if the process could be added successfully.
     bool addProcess(const RuntimeName_t& name,
                     const uint32_t pid,
-                    const posix::PosixUser& user,
+                    const PosixUser& user,
                     const bool isMonitored,
                     const int64_t transmissionTimestamp,
                     const uint64_t sessionId,

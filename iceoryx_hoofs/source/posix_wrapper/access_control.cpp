@@ -114,7 +114,7 @@ bool AccessController::addUserPermission(const Permission permission, const Posi
         return false;
     }
 
-    auto id = posix::PosixUser::getUserID(name);
+    auto id = PosixUser::getUserID(name);
     if (!id.has_value())
     {
         return false;
@@ -131,7 +131,7 @@ bool AccessController::addGroupPermission(const Permission permission, const Pos
         return false;
     }
 
-    auto id = posix::PosixGroup::getGroupID(name);
+    auto id = PosixGroup::getGroupID(name);
     if (!id.has_value())
     {
         return false;
@@ -154,7 +154,7 @@ bool AccessController::addPermissionEntry(const Category category,
     {
     case Category::SPECIFIC_USER:
     {
-        if (!posix::PosixUser::getUserName(id).has_value())
+        if (!PosixUser::getUserName(id).has_value())
         {
             IOX_LOG(ERROR, "Error: No such user");
             return false;
@@ -165,7 +165,7 @@ bool AccessController::addPermissionEntry(const Category category,
     }
     case Category::SPECIFIC_GROUP:
     {
-        if (!posix::PosixGroup::getGroupName(id).has_value())
+        if (!PosixGroup::getGroupName(id).has_value())
         {
             IOX_LOG(ERROR, "Error: No such group");
             return false;

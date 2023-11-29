@@ -68,8 +68,8 @@ inline void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::
 template <typename MemoryManager, typename SegmentManager, typename PublisherPort>
 inline void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::prepareIntrospectionSample(
     MemPoolIntrospectionInfo& sample,
-    const posix::PosixGroup& readerGroup,
-    const posix::PosixGroup& writerGroup,
+    const PosixGroup& readerGroup,
+    const PosixGroup& writerGroup,
     uint32_t id) noexcept
 {
     sample.m_readerGroupName.assign("");
@@ -105,8 +105,8 @@ inline void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::
             // RouDi's shm segment
             auto& memPoolIntrospectionInfo = sample->back();
             prepareIntrospectionSample(memPoolIntrospectionInfo,
-                                       posix::PosixGroup::getGroupOfCurrentProcess(),
-                                       posix::PosixGroup::getGroupOfCurrentProcess(),
+                                       PosixGroup::getGroupOfCurrentProcess(),
+                                       PosixGroup::getGroupOfCurrentProcess(),
                                        id);
             copyMemPoolInfo(*m_rouDiInternalMemoryManager, memPoolIntrospectionInfo.m_mempoolInfo);
             ++id;

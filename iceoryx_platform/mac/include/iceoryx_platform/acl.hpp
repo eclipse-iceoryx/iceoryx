@@ -17,6 +17,8 @@
 #ifndef IOX_HOOFS_MAC_PLATFORM_ACL_HPP
 #define IOX_HOOFS_MAC_PLATFORM_ACL_HPP
 
+#include "iceoryx_platform/types.hpp"
+
 #define ACL_USER_OBJ 0
 #define ACL_USER 1
 #define ACL_GROUP_OBJ 2

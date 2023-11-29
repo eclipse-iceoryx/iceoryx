@@ -18,7 +18,6 @@
 #define IOX_POSH_ROUDI_ROUDI_MULTI_PROCESS_HPP
 
 #include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
-#include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_platform/file.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/roudi/introspection/mempool_introspection.hpp"
@@ -28,6 +27,7 @@
 #include "iceoryx_posh/roudi/memory/roudi_memory_interface.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
 #include "iceoryx_posh/roudi/roudi_app.hpp"
+#include "iox/posix_user.hpp"
 #include "iox/relative_pointer.hpp"
 #include "iox/scope_guard.hpp"
 
@@ -121,7 +121,7 @@ class RouDi
     /// @param [in] versionInfo Version of iceoryx used
     void registerProcess(const RuntimeName_t& name,
                          const uint32_t pid,
-                         const posix::PosixUser user,
+                         const PosixUser user,
                          const int64_t transmissionTimestamp,
                          const uint64_t sessionId,
                          const version::VersionInfo& versionInfo) noexcept;

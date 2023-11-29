@@ -16,11 +16,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/runtime/ipc_runtime_interface.hpp"
-#include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/version/version_info.hpp"
 #include "iox/detail/convert.hpp"
 #include "iox/into.hpp"
+#include "iox/posix_user.hpp"
 #include "iox/std_string_support.hpp"
 
 #include <thread>
@@ -91,7 +91,7 @@ IpcRuntimeInterface::IpcRuntimeInterface(const RuntimeName_t& roudiName,
             int pid = getpid();
             IOX_EXPECTS(pid >= 0);
             sendBuffer << IpcMessageTypeToString(IpcMessageType::REG) << m_runtimeName << convert::toString(pid)
-                       << convert::toString(posix::PosixUser::getUserOfCurrentProcess().getID())
+                       << convert::toString(PosixUser::getUserOfCurrentProcess().getID())
                        << convert::toString(transmissionTimestamp)
                        << static_cast<Serialization>(version::VersionInfo::getCurrentVersion()).toString();
 

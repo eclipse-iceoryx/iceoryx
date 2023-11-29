@@ -15,7 +15,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
@@ -29,6 +28,7 @@
 #include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
 #include "iceoryx_posh/roudi_env/minimal_roudi_config.hpp"
 #include "iox/detail/convert.hpp"
+#include "iox/posix_user.hpp"
 #include "iox/std_string_support.hpp"
 
 #include "test.hpp"
@@ -90,7 +90,7 @@ class PortManager_test : public Test
         EXPECT_FALSE(m_roudiMemoryManager->createAndAnnounceMemory().has_error());
         m_portManager = new PortManagerTester(m_roudiMemoryManager);
 
-        auto user = iox::posix::PosixUser::getUserOfCurrentProcess();
+        auto user = PosixUser::getUserOfCurrentProcess();
         auto segmentInfo =
             m_roudiMemoryManager->segmentManager().value()->getSegmentInformationWithWriteAccessForUser(user);
         ASSERT_TRUE(segmentInfo.m_memoryManager.has_value());

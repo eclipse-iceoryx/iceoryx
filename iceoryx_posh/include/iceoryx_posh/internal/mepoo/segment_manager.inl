@@ -40,15 +40,15 @@ inline SegmentManager<SegmentType>::SegmentManager(const SegmentConfig& segmentC
 template <typename SegmentType>
 inline void SegmentManager<SegmentType>::createSegment(const SegmentConfig::SegmentEntry& segmentEntry) noexcept
 {
-    auto readerGroup = iox::posix::PosixGroup(segmentEntry.m_readerGroup);
-    auto writerGroup = iox::posix::PosixGroup(segmentEntry.m_writerGroup);
+    auto readerGroup = PosixGroup(segmentEntry.m_readerGroup);
+    auto writerGroup = PosixGroup(segmentEntry.m_writerGroup);
     m_segmentContainer.emplace_back(
         segmentEntry.m_mempoolConfig, *m_managementAllocator, readerGroup, writerGroup, segmentEntry.m_memoryInfo);
 }
 
 template <typename SegmentType>
 inline typename SegmentManager<SegmentType>::SegmentMappingContainer
-SegmentManager<SegmentType>::getSegmentMappings(const posix::PosixUser& user) noexcept
+SegmentManager<SegmentType>::getSegmentMappings(const PosixUser& user) noexcept
 {
     // get all the groups the user is in
     auto groupContainer = user.getGroups();
@@ -109,7 +109,7 @@ SegmentManager<SegmentType>::getSegmentMappings(const posix::PosixUser& user) no
 
 template <typename SegmentType>
 inline typename SegmentManager<SegmentType>::SegmentUserInformation
-SegmentManager<SegmentType>::getSegmentInformationWithWriteAccessForUser(const posix::PosixUser& user) noexcept
+SegmentManager<SegmentType>::getSegmentInformationWithWriteAccessForUser(const PosixUser& user) noexcept
 {
     auto groupContainer = user.getGroups();
 

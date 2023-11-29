@@ -16,10 +16,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/runtime/shared_memory_user.hpp"
-#include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/internal/mepoo/segment_manager.hpp"
 #include "iox/logging.hpp"
+#include "iox/posix_user.hpp"
 
 namespace iox
 {
@@ -68,7 +68,7 @@ void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
     auto* ptr = UntypedRelativePointer::getPtr(segment_id_t{segmentId}, segmentManagerAddressOffset);
     auto* segmentManager = static_cast<mepoo::SegmentManager<>*>(ptr);
 
-    auto segmentMapping = segmentManager->getSegmentMappings(posix::PosixUser::getUserOfCurrentProcess());
+    auto segmentMapping = segmentManager->getSegmentMappings(PosixUser::getUserOfCurrentProcess());
     for (const auto& segment : segmentMapping)
     {
         auto accessMode = segment.m_isWritable ? AccessMode::READ_WRITE : AccessMode::READ_ONLY;

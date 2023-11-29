@@ -17,7 +17,6 @@
 #ifndef IOX_POSH_MEPOO_SEGMENT_MANAGER_HPP
 #define IOX_POSH_MEPOO_SEGMENT_MANAGER_HPP
 
-#include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
@@ -25,6 +24,7 @@
 #include "iceoryx_posh/mepoo/segment_config.hpp"
 #include "iox/bump_allocator.hpp"
 #include "iox/optional.hpp"
+#include "iox/posix_user.hpp"
 #include "iox/string.hpp"
 #include "iox/vector.hpp"
 
@@ -86,8 +86,8 @@ class SegmentManager
 
     using SegmentMappingContainer = vector<SegmentMapping, MAX_SHM_SEGMENTS>;
 
-    SegmentMappingContainer getSegmentMappings(const posix::PosixUser& user) noexcept;
-    SegmentUserInformation getSegmentInformationWithWriteAccessForUser(const posix::PosixUser& user) noexcept;
+    SegmentMappingContainer getSegmentMappings(const PosixUser& user) noexcept;
+    SegmentUserInformation getSegmentInformationWithWriteAccessForUser(const PosixUser& user) noexcept;
 
     static uint64_t requiredManagementMemorySize(const SegmentConfig& config) noexcept;
     static uint64_t requiredChunkMemorySize(const SegmentConfig& config) noexcept;

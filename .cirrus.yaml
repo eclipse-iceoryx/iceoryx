@@ -189,6 +189,7 @@ arch_linux_x64_gcc_8_3_aka_qnx_canary_test_task:
 #
 
 arch_linux_x64_build_task:
+  only_if: false # deactivated for now due to limited compute credits
   depends_on: preflight_check
   container:
     dockerfile: tools/ci/docker/archlinux-base-devel
@@ -204,6 +205,7 @@ arch_linux_x64_build_task:
     <<: *IOX_PREPARE_TEST_BINARIES_FOR_CACHE
 
 arch_linux_x64_test_task:
+  only_if: false # deactivated for now due to limited compute credits
   depends_on: arch_linux_x64_build
   container:
     dockerfile: tools/ci/docker/archlinux-base-devel
@@ -256,6 +258,7 @@ freebsd_x64_test_task:
 #
 
 macos_aarch64_build_task:
+  only_if: false # deactivated for now due to limited compute credits
   depends_on: preflight_check
   macos_instance:
     image: ghcr.io/cirruslabs/macos-ventura-base:latest
@@ -273,6 +276,7 @@ macos_aarch64_build_task:
     <<: *IOX_PREPARE_TEST_BINARIES_FOR_CACHE
 
 macos_aarch64_test_task:
+  only_if: false # deactivated for now due to limited compute credits
   depends_on: macos_aarch64_build
   macos_instance:
     image: ghcr.io/cirruslabs/macos-ventura-base:latest

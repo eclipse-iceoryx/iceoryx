@@ -78,8 +78,8 @@ class MemPoolIntrospection
 
   private:
     static void prepareIntrospectionSample(MemPoolIntrospectionInfo& sample,
-                                           const posix::PosixGroup& readerGroup,
-                                           const posix::PosixGroup& writerGroup,
+                                           const PosixGroup& readerGroup,
+                                           const PosixGroup& writerGroup,
                                            uint32_t id) noexcept;
 
     /// @brief copy data fro internal struct into interface struct

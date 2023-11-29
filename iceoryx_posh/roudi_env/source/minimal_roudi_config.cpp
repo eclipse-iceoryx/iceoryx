@@ -25,7 +25,7 @@ RouDiConfig_t MinimalRouDiConfigBuilder::create() const noexcept
     RouDiConfig_t roudiConfig;
     mepoo::MePooConfig mepooConfig;
     mepooConfig.addMemPool({m_payloadChunkSize, m_payloadChunkCount});
-    auto currentGroup = iox::posix::PosixGroup::getGroupOfCurrentProcess();
+    auto currentGroup = PosixGroup::getGroupOfCurrentProcess();
     roudiConfig.m_sharedMemorySegments.push_back({currentGroup.getName(), currentGroup.getName(), mepooConfig});
 
     roudiConfig.introspectionChunkCount = m_introspectionChunkCount;

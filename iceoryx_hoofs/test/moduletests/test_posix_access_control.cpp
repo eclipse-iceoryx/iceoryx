@@ -26,6 +26,7 @@
 
 namespace
 {
+using namespace iox;
 using namespace iox::posix;
 
 constexpr const char* TestFileName = "/tmp/AclTestFile.tmp";

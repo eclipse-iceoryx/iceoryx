@@ -62,14 +62,14 @@ class SegmentMock
         return memoryManager;
     }
 
-    iox::posix::PosixGroup getWriterGroup() const
+    iox::PosixGroup getWriterGroup() const
     {
-        return iox::posix::PosixGroup::getGroupOfCurrentProcess();
+        return iox::PosixGroup::getGroupOfCurrentProcess();
     }
 
-    iox::posix::PosixGroup getReaderGroup() const
+    iox::PosixGroup getReaderGroup() const
     {
-        return iox::posix::PosixGroup::getGroupOfCurrentProcess();
+        return iox::PosixGroup::getGroupOfCurrentProcess();
     }
 
   private:

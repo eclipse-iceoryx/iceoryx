@@ -18,7 +18,6 @@
 
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/system_configuration.hpp"
-#include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_hoofs/posix_wrapper/thread.hpp"
 #include "iceoryx_posh/internal/runtime/node_property.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
@@ -27,6 +26,7 @@
 #include "iceoryx_posh/runtime/port_config_info.hpp"
 #include "iox/detail/convert.hpp"
 #include "iox/logging.hpp"
+#include "iox/posix_user.hpp"
 #include "iox/std_string_support.hpp"
 
 namespace iox
@@ -299,7 +299,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
 
             registerProcess(runtimeName,
                             pid,
-                            iox::posix::PosixUser{userId},
+                            PosixUser{userId},
                             transmissionTimestamp,
                             getUniqueSessionIdForProcess(),
                             versionInfo);
@@ -547,7 +547,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
 
 void RouDi::registerProcess(const RuntimeName_t& name,
                             const uint32_t pid,
-                            const posix::PosixUser user,
+                            const PosixUser user,
                             const int64_t transmissionTimestamp,
                             const uint64_t sessionId,
                             const version::VersionInfo& versionInfo) noexcept

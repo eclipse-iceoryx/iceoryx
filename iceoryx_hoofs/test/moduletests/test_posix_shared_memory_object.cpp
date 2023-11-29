@@ -16,8 +16,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
-#include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iox/memory.hpp"
+#include "iox/posix_group.hpp"
+#include "iox/posix_user.hpp"
 #include "test.hpp"
 
 namespace
@@ -177,8 +178,8 @@ TEST_F(SharedMemoryObject_Test, AcquiringOwnerWorks)
     auto owner = sut->get_ownership();
     ASSERT_FALSE(owner.has_error());
 
-    EXPECT_THAT(owner->uid(), posix::PosixUser::getUserOfCurrentProcess().getID());
-    EXPECT_THAT(owner->gid(), posix::PosixGroup::getGroupOfCurrentProcess().getID());
+    EXPECT_THAT(owner->uid(), PosixUser::getUserOfCurrentProcess().getID());
+    EXPECT_THAT(owner->gid(), PosixGroup::getGroupOfCurrentProcess().getID());
 }
 
 TEST_F(SharedMemoryObject_Test, AcquiringPermissionsWorks)
