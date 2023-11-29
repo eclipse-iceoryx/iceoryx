@@ -32,9 +32,9 @@
 #include "iox/optional.hpp"
 #include "iox/relative_pointer.hpp"
 
-#include "iceoryx_hoofs/internal/posix_wrapper/unix_domain_socket.hpp"
 #include "iox/message_queue.hpp"
 #include "iox/named_pipe.hpp"
+#include "iox/unix_domain_socket.hpp"
 
 #include <cstdint>
 #include <cstdlib>
@@ -54,7 +54,7 @@ using IoxIpcChannelType = iox::NamedPipe;
 #elif defined(__FREERTOS__)
 using IoxIpcChannelType = iox::NamedPipe;
 #else
-using IoxIpcChannelType = iox::posix::UnixDomainSocket;
+using IoxIpcChannelType = iox::UnixDomainSocket;
 #endif
 } // namespace platform
 namespace runtime
@@ -249,7 +249,7 @@ class IpcInterface
     /// keeps the IPC channel in the file system after the dTor is called
     /// @return Returns true if a IPC channel could be opened, otherwise
     ///             false.
-    bool openIpcChannel(const posix::IpcChannelSide channelSide) noexcept;
+    bool openIpcChannel(const PosixIpcChannelSide channelSide) noexcept;
 
     /// @brief If a IPC channel was moved then m_runtimeName was cleared
     ///         and this object gave up the control of that specific
@@ -264,7 +264,7 @@ class IpcInterface
     RuntimeName_t m_runtimeName;
     uint64_t m_maxMessageSize{0U};
     uint64_t m_maxMessages{0U};
-    iox::posix::IpcChannelSide m_channelSide{posix::IpcChannelSide::CLIENT};
+    PosixIpcChannelSide m_channelSide{PosixIpcChannelSide::CLIENT};
     optional<IpcChannelType> m_ipcChannel;
 };
 

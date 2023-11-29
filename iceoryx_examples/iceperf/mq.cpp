@@ -50,22 +50,22 @@ void MQ::cleanupOutdatedResources(const std::string& publisherName, const std::s
 
 void MQ::initLeader() noexcept
 {
-    open(m_subscriberMqName, iox::posix::IpcChannelSide::SERVER);
+    open(m_subscriberMqName, iox::PosixIpcChannelSide::SERVER);
 
     std::cout << "waiting for follower" << std::endl;
 
     receivePerfTopic();
 
-    open(m_publisherMqName, iox::posix::IpcChannelSide::CLIENT);
+    open(m_publisherMqName, iox::PosixIpcChannelSide::CLIENT);
 }
 
 void MQ::initFollower() noexcept
 {
-    open(m_subscriberMqName, iox::posix::IpcChannelSide::SERVER);
+    open(m_subscriberMqName, iox::PosixIpcChannelSide::SERVER);
 
     std::cout << "registering with the leader" << std::endl;
 
-    open(m_publisherMqName, iox::posix::IpcChannelSide::CLIENT);
+    open(m_publisherMqName, iox::PosixIpcChannelSide::CLIENT);
 
     sendPerfTopic(sizeof(PerfTopic), RunFlag::RUN);
 }
@@ -146,10 +146,10 @@ PerfTopic MQ::receivePerfTopic() noexcept
     return *receivedSample;
 }
 
-void MQ::open(const std::string& name, const iox::posix::IpcChannelSide channelSide) noexcept
+void MQ::open(const std::string& name, const iox::PosixIpcChannelSide channelSide) noexcept
 {
     int32_t openFlags = O_RDWR | O_NONBLOCK;
-    if (channelSide == iox::posix::IpcChannelSide::SERVER)
+    if (channelSide == iox::PosixIpcChannelSide::SERVER)
     {
         openFlags |= O_CREAT;
     }
@@ -178,7 +178,7 @@ void MQ::open(const std::string& name, const iox::posix::IpcChannelSide channelS
             continue;
         }
 
-        if (channelSide == iox::posix::IpcChannelSide::SERVER)
+        if (channelSide == iox::PosixIpcChannelSide::SERVER)
         {
             m_mqDescriptorSubscriber = mqCall->value;
         }

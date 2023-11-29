@@ -44,18 +44,18 @@ inline MePooSegment<SharedMemoryObjectType, MemoryManagerType>::MePooSegment(
     , m_writerGroup(writerGroup)
     , m_memoryInfo(memoryInfo)
 {
-    using namespace posix;
-    AccessController accessController;
+    using namespace detail;
+    PosixAcl acl;
     if (!(readerGroup == writerGroup))
     {
-        accessController.addGroupPermission(AccessController::Permission::READ, readerGroup.getName());
+        acl.addGroupPermission(PosixAcl::Permission::READ, readerGroup.getName());
     }
-    accessController.addGroupPermission(AccessController::Permission::READWRITE, writerGroup.getName());
-    accessController.addPermissionEntry(AccessController::Category::USER, AccessController::Permission::READWRITE);
-    accessController.addPermissionEntry(AccessController::Category::GROUP, AccessController::Permission::READWRITE);
-    accessController.addPermissionEntry(AccessController::Category::OTHERS, AccessController::Permission::NONE);
+    acl.addGroupPermission(PosixAcl::Permission::READWRITE, writerGroup.getName());
+    acl.addPermissionEntry(PosixAcl::Category::USER, PosixAcl::Permission::READWRITE);
+    acl.addPermissionEntry(PosixAcl::Category::GROUP, PosixAcl::Permission::READWRITE);
+    acl.addPermissionEntry(PosixAcl::Category::OTHERS, PosixAcl::Permission::NONE);
 
-    if (!accessController.writePermissionsToFile(m_sharedMemoryObject.getFileHandle()))
+    if (!acl.writePermissionsToFile(m_sharedMemoryObject.getFileHandle()))
     {
         errorHandler(PoshError::MEPOO__SEGMENT_COULD_NOT_APPLY_POSIX_RIGHTS_TO_SHARED_MEMORY);
     }

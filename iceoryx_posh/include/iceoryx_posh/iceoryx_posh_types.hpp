@@ -19,13 +19,13 @@
 #define IOX_POSH_ICEORYX_POSH_TYPES_HPP
 
 #include "iceoryx_hoofs/cxx/variant_queue.hpp"
-#include "iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp"
 #include "iceoryx_platform/platform_settings.hpp"
 #include "iceoryx_posh/iceoryx_posh_deployment.hpp"
 #include "iox/duration.hpp"
 #include "iox/function.hpp"
 #include "iox/log/logstream.hpp"
 #include "iox/optional.hpp"
+#include "iox/posix_ipc_channel.hpp"
 #include "iox/string.hpp"
 #include "iox/vector.hpp"
 

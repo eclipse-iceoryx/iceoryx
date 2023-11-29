@@ -1199,11 +1199,11 @@
 
     // after
     // option 1
-    iox::optional<iox::posix::UnixDomainSocket> socket;
+    iox::optional<iox::UnixDomainSocket> socket;
     // option 2
-    iox::posix::UnixDomainSocket socket { UnixDomainSocketBuilder()
+    iox::UnixDomainSocket socket { UnixDomainSocketBuilder()
         .name("foo")
-        .channelSide(iox::posix::IpcChannelSide::CLIENT)
+        .channelSide(iox::PosixIpcChannelSide::CLIENT)
         .create()
         .expect("Valid UnixDomainSocket")
     };

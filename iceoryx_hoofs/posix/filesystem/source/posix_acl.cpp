@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/posix_wrapper/access_control.hpp"
+#include "iox/detail/posix_acl.hpp"
 #include "iox/function.hpp"
 #include "iox/logging.hpp"
 #include "iox/posix_call.hpp"
@@ -25,11 +25,11 @@
 #include "iceoryx_platform/platform_correction.hpp"
 namespace iox
 {
-namespace posix
+namespace detail
 {
 // NOLINTJUSTIFICATION the function size results from the error handling and the expanded log macro
 // NOLINTNEXTLINE(readability-function-size)
-bool AccessController::writePermissionsToFile(const int32_t fileDescriptor) const noexcept
+bool PosixAcl::writePermissionsToFile(const int32_t fileDescriptor) const noexcept
 {
     if (m_permissions.empty())
     {
@@ -83,15 +83,14 @@ bool AccessController::writePermissionsToFile(const int32_t fileDescriptor) cons
 }
 // NOLINTEND(readability-function-size,readability-function-cognitive-complexity)
 
-expected<AccessController::smartAclPointer_t, AccessController::AccessControllerError>
-AccessController::createACL(const int32_t numEntries) noexcept
+expected<PosixAcl::smartAclPointer_t, PosixAcl::Error> PosixAcl::createACL(const int32_t numEntries) noexcept
 {
     // allocate memory for a new ACL
     auto aclInitCall = IOX_POSIX_CALL(acl_init)(numEntries).failureReturnValue(nullptr).evaluate();
 
     if (aclInitCall.has_error())
     {
-        return err(AccessControllerError::COULD_NOT_ALLOCATE_NEW_ACL);
+        return err(Error::COULD_NOT_ALLOCATE_NEW_ACL);
     }
 
     // define how to free the memory (custom deleter for the smart pointer)
@@ -106,7 +105,7 @@ AccessController::createACL(const int32_t numEntries) noexcept
     return ok<smartAclPointer_t>(aclInitCall->value, freeACL);
 }
 
-bool AccessController::addUserPermission(const Permission permission, const PosixUser::userName_t& name) noexcept
+bool PosixAcl::addUserPermission(const Permission permission, const PosixUser::userName_t& name) noexcept
 {
     if (name.empty())
     {
@@ -123,7 +122,7 @@ bool AccessController::addUserPermission(const Permission permission, const Posi
     return addPermissionEntry(Category::SPECIFIC_USER, permission, id.value());
 }
 
-bool AccessController::addGroupPermission(const Permission permission, const PosixGroup::groupName_t& name) noexcept
+bool PosixAcl::addGroupPermission(const Permission permission, const PosixGroup::groupName_t& name) noexcept
 {
     if (name.empty())
     {
@@ -140,9 +139,7 @@ bool AccessController::addGroupPermission(const Permission permission, const Pos
     return addPermissionEntry(Category::SPECIFIC_GROUP, permission, id.value());
 }
 
-bool AccessController::addPermissionEntry(const Category category,
-                                          const Permission permission,
-                                          const uint32_t id) noexcept
+bool PosixAcl::addPermissionEntry(const Category category, const Permission permission, const uint32_t id) noexcept
 {
     if (m_permissions.size() >= m_permissions.capacity())
     {
@@ -185,7 +182,7 @@ bool AccessController::addPermissionEntry(const Category category,
 
 // NOLINTJUSTIFICATION the function size results from the error handling and the expanded log macro
 // NOLINTNEXTLINE(readability-function-size)
-bool AccessController::createACLEntry(const acl_t ACL, const PermissionEntry& entry) noexcept
+bool PosixAcl::createACLEntry(const acl_t ACL, const PermissionEntry& entry) noexcept
 {
     // create new entry in acl
     acl_entry_t newEntry{};
@@ -283,7 +280,7 @@ bool AccessController::createACLEntry(const acl_t ACL, const PermissionEntry& en
     }
 }
 
-bool AccessController::addAclPermission(acl_permset_t permset, acl_perm_t perm) noexcept
+bool PosixAcl::addAclPermission(acl_permset_t permset, acl_perm_t perm) noexcept
 {
     auto aclAddPermCall = IOX_POSIX_CALL(acl_add_perm)(permset, perm).successReturnValue(0).evaluate();
 
@@ -294,6 +291,5 @@ bool AccessController::addAclPermission(acl_permset_t permset, acl_perm_t perm) 
     }
     return true;
 }
-
-} // namespace posix
+} // namespace detail
 } // namespace iox

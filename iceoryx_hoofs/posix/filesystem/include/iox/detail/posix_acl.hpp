@@ -14,8 +14,9 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_POSIX_WRAPPER_ACCESS_CONTROL_HPP
-#define IOX_HOOFS_POSIX_WRAPPER_ACCESS_CONTROL_HPP
+
+#ifndef IOX_HOOFS_POSIX_FILESYSTEM_POSIX_ACL_HPP
+#define IOX_HOOFS_POSIX_FILESYSTEM_POSIX_ACL_HPP
 
 #include "iceoryx_platform/acl.hpp"
 #include "iox/expected.hpp"
@@ -31,24 +32,24 @@
 
 namespace iox
 {
-namespace posix
+namespace detail
 {
 /// @brief abstraction class for the management of access control lists (ACLs).
 ///
 /// ACLs allow to define fine-grained access rights for files. In addition to the standard access rights, which can only
 /// distinguish between user/group/others, ACLs can be used to give specific access rights to named users and groups.
-/// ACL is part of the posix specification. The AccessController class is used to store ACL permission entries and
+/// ACL is part of the posix specification. The 'PosixAcl' class is used to store ACL permission entries and
 /// provides a way to write those entries to a file. A permission entry can be seen as a combination of an access
 /// Category, a Permission and an optional name (used to identify specific users and groups.)
-class AccessController
+class PosixAcl
 {
   public:
-    enum class AccessControllerError : uint8_t
+    enum class Error : uint8_t
     {
         COULD_NOT_ALLOCATE_NEW_ACL,
     };
 
-    /// @brief maximum number of permission entries the AccessController can store
+    /// @brief maximum number of permission entries the 'PosixAcl' can store
     static constexpr int32_t MaxNumOfPermissions = 20;
 
 /// @brief identifier for a permission entry (user, group, others, ...)
@@ -106,7 +107,7 @@ class AccessController
     /// @return true when the permissions are applied, on failure false
     bool addGroupPermission(const Permission permission, const PosixGroup::groupName_t& name) noexcept;
 
-    /// @brief Write permission entries stored by the AccessController to a file identified by a file descriptor.
+    /// @brief Write permission entries stored by the 'PosixAcl' to a file identified by a file descriptor.
     /// @param[fileDescriptor] identifier for a file (can be regular file, shared memory file, message queue file...
     /// everything is a file).
     /// @return true if succesful. If false, you can assume that the file has not been touched at all.
@@ -124,13 +125,13 @@ class AccessController
 
     vector<PermissionEntry, MaxNumOfPermissions> m_permissions;
 
-    static expected<smartAclPointer_t, AccessControllerError> createACL(const int32_t numEntries) noexcept;
+    static expected<smartAclPointer_t, Error> createACL(const int32_t numEntries) noexcept;
     static bool createACLEntry(const acl_t ACL, const PermissionEntry& entry) noexcept;
     static bool addAclPermission(acl_permset_t permset, acl_perm_t perm) noexcept;
 
     bool m_useACLMask{false};
 };
-} // namespace posix
+} // namespace detail
 } // namespace iox
 
-#endif // IOX_HOOFS_POSIX_WRAPPER_ACCESS_CONTROL_HPP
+#endif // IOX_HOOFS_POSIX_FILESYSTEM_POSIX_ACL_HPP

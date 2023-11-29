@@ -63,6 +63,7 @@ iox_add_library(
 
                                 ${PROJECT_SOURCE_DIR}/posix/auth/include
                                 ${PROJECT_SOURCE_DIR}/posix/design/include
+                                ${PROJECT_SOURCE_DIR}/posix/ipc/include
                                 ${PROJECT_SOURCE_DIR}/posix/filesystem/include
                                 ${PROJECT_SOURCE_DIR}/posix/time/include
                                 ${PROJECT_SOURCE_DIR}/posix/vocabulary/include
@@ -85,6 +86,7 @@ iox_add_library(
 
                                 posix/auth/include/
                                 posix/design/include/
+                                posix/ipc/include/
                                 posix/filesystem/include/
                                 posix/time/include/
                                 posix/vocabulary/include/
@@ -101,7 +103,6 @@ iox_add_library(
         source/cxx/requires.cpp
         source/error_handling/error_handler.cpp
         source/error_handling/error_handling.cpp
-        source/posix_wrapper/access_control.cpp
         source/posix_wrapper/file_lock.cpp
         source/posix_wrapper/mutex.cpp
         source/posix_wrapper/named_semaphore.cpp
@@ -114,7 +115,6 @@ iox_add_library(
         source/posix_wrapper/system_configuration.cpp
         source/posix_wrapper/thread.cpp
         source/posix_wrapper/unnamed_semaphore.cpp
-        source/posix_wrapper/unix_domain_socket.cpp
         source/error_reporting/custom/default/default_error_handler.cpp
         time/source/duration.cpp
         utility/source/unique_id.cpp
@@ -122,7 +122,9 @@ iox_add_library(
         posix/auth/source/posix_group.cpp
         posix/auth/source/posix_user.cpp
         posix/design/source/file_management_interface.cpp
+        posix/ipc/source/unix_domain_socket.cpp
         posix/filesystem/source/file.cpp
+        posix/filesystem/source/posix_acl.cpp
         posix/time/source/adaptive_wait.cpp
         posix/time/source/deadline_timer.cpp
         posix/vocabulary/source/file_name.cpp
