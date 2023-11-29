@@ -84,7 +84,6 @@ class UninitializedArray final
     using iterator = ElementType*;
     using const_iterator = const ElementType*;
 
-    /// @deterministic
     // The (empty) user-defined constructor is required.
     // Use of "= default" leads to value-initialization of class members.
     // AXIVION Next Construct AutosarC++19_03-A12.6.1 : This is a low-level building block which is supposed to provide uninitialized memory
@@ -99,34 +98,27 @@ class UninitializedArray final
     /// @param[in] index position of the element to return
     /// @return reference to the element
     /// @note out of bounds access leads to undefined behavior
-    /// @deterministic
     constexpr ElementType& operator[](const uint64_t index) noexcept;
 
     /// @brief returns a const reference to the element stored at index
     /// @param[in] index position of the element to return
     /// @return const reference to the element
     /// @note out of bounds access leads to undefined behavior
-    /// @deterministic
     constexpr const ElementType& operator[](const uint64_t index) const noexcept;
 
     /// @brief returns an iterator to the beginning of the UninitializedArray
-    /// @deterministic
     iterator begin() noexcept;
 
     /// @brief returns a const iterator to the beginning of the UninitializedArray
-    /// @deterministic
     const_iterator begin() const noexcept;
 
     /// @brief returns an iterator to the end of the UninitializedArray
-    /// @deterministic
     iterator end() noexcept;
 
     /// @brief returns a const iterator to the end of the UninitializedArray
-    /// @deterministic
     const_iterator end() const noexcept;
 
     /// @brief returns the array capacity
-    /// @deterministic
     static constexpr uint64_t capacity() noexcept;
 
   private:
