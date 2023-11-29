@@ -14,15 +14,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
+#include "iox/signal_handler.hpp"
 #include "iox/logging.hpp"
 #include "iox/posix_call.hpp"
 
 namespace iox
 {
-namespace posix
-{
-SignalGuard::SignalGuard(const Signal signal, const struct sigaction& previousAction) noexcept
+SignalGuard::SignalGuard(const PosixSignal signal, const struct sigaction& previousAction) noexcept
     : m_signal{signal}
     , m_previousAction{previousAction}
     , m_doRestorePreviousAction(true)
@@ -54,7 +52,7 @@ void SignalGuard::restorePreviousAction() noexcept
     }
 }
 
-expected<SignalGuard, SignalGuardError> registerSignalHandler(const Signal signal,
+expected<SignalGuard, SignalGuardError> registerSignalHandler(const PosixSignal signal,
                                                               const SignalHandlerCallback_t callback) noexcept
 {
     struct sigaction action = {};
@@ -93,5 +91,4 @@ expected<SignalGuard, SignalGuardError> registerSignalHandler(const Signal signa
 
     return ok(SignalGuard(signal, previousAction));
 }
-} // namespace posix
 } // namespace iox

@@ -16,8 +16,8 @@
 #ifndef IOX_DUST_POSIX_WRAPPER_SIGNAL_WATCHER_HPP
 #define IOX_DUST_POSIX_WRAPPER_SIGNAL_WATCHER_HPP
 
-#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
 #include "iox/optional.hpp"
+#include "iox/signal_handler.hpp"
 #include "iox/unnamed_semaphore.hpp"
 
 #include <atomic>
@@ -28,7 +28,7 @@ namespace iox
 ///        signal has occurred or ask the watcher if it has occurred.
 /// @code
 ///   // can be used to loop until SIGINT or SIGTERM has occurred
-///   #include <iceoryx_hoofs/posix/signal_watcher.hpp>
+///   #include <iox/signal_watcher.hpp>
 ///   void loopUntilTerminationRequested()
 ///   {
 ///       while(!iox::hasTerminationRequested())
@@ -71,8 +71,8 @@ class SignalWatcher
     mutable optional<UnnamedSemaphore> m_semaphore;
 
     std::atomic_bool m_hasSignalOccurred{false};
-    posix::SignalGuard m_sigTermGuard;
-    posix::SignalGuard m_sigIntGuard;
+    SignalGuard m_sigTermGuard;
+    SignalGuard m_sigIntGuard;
 };
 
 /// @brief convenience function, calls SignalWatcher::getInstance().waitForSignal();

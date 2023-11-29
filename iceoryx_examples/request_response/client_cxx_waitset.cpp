@@ -17,10 +17,10 @@
 //! [iceoryx includes]
 #include "request_and_response_types.hpp"
 
-#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
 #include "iceoryx_posh/popo/client.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iox/signal_handler.hpp"
 #include "iox/signal_watcher.hpp"
 //! [iceoryx includes]
 
@@ -55,9 +55,9 @@ static void signalHandler(int sig [[maybe_unused]])
 int main()
 {
     auto sigTermGuard =
-        iox::posix::registerSignalHandler(iox::posix::Signal::TERM, signalHandler).expect("failed to register SIGTERM");
+        iox::registerSignalHandler(iox::PosixSignal::TERM, signalHandler).expect("failed to register SIGTERM");
     auto sigIntGuard =
-        iox::posix::registerSignalHandler(iox::posix::Signal::INT, signalHandler).expect("failed to register SIGINT");
+        iox::registerSignalHandler(iox::PosixSignal::INT, signalHandler).expect("failed to register SIGINT");
 
     //! [initialize runtime]
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);

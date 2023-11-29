@@ -24,7 +24,6 @@ namespace
 {
 using namespace ::testing;
 using namespace iox;
-using namespace iox::posix;
 
 class SignalWatcherTester : public SignalWatcher
 {

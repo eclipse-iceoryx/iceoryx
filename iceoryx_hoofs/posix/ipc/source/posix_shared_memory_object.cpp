@@ -16,12 +16,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iox/posix_shared_memory_object.hpp"
-#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
 #include "iceoryx_platform/fcntl.hpp"
 #include "iceoryx_platform/unistd.hpp"
 #include "iox/attributes.hpp"
 #include "iox/filesystem.hpp"
 #include "iox/logging.hpp"
+#include "iox/signal_handler.hpp"
 
 #include <bitset>
 #include <cstdlib>
@@ -138,7 +138,7 @@ expected<PosixSharedMemoryObject, PosixSharedMemoryObjectError> PosixSharedMemor
             // this lock is required for the case that multiple threads are creating multiple
             // shared memory objects concurrently
             std::lock_guard<std::mutex> lock(detail::sigbusHandlerMutex);
-            auto memsetSigbusGuard = registerSignalHandler(posix::Signal::BUS, detail::memsetSigbusHandler);
+            auto memsetSigbusGuard = registerSignalHandler(PosixSignal::BUS, detail::memsetSigbusHandler);
             if (memsetSigbusGuard.has_error())
             {
                 printErrorDetails();
