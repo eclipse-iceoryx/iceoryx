@@ -60,7 +60,7 @@ expected<void, SemaphoreError> SemaphoreInterface<SemaphoreChild>::post() noexce
         return err(errnoToEnum(result.error().errnum));
     }
 
-    return ok();
+    return ok<void>();
 }
 
 template <typename SemaphoreChild>
@@ -104,7 +104,7 @@ expected<void, SemaphoreError> SemaphoreInterface<SemaphoreChild>::wait() noexce
         return err(errnoToEnum(result.error().errnum));
     }
 
-    return ok();
+    return ok<void>();
 }
 
 template class SemaphoreInterface<UnnamedSemaphore>;
