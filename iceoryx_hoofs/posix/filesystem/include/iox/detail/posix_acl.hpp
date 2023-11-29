@@ -32,6 +32,8 @@
 
 namespace iox
 {
+namespace detail
+{
 /// @brief abstraction class for the management of access control lists (ACLs).
 ///
 /// ACLs allow to define fine-grained access rights for files. In addition to the standard access rights, which can only
@@ -129,6 +131,7 @@ class PosixAcl
 
     bool m_useACLMask{false};
 };
+} // namespace detail
 } // namespace iox
 
 #endif // IOX_HOOFS_POSIX_FILESYSTEM_POSIX_ACL_HPP

@@ -25,6 +25,8 @@
 #include "iceoryx_platform/platform_correction.hpp"
 namespace iox
 {
+namespace detail
+{
 // NOLINTJUSTIFICATION the function size results from the error handling and the expanded log macro
 // NOLINTNEXTLINE(readability-function-size)
 bool PosixAcl::writePermissionsToFile(const int32_t fileDescriptor) const noexcept
@@ -289,5 +291,5 @@ bool PosixAcl::addAclPermission(acl_permset_t permset, acl_perm_t perm) noexcept
     }
     return true;
 }
-
+} // namespace detail
 } // namespace iox

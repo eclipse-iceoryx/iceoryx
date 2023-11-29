@@ -44,7 +44,7 @@ inline MePooSegment<SharedMemoryObjectType, MemoryManagerType>::MePooSegment(
     , m_writerGroup(writerGroup)
     , m_memoryInfo(memoryInfo)
 {
-    using namespace posix;
+    using namespace detail;
     PosixAcl acl;
     if (!(readerGroup == writerGroup))
     {
