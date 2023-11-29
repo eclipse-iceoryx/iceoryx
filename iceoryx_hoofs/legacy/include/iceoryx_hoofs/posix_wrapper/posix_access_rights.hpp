@@ -22,7 +22,7 @@
 #include "iox/posix_group.hpp"
 #include "iox/posix_user.hpp"
 
-IOX_DEPRECATED_HEADER_SINCE(3, "Please include 'iox/posix_call.hpp' instead.")
+IOX_DEPRECATED_HEADER_SINCE(3, "Please include 'iox/posix_group.hpp' and/or 'iox/posix_user.hpp' instead.")
 
 namespace iox
 {
