@@ -27,6 +27,7 @@
 #include "iox/builder.hpp"
 #include "iox/duration.hpp"
 #include "iox/filesystem.hpp"
+#include "iox/not_null.hpp"
 #include "iox/optional.hpp"
 #include "iox/posix_ipc_channel.hpp"
 
@@ -93,6 +94,38 @@ class UnixDomainSocket
     /// @return received message. In case of an error, PosixIpcChannelError is returned and msg is empty.
     expected<std::string, PosixIpcChannelError> timedReceive(const units::Duration& timeout) const noexcept;
 
+    /// @brief send a message using iox::string
+    /// @tparam N capacity of the iox::string
+    /// @param[in] buf data to send
+    /// @return PosixIpcChannelError if error occured
+    template <uint64_t N>
+    expected<void, PosixIpcChannelError> send(const iox::string<N>& buf) const noexcept;
+
+    /// @brief try to send a message for a given timeout duration using iox::string
+    /// @tparam N capacity of the iox::string
+    /// @param[in] buf data to send
+    /// @param[in] timeout for the send operation
+    /// @return PosixIpcChannelError if error occured
+    template <uint64_t N>
+    expected<void, PosixIpcChannelError> timedSend(const iox::string<N>& buf,
+                                                   const units::Duration& timeout) const noexcept;
+
+    /// @brief receive message using iox::string
+    /// @tparam N capacity of the iox::string
+    /// @param[in] buf data to receive
+    /// @return  PosixIpcChannelError if error occured
+    template <uint64_t N>
+    expected<void, PosixIpcChannelError> receive(iox::string<N>& buf) const noexcept;
+
+    /// @brief try to receive message for a given timeout duration using iox::string
+    /// @tparam N capacity of the iox::string
+    /// @param[in] buf data to receive]
+    /// @param[in] timeout for the send operation
+    /// @return  PosixIpcChannelError if error occured
+    template <uint64_t N>
+    expected<void, PosixIpcChannelError> timedReceive(iox::string<N>& buf,
+                                                      const units::Duration& timeout) const noexcept;
+
   private:
     friend class UnixDomainSocketBuilderNoPathPrefix;
 
@@ -114,6 +147,19 @@ class UnixDomainSocket
                                                                     const int sockfd,
                                                                     const sockaddr_un& sockAddr,
                                                                     PosixIpcChannelSide channelSide) noexcept;
+
+    enum class Termination
+    {
+        NONE,
+        NULL_TERMINATOR
+    };
+
+    template <typename Type, Termination Terminator>
+    expected<void, PosixIpcChannelError>
+    timedSendImpl(not_null<const Type*> msg, uint64_t msgSize, const units::Duration& timeout) const noexcept;
+    template <typename Type, Termination Terminator>
+    expected<uint64_t, PosixIpcChannelError>
+    timedReceiveImpl(not_null<Type*> msg, uint64_t maxMsgSize, const units::Duration& timeout) const noexcept;
 
   private:
     static constexpr int32_t ERROR_CODE = -1;
@@ -167,5 +213,7 @@ class UnixDomainSocketBuilderNoPathPrefix
 };
 
 } // namespace iox
+
+#include "detail/unix_domain_socket.inl"
 
 #endif // IOX_HOOFS_POSIX_IPC_UNIX_DOMAIN_SOCKET_HPP

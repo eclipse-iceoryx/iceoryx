@@ -24,6 +24,7 @@
 #include "iox/scope_guard.hpp"
 
 #include <chrono>
+#include <cstdint>
 #include <string>
 
 namespace iox
@@ -276,89 +277,41 @@ expected<void, PosixIpcChannelError> UnixDomainSocket::send(const std::string& m
 {
     // we also support timedSend. The setsockopt call sets the timeout for all further sendto calls, so we must set
     // it to 0 to turn the timeout off
-    return timedSend(msg, units::Duration::fromSeconds(0ULL));
+    return timedSendImpl<char, Termination::NULL_TERMINATOR>(
+        msg.c_str(), msg.size(), units::Duration::fromSeconds(0ULL));
 }
 
 expected<void, PosixIpcChannelError> UnixDomainSocket::timedSend(const std::string& msg,
                                                                  const units::Duration& timeout) const noexcept
 {
-    if (msg.size() > m_maxMessageSize)
-    {
-        return err(PosixIpcChannelError::MESSAGE_TOO_LONG);
-    }
-
-    if (PosixIpcChannelSide::SERVER == m_channelSide)
-    {
-        IOX_LOG(ERROR, "sending on server side not supported for unix domain socket \"" << m_name << "\"");
-        return err(PosixIpcChannelError::INTERNAL_LOGIC_ERROR);
-    }
-
-    auto tv = timeout.timeval();
-    auto setsockoptCall = IOX_POSIX_CALL(iox_setsockopt)(m_sockfd, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv))
-                              .failureReturnValue(ERROR_CODE)
-                              .ignoreErrnos(EWOULDBLOCK)
-                              .evaluate();
-
-    if (setsockoptCall.has_error())
-    {
-        return err(errnoToEnum(setsockoptCall.error().errnum));
-    }
-    auto sendCall = IOX_POSIX_CALL(iox_sendto)(m_sockfd, msg.c_str(), msg.size() + NULL_TERMINATOR_SIZE, 0, nullptr, 0)
-                        .failureReturnValue(ERROR_CODE)
-                        .evaluate();
-
-    if (sendCall.has_error())
-    {
-        return err(errnoToEnum(sendCall.error().errnum));
-    }
-    return ok();
+    return timedSendImpl<char, Termination::NULL_TERMINATOR>(msg.c_str(), msg.size(), timeout);
 }
 
 expected<std::string, PosixIpcChannelError> UnixDomainSocket::receive() const noexcept
 {
     // we also support timedReceive. The setsockopt call sets the timeout for all further recvfrom calls, so we must set
     // it to 0 to turn the timeout off
-    struct timeval tv = {};
-    tv.tv_sec = 0;
-    tv.tv_usec = 0;
-
-    return timedReceive(units::Duration(tv));
+    return timedReceive(units::Duration::fromSeconds(0ULL));
 }
 
 expected<std::string, PosixIpcChannelError>
 UnixDomainSocket::timedReceive(const units::Duration& timeout) const noexcept
 {
-    if (PosixIpcChannelSide::CLIENT == m_channelSide)
+    auto result = expected<uint64_t, PosixIpcChannelError>(in_place, uint64_t(0));
+    Message_t msg;
+    msg.unsafe_raw_access([&](auto* str, const auto info) -> uint64_t {
+        result = this->timedReceiveImpl<char, Termination::NULL_TERMINATOR>(str, info.total_size, timeout);
+        if (result.has_error())
+        {
+            return 0;
+        }
+        return result.value();
+    });
+    if (result.has_error())
     {
-        IOX_LOG(ERROR, "receiving on client side not supported for unix domain socket \"" << m_name << "\"");
-        return err(PosixIpcChannelError::INTERNAL_LOGIC_ERROR);
+        return err(result.error());
     }
-
-    auto tv = timeout.timeval();
-    auto setsockoptCall = IOX_POSIX_CALL(iox_setsockopt)(m_sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv))
-                              .failureReturnValue(ERROR_CODE)
-                              .ignoreErrnos(EWOULDBLOCK)
-                              .evaluate();
-
-    if (setsockoptCall.has_error())
-    {
-        return err(errnoToEnum(setsockoptCall.error().errnum));
-    }
-    // NOLINTJUSTIFICATION needed for recvfrom
-    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-    char message[MAX_MESSAGE_SIZE + 1];
-
-    auto recvCall = IOX_POSIX_CALL(iox_recvfrom)(m_sockfd, &message[0], MAX_MESSAGE_SIZE, 0, nullptr, nullptr)
-                        .failureReturnValue(ERROR_CODE)
-                        .suppressErrorMessagesForErrnos(EAGAIN, EWOULDBLOCK)
-                        .evaluate();
-    message[MAX_MESSAGE_SIZE] = 0;
-
-    if (recvCall.has_error())
-    {
-        return err(errnoToEnum(recvCall.error().errnum));
-    }
-    return ok<std::string>(&message[0]);
+    return ok<std::string>(msg.c_str());
 }
 
 PosixIpcChannelError UnixDomainSocket::errnoToEnum(const int32_t errnum) const noexcept
