@@ -25,7 +25,7 @@ jobs:
         with:
           version: 9
           platform: x64
-      - uses: jwlawson/actions-setup-cmake@v1.12
+      - uses: jwlawson/actions-setup-cmake@v1.13
         with:
           cmake-version: '3.16.3' # version used in Ubuntu 20.04 LTS
       - run: ./tools/ci/build-test-ubuntu.sh
@@ -61,13 +61,13 @@ jobs:
         shell: powershell
 
   run-integration-test:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs: pre-flight-check
     steps:
       - name: Setup ROS
-        uses: ros-tooling/setup-ros@0.2.1
+        uses: ros-tooling/setup-ros@v0.7
         with:
-          required-ros-distributions: foxy
+          required-ros-distributions: iron
       - uses: actions/checkout@v2
       - run: ./tools/ci/run-integration-test.sh
 
