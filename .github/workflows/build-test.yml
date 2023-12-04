@@ -67,7 +67,7 @@ jobs:
       - name: Setup ROS
         uses: ros-tooling/setup-ros@v0.7
         with:
-          required-ros-distributions: iron
+          required-ros-distributions: humble
       - uses: actions/checkout@v2
       - run: ./tools/ci/run-integration-test.sh
 
