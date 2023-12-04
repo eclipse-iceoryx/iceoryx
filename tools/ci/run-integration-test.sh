@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+# Copyright (c) 2021 - 2023 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,18 +29,18 @@ cd "${WORKSPACE}"
 msg "installing dependencies"
 # NOTE: github action ros-tooling/setup-ros@0.2.1 should be run before
 sudo apt install -y apt-transport-https
-sudo apt update && sudo apt install -y cmake libacl1-dev libncurses5-dev pkg-config ros-foxy-ros-testing
+sudo apt update && sudo apt install -y cmake libacl1-dev libncurses5-dev pkg-config ros-humble-ros-testing
 
 msg "sourcing ROS workspace"
 # shellcheck source=/dev/null
-source /opt/ros/foxy/setup.bash
+source /opt/ros/humble/setup.bash
 
 msg "checking copyrights"
-sudo rm -rf /opt/ros/foxy/lib/python3.8/site-packages/ament_copyright/template/apache2_header.txt
-sudo cp -rf tools/apache2_header.txt /opt/ros/foxy/lib/python3.8/site-packages/ament_copyright/template/.
+sudo rm -rf /opt/ros/humble/lib/python3.10/site-packages/ament_copyright/template/apache2_header.txt
+sudo cp -rf tools/apache2_header.txt /opt/ros/humble/lib/python3.10/site-packages/ament_copyright/template/.
 # shellcheck disable=SC2026
-sudo sed -i '41 c\"'c'", "'cc'", "'cpp'", "'cxx'", "'h'", "'hh'", "'hpp'", "'hxx'", "'inl'", "'sh'"' /opt/ros/foxy/lib/python3.8/site-packages/ament_copyright/main.py
-ament_copyright --exclude LICENSE CONTRIBUTING.md tools/apache2_header.txt
+sudo sed -i '41 c\"'c'", "'cc'", "'cpp'", "'cxx'", "'h'", "'hh'", "'hpp'", "'hxx'", "'inl'", "'sh'"' /opt/ros/humble/lib/python3.10/site-packages/ament_copyright/main.py
+ament_copyright ./**/* tools/apache2_header.txt
 
 msg "compiler versions:
 $(gcc --version)
