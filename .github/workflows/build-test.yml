@@ -82,7 +82,7 @@ jobs:
     needs: pre-flight-check
     steps:
       - name: Setup ROS
-        uses: ros-tooling/setup-ros@v0.6
+        uses: ros-tooling/setup-ros@v0.7
         with:
           required-ros-distributions: humble
       - uses: actions/checkout@v3
