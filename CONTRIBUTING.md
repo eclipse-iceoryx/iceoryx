@@ -197,6 +197,10 @@ necessary, do the following:
 1. Contact the maintainers beforehand by opening an issue to discuss the necessity
 1. If accepted, add the new header to `tools/scripts/used-headers.txt` for the CI to pass
 
+### Eliminating code duplication
+
+1. In some cases, the code in the constructor and assignment operations may be largely duplicated. It is encouraged to move this duplicated code into a separate function (e.g., `copy_and_move_impl`) for better reuse. Additionally, the `MoveAndCopyHelper` in `iceoryx/design` (refer to [MoveAndCopyHelper](./doc/design/move_and_copy_helper.md)) offers some functionalities that make this process easier.
+
 ## Folder structure
 
 The folder structure boils down to:
