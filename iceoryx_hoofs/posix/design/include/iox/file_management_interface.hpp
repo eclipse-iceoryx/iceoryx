@@ -33,6 +33,7 @@ enum class FileStatError
 {
     IoFailure,
     FileTooLarge,
+    BadFileDescriptor,
     UnknownError,
 };
 
@@ -44,6 +45,7 @@ enum class FileSetOwnerError
     PermissionDenied,
     ReadOnlyFilesystem,
     InvalidUidOrGid,
+    BadFileDescriptor,
     UnknownError,
 };
 
@@ -52,6 +54,7 @@ enum class FileSetPermissionError
 {
     PermissionDenied,
     ReadOnlyFilesystem,
+    BadFileDescriptor,
     UnknownError,
 };
 
