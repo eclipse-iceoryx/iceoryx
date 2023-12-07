@@ -17,17 +17,17 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
-#include "iceoryx_hoofs/internal/posix_wrapper/system_configuration.hpp"
-#include "iceoryx_hoofs/posix_wrapper/thread.hpp"
 #include "iceoryx_posh/internal/runtime/node_property.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
 #include "iox/detail/convert.hpp"
+#include "iox/detail/system_configuration.hpp"
 #include "iox/logging.hpp"
 #include "iox/posix_user.hpp"
 #include "iox/std_string_support.hpp"
+#include "iox/thread.hpp"
 
 namespace iox
 {
@@ -53,7 +53,7 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
     , m_processTerminationDelay(roudiStartupParameters.m_processTerminationDelay)
     , m_processKillDelay(roudiStartupParameters.m_processKillDelay)
 {
-    if (internal::isCompiledOn32BitSystem())
+    if (detail::isCompiledOn32BitSystem())
     {
         IOX_LOG(WARN, "Runnning RouDi on 32-bit architectures is not supported! Use at your own risk!");
     }
@@ -67,7 +67,7 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
     m_processIntrospection.addProcess(getpid(), IPC_CHANNEL_ROUDI_NAME);
 
     // initialize semaphore for discovery loop finish indicator
-    iox::posix::UnnamedSemaphoreBuilder()
+    UnnamedSemaphoreBuilder()
         .initialValue(0U)
         .isInterProcessCapable(false)
         .create(m_discoveryFinishedSemaphore)
@@ -75,7 +75,7 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
 
     // run the threads
     m_monitoringAndDiscoveryThread = std::thread(&RouDi::monitorAndDiscoveryUpdate, this);
-    posix::setThreadName(m_monitoringAndDiscoveryThread.native_handle(), "Mon+Discover");
+    setThreadName(m_monitoringAndDiscoveryThread.native_handle(), "Mon+Discover");
 
     if (roudiStartupParameters.m_runtimesMessagesThreadStart == RuntimeMessagesThreadStart::IMMEDIATE)
     {
@@ -91,7 +91,7 @@ RouDi::~RouDi() noexcept
 void RouDi::startProcessRuntimeMessagesThread() noexcept
 {
     m_handleRuntimeMessageThread = std::thread(&RouDi::processRuntimeMessages, this);
-    posix::setThreadName(m_handleRuntimeMessageThread.native_handle(), "IPC-msg-process");
+    setThreadName(m_handleRuntimeMessageThread.native_handle(), "IPC-msg-process");
 }
 
 void RouDi::shutdown() noexcept

@@ -65,7 +65,9 @@ iox_add_library(
                                 ${PROJECT_SOURCE_DIR}/posix/design/include
                                 ${PROJECT_SOURCE_DIR}/posix/ipc/include
                                 ${PROJECT_SOURCE_DIR}/posix/filesystem/include
+                                ${PROJECT_SOURCE_DIR}/posix/sync/include
                                 ${PROJECT_SOURCE_DIR}/posix/time/include
+                                ${PROJECT_SOURCE_DIR}/posix/utility/include
                                 ${PROJECT_SOURCE_DIR}/posix/vocabulary/include
 
                                 ${CMAKE_BINARY_DIR}/generated/iceoryx_hoofs/include
@@ -88,7 +90,9 @@ iox_add_library(
                                 posix/design/include/
                                 posix/ipc/include/
                                 posix/filesystem/include/
+                                posix/sync/include/
                                 posix/time/include/
+                                posix/utility/include/
                                 posix/vocabulary/include/
     FILES
         design/source/functional_interface.cpp
@@ -103,18 +107,10 @@ iox_add_library(
         source/cxx/requires.cpp
         source/error_handling/error_handler.cpp
         source/error_handling/error_handling.cpp
-        source/posix_wrapper/file_lock.cpp
-        source/posix_wrapper/mutex.cpp
-        source/posix_wrapper/named_semaphore.cpp
-        source/posix_wrapper/scheduler.cpp
-        source/posix_wrapper/semaphore_interface.cpp
         source/posix_wrapper/shared_memory_object.cpp
         source/posix_wrapper/shared_memory_object/memory_map.cpp
         source/posix_wrapper/shared_memory_object/shared_memory.cpp
         source/posix_wrapper/signal_handler.cpp
-        source/posix_wrapper/system_configuration.cpp
-        source/posix_wrapper/thread.cpp
-        source/posix_wrapper/unnamed_semaphore.cpp
         source/error_reporting/custom/default/default_error_handler.cpp
         time/source/duration.cpp
         utility/source/unique_id.cpp
@@ -124,9 +120,17 @@ iox_add_library(
         posix/design/source/file_management_interface.cpp
         posix/ipc/source/unix_domain_socket.cpp
         posix/filesystem/source/file.cpp
+        posix/filesystem/source/file_lock.cpp
         posix/filesystem/source/posix_acl.cpp
+        posix/sync/source/mutex.cpp
+        posix/sync/source/named_semaphore.cpp
+        posix/sync/source/semaphore_interface.cpp
+        posix/sync/source/thread.cpp
+        posix/sync/source/unnamed_semaphore.cpp
         posix/time/source/adaptive_wait.cpp
         posix/time/source/deadline_timer.cpp
+        posix/utility/source/posix_scheduler.cpp
+        posix/utility/source/system_configuration.cpp
         posix/vocabulary/source/file_name.cpp
         posix/vocabulary/source/file_path.cpp
         posix/vocabulary/source/group_name.cpp

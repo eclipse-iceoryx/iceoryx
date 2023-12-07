@@ -27,12 +27,9 @@
 
 namespace iox
 {
-using posix::SemaphoreWaitState;
 using posix::SharedMemory;
 using posix::SharedMemoryObject;
 using posix::SharedMemoryObjectBuilder;
-using posix::UnnamedSemaphore;
-using posix::UnnamedSemaphoreBuilder;
 
 /// NOLINTJUSTIFICATION see declaration in header
 /// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)

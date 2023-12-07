@@ -25,9 +25,9 @@ namespace popo
 {
 ThreadSafePolicy::ThreadSafePolicy() noexcept
 {
-    posix::MutexBuilder()
+    MutexBuilder()
         .isInterProcessCapable(true)
-        .mutexType(posix::MutexType::RECURSIVE)
+        .mutexType(MutexType::RECURSIVE)
         .create(m_mutex)
         .expect("Failed to create Mutex");
 }
@@ -61,7 +61,7 @@ bool ThreadSafePolicy::tryLock() const noexcept
     {
         errorHandler(PoshError::POPO__CHUNK_TRY_LOCK_ERROR, ErrorLevel::FATAL);
     }
-    return *tryLockResult == posix::MutexTryLock::LOCK_SUCCEEDED;
+    return *tryLockResult == MutexTryLock::LOCK_SUCCEEDED;
 }
 
 void SingleThreadedPolicy::lock() const noexcept

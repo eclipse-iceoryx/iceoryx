@@ -14,8 +14,9 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_POSIX_WRAPPER_MUTEX_HPP
-#define IOX_HOOFS_POSIX_WRAPPER_MUTEX_HPP
+
+#ifndef IOX_HOOFS_POSIX_SYNC_MUTEX_HPP
+#define IOX_HOOFS_POSIX_SYNC_MUTEX_HPP
 
 #include "iceoryx_platform/pthread.hpp"
 #include "iox/builder.hpp"
@@ -23,8 +24,6 @@
 #include "iox/optional.hpp"
 
 namespace iox
-{
-namespace posix
 {
 enum class MutexCreationError
 {
@@ -71,23 +70,23 @@ enum class MutexTryLock
 /// @brief Wrapper for a inter-process pthread based mutex which does not use
 ///         exceptions!
 /// @code
-///     #include "iceoryx_hoofs/internal/posix_wrapper/mutex.hpp"
+///     #include "iox/mutex.hpp"
 ///
 ///     int main() {
-///         optional<iox::posix::Mutex> myMutex;
-///         iox::posix::MutexBuilder().isInterProcessCapable(true)
-///                                   .mutexType(MutexType::RECURSIVE)
-///                                   .priorityInheritance(MutexPriorityInheritance::NONE)
-///                                   .threadTerminationBehavior(MutexThreadTerminationBehavior::RELEASE_WHEN_LOCKED)
-///                                   .create(myMutex)
-///                                   .expect("Failed to create mutex!");
+///         optional<iox::Mutex> myMutex;
+///         iox::MutexBuilder().isInterProcessCapable(true)
+///                            .mutexType(MutexType::RECURSIVE)
+///                            .priorityInheritance(MutexPriorityInheritance::NONE)
+///                            .threadTerminationBehavior(MutexThreadTerminationBehavior::RELEASE_WHEN_LOCKED)
+///                            .create(myMutex)
+///                            .expect("Failed to create mutex!");
 ///
 ///         myMutex->lock().expect("Mutex lock failed. Maybe the system is corrupted.");
 ///         // ... do stuff
 ///         myMutex->unlock().expect("Mutex unlock failed. Maybe the system is corrupted.");
 ///
 ///         {
-///             std::lock_guard<posix::mutex> lock(*myMutex);
+///             std::lock_guard<mutex> lock(*myMutex);
 ///             // ...
 ///         }
 ///
@@ -220,7 +219,6 @@ class MutexBuilder
     /// @return On failure MutexError which explains the error
     expected<void, MutexCreationError> create(optional<mutex>& uninitializedMutex) noexcept;
 };
-} // namespace posix
 } // namespace iox
 
-#endif // IOX_HOOFS_POSIX_WRAPPER_MUTEX_HPP
+#endif // IOX_HOOFS_POSIX_SYNC_MUTEX_HPP

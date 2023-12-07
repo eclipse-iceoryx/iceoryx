@@ -17,7 +17,7 @@
 
 #include "iceoryx_posh/roudi/memory/posix_shm_memory_provider.hpp"
 
-#include "iceoryx_hoofs/internal/posix_wrapper/system_configuration.hpp"
+#include "iox/detail/system_configuration.hpp"
 #include "iox/logging.hpp"
 
 #include "iceoryx_platform/signal.hpp"
@@ -49,7 +49,7 @@ PosixShmMemoryProvider::~PosixShmMemoryProvider() noexcept
 expected<void*, MemoryProviderError> PosixShmMemoryProvider::createMemory(const uint64_t size,
                                                                           const uint64_t alignment) noexcept
 {
-    if (alignment > internal::pageSize())
+    if (alignment > detail::pageSize())
     {
         return err(MemoryProviderError::MEMORY_ALIGNMENT_EXCEEDS_PAGE_SIZE);
     }

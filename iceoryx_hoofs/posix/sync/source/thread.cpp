@@ -14,13 +14,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/posix_wrapper/thread.hpp"
+#include "iox/thread.hpp"
 #include "iox/logging.hpp"
 #include "iox/posix_call.hpp"
 
 namespace iox
-{
-namespace posix
 {
 void setThreadName(std::thread::native_handle_type thread, const ThreadName_t& name) noexcept
 {
@@ -143,5 +141,4 @@ void* Thread::startRoutine(void* callable)
     self->m_callable();
     return nullptr;
 }
-} // namespace posix
 } // namespace iox

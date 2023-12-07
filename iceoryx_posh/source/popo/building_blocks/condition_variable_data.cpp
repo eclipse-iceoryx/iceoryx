@@ -29,7 +29,7 @@ ConditionVariableData::ConditionVariableData() noexcept
 ConditionVariableData::ConditionVariableData(const RuntimeName_t& runtimeName) noexcept
     : m_runtimeName(runtimeName)
 {
-    posix::UnnamedSemaphoreBuilder().initialValue(0U).isInterProcessCapable(true).create(m_semaphore).or_else([](auto) {
+    UnnamedSemaphoreBuilder().initialValue(0U).isInterProcessCapable(true).create(m_semaphore).or_else([](auto) {
         errorHandler(PoshError::POPO__CONDITION_VARIABLE_DATA_FAILED_TO_CREATE_SEMAPHORE, ErrorLevel::FATAL);
     });
 

@@ -17,10 +17,10 @@
 #ifndef IOX_HOOFS_CONCURRENT_PERIODIC_TASK_HPP
 #define IOX_HOOFS_CONCURRENT_PERIODIC_TASK_HPP
 
-#include "iceoryx_hoofs/posix_wrapper/thread.hpp"
-#include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
 #include "iox/duration.hpp"
 #include "iox/string.hpp"
+#include "iox/thread.hpp"
+#include "iox/unnamed_semaphore.hpp"
 
 #include <thread>
 
@@ -74,7 +74,7 @@ class PeriodicTask
     template <typename... Args>
     // PeriodicTaskManualStart_t is a compile time constant to indicate that this constructor does not start the task
     // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
-    PeriodicTask(const PeriodicTaskManualStart_t, const posix::ThreadName_t& taskName, Args&&... args) noexcept;
+    PeriodicTask(const PeriodicTaskManualStart_t, const ThreadName_t& taskName, Args&&... args) noexcept;
 
     /// @brief Creates a periodic task by spawning a thread. The specified callable is executed immediately on creation
     /// and then periodically after the interval duration.
@@ -89,7 +89,7 @@ class PeriodicTask
     // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
     PeriodicTask(const PeriodicTaskAutoStart_t,
                  const units::Duration interval,
-                 const posix::ThreadName_t& taskName,
+                 const ThreadName_t& taskName,
                  Args&&... args) noexcept;
 
     /// @brief Stops and joins the thread spawned by the constructor.
@@ -123,9 +123,9 @@ class PeriodicTask
 
   private:
     T m_callable;
-    posix::ThreadName_t m_taskName;
+    ThreadName_t m_taskName;
     units::Duration m_interval{units::Duration::fromMilliseconds(0U)};
-    optional<posix::UnnamedSemaphore> m_stop;
+    optional<UnnamedSemaphore> m_stop;
     std::thread m_taskExecutor;
 };
 

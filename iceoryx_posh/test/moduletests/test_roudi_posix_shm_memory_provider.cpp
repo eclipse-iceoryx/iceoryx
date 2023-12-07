@@ -17,7 +17,7 @@
 
 #include "iceoryx_posh/roudi/memory/posix_shm_memory_provider.hpp"
 
-#include "iceoryx_hoofs/internal/posix_wrapper/system_configuration.hpp"
+#include "iox/detail/system_configuration.hpp"
 
 #include "mocks/roudi_memory_block_mock.hpp"
 
@@ -103,7 +103,7 @@ TEST_F(PosixShmMemoryProvider_Test, CreationFailedWithAlignmentExceedingPageSize
     PosixShmMemoryProvider sut(TEST_SHM_NAME, iox::AccessMode::READ_WRITE, iox::OpenMode::PURGE_AND_CREATE);
     ASSERT_FALSE(sut.addMemoryBlock(&memoryBlock1).has_error());
     uint64_t MEMORY_SIZE{16};
-    uint64_t MEMORY_ALIGNMENT{iox::internal::pageSize() + 8U};
+    uint64_t MEMORY_ALIGNMENT{iox::detail::pageSize() + 8U};
     EXPECT_CALL(memoryBlock1, size()).WillRepeatedly(Return(MEMORY_SIZE));
     EXPECT_CALL(memoryBlock1, alignment()).WillRepeatedly(Return(MEMORY_ALIGNMENT));
 

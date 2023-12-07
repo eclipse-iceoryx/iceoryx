@@ -15,16 +15,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/posix_wrapper/mutex.hpp"
-#include "iceoryx_hoofs/posix_wrapper/scheduler.hpp"
+#include "iox/mutex.hpp"
+#include "iox/detail/posix_scheduler.hpp"
 #include "iox/logging.hpp"
 #include "iox/posix_call.hpp"
 
 #include "iceoryx_platform/platform_correction.hpp"
 
 namespace iox
-{
-namespace posix
 {
 /// @brief Internal struct used during mutex construction to handle all the mutex attribute settings
 struct MutexAttributes
@@ -157,8 +155,8 @@ struct MutexAttributes
                 return err(MutexCreationError::PRIORITIES_UNSUPPORTED_BY_PLATFORM);
             case EINVAL:
             {
-                auto minimumPriority = getSchedulerPriorityMinimum(Scheduler::FIFO);
-                auto maximumPriority = getSchedulerPriorityMaximum(Scheduler::FIFO);
+                auto minimumPriority = detail::getSchedulerPriorityMinimum(detail::Scheduler::FIFO);
+                auto maximumPriority = detail::getSchedulerPriorityMaximum(detail::Scheduler::FIFO);
 
                 IOX_LOG(ERROR,
                         "The priority ceiling \"" << priorityCeiling << "\" is not in the valid priority range [ "
@@ -411,5 +409,4 @@ expected<MutexTryLock, MutexTryLockError> mutex::try_lock() noexcept
 
     return (result->errnum == EBUSY) ? ok(MutexTryLock::FAILED_TO_ACQUIRE_LOCK) : ok(MutexTryLock::LOCK_SUCCEEDED);
 }
-} // namespace posix
 } // namespace iox

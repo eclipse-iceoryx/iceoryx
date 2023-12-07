@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/posix_wrapper/file_lock.hpp"
+#include "iox/file_lock.hpp"
 #include "iceoryx_platform/errno.hpp"
 #include "iceoryx_platform/fcntl.hpp"
 #include "iceoryx_platform/stat.hpp"
@@ -26,8 +26,6 @@
 #include "iceoryx_platform/platform_correction.hpp"
 
 namespace iox
-{
-namespace posix
 {
 /// NOLINTJUSTIFICATION see declaration
 /// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
@@ -285,5 +283,4 @@ FileLockError FileLock::convertErrnoToFileLockError(const int32_t errnum, const 
     }
 }
 
-} // namespace posix
 } // namespace iox

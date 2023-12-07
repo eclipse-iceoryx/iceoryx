@@ -14,14 +14,14 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_POSIX_WRAPPER_SYSTEM_CONFIGURATION_HPP
-#define IOX_HOOFS_POSIX_WRAPPER_SYSTEM_CONFIGURATION_HPP
+#ifndef IOX_HOOFS_POSIX_UTILITY_SYSTEM_CONFIGURATION_HPP
+#define IOX_HOOFS_POSIX_UTILITY_SYSTEM_CONFIGURATION_HPP
 
 #include <cstdint>
 
 namespace iox
 {
-namespace internal
+namespace detail
 {
 /// @brief returns the page size of the system
 uint64_t pageSize() noexcept;
@@ -32,7 +32,7 @@ constexpr bool isCompiledOn32BitSystem() noexcept
 {
     return INTPTR_MAX == INT32_MAX;
 }
-} // namespace internal
+} // namespace detail
 } // namespace iox
 
-#endif // IOX_HOOFS_POSIX_WRAPPER_SYSTEM_CONFIGURATION_HPP
+#endif // IOX_HOOFS_POSIX_UTILITY_SYSTEM_CONFIGURATION_HPP

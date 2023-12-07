@@ -47,7 +47,7 @@ SignalWatcher::SignalWatcher() noexcept
     , m_sigIntGuard(
           registerSignalHandler(posix::Signal::INT, internalSignalHandler).expect("Unable to register Signal::INT"))
 {
-    posix::UnnamedSemaphoreBuilder()
+    UnnamedSemaphoreBuilder()
         .isInterProcessCapable(false)
         .create(m_semaphore)
 

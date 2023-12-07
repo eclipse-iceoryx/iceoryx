@@ -230,10 +230,10 @@
     auto semaphore = iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0);
 
     // after
-    #include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
+    #include "iox/unnamed_semaphore.hpp"
 
-    iox::optional<iox::posix::UnnamedSemaphore> semaphore;
-    auto result = iox::posix::UnnamedSemaphoreBuilder()
+    iox::optional<iox::UnnamedSemaphore> semaphore;
+    auto result = iox::UnnamedSemaphoreBuilder()
                     .initialValue(0U)
                     .isInterProcessCapable(true)
                     .create(semaphore);
@@ -250,10 +250,10 @@
                                                S_IRUSR | S_IWUSR,
                                                    0);
     // after
-    #include "iceoryx_hoofs/posix_wrapper/named_semaphore.hpp"
+    #include "iox/named_semaphore.hpp"
 
-    iox::optional<iox::posix::NamedSemaphore> semaphore;
-    auto result = iox::posix::NamedSemaphoreBuilder()
+    iox::optional<iox::NamedSemaphore> semaphore;
+    auto result = iox::NamedSemaphoreBuilder()
                     .name("mySemaphoreName")
                     .openMode(iox::OpenMode::OPEN_OR_CREATE)
                     .permissions(iox::perms::owner_all)
@@ -330,11 +330,11 @@
                         .expect("Oh no I couldn't create the lock file");
 
     // after
-    auto fileLock = iox::posix::FileLockBuilder().name("lockFileName")
-                                                 .path("/Now/I/Can/Add/A/Path")
-                                                 .permission(iox::perms::owner_all)
-                                                 .create()
-                                                 .expect("Oh no I couldn't create the lock file");
+    auto fileLock = iox::FileLockBuilder().name("lockFileName")
+                                          .path("/Now/I/Can/Add/A/Path")
+                                          .permission(iox::perms::owner_all)
+                                          .create()
+                                          .expect("Oh no I couldn't create the lock file");
     ```
 
 10. `isValidFilePath` is removed use `isValidPathToFile` instead.
@@ -651,9 +651,9 @@
     myMutex.lock();
 
     // after
-    iox::optional<mutex> myMutex;
-    iox::posix::MutexBuilder()
-        .mutexType(iox::posix::MutexType::RECURSIVE)
+    iox::optional<iox::mutex> myMutex;
+    iox::MutexBuilder()
+        .mutexType(iox::MutexType::RECURSIVE)
         .create(myMutex);
     myMutex->lock();
     ```
@@ -1266,3 +1266,5 @@
     // after
     IOX_POSIX_CALL(open)("/hypnotoad");
     ```
+
+57. `iox::posix::getSchedulerPriorityMinimum` and `iox::posix::getSchedulerPriorityMaximum` has become internal API

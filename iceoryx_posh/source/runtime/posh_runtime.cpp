@@ -16,8 +16,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_hoofs/internal/posix_wrapper/system_configuration.hpp"
 #include "iceoryx_posh/internal/runtime/posh_runtime_impl.hpp"
+#include "iox/detail/system_configuration.hpp"
 #include "iox/filesystem.hpp"
 #include "iox/logging.hpp"
 
@@ -120,7 +120,7 @@ ScopeGuard PoshRuntime::getLifetimeParticipant() noexcept
 PoshRuntime::PoshRuntime(optional<const RuntimeName_t*> name) noexcept
     : m_appName(verifyInstanceName(name))
 {
-    if (internal::isCompiledOn32BitSystem())
+    if (detail::isCompiledOn32BitSystem())
     {
         IOX_LOG(WARN, "Running applications on 32-bit architectures is not supported! Use at your own risk!");
     }

@@ -15,15 +15,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/posix_wrapper/semaphore_interface.hpp"
-#include "iceoryx_hoofs/posix_wrapper/named_semaphore.hpp"
-#include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
 #include "iceoryx_hoofs/testing/test.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_platform/platform_settings.hpp"
 #include "iceoryx_platform/time.hpp"
+#include "iox/detail/semaphore_interface.hpp"
 #include "iox/duration.hpp"
+#include "iox/named_semaphore.hpp"
+#include "iox/unnamed_semaphore.hpp"
 
 #include "test.hpp"
 #include "test_posix_semaphore_common.hpp"
@@ -36,6 +36,7 @@
 namespace
 {
 using namespace ::testing;
+using namespace iox;
 using namespace iox::units::duration_literals;
 
 template <typename T>
@@ -51,7 +52,7 @@ class SemaphoreInterfaceTest : public Test
         ASSERT_TRUE(SutFactory::create(sut, 0U));
     }
 
-    iox::expected<void, iox::posix::SemaphoreError> createSutWithInitialValue(const uint32_t value)
+    iox::expected<void, SemaphoreError> createSutWithInitialValue(const uint32_t value)
     {
         sut.reset();
         return SutFactory::create(sut, value);
@@ -75,22 +76,19 @@ constexpr iox::units::Duration SemaphoreInterfaceTest<T>::TIMING_TEST_WAIT_TIME;
 
 struct UnnamedSemaphoreTest
 {
-    using SutType = iox::optional<iox::posix::UnnamedSemaphore>;
-    static iox::expected<void, iox::posix::SemaphoreError> create(SutType& sut, const uint32_t initialValue)
+    using SutType = iox::optional<UnnamedSemaphore>;
+    static iox::expected<void, SemaphoreError> create(SutType& sut, const uint32_t initialValue)
     {
-        return iox::posix::UnnamedSemaphoreBuilder()
-            .initialValue(initialValue)
-            .isInterProcessCapable(false)
-            .create(sut);
+        return UnnamedSemaphoreBuilder().initialValue(initialValue).isInterProcessCapable(false).create(sut);
     }
 };
 
 struct NamedSemaphoreTest
 {
-    using SutType = iox::optional<iox::posix::NamedSemaphore>;
-    static iox::expected<void, iox::posix::SemaphoreError> create(SutType& sut, const uint32_t initialValue)
+    using SutType = iox::optional<NamedSemaphore>;
+    static iox::expected<void, SemaphoreError> create(SutType& sut, const uint32_t initialValue)
     {
-        return iox::posix::NamedSemaphoreBuilder()
+        return NamedSemaphoreBuilder()
             .initialValue(initialValue)
             .name("TestSemaphore")
             .openMode(iox::OpenMode::PURGE_AND_CREATE)
@@ -121,7 +119,7 @@ TYPED_TEST(SemaphoreInterfaceTest, InitialValueExceedingMaxSupportedValueFails)
     auto result = this->createSutWithInitialValue(INITIAL_VALUE);
 
     ASSERT_THAT(result.has_error(), Eq(true));
-    EXPECT_THAT(result.error(), Eq(iox::posix::SemaphoreError::SEMAPHORE_OVERFLOW));
+    EXPECT_THAT(result.error(), Eq(SemaphoreError::SEMAPHORE_OVERFLOW));
 }
 
 TYPED_TEST(SemaphoreInterfaceTest, PostWithMaxSemaphoreValueLeadsToOverflow)
@@ -140,7 +138,7 @@ TYPED_TEST(SemaphoreInterfaceTest, PostWithMaxSemaphoreValueLeadsToOverflow)
 
     auto result = this->sut->post();
     ASSERT_TRUE(result.has_error());
-    EXPECT_THAT(result.error(), Eq(iox::posix::SemaphoreError::SEMAPHORE_OVERFLOW));
+    EXPECT_THAT(result.error(), Eq(SemaphoreError::SEMAPHORE_OVERFLOW));
 }
 
 TYPED_TEST(SemaphoreInterfaceTest, PostIncreasesSemaphoreValue)
@@ -225,7 +223,7 @@ TYPED_TEST(SemaphoreInterfaceTest, SuccessfulTimedWaitDecreasesSemaphoreValue)
     {
         auto call = this->sut->timedWait(timeToWait);
         ASSERT_FALSE(call.has_error());
-        ASSERT_TRUE(call.value() == iox::posix::SemaphoreWaitState::NO_TIMEOUT);
+        ASSERT_TRUE(call.value() == SemaphoreWaitState::NO_TIMEOUT);
     }
 
     EXPECT_TRUE(setSemaphoreToZeroAndVerifyValue(*this->sut, NUMBER_OF_INCREMENTS - NUMBER_OF_DECREMENTS));
@@ -243,7 +241,7 @@ TYPED_TEST(SemaphoreInterfaceTest, FailingTimedWaitDoesNotChangeSemaphoreValue)
     {
         auto call = this->sut->timedWait(timeToWait);
         ASSERT_FALSE(call.has_error());
-        ASSERT_TRUE(call.value() == iox::posix::SemaphoreWaitState::TIMEOUT);
+        ASSERT_TRUE(call.value() == SemaphoreWaitState::TIMEOUT);
     }
 
     EXPECT_TRUE(setSemaphoreToZeroAndVerifyValue(*this->sut, 0U));
@@ -304,7 +302,7 @@ TYPED_TEST(SemaphoreInterfaceTest, TimedWaitBlocksAtLeastDefinedSleepTimeAndSign
 
 
     ASSERT_FALSE(result.has_error());
-    EXPECT_THAT(*result, Eq(iox::posix::SemaphoreWaitState::TIMEOUT));
+    EXPECT_THAT(*result, Eq(SemaphoreWaitState::TIMEOUT));
 
     EXPECT_THAT(std::chrono::nanoseconds(end - start).count(), Ge(this->TIMING_TEST_WAIT_TIME.toNanoseconds()));
 }

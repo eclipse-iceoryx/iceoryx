@@ -19,10 +19,10 @@
 
 #include "iceoryx_posh/roudi/memory/roudi_memory_interface.hpp"
 
-#include "iceoryx_hoofs/posix_wrapper/file_lock.hpp"
 #include "iceoryx_posh/roudi/memory/default_roudi_memory.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
 #include "iceoryx_posh/roudi/port_pool.hpp"
+#include "iox/file_lock.hpp"
 #include "iox/filesystem.hpp"
 #include "iox/logging.hpp"
 
@@ -62,13 +62,13 @@ class IceOryxRouDiMemoryManager : public RouDiMemoryInterface
   private:
     // in order to prevent a second RouDi to cleanup the memory resources of a running RouDi, this resources are
     // protected by a file lock
-    posix::FileLock fileLock = std::move(
-        posix::FileLockBuilder()
+    FileLock fileLock = std::move(
+        FileLockBuilder()
             .name(ROUDI_LOCK_NAME)
             .permission(iox::perms::owner_read | iox::perms::owner_write)
             .create()
             .or_else([](auto& error) {
-                if (error == posix::FileLockError::LOCKED_BY_OTHER_PROCESS)
+                if (error == FileLockError::LOCKED_BY_OTHER_PROCESS)
                 {
                     IOX_LOG(FATAL, "Could not acquire lock, is RouDi still running?");
                     errorHandler(PoshError::ICEORYX_ROUDI_MEMORY_MANAGER__ROUDI_STILL_RUNNING, iox::ErrorLevel::FATAL);

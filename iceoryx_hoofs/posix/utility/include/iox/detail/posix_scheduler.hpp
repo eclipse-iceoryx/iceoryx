@@ -13,8 +13,9 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_POSIX_WRAPPER_SCHEDULER_HPP
-#define IOX_HOOFS_POSIX_WRAPPER_SCHEDULER_HPP
+
+#ifndef IOX_HOOFS_POSIX_UTILITY_POSIX_SCHEDULER_HPP
+#define IOX_HOOFS_POSIX_UTILITY_POSIX_SCHEDULER_HPP
 
 #include "iceoryx_platform/sched.hpp"
 
@@ -22,7 +23,7 @@
 
 namespace iox
 {
-namespace posix
+namespace detail
 {
 /// @brief Defines all supported scheduler
 enum class Scheduler : int32_t
@@ -39,7 +40,7 @@ int32_t getSchedulerPriorityMinimum(const Scheduler scheduler) noexcept;
 /// @param[in] scheduler the scheduler which is queried
 /// @return The maximum priority of the scheduler
 int32_t getSchedulerPriorityMaximum(const Scheduler scheduler) noexcept;
-} // namespace posix
+} // namespace detail
 } // namespace iox
 
-#endif
+#endif // IOX_HOOFS_POSIX_UTILITY_POSIX_SCHEDULER_HPP
