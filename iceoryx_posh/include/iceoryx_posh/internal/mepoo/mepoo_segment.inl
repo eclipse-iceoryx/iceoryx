@@ -1,5 +1,6 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2023 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -39,10 +40,10 @@ inline MePooSegment<SharedMemoryObjectType, MemoryManagerType>::MePooSegment(
     const PosixGroup& readerGroup,
     const PosixGroup& writerGroup,
     const iox::mepoo::MemoryInfo& memoryInfo) noexcept
-    : m_sharedMemoryObject(std::move(createSharedMemoryObject(mempoolConfig, writerGroup)))
-    , m_readerGroup(readerGroup)
+    : m_readerGroup(readerGroup)
     , m_writerGroup(writerGroup)
     , m_memoryInfo(memoryInfo)
+    , m_sharedMemoryObject(createSharedMemoryObject(mempoolConfig, writerGroup))
 {
     using namespace detail;
     PosixAcl acl;
@@ -85,13 +86,13 @@ inline SharedMemoryObjectType MePooSegment<SharedMemoryObjectType, MemoryManager
                 {
                     errorHandler(PoshError::MEPOO__SEGMENT_INSUFFICIENT_SEGMENT_IDS);
                 }
-                this->setSegmentId(static_cast<uint64_t>(maybeSegmentId.value()));
+                this->m_segmentId = static_cast<uint64_t>(maybeSegmentId.value());
+                this->m_segmentSize = sharedMemoryObject.get_size().expect("Failed to get SHM size.");
 
                 IOX_LOG(DEBUG,
-                        "Roudi registered payload data segment "
-                            << iox::log::hex(sharedMemoryObject.getBaseAddress()) << " with size "
-                            << sharedMemoryObject.get_size().expect("Failed to get SHM size.") << " to id "
-                            << m_segmentId);
+                        "Roudi registered payload data segment " << iox::log::hex(sharedMemoryObject.getBaseAddress())
+                                                                 << " with size " << m_segmentSize << " to id "
+                                                                 << m_segmentId);
             })
             .or_else([](auto&) { errorHandler(PoshError::MEPOO__SEGMENT_UNABLE_TO_CREATE_SHARED_MEMORY_OBJECT); })
             .value());
@@ -116,22 +117,15 @@ inline MemoryManagerType& MePooSegment<SharedMemoryObjectType, MemoryManagerType
 }
 
 template <typename SharedMemoryObjectType, typename MemoryManagerType>
-inline const SharedMemoryObjectType&
-MePooSegment<SharedMemoryObjectType, MemoryManagerType>::getSharedMemoryObject() const noexcept
-{
-    return m_sharedMemoryObject;
-}
-
-template <typename SharedMemoryObjectType, typename MemoryManagerType>
 inline uint64_t MePooSegment<SharedMemoryObjectType, MemoryManagerType>::getSegmentId() const noexcept
 {
     return m_segmentId;
 }
 
 template <typename SharedMemoryObjectType, typename MemoryManagerType>
-inline void MePooSegment<SharedMemoryObjectType, MemoryManagerType>::setSegmentId(const uint64_t segmentId) noexcept
+inline uint64_t MePooSegment<SharedMemoryObjectType, MemoryManagerType>::getSegmentSize() const noexcept
 {
-    m_segmentId = segmentId;
+    return m_segmentSize;
 }
 
 } // namespace mepoo

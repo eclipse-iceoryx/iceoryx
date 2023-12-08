@@ -32,6 +32,9 @@ expected<iox_stat, FileStatError> get_file_status(const int fildes) noexcept
     {
         switch (result.error().errnum)
         {
+        case EBADF:
+            IOX_LOG(ERROR, "The provided file descriptor is invalid.");
+            return err(FileStatError::BadFileDescriptor);
         case EIO:
             IOX_LOG(ERROR, "Unable to acquire file status since an io failure occurred while reading.");
             return err(FileStatError::IoFailure);
@@ -41,7 +44,7 @@ expected<iox_stat, FileStatError> get_file_status(const int fildes) noexcept
                     "corresponding structure.");
             return err(FileStatError::FileTooLarge);
         default:
-            IOX_LOG(ERROR, "Unable to acquire file status due to an unknown failure");
+            IOX_LOG(ERROR, "Unable to acquire file status due to an unknown failure. errno: " << result.error().errnum);
             return err(FileStatError::UnknownError);
         }
     }
@@ -57,6 +60,9 @@ expected<void, FileSetOwnerError> set_owner(const int fildes, const uid_t uid, c
     {
         switch (result.error().errnum)
         {
+        case EBADF:
+            IOX_LOG(ERROR, "The provided file descriptor is invalid.");
+            return err(FileSetOwnerError::BadFileDescriptor);
         case EPERM:
             IOX_LOG(ERROR, "Unable to set owner due to insufficient permissions.");
             return err(FileSetOwnerError::PermissionDenied);
@@ -75,7 +81,7 @@ expected<void, FileSetOwnerError> set_owner(const int fildes, const uid_t uid, c
             IOX_LOG(ERROR, "Unable to set owner since an interrupt was received.");
             return err(FileSetOwnerError::Interrupt);
         default:
-            IOX_LOG(ERROR, "Unable to set owner since an unknown error occurred.");
+            IOX_LOG(ERROR, "Unable to set owner since an unknown error occurred. errno: " << result.error().errnum);
             return err(FileSetOwnerError::UnknownError);
         }
     }
@@ -91,6 +97,9 @@ expected<void, FileSetPermissionError> set_permissions(const int fildes, const a
     {
         switch (result.error().errnum)
         {
+        case EBADF:
+            IOX_LOG(ERROR, "The provided file descriptor is invalid.");
+            return err(FileSetPermissionError::BadFileDescriptor);
         case EPERM:
             IOX_LOG(ERROR, "Unable to adjust permissions due to insufficient permissions.");
             return err(FileSetPermissionError::PermissionDenied);
@@ -98,7 +107,8 @@ expected<void, FileSetPermissionError> set_permissions(const int fildes, const a
             IOX_LOG(ERROR, "Unable to adjust permissions since it is a read-only filesystem.");
             return err(FileSetPermissionError::ReadOnlyFilesystem);
         default:
-            IOX_LOG(ERROR, "Unable to adjust permissions since an unknown error occurred.");
+            IOX_LOG(ERROR,
+                    "Unable to adjust permissions since an unknown error occurred. errno: " << result.error().errnum);
             return err(FileSetPermissionError::UnknownError);
         }
     }

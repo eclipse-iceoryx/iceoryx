@@ -55,13 +55,11 @@ class SegmentManager
     {
       public:
         SegmentMapping(const ShmName_t& sharedMemoryName,
-                       const void* const startAddress,
                        uint64_t size,
                        bool isWritable,
                        uint64_t segmentId,
                        const iox::mepoo::MemoryInfo& memoryInfo = iox::mepoo::MemoryInfo()) noexcept
             : m_sharedMemoryName(sharedMemoryName)
-            , m_startAddress(startAddress)
             , m_size(size)
             , m_isWritable(isWritable)
             , m_segmentId(segmentId)
@@ -71,7 +69,6 @@ class SegmentManager
         }
 
         ShmName_t m_sharedMemoryName{""};
-        const void* m_startAddress{nullptr};
         uint64_t m_size{0};
         bool m_isWritable{false};
         uint64_t m_segmentId{0};
