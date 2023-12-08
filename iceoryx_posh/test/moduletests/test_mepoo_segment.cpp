@@ -1,5 +1,6 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2023 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -168,25 +169,13 @@ TEST_F(MePooSegment_test, SharedMemoryCreationParameter)
         MePooSegment_test::SharedMemoryObject_MOCK::createFct();
 }
 
-TEST_F(MePooSegment_test, GetSharedMemoryObject)
+TEST_F(MePooSegment_test, GetSegmentSize)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "e1c12dd0-fd7d-4be3-918b-08d16a68c8e0");
+    ::testing::Test::RecordProperty("TEST_ID", "0eee50c0-251e-4313-bb35-d83a0de27ce2");
     GTEST_SKIP_FOR_ADDITIONAL_USER() << "This test requires the -DTEST_WITH_ADDITIONAL_USER=ON cmake argument";
 
-    uint64_t memorySizeInBytes{0};
-    MePooSegment_test::SharedMemoryObject_MOCK::createVerificator = [&](const detail::PosixSharedMemory::Name_t,
-                                                                        const uint64_t f_memorySizeInBytes,
-                                                                        const iox::AccessMode,
-                                                                        const iox::OpenMode,
-                                                                        const void*,
-                                                                        const iox::access_rights) {
-        memorySizeInBytes = f_memorySizeInBytes;
-    };
-    SUT sut{mepooConfig, m_managementAllocator, PosixGroup{"iox_roudi_test1"}, PosixGroup{"iox_roudi_test2"}};
-    MePooSegment_test::SharedMemoryObject_MOCK::createVerificator =
-        MePooSegment_test::SharedMemoryObject_MOCK::createFct();
-
-    EXPECT_THAT(sut.getSharedMemoryObject().get_size().expect("Failed to get SHM size"), Eq(memorySizeInBytes));
+    auto sut = createSut();
+    EXPECT_THAT(sut->getSegmentSize(), Eq(MemoryManager::requiredChunkMemorySize(mepooConfig)));
 }
 
 TEST_F(MePooSegment_test, GetReaderGroup)

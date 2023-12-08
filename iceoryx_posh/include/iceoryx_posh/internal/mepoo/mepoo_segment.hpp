@@ -1,5 +1,6 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2023 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -42,28 +43,28 @@ class MePooSegment
 
     PosixGroup getWriterGroup() const noexcept;
     PosixGroup getReaderGroup() const noexcept;
-    const SharedMemoryObjectType& getSharedMemoryObject() const noexcept;
+
     MemoryManagerType& getMemoryManager() noexcept;
 
     uint64_t getSegmentId() const noexcept;
+
+    uint64_t getSegmentSize() const noexcept;
 
   protected:
     SharedMemoryObjectType createSharedMemoryObject(const MePooConfig& mempoolConfig,
                                                     const PosixGroup& writerGroup) noexcept;
 
   protected:
-    SharedMemoryObjectType m_sharedMemoryObject;
-    MemoryManagerType m_memoryManager;
     PosixGroup m_readerGroup;
     PosixGroup m_writerGroup;
-    uint64_t m_segmentId;
+    uint64_t m_segmentId{0};
+    uint64_t m_segmentSize{0};
     iox::mepoo::MemoryInfo m_memoryInfo;
+    SharedMemoryObjectType m_sharedMemoryObject;
+    MemoryManagerType m_memoryManager;
 
     static constexpr access_rights SEGMENT_PERMISSIONS =
         perms::owner_read | perms::owner_write | perms::group_read | perms::group_write;
-
-  private:
-    void setSegmentId(const uint64_t segmentId) noexcept;
 };
 } // namespace mepoo
 } // namespace iox
