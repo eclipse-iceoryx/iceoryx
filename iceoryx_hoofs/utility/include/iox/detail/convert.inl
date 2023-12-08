@@ -15,8 +15,9 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_DUST_CXX_CONVERT_INL
-#define IOX_DUST_CXX_CONVERT_INL
+
+#ifndef IOX_HOOFS_UTILITY_CONVERT_INL
+#define IOX_HOOFS_UTILITY_CONVERT_INL
 
 #include "iox/detail/convert.hpp"
 #include "iox/logging.hpp"
@@ -439,4 +440,4 @@ inline bool convert::fromString<bool>(const char* v, bool& dest) noexcept
 
 } // namespace iox
 
-#endif // IOX_DUST_CXX_CONVERT_INL
+#endif // IOX_HOOFS_UTILITY_CONVERT_INL
