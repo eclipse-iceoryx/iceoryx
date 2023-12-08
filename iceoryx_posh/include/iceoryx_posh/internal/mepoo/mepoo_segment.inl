@@ -43,7 +43,7 @@ inline MePooSegment<SharedMemoryObjectType, MemoryManagerType>::MePooSegment(
     : m_readerGroup(readerGroup)
     , m_writerGroup(writerGroup)
     , m_memoryInfo(memoryInfo)
-    , m_sharedMemoryObject(std::move(createSharedMemoryObject(mempoolConfig, writerGroup)))
+    , m_sharedMemoryObject(createSharedMemoryObject(mempoolConfig, writerGroup))
 {
     using namespace detail;
     PosixAcl acl;
