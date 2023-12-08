@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
+#include "iox/detail/posix_shared_memory.hpp"
 #include "iceoryx_platform/fcntl.hpp"
 #include "iceoryx_platform/mman.hpp"
 #include "iceoryx_platform/stat.hpp"
@@ -30,18 +30,18 @@
 
 namespace iox
 {
-namespace posix
+namespace detail
 {
-string<SharedMemory::Name_t::capacity() + 1> addLeadingSlash(const SharedMemory::Name_t& name) noexcept
+string<PosixSharedMemory::Name_t::capacity() + 1> addLeadingSlash(const PosixSharedMemory::Name_t& name) noexcept
 {
-    string<SharedMemory::Name_t::capacity() + 1> nameWithLeadingSlash = "/";
+    string<PosixSharedMemory::Name_t::capacity() + 1> nameWithLeadingSlash = "/";
     nameWithLeadingSlash.append(TruncateToCapacity, name);
     return nameWithLeadingSlash;
 }
 
 // NOLINTJUSTIFICATION the function size and cognitive complexity results from the error handling and the expanded log macro
 // NOLINTNEXTLINE(readability-function-size,readability-function-cognitive-complexity)
-expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
+expected<PosixSharedMemory, PosixSharedMemoryError> PosixSharedMemoryBuilder::create() noexcept
 {
     auto printError = [this] {
         IOX_LOG(ERROR,
@@ -56,7 +56,7 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
     if (m_name.empty())
     {
         IOX_LOG(ERROR, "No shared memory name specified!");
-        return err(SharedMemoryError::EMPTY_NAME);
+        return err(PosixSharedMemoryError::EMPTY_NAME);
     }
 
     if (!isValidFileName(m_name))
@@ -64,7 +64,7 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
         IOX_LOG(ERROR,
                 "Shared memory requires a valid file name (not path) as name and \"" << m_name
                                                                                      << "\" is not a valid file name");
-        return err(SharedMemoryError::INVALID_FILE_NAME);
+        return err(PosixSharedMemoryError::INVALID_FILE_NAME);
     }
 
     auto nameWithLeadingSlash = addLeadingSlash(m_name);
@@ -77,11 +77,11 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
         IOX_LOG(ERROR,
                 "Cannot create shared-memory file \"" << m_name << "\" in read-only mode. "
                                                       << "Initializing a new file requires write access");
-        return err(SharedMemoryError::INCOMPATIBLE_OPEN_AND_ACCESS_MODE);
+        return err(PosixSharedMemoryError::INCOMPATIBLE_OPEN_AND_ACCESS_MODE);
     }
 
     // the mask will be applied to the permissions, therefore we need to set it to 0
-    shm_handle_t sharedMemoryFileHandle = SharedMemory::INVALID_HANDLE;
+    shm_handle_t sharedMemoryFileHandle = PosixSharedMemory::INVALID_HANDLE;
     mode_t umaskSaved = umask(0U);
     {
         ScopeGuard umaskGuard([&] { umask(umaskSaved); });
@@ -89,7 +89,7 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
         if (m_openMode == OpenMode::PURGE_AND_CREATE)
         {
             IOX_DISCARD_RESULT(IOX_POSIX_CALL(iox_shm_unlink)(nameWithLeadingSlash.c_str())
-                                   .failureReturnValue(SharedMemory::INVALID_HANDLE)
+                                   .failureReturnValue(PosixSharedMemory::INVALID_HANDLE)
                                    .ignoreErrnos(ENOENT)
                                    .evaluate());
         }
@@ -100,7 +100,7 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
                 convertToOflags(m_accessMode,
                                 (m_openMode == OpenMode::OPEN_OR_CREATE) ? OpenMode::EXCLUSIVE_CREATE : m_openMode),
                 m_filePermissions.value())
-                .failureReturnValue(SharedMemory::INVALID_HANDLE)
+                .failureReturnValue(PosixSharedMemory::INVALID_HANDLE)
                 .suppressErrorMessagesForErrnos((m_openMode == OpenMode::OPEN_OR_CREATE) ? EEXIST : 0)
                 .evaluate();
         if (result.has_error())
@@ -113,7 +113,7 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
                 result = IOX_POSIX_CALL(iox_shm_open)(nameWithLeadingSlash.c_str(),
                                                       convertToOflags(m_accessMode, OpenMode::OPEN_EXISTING),
                                                       m_filePermissions.value())
-                             .failureReturnValue(SharedMemory::INVALID_HANDLE)
+                             .failureReturnValue(PosixSharedMemory::INVALID_HANDLE)
                              .evaluate();
             }
 
@@ -121,7 +121,7 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
             if (result.has_error())
             {
                 printError();
-                return err(SharedMemory::errnoToEnum(result.error().errnum));
+                return err(PosixSharedMemory::errnoToEnum(result.error().errnum));
             }
         }
         sharedMemoryFileHandle = result->value;
@@ -130,22 +130,25 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
     if (hasOwnership)
     {
         auto result = IOX_POSIX_CALL(ftruncate)(sharedMemoryFileHandle, static_cast<int64_t>(m_size))
-                          .failureReturnValue(SharedMemory::INVALID_HANDLE)
+                          .failureReturnValue(PosixSharedMemory::INVALID_HANDLE)
                           .evaluate();
         if (result.has_error())
         {
             printError();
 
             IOX_POSIX_CALL(iox_shm_close)
-            (sharedMemoryFileHandle).failureReturnValue(SharedMemory::INVALID_HANDLE).evaluate().or_else([&](auto& r) {
-                IOX_LOG(ERROR,
-                        "Unable to close filedescriptor (close failed) : " << r.getHumanReadableErrnum()
-                                                                           << " for SharedMemory \"" << m_name << "\"");
-            });
+            (sharedMemoryFileHandle)
+                .failureReturnValue(PosixSharedMemory::INVALID_HANDLE)
+                .evaluate()
+                .or_else([&](auto& r) {
+                    IOX_LOG(ERROR,
+                            "Unable to close filedescriptor (close failed) : "
+                                << r.getHumanReadableErrnum() << " for SharedMemory \"" << m_name << "\"");
+                });
 
             IOX_POSIX_CALL(iox_shm_unlink)
             (nameWithLeadingSlash.c_str())
-                .failureReturnValue(SharedMemory::INVALID_HANDLE)
+                .failureReturnValue(PosixSharedMemory::INVALID_HANDLE)
                 .evaluate()
                 .or_else([&](auto&) {
                     IOX_LOG(ERROR,
@@ -153,44 +156,44 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
                                 << m_name << "\". This may be a SharedMemory leak.");
                 });
 
-            return err(SharedMemory::errnoToEnum(result.error().errnum));
+            return err(PosixSharedMemory::errnoToEnum(result.error().errnum));
         }
     }
 
-    return ok(SharedMemory(m_name, sharedMemoryFileHandle, hasOwnership));
+    return ok(PosixSharedMemory(m_name, sharedMemoryFileHandle, hasOwnership));
 }
 
-SharedMemory::SharedMemory(const Name_t& name, const shm_handle_t handle, const bool hasOwnership) noexcept
+PosixSharedMemory::PosixSharedMemory(const Name_t& name, const shm_handle_t handle, const bool hasOwnership) noexcept
     : m_name{name}
     , m_handle{handle}
     , m_hasOwnership{hasOwnership}
 {
 }
 
-SharedMemory::~SharedMemory() noexcept
+PosixSharedMemory::~PosixSharedMemory() noexcept
 {
     destroy();
 }
 
-void SharedMemory::destroy() noexcept
+void PosixSharedMemory::destroy() noexcept
 {
     close();
     unlink();
 }
 
-void SharedMemory::reset() noexcept
+void PosixSharedMemory::reset() noexcept
 {
     m_hasOwnership = false;
     m_name = Name_t();
     m_handle = INVALID_HANDLE;
 }
 
-SharedMemory::SharedMemory(SharedMemory&& rhs) noexcept
+PosixSharedMemory::PosixSharedMemory(PosixSharedMemory&& rhs) noexcept
 {
     *this = std::move(rhs);
 }
 
-SharedMemory& SharedMemory::operator=(SharedMemory&& rhs) noexcept
+PosixSharedMemory& PosixSharedMemory::operator=(PosixSharedMemory&& rhs) noexcept
 {
     if (this != &rhs)
     {
@@ -205,22 +208,22 @@ SharedMemory& SharedMemory::operator=(SharedMemory&& rhs) noexcept
     return *this;
 }
 
-shm_handle_t SharedMemory::getHandle() const noexcept
+shm_handle_t PosixSharedMemory::getHandle() const noexcept
 {
     return m_handle;
 }
 
-shm_handle_t SharedMemory::get_file_handle() const noexcept
+shm_handle_t PosixSharedMemory::get_file_handle() const noexcept
 {
     return m_handle;
 }
 
-bool SharedMemory::hasOwnership() const noexcept
+bool PosixSharedMemory::hasOwnership() const noexcept
 {
     return m_hasOwnership;
 }
 
-expected<bool, SharedMemoryError> SharedMemory::unlinkIfExist(const Name_t& name) noexcept
+expected<bool, PosixSharedMemoryError> PosixSharedMemory::unlinkIfExist(const Name_t& name) noexcept
 {
     auto nameWithLeadingSlash = addLeadingSlash(name);
 
@@ -237,7 +240,7 @@ expected<bool, SharedMemoryError> SharedMemory::unlinkIfExist(const Name_t& name
     return ok(result->errnum != ENOENT);
 }
 
-bool SharedMemory::unlink() noexcept
+bool PosixSharedMemory::unlink() noexcept
 {
     if (m_hasOwnership)
     {
@@ -254,7 +257,7 @@ bool SharedMemory::unlink() noexcept
     return true;
 }
 
-bool SharedMemory::close() noexcept
+bool PosixSharedMemory::close() noexcept
 {
     if (m_handle != INVALID_HANDLE)
     {
@@ -272,53 +275,53 @@ bool SharedMemory::close() noexcept
 
 // NOLINTJUSTIFICATION the function size and cognitive complexity results from the error handling and the expanded log macro
 // NOLINTNEXTLINE(readability-function-size,readability-function-cognitive-complexity)
-SharedMemoryError SharedMemory::errnoToEnum(const int32_t errnum) noexcept
+PosixSharedMemoryError PosixSharedMemory::errnoToEnum(const int32_t errnum) noexcept
 {
     switch (errnum)
     {
     case EACCES:
         IOX_LOG(ERROR, "No permission to modify, truncate or access the shared memory!");
-        return SharedMemoryError::INSUFFICIENT_PERMISSIONS;
+        return PosixSharedMemoryError::INSUFFICIENT_PERMISSIONS;
     case EPERM:
         IOX_LOG(ERROR, "Resizing a file beyond its current size is not supported by the filesystem!");
-        return SharedMemoryError::NO_RESIZE_SUPPORT;
+        return PosixSharedMemoryError::NO_RESIZE_SUPPORT;
     case EFBIG:
         IOX_LOG(ERROR, "Requested Shared Memory is larger then the maximum file size.");
-        return SharedMemoryError::REQUESTED_MEMORY_EXCEEDS_MAXIMUM_FILE_SIZE;
+        return PosixSharedMemoryError::REQUESTED_MEMORY_EXCEEDS_MAXIMUM_FILE_SIZE;
     case EINVAL:
         IOX_LOG(ERROR,
                 "Requested Shared Memory is larger then the maximum file size or the filedescriptor does not "
                 "belong to a regular file.");
-        return SharedMemoryError::REQUESTED_MEMORY_EXCEEDS_MAXIMUM_FILE_SIZE;
+        return PosixSharedMemoryError::REQUESTED_MEMORY_EXCEEDS_MAXIMUM_FILE_SIZE;
     case EBADF:
         IOX_LOG(ERROR, "Provided filedescriptor is not a valid filedescriptor.");
-        return SharedMemoryError::INVALID_FILEDESCRIPTOR;
+        return PosixSharedMemoryError::INVALID_FILEDESCRIPTOR;
     case EEXIST:
         IOX_LOG(ERROR, "A Shared Memory with the given name already exists.");
-        return SharedMemoryError::DOES_EXIST;
+        return PosixSharedMemoryError::DOES_EXIST;
     case EISDIR:
         IOX_LOG(ERROR, "The requested Shared Memory file is a directory.");
-        return SharedMemoryError::PATH_IS_A_DIRECTORY;
+        return PosixSharedMemoryError::PATH_IS_A_DIRECTORY;
     case ELOOP:
         IOX_LOG(ERROR, "Too many symbolic links encountered while traversing the path.");
-        return SharedMemoryError::TOO_MANY_SYMBOLIC_LINKS;
+        return PosixSharedMemoryError::TOO_MANY_SYMBOLIC_LINKS;
     case EMFILE:
         IOX_LOG(ERROR, "Process limit of maximum open files reached.");
-        return SharedMemoryError::PROCESS_LIMIT_OF_OPEN_FILES_REACHED;
+        return PosixSharedMemoryError::PROCESS_LIMIT_OF_OPEN_FILES_REACHED;
     case ENFILE:
         IOX_LOG(ERROR, "System limit of maximum open files reached.");
-        return SharedMemoryError::SYSTEM_LIMIT_OF_OPEN_FILES_REACHED;
+        return PosixSharedMemoryError::SYSTEM_LIMIT_OF_OPEN_FILES_REACHED;
     case ENOENT:
         IOX_LOG(ERROR, "Shared Memory does not exist.");
-        return SharedMemoryError::DOES_NOT_EXIST;
+        return PosixSharedMemoryError::DOES_NOT_EXIST;
     case ENOMEM:
         IOX_LOG(ERROR, "Not enough memory available to create shared memory.");
-        return SharedMemoryError::NOT_ENOUGH_MEMORY_AVAILABLE;
+        return PosixSharedMemoryError::NOT_ENOUGH_MEMORY_AVAILABLE;
     default:
         IOX_LOG(ERROR, "This should never happen! An unknown error occurred!");
-        return SharedMemoryError::UNKNOWN_ERROR;
+        return PosixSharedMemoryError::UNKNOWN_ERROR;
     }
 }
 
-} // namespace posix
+} // namespace detail
 } // namespace iox

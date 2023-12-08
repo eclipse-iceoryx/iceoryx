@@ -15,7 +15,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_hoofs/testing/test_definitions.hpp"
 #include "iceoryx_platform/fcntl.hpp"
 #include "iceoryx_platform/stat.hpp"
@@ -25,6 +24,7 @@
 #include "iox/bump_allocator.hpp"
 #include "iox/expected.hpp"
 #include "iox/posix_group.hpp"
+#include "iox/posix_shared_memory_object.hpp"
 #include "test.hpp"
 
 
@@ -36,7 +36,6 @@ namespace
 using namespace ::testing;
 using namespace iox;
 using namespace iox::mepoo;
-using namespace iox::posix;
 
 class MePooSegment_test : public Test
 {
@@ -45,13 +44,13 @@ class MePooSegment_test : public Test
     struct SharedMemoryObject_MOCK
     {
         using Builder = SharedMemoryObject_MOCKBuilder;
-        using createFct = std::function<void(const SharedMemory::Name_t,
+        using createFct = std::function<void(const detail::PosixSharedMemory::Name_t,
                                              const uint64_t,
                                              const iox::AccessMode,
                                              const iox::OpenMode,
                                              const void*,
                                              const iox::access_rights)>;
-        SharedMemoryObject_MOCK(const SharedMemory::Name_t& name,
+        SharedMemoryObject_MOCK(const detail::PosixSharedMemory::Name_t& name,
                                 const uint64_t memorySizeInBytes,
                                 const AccessMode accessMode,
                                 const OpenMode openMode,
@@ -97,7 +96,7 @@ class MePooSegment_test : public Test
 
     class SharedMemoryObject_MOCKBuilder
     {
-        IOX_BUILDER_PARAMETER(SharedMemory::Name_t, name, "")
+        IOX_BUILDER_PARAMETER(detail::PosixSharedMemory::Name_t, name, "")
 
         IOX_BUILDER_PARAMETER(uint64_t, memorySizeInBytes, 0U)
 
@@ -110,7 +109,7 @@ class MePooSegment_test : public Test
         IOX_BUILDER_PARAMETER(iox::access_rights, permissions, iox::perms::none)
 
       public:
-        iox::expected<SharedMemoryObject_MOCK, SharedMemoryObjectError> create() noexcept
+        iox::expected<SharedMemoryObject_MOCK, PosixSharedMemoryObjectError> create() noexcept
         {
             return iox::ok(SharedMemoryObject_MOCK(m_name,
                                                    m_memorySizeInBytes,
@@ -154,13 +153,13 @@ TEST_F(MePooSegment_test, SharedMemoryCreationParameter)
     ::testing::Test::RecordProperty("TEST_ID", "0fcfefd4-3a84-43a5-9805-057a60239184");
     GTEST_SKIP_FOR_ADDITIONAL_USER() << "This test requires the -DTEST_WITH_ADDITIONAL_USER=ON cmake argument";
 
-    MePooSegment_test::SharedMemoryObject_MOCK::createVerificator = [](const SharedMemory::Name_t f_name,
+    MePooSegment_test::SharedMemoryObject_MOCK::createVerificator = [](const detail::PosixSharedMemory::Name_t f_name,
                                                                        const uint64_t,
                                                                        const iox::AccessMode f_accessMode,
                                                                        const iox::OpenMode openMode,
                                                                        const void*,
                                                                        const iox::access_rights) {
-        EXPECT_THAT(f_name, Eq(SharedMemory::Name_t("iox_roudi_test2")));
+        EXPECT_THAT(f_name, Eq(detail::PosixSharedMemory::Name_t("iox_roudi_test2")));
         EXPECT_THAT(f_accessMode, Eq(iox::AccessMode::READ_WRITE));
         EXPECT_THAT(openMode, Eq(iox::OpenMode::PURGE_AND_CREATE));
     };
@@ -175,7 +174,7 @@ TEST_F(MePooSegment_test, GetSharedMemoryObject)
     GTEST_SKIP_FOR_ADDITIONAL_USER() << "This test requires the -DTEST_WITH_ADDITIONAL_USER=ON cmake argument";
 
     uint64_t memorySizeInBytes{0};
-    MePooSegment_test::SharedMemoryObject_MOCK::createVerificator = [&](const SharedMemory::Name_t,
+    MePooSegment_test::SharedMemoryObject_MOCK::createVerificator = [&](const detail::PosixSharedMemory::Name_t,
                                                                         const uint64_t f_memorySizeInBytes,
                                                                         const iox::AccessMode,
                                                                         const iox::OpenMode,

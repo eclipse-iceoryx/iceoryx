@@ -54,7 +54,7 @@ expected<void*, MemoryProviderError> PosixShmMemoryProvider::createMemory(const 
         return err(MemoryProviderError::MEMORY_ALIGNMENT_EXCEEDS_PAGE_SIZE);
     }
 
-    if (!posix::SharedMemoryObjectBuilder()
+    if (!PosixSharedMemoryObjectBuilder()
              .name(m_shmName)
              .memorySizeInBytes(size)
              .accessMode(m_accessMode)

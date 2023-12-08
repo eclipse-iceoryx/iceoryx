@@ -32,8 +32,7 @@ The module structure is a logical grouping. It is replicated for `concurrent` an
 |`RelativePointer`                   |          | Pointer which can be stored in shared memory                                                                                                                                                                             |
 |`ScopeGuard`                        |          | This is an abstraction of the C++ RAII idiom. Sometimes you have constructs where you would like to perform a certain task on creation and then again when they are getting out of scope, this is where `ScopeGuard` comes in. It is like a `std::lock_guard` or a `std::shared_ptr` but more generic. |
 |`scoped_static`                     |          | Helper function to limit lifetime of static or global variables to a scope                                                                                                                                               |
-|`shared_memory_object/Allocator`    | i        | Helper class for the `SharedMemoryObject`.                                                                                                                                                                               |
-|`BumpAllocator`                     | i        | Implementation of a bump allocator                                                                                                                                                                                       |
+|`BumpAllocator`                     |          | Implementation of a bump allocator                                                                                                                                                                                       |
 
 ### Container (container)
 
@@ -115,10 +114,10 @@ The module structure is a logical grouping. It is replicated for `concurrent` an
 
 | class                              | internal | description                                                                                                                                                                                                              |
 |:----------------------------------:|:--------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|`UnixDomainSocket`                  | i        | Interface for unix domain sockets.                                                                                                                                                                                       |
-|`SharedMemoryObject`                | i        | Creates and maps existing shared memory into the application.                                                                                                                                                            |
-|`shared_memory_object/MemoryMap`    | i        | Abstraction of `mmap`, `munmap` and helper class for the `SharedMemoryObject`.                                                                                                                                           |
-|`shared_memory_object/SharedMemory` | i        | Abstraction of shared memory, see [ManPage shm_overview](https://www.man7.org/linux/man-pages/man7/shm_overview.7.html) and helper class for the `SharedMemoryObject`.                                                   |
+|`UnixDomainSocket`                  |          | Interface for unix domain sockets.                                                                                                                                                                                       |
+|`PosixSharedMemoryObject`           |          | Creates and maps existing shared memory into the application.                                                                                                                                                            |
+|`PosixMemoryMap`                    | i        | Abstraction of `mmap`, `munmap` and helper class for the `PosixSharedMemoryObject`.                                                                                                                                           |
+|`PosixSharedMemory`                 | i        | Abstraction of shared memory, see [ManPage shm_overview](https://www.man7.org/linux/man-pages/man7/shm_overview.7.html) and helper class for the `PosixSharedMemoryObject`.                                                   |
 
 ### Threads & sychronisation (sync)
 

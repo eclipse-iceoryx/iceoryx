@@ -107,10 +107,6 @@ iox_add_library(
         source/cxx/requires.cpp
         source/error_handling/error_handler.cpp
         source/error_handling/error_handling.cpp
-        source/posix_wrapper/shared_memory_object.cpp
-        source/posix_wrapper/shared_memory_object/memory_map.cpp
-        source/posix_wrapper/shared_memory_object/shared_memory.cpp
-        source/posix_wrapper/signal_handler.cpp
         source/error_reporting/custom/default/default_error_handler.cpp
         time/source/duration.cpp
         utility/source/unique_id.cpp
@@ -118,12 +114,16 @@ iox_add_library(
         posix/auth/source/posix_group.cpp
         posix/auth/source/posix_user.cpp
         posix/design/source/file_management_interface.cpp
+        posix/ipc/source/posix_memory_map.cpp
+        posix/ipc/source/posix_shared_memory.cpp
+        posix/ipc/source/posix_shared_memory_object.cpp
         posix/ipc/source/unix_domain_socket.cpp
         posix/filesystem/source/file.cpp
         posix/filesystem/source/file_lock.cpp
         posix/filesystem/source/posix_acl.cpp
         posix/sync/source/mutex.cpp
         posix/sync/source/named_semaphore.cpp
+        posix/sync/source/signal_handler.cpp
         posix/sync/source/semaphore_interface.cpp
         posix/sync/source/thread.cpp
         posix/sync/source/unnamed_semaphore.cpp

@@ -14,29 +14,29 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
+#include "iox/signal_handler.hpp"
 #include "test.hpp"
 #include <atomic>
 
 namespace
 {
 using namespace ::testing;
-using namespace iox::posix;
+using namespace iox;
 
 std::atomic_int signalOfCallback1{0};
 std::atomic_int signalOfCallback2{0};
 
-template <Signal SignalValue>
+template <PosixSignal SignalValue>
 struct SignalType
 {
-    static constexpr Signal VALUE = SignalValue;
+    static constexpr PosixSignal VALUE = SignalValue;
 };
 
 template <typename T>
 class SignalHandler_test : public Test
 {
   public:
-    static constexpr Signal SIGNAL_VALUE = T::VALUE;
+    static constexpr PosixSignal SIGNAL_VALUE = T::VALUE;
 
     void SetUp() override
     {
@@ -73,15 +73,17 @@ class SignalHandler_test : public Test
     static constexpr int INVALID_SIGNAL = std::numeric_limits<int>::max();
 };
 
-using Implementations =
-    Types<SignalType<Signal::INT>, SignalType<Signal::BUS>, SignalType<Signal::TERM>, SignalType<Signal::HUP>>;
+using Implementations = Types<SignalType<PosixSignal::INT>,
+                              SignalType<PosixSignal::BUS>,
+                              SignalType<PosixSignal::TERM>,
+                              SignalType<PosixSignal::HUP>>;
 
 TYPED_TEST_SUITE(SignalHandler_test, Implementations, );
 
 TYPED_TEST(SignalHandler_test, RegisteringSignalGuardCallbackWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7836be02-28ab-43b7-b7a7-7c43c4830eb4");
-    Signal signalValue = TestFixture::SIGNAL_VALUE;
+    PosixSignal signalValue = TestFixture::SIGNAL_VALUE;
     auto signalGuard [[maybe_unused]] = registerSignalHandler(signalValue, this->signalHandler1);
 
     ASSERT_EQ(raise(static_cast<int>(signalValue)), 0);
@@ -93,7 +95,7 @@ TYPED_TEST(SignalHandler_test, RegisteringSignalGuardCallbackWorks)
 TYPED_TEST(SignalHandler_test, WhenSignalGuardGoesOutOfScopePreviousStateIsRestored)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8d2efc2b-837b-446d-ba16-fbca9a539b82");
-    Signal signalValue = TestFixture::SIGNAL_VALUE;
+    PosixSignal signalValue = TestFixture::SIGNAL_VALUE;
     this->registerSignal(static_cast<int>(signalValue), this->signalHandler2);
     {
         auto signalGuard [[maybe_unused]] = registerSignalHandler(signalValue, this->signalHandler1);
@@ -108,7 +110,7 @@ TYPED_TEST(SignalHandler_test, WhenSignalGuardGoesOutOfScopePreviousStateIsResto
 TYPED_TEST(SignalHandler_test, MoveConstructedSignalGuardCallbackWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8fcf886b-babb-41ab-a8ee-6ba123224aef");
-    Signal signalValue = TestFixture::SIGNAL_VALUE;
+    PosixSignal signalValue = TestFixture::SIGNAL_VALUE;
     auto signalGuard = registerSignalHandler(signalValue, this->signalHandler1);
     ASSERT_FALSE(signalGuard.has_error());
 
@@ -123,7 +125,7 @@ TYPED_TEST(SignalHandler_test, MoveConstructedSignalGuardCallbackWorks)
 TYPED_TEST(SignalHandler_test, MoveConstructedSignalGuardRestoresPreviousState)
 {
     ::testing::Test::RecordProperty("TEST_ID", "718c396f-ab2f-4ea3-bb90-f67f7ab131d8");
-    Signal signalValue = TestFixture::SIGNAL_VALUE;
+    PosixSignal signalValue = TestFixture::SIGNAL_VALUE;
     this->registerSignal(static_cast<int>(signalValue), this->signalHandler2);
 
     {

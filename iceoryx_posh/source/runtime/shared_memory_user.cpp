@@ -31,7 +31,7 @@ SharedMemoryUser::SharedMemoryUser(const size_t topicSize,
                                    const uint64_t segmentId,
                                    const UntypedRelativePointer::offset_t segmentManagerAddressOffset) noexcept
 {
-    posix::SharedMemoryObjectBuilder()
+    PosixSharedMemoryObjectBuilder()
         .name(roudi::SHM_NAME)
         .memorySizeInBytes(topicSize)
         .accessMode(AccessMode::READ_WRITE)
@@ -72,7 +72,7 @@ void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
     for (const auto& segment : segmentMapping)
     {
         auto accessMode = segment.m_isWritable ? AccessMode::READ_WRITE : AccessMode::READ_ONLY;
-        posix::SharedMemoryObjectBuilder()
+        PosixSharedMemoryObjectBuilder()
             .name(segment.m_sharedMemoryName)
             .memorySizeInBytes(segment.m_size)
             .accessMode(accessMode)

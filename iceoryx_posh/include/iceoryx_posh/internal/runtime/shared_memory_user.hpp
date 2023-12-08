@@ -17,10 +17,10 @@
 #ifndef IOX_POSH_RUNTIME_SHARED_MEMORY_USER_HPP
 #define IOX_POSH_RUNTIME_SHARED_MEMORY_USER_HPP
 
-#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iox/filesystem.hpp"
 #include "iox/optional.hpp"
+#include "iox/posix_shared_memory_object.hpp"
 #include "iox/relative_pointer.hpp"
 #include "iox/vector.hpp"
 
@@ -47,8 +47,8 @@ class SharedMemoryUser
                           const UntypedRelativePointer::offset_t segmentManagerAddressOffset) noexcept;
 
   private:
-    optional<posix::SharedMemoryObject> m_shmObject;
-    vector<posix::SharedMemoryObject, MAX_SHM_SEGMENTS> m_dataShmObjects;
+    optional<PosixSharedMemoryObject> m_shmObject;
+    vector<PosixSharedMemoryObject, MAX_SHM_SEGMENTS> m_dataShmObjects;
     static constexpr access_rights SHM_SEGMENT_PERMISSIONS =
         perms::owner_read | perms::owner_write | perms::group_read | perms::group_write;
 };

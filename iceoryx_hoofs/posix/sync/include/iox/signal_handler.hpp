@@ -13,21 +13,20 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_POSIX_WRAPPER_SIGNAL_HANDLER_HPP
-#define IOX_HOOFS_POSIX_WRAPPER_SIGNAL_HANDLER_HPP
+
+#ifndef IOX_HOOFS_POSIX_SYNC_SIGNAL_HANDLER_HPP
+#define IOX_HOOFS_POSIX_SYNC_SIGNAL_HANDLER_HPP
 
 #include "iceoryx_platform/signal.hpp"
 #include "iox/expected.hpp"
 
 namespace iox
 {
-namespace posix
-{
 using SignalHandlerCallback_t = void (*)(int);
 
 /// @brief Corresponds to the SIG* macros defined in signal.h. The integer values
 ///        are equal to the corresponding macro value.
-enum class Signal : int
+enum class PosixSignal : int
 {
     BUS = SIGBUS,
     INT = SIGINT,
@@ -68,15 +67,15 @@ class SignalGuard
     SignalGuard& operator=(const SignalGuard& rhs) = delete;
     SignalGuard& operator=(SignalGuard&& rhs) = delete;
 
-    friend expected<SignalGuard, SignalGuardError> registerSignalHandler(const Signal,
+    friend expected<SignalGuard, SignalGuardError> registerSignalHandler(const PosixSignal,
                                                                          const SignalHandlerCallback_t) noexcept;
 
   private:
     void restorePreviousAction() noexcept;
-    SignalGuard(const Signal signal, const struct sigaction& previousAction) noexcept;
+    SignalGuard(const PosixSignal signal, const struct sigaction& previousAction) noexcept;
 
   private:
-    Signal m_signal;
+    PosixSignal m_signal;
     struct sigaction m_previousAction = {};
     bool m_doRestorePreviousAction{false};
 };
@@ -87,12 +86,12 @@ class SignalGuard
 ///             until the SignalGuard goes out of scope and restores the previous callback. If you override the
 ///             callbacks multiple times and the created SignalGuards goes out of scope in a different order then the
 ///             callback is restored which was active when the last SignalGuard which is going out of scope was created.
-/// @param[in] Signal the signal to which the callback should be attached
+/// @param[in] signal the 'PosixSignal' to which the callback should be attached
 /// @param[in] callback the callback which should be called when the signal is raised.
 /// @return SignalGuard on success - when it goes out of scope the previous signal action is restored. On error
 ///         SignalGuardError is returned which describes the error.
-expected<SignalGuard, SignalGuardError> registerSignalHandler(const Signal signal,
+expected<SignalGuard, SignalGuardError> registerSignalHandler(const PosixSignal signal,
                                                               const SignalHandlerCallback_t callback) noexcept;
-} // namespace posix
 } // namespace iox
-#endif
+
+#endif // IOX_HOOFS_POSIX_SYNC_SIGNAL_HANDLER_HPP

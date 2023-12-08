@@ -48,7 +48,7 @@ class RouDiApp
 
   protected:
     /// @brief waits for the next signal to RouDi daemon
-    IOX_DEPRECATED_SINCE(3, "Please use iox::posix::waitForTerminationRequest() from 'iox/signal_watcher.hpp'")
+    IOX_DEPRECATED_SINCE(3, "Please use iox::waitForTerminationRequest() from 'iox/signal_watcher.hpp'")
     bool waitForSignal() noexcept;
 
     iox::log::LogLevel m_logLevel{iox::log::LogLevel::WARN};

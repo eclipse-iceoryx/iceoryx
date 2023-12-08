@@ -48,7 +48,7 @@ enum class ThreadError
 
 /// @brief POSIX thread wrapper class. Following RAII, the thread is joined on destruction.
 /// @code
-/// #include "iceoryx_hoofs/posix_wrapper/thread.hpp"
+/// #include "iox/thread.hpp"
 ///
 /// iox::function<void()> callable = []() { /* ... */ };
 /// optional<Thread> myThread;

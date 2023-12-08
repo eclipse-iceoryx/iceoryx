@@ -32,7 +32,6 @@
 
 using namespace iox;
 using namespace iox::popo;
-using namespace iox::posix;
 using namespace iox::mepoo;
 using namespace iox::runtime;
 using namespace iox::testing;

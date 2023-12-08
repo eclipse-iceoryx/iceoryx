@@ -43,9 +43,9 @@ void internalSignalHandler(int) noexcept
 
 SignalWatcher::SignalWatcher() noexcept
     : m_sigTermGuard(
-        registerSignalHandler(posix::Signal::TERM, internalSignalHandler).expect("Unable to register Signal::TERM"))
+        registerSignalHandler(PosixSignal::TERM, internalSignalHandler).expect("Unable to register Signal::TERM"))
     , m_sigIntGuard(
-          registerSignalHandler(posix::Signal::INT, internalSignalHandler).expect("Unable to register Signal::INT"))
+          registerSignalHandler(PosixSignal::INT, internalSignalHandler).expect("Unable to register Signal::INT"))
 {
     UnnamedSemaphoreBuilder()
         .isInterProcessCapable(false)

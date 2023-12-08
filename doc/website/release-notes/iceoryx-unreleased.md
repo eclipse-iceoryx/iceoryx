@@ -377,7 +377,7 @@
     auto signalGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
 
     // after
-    auto signalGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
+    auto signalGuard = iox::registerSignalHandler(iox::PosixSignal::INT, sigHandler);
     if (signalGuard.has_error()) {
         // perform error handling
     }

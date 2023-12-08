@@ -71,9 +71,9 @@ int main()
     discoverySigHandlerAccess = &discovery;
 
     auto sigTermGuard =
-        iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler).expect("failed to register SIGTERM");
+        iox::registerSignalHandler(iox::PosixSignal::TERM, sigHandler).expect("failed to register SIGTERM");
     auto sigIntGuard =
-        iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler).expect("failed to register SIGINT");
+        iox::registerSignalHandler(iox::PosixSignal::INT, sigHandler).expect("failed to register SIGINT");
 
     //! [define search query]
     auto query = [&]() {
