@@ -16,8 +16,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_DUST_UTILITY_CONVERT_HPP
-#define IOX_DUST_UTILITY_CONVERT_HPP
+#ifndef IOX_HOOFS_UTILITY_CONVERT_HPP
+#define IOX_HOOFS_UTILITY_CONVERT_HPP
 
 #include "iox/posix_call.hpp"
 #include "iox/string.hpp"
@@ -105,4 +105,4 @@ class convert
 
 #include "iox/detail/convert.inl"
 
-#endif // IOX_DUST_UTILITY_CONVERT_HPP
+#endif // IOX_HOOFS_UTILITY_CONVERT_HPP

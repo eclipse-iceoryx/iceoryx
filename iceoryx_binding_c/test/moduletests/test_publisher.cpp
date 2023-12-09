@@ -452,14 +452,8 @@ TEST(iox_pub_options_test, publisherOptionsInitializationCheckReturnsFalseWithou
 {
     ::testing::Test::RecordProperty("TEST_ID", "f3c7c69e-6946-4da4-9c9e-93129cae9d61");
     iox_pub_options_t sut;
-#if (defined(__GNUC__) && __GNUC__ >= 7 && !defined(__clang__))
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#endif
+    memset(&sut, 0, sizeof(sut));
     EXPECT_FALSE(iox_pub_options_is_initialized(&sut));
-#if (defined(__GNUC__) && __GNUC__ >= 7 && !defined(__clang__))
-#pragma GCC diagnostic pop
-#endif
 }
 
 TEST(iox_pub_options_test, publisherOptionInitializationWithNullptrDoesNotCrash)
