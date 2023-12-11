@@ -35,7 +35,7 @@ cc_library(
         "posix/ipc/source/**/*.cpp",
         "posix/sync/source/**/*.cpp",
     ]),
-    hdrs = glob(["cli/**"]) + glob(["container/**"]) + glob(["filesystem/**"]) + glob(["memory/**"]) + glob(["utility/**"]) + glob(["posix/ipc/**"]) + glob(["posix/sync/**"]) + glob(["vocabulary/**"]) + [
+    hdrs = glob(["cli/**"]) + glob(["container/**"]) + glob(["filesystem/**"]) + glob(["memory/**"]) + glob(["utility/**"]) + glob(["posix/ipc/**"]) + glob(["posix/sync/**"]) + [
         ":iceoryx_dust_deployment_hpp",
     ],
     includes = [
@@ -47,7 +47,6 @@ cc_library(
         "posix/ipc/include/",
         "posix/sync/include/",
         "utility/include/",
-        "vocabulary/include/",
     ],
     visibility = ["//visibility:public"],
     deps = ["//iceoryx_hoofs"],

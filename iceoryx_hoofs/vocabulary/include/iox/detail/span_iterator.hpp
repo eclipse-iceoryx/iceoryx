@@ -13,8 +13,9 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_DUST_VOCABULARY_SPAN_ITERATOR_HPP
-#define IOX_DUST_VOCABULARY_SPAN_ITERATOR_HPP
+
+#ifndef IOX_HOOFS_VOCABULARY_SPAN_ITERATOR_HPP
+#define IOX_HOOFS_VOCABULARY_SPAN_ITERATOR_HPP
 
 // Use 'assert's as 'IOX_EXPECTS' is not useable inside 'constexpr' functions
 #include <cassert>
@@ -109,6 +110,8 @@ class span_iterator final
             return *this;
         }
         assert(m_begin && m_current && m_end);
+        // NOLINTJUSTIFICATION false positive
+        // NOLINTNEXTLINE(bugprone-branch-clone)
         if (n > 0)
         {
             assert(m_end - m_current >= n);
@@ -141,6 +144,8 @@ class span_iterator final
             return *this;
         }
         assert(m_begin && m_current && m_end);
+        // NOLINTJUSTIFICATION false positive
+        // NOLINTNEXTLINE(bugprone-branch-clone)
         if (n > 0)
         {
             assert(m_current - m_begin >= n);
@@ -213,10 +218,7 @@ class span_iterator final
     const pointer m_begin{nullptr};
     const pointer m_end{nullptr};
     pointer m_current{nullptr};
-
-    template <typename Ptr>
-    friend struct std::pointer_traits;
 };
 } // namespace iox
 
-#endif // IOX_DUST_VOCABULARY_SPAN_ITERATOR_HPP
+#endif // IOX_HOOFS_VOCABULARY_SPAN_ITERATOR_HPP

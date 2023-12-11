@@ -53,7 +53,6 @@ iox_add_library(
                                 ${PROJECT_SOURCE_DIR}/posix/ipc/include
                                 ${PROJECT_SOURCE_DIR}/posix/sync/include
                                 ${PROJECT_SOURCE_DIR}/utility/include
-                                ${PROJECT_SOURCE_DIR}/vocabulary/include
                                 ${CMAKE_BINARY_DIR}/generated/iceoryx_dust/include
     INSTALL_INTERFACE           include/${PREFIX}
     EXPORT_INCLUDE_DIRS         cli/include/
@@ -63,7 +62,6 @@ iox_add_library(
                                 posix/ipc/include/
                                 posix/sync/include/
                                 utility/include/
-                                vocabulary/include/
     FILES
         cli/source/arguments.cpp
         cli/source/command_line_parser.cpp

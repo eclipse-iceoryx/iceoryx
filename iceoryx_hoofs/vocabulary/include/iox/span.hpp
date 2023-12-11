@@ -13,8 +13,9 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_DUST_VOCABULARY_SPAN_HPP
-#define IOX_DUST_VOCABULARY_SPAN_HPP
+
+#ifndef IOX_HOOFS_VOCABULARY_SPAN_HPP
+#define IOX_HOOFS_VOCABULARY_SPAN_HPP
 
 #include "iceoryx_hoofs/cxx/requires.hpp"
 #include "iox/detail/span_iterator.hpp"
@@ -412,4 +413,4 @@ span<uint8_t, (X == DYNAMIC_EXTENT ? DYNAMIC_EXTENT : sizeof(T) * X)> as_writabl
 
 #include "iox/detail/span.inl"
 
-#endif // IOX_DUST_VOCABULARY_SPAN_HPP
+#endif // IOX_HOOFS_VOCABULARY_SPAN_HPP

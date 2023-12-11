@@ -51,6 +51,7 @@ The module structure is a logical grouping. It is replicated for `concurrent` an
 |`variant`              |          | C++11 implementation of the C++17 feature `std::variant`                                                                                                                                                                              |
 |`expected`             |          | Our base class used in error handling. Every function which can fail should return an expected. With this the user knows that this function can fail and that they have to do some kind of error handling. We got inspired by the [C++ expected proposal]( http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0323r7.html) and by the [rust error handling concept](https://doc.rust-lang.org/std/result/enum.Result.html). |
 |`string`               |          | Heap and exception free implementation of `std::string`. Attention, since the string is stack based, std::string or char array which are assigned to this string will be truncated and zero-terminated if they exceed the string capacity. |
+|`span`                 |          | C++17 implementation of the C++20 feature `std::span`                                                                                                             |
 
 ### Filesystem (filesystem)
 

@@ -13,8 +13,9 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_DUST_VOCABULARY_SPAN_INL
-#define IOX_DUST_VOCABULARY_SPAN_INL
+
+#ifndef IOX_HOOFS_VOCABULARY_SPAN_INL
+#define IOX_HOOFS_VOCABULARY_SPAN_INL
 
 #include "iox/span.hpp"
 
@@ -271,4 +272,4 @@ inline span<uint8_t, (X == DYNAMIC_EXTENT ? DYNAMIC_EXTENT : sizeof(T) * X)> as_
 }
 } // namespace iox
 
-#endif // IOX_DUST_VOCABULARY_SPAN_INL
+#endif // IOX_HOOFS_VOCABULARY_SPAN_INL
