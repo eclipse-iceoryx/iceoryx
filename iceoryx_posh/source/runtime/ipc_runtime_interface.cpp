@@ -235,16 +235,16 @@ IpcRuntimeInterface::RegAckResult IpcRuntimeInterface::waitForRegAck(int64_t tra
                 }
 
                 // read out the shared memory base address and save it
-                iox::convert::fromString(receiveBuffer.getElementAtIndex(1U).c_str(), m_shmTopicSize);
+                iox::convert::from_string(receiveBuffer.getElementAtIndex(1U).c_str(), m_shmTopicSize);
                 UntypedRelativePointer::offset_t segmentManagerOffset{UntypedRelativePointer::NULL_POINTER_OFFSET};
-                iox::convert::fromString(receiveBuffer.getElementAtIndex(2U).c_str(), segmentManagerOffset);
+                iox::convert::from_string(receiveBuffer.getElementAtIndex(2U).c_str(), segmentManagerOffset);
                 m_segmentManagerAddressOffset.emplace(segmentManagerOffset);
 
                 int64_t receivedTimestamp{0U};
-                iox::convert::fromString(receiveBuffer.getElementAtIndex(3U).c_str(), receivedTimestamp);
-                iox::convert::fromString(receiveBuffer.getElementAtIndex(4U).c_str(), m_segmentId);
+                iox::convert::from_string(receiveBuffer.getElementAtIndex(3U).c_str(), receivedTimestamp);
+                iox::convert::from_string(receiveBuffer.getElementAtIndex(4U).c_str(), m_segmentId);
                 UntypedRelativePointer::offset_t heartbeatOffset{UntypedRelativePointer::NULL_POINTER_OFFSET};
-                iox::convert::fromString(receiveBuffer.getElementAtIndex(5U).c_str(), heartbeatOffset);
+                iox::convert::from_string(receiveBuffer.getElementAtIndex(5U).c_str(), heartbeatOffset);
                 /// @todo iox-#2055 this workaround is required sind the conversion of edge cases is broken
                 constexpr uint8_t IOX_2055_WORKAROUND{1};
                 if (heartbeatOffset != (UntypedRelativePointer::NULL_POINTER_OFFSET - IOX_2055_WORKAROUND))

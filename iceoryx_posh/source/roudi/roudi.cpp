@@ -270,9 +270,9 @@ version::VersionInfo RouDi::parseRegisterMessage(const runtime::IpcMessage& mess
                                                  uid_t& userId,
                                                  int64_t& transmissionTimestamp) noexcept
 {
-    convert::fromString(message.getElementAtIndex(2).c_str(), pid);
-    convert::fromString(message.getElementAtIndex(3).c_str(), userId);
-    convert::fromString(message.getElementAtIndex(4).c_str(), transmissionTimestamp);
+    convert::from_string(message.getElementAtIndex(2).c_str(), pid);
+    convert::from_string(message.getElementAtIndex(3).c_str(), userId);
+    convert::from_string(message.getElementAtIndex(4).c_str(), transmissionTimestamp);
     Serialization serializationVersionInfo(message.getElementAtIndex(5));
     return serializationVersionInfo;
 }

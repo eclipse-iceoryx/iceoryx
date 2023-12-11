@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
             constexpr decltype(EXIT_SUCCESS) MOO{EXIT_SUCCESS};
 
             uint64_t intensity{0U};
-            if (!iox::convert::fromString(optarg, intensity))
+            if (!iox::convert::from_string(optarg, intensity))
             {
                 std::cerr << "Could not parse 'intensity' paramater!" << std::endl;
                 return EXIT_FAILURE;

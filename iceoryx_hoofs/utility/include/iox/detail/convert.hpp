@@ -40,8 +40,8 @@ namespace iox
 ///
 ///     int i;
 ///     unsigned int a;
-///     if ( iox::convert::fromString("123", i) ) {}  // will succeed
-///     if ( iox::convert::fromString("-123", a) ) {} // will fail since -123 is not unsigned
+///     if ( iox::convert::from_string("123", i) ) {}  // will succeed
+///     if ( iox::convert::from_string("-123", a) ) {} // will fail since -123 is not unsigned
 /// @endcode
 /// @todo iox-#260 Refactor 'convert' so that one can use 'into' to directly to convert numbers to strings:
 /// 'ClassExpectingAnIoxString(iox::into<iox::string<100>>(42)'
@@ -81,7 +81,7 @@ class convert
     /// @param[in] dest destination to which the value should be written
     /// @return false = if the conversion fails otherwise true
     template <typename Destination>
-    static bool fromString(const char* v, Destination& dest) noexcept;
+    static bool from_string(const char* v, Destination& dest) noexcept;
 
     /// @brief Sets dest from a given string. If the conversion fails false is
     ///         returned and the value of dest is undefined.
@@ -89,7 +89,7 @@ class convert
     /// @param[in] dest destination to which the value should be written
     /// @return false = if the conversion fails otherwise true
     template <uint64_t Capacity>
-    static bool fromString(const char* v, string<Capacity>& dest) noexcept;
+    static bool from_string(const char* v, string<Capacity>& dest) noexcept;
 
     /// @brief checks if a given string v is a number
     /// @param[in] v string which contains the number

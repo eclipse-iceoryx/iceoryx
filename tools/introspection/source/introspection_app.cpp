@@ -102,7 +102,7 @@ void IntrospectionApp::parseCmdLineArguments(int argc,
         case 't':
         {
             uint64_t newUpdatePeriodMs;
-            if (convert::fromString(optarg, newUpdatePeriodMs))
+            if (convert::from_string(optarg, newUpdatePeriodMs))
             {
                 iox::units::Duration rate = iox::units::Duration::fromMilliseconds(newUpdatePeriodMs);
                 updatePeriodMs = bounded(rate, MIN_UPDATE_PERIOD, MAX_UPDATE_PERIOD);
