@@ -47,11 +47,11 @@ The module structure is a logical grouping. It is replicated for `concurrent` an
 | class                 | internal | description                                                                                                                                                                                                                           |
 |:---------------------:|:--------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 |`not_null`             |          | Runtime check wrapper to make sure a pointer is not `nullptr`                                                                                                                                                                         |
-|`optional`             |          | C++11 implementation of the C++17 feature `std::optional`                                                                                                                                                                             |
-|`variant`              |          | C++11 implementation of the C++17 feature `std::variant`                                                                                                                                                                              |
+|`optional`             |          | Implementation of `std::optional`                                                                                                                                                                             |
+|`variant`              |          | Implementation of `std::variant`                                                                                                                                                                              |
 |`expected`             |          | Our base class used in error handling. Every function which can fail should return an expected. With this the user knows that this function can fail and that they have to do some kind of error handling. We got inspired by the [C++ expected proposal]( http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0323r7.html) and by the [rust error handling concept](https://doc.rust-lang.org/std/result/enum.Result.html). |
 |`string`               |          | Heap and exception free implementation of `std::string`. Attention, since the string is stack based, std::string or char array which are assigned to this string will be truncated and zero-terminated if they exceed the string capacity. |
-|`span`                 |          | C++17 implementation of the C++20 feature `std::span`                                                                                                             |
+|`span`                 |          | Implementation of `std::span`                                                                                                                                     |
 
 ### Filesystem (filesystem)
 
@@ -67,7 +67,7 @@ The module structure is a logical grouping. It is replicated for `concurrent` an
 |:---------------------:|:--------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 |`storable_function`    | i        | A `std::function` alternative with configurable backend for memory storage.                                                                                                                                                            |
 |`function`             |          | A stack-based `std::function` replacement based on `storable_function`                                                                                                                                                                 |
-|`function_ref`         |          | C++11 implementation of the next-gen C++ feature `std::function_ref` see [function_ref proposal](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0792r2.html). It behaves like `std::function` but does not own the callable. |
+|`function_ref`         |          | Implementation of `std::function_ref` see [function_ref proposal](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0792r2.html). It behaves like `std::function` but does not own the callable. |
 
 ### Utility (utility)
 
@@ -75,6 +75,7 @@ The module structure is a logical grouping. It is replicated for `concurrent` an
 |:---------------------:|:--------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 |`system_configuration` | i        | Collection of free functions which acquire system information like the page-size.                                                                                                                                                          |
 |`UniqueId`             | i        | Monotonic increasing IDs within a process.                                                                                                                                                                                                 |
+|`convert`              | i        | Converting a number into a string is easy, converting it back can be hard. You can use functions like `strtoll`, but you still have to handle errors like under- and overflow, or converting invalid strings into number. Here we abstract all the error handling so that you can convert strings into numbers safely. |
 |`into`                 | i        |                                                                                                                                                                                                                                            |
 |`Scheduler`            | i        | Supported schedulers and functions to get their priority range are contained here.                                                                                                                                                    |
 
@@ -139,7 +140,7 @@ The module structure is a logical grouping. It is replicated for `concurrent` an
 |`Builder`              |          | Macro which generates a setter method useful for a builder pattern. |
 |`IOX_POSIX_CALL`       |          | Wrapper around C and POSIX function calls which performs a full error handling. Additionally, this wrapper makes sure that `EINTR` handling is performed correctly by repeating the system call. |
 |`functional_interface` |          | Constructs to easily add functional interfaces like `and_then` to object container.                                                                                                                                                   |
-|`NewType<T, Policies>` |          | C++11 implementation of [Haskells NewType-pattern](https://wiki.haskell.org/Newtype).                                                                                                                                                 |
+|`NewType<T, Policies>` |          | Implementation of [Haskells NewType-pattern](https://wiki.haskell.org/Newtype).                                                                                                                                                 |
 |`StaticLifetimeGuard`  |          | Static instance manager which solves the singleton lifetime problem. |
 |`PolymorphicHandler`   |          | Singleton handler with a default instance that can be changed at runtime. |
 
