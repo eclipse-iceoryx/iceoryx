@@ -90,15 +90,6 @@ class convert
     /// @return false = if the conversion fails otherwise true
     template <uint64_t Capacity>
     static bool from_string(const char* v, string<Capacity>& dest) noexcept;
-
-    /// @brief checks if a given string v is a number
-    /// @param[in] v string which contains the number
-    /// @param[in] type is the expected contained type in v
-    /// @return true if the given string is a number, otherwise false
-    static bool stringIsNumber(const char* v, const NumberType type) noexcept;
-
-  private:
-    static bool stringIsNumberWithErrorMessage(const char* v, const NumberType type) noexcept;
 };
 
 } // namespace iox

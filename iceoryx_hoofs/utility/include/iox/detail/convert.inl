@@ -91,79 +91,9 @@ inline bool convert::from_string(const char* v, string<Capacity>& dest) noexcept
     return true;
 }
 
-inline bool convert::stringIsNumber(const char* v, const NumberType type) noexcept
-{
-    /// @NOLINTJUSTIFICATION encapsulated in abstraction
-    /// @NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-    if (v[0] == '\0')
-    {
-        return false;
-    }
-
-    bool hasDot = false;
-
-    for (uint32_t i = 0U; v[i] != '\0'; ++i)
-    {
-        if (v[i] >= '0' && v[i] <= '9')
-        {
-            continue;
-        }
-
-        if (type != NumberType::UNSIGNED_INTEGER && i == 0U && (v[i] == '+' || v[i] == '-'))
-        {
-            continue;
-        }
-
-        if (type == NumberType::FLOAT && !hasDot && v[i] == '.')
-        {
-            hasDot = true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-    /// @NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-
-    return true;
-}
-
-inline bool convert::stringIsNumberWithErrorMessage(const char* v, const NumberType type) noexcept
-{
-    if (!stringIsNumber(v, type))
-    {
-        IOX_LOG(DEBUG, v << " is not ");
-        switch (type)
-        {
-        case NumberType::FLOAT:
-        {
-            IOX_LOG(DEBUG, "a float");
-            break;
-        }
-        case NumberType::INTEGER:
-        {
-            IOX_LOG(DEBUG, "a signed integer");
-            break;
-        }
-        case NumberType::UNSIGNED_INTEGER:
-        {
-            IOX_LOG(DEBUG, "an unsigned integer");
-            break;
-        }
-        }
-        return false;
-    }
-    return true;
-}
-
 template <>
 inline bool convert::from_string<float>(const char* v, float& dest) noexcept
 {
-    if (!stringIsNumberWithErrorMessage(v, NumberType::FLOAT))
-    {
-        return false;
-    }
-
     return !IOX_POSIX_CALL(strtof)(v, nullptr)
                 .failureReturnValue(HUGE_VALF, -HUGE_VALF)
                 .evaluate()
@@ -174,11 +104,6 @@ inline bool convert::from_string<float>(const char* v, float& dest) noexcept
 template <>
 inline bool convert::from_string<double>(const char* v, double& dest) noexcept
 {
-    if (!stringIsNumberWithErrorMessage(v, NumberType::FLOAT))
-    {
-        return false;
-    }
-
     return !IOX_POSIX_CALL(strtod)(v, nullptr)
                 .failureReturnValue(HUGE_VAL, -HUGE_VAL)
                 .evaluate()
@@ -189,11 +114,6 @@ inline bool convert::from_string<double>(const char* v, double& dest) noexcept
 template <>
 inline bool convert::from_string<long double>(const char* v, long double& dest) noexcept
 {
-    if (!stringIsNumberWithErrorMessage(v, NumberType::FLOAT))
-    {
-        return false;
-    }
-
     return !IOX_POSIX_CALL(strtold)(v, nullptr)
                 .failureReturnValue(HUGE_VALL, -HUGE_VALL)
                 .evaluate()
@@ -204,11 +124,6 @@ inline bool convert::from_string<long double>(const char* v, long double& dest) 
 template <>
 inline bool convert::from_string<uint64_t>(const char* v, uint64_t& dest) noexcept
 {
-    if (!stringIsNumberWithErrorMessage(v, NumberType::UNSIGNED_INTEGER))
-    {
-        return false;
-    }
-
     auto call = IOX_POSIX_CALL(strtoull)(v, nullptr, STRTOULL_BASE).failureReturnValue(ULLONG_MAX).evaluate();
 
     if (call.has_error())
@@ -255,11 +170,6 @@ inline bool convert::from_string<uintptr_t>(const char* v, uintptr_t& dest) noex
 template <>
 inline bool convert::from_string<uint32_t>(const char* v, uint32_t& dest) noexcept
 {
-    if (!stringIsNumberWithErrorMessage(v, NumberType::UNSIGNED_INTEGER))
-    {
-        return false;
-    }
-
     auto call = IOX_POSIX_CALL(strtoull)(v, nullptr, STRTOULL_BASE).failureReturnValue(ULLONG_MAX).evaluate();
 
     if (call.has_error())
@@ -280,11 +190,6 @@ inline bool convert::from_string<uint32_t>(const char* v, uint32_t& dest) noexce
 template <>
 inline bool convert::from_string<uint16_t>(const char* v, uint16_t& dest) noexcept
 {
-    if (!stringIsNumberWithErrorMessage(v, NumberType::UNSIGNED_INTEGER))
-    {
-        return false;
-    }
-
     auto call = IOX_POSIX_CALL(strtoul)(v, nullptr, STRTOULL_BASE).failureReturnValue(ULONG_MAX).evaluate();
 
     if (call.has_error())
@@ -305,11 +210,6 @@ inline bool convert::from_string<uint16_t>(const char* v, uint16_t& dest) noexce
 template <>
 inline bool convert::from_string<uint8_t>(const char* v, uint8_t& dest) noexcept
 {
-    if (!stringIsNumberWithErrorMessage(v, NumberType::UNSIGNED_INTEGER))
-    {
-        return false;
-    }
-
     auto call = IOX_POSIX_CALL(strtoul)(v, nullptr, STRTOULL_BASE).failureReturnValue(ULONG_MAX).evaluate();
 
     if (call.has_error())
@@ -330,11 +230,6 @@ inline bool convert::from_string<uint8_t>(const char* v, uint8_t& dest) noexcept
 template <>
 inline bool convert::from_string<int64_t>(const char* v, int64_t& dest) noexcept
 {
-    if (!stringIsNumberWithErrorMessage(v, NumberType::INTEGER))
-    {
-        return false;
-    }
-
     auto call = IOX_POSIX_CALL(strtoll)(v, nullptr, STRTOULL_BASE).failureReturnValue(LLONG_MAX, LLONG_MIN).evaluate();
     if (call.has_error())
     {
@@ -354,11 +249,6 @@ inline bool convert::from_string<int64_t>(const char* v, int64_t& dest) noexcept
 template <>
 inline bool convert::from_string<int32_t>(const char* v, int32_t& dest) noexcept
 {
-    if (!stringIsNumberWithErrorMessage(v, NumberType::INTEGER))
-    {
-        return false;
-    }
-
     auto call = IOX_POSIX_CALL(strtoll)(v, nullptr, STRTOULL_BASE).failureReturnValue(LLONG_MAX, LLONG_MIN).evaluate();
     if (call.has_error())
     {
@@ -378,11 +268,6 @@ inline bool convert::from_string<int32_t>(const char* v, int32_t& dest) noexcept
 template <>
 inline bool convert::from_string<int16_t>(const char* v, int16_t& dest) noexcept
 {
-    if (!stringIsNumberWithErrorMessage(v, NumberType::INTEGER))
-    {
-        return false;
-    }
-
     auto call = IOX_POSIX_CALL(strtol)(v, nullptr, STRTOULL_BASE).failureReturnValue(LONG_MAX, LONG_MIN).evaluate();
     if (call.has_error())
     {
@@ -402,11 +287,6 @@ inline bool convert::from_string<int16_t>(const char* v, int16_t& dest) noexcept
 template <>
 inline bool convert::from_string<int8_t>(const char* v, int8_t& dest) noexcept
 {
-    if (!stringIsNumberWithErrorMessage(v, NumberType::INTEGER))
-    {
-        return false;
-    }
-
     auto call = IOX_POSIX_CALL(strtol)(v, nullptr, STRTOULL_BASE).failureReturnValue(LONG_MAX, LONG_MIN).evaluate();
     if (call.has_error())
     {
@@ -426,11 +306,6 @@ inline bool convert::from_string<int8_t>(const char* v, int8_t& dest) noexcept
 template <>
 inline bool convert::from_string<bool>(const char* v, bool& dest) noexcept
 {
-    if (!stringIsNumberWithErrorMessage(v, NumberType::UNSIGNED_INTEGER))
-    {
-        return false;
-    }
-
     return !IOX_POSIX_CALL(strtoul)(v, nullptr, STRTOULL_BASE)
                 .failureReturnValue(ULONG_MAX)
                 .evaluate()

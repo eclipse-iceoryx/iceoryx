@@ -29,8 +29,7 @@ namespace runtime
 IpcMessageType stringToIpcMessageType(const char* str) noexcept
 {
     std::underlying_type<IpcMessageType>::type msg;
-    bool noError = convert::stringIsNumber(str, convert::NumberType::INTEGER);
-    noError &= noError ? (convert::from_string(str, msg)) : false;
+    bool noError = convert::from_string(str, msg);
     noError &= noError ? !(static_cast<std::underlying_type<IpcMessageType>::type>(IpcMessageType::BEGIN) >= msg
                            || static_cast<std::underlying_type<IpcMessageType>::type>(IpcMessageType::END) <= msg)
                        : false;
@@ -45,8 +44,7 @@ std::string IpcMessageTypeToString(const IpcMessageType msg) noexcept
 IpcMessageErrorType stringToIpcMessageErrorType(const char* str) noexcept
 {
     std::underlying_type<IpcMessageErrorType>::type msg;
-    bool noError = convert::stringIsNumber(str, convert::NumberType::INTEGER);
-    noError &= noError ? (convert::from_string(str, msg)) : false;
+    bool noError = (convert::from_string(str, msg));
     noError &= noError
                    ? !(static_cast<std::underlying_type<IpcMessageErrorType>::type>(IpcMessageErrorType::BEGIN) >= msg
                        || static_cast<std::underlying_type<IpcMessageErrorType>::type>(IpcMessageErrorType::END) <= msg)
