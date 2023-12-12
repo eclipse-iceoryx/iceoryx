@@ -96,11 +96,10 @@ inline bool convert::from_string<float>(const char* v, float& dest) noexcept
 {
     char* end_ptr = nullptr;
 
-    return !IOX_POSIX_CALL(strtof)(v, &end_ptr)
-                .failureReturnValue(HUGE_VALF, -HUGE_VALF)
-                .evaluate()
-                .and_then([&](auto& r) { dest = r.value; })
-                .has_error();
+    auto call = IOX_POSIX_CALL(strtof)(v, &end_ptr)
+                    .failureReturnValue(HUGE_VALF, -HUGE_VALF)
+                    .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
+                    .evaluate();
 }
 
 template <>
@@ -108,11 +107,10 @@ inline bool convert::from_string<double>(const char* v, double& dest) noexcept
 {
     char* end_ptr = nullptr;
 
-    return !IOX_POSIX_CALL(strtod)(v, &end_ptr)
-                .failureReturnValue(HUGE_VAL, -HUGE_VAL)
-                .evaluate()
-                .and_then([&](auto& r) { dest = r.value; })
-                .has_error();
+    auto call = IOX_POSIX_CALL(strtod)(v, &end_ptr)
+                    .failureReturnValue(HUGE_VAL, -HUGE_VAL)
+                    .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
+                    .evaluate();
 }
 
 template <>
@@ -120,11 +118,10 @@ inline bool convert::from_string<long double>(const char* v, long double& dest) 
 {
     char* end_ptr = nullptr;
 
-    return !IOX_POSIX_CALL(strtold)(v, &end_ptr)
-                .failureReturnValue(HUGE_VALL, -HUGE_VALL)
-                .evaluate()
-                .and_then([&](auto& r) { dest = r.value; })
-                .has_error();
+    auto call = IOX_POSIX_CALL(strtold)(v, &end_ptr)
+                    .failureReturnValue(HUGE_VALL, -HUGE_VALL)
+                    .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
+                    .evaluate();
 }
 
 template <>
@@ -132,7 +129,10 @@ inline bool convert::from_string<uint64_t>(const char* v, uint64_t& dest) noexce
 {
     char* end_ptr = nullptr;
 
-    auto call = IOX_POSIX_CALL(strtoull)(v, &end_ptr, STRTOULL_BASE).failureReturnValue(ULLONG_MAX).evaluate();
+    auto call = IOX_POSIX_CALL(strtoull)(v, &end_ptr, STRTOULL_BASE)
+                    .failureReturnValue(ULLONG_MAX)
+                    .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
+                    .evaluate();
 
     if (call.has_error())
     {
@@ -180,7 +180,10 @@ inline bool convert::from_string<uint32_t>(const char* v, uint32_t& dest) noexce
 {
     char* end_ptr = nullptr;
 
-    auto call = IOX_POSIX_CALL(strtoull)(v, &end_ptr, STRTOULL_BASE).failureReturnValue(ULLONG_MAX).evaluate();
+    auto call = IOX_POSIX_CALL(strtoull)(v, &end_ptr, STRTOULL_BASE)
+                    .failureReturnValue(ULLONG_MAX)
+                    .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
+                    .evaluate();
 
     if (call.has_error())
     {
@@ -202,7 +205,10 @@ inline bool convert::from_string<uint16_t>(const char* v, uint16_t& dest) noexce
 {
     char* end_ptr = nullptr;
 
-    auto call = IOX_POSIX_CALL(strtoul)(v, &end_ptr, STRTOULL_BASE).failureReturnValue(ULONG_MAX).evaluate();
+    auto call = IOX_POSIX_CALL(strtoul)(v, &end_ptr, STRTOULL_BASE)
+                    .failureReturnValue(ULONG_MAX)
+                    .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
+                    .evaluate();
 
     if (call.has_error())
     {
@@ -224,7 +230,10 @@ inline bool convert::from_string<uint8_t>(const char* v, uint8_t& dest) noexcept
 {
     char* end_ptr = nullptr;
 
-    auto call = IOX_POSIX_CALL(strtoul)(v, &end_ptr, STRTOULL_BASE).failureReturnValue(ULONG_MAX).evaluate();
+    auto call = IOX_POSIX_CALL(strtoul)(v, &end_ptr, STRTOULL_BASE)
+                    .failureReturnValue(ULONG_MAX)
+                    .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
+                    .evaluate();
 
     if (call.has_error())
     {
@@ -246,7 +255,10 @@ inline bool convert::from_string<int64_t>(const char* v, int64_t& dest) noexcept
 {
     char* end_ptr = nullptr;
 
-    auto call = IOX_POSIX_CALL(strtoll)(v, &end_ptr, STRTOULL_BASE).failureReturnValue(LLONG_MAX, LLONG_MIN).evaluate();
+    auto call = IOX_POSIX_CALL(strtoll)(v, &end_ptr, STRTOULL_BASE)
+                    .failureReturnValue(LLONG_MAX, LLONG_MIN)
+                    .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
+                    .evaluate();
     if (call.has_error())
     {
         return false;
@@ -267,7 +279,10 @@ inline bool convert::from_string<int32_t>(const char* v, int32_t& dest) noexcept
 {
     char* end_ptr = nullptr;
 
-    auto call = IOX_POSIX_CALL(strtoll)(v, &end_ptr, STRTOULL_BASE).failureReturnValue(LLONG_MAX, LLONG_MIN).evaluate();
+    auto call = IOX_POSIX_CALL(strtoll)(v, &end_ptr, STRTOULL_BASE)
+                    .failureReturnValue(LLONG_MAX, LLONG_MIN)
+                    .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
+                    .evaluate();
     if (call.has_error())
     {
         return false;
@@ -288,7 +303,10 @@ inline bool convert::from_string<int16_t>(const char* v, int16_t& dest) noexcept
 {
     char* end_ptr = nullptr;
 
-    auto call = IOX_POSIX_CALL(strtol)(v, &end_ptr, STRTOULL_BASE).failureReturnValue(LONG_MAX, LONG_MIN).evaluate();
+    auto call = IOX_POSIX_CALL(strtol)(v, &end_ptr, STRTOULL_BASE)
+                    .failureReturnValue(LONG_MAX, LONG_MIN)
+                    .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
+                    .evaluate();
     if (call.has_error())
     {
         return false;
@@ -309,7 +327,10 @@ inline bool convert::from_string<int8_t>(const char* v, int8_t& dest) noexcept
 {
     char* end_ptr = nullptr;
 
-    auto call = IOX_POSIX_CALL(strtol)(v, &end_ptr, STRTOULL_BASE).failureReturnValue(LONG_MAX, LONG_MIN).evaluate();
+    auto call = IOX_POSIX_CALL(strtol)(v, &end_ptr, STRTOULL_BASE)
+                    .failureReturnValue(LONG_MAX, LONG_MIN)
+                    .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
+                    .evaluate();
     if (call.has_error())
     {
         return false;
@@ -330,11 +351,10 @@ inline bool convert::from_string<bool>(const char* v, bool& dest) noexcept
 {
     char* end_ptr = nullptr;
 
-    return !IOX_POSIX_CALL(strtoul)(v, &end_ptr, STRTOULL_BASE)
-                .failureReturnValue(ULONG_MAX)
-                .evaluate()
-                .and_then([&](auto& r) { dest = static_cast<bool>(r.value); })
-                .has_error();
+    auto call = IOX_POSIX_CALL(strtoul)(v, &end_ptr, STRTOULL_BASE)
+                    .failureReturnValue(ULONG_MAX)
+                    .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
+                    .evaluate();
 }
 
 } // namespace iox
