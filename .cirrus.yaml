@@ -84,8 +84,6 @@ iox_prepare_test_binaries_for_cache_template: &IOX_PREPARE_TEST_BINARIES_FOR_CAC
   - mv build/hoofs/test/hoofs_mocktests iox-tests-bin
   - mv build/hoofs/test/hoofs_moduletests iox-tests-bin
   - mv build/hoofs/test/hoofs_integrationtests iox-tests-bin
-  - mv build/dust/test/dust_moduletests iox-tests-bin
-  - mv build/dust/test/dust_integrationtests iox-tests-bin
   - mv build/posh/test/posh_moduletests iox-tests-bin
   - mv build/posh/test/posh_integrationtests iox-tests-bin
   - mv build/binding_c/test/binding_c_moduletests iox-tests-bin
@@ -95,8 +93,6 @@ iox_run_tests_template: &IOX_RUN_TESTS
   - ./hoofs_mocktests
   - ./hoofs_moduletests
   - ./hoofs_integrationtests
-  - ./dust_moduletests
-  - ./dust_integrationtests
   - ./posh_moduletests
   - ./posh_integrationtests
   - ./binding_c_moduletests
