@@ -31,16 +31,14 @@ cc_library(
     name = "iceoryx_dust",
     srcs = glob([
         "cli/source/**/*.cpp",
-        "filesystem/source/**/*.cpp",
         "posix/ipc/source/**/*.cpp",
         "posix/sync/source/**/*.cpp",
     ]),
-    hdrs = glob(["cli/**"]) + glob(["filesystem/**"]) + glob(["memory/**"]) + glob(["utility/**"]) + glob(["posix/ipc/**"]) + glob(["posix/sync/**"]) + [
+    hdrs = glob(["cli/**"]) + glob(["memory/**"]) + glob(["utility/**"]) + glob(["posix/ipc/**"]) + glob(["posix/sync/**"]) + [
         ":iceoryx_dust_deployment_hpp",
     ],
     includes = [
         "cli/include/",
-        "filesystem/include/",
         "generated/include/",
         "memory/include/",
         "posix/ipc/include/",

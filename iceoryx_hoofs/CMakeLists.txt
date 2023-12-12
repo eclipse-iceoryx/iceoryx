@@ -96,6 +96,7 @@ iox_add_library(
                                 posix/vocabulary/include/
     FILES
         design/source/functional_interface.cpp
+        filesystem/source/file_reader.cpp
         filesystem/source/filesystem.cpp
         memory/source/bump_allocator.cpp
         memory/source/memory.cpp

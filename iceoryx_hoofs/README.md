@@ -62,6 +62,7 @@ The module structure is a logical grouping. It is replicated for `concurrent` an
 |`filesystem`           |          | Implementation of C++17 filesystem features for instance `iox::access_rights` and `iox::perms` to abstract file permissions                                                                                                                                    |
 |`PosixAcl`             | i        | Interface for Access Control Lists (ACL).                                                                                                                                                                                             |
 |`FileLock`             |          | File lock C++ wrapping class.                                                                                                                                                                                                         |
+|`FileReader`           | Wrapper for opening files and reading them.                                                                                                                                                                                                                                                                           |
 
 ### Functional (functional)
 
