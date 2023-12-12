@@ -113,7 +113,7 @@
         char** argv,                                                                                                   \
         const iox::cli::OptionDescription_t& programDescription,                                                       \
         const uint64_t argcOffset = 1U,                                                                                \
-        const ::iox::function<void()>& onFailureCallback = [] { std::quick_exit(EXIT_FAILURE); })                      \
+        const ::iox::function<void()>& onFailureCallback = [] { std::abort(); })                                       \
     {                                                                                                                  \
         ::iox::cli::OptionManager optionManager(programDescription, onFailureCallback);                                \
         return Name(optionManager, argc, argv, argcOffset);                                                            \

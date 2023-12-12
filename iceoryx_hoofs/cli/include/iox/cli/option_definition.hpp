@@ -37,10 +37,10 @@ class OptionDefinition
     /// @brief The constructor.
     /// @param[in] programDescription The description to the program. Will be printed in the help.
     /// @param[in] onFailureCallback callback which is called when parse fails, if nothing is
-    ///            defined std::quick_exit(EXIT_FAILURE) is called
+    ///            defined std::abort() is called
     explicit OptionDefinition(
         const OptionDescription_t& programDescription,
-        const function<void()>& onFailureCallback = [] { std::quick_exit(EXIT_FAILURE); }) noexcept;
+        const function<void()>& onFailureCallback = [] { std::abort(); }) noexcept;
 
     /// @brief Adds a command line switch argument
     ///        Calls the onFailureCallback when the option was already added or the shortOption and longOption are
