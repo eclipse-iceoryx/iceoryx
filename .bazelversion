@@ -1,0 +1,2 @@
+6.4.0
+# NOTE: Bazel 7.0 errors out on 'buildifier_lint_check' with a hint to 'go_register_toolchains' in 'setup.bzl'
