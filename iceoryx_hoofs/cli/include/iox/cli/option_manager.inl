@@ -16,7 +16,7 @@
 
 #ifndef IOX_HOOFS_CLI_OPTION_MANAGER_INL
 #define IOX_HOOFS_CLI_OPTION_MANAGER_INL
-#pragma once
+
 #include "iox/cli/option_manager.hpp"
 
 namespace iox
