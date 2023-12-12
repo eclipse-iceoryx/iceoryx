@@ -62,6 +62,8 @@ class CliDefinition_test : public Test
 
 struct CliDefinitionSut
 {
+    // NOLINTJUSTIFICATION hidden behind a macro
+    // NOLINTNEXTLINE(readability-function-size)
     IOX_CLI_DEFINITION(CliDefinitionSut);
 
     IOX_CLI_OPTIONAL(string<100>, stringValue1, {"default value"}, 's', {"string-value-1"}, {"some description"});

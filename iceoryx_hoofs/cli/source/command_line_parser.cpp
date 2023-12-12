@@ -26,7 +26,7 @@ namespace iox
 namespace cli
 {
 Arguments
-parseCommandLineArguments(const OptionDefinition& optionSet, int argc, char* argv[], const uint64_t argcOffset) noexcept
+parseCommandLineArguments(const OptionDefinition& optionSet, int argc, char** argv, const uint64_t argcOffset) noexcept
 {
     return CommandLineParser().parse(optionSet, argc, argv, argcOffset);
 }
@@ -43,6 +43,8 @@ bool CommandLineParser::hasArguments(const uint64_t argc) const noexcept
 
 bool CommandLineParser::doesOptionStartWithDash(const char* option) const noexcept
 {
+    // NOLINTJUSTIFICATION required for command line options; bounds are checked
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     const bool doesOptionStartWithDash = (strnlen(option, 1) > 0 && option[0] == '-');
 
     if (!doesOptionStartWithDash)
@@ -56,47 +58,53 @@ bool CommandLineParser::doesOptionStartWithDash(const char* option) const noexce
 bool CommandLineParser::hasNonEmptyOptionName(const char* option) const noexcept
 {
     const uint64_t minArgIdentifierLength = strnlen(option, 3);
-    const bool hasNonEmptyOptionName =
-        !(minArgIdentifierLength == 1 || (minArgIdentifierLength == 2 && option[1] == '-'));
+    const bool hasEmptyOptionName =
+        // NOLINTJUSTIFICATION required for command line options; bounds are checked
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        minArgIdentifierLength == 1 || (minArgIdentifierLength == 2 && option[1] == '-');
 
-    if (!hasNonEmptyOptionName)
+    if (hasEmptyOptionName)
     {
         std::cout << "Empty option names are forbidden" << std::endl;
         printHelpAndExit();
     }
 
-    return hasNonEmptyOptionName;
+    return !hasEmptyOptionName;
 }
 
 bool CommandLineParser::doesNotHaveLongOptionDash(const char* option) const noexcept
 {
     const uint64_t minArgIdentifierLength = strnlen(option, 3);
-    const bool doesNotHaveLongOptionDash = !(minArgIdentifierLength > 2 && option[1] != '-');
+    // NOLINTJUSTIFICATION required for command line options; bounds are checked
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    const bool doesHaveLongOptionDash = minArgIdentifierLength > 2 && option[1] != '-';
 
-    if (!doesNotHaveLongOptionDash)
+    if (doesHaveLongOptionDash)
     {
         std::cout << "Only one letter allowed when using a short option name. The switch \"" << option
                   << "\" is not valid." << std::endl;
         printHelpAndExit();
     }
-    return doesNotHaveLongOptionDash;
+    return !doesHaveLongOptionDash;
 }
 
 bool CommandLineParser::doesNotExceedLongOptionDash(const char* option) const noexcept
 {
     const uint64_t minArgIdentifierLength = strnlen(option, 3);
-    const bool doesNotExceedLongOptionDash = !(minArgIdentifierLength > 2 && option[2] == '-');
+    // NOLINTJUSTIFICATION required for command line options; bounds are checked
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    const bool doesExceedLongOptionDash = minArgIdentifierLength > 2 && option[2] == '-';
 
-    if (!doesNotExceedLongOptionDash)
+    if (doesExceedLongOptionDash)
     {
         std::cout << "A long option name should start after \"--\". This \"" << option << "\" is not valid."
                   << std::endl;
         printHelpAndExit();
     }
-    return doesNotExceedLongOptionDash;
+    return !doesExceedLongOptionDash;
 }
 
-bool CommandLineParser::doesFitIntoString(const char* value, const uint64_t maxLength) const noexcept
+bool CommandLineParser::doesFitIntoString(const char* value, const uint64_t maxLength) noexcept
 {
     return (strnlen(value, maxLength + 1) <= maxLength);
 }
@@ -117,16 +125,19 @@ bool CommandLineParser::doesOptionNameFitIntoString(const char* option) const no
 bool CommandLineParser::isNextArgumentAValue(const uint64_t position) const noexcept
 {
     uint64_t nextPosition = position + 1;
-    return (m_argc > 0 && m_argc > nextPosition
+    return (m_argc > 0
+            && m_argc > nextPosition
+            // NOLINTJUSTIFICATION required for command line options; bounds are checked
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
             && (strnlen(m_argv[nextPosition], MAX_OPTION_NAME_LENGTH) > 0 && m_argv[nextPosition][0] != '-'));
 }
 
-bool CommandLineParser::isOptionSet(const OptionWithDetails& value) const noexcept
+bool CommandLineParser::isOptionSet(const OptionWithDetails& entry) const noexcept
 {
     bool isOptionSet = false;
     for (const auto& option : m_optionValue.m_arguments)
     {
-        if (option.isSameOption(value))
+        if (option.isSameOption(entry))
         {
             isOptionSet = true;
             break;
@@ -135,7 +146,7 @@ bool CommandLineParser::isOptionSet(const OptionWithDetails& value) const noexce
 
     if (isOptionSet)
     {
-        std::cout << "The option \"" << value << "\" is already set!" << std::endl;
+        std::cout << "The option \"" << entry << "\" is already set!" << std::endl;
         printHelpAndExit();
     }
 
@@ -163,7 +174,7 @@ bool CommandLineParser::hasLexicallyValidOption(const char* value) const noexcep
 }
 
 Arguments
-CommandLineParser::parse(const OptionDefinition& optionSet, int argc, char* argv[], const uint64_t argcOffset) noexcept
+CommandLineParser::parse(const OptionDefinition& optionSet, int argc, char** argv, const uint64_t argcOffset) noexcept
 {
     m_optionSet = &optionSet;
 
@@ -178,6 +189,8 @@ CommandLineParser::parse(const OptionDefinition& optionSet, int argc, char* argv
         return m_optionValue;
     }
 
+    // NOLINTJUSTIFICATION required for command line options; bounds are checked
+    // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     m_optionValue.m_binaryName = m_argv[0];
 
     for (uint64_t i = algorithm::maxVal(argcOffset, static_cast<uint64_t>(1U)); i < m_argc; ++i)
@@ -228,6 +241,7 @@ CommandLineParser::parse(const OptionDefinition& optionSet, int argc, char* argv
             skipCommandLineArgument();
         }
     }
+    // NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 
     setDefaultValuesToUnsetOptions();
 
@@ -240,13 +254,13 @@ CommandLineParser::parse(const OptionDefinition& optionSet, int argc, char* argv
     return m_optionValue;
 }
 
-bool CommandLineParser::doesOptionHasSucceedingValue(const OptionWithDetails& value,
+bool CommandLineParser::doesOptionHasSucceedingValue(const OptionWithDetails& entry,
                                                      const uint64_t position) const noexcept
 {
     bool doesOptionHasSucceedingValue = (position + 1 < m_argc);
     if (!doesOptionHasSucceedingValue)
     {
-        std::cout << "The option \"" << value << "\" must be followed by a value!" << std::endl;
+        std::cout << "The option \"" << entry << "\" must be followed by a value!" << std::endl;
         printHelpAndExit();
     }
     return doesOptionHasSucceedingValue;
@@ -312,6 +326,8 @@ void CommandLineParser::printHelpAndExit() const noexcept
     std::cout << "Usage: ";
     for (uint64_t i = 0; i < m_argcOffset && i < m_argc; ++i)
     {
+        // NOLINTJUSTIFICATION required for command line options; bounds are checked
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
         std::cout << m_argv[i] << " ";
     }
     std::cout << "[OPTIONS]\n" << std::endl;
@@ -343,12 +359,7 @@ void CommandLineParser::printHelpAndExit() const noexcept
             outLength += 2 + option.longOption.size();
         }
 
-        if (option.details.type == OptionType::REQUIRED)
-        {
-            std::cout << " [" << option.details.typeName << "]";
-            outLength += 3 + option.details.typeName.size();
-        }
-        else if (option.details.type == OptionType::OPTIONAL)
+        if (option.details.type == OptionType::REQUIRED || option.details.type == OptionType::OPTIONAL)
         {
             std::cout << " [" << option.details.typeName << "]";
             outLength += 3 + option.details.typeName.size();

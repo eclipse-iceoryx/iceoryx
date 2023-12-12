@@ -14,10 +14,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_DUST_CLI_CLI_DEFINITION_HPP
-#define IOX_DUST_CLI_CLI_DEFINITION_HPP
+#ifndef IOX_HOOFS_CLI_CLI_DEFINITION_HPP
+#define IOX_HOOFS_CLI_CLI_DEFINITION_HPP
 
 #include "iox/cli/option_manager.hpp"
+
+
+// NOLINTJUSTIFICATION cannot be realized with templates or constexpr functions due to the
+// intended usage of building a class
+// NOLINTBEGIN(cppcoreguidelines-macro-usage)
 
 #define IOX_INTERNAL_CMD_LINE_VALUE(type, memberName, defaultValue, shortName, longName, description, optionType)      \
   public:                                                                                                              \
@@ -89,14 +94,14 @@
 /// //   -d or --do-stuff
 /// //   -v or --version
 ///
-/// int main(int argc, char* argv[]) {
+/// int main(int argc, char** argv) {
 ///   auto cmd = CommandLine::parse(argc, argv, "My program description");
 ///   std::cout << cmd.stringValue() << " " << cmd.anotherString() << std::endl;
 /// }
 /// @endcode
 #define IOX_CLI_DEFINITION(Name)                                                                                       \
   private:                                                                                                             \
-    Name(::iox::cli::OptionManager& optionManager, int argc, char* argv[], const uint64_t argcOffset = 1U)             \
+    Name(::iox::cli::OptionManager& optionManager, int argc, char** argv, const uint64_t argcOffset = 1U)              \
         : m_optionManager{&optionManager}                                                                              \
     {                                                                                                                  \
         m_optionManager->populateDefinedOptions(m_binaryName, argc, argv, argcOffset);                                 \
@@ -105,10 +110,10 @@
   public:                                                                                                              \
     static Name parse(                                                                                                 \
         int argc,                                                                                                      \
-        char* argv[],                                                                                                  \
+        char** argv,                                                                                                   \
         const iox::cli::OptionDescription_t& programDescription,                                                       \
         const uint64_t argcOffset = 1U,                                                                                \
-        const ::iox::function<void()> onFailureCallback = [] { std::exit(EXIT_FAILURE); })                             \
+        const ::iox::function_ref<void()> onFailureCallback = [] { std::quick_exit(EXIT_FAILURE); })                   \
     {                                                                                                                  \
         ::iox::cli::OptionManager optionManager(programDescription, onFailureCallback);                                \
         return Name(optionManager, argc, argv, argcOffset);                                                            \
@@ -123,5 +128,6 @@
     ::iox::cli::OptionManager* m_optionManager = nullptr;                                                              \
     const char* m_binaryName = nullptr
 
+// NOLINTEND(cppcoreguidelines-macro-usage)
 
-#endif // IOX_DUST_CLI_CLI_DEFINITION_HPP
+#endif // IOX_HOOFS_CLI_CLI_DEFINITION_HPP

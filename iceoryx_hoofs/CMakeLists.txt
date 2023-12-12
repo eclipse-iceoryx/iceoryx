@@ -49,6 +49,7 @@ iox_add_library(
     PRIVATE_LIBS_LINUX          acl atomic ${CODE_COVERAGE_LIBS}
     BUILD_INTERFACE             ${PROJECT_SOURCE_DIR}/include
                                 ${PROJECT_SOURCE_DIR}/legacy/include
+                                ${PROJECT_SOURCE_DIR}/cli/include
                                 ${PROJECT_SOURCE_DIR}/memory/include
                                 ${PROJECT_SOURCE_DIR}/container/include
                                 ${PROJECT_SOURCE_DIR}/vocabulary/include
@@ -74,6 +75,7 @@ iox_add_library(
     INSTALL_INTERFACE           include/${PREFIX}
     EXPORT_INCLUDE_DIRS         include/
                                 legacy/include/
+                                cli/include/
                                 memory/include/
                                 container/include/
                                 vocabulary/include/
@@ -95,6 +97,11 @@ iox_add_library(
                                 posix/utility/include/
                                 posix/vocabulary/include/
     FILES
+        cli/source/arguments.cpp
+        cli/source/command_line_parser.cpp
+        cli/source/option.cpp
+        cli/source/option_definition.cpp
+        cli/source/option_manager.cpp
         design/source/functional_interface.cpp
         filesystem/source/file_reader.cpp
         filesystem/source/filesystem.cpp

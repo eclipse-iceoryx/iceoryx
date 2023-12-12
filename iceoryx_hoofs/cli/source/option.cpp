@@ -71,13 +71,15 @@ bool Option::operator<(const Option& rhs) const noexcept
     {
         return shortOption < rhs.shortOption;
     }
-    else if (!longOption.empty() && rhs.shortOption != NO_SHORT_OPTION)
+
+    if (!longOption.empty() && rhs.shortOption != NO_SHORT_OPTION)
     {
-        return longOption.c_str()[0] < rhs.shortOption;
+        return longOption.unchecked_at(0) < rhs.shortOption;
     }
-    else if (shortOption != NO_SHORT_OPTION && !rhs.longOption.empty())
+
+    if (shortOption != NO_SHORT_OPTION && !rhs.longOption.empty())
     {
-        return shortOption < rhs.longOption.c_str()[0];
+        return shortOption < rhs.longOption.unchecked_at(0);
     }
 
     return longOption < rhs.longOption;

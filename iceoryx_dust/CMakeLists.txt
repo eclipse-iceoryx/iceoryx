@@ -37,23 +37,8 @@ set(PREFIX iceoryx/v${CMAKE_PROJECT_VERSION})
 ########## build iceoryx dust lib ##########
 #
 
-iox_add_library(
-    TARGET                      iceoryx_dust
-    NAMESPACE                   iceoryx_dust
-    PROJECT_PREFIX              ${PREFIX}
-    PRIVATE_LIBS                ${ICEORYX_SANITIZER_FLAGS}
-    PRIVATE_LIBS_LINUX          ${CODE_COVERAGE_LIBS}
-    PUBLIC_LIBS                 iceoryx_hoofs::iceoryx_hoofs
-    BUILD_INTERFACE             ${PROJECT_SOURCE_DIR}/cli/include
-    INSTALL_INTERFACE           include/${PREFIX}
-    EXPORT_INCLUDE_DIRS         cli/include/
-    FILES
-        cli/source/arguments.cpp
-        cli/source/command_line_parser.cpp
-        cli/source/option.cpp
-        cli/source/option_definition.cpp
-        cli/source/option_manager.cpp
-)
+add_library(iceoryx_dust INTERFACE)
+add_library(iceoryx_dust::iceoryx_dust ALIAS iceoryx_dust)
 
 #
 ########## dust testing ##########

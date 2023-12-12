@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_DUST_CLI_OPTION_DEFINITION_HPP
-#define IOX_DUST_CLI_OPTION_DEFINITION_HPP
+#ifndef IOX_HOOFS_CLI_OPTION_DEFINITION_HPP
+#define IOX_HOOFS_CLI_OPTION_DEFINITION_HPP
 
 #include "iox/cli/arguments.hpp"
 #include "iox/cli/types.hpp"
@@ -37,10 +37,10 @@ class OptionDefinition
     /// @brief The constructor.
     /// @param[in] programDescription The description to the program. Will be printed in the help.
     /// @param[in] onFailureCallback callback which is called when parse fails, if nothing is
-    ///            defined std::exit(EXIT_FAILURE) is called
+    ///            defined std::quick_exit(EXIT_FAILURE) is called
     explicit OptionDefinition(
         const OptionDescription_t& programDescription,
-        const function<void()> onFailureCallback = [] { std::exit(EXIT_FAILURE); }) noexcept;
+        const function_ref<void()> onFailureCallback = [] { std::quick_exit(EXIT_FAILURE); }) noexcept;
 
     /// @brief Adds a command line switch argument
     ///        Calls the onFailureCallback when the option was already added or the shortOption and longOption are
@@ -91,8 +91,8 @@ class OptionDefinition
     function<void()> m_onFailureCallback;
 };
 
-std::ostream& operator<<(std::ostream& stream, const OptionWithDetails& value) noexcept;
+std::ostream& operator<<(std::ostream& stream, const OptionWithDetails& option) noexcept;
 } // namespace cli
 } // namespace iox
 
-#endif // IOX_DUST_CLI_OPTION_DEFINITION_HPP
+#endif // IOX_HOOFS_CLI_OPTION_DEFINITION_HPP

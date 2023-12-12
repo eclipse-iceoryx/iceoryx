@@ -13,8 +13,9 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_DUST_CLI_ARGUMENTS_HPP
-#define IOX_DUST_CLI_ARGUMENTS_HPP
+
+#ifndef IOX_HOOFS_CLI_ARGUMENTS_HPP
+#define IOX_HOOFS_CLI_ARGUMENTS_HPP
 
 #include "iox/cli/option.hpp"
 #include "iox/cli/types.hpp"
@@ -72,4 +73,4 @@ class Arguments
 
 #include "iox/cli/arguments.inl"
 
-#endif // IOX_DUST_CLI_ARGUMENTS_HPP
+#endif // IOX_HOOFS_CLI_ARGUMENTS_HPP

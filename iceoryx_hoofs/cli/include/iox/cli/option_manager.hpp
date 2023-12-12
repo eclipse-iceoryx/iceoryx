@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_DUST_CLI_OPTION_MANAGER_HPP
-#define IOX_DUST_CLI_OPTION_MANAGER_HPP
+#ifndef IOX_HOOFS_CLI_OPTION_MANAGER_HPP
+#define IOX_HOOFS_CLI_OPTION_MANAGER_HPP
 
 #include "iox/cli/command_line_parser.hpp"
 #include "iox/cli/option_definition.hpp"
@@ -40,7 +40,7 @@ class OptionManager
     /// @param[in] programDescription the description of the application
     /// @param[in] onFailureCallback callback which is called when a syntax error occurs, a required option is missing
     /// or the wrong type as argument value is provided
-    OptionManager(const OptionDescription_t& programDescription, const function<void()> onFailureCallback);
+    OptionManager(const OptionDescription_t& programDescription, const function_ref<void()> onFailureCallback);
 
     /// @brief Defines a new option
     /// @param[in] referenceToMember an uninitialized piece of memory where later the content is stored when
@@ -61,10 +61,10 @@ class OptionManager
 
     /// @brief populates all defined options
     /// @param[in] binaryName the name of the binary
-    /// @param[in] argc the argument count taken from int main(int argc, char*argv[])
-    /// @param[in] argv the argument array ptr taken from int main(int argc, char*argv[])
+    /// @param[in] argc the argument count taken from int main(int argc, char** argv)
+    /// @param[in] argv the argument array ptr taken from int main(int argc, char** argv)
     /// @param[in] argcOffset the offset from which the arguments should be parsed
-    void populateDefinedOptions(const char*& binaryName, int argc, char* argv[], const uint64_t argcOffset);
+    void populateDefinedOptions(const char*& binaryName, int argc, char** argv, const uint64_t argcOffset);
 
   private:
     CommandLineParser m_parser;
@@ -86,4 +86,4 @@ class OptionManager
 
 #include "iox/cli/option_manager.inl"
 
-#endif // IOX_DUST_CLI_OPTION_MANAGER_HPP
+#endif // IOX_HOOFS_CLI_OPTION_MANAGER_HPP

@@ -3,6 +3,9 @@
 ./iceoryx_hoofs/test/moduletests/test_cxx*
 ./iceoryx_hoofs/source/cxx/*
 
+./iceoryx_hoofs/cli/**/*
+./iceoryx_hoofs/test/moduletests/test_cli_*
+
 ./iceoryx_hoofs/memory/**/*
 ./iceoryx_hoofs/test/moduletests/test_memory_*
 

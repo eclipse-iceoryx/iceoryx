@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_DUST_CLI_CLI_DEFINITION_INL
-#define IOX_DUST_CLI_CLI_DEFINITION_INL
+#ifndef IOX_HOOFS_CLI_CLI_DEFINITION_INL
+#define IOX_HOOFS_CLI_CLI_DEFINITION_INL
 
 #include "iox/cli/arguments.hpp"
 
@@ -26,7 +26,9 @@ namespace cli
 template <typename T>
 inline expected<T, Arguments::Error> Arguments::convertFromString(const Argument_t& stringValue) const noexcept
 {
-    T value;
+    // @todo iox-#2055 there are edge cases which lead to not initializing the value even when the return value of
+    // 'fromString' is true; value initialization can be removed when #2055 is fixed
+    T value{};
     if (!convert::fromString(stringValue.c_str(), value))
     {
         std::cout << "\"" << stringValue.c_str() << "\" could not be converted to the requested type" << std::endl;
@@ -63,4 +65,4 @@ inline expected<T, Arguments::Error> Arguments::get(const OptionName_t& optionNa
 } // namespace cli
 } // namespace iox
 
-#endif // IOX_DUST_CLI_CLI_DEFINITION_INL
+#endif // IOX_HOOFS_CLI_CLI_DEFINITION_INL

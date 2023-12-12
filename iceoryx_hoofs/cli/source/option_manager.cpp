@@ -20,12 +20,13 @@ namespace iox
 {
 namespace cli
 {
-OptionManager::OptionManager(const OptionDescription_t& programDescription, const function<void()> onFailureCallback)
+OptionManager::OptionManager(const OptionDescription_t& programDescription,
+                             const function_ref<void()> onFailureCallback)
     : m_optionSet{programDescription, onFailureCallback}
 {
 }
 
-void OptionManager::populateDefinedOptions(const char*& binaryName, int argc, char* argv[], const uint64_t argcOffset)
+void OptionManager::populateDefinedOptions(const char*& binaryName, int argc, char** argv, const uint64_t argcOffset)
 {
     auto options = m_parser.parse(m_optionSet, argc, argv, argcOffset);
 

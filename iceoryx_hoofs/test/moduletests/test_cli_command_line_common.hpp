@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_DUST_MODULETESTS_TEST_CLI_COMMAND_LINE_COMMON_HPP
-#define IOX_DUST_MODULETESTS_TEST_CLI_COMMAND_LINE_COMMON_HPP
+#ifndef IOX_HOOFS_MODULETESTS_TEST_CLI_COMMAND_LINE_COMMON_HPP
+#define IOX_HOOFS_MODULETESTS_TEST_CLI_COMMAND_LINE_COMMON_HPP
 
 #include <iostream>
 #include <memory>
@@ -35,6 +35,8 @@ struct CmdArgs
         contents = std::make_unique<std::vector<std::string>>(arguments);
         for (uint64_t i = 0; i < static_cast<uint64_t>(argc); ++i)
         {
+            // NOLINTJUSTIFICATION required for test
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
             argv[i] = (*contents)[i].data();
         }
     }
@@ -74,4 +76,4 @@ class OutBuffer
     std::stringstream m_capture;
 };
 
-#endif // IOX_DUST_MODULETESTS_TEST_CLI_COMMAND_LINE_COMMON_HPP
+#endif // IOX_HOOFS_MODULETESTS_TEST_CLI_COMMAND_LINE_COMMON_HPP

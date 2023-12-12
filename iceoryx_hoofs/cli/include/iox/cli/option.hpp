@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_DUST_CLI_OPTION_HPP
-#define IOX_DUST_CLI_OPTION_HPP
+#ifndef IOX_HOOFS_CLI_OPTION_HPP
+#define IOX_HOOFS_CLI_OPTION_HPP
 
 #include "iox/cli/types.hpp"
 
@@ -97,4 +97,4 @@ struct OptionWithDetails : public Option // can this be melt together
 } // namespace cli
 } // namespace iox
 
-#endif // IOX_DUST_CLI_OPTION_HPP
+#endif // IOX_HOOFS_CLI_OPTION_HPP

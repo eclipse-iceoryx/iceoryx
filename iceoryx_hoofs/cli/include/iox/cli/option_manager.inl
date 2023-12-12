@@ -14,9 +14,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_DUST_CLI_OPTION_MANAGER_INL
-#define IOX_DUST_CLI_OPTION_MANAGER_INL
-
+#ifndef IOX_HOOFS_CLI_OPTION_MANAGER_INL
+#define IOX_HOOFS_CLI_OPTION_MANAGER_INL
+#pragma once
 #include "iox/cli/option_manager.hpp"
 
 namespace iox
@@ -51,6 +51,8 @@ inline bool OptionManager::extractOptionArgumentValue(const Arguments& arguments
 }
 
 template <typename T>
+// NOLINTJUSTIFICATION this is not a user facing API but hidden in a macro
+// NOLINTNEXTLINE(readability-function-size)
 inline T OptionManager::defineOption(T& referenceToMember,
                                      const char shortName,
                                      const OptionName_t& name,
@@ -74,4 +76,4 @@ inline T OptionManager::defineOption(T& referenceToMember,
 } // namespace cli
 } // namespace iox
 
-#endif // IOX_DUST_CLI_OPTION_MANAGER_HPP
+#endif // IOX_HOOFS_CLI_OPTION_MANAGER_HPP

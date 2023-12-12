@@ -82,6 +82,8 @@ TEST_F(CommandLineParser_test, EmptyArgcLeadsToExit)
     EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
 }
 
+// NOLINTJUSTIFICATION okay for tests
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 void FailureTest(const std::vector<std::string>& options,
                  const std::vector<std::string>& optionsToRegister = {},
                  const std::vector<std::string>& switchesToRegister = {},
@@ -320,13 +322,7 @@ TEST_F(CommandLineParser_test, FailWhenOptionWasNotRegistered_MultiArgument_Shor
     ::testing::Test::RecordProperty("TEST_ID", "a4de02ed-3057-4d54-bcad-5a55ed8ea9ed");
     std::vector<std::string> optionsToRegister{"sputnik", "rosetta"};
     // begin
-    FailureTest({"-c",
-                 "gameOfLife",
-                 "-s",
-                 "iWasFirst"
-                 "-r",
-                 "uhWhatsThere"},
-                optionsToRegister);
+    FailureTest({"-c", "gameOfLife", "-s", "iWasFirst", "-r", "uhWhatsThere"}, optionsToRegister);
     // middle
     FailureTest({"-s", "gameOfLife", "-c", "gameOfLife", "-r", "uhWhatsThere"}, optionsToRegister);
     // end
@@ -857,7 +853,7 @@ TEST_F(CommandLineParser_test, DefaultValuesAreLoadedForLongOptionsOnly)
 TEST_F(CommandLineParser_test, DetectMissingRequiredOptionsWithShortOptionsOnly)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a414b0f8-88cc-4a0a-bc73-c9be1f5dcc79");
-    bool wasErrorHandlerCalled;
+    bool wasErrorHandlerCalled{false};
     OptionDefinition optionSet("", [&] { wasErrorHandlerCalled = true; });
     optionSet.addRequired('a', "", "", "int");
     optionSet.addRequired('b', "", "", "int");
@@ -871,7 +867,7 @@ TEST_F(CommandLineParser_test, DetectMissingRequiredOptionsWithShortOptionsOnly)
 TEST_F(CommandLineParser_test, DetectMissingRequiredOptionsWithLongOptionsOnly)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8115efb2-9ddf-4457-9d69-526f215d974a");
-    bool wasErrorHandlerCalled;
+    bool wasErrorHandlerCalled{false};
     OptionDefinition optionSet("", [&] { wasErrorHandlerCalled = true; });
     optionSet.addRequired(iox::cli::NO_SHORT_OPTION, "alpha", "", "int");
     optionSet.addRequired(iox::cli::NO_SHORT_OPTION, "beta", "", "int");
@@ -882,6 +878,8 @@ TEST_F(CommandLineParser_test, DetectMissingRequiredOptionsWithLongOptionsOnly)
     EXPECT_THAT(wasErrorHandlerCalled, Eq(true));
 }
 
+// NOLINTJUSTIFICATION okay for tests
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters, readability-function-size)
 Arguments SuccessTest(const std::vector<std::string>& options,
                       const std::vector<std::string>& optionsToRegister = {},
                       const std::vector<std::string>& switchesToRegister = {},
@@ -1279,7 +1277,7 @@ TEST_F(CommandLineParser_test, SuccessfulConversionToNumbers)
 
     verifyEntry<uint8_t>(option, "a-opt", {123});
     verifyEntry<int16_t>(option, "i-req", {-456});
-    verifyEntry<float>(option, "j-req", {123.123f});
+    verifyEntry<float>(option, "j-req", {123.123F});
     verifyEntry<double>(option, "g-req", {-891.19012});
 }
 

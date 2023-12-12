@@ -22,7 +22,7 @@ namespace iox
 namespace cli
 {
 OptionDefinition::OptionDefinition(const OptionDescription_t& programDescription,
-                                   const function<void()> onFailureCallback) noexcept
+                                   const function_ref<void()> onFailureCallback) noexcept
     : m_programDescription{programDescription}
     , m_onFailureCallback{onFailureCallback}
 {
@@ -103,6 +103,8 @@ OptionDefinition& OptionDefinition::addSwitch(const char shortOption,
     return addOption({{shortOption, IS_SWITCH, longOption, {""}}, description, OptionType::SWITCH, {""}});
 }
 
+// NOLINTJUSTIFICATION this is not a user facing API but hidden in a macro
+// NOLINTNEXTLINE(readability-function-size)
 OptionDefinition& OptionDefinition::addOptional(const char shortOption,
                                                 const OptionName_t& longOption,
                                                 const OptionDescription_t& description,

@@ -64,7 +64,7 @@ The module structure is a logical grouping. It is replicated for `concurrent` an
 |`filesystem`           |          | Implementation of C++17 filesystem features for instance `iox::access_rights` and `iox::perms` to abstract file permissions                                                                                                                                    |
 |`PosixAcl`             | i        | Interface for Access Control Lists (ACL).                                                                                                                                                                                             |
 |`FileLock`             |          | File lock C++ wrapping class.                                                                                                                                                                                                         |
-|`FileReader`           | Wrapper for opening files and reading them.                                                                                                                                                                                                                                                                           |
+|`FileReader`           |          | Wrapper for opening files and reading them.                                                                                                                                                                                                                                                                           |
 
 ### Functional (functional)
 
@@ -83,6 +83,7 @@ The module structure is a logical grouping. It is replicated for `concurrent` an
 |`convert`              | i        | Converting a number into a string is easy, converting it back can be hard. You can use functions like `strtoll`, but you still have to handle errors like under- and overflow, or converting invalid strings into number. Here we abstract all the error handling so that you can convert strings into numbers safely. |
 |`into`                 | i        |                                                                                                                                                                                                                                            |
 |`Scheduler`            | i        | Supported schedulers and functions to get their priority range are contained here.                                                                                                                                                    |
+|`serialization`        | i        | Implements a simple serialization concept for classes based on the idea presented here [ISOCPP serialization](https://isocpp.org/wiki/faq/serialization#serialize-text-format). |
 
 ### Primitives (primitives)
 
@@ -188,6 +189,13 @@ setTimeout(5_ms); // 5 milliseconds
 |:---------------------:|:--------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 |`posix_group`          |          | Access to user information.                                                                                                                                                                                                 |
 |`posix_user`           |          | Access to group information.                                                                                                                                                                                                 |
+
+
+### Comand line interface (cli)
+
+| component             | internal | description                                                                                                                                                                                                                           |
+|:---------------------:|:--------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|`cli_definition`       |          | Classes and macros to create command line interfaces.                                                                                                                                                                                                 |
 
 <center>
 [Check out iceoryx_hoofs on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_hoofs/){ .md-button } <!--NOLINT required only for the website, github URL required-->

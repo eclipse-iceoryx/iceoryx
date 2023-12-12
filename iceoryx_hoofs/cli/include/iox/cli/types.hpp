@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_DUST_CLI_TYPES_HPP
-#define IOX_DUST_CLI_TYPES_HPP
+#ifndef IOX_HOOFS_CLI_TYPES_HPP
+#define IOX_HOOFS_CLI_TYPES_HPP
 
 #include "iceoryx_platform/platform_settings.hpp"
 #include "iox/string.hpp"
@@ -52,4 +52,4 @@ using TypeName_t = string<MAX_TYPE_NAME_LENGTH>;
 } // namespace cli
 } // namespace iox
 
-#endif // IOX_DUST_CLI_TYPES_HPP
+#endif // IOX_HOOFS_CLI_TYPES_HPP

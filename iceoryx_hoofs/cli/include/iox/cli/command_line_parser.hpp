@@ -13,8 +13,9 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_DUST_CLI_COMMAND_PARSER_HPP
-#define IOX_DUST_CLI_COMMAND_PARSER_HPP
+
+#ifndef IOX_HOOFS_CLI_COMMAND_PARSER_HPP
+#define IOX_HOOFS_CLI_COMMAND_PARSER_HPP
 
 #include "iox/cli/arguments.hpp"
 #include "iox/cli/option_definition.hpp"
@@ -35,17 +36,17 @@ class CommandLineParser
 
   private:
     friend class OptionManager;
-    friend Arguments parseCommandLineArguments(const OptionDefinition&, int, char*[], const uint64_t) noexcept;
+    friend Arguments parseCommandLineArguments(const OptionDefinition&, int, char**, const uint64_t) noexcept;
 
     /// @brief Parses the arguments from the command line.
     ///        Calls onFailureCallback in optionSet when the command line arguments contain illegal syntax or required
     ///        values are not provided and prints the help.
     /// @param[in] optionSet the user defined options, based on those options the Arguments object is
     ///            generated
-    /// @param[in] argc number of arguments, see int main(int argc, char*argv[])
-    /// @param[in] argv the string array of arguments, see int main(int argc, char*argv[])
+    /// @param[in] argc number of arguments, see int main(int argc, char** argv)
+    /// @param[in] argv the string array of arguments, see int main(int argc, char** argv)
     /// @param[in] argcOffset the starting point for the parsing. 1U starts at the first argument.
-    Arguments parse(const OptionDefinition& optionSet, int argc, char* argv[], const uint64_t argcOffset = 1U) noexcept;
+    Arguments parse(const OptionDefinition& optionSet, int argc, char** argv, const uint64_t argcOffset = 1U) noexcept;
 
     void printHelpAndExit() const noexcept;
 
@@ -55,7 +56,7 @@ class CommandLineParser
     /// to improve the readability of the code. None of those functions verify
     /// the pre conditions they require, this has to be done by calling them
     /// in the correct order.
-    bool doesFitIntoString(const char* value, const uint64_t maxLength) const noexcept;
+    static bool doesFitIntoString(const char* value, const uint64_t maxLength) noexcept;
     bool areAllRequiredValuesPresent() const noexcept;
     bool hasArguments(const uint64_t argc) const noexcept;
     bool doesOptionStartWithDash(const char* option) const noexcept;
@@ -84,10 +85,10 @@ class CommandLineParser
 /// @copydoc CommandLineParser::parse()
 Arguments parseCommandLineArguments(const OptionDefinition& optionSet,
                                     int argc,
-                                    char* argv[],
+                                    char** argv,
                                     const uint64_t argcOffset = 1U) noexcept;
 
 } // namespace cli
 } // namespace iox
 
-#endif // IOX_DUST_CLI_COMMAND_PARSER_HPP
+#endif // IOX_HOOFS_CLI_COMMAND_PARSER_HPP
