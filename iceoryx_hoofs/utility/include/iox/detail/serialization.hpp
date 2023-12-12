@@ -15,8 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_DUST_UTILITY_SERIALIZATION_HPP
-#define IOX_DUST_UTILITY_SERIALIZATION_HPP
+#ifndef IOX_HOOFS_UTILITY_SERIALIZATION_HPP
+#define IOX_HOOFS_UTILITY_SERIALIZATION_HPP
 
 #include "iox/detail/convert.hpp"
 #include "iox/std_string_support.hpp"
@@ -141,4 +141,4 @@ class Serialization
 
 #include "iox/detail/serialization.inl"
 
-#endif // IOX_DUST_UTILITY_SERIALIZATION_HPP
+#endif // IOX_HOOFS_UTILITY_SERIALIZATION_HPP

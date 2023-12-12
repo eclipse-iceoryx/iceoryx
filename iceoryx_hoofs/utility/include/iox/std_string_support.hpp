@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_DUST_UTILITY_STD_STRING_SUPPORT_HPP
-#define IOX_DUST_UTILITY_STD_STRING_SUPPORT_HPP
+#ifndef IOX_HOOFS_UTILITY_STD_STRING_SUPPORT_HPP
+#define IOX_HOOFS_UTILITY_STD_STRING_SUPPORT_HPP
 
 #include "iox/into.hpp"
 #include "iox/optional.hpp"
@@ -92,4 +92,4 @@ std::ostream& operator<<(std::ostream& stream, const string<Capacity>& str) noex
 
 #include "iox/detail/std_string_support.inl"
 
-#endif // IOX_DUST_UTILITY_STD_STRING_SUPPORT_HPP
+#endif // IOX_HOOFS_UTILITY_STD_STRING_SUPPORT_HPP

@@ -15,8 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_DUST_UTILITY_SERIALIZATION_INL
-#define IOX_DUST_UTILITY_SERIALIZATION_INL
+#ifndef IOX_HOOFS_UTILITY_SERIALIZATION_INL
+#define IOX_HOOFS_UTILITY_SERIALIZATION_INL
 
 #include "iox/detail/serialization.hpp"
 
@@ -65,7 +65,7 @@ template <typename T>
 inline typename std::enable_if<std::is_convertible<T, Serialization>::value, std::string>::type
 Serialization::getString(const T& t) noexcept
 {
-    Serialization serial = static_cast<Serialization>(t);
+    const auto serial = static_cast<Serialization>(t);
     return serial.toString();
 }
 
@@ -144,4 +144,4 @@ inline bool Serialization::getNth(const unsigned int index, T& t) const noexcept
 }
 } // namespace iox
 
-#endif // IOX_DUST_CXX_SERIALIZATION_INL
+#endif // IOX_HOOFS_UTILITY_SERIALIZATION_INL
