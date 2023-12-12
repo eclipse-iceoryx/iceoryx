@@ -40,7 +40,7 @@ class OptionDefinition
     ///            defined std::quick_exit(EXIT_FAILURE) is called
     explicit OptionDefinition(
         const OptionDescription_t& programDescription,
-        const function_ref<void()> onFailureCallback = [] { std::quick_exit(EXIT_FAILURE); }) noexcept;
+        const function<void()>& onFailureCallback = [] { std::quick_exit(EXIT_FAILURE); }) noexcept;
 
     /// @brief Adds a command line switch argument
     ///        Calls the onFailureCallback when the option was already added or the shortOption and longOption are

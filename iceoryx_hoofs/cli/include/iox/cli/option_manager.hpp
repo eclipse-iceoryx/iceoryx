@@ -40,7 +40,7 @@ class OptionManager
     /// @param[in] programDescription the description of the application
     /// @param[in] onFailureCallback callback which is called when a syntax error occurs, a required option is missing
     /// or the wrong type as argument value is provided
-    OptionManager(const OptionDescription_t& programDescription, const function_ref<void()> onFailureCallback);
+    OptionManager(const OptionDescription_t& programDescription, const function<void()>& onFailureCallback);
 
     /// @brief Defines a new option
     /// @param[in] referenceToMember an uninitialized piece of memory where later the content is stored when

@@ -22,7 +22,7 @@ namespace iox
 namespace cli
 {
 OptionDefinition::OptionDefinition(const OptionDescription_t& programDescription,
-                                   const function_ref<void()> onFailureCallback) noexcept
+                                   const function<void()>& onFailureCallback) noexcept
     : m_programDescription{programDescription}
     , m_onFailureCallback{onFailureCallback}
 {

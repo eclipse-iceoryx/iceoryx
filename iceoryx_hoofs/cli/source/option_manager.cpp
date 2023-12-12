@@ -20,8 +20,7 @@ namespace iox
 {
 namespace cli
 {
-OptionManager::OptionManager(const OptionDescription_t& programDescription,
-                             const function_ref<void()> onFailureCallback)
+OptionManager::OptionManager(const OptionDescription_t& programDescription, const function<void()>& onFailureCallback)
     : m_optionSet{programDescription, onFailureCallback}
 {
 }
