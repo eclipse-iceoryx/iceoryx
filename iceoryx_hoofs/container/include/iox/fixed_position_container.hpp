@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_DUST_CONTAINER_FIXED_POSITION_CONTAINER_HPP
-#define IOX_DUST_CONTAINER_FIXED_POSITION_CONTAINER_HPP
+#ifndef IOX_HOOFS_CONTAINER_FIXED_POSITION_CONTAINER_HPP
+#define IOX_HOOFS_CONTAINER_FIXED_POSITION_CONTAINER_HPP
 
 #include "iceoryx_hoofs/cxx/requires.hpp"
 #include "iox/algorithm.hpp"
@@ -332,4 +332,4 @@ class FixedPositionContainer final
 
 #include "iox/detail/fixed_position_container.inl"
 
-#endif // IOX_DUST_CONTAINER_FIXED_POSITION_CONTAINER_HPP
+#endif // IOX_HOOFS_CONTAINER_FIXED_POSITION_CONTAINER_HPP

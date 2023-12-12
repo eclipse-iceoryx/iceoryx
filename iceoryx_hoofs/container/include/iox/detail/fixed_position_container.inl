@@ -15,8 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_DUST_CONTAINER_DETAIL_FIXED_POSITION_CONTAINER_INL
-#define IOX_DUST_CONTAINER_DETAIL_FIXED_POSITION_CONTAINER_INL
+#ifndef IOX_HOOFS_CONTAINER_DETAIL_FIXED_POSITION_CONTAINER_INL
+#define IOX_HOOFS_CONTAINER_DETAIL_FIXED_POSITION_CONTAINER_INL
 
 #include "iox/fixed_position_container.hpp"
 
@@ -30,7 +30,7 @@ inline FixedPositionContainer<T, CAPACITY>::FixedPositionContainer() noexcept
     {
         m_status[i] = SlotStatus::FREE;
 
-        IndexType next = static_cast<IndexType>(i + 1U);
+        auto next = static_cast<IndexType>(i + 1U);
         m_next[i] = next;
         i = next;
     }
@@ -137,7 +137,7 @@ inline void FixedPositionContainer<T, CAPACITY>::copy_and_move_impl(RhsType&& rh
 
         m_status[i] = SlotStatus::FREE;
 
-        IndexType next = static_cast<IndexType>(i + 1U);
+        auto next = static_cast<IndexType>(i + 1U);
         m_next[i] = next;
     }
 
@@ -171,7 +171,7 @@ inline void FixedPositionContainer<T, CAPACITY>::clear() noexcept
 
         m_status[i] = SlotStatus::FREE;
 
-        IndexType next = static_cast<IndexType>(i + 1U);
+        auto next = static_cast<IndexType>(i + 1U);
         m_next[i] = next;
         i = next;
     }
@@ -287,7 +287,7 @@ FixedPositionContainer<T, CAPACITY>::emplace(Targs&&... args) noexcept
     else
     {
         IOX_ENSURES_WITH_MSG(index != 0, "Corruption detected!");
-        for (IndexType i = static_cast<IndexType>(index - 1U);; --i)
+        for (auto i = static_cast<IndexType>(index - 1U);; --i)
         {
             if (m_status[i] == SlotStatus::USED)
             {
@@ -442,7 +442,7 @@ FixedPositionContainer<T, CAPACITY>::erase(const IndexType index) noexcept
     }
 
     IOX_ENSURES_WITH_MSG(index != 0, "Corruption detected! Index cannot be 0 at this location!");
-    for (IndexType i = static_cast<IndexType>(index - 1U); !is_removed_from_used_list || !is_added_to_free_list; --i)
+    for (auto i = static_cast<IndexType>(index - 1U); !is_removed_from_used_list || !is_added_to_free_list; --i)
     {
         if (!is_removed_from_used_list && m_status[i] == SlotStatus::USED)
         {
@@ -590,4 +590,4 @@ FixedPositionContainer<T, CAPACITY>::cend() const noexcept
 }
 } // namespace iox
 
-#endif // IOX_DUST_CONTAINER_DETAIL_FIXED_POSITION_CONTAINER_INL
+#endif // IOX_HOOFS_CONTAINER_DETAIL_FIXED_POSITION_CONTAINER_INL

@@ -35,7 +35,7 @@ class MovableButNonCopyableTestClass
 {
   public:
     // moveable only class requires this
-    MovableButNonCopyableTestClass(const T value)
+    explicit MovableButNonCopyableTestClass(const T value)
         : value(value)
     {
     }
@@ -43,12 +43,12 @@ class MovableButNonCopyableTestClass
     MovableButNonCopyableTestClass(const MovableButNonCopyableTestClass& rhs) = delete;
     MovableButNonCopyableTestClass& operator=(const MovableButNonCopyableTestClass& rhs) = delete;
 
-    MovableButNonCopyableTestClass(MovableButNonCopyableTestClass&& rhs)
+    MovableButNonCopyableTestClass(MovableButNonCopyableTestClass&& rhs) noexcept
+        : value(rhs.value)
     {
-        value = rhs.value;
     }
 
-    MovableButNonCopyableTestClass& operator=(MovableButNonCopyableTestClass&& rhs)
+    MovableButNonCopyableTestClass& operator=(MovableButNonCopyableTestClass&& rhs) noexcept
     {
         if (this != &rhs)
         {
@@ -93,7 +93,7 @@ struct FixedPositionContainer_test : public Test
         fillComplex(sut_complex);
     }
 
-    void fillComplex(SutComplex& s)
+    static void fillComplex(SutComplex& s)
     {
         for (DataType i = 0; i < CAPACITY; ++i)
         {
@@ -487,7 +487,7 @@ TEST_F(FixedPositionContainer_test, UsingCopyAssignmentFromMultipleElementsConta
 
     std::vector<DataType> EXPECTED_VALUE{56U, 57U, 58U, 59U};
     constexpr uint64_t EXPECTED_SIZE{4U};
-    for (SutComplex::IndexType i = 0; i < EXPECTED_VALUE.size(); ++i)
+    for (SutComplex::IndexType i = 0; i < EXPECTED_SIZE; ++i)
     {
         sut_complex.emplace(EXPECTED_VALUE[i]);
     }
@@ -498,7 +498,7 @@ TEST_F(FixedPositionContainer_test, UsingCopyAssignmentFromMultipleElementsConta
     EXPECT_THAT(copy_sut_complex.full(), Eq(false));
     EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
     EXPECT_THAT(copy_sut_complex.size(), Eq(sut_complex.size()));
-    for (SutComplex::IndexType i = 0; i < sut_complex.size(); ++i)
+    for (SutComplex::IndexType i = 0; i < EXPECTED_SIZE; ++i)
     {
         EXPECT_THAT(copy_sut_complex.iter_from_index(i)->value, Eq(EXPECTED_VALUE[i]));
         EXPECT_THAT(copy_sut_complex.iter_from_index(i), Ne(sut_complex.iter_from_index(i)));
@@ -2310,11 +2310,14 @@ TEST_F(FixedPositionContainer_test, EraseWithPointerPointingOutOfContainerCallsE
 
     auto* ptr_first = sut.begin().to_ptr();
 
+    // NOLINTJUSTIFICATION required for test
+    // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.erase(ptr_first - 1U); },
                                               iox::HoofsError::EXPECTS_ENSURES_FAILED);
 
     IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.erase(ptr_first + CAPACITY); },
                                               iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    // NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 }
 
 TEST_F(FixedPositionContainer_test, EraseWithUnalignedPointerCallsErrorHandler)
@@ -2324,6 +2327,8 @@ TEST_F(FixedPositionContainer_test, EraseWithUnalignedPointerCallsErrorHandler)
     fillSut();
 
     auto* ptr_first = sut.begin().to_ptr();
+    // NOLINTJUSTIFICATION required for test
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast, performance-no-int-to-ptr)
     auto* ptr_unaligned = reinterpret_cast<DataType*>(reinterpret_cast<uintptr_t>(ptr_first) + 1U);
 
     IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.erase(ptr_unaligned); },
@@ -3122,10 +3127,10 @@ TEST_F(FixedPositionContainer_test, ToPtrOnEndIteratorCallsErrorHandler)
 {
     ::testing::Test::RecordProperty("TEST_ID", "51b76d04-6c8c-486e-88c9-8b6b760c41d4");
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { auto _ [[maybe_unused]] = sut.end().to_ptr(); },
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { auto* _ [[maybe_unused]] = sut.end().to_ptr(); },
                                               iox::HoofsError::EXPECTS_ENSURES_FAILED);
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { auto _ [[maybe_unused]] = sut.cend().to_ptr(); },
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { const auto* _ [[maybe_unused]] = sut.cend().to_ptr(); },
                                               iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
@@ -3136,7 +3141,7 @@ TEST_F(FixedPositionContainer_test, ToPtrOnInvalidIteratorCallsErrorHandler)
     auto it = sut.emplace(135U);
     sut.erase(it);
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { auto _ [[maybe_unused]] = it.to_ptr(); },
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { auto* _ [[maybe_unused]] = it.to_ptr(); },
                                               iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 

@@ -1152,7 +1152,7 @@ TEST_F(forward_list_test, IteratorTraitsGetValueType)
 TEST_F(forward_list_test, IteratorTraitsCheckIteratorCategoryOnConstIterator)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ffbb06eb-5267-45e0-91e4-6172a27a3489");
-    auto iter = sut.cbefore_begin();
+    auto iter [[maybe_unused]] = sut.cbefore_begin();
     ASSERT_NE(typeid(std::iterator_traits<decltype(iter)>::iterator_category), typeid(std::random_access_iterator_tag));
     EXPECT_EQ(typeid(std::iterator_traits<decltype(iter)>::iterator_category), typeid(std::forward_iterator_tag));
 }

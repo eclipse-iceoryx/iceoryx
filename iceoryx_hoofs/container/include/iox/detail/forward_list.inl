@@ -15,8 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_DUST_CONTAINER_FORWARD_LIST_INL
-#define IOX_DUST_CONTAINER_FORWARD_LIST_INL
+#ifndef IOX_HOOFS_CONTAINER_FORWARD_LIST_INL
+#define IOX_HOOFS_CONTAINER_FORWARD_LIST_INL
 
 
 #include "iox/forward_list.hpp"
@@ -610,4 +610,4 @@ inline bool forward_list<T, Capacity>::isInvalidIterOrDifferentLists(const const
 
 } // namespace iox
 
-#endif // IOX_DUST_CONTAINER_FORWARD_LIST_INL
+#endif // IOX_HOOFS_CONTAINER_FORWARD_LIST_INL

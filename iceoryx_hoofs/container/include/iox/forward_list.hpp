@@ -15,8 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_DUST_CONTAINER_FORWARD_LIST_HPP
-#define IOX_DUST_CONTAINER_FORWARD_LIST_HPP
+#ifndef IOX_HOOFS_CONTAINER_FORWARD_LIST_HPP
+#define IOX_HOOFS_CONTAINER_FORWARD_LIST_HPP
 
 #include "iceoryx_hoofs/cxx/requires.hpp"
 #include "iox/uninitialized_array.hpp"
@@ -363,4 +363,4 @@ class forward_list
 
 #include "iox/detail/forward_list.inl"
 
-#endif // IOX_DUST_CONTAINER_FORWARD_LIST_HPP
+#endif // IOX_HOOFS_CONTAINER_FORWARD_LIST_HPP

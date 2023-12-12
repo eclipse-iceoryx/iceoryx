@@ -47,7 +47,6 @@ iox_add_library(
     PRIVATE_LIBS_LINUX          ${CODE_COVERAGE_LIBS}
     PUBLIC_LIBS                 iceoryx_hoofs::iceoryx_hoofs
     BUILD_INTERFACE             ${PROJECT_SOURCE_DIR}/cli/include
-                                ${PROJECT_SOURCE_DIR}/container/include
                                 ${PROJECT_SOURCE_DIR}/filesystem/include
                                 ${PROJECT_SOURCE_DIR}/memory/include
                                 ${PROJECT_SOURCE_DIR}/posix/ipc/include
@@ -56,7 +55,6 @@ iox_add_library(
                                 ${CMAKE_BINARY_DIR}/generated/iceoryx_dust/include
     INSTALL_INTERFACE           include/${PREFIX}
     EXPORT_INCLUDE_DIRS         cli/include/
-                                container/include/
                                 filesystem/include/
                                 memory/include/
                                 posix/ipc/include/
