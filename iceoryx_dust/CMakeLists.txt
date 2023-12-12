@@ -45,20 +45,14 @@ iox_add_library(
     PRIVATE_LIBS_LINUX          ${CODE_COVERAGE_LIBS}
     PUBLIC_LIBS                 iceoryx_hoofs::iceoryx_hoofs
     BUILD_INTERFACE             ${PROJECT_SOURCE_DIR}/cli/include
-                                ${PROJECT_SOURCE_DIR}/posix/sync/include
-                                ${PROJECT_SOURCE_DIR}/utility/include
-                                ${CMAKE_BINARY_DIR}/generated/iceoryx_dust/include
     INSTALL_INTERFACE           include/${PREFIX}
     EXPORT_INCLUDE_DIRS         cli/include/
-                                posix/sync/include/
-                                utility/include/
     FILES
         cli/source/arguments.cpp
         cli/source/command_line_parser.cpp
         cli/source/option.cpp
         cli/source/option_definition.cpp
         cli/source/option_manager.cpp
-        posix/sync/source/signal_watcher.cpp
 )
 
 #

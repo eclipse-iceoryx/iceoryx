@@ -127,6 +127,7 @@ iox_add_library(
         posix/sync/source/mutex.cpp
         posix/sync/source/named_semaphore.cpp
         posix/sync/source/signal_handler.cpp
+        posix/sync/source/signal_watcher.cpp
         posix/sync/source/semaphore_interface.cpp
         posix/sync/source/thread.cpp
         posix/sync/source/unnamed_semaphore.cpp

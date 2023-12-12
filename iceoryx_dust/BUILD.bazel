@@ -17,31 +17,14 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 load("//bazel:configure_file.bzl", "configure_file")
 
-configure_file(
-    name = "iceoryx_dust_deployment_hpp",
-    src = "cmake/iceoryx_dust_deployment.hpp.in",
-    out = "generated/include/iox/iceoryx_dust_deployment.hpp",
-    config = {
-        "IOX_MAX_NAMED_PIPE_MESSAGE_SIZE": "4096",
-        "IOX_MAX_NAMED_PIPE_NUMBER_OF_MESSAGES": "10",
-    },
-)
-
 cc_library(
     name = "iceoryx_dust",
     srcs = glob([
         "cli/source/**/*.cpp",
-        "posix/sync/source/**/*.cpp",
     ]),
-    hdrs = glob(["cli/**"]) + glob(["memory/**"]) + glob(["utility/**"]) + glob(["posix/ipc/**"]) + glob(["posix/sync/**"]) + [
-        ":iceoryx_dust_deployment_hpp",
-    ],
+    hdrs = glob(["cli/**"]) +
     includes = [
         "cli/include/",
-        "generated/include/",
-        "memory/include/",
-        "posix/sync/include/",
-        "utility/include/",
     ],
     visibility = ["//visibility:public"],
     deps = ["//iceoryx_hoofs"],

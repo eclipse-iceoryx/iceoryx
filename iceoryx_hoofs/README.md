@@ -139,6 +139,7 @@ The module structure is a logical grouping. It is replicated for `concurrent` an
 |`NamedSemaphore`       |          | Named semaphore interface, see [ManPage sem_overview](https://man7.org/linux/man-pages/man7/sem_overview.7.html)                                                                                                                      |
 |`thread`               |          | Heap-less replacement for `std::thread`.                                                                                                                                                                                              |
 |`SignalGuard`          |          | Helper class for signal handler registration.                                                                                                                                                                                         |
+|`SignalWatcher`        |          | Batteries included signal handling with polling and optional blocking wait for `SIGINT` and `SIGTERM`.                                                                                                                                                                                                                |
 
 ### Generalized design patterns & abstractions (design)
 
