@@ -18,6 +18,7 @@
 #include "iox/vector.hpp"
 #include "test.hpp"
 
+#include <array>
 #include <vector>
 
 namespace
