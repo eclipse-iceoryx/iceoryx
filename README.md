@@ -104,7 +104,6 @@ Please see the [Quality Declaration](./QUALITY_DECLARATION.md) for details of th
 |-----------------------|:-------------:|:-----------------:|:---------------------------------------:|
 | iceoryx_hoofs         | 2             | 1+                | 1                                       |
 | iceoryx_posh          | 2             | 1+, 2             | 1                                       |
-| iceoryx_dust          | 2             | 2                 | 2                                       |
 | iceoryx_binding_c     | 2             | 2                 | 2                                       |
 | iceoryx_examples      | 5             | 4                 | 4                                       |
 | iceoryx_introspection | 5             | 4                 | 4                                       |

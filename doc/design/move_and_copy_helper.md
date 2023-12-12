@@ -149,4 +149,4 @@ void Test::copy_and_move_impl(RhsType&& rhs)
 
 For more examples, see
 
-- `iceoryx_dust/container/detail/fixed_position_container.inl`
+- `iceoryx_hoofs/container/detail/fixed_position_container.inl`
