@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_DUST_MEMORY_STATIC_STORAGE_INL
-#define IOX_DUST_MEMORY_STATIC_STORAGE_INL
+#ifndef IOX_HOOFS_MEMORY_STATIC_STORAGE_INL
+#define IOX_HOOFS_MEMORY_STATIC_STORAGE_INL
 
 #include "iox/detail/static_storage.hpp"
 
@@ -110,4 +110,4 @@ constexpr uint64_t static_storage<Capacity, Align>::allocation_size() noexcept
 } // namespace iox
 
 
-#endif // IOX_DUST_MEMORY_STATIC_STORAGE_INL
+#endif // IOX_HOOFS_MEMORY_STATIC_STORAGE_INL

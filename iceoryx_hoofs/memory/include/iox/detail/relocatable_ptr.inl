@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_DUST_MEMORY_RELOCATABLE_PTR_INL
-#define IOX_DUST_MEMORY_RELOCATABLE_PTR_INL
+#ifndef IOX_HOOFS_MEMORY_RELOCATABLE_PTR_INL
+#define IOX_HOOFS_MEMORY_RELOCATABLE_PTR_INL
 
 #include "iox/relocatable_ptr.hpp"
 
@@ -161,4 +161,4 @@ inline bool operator!=(const relocatable_ptr<T>& lhs, const relocatable_ptr<T>& 
 
 } // namespace iox
 
-#endif // IOX_DUST_MEMORY_RELOCATABLE_PTR_INL
+#endif // IOX_HOOFS_MEMORY_RELOCATABLE_PTR_INL

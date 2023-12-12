@@ -36,14 +36,14 @@ inline T* nonNullPtr()
 }
 
 template <>
-inline void* nonNullPtr<void>()
+[[maybe_unused]] inline void* nonNullPtr<void>()
 {
     static int t;
     return &t;
 }
 
 template <>
-inline const void* nonNullPtr<const void>()
+[[maybe_unused]] inline const void* nonNullPtr<const void>()
 {
     static int t;
     return &t;
@@ -57,14 +57,14 @@ inline T* otherNonNullPtr()
 }
 
 template <>
-inline void* otherNonNullPtr<void>()
+[[maybe_unused]] inline void* otherNonNullPtr<void>()
 {
     static int t;
     return &t;
 }
 
 template <>
-inline const void* otherNonNullPtr<const void>()
+[[maybe_unused]] inline const void* otherNonNullPtr<const void>()
 {
     static int t;
     return &t;
@@ -208,6 +208,8 @@ TYPED_TEST(Relocatable_ptr_typed_test, moveCtorOfNullptrWorks)
     using T = typename TestFixture::DataType;
     relocatable_ptr<T> rp1;
     relocatable_ptr<T> rp2(std::move(rp1));
+    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved pointer
+    // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     EXPECT_EQ(rp1.get(), nullptr);
     EXPECT_EQ(rp2.get(), nullptr);
 }
@@ -234,6 +236,8 @@ TYPED_TEST(Relocatable_ptr_typed_test, moveAssignmentOfNullptrWorks)
     relocatable_ptr<T> rp1;
     relocatable_ptr<T> rp2(p);
     rp2 = std::move(rp1);
+    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved pointer
+    // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     EXPECT_EQ(rp1.get(), nullptr);
     EXPECT_EQ(rp2.get(), nullptr);
 }
@@ -265,6 +269,8 @@ TYPED_TEST(Relocatable_ptr_typed_test, moveCtorWorks)
     T* p = nonNullPtr<T>();
     relocatable_ptr<T> rp1(p);
     relocatable_ptr<T> rp2(std::move(rp1));
+    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved pointer
+    // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     EXPECT_EQ(rp1.get(), nullptr);
     EXPECT_EQ(rp2.get(), p);
 }
@@ -289,6 +295,8 @@ TYPED_TEST(Relocatable_ptr_typed_test, moveAssignmentWorks)
     relocatable_ptr<T> rp1(p);
     relocatable_ptr<T> rp2;
     rp2 = std::move(rp1);
+    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved pointer
+    // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     EXPECT_EQ(rp1.get(), nullptr);
     EXPECT_EQ(rp2.get(), p);
 }
