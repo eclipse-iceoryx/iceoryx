@@ -87,6 +87,7 @@ class UninitializedArray final
     // The (empty) user-defined constructor is required.
     // Use of "= default" leads to value-initialization of class members.
     // AXIVION Next Construct AutosarC++19_03-A12.6.1 : This is a low-level building block which is supposed to provide uninitialized memory
+    // NOLINTNEXTLINE(hicpp-use-equals-default)
     constexpr UninitializedArray() noexcept {};
     UninitializedArray(const UninitializedArray&) = delete;
     UninitializedArray(UninitializedArray&&) = delete;

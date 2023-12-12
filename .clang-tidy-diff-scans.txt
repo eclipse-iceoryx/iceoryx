@@ -26,7 +26,7 @@
 
 ./iceoryx_hoofs/posix/**/*
 
-./iceoryx_hoofs/container/include/iox/**/*
+./iceoryx_hoofs/container/**/*
 ./iceoryx_hoofs/test/moduletests/test_container_*
 
 ./iceoryx_hoofs/vocabulary/**/*
