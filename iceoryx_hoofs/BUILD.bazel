@@ -23,6 +23,8 @@ configure_file(
     src = "cmake/iceoryx_hoofs_deployment.hpp.in",
     out = "generated/include/iox/iceoryx_hoofs_deployment.hpp",
     config = {
+        "IOX_MAX_NAMED_PIPE_MESSAGE_SIZE": "4096",
+        "IOX_MAX_NAMED_PIPE_NUMBER_OF_MESSAGES": "10",
         # FIXME: for values see "iceoryx_hoofs/cmake/IceoryxHoofsDeployment.cmake" ... for now some nice defaults
         "IOX_MINIMAL_LOG_LEVEL": "TRACE",
     },
@@ -57,7 +59,7 @@ cc_library(
         "utility/source/*.cpp",
         "vocabulary/source/**/*.cpp",
     ]),
-    hdrs = glob(["include/**"]) + glob(["legacy/**"]) + glob(["cli/**"]) + glob(["memory/**"]) + glob(["container/**"]) + glob(["vocabulary/**"]) + glob(["time/**"]) + glob(["utility/**"]) + glob(["primitives/**"]) + glob(["posix/**"]) + glob(["design/**"]) + glob(["buffer/**"]) + glob(["filesystem/**"]) + glob(["functional/**"]) + glob(["reporting/**"]) + [
+    hdrs = glob(["buffer/**"]) + glob(["cli/**"]) + glob(["container/**"]) + glob(["design/**"]) + glob(["filesystem/**"]) + glob(["functional/**"]) + glob(["include/**"]) + glob(["legacy/**"]) + glob(["memory/**"]) + glob(["posix/**"]) + glob(["primitives/**"]) + glob(["reporting/**"]) + glob(["time/**"]) + glob(["utility/**"]) + glob(["vocabulary/**"]) + [
         ":iceoryx_hoofs_deployment_hpp",
         ":iceoryx_versions_h",
     ],
