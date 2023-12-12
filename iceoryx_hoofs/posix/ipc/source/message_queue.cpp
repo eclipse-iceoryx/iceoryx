@@ -59,7 +59,7 @@ expected<MessageQueue, PosixIpcChannelError> MessageQueueBuilder::create() const
     }
 
     // fields have a different order in QNX, so we need to initialize by name
-    mq_attr attributes;
+    mq_attr attributes{};
     attributes.mq_flags = 0;
     attributes.mq_maxmsg = static_cast<decltype(attributes.mq_maxmsg)>(m_maxMsgNumber);
     attributes.mq_msgsize = static_cast<decltype(attributes.mq_msgsize)>(m_maxMsgSize);
@@ -76,7 +76,7 @@ expected<MessageQueue, PosixIpcChannelError> MessageQueueBuilder::create() const
     }
     const auto mqDescriptor = openResult.value();
 
-    return ok(MessageQueue{std::move(sanitizedName), attributes, mqDescriptor, m_channelSide});
+    return ok(MessageQueue{sanitizedName, attributes, mqDescriptor, m_channelSide});
 }
 
 MessageQueue::MessageQueue(const PosixIpcChannelName_t& name,

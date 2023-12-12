@@ -34,6 +34,8 @@ constexpr units::Duration NamedPipe::CYCLE_TIME;
 constexpr units::Duration NamedPipe::NamedPipeData::WAIT_FOR_INIT_SLEEP_TIME;
 constexpr units::Duration NamedPipe::NamedPipeData::WAIT_FOR_INIT_TIMEOUT;
 
+// NOLINTJUSTIFICATION the function size and cognitive complexity are cause by the error handling and the expanded log macro
+// NOLINTNEXTLINE(readability-function-size,readability-function-cognitive-complexity)
 expected<NamedPipe, PosixIpcChannelError> NamedPipeBuilder::create() const noexcept
 {
     if (m_name.size() + strlen(&NamedPipe::NAMED_PIPE_PREFIX[0]) > NamedPipe::MAX_MESSAGE_SIZE)
@@ -130,7 +132,7 @@ NamedPipe::NamedPipe(PosixSharedMemoryObject&& sharedMemory, NamedPipeData* data
 
 NamedPipe::NamedPipe(NamedPipe&& rhs) noexcept
     : m_sharedMemory(std::move(rhs.m_sharedMemory))
-    , m_data(std::move(rhs.m_data))
+    , m_data(rhs.m_data)
 {
     rhs.m_data = nullptr;
 }
@@ -173,7 +175,7 @@ PosixIpcChannelName_t NamedPipe::mapToSharedMemoryName(const Prefix& p, const Po
 
 expected<void, PosixIpcChannelError> NamedPipe::destroy() noexcept
 {
-    if (m_data)
+    if (m_data != nullptr)
     {
         if (m_sharedMemory.hasOwnership())
         {

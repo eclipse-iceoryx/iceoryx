@@ -16,8 +16,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_DUST_POSIX_IPC_MESSAGE_QUEUE_HPP
-#define IOX_DUST_POSIX_IPC_MESSAGE_QUEUE_HPP
+#ifndef IOX_HOOFS_POSIX_IPC_MESSAGE_QUEUE_HPP
+#define IOX_HOOFS_POSIX_IPC_MESSAGE_QUEUE_HPP
 
 #include "iceoryx_platform/fcntl.hpp"
 #include "iceoryx_platform/mqueue.hpp"
@@ -149,4 +149,4 @@ class MessageQueueBuilder
 
 } // namespace iox
 
-#endif // IOX_DUST_POSIX_IPC_MESSAGE_QUEUE_HPP
+#endif // IOX_HOOFS_POSIX_IPC_MESSAGE_QUEUE_HPP

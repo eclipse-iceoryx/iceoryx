@@ -27,8 +27,6 @@ include(IceoryxPackageHelper)
 include(IceoryxPlatform)
 include(IceoryxPlatformSettings)
 
-include(cmake/IceoryxDustDeployment.cmake)
-
 if(CMAKE_SYSTEM_NAME MATCHES Linux OR CMAKE_SYSTEM_NAME MATCHES Darwin)
     option(BUILD_SHARED_LIBS "Create shared libraries by default" ON)
 endif()
@@ -47,15 +45,11 @@ iox_add_library(
     PRIVATE_LIBS_LINUX          ${CODE_COVERAGE_LIBS}
     PUBLIC_LIBS                 iceoryx_hoofs::iceoryx_hoofs
     BUILD_INTERFACE             ${PROJECT_SOURCE_DIR}/cli/include
-                                ${PROJECT_SOURCE_DIR}/memory/include
-                                ${PROJECT_SOURCE_DIR}/posix/ipc/include
                                 ${PROJECT_SOURCE_DIR}/posix/sync/include
                                 ${PROJECT_SOURCE_DIR}/utility/include
                                 ${CMAKE_BINARY_DIR}/generated/iceoryx_dust/include
     INSTALL_INTERFACE           include/${PREFIX}
     EXPORT_INCLUDE_DIRS         cli/include/
-                                memory/include/
-                                posix/ipc/include/
                                 posix/sync/include/
                                 utility/include/
     FILES
@@ -64,25 +58,7 @@ iox_add_library(
         cli/source/option.cpp
         cli/source/option_definition.cpp
         cli/source/option_manager.cpp
-        posix/ipc/source/message_queue.cpp
-        posix/ipc/source/named_pipe.cpp
         posix/sync/source/signal_watcher.cpp
-)
-
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/iceoryx_dust_deployment.hpp.in"
-  "${CMAKE_BINARY_DIR}/generated/iceoryx_dust/include/iox/iceoryx_dust_deployment.hpp" @ONLY)
-
-install(
-    FILES ${CMAKE_BINARY_DIR}/generated/iceoryx_dust/include/iox/iceoryx_dust_deployment.hpp
-    DESTINATION include/${PREFIX}/iox/
-    COMPONENT dev
-)
-
-# install deployment file to make posh config accessible by other packages
-install(
-    FILES
-        cmake/IceoryxDustDeployment.cmake
-    DESTINATION ${DESTINATION_CONFIGDIR}
 )
 
 #

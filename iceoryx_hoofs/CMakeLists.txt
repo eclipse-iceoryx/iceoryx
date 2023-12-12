@@ -115,6 +115,8 @@ iox_add_library(
         posix/auth/source/posix_group.cpp
         posix/auth/source/posix_user.cpp
         posix/design/source/file_management_interface.cpp
+        posix/ipc/source/message_queue.cpp
+        posix/ipc/source/named_pipe.cpp
         posix/ipc/source/posix_memory_map.cpp
         posix/ipc/source/posix_shared_memory.cpp
         posix/ipc/source/posix_shared_memory_object.cpp
