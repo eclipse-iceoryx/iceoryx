@@ -105,7 +105,7 @@ inline iox::optional<bool> convert::from_string<bool>(const char* v) noexcept
 
     // we assume that in the IOX_POSIX_CALL procedure, no other POSIX call will change errno,
     // except for the target function 'f'.
-    return validate_return_value<bool>(call, errno, end_ptr, v);
+    return evaluate_return_value<bool>(call, errno, end_ptr, v);
 }
 
 template <>
@@ -119,7 +119,7 @@ inline iox::optional<float> convert::from_string<float>(const char* v) noexcept
                     .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
                     .evaluate();
 
-    return validate_return_value<float>(call, errno, end_ptr, v);
+    return evaluate_return_value<float>(call, errno, end_ptr, v);
 }
 
 template <>
@@ -133,7 +133,7 @@ inline iox::optional<double> convert::from_string<double>(const char* v) noexcep
                     .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
                     .evaluate();
 
-    return validate_return_value<double>(call, errno, end_ptr, v);
+    return evaluate_return_value<double>(call, errno, end_ptr, v);
 }
 
 template <>
@@ -147,7 +147,7 @@ inline iox::optional<long double> convert::from_string<long double>(const char* 
                     .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
                     .evaluate();
 
-    return validate_return_value<long double>(call, errno, end_ptr, v);
+    return evaluate_return_value<long double>(call, errno, end_ptr, v);
 }
 
 template <>
@@ -161,7 +161,7 @@ inline iox::optional<uint64_t> convert::from_string<uint64_t>(const char* v) noe
                     .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
                     .evaluate();
 
-    return validate_return_value<uint64_t>(call, errno, end_ptr, v);
+    return evaluate_return_value<uint64_t>(call, errno, end_ptr, v);
 }
 
 #ifdef __APPLE__
@@ -208,7 +208,7 @@ inline iox::optional<uint32_t> convert::from_string<uint32_t>(const char* v) noe
                     .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
                     .evaluate();
 
-    return validate_return_value<uint32_t>(call, errno, end_ptr, v);
+    return evaluate_return_value<uint32_t>(call, errno, end_ptr, v);
 }
 
 template <>
@@ -222,7 +222,7 @@ inline iox::optional<uint16_t> convert::from_string<uint16_t>(const char* v) noe
                     .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
                     .evaluate();
 
-    return validate_return_value<uint16_t>(call, errno, end_ptr, v);
+    return evaluate_return_value<uint16_t>(call, errno, end_ptr, v);
 }
 
 template <>
@@ -236,7 +236,7 @@ inline iox::optional<uint8_t> convert::from_string<uint8_t>(const char* v) noexc
                     .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
                     .evaluate();
 
-    return validate_return_value<uint8_t>(call, errno, end_ptr, v);
+    return evaluate_return_value<uint8_t>(call, errno, end_ptr, v);
 }
 
 template <>
@@ -250,7 +250,7 @@ inline iox::optional<int64_t> convert::from_string<int64_t>(const char* v) noexc
                     .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
                     .evaluate();
 
-    return validate_return_value<int64_t>(call, errno, end_ptr, v);
+    return evaluate_return_value<int64_t>(call, errno, end_ptr, v);
 }
 
 template <>
@@ -264,7 +264,7 @@ inline iox::optional<int32_t> convert::from_string<int32_t>(const char* v) noexc
                     .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
                     .evaluate();
 
-    return validate_return_value<int32_t>(call, errno, end_ptr, v);
+    return evaluate_return_value<int32_t>(call, errno, end_ptr, v);
 }
 
 template <>
@@ -278,7 +278,7 @@ inline iox::optional<int16_t> convert::from_string<int16_t>(const char* v) noexc
                     .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
                     .evaluate();
 
-    return validate_return_value<int16_t>(call, errno, end_ptr, v);
+    return evaluate_return_value<int16_t>(call, errno, end_ptr, v);
 }
 
 template <>
@@ -292,7 +292,7 @@ inline iox::optional<int8_t> convert::from_string<int8_t>(const char* v) noexcep
                     .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
                     .evaluate();
 
-    return validate_return_value<int8_t>(call, errno, end_ptr, v);
+    return evaluate_return_value<int8_t>(call, errno, end_ptr, v);
 }
 
 template <typename Destination>
@@ -340,7 +340,7 @@ convert::check_edge_case(int errno_cache, const char* end_ptr, const char* v, co
 
 template <typename ValueType, typename CallType>
 inline iox::optional<ValueType>
-convert::validate_return_value(CallType& call, int errno_cache, const char* end_ptr, const char* v)
+convert::evaluate_return_value(CallType& call, int errno_cache, const char* end_ptr, const char* v)
 {
     if (call.has_error())
     {

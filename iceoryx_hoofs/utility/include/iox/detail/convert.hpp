@@ -113,7 +113,7 @@ class convert
 
     template <typename ValueType, typename CallType>
     static iox::optional<ValueType>
-    validate_return_value(CallType& call, int errno_cache, const char* end_ptr, const char* v);
+    evaluate_return_value(CallType& call, int errno_cache, const char* end_ptr, const char* v);
 };
 
 } // namespace iox
