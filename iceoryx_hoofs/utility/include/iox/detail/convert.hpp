@@ -83,6 +83,14 @@ class convert
     template <typename Destination>
     static bool from_string(const char* v, Destination& dest) noexcept;
 
+    /// @todo iox-#2055
+    /// @brief  for those not Destination not string
+    /// @tparam Destination
+    /// @param v
+    /// @return
+    template <typename Destination>
+    static iox::optional<Destination> from_string(const char* v) noexcept;
+
     /// @brief Sets dest from a given string. If the conversion fails false is
     ///         returned and the value of dest is undefined.
     /// @param[in] v string which contains the value of dest
@@ -90,6 +98,22 @@ class convert
     /// @return false = if the conversion fails otherwise true
     template <uint64_t Capacity>
     static bool from_string(const char* v, string<Capacity>& dest) noexcept;
+
+  private:
+    /// @todo iox-#2055
+    /// @brief Check the edge cases. If
+    /// @tparam Destination
+    /// @param errno_cache
+    /// @param end_ptr
+    /// @param v
+    /// @param check_value
+    /// @return
+    template <typename Destination>
+    static bool check_edge_case(int errno_cache, const char* end_ptr, const char* v, const Destination& check_value);
+
+    template <typename ValueType, typename CallType>
+    static iox::optional<ValueType>
+    validate_return_value(CallType& call, int errno_cache, const char* end_ptr, const char* v);
 };
 
 } // namespace iox
