@@ -32,7 +32,15 @@ namespace roudi
 capro::Interfaces StringToCaProInterface(const capro::IdString_t& str) noexcept
 {
     int32_t i{0};
-    convert::from_string(str.c_str(), i);
+    auto result = convert::from_string<int32_t>(str.c_str());
+    if (!result.has_value())
+    {
+        IOX_LOG(WARN, "conversion failure");
+        return capro::Interfaces::INTERNAL;
+    }
+
+    i = result.has_value();
+
     if (i >= static_cast<int32_t>(capro::Interfaces::INTERFACE_END))
     {
         IOX_LOG(WARN, "invalid enum (out of range: " << i << ")");

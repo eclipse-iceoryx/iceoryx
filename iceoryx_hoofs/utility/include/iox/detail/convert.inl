@@ -1,6 +1,7 @@
 // Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 // Copyright (c) 2022 by NXP. All rights reserved.
+// Copyright (c) 2023 by Dennis Liu. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -57,38 +58,34 @@ convert::toString(const Source& t) noexcept
     return t;
 }
 
-template <typename Destination>
-inline bool convert::from_string(const char* v, Destination& dest) noexcept
+template <typename Destination, typename std::enable_if_t<!is_iox_string<Destination>::value, int>>
+inline iox::optional<Destination> convert::from_string(const char* v) noexcept
 {
-    dest = Destination(v);
-    return true;
+    return iox::optional<Destination>(Destination(v));
 }
 
 template <>
-inline bool convert::from_string<char>(const char* v, char& dest) noexcept
+inline iox::optional<char> convert::from_string<char>(const char* v) noexcept
 {
     if (strlen(v) != 1U)
     {
         IOX_LOG(DEBUG, v << " is not a char");
-        return false;
+        return iox::nullopt;
     }
 
     /// @NOLINTJUSTIFICATION encapsulated in abstraction
     /// @NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-    dest = v[0];
-    return true;
+    return iox::optional<char>(v[0]);
 }
 
-template <uint64_t Capacity>
-inline bool convert::from_string(const char* v, string<Capacity>& dest) noexcept
+template <typename IoxString, typename std::enable_if_t<is_iox_string<IoxString>::value, int>>
+inline iox::optional<IoxString> convert::from_string(const char* v) noexcept
 {
-    if (strlen(v) > Capacity)
+    if (strlen(v) > GetCapacity<IoxString>::value)
     {
-        return false;
+        return iox::nullopt;
     }
-
-    dest = string<Capacity>(TruncateToCapacity, v);
-    return true;
+    return iox::optional<IoxString>(IoxString(TruncateToCapacity, v));
 }
 
 template <>
@@ -97,6 +94,11 @@ inline iox::optional<bool> convert::from_string<bool>(const char* v) noexcept
     // we should clean errno first
     errno = 0;
     char* end_ptr = nullptr;
+
+    if (start_with_neg_sign(v))
+    {
+        return iox::nullopt;
+    }
 
     auto call = IOX_POSIX_CALL(strtoul)(v, &end_ptr, STRTOULL_BASE)
                     .failureReturnValue(ULONG_MAX)
@@ -156,8 +158,13 @@ inline iox::optional<uint64_t> convert::from_string<uint64_t>(const char* v) noe
     errno = 0;
     char* end_ptr = nullptr;
 
+    if (start_with_neg_sign(v))
+    {
+        return iox::nullopt;
+    }
+
     auto call = IOX_POSIX_CALL(strtoull)(v, &end_ptr, STRTOULL_BASE)
-                    .failureReturnValue(ULLONG_MAX)
+                    .forceOkReturnValue()
                     .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
                     .evaluate();
 
@@ -186,7 +193,6 @@ inline iox::optional<unsigned long> convert::from_string<unsigned long>(const ch
 template <>
 inline iox::optional<uintptr_t> convert::from_string<uintptr_t>(const char* v, uintptr_t& dest) noexcept
 {
-    // should this be uin32_t?
     uint64_t temp{0};
     auto ret = from_string(v, temp);
     if (!ret.has_value())
@@ -203,6 +209,11 @@ inline iox::optional<uint32_t> convert::from_string<uint32_t>(const char* v) noe
     errno = 0;
     char* end_ptr = nullptr;
 
+    if (start_with_neg_sign(v))
+    {
+        return iox::nullopt;
+    }
+
     auto call = IOX_POSIX_CALL(strtoull)(v, &end_ptr, STRTOULL_BASE)
                     .failureReturnValue(ULLONG_MAX)
                     .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
@@ -217,6 +228,11 @@ inline iox::optional<uint16_t> convert::from_string<uint16_t>(const char* v) noe
     errno = 0;
     char* end_ptr = nullptr;
 
+    if (start_with_neg_sign(v))
+    {
+        return iox::nullopt;
+    }
+
     auto call = IOX_POSIX_CALL(strtoul)(v, &end_ptr, STRTOULL_BASE)
                     .failureReturnValue(ULONG_MAX)
                     .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
@@ -230,6 +246,11 @@ inline iox::optional<uint8_t> convert::from_string<uint8_t>(const char* v) noexc
 {
     errno = 0;
     char* end_ptr = nullptr;
+
+    if (start_with_neg_sign(v))
+    {
+        return iox::nullopt;
+    }
 
     auto call = IOX_POSIX_CALL(strtoul)(v, &end_ptr, STRTOULL_BASE)
                     .failureReturnValue(ULONG_MAX)
@@ -295,12 +316,115 @@ inline iox::optional<int8_t> convert::from_string<int8_t>(const char* v) noexcep
     return evaluate_return_value<int8_t>(call, errno, end_ptr, v);
 }
 
-template <typename Destination>
+inline bool convert::start_with_neg_sign(const char* v) noexcept
+{
+    if (v == nullptr)
+    {
+        return false;
+    }
+
+    // remove space
+    while (*v != '\0' && (isspace((unsigned char)*v) != 0))
+    {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        v++;
+    }
+
+    return (*v == '-');
+}
+
+// template <typename TargetType, typename RequireCheckValType>
+// inline bool convert::check_edge_case(decltype(errno) errno_cache,
+//                                      const char* end_ptr,
+//                                      const char* v,
+//                                      const RequireCheckValType& require_check_val)
+// {
+//     // invalid string
+//     if (v == end_ptr && require_check_val == 0)
+//     {
+//         IOX_LOG(DEBUG, "invalid input");
+//         return false;
+//     }
+
+//     // end_ptr is not '\0' which means conversion failure at end_ptr
+//     if (end_ptr != nullptr && v != end_ptr && *end_ptr != '\0')
+//     {
+//         // can split and reconvert here? wait for implement later
+//         IOX_LOG(DEBUG, "conversion failed at " << end_ptr - v << " : " << *end_ptr);
+//         return false;
+//     }
+
+//     // check errno
+//     if (errno_cache == ERANGE)
+//     {
+//         IOX_LOG(DEBUG, "ERANGE triggered during conversion");
+//         return false;
+//     }
+
+//     if (errno_cache == EINVAL)
+//     {
+//         IOX_LOG(DEBUG, "EINVAL triggered during conversion");
+//         return false;
+//     }
+
+//     if constexpr (std::is_arithmetic_v<TargetType>)
+//     {
+//         // out of range (upper bound)
+//         if (require_check_val > std::numeric_limits<TargetType>::max())
+//         {
+//             IOX_LOG(DEBUG,
+//                     require_check_val << " is out of range (upper bound), should be less than "
+//                                 << std::numeric_limits<TargetType>::max());
+//             return false;
+//         }
+
+//         // out of range (lower bound)
+//         if (require_check_val < std::numeric_limits<TargetType>::lowest())
+//         {
+//             IOX_LOG(DEBUG,
+//                     require_check_val << " is out of range (lower bound), should be larger than "
+//                                 << std::numeric_limits<TargetType>::lowest());
+//             return false;
+//         }
+//     }
+
+//     return true;
+// }
+
+template <typename TargetType, typename RequireCheckValType>
+inline bool convert::check_edge_case(decltype(errno) errno_cache,
+                                     const char* end_ptr,
+                                     const char* v,
+                                     const RequireCheckValType& require_check_val) noexcept
+{
+    return is_valid_input(end_ptr, v, require_check_val) && is_valid_errno(errno_cache)
+           && is_within_range<TargetType>(require_check_val);
+}
+
+template <typename TargetType, typename CallType>
+inline iox::optional<TargetType>
+convert::evaluate_return_value(CallType& call, decltype(errno) errno_cache, const char* end_ptr, const char* v) noexcept
+{
+    if (call.has_error())
+    {
+        return iox::nullopt;
+    }
+
+    if (!check_edge_case<TargetType>(errno_cache, end_ptr, v, call->value))
+    {
+        return iox::nullopt;
+    }
+
+    return iox::optional<TargetType>(static_cast<TargetType>(call->value));
+}
+
+
+template <typename RequireCheckValType>
 inline bool
-convert::check_edge_case(int errno_cache, const char* end_ptr, const char* v, const Destination& check_value)
+convert::is_valid_input(const char* end_ptr, const char* v, const RequireCheckValType& require_check_val) noexcept
 {
     // invalid string
-    if (v == end_ptr && check_value == 0)
+    if (v == end_ptr && require_check_val == 0)
     {
         IOX_LOG(DEBUG, "invalid input");
         return false;
@@ -309,50 +433,56 @@ convert::check_edge_case(int errno_cache, const char* end_ptr, const char* v, co
     // end_ptr is not '\0' which means conversion failure at end_ptr
     if (end_ptr != nullptr && v != end_ptr && *end_ptr != '\0')
     {
-        // can split and reconvert here? wait for implement later
         IOX_LOG(DEBUG, "conversion failed at " << end_ptr - v << " : " << *end_ptr);
         return false;
-    }
-
-    if constexpr (std::is_arithmetic_v<Destination>)
-    {
-        // out of range (upper bound)
-        if (errno_cache == ERANGE && check_value > std::numeric_limits<Destination>::max())
-        {
-            IOX_LOG(DEBUG,
-                    check_value << " is out of range (upper bound), should be less than "
-                                << std::numeric_limits<Destination>::max());
-            return false;
-        }
-
-        // out of range (lower bound)
-        if (errno_cache == ERANGE && check_value < std::numeric_limits<Destination>::min())
-        {
-            IOX_LOG(DEBUG,
-                    check_value << " is out of range (lower bound), should be larger than "
-                                << std::numeric_limits<Destination>::min());
-            return false;
-        }
     }
 
     return true;
 }
 
-template <typename ValueType, typename CallType>
-inline iox::optional<ValueType>
-convert::evaluate_return_value(CallType& call, int errno_cache, const char* end_ptr, const char* v)
+inline bool convert::is_valid_errno(decltype(errno) errno_cache) noexcept
 {
-    if (call.has_error())
+    // check errno
+    if (errno_cache == ERANGE)
     {
-        return iox::optional<ValueType>{};
+        IOX_LOG(DEBUG, "ERANGE triggered during conversion");
+        return false;
     }
 
-    if (!check_edge_case(errno_cache, end_ptr, v, call->value))
+    if (errno_cache == EINVAL)
     {
-        return iox::optional<ValueType>{};
+        IOX_LOG(DEBUG, "EINVAL triggered during conversion");
+        return false;
     }
 
-    return iox::optional<ValueType>(static_cast<ValueType>(call->value));
+    return true;
+}
+
+template <typename TargetType, typename RequireCheckValType>
+inline bool convert::is_within_range(const RequireCheckValType& require_check_val) noexcept
+{
+    if constexpr (std::is_arithmetic_v<TargetType>)
+    {
+        // out of range (upper bound)
+        if (require_check_val > std::numeric_limits<TargetType>::max())
+        {
+            IOX_LOG(DEBUG,
+                    require_check_val << " is out of range (upper bound), should be less than "
+                                      << std::numeric_limits<TargetType>::max());
+            return false;
+        }
+
+        // out of range (lower bound)
+        if (require_check_val < std::numeric_limits<TargetType>::lowest())
+        {
+            IOX_LOG(DEBUG,
+                    require_check_val << " is out of range (lower bound), should be larger than "
+                                      << std::numeric_limits<TargetType>::lowest());
+            return false;
+        }
+    }
+
+    return true;
 }
 
 } // namespace iox

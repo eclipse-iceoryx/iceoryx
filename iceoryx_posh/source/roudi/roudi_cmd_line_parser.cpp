@@ -100,12 +100,15 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
         {
             uint16_t roudiId{0u};
             constexpr uint64_t MAX_ROUDI_ID = ((1 << 16) - 1);
-            if (!convert::from_string(optarg, roudiId))
+            auto result = convert::from_string<uint16_t>(optarg);
+            if (!result.has_value())
             {
                 IOX_LOG(ERROR, "The RouDi id must be in the range of [0, " << MAX_ROUDI_ID << "]");
                 m_cmdLineArgs.run = false;
+                break;
             }
 
+            roudiId = result.value();
             m_cmdLineArgs.uniqueRouDiId.emplace(roudiId);
             break;
         }
@@ -168,32 +171,34 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
         {
             uint32_t processTerminationDelayInSeconds{0u};
             constexpr uint64_t MAX_PROCESS_TERMINATION_DELAY = std::numeric_limits<uint32_t>::max();
-            if (!convert::from_string(optarg, processTerminationDelayInSeconds))
+            auto result = convert::from_string<uint32_t>(optarg);
+            if (!result.has_value())
             {
                 IOX_LOG(ERROR,
                         "The process termination delay must be in the range of [0, " << MAX_PROCESS_TERMINATION_DELAY
                                                                                      << "]");
                 m_cmdLineArgs.run = false;
+                break;
             }
-            else
-            {
-                m_cmdLineArgs.processTerminationDelay = units::Duration::fromSeconds(processTerminationDelayInSeconds);
-            }
+
+            processTerminationDelayInSeconds = result.value();
+            m_cmdLineArgs.processTerminationDelay = units::Duration::fromSeconds(processTerminationDelayInSeconds);
             break;
         }
         case 'k':
         {
             uint32_t processKillDelayInSeconds{0u};
             constexpr uint64_t MAX_PROCESS_KILL_DELAY = std::numeric_limits<uint32_t>::max();
-            if (!convert::from_string(optarg, processKillDelayInSeconds))
+            auto result = convert::from_string<uint32_t>(optarg);
+            if (!result.has_value())
             {
                 IOX_LOG(ERROR, "The process kill delay must be in the range of [0, " << MAX_PROCESS_KILL_DELAY << "]");
                 m_cmdLineArgs.run = false;
+                break;
             }
-            else
-            {
-                m_cmdLineArgs.processKillDelay = units::Duration::fromSeconds(processKillDelayInSeconds);
-            }
+
+            processKillDelayInSeconds = result.value();
+            m_cmdLineArgs.processKillDelay = units::Duration::fromSeconds(processKillDelayInSeconds);
             break;
         }
         case 'x':

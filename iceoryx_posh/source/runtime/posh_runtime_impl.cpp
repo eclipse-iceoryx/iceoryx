@@ -185,12 +185,24 @@ PoshRuntimeImpl::requestPublisherFromRoudi(const IpcMessage& sendBuffer) noexcep
         std::string IpcMessage = receiveBuffer.getElementAtIndex(0U);
 
         if (stringToIpcMessageType(IpcMessage.c_str()) == IpcMessageType::CREATE_PUBLISHER_ACK)
-
         {
             segment_id_underlying_t segmentId{0U};
-            convert::from_string(receiveBuffer.getElementAtIndex(2U).c_str(), segmentId);
             UntypedRelativePointer::offset_t offset{0U};
-            convert::from_string(receiveBuffer.getElementAtIndex(1U).c_str(), offset);
+            auto segment_id_result =
+                convert::from_string<segment_id_underlying_t>(receiveBuffer.getElementAtIndex(2U).c_str());
+            auto offset_result =
+                convert::from_string<UntypedRelativePointer::offset_t>(receiveBuffer.getElementAtIndex(1U).c_str());
+
+            if (!segment_id_result.has_value() || !offset_result.has_value())
+            {
+                IOX_LOG(ERROR, "conversion failed!");
+                // @todo iox-#2055 should return an IpcMessageError (maybe create a new error tpye: INVALID_CONVERSION)
+                // here
+                return err(IpcMessageErrorType::REQUEST_PUBLISHER_INVALID_RESPONSE);
+            }
+
+            segmentId = segment_id_result.value();
+            offset = offset_result.value();
             auto ptr = UntypedRelativePointer::getPtr(segment_id_t{segmentId}, offset);
             return ok(reinterpret_cast<PublisherPortUserType::MemberType_t*>(ptr));
         }
@@ -300,9 +312,22 @@ PoshRuntimeImpl::requestSubscriberFromRoudi(const IpcMessage& sendBuffer) noexce
         if (stringToIpcMessageType(IpcMessage.c_str()) == IpcMessageType::CREATE_SUBSCRIBER_ACK)
         {
             segment_id_underlying_t segmentId{0U};
-            convert::from_string(receiveBuffer.getElementAtIndex(2U).c_str(), segmentId);
             UntypedRelativePointer::offset_t offset{0U};
-            convert::from_string(receiveBuffer.getElementAtIndex(1U).c_str(), offset);
+            auto segment_id_result =
+                convert::from_string<segment_id_underlying_t>(receiveBuffer.getElementAtIndex(2U).c_str());
+            auto offset_result =
+                convert::from_string<UntypedRelativePointer::offset_t>(receiveBuffer.getElementAtIndex(1U).c_str());
+
+            if (!segment_id_result.has_value() || !offset_result.has_value())
+            {
+                IOX_LOG(ERROR, "conversion failed!");
+                // @todo iox-#2055 should return an IpcMessageError (maybe create a new error tpye: INVALID_CONVERSION)
+                // here
+                return err(IpcMessageErrorType::REQUEST_PUBLISHER_INVALID_RESPONSE);
+            }
+
+            segmentId = segment_id_result.value();
+            offset = offset_result.value();
             auto ptr = UntypedRelativePointer::getPtr(segment_id_t{segmentId}, offset);
             return ok(reinterpret_cast<SubscriberPortUserType::MemberType_t*>(ptr));
         }
@@ -408,9 +433,22 @@ PoshRuntimeImpl::requestClientFromRoudi(const IpcMessage& sendBuffer) noexcept
         if (stringToIpcMessageType(IpcMessage.c_str()) == IpcMessageType::CREATE_CLIENT_ACK)
         {
             segment_id_underlying_t segmentId{0U};
-            convert::from_string(receiveBuffer.getElementAtIndex(2U).c_str(), segmentId);
             UntypedRelativePointer::offset_t offset{0U};
-            convert::from_string(receiveBuffer.getElementAtIndex(1U).c_str(), offset);
+            auto segment_id_result =
+                convert::from_string<segment_id_underlying_t>(receiveBuffer.getElementAtIndex(2U).c_str());
+            auto offset_result =
+                convert::from_string<UntypedRelativePointer::offset_t>(receiveBuffer.getElementAtIndex(1U).c_str());
+
+            if (!segment_id_result.has_value() || !offset_result.has_value())
+            {
+                IOX_LOG(ERROR, "conversion failed!");
+                // @todo iox-#2055 should return an IpcMessageError (maybe create a new error tpye: INVALID_CONVERSION)
+                // here
+                return err(IpcMessageErrorType::REQUEST_PUBLISHER_INVALID_RESPONSE);
+            }
+
+            segmentId = segment_id_result.value();
+            offset = offset_result.value();
             auto ptr = UntypedRelativePointer::getPtr(segment_id_t{segmentId}, offset);
             return ok(reinterpret_cast<popo::ClientPortUser::MemberType_t*>(ptr));
         }
@@ -516,9 +554,22 @@ PoshRuntimeImpl::requestServerFromRoudi(const IpcMessage& sendBuffer) noexcept
         if (stringToIpcMessageType(IpcMessage.c_str()) == IpcMessageType::CREATE_SERVER_ACK)
         {
             segment_id_underlying_t segmentId{0U};
-            convert::from_string(receiveBuffer.getElementAtIndex(2U).c_str(), segmentId);
             UntypedRelativePointer::offset_t offset{0U};
-            convert::from_string(receiveBuffer.getElementAtIndex(1U).c_str(), offset);
+            auto segment_id_result =
+                convert::from_string<segment_id_underlying_t>(receiveBuffer.getElementAtIndex(2U).c_str());
+            auto offset_result =
+                convert::from_string<UntypedRelativePointer::offset_t>(receiveBuffer.getElementAtIndex(1U).c_str());
+
+            if (!segment_id_result.has_value() || !offset_result.has_value())
+            {
+                IOX_LOG(ERROR, "conversion failed!");
+                // @todo iox-#2055 should return an IpcMessageError (maybe create a new error tpye: INVALID_CONVERSION)
+                // here
+                return err(IpcMessageErrorType::REQUEST_PUBLISHER_INVALID_RESPONSE);
+            }
+
+            segmentId = segment_id_result.value();
+            offset = offset_result.value();
             auto ptr = UntypedRelativePointer::getPtr(segment_id_t{segmentId}, offset);
             return ok(reinterpret_cast<popo::ServerPortUser::MemberType_t*>(ptr));
         }
@@ -560,9 +611,20 @@ popo::InterfacePortData* PoshRuntimeImpl::getMiddlewareInterface(const capro::In
         if (stringToIpcMessageType(IpcMessage.c_str()) == IpcMessageType::CREATE_INTERFACE_ACK)
         {
             segment_id_underlying_t segmentId{0U};
-            convert::from_string(receiveBuffer.getElementAtIndex(2U).c_str(), segmentId);
             UntypedRelativePointer::offset_t offset{0U};
-            convert::from_string(receiveBuffer.getElementAtIndex(1U).c_str(), offset);
+            auto segment_id_result =
+                convert::from_string<segment_id_underlying_t>(receiveBuffer.getElementAtIndex(2U).c_str());
+            auto offset_result =
+                convert::from_string<UntypedRelativePointer::offset_t>(receiveBuffer.getElementAtIndex(1U).c_str());
+
+            if (!segment_id_result.has_value() || !offset_result.has_value())
+            {
+                IOX_LOG(ERROR, "conversion failed!");
+                return nullptr;
+            }
+
+            segmentId = segment_id_result.value();
+            offset = offset_result.value();
             auto ptr = UntypedRelativePointer::getPtr(segment_id_t{segmentId}, offset);
             return reinterpret_cast<popo::InterfacePortData*>(ptr);
         }
@@ -594,9 +656,20 @@ NodeData* PoshRuntimeImpl::createNode(const NodeProperty& nodeProperty) noexcept
         if (stringToIpcMessageType(IpcMessage.c_str()) == IpcMessageType::CREATE_NODE_ACK)
         {
             segment_id_underlying_t segmentId{0U};
-            convert::from_string(receiveBuffer.getElementAtIndex(2U).c_str(), segmentId);
             UntypedRelativePointer::offset_t offset{0U};
-            convert::from_string(receiveBuffer.getElementAtIndex(1U).c_str(), offset);
+            auto segment_id_result =
+                convert::from_string<segment_id_underlying_t>(receiveBuffer.getElementAtIndex(2U).c_str());
+            auto offset_result =
+                convert::from_string<UntypedRelativePointer::offset_t>(receiveBuffer.getElementAtIndex(1U).c_str());
+
+            if (!segment_id_result.has_value() || !offset_result.has_value())
+            {
+                IOX_LOG(ERROR, "conversion failed!");
+                return nullptr;
+            }
+
+            segmentId = segment_id_result.value();
+            offset = offset_result.value();
             auto ptr = UntypedRelativePointer::getPtr(segment_id_t{segmentId}, offset);
             return reinterpret_cast<NodeData*>(ptr);
         }
@@ -623,9 +696,22 @@ PoshRuntimeImpl::requestConditionVariableFromRoudi(const IpcMessage& sendBuffer)
         if (stringToIpcMessageType(IpcMessage.c_str()) == IpcMessageType::CREATE_CONDITION_VARIABLE_ACK)
         {
             segment_id_underlying_t segmentId{0U};
-            convert::from_string(receiveBuffer.getElementAtIndex(2U).c_str(), segmentId);
             UntypedRelativePointer::offset_t offset{0U};
-            convert::from_string(receiveBuffer.getElementAtIndex(1U).c_str(), offset);
+            auto segment_id_result =
+                convert::from_string<segment_id_underlying_t>(receiveBuffer.getElementAtIndex(2U).c_str());
+            auto offset_result =
+                convert::from_string<UntypedRelativePointer::offset_t>(receiveBuffer.getElementAtIndex(1U).c_str());
+
+            if (!segment_id_result.has_value() || !offset_result.has_value())
+            {
+                IOX_LOG(ERROR, "conversion failed!");
+                // @todo iox-#2055 should return an IpcMessageError (maybe create a new error tpye: INVALID_CONVERSION)
+                // here
+                return err(IpcMessageErrorType::REQUEST_PUBLISHER_INVALID_RESPONSE);
+            }
+
+            segmentId = segment_id_result.value();
+            offset = offset_result.value();
             auto ptr = UntypedRelativePointer::getPtr(segment_id_t{segmentId}, offset);
             return ok(reinterpret_cast<popo::ConditionVariableData*>(ptr));
         }

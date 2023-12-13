@@ -290,9 +290,9 @@ bool ProcessManager::addProcess(const RuntimeName_t& name,
     }
     auto heartbeatPoolIndex = HeartbeatPool::Index::INVALID;
     /// @todo iox-#2055 this workaround is required sind the conversion of edge cases is broken
-    constexpr uint8_t IOX_2055_WORKAROUND{1};
-    iox::UntypedRelativePointer::offset_t heartbeatOffset{iox::UntypedRelativePointer::NULL_POINTER_OFFSET
-                                                          - IOX_2055_WORKAROUND};
+    /// I think it's solved.
+    iox::UntypedRelativePointer::offset_t heartbeatOffset{iox::UntypedRelativePointer::NULL_POINTER_OFFSET};
+
     if (isMonitored)
     {
         auto heartbeat = m_heartbeatPool->emplace();

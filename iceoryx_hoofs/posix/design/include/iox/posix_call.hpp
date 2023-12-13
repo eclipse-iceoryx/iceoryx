@@ -132,6 +132,12 @@ class [[nodiscard]] PosixCallVerificator
     /// @return the PosixCallEvaluator which evaluates the errno values
     PosixCallEvaluator<ReturnType> returnValueMatchesErrno() && noexcept;
 
+    /// @todo iox-#2055: from_string<uint64_t> requires a method to return a never failed
+    /// (has_error() == false) PosixCallEvaluator.
+    /// @brief
+    /// @return
+    PosixCallEvaluator<ReturnType> forceOkReturnValue() && noexcept;
+
   private:
     template <typename, typename...>
     friend class PosixCallBuilder;

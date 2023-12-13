@@ -48,11 +48,15 @@ int main(int argc, char* argv[])
             constexpr decltype(EXIT_SUCCESS) MOO{EXIT_SUCCESS};
 
             uint64_t intensity{0U};
-            if (!iox::convert::from_string(optarg, intensity))
+            auto result = iox::convert::from_string<uint64_t>(optarg);
+            if (!result.has_value())
             {
                 std::cerr << "Could not parse 'intensity' paramater!" << std::endl;
                 return EXIT_FAILURE;
             }
+
+            intensity = result.value();
+
             if (intensity > 100)
             {
                 std::cerr << "Too high moo 'intensity'!" << std::endl;

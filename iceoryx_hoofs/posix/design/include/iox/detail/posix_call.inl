@@ -147,6 +147,13 @@ inline PosixCallEvaluator<ReturnType> PosixCallVerificator<ReturnType>::returnVa
 }
 
 template <typename ReturnType>
+inline PosixCallEvaluator<ReturnType> PosixCallVerificator<ReturnType>::forceOkReturnValue() && noexcept
+{
+    m_details.hasSuccess = true;
+    return PosixCallEvaluator<ReturnType>(m_details);
+}
+
+template <typename ReturnType>
 inline PosixCallEvaluator<ReturnType>::PosixCallEvaluator(detail::PosixCallDetails<ReturnType>& details) noexcept
     : m_details{details}
 {

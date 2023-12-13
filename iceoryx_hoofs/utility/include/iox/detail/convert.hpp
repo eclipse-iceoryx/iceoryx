@@ -1,6 +1,7 @@
 // Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 // Copyright (c) 2022 by NXP. All rights reserved.
+// Copyright (c) 2023 by Dennis Liu. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -80,26 +81,30 @@ class convert
     /// @param[in] v string which contains the value of dest
     /// @param[in] dest destination to which the value should be written
     /// @return false = if the conversion fails otherwise true
-    template <typename Destination>
-    static bool from_string(const char* v, Destination& dest) noexcept;
+    template <typename IoxString, typename std::enable_if_t<is_iox_string<IoxString>::value, int> = 0>
+    static iox::optional<IoxString> from_string(const char* v) noexcept;
 
-    /// @todo iox-#2055
     /// @brief  for those not Destination not string
     /// @tparam Destination
     /// @param v
     /// @return
-    template <typename Destination>
+    template <typename Destination, typename std::enable_if_t<!is_iox_string<Destination>::value, int> = 0>
     static iox::optional<Destination> from_string(const char* v) noexcept;
 
-    /// @brief Sets dest from a given string. If the conversion fails false is
-    ///         returned and the value of dest is undefined.
-    /// @param[in] v string which contains the value of dest
-    /// @param[in] dest destination to which the value should be written
-    /// @return false = if the conversion fails otherwise true
-    template <uint64_t Capacity>
-    static bool from_string(const char* v, string<Capacity>& dest) noexcept;
-
   private:
+    /// @todo iox-#2055
+    /// @brief
+    /// @tparam ValueType
+    /// @tparam CallType
+    /// @param call
+    /// @param errno_cache
+    /// @param end_ptr
+    /// @param v
+    /// @return
+    template <typename TargetType, typename CallType>
+    static iox::optional<TargetType>
+    evaluate_return_value(CallType& call, decltype(errno) errno_cache, const char* end_ptr, const char* v) noexcept;
+
     /// @todo iox-#2055
     /// @brief Check the edge cases. If
     /// @tparam Destination
@@ -108,12 +113,67 @@ class convert
     /// @param v
     /// @param check_value
     /// @return
-    template <typename Destination>
-    static bool check_edge_case(int errno_cache, const char* end_ptr, const char* v, const Destination& check_value);
+    template <typename TargetType, typename RequireCheckValType>
+    static bool check_edge_case(decltype(errno) errno_cache,
+                                const char* end_ptr,
+                                const char* v,
+                                const RequireCheckValType& require_check_val) noexcept;
 
-    template <typename ValueType, typename CallType>
-    static iox::optional<ValueType>
-    evaluate_return_value(CallType& call, int errno_cache, const char* end_ptr, const char* v);
+    /// @todo iox-#2055
+    /// @brief
+    /// @param v
+    /// @return
+    static bool start_with_neg_sign(const char* v) noexcept;
+
+    /// @todo iox-#2055
+    /// @brief
+    /// @tparam RequireCheckValType
+    /// @param end_ptr
+    /// @param v
+    /// @param require_check_val
+    /// @return
+    template <typename RequireCheckValType>
+    static bool
+    is_valid_input(const char* end_ptr, const char* v, const RequireCheckValType& require_check_val) noexcept;
+
+
+    /// @todo iox-#2055
+    /// @brief
+    /// @param errno_cache
+    /// @return
+    static bool is_valid_errno(decltype(errno) errno_cache) noexcept;
+
+
+    /// @todo iox-#2055
+    /// @brief
+    /// @tparam TargetType
+    /// @tparam RequireCheckValType
+    /// @param require_check_val
+    /// @return
+    template <typename TargetType, typename RequireCheckValType>
+    static bool is_within_range(const RequireCheckValType& require_check_val) noexcept;
+
+
+    /// @todo iox-#2055 helper, I believe there's a more elegant way to implement this.
+  private:
+    template <typename T>
+    struct is_iox_string : std::false_type
+    {
+    };
+
+    template <uint64_t Capacity>
+    struct is_iox_string<iox::string<Capacity>> : std::true_type
+    {
+    };
+
+    template <typename T>
+    struct GetCapacity;
+
+    template <uint64_t Capacity>
+    struct GetCapacity<iox::string<Capacity>>
+    {
+        static constexpr uint64_t value = Capacity;
+    };
 };
 
 } // namespace iox
