@@ -177,7 +177,6 @@ inline iox::optional<uint64_t> convert::from_string<uint64_t>(const char* v) noe
 template <>
 inline iox::optional<unsigned long> convert::from_string<unsigned long>(const char* v) noexcept
 {
-    uint64_t temp{0};
     auto ret = from_string<uint64_t>(v);
     if (!ret.has_value())
     {
@@ -193,7 +192,6 @@ inline iox::optional<unsigned long> convert::from_string<unsigned long>(const ch
 template <>
 inline iox::optional<uintptr_t> convert::from_string<uintptr_t>(const char* v) noexcept
 {
-    uint32_t temp{0};
     auto ret = from_string<uint32_t>(v);
     if (!ret.has_value())
     {
