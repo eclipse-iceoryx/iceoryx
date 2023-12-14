@@ -92,83 +92,105 @@ class convert
     static iox::optional<Destination> from_string(const char* v) noexcept;
 
   private:
-    /// @todo iox-#2055
-    /// @brief
-    /// @tparam ValueType
-    /// @tparam CallType
-    /// @param call
-    /// @param errno_cache
-    /// @param end_ptr
-    /// @param v
-    /// @return
+    /// @brief Evaluates the return value from a POSIX call or similar function call.
+    /// This function checks if the call resulted in an error and validates the edge cases
+    /// of the conversion from string to a numeric value. It returns an optional containing
+    /// the converted value if successful, or nullopt if there's an error or edge case failure.
+    /// @tparam TargetType The type to which the string is being converted.
+    /// @tparam CallType The type of the call object.
+    /// @param call Reference to the call object.
+    /// @param errno_cache Cached errno value for error checking.
+    /// @param end_ptr Pointer to the character after the last character used in the conversion.
+    /// @param v Pointer to the input string.
+    /// @return Optional containing the converted value or nullopt.
     template <typename TargetType, typename CallType>
     static iox::optional<TargetType>
     evaluate_return_value(CallType& call, decltype(errno) errno_cache, const char* end_ptr, const char* v) noexcept;
 
-    /// @todo iox-#2055
-    /// @brief Check the edge cases. If
-    /// @tparam Destination
-    /// @param errno_cache
-    /// @param end_ptr
-    /// @param v
-    /// @param check_value
-    /// @return
+    /// @brief Checks for edge cases in string conversion to a numeric type.
+    /// This function evaluates various conditions that might indicate an edge
+    /// case or an error in the conversion process from a string to a numeric type.
+    /// It checks for invalid input strings, conversion failures, errors indicated
+    /// by 'errno', and whether the converted value falls within the expected range.
+    /// @tparam TargetType The numeric type to which the string is being converted.
+    /// @tparam RequireCheckValType The type of the value being checked against edge cases.
+    /// @param errno_cache Cached value of 'errno' to check for conversion errors.
+    /// @param end_ptr Pointer to the character following the last character used
+    ///                in the conversion, used to check for conversion failures.
+    /// @param v Pointer to the input string being converted.
+    /// @param require_check_val The value to be checked against edge cases.
+    /// @return True if no edge cases or errors are detected, false otherwise.
     template <typename TargetType, typename RequireCheckValType>
     static bool check_edge_case(decltype(errno) errno_cache,
                                 const char* end_ptr,
                                 const char* v,
                                 const RequireCheckValType& require_check_val) noexcept;
 
-    /// @todo iox-#2055
-    /// @brief
-    /// @param v
-    /// @return
+    /// @brief Determines if a given string starts with a negative sign after skipping any leading spaces.
+    /// This function examines the input string and returns true if the first non-space character
+    /// is a negative sign ('-'). It is useful for parsing strings representing numeric values,
+    /// where the sign of the number needs to be determined.
+    /// @param v Pointer to the null-terminated input string to be checked.
+    /// @return True if the string starts with a negative sign after any leading spaces, false otherwise.
+
     static bool start_with_neg_sign(const char* v) noexcept;
 
-    /// @todo iox-#2055
-    /// @brief
-    /// @tparam RequireCheckValType
-    /// @param end_ptr
-    /// @param v
-    /// @param require_check_val
-    /// @return
+    /// @brief Checks if the string input is valid based on the results of its conversion.
+    /// This function determines the validity of the input string by analyzing the outcome
+    /// of a conversion function like strtoull. It checks whether the end_ptr overlaps with
+    /// the beginning of v, indicating no conversion occurred, or if the conversion did not
+    /// terminate at a null character '\0', both scenarios being indicative of an invalid input.
+    /// @tparam RequireCheckValType Type of the value being checked.
+    /// @param end_ptr Pointer to the character after the last character used in the conversion.
+    /// @param v Pointer to the input string.
+    /// @param require_check_val The value obtained from the conversion, used for comparison.
+    /// @return True if the input is valid for conversion, false otherwise.
     template <typename RequireCheckValType>
     static bool
     is_valid_input(const char* end_ptr, const char* v, const RequireCheckValType& require_check_val) noexcept;
 
 
-    /// @todo iox-#2055
-    /// @brief
-    /// @param errno_cache
-    /// @return
+    /// @brief Checks if the cached errno indicates a valid conversion.
+    /// This function assesses the errno value to determine if it represents
+    /// a common error scenario during string-to-numeric conversion.
+    /// @param errno_cache Cached errno value to be checked.
+    /// @return True if errno does not indicate an error, false otherwise.
     static bool is_valid_errno(decltype(errno) errno_cache) noexcept;
 
 
-    /// @todo iox-#2055
-    /// @brief
-    /// @tparam TargetType
-    /// @tparam RequireCheckValType
-    /// @param require_check_val
-    /// @return
+    /// @brief Checks if the given value is within the allowable range for the target type.
+    /// This function evaluates whether the specified value falls within the numeric limits
+    /// of the target type, considering both upper and lower bounds.
+    /// @tparam TargetType The numeric type to be checked against.
+    /// @tparam RequireCheckValType Type of the value being checked.
+    /// @param require_check_val The value to be evaluated against the target type's range.
+    /// @return True if the value is within range, false otherwise.
     template <typename TargetType, typename RequireCheckValType>
     static bool is_within_range(const RequireCheckValType& require_check_val) noexcept;
 
 
-    /// @todo iox-#2055 helper, I believe there's a more elegant way to implement this.
+    /// @todo iox-#2055 I believe there's a more elegant way to implement this. What do you think?
   private:
+    /// @brief Trait struct to determine if a type is an iox::string.
+    /// Provides a compile-time check to identify if a given type is an instance of iox::string.
+    /// @tparam T Type to be checked.
     template <typename T>
     struct is_iox_string : std::false_type
     {
     };
 
+    /// Specialization of is_iox_string for iox::string.
     template <uint64_t Capacity>
     struct is_iox_string<iox::string<Capacity>> : std::true_type
     {
     };
 
+    /// @brief Helper struct to extract the capacity of an iox::string at compile time.
+    /// Provides a mechanism to obtain the capacity of an iox::string type.
     template <typename T>
     struct GetCapacity;
 
+    /// Specialization of GetCapacity for iox::string.
     template <uint64_t Capacity>
     struct GetCapacity<iox::string<Capacity>>
     {

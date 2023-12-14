@@ -164,7 +164,7 @@ inline iox::optional<uint64_t> convert::from_string<uint64_t>(const char* v) noe
     }
 
     auto call = IOX_POSIX_CALL(strtoull)(v, &end_ptr, STRTOULL_BASE)
-                    .forceOkReturnValue()
+                    .alwaysSuccess()
                     .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
                     .evaluate();
 
@@ -333,64 +333,6 @@ inline bool convert::start_with_neg_sign(const char* v) noexcept
     return (*v == '-');
 }
 
-// template <typename TargetType, typename RequireCheckValType>
-// inline bool convert::check_edge_case(decltype(errno) errno_cache,
-//                                      const char* end_ptr,
-//                                      const char* v,
-//                                      const RequireCheckValType& require_check_val)
-// {
-//     // invalid string
-//     if (v == end_ptr && require_check_val == 0)
-//     {
-//         IOX_LOG(DEBUG, "invalid input");
-//         return false;
-//     }
-
-//     // end_ptr is not '\0' which means conversion failure at end_ptr
-//     if (end_ptr != nullptr && v != end_ptr && *end_ptr != '\0')
-//     {
-//         // can split and reconvert here? wait for implement later
-//         IOX_LOG(DEBUG, "conversion failed at " << end_ptr - v << " : " << *end_ptr);
-//         return false;
-//     }
-
-//     // check errno
-//     if (errno_cache == ERANGE)
-//     {
-//         IOX_LOG(DEBUG, "ERANGE triggered during conversion");
-//         return false;
-//     }
-
-//     if (errno_cache == EINVAL)
-//     {
-//         IOX_LOG(DEBUG, "EINVAL triggered during conversion");
-//         return false;
-//     }
-
-//     if constexpr (std::is_arithmetic_v<TargetType>)
-//     {
-//         // out of range (upper bound)
-//         if (require_check_val > std::numeric_limits<TargetType>::max())
-//         {
-//             IOX_LOG(DEBUG,
-//                     require_check_val << " is out of range (upper bound), should be less than "
-//                                 << std::numeric_limits<TargetType>::max());
-//             return false;
-//         }
-
-//         // out of range (lower bound)
-//         if (require_check_val < std::numeric_limits<TargetType>::lowest())
-//         {
-//             IOX_LOG(DEBUG,
-//                     require_check_val << " is out of range (lower bound), should be larger than "
-//                                 << std::numeric_limits<TargetType>::lowest());
-//             return false;
-//         }
-//     }
-
-//     return true;
-// }
-
 template <typename TargetType, typename RequireCheckValType>
 inline bool convert::check_edge_case(decltype(errno) errno_cache,
                                      const char* end_ptr,
@@ -417,7 +359,6 @@ convert::evaluate_return_value(CallType& call, decltype(errno) errno_cache, cons
 
     return iox::optional<TargetType>(static_cast<TargetType>(call->value));
 }
-
 
 template <typename RequireCheckValType>
 inline bool
