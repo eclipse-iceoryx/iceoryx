@@ -175,7 +175,7 @@ inline iox::optional<uint64_t> convert::from_string<uint64_t>(const char* v) noe
 /// introduced for mac os since unsigned long is not uint64_t despite it has the same size
 /// who knows why ¯\_(ツ)_/¯
 template <>
-inline iox::optional<unsigned long> convert::from_string<unsigned long>(const char* v, unsigned long& dest) noexcept
+inline iox::optional<unsigned long> convert::from_string<unsigned long>(const char* v) noexcept
 {
     uint64_t temp{0};
     auto ret = from_string<uint64_t>(v);
@@ -191,7 +191,7 @@ inline iox::optional<unsigned long> convert::from_string<unsigned long>(const ch
 /// introduced for 32-bit arm-none-eabi-gcc since uintptr_t is not uint32_t despite it has the same size
 /// who knows why ¯\_(ツ)_/¯
 template <>
-inline iox::optional<uintptr_t> convert::from_string<uintptr_t>(const char* v, uintptr_t& dest) noexcept
+inline iox::optional<uintptr_t> convert::from_string<uintptr_t>(const char* v) noexcept
 {
     uint32_t temp{0};
     auto ret = from_string<uint32_t>(v);
