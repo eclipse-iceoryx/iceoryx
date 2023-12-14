@@ -267,8 +267,6 @@ IpcRuntimeInterface::RegAckResult IpcRuntimeInterface::waitForRegAck(int64_t tra
 
                 m_segmentManagerAddressOffset.emplace(segmentManagerOffset);
 
-                /// @todo iox-#2055 this workaround is required sind the conversion of edge cases is broken
-                /// I think it's solved.
                 if (heartbeatOffset != UntypedRelativePointer::NULL_POINTER_OFFSET)
                 {
                     m_heartbeatAddressOffset = heartbeatOffset;

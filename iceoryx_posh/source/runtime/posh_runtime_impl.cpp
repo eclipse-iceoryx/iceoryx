@@ -195,10 +195,8 @@ PoshRuntimeImpl::requestPublisherFromRoudi(const IpcMessage& sendBuffer) noexcep
 
             if (!segment_id_result.has_value() || !offset_result.has_value())
             {
-                IOX_LOG(ERROR, "conversion failed!");
-                // @todo iox-#2055 should return an IpcMessageError (maybe create a new error tpye: INVALID_CONVERSION)
-                // here
-                return err(IpcMessageErrorType::REQUEST_PUBLISHER_INVALID_RESPONSE);
+                IOX_LOG(ERROR, "segment_id and/or offset conversion failed");
+                return err(IpcMessageErrorType::SEGMENT_ID_OR_OFFSET_CONVERSION_FAILURE);
             }
 
             segmentId = segment_id_result.value();
@@ -320,10 +318,8 @@ PoshRuntimeImpl::requestSubscriberFromRoudi(const IpcMessage& sendBuffer) noexce
 
             if (!segment_id_result.has_value() || !offset_result.has_value())
             {
-                IOX_LOG(ERROR, "conversion failed!");
-                // @todo iox-#2055 should return an IpcMessageError (maybe create a new error tpye: INVALID_CONVERSION)
-                // here
-                return err(IpcMessageErrorType::REQUEST_PUBLISHER_INVALID_RESPONSE);
+                IOX_LOG(ERROR, "segment_id and/or offset conversion failed");
+                return err(IpcMessageErrorType::SEGMENT_ID_OR_OFFSET_CONVERSION_FAILURE);
             }
 
             segmentId = segment_id_result.value();
@@ -441,10 +437,8 @@ PoshRuntimeImpl::requestClientFromRoudi(const IpcMessage& sendBuffer) noexcept
 
             if (!segment_id_result.has_value() || !offset_result.has_value())
             {
-                IOX_LOG(ERROR, "conversion failed!");
-                // @todo iox-#2055 should return an IpcMessageError (maybe create a new error tpye: INVALID_CONVERSION)
-                // here
-                return err(IpcMessageErrorType::REQUEST_PUBLISHER_INVALID_RESPONSE);
+                IOX_LOG(ERROR, "segment_id and/or offset conversion failed");
+                return err(IpcMessageErrorType::SEGMENT_ID_OR_OFFSET_CONVERSION_FAILURE);
             }
 
             segmentId = segment_id_result.value();
@@ -562,10 +556,8 @@ PoshRuntimeImpl::requestServerFromRoudi(const IpcMessage& sendBuffer) noexcept
 
             if (!segment_id_result.has_value() || !offset_result.has_value())
             {
-                IOX_LOG(ERROR, "conversion failed!");
-                // @todo iox-#2055 should return an IpcMessageError (maybe create a new error tpye: INVALID_CONVERSION)
-                // here
-                return err(IpcMessageErrorType::REQUEST_PUBLISHER_INVALID_RESPONSE);
+                IOX_LOG(ERROR, "segment_id and/or offset conversion failed");
+                return err(IpcMessageErrorType::SEGMENT_ID_OR_OFFSET_CONVERSION_FAILURE);
             }
 
             segmentId = segment_id_result.value();
@@ -704,10 +696,8 @@ PoshRuntimeImpl::requestConditionVariableFromRoudi(const IpcMessage& sendBuffer)
 
             if (!segment_id_result.has_value() || !offset_result.has_value())
             {
-                IOX_LOG(ERROR, "conversion failed!");
-                // @todo iox-#2055 should return an IpcMessageError (maybe create a new error tpye: INVALID_CONVERSION)
-                // here
-                return err(IpcMessageErrorType::REQUEST_PUBLISHER_INVALID_RESPONSE);
+                IOX_LOG(ERROR, "segment_id and/or offset conversion failed");
+                return err(IpcMessageErrorType::SEGMENT_ID_OR_OFFSET_CONVERSION_FAILURE);
             }
 
             segmentId = segment_id_result.value();
