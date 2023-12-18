@@ -49,6 +49,7 @@ iox_add_library(
     PRIVATE_LIBS_LINUX          acl atomic ${CODE_COVERAGE_LIBS}
     BUILD_INTERFACE             ${PROJECT_SOURCE_DIR}/include
                                 ${PROJECT_SOURCE_DIR}/legacy/include
+                                ${PROJECT_SOURCE_DIR}/cli/include
                                 ${PROJECT_SOURCE_DIR}/memory/include
                                 ${PROJECT_SOURCE_DIR}/container/include
                                 ${PROJECT_SOURCE_DIR}/vocabulary/include
@@ -74,6 +75,7 @@ iox_add_library(
     INSTALL_INTERFACE           include/${PREFIX}
     EXPORT_INCLUDE_DIRS         include/
                                 legacy/include/
+                                cli/include/
                                 memory/include/
                                 container/include/
                                 vocabulary/include/
@@ -95,7 +97,13 @@ iox_add_library(
                                 posix/utility/include/
                                 posix/vocabulary/include/
     FILES
+        cli/source/arguments.cpp
+        cli/source/command_line_parser.cpp
+        cli/source/option.cpp
+        cli/source/option_definition.cpp
+        cli/source/option_manager.cpp
         design/source/functional_interface.cpp
+        filesystem/source/file_reader.cpp
         filesystem/source/filesystem.cpp
         memory/source/bump_allocator.cpp
         memory/source/memory.cpp
@@ -114,6 +122,8 @@ iox_add_library(
         posix/auth/source/posix_group.cpp
         posix/auth/source/posix_user.cpp
         posix/design/source/file_management_interface.cpp
+        posix/ipc/source/message_queue.cpp
+        posix/ipc/source/named_pipe.cpp
         posix/ipc/source/posix_memory_map.cpp
         posix/ipc/source/posix_shared_memory.cpp
         posix/ipc/source/posix_shared_memory_object.cpp
@@ -124,6 +134,7 @@ iox_add_library(
         posix/sync/source/mutex.cpp
         posix/sync/source/named_semaphore.cpp
         posix/sync/source/signal_handler.cpp
+        posix/sync/source/signal_watcher.cpp
         posix/sync/source/semaphore_interface.cpp
         posix/sync/source/thread.cpp
         posix/sync/source/unnamed_semaphore.cpp

@@ -25,7 +25,6 @@ find_package(iceoryx_platform REQUIRED)
 find_package(iceoryx_posh CONFIG REQUIRED)
 find_package(iceoryx_binding_c CONFIG REQUIRED)
 find_package(iceoryx_hoofs CONFIG REQUIRED)
-find_package(iceoryx_dust CONFIG REQUIRED)
 
 include(IceoryxPackageHelper)
 include(IceoryxPlatform)

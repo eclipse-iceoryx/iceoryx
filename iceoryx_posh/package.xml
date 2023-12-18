@@ -14,7 +14,6 @@
     <buildtool_depend>git</buildtool_depend>
 
     <depend>iceoryx_hoofs</depend>
-    <depend>iceoryx_dust</depend>
 
     <doc_depend>doxygen</doc_depend>
 

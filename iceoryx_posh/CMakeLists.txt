@@ -23,7 +23,6 @@ project(iceoryx_posh VERSION ${IOX_VERSION_STRING})
 find_package(Threads REQUIRED)
 find_package(iceoryx_platform REQUIRED)
 find_package(iceoryx_hoofs REQUIRED)
-find_package(iceoryx_dust REQUIRED)
 
 option(DOWNLOAD_TOML_LIB "Download cpptoml via the CMake ExternalProject module" ON)
 option(TOML_CONFIG "TOML support for RouDi with dynamic configuration" ON)
@@ -90,7 +89,6 @@ iox_add_library(
                             source/version
                             source/runtime
     PUBLIC_LIBS             iceoryx_hoofs::iceoryx_hoofs
-                            iceoryx_dust::iceoryx_dust
     PRIVATE_LIBS            ${CMAKE_THREAD_LIBS_INIT}
     PRIVATE_LIBS_LINUX      rt
     FILES

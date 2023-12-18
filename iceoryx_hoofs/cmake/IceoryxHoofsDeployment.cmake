@@ -14,11 +14,30 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+# define macro for option configuration
+macro(configure_option)
+    set(ONE_VALUE_ARGS NAME DEFAULT_VALUE)
+    cmake_parse_arguments(CONFIGURE_OPTION "" "${ONE_VALUE_ARGS}" "" ${ARGN})
+
+    if(NOT ${CONFIGURE_OPTION_NAME})
+        set(${CONFIGURE_OPTION_NAME} ${CONFIGURE_OPTION_DEFAULT_VALUE})
+    endif()
+    message(STATUS "[i] ${CONFIGURE_OPTION_NAME}: " ${${CONFIGURE_OPTION_NAME}})
+endmacro()
+
 message(STATUS "[i] <<<<<<<<<<<<< Start iceoryx_hoofs configuration: >>>>>>>>>>>>>")
 
-if(NOT DEFINED IOX_MINIMAL_LOG_LEVEL)
-    set(IOX_MINIMAL_LOG_LEVEL "TRACE")
-endif()
-message(STATUS "[i] IOX_MINIMAL_LOG_LEVEL: " ${IOX_MINIMAL_LOG_LEVEL})
+configure_option(
+    NAME IOX_MINIMAL_LOG_LEVEL
+    DEFAULT_VALUE "TRACE"
+)
+configure_option(
+    NAME IOX_MAX_NAMED_PIPE_MESSAGE_SIZE
+    DEFAULT_VALUE 4096
+)
+configure_option(
+    NAME IOX_MAX_NAMED_PIPE_NUMBER_OF_MESSAGES
+    DEFAULT_VALUE 10
+)
 
 message(STATUS "[i] <<<<<<<<<<<<<< End iceoryx_hoofs configuration: >>>>>>>>>>>>>>")

@@ -19,7 +19,6 @@
   <test_depend>iceoryx_binding_c</test_depend>
   <test_depend>iceoryx_posh</test_depend>
   <test_depend>iceoryx_hoofs</test_depend>
-  <test_depend>iceoryx_dust</test_depend>
 
   <test_depend>example_callbacks</test_depend>
   <test_depend>example_callbacks_in_c</test_depend>

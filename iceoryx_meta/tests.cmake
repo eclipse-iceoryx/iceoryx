@@ -19,7 +19,7 @@ if (BUILD_TEST)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/googletest ${CMAKE_BINARY_DIR}/dependencies/googletest/prebuild)
 
     ### create component list
-    set(COMPONENTS "hoofs" "dust" "posh")
+    set(COMPONENTS "hoofs" "posh")
 
     ### possible place for more extensions
     if (BINDING_C)
