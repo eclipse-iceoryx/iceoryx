@@ -255,7 +255,7 @@ IpcRuntimeInterface::RegAckResult IpcRuntimeInterface::waitForRegAck(int64_t tra
                     || !recv_timestamp_result.has_value() || !segment_id_result.has_value()
                     || !heartbeat_offset_result.has_value())
                 {
-                    return RegAckResult::CONVERSION_FAILURE;
+                    return RegAckResult::MALFORMED_RESPONSE;
                 }
 
                 // assign conversion results

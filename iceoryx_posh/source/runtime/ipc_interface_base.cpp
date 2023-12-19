@@ -30,18 +30,32 @@ IpcMessageType stringToIpcMessageType(const char* str) noexcept
 {
     std::underlying_type<IpcMessageType>::type msg;
     auto result = convert::from_string<std::underlying_type<IpcMessageType>::type>(str);
-    bool noError{false};
 
-    if (result.has_value())
+    if (!result.has_value())
     {
-        noError = true;
-        msg = result.value();
+        return IpcMessageType::NOTYPE;
     }
 
-    noError &= noError ? !(static_cast<std::underlying_type<IpcMessageType>::type>(IpcMessageType::BEGIN) >= msg
-                           || static_cast<std::underlying_type<IpcMessageType>::type>(IpcMessageType::END) <= msg)
-                       : false;
-    return noError ? (static_cast<IpcMessageType>(msg)) : IpcMessageType::NOTYPE;
+    msg = result.value();
+
+    if (static_cast<std::underlying_type<IpcMessageType>::type>(IpcMessageType::BEGIN) >= msg
+        || static_cast<std::underlying_type<IpcMessageType>::type>(IpcMessageType::END) <= msg)
+    {
+        return IpcMessageType::NOTYPE;
+    }
+
+    return static_cast<IpcMessageType>(msg);
+
+    // // XXX We would like to write code in the following way but failed
+    // // The return type of result.and_then seems have to be the same with input type
+    // return result.and_then([](const auto& msg) {
+    //     if (static_cast<std::underlying_type<IpcMessageType>::type>(IpcMessageType::BEGIN) >= msg
+    //         || static_cast<std::underlying_type<IpcMessageType>::type>(IpcMessageType::END) <= msg) {
+    //         return iox::optional<IpcMessageType>{};
+    //     }
+    //     return iox::optional<IpcMessageType>{static_cast<IpcMessageType>(msg)};
+    // })
+    // .value_or(IpcMessageType::NOTYPE);
 }
 
 std::string IpcMessageTypeToString(const IpcMessageType msg) noexcept
@@ -52,20 +66,28 @@ std::string IpcMessageTypeToString(const IpcMessageType msg) noexcept
 IpcMessageErrorType stringToIpcMessageErrorType(const char* str) noexcept
 {
     std::underlying_type<IpcMessageErrorType>::type msg;
-    auto result = convert::from_string<std::underlying_type<IpcMessageType>::type>(str);
-    bool noError{false};
+    auto result = convert::from_string<std::underlying_type<IpcMessageErrorType>::type>(str);
 
-    if (result.has_value())
+    msg = result.value();
+
+    if (static_cast<std::underlying_type<IpcMessageErrorType>::type>(IpcMessageErrorType::BEGIN) >= msg
+        || static_cast<std::underlying_type<IpcMessageErrorType>::type>(IpcMessageErrorType::END) <= msg)
     {
-        noError = true;
-        msg = result.value();
+        return IpcMessageErrorType::NOTYPE;
     }
 
-    noError &= noError
-                   ? !(static_cast<std::underlying_type<IpcMessageErrorType>::type>(IpcMessageErrorType::BEGIN) >= msg
-                       || static_cast<std::underlying_type<IpcMessageErrorType>::type>(IpcMessageErrorType::END) <= msg)
-                   : false;
-    return noError ? (static_cast<IpcMessageErrorType>(msg)) : IpcMessageErrorType::NOTYPE;
+    return static_cast<IpcMessageErrorType>(msg);
+
+    // // XXX We would like to write code in the following way but failed
+    // // The return type of result.and_then seems have to be the same with input type
+    // return result.and_then([](const auto& msg) {
+    //     if (static_cast<std::underlying_type<IpcMessageErrorType>::type>(IpcMessageErrorType::BEGIN) >= msg
+    //         || static_cast<std::underlying_type<IpcMessageErrorType>::type>(IpcMessageErrorType::END) <= msg) {
+    //         return iox::optional<IpcMessageErrorType>{};
+    //     }
+    //     return iox::optional<IpcMessageErrorType>{static_cast<IpcMessageErrorType>(msg)};
+    // })
+    // .value_or(IpcMessageType::NOTYPE);
 }
 
 std::string IpcMessageErrorTypeToString(const IpcMessageErrorType msg) noexcept

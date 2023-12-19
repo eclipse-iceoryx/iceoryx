@@ -113,7 +113,6 @@ inline bool Serialization::removeFirstEntry(std::string& firstEntry, std::string
         return false;
     }
 
-    uint64_t length{0};
     auto result = convert::from_string<uint64_t>(remainder.substr(0, pos).c_str());
 
     if (!result.has_value())
@@ -121,7 +120,7 @@ inline bool Serialization::removeFirstEntry(std::string& firstEntry, std::string
         return false;
     }
 
-    length = result.value();
+    const auto length = result.value();
 
     if (remainder.size() < pos + length + 1U)
     {
@@ -146,16 +145,7 @@ inline bool Serialization::getNth(const unsigned int index, T& t) const noexcept
             return false;
         }
     }
-
-    auto result = convert::from_string<T>(entry.c_str());
-
-    if (!result.has_value())
-    {
-        return false;
-    }
-
-    t = result.value();
-    return true;
+    return convert::from_string<T>(entry.c_str()).and_then([&t](const auto& value) { t = value; }).has_value();
 }
 } // namespace iox
 

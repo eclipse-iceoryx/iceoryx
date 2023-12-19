@@ -270,15 +270,15 @@ version::VersionInfo RouDi::parseRegisterMessage(const runtime::IpcMessage& mess
                                                  uid_t& userId,
                                                  int64_t& transmissionTimestamp) noexcept
 {
-    /// @todo iox-#2055 We need to introduce default value when failure occurs?
-    /// currently we use 0 for unsigned out parameters and -1 for signed out parameters
-    constexpr int64_t IOX_2055_WORKAROUND_SIGNED{-1};
-    constexpr uint32_t IOX_2055_WORKAROUND_UNSIGNED{0};
-    pid = convert::from_string<uint32_t>(message.getElementAtIndex(2).c_str()).value_or(IOX_2055_WORKAROUND_UNSIGNED);
-    userId =
-        convert::from_string<uint32_t>(message.getElementAtIndex(3).c_str()).value_or(IOX_2055_WORKAROUND_UNSIGNED);
-    transmissionTimestamp =
-        convert::from_string<int64_t>(message.getElementAtIndex(4).c_str()).value_or(IOX_2055_WORKAROUND_SIGNED);
+    convert::from_string<uint32_t>(message.getElementAtIndex(2).c_str()).and_then([&pid](const auto value) {
+        pid = value;
+    });
+    convert::from_string<uint32_t>(message.getElementAtIndex(3).c_str()).and_then([&userId](const auto value) {
+        userId = value;
+    });
+    convert::from_string<int64_t>(message.getElementAtIndex(4).c_str())
+        .and_then([&transmissionTimestamp](const auto value) { transmissionTimestamp = value; });
+
     Serialization serializationVersionInfo(message.getElementAtIndex(5));
     return serializationVersionInfo;
 }

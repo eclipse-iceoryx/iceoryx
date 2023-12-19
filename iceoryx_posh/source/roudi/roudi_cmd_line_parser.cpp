@@ -98,7 +98,6 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             break;
         case 'u':
         {
-            uint16_t roudiId{0u};
             constexpr uint64_t MAX_ROUDI_ID = ((1 << 16) - 1);
             auto result = convert::from_string<uint16_t>(optarg);
             if (!result.has_value())
@@ -108,7 +107,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
                 break;
             }
 
-            roudiId = result.value();
+            auto roudiId = result.value();
             m_cmdLineArgs.uniqueRouDiId.emplace(roudiId);
             break;
         }
@@ -169,7 +168,6 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
         }
         case 't':
         {
-            uint32_t processTerminationDelayInSeconds{0u};
             constexpr uint64_t MAX_PROCESS_TERMINATION_DELAY = std::numeric_limits<uint32_t>::max();
             auto result = convert::from_string<uint32_t>(optarg);
             if (!result.has_value())
@@ -181,13 +179,12 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
                 break;
             }
 
-            processTerminationDelayInSeconds = result.value();
+            const auto processTerminationDelayInSeconds = result.value();
             m_cmdLineArgs.processTerminationDelay = units::Duration::fromSeconds(processTerminationDelayInSeconds);
             break;
         }
         case 'k':
         {
-            uint32_t processKillDelayInSeconds{0u};
             constexpr uint64_t MAX_PROCESS_KILL_DELAY = std::numeric_limits<uint32_t>::max();
             auto result = convert::from_string<uint32_t>(optarg);
             if (!result.has_value())
@@ -197,7 +194,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
                 break;
             }
 
-            processKillDelayInSeconds = result.value();
+            const auto processKillDelayInSeconds = result.value();
             m_cmdLineArgs.processKillDelay = units::Duration::fromSeconds(processKillDelayInSeconds);
             break;
         }

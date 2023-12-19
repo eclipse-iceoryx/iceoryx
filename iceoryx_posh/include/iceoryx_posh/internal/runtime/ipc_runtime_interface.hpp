@@ -71,7 +71,7 @@ class IpcRuntimeInterface
     {
         SUCCESS,
         TIMEOUT,
-        CONVERSION_FAILURE
+        MALFORMED_RESPONSE
     };
 
     void waitForRoudi(deadline_timer& timer) noexcept;
