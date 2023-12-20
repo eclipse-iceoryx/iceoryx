@@ -155,7 +155,7 @@ class convert
     /// a common error scenario during string-to-numeric conversion.
     /// @param errno_cache Cached errno value to be checked.
     /// @return True if errno does not indicate an error, false otherwise.
-    static bool is_valid_errno(decltype(errno) errno_cache) noexcept;
+    static bool is_valid_errno(decltype(errno) errno_cache, const char* str) noexcept;
 
 
     /// @brief Checks if the given value is within the allowable range for the target type.

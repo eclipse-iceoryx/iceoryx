@@ -307,7 +307,7 @@ inline bool convert::check_edge_case(decltype(errno) errno_cache,
                                      const char* v,
                                      const RequireCheckValType& require_check_val) noexcept
 {
-    return is_valid_input(end_ptr, v, require_check_val) && is_valid_errno(errno_cache)
+    return is_valid_input(end_ptr, v, require_check_val) && is_valid_errno(errno_cache, v)
            && is_within_range<TargetType>(require_check_val);
 }
 
@@ -349,18 +349,24 @@ convert::is_valid_input(const char* end_ptr, const char* v, const RequireCheckVa
     return true;
 }
 
-inline bool convert::is_valid_errno(decltype(errno) errno_cache) noexcept
+inline bool convert::is_valid_errno(decltype(errno) errno_cache, const char* str) noexcept
 {
     // check errno
     if (errno_cache == ERANGE)
     {
-        IOX_LOG(DEBUG, "ERANGE triggered during conversion");
+        IOX_LOG(DEBUG, "ERANGE triggered during conversion of string: " << str);
         return false;
     }
 
     if (errno_cache == EINVAL)
     {
-        IOX_LOG(DEBUG, "EINVAL triggered during conversion");
+        IOX_LOG(DEBUG, "EINVAL triggered during conversion of string: " << str);
+        return false;
+    }
+
+    if (errno_cache != 0)
+    {
+        IOX_LOG(DEBUG, "Unexpected errno: " << errno_cache << ". The input string is: " << str);
         return false;
     }
 
