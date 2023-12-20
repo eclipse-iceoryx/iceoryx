@@ -99,16 +99,12 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
         case 'u':
         {
             constexpr uint64_t MAX_ROUDI_ID = ((1 << 16) - 1);
-            auto result = convert::from_string<uint16_t>(optarg);
-            if (!result.has_value())
-            {
-                IOX_LOG(ERROR, "The RouDi id must be in the range of [0, " << MAX_ROUDI_ID << "]");
-                m_cmdLineArgs.run = false;
-                break;
-            }
-
-            auto roudiId = result.value();
-            m_cmdLineArgs.uniqueRouDiId.emplace(roudiId);
+            convert::from_string<uint16_t>(optarg)
+                .and_then([&](const auto result) { m_cmdLineArgs.uniqueRouDiId.emplace(result); })
+                .or_else([&] {
+                    IOX_LOG(ERROR, "The RouDi id must be in the range of [0, " << MAX_ROUDI_ID << "]");
+                    m_cmdLineArgs.run = false;
+                });
             break;
         }
         case 'm':
@@ -169,33 +165,29 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
         case 't':
         {
             constexpr uint64_t MAX_PROCESS_TERMINATION_DELAY = std::numeric_limits<uint32_t>::max();
-            auto result = convert::from_string<uint32_t>(optarg);
-            if (!result.has_value())
-            {
-                IOX_LOG(ERROR,
-                        "The process termination delay must be in the range of [0, " << MAX_PROCESS_TERMINATION_DELAY
-                                                                                     << "]");
-                m_cmdLineArgs.run = false;
-                break;
-            }
-
-            const auto processTerminationDelayInSeconds = result.value();
-            m_cmdLineArgs.processTerminationDelay = units::Duration::fromSeconds(processTerminationDelayInSeconds);
+            convert::from_string<uint32_t>(optarg)
+                .and_then([&](const auto result) {
+                    m_cmdLineArgs.processTerminationDelay = units::Duration::fromSeconds(result);
+                })
+                .or_else([&] {
+                    IOX_LOG(ERROR,
+                            "The process termination delay must be in the range of [0, "
+                                << MAX_PROCESS_TERMINATION_DELAY << "]");
+                    m_cmdLineArgs.run = false;
+                });
             break;
         }
         case 'k':
         {
             constexpr uint64_t MAX_PROCESS_KILL_DELAY = std::numeric_limits<uint32_t>::max();
-            auto result = convert::from_string<uint32_t>(optarg);
-            if (!result.has_value())
-            {
-                IOX_LOG(ERROR, "The process kill delay must be in the range of [0, " << MAX_PROCESS_KILL_DELAY << "]");
-                m_cmdLineArgs.run = false;
-                break;
-            }
-
-            const auto processKillDelayInSeconds = result.value();
-            m_cmdLineArgs.processKillDelay = units::Duration::fromSeconds(processKillDelayInSeconds);
+            convert::from_string<uint32_t>(optarg)
+                .and_then(
+                    [&](const auto result) { m_cmdLineArgs.processKillDelay = units::Duration::fromSeconds(result); })
+                .or_else([&] {
+                    IOX_LOG(ERROR,
+                            "The process kill delay must be in the range of [0, " << MAX_PROCESS_KILL_DELAY << "]");
+                    m_cmdLineArgs.run = false;
+                });
             break;
         }
         case 'x':
