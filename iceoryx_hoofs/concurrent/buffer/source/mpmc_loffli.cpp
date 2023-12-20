@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/concurrent/loffli.hpp"
+#include "iox/detail/mpmc_loffli.hpp"
 #include "iceoryx_hoofs/cxx/requires.hpp"
 #include "iceoryx_platform/platform_correction.hpp"
 
@@ -23,13 +23,13 @@ namespace iox
 {
 namespace concurrent
 {
-void LoFFLi::init(not_null<Index_t*> freeIndicesMemory, const uint32_t capacity) noexcept
+void MpmcLoFFLi::init(not_null<Index_t*> freeIndicesMemory, const uint32_t capacity) noexcept
 {
     IOX_EXPECTS_WITH_MSG(capacity > 0, "A capacity of 0 is not supported!");
     constexpr uint32_t INTERNALLY_RESERVED_INDICES{1U};
     IOX_EXPECTS_WITH_MSG(capacity < (std::numeric_limits<Index_t>::max() - INTERNALLY_RESERVED_INDICES),
                          "Requested capacity exceeds limits!");
-    IOX_EXPECTS_WITH_MSG(m_head.is_lock_free(), "std::atomic<LoFFLi::Node> must be lock-free!");
+    IOX_EXPECTS_WITH_MSG(m_head.is_lock_free(), "std::atomic<MpmcLoFFLi::Node> must be lock-free!");
 
     m_nextFreeIndex = freeIndicesMemory;
     m_size = capacity;
@@ -45,7 +45,7 @@ void LoFFLi::init(not_null<Index_t*> freeIndicesMemory, const uint32_t capacity)
     }
 }
 
-bool LoFFLi::pop(Index_t& index) noexcept
+bool MpmcLoFFLi::pop(Index_t& index) noexcept
 {
     Node oldHead = m_head.load(std::memory_order_acquire);
     Node newHead = oldHead;
@@ -80,7 +80,7 @@ bool LoFFLi::pop(Index_t& index) noexcept
     return true;
 }
 
-bool LoFFLi::push(const Index_t index) noexcept
+bool MpmcLoFFLi::push(const Index_t index) noexcept
 {
     /// we synchronize with m_nextFreeIndex in pop to perform the validity check
     std::atomic_thread_fence(std::memory_order_release);

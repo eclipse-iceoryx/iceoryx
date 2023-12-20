@@ -57,8 +57,8 @@ MemPool::MemPool(const greater_or_equal<uint32_t, CHUNK_MEMORY_ALIGNMENT> chunkS
         allocationResult =
             managementAllocator.allocate(freeList_t::requiredIndexMemorySize(m_numberOfChunks), CHUNK_MEMORY_ALIGNMENT);
         IOX_EXPECTS(allocationResult.has_value());
-        auto* memoryLoFFLi = allocationResult.value();
-        m_freeIndices.init(static_cast<concurrent::LoFFLi::Index_t*>(memoryLoFFLi), m_numberOfChunks);
+        auto* memoryFreeList = allocationResult.value();
+        m_freeIndices.init(static_cast<freeList_t::Index_t*>(memoryFreeList), m_numberOfChunks);
     }
     else
     {

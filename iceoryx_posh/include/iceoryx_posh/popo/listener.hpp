@@ -17,7 +17,6 @@
 #ifndef IOX_POSH_POPO_LISTENER_HPP
 #define IOX_POSH_POPO_LISTENER_HPP
 
-#include "iceoryx_hoofs/internal/concurrent/loffli.hpp"
 #include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_listener.hpp"
 #include "iceoryx_posh/popo/enum_trigger_type.hpp"
@@ -25,6 +24,7 @@
 #include "iceoryx_posh/popo/notification_callback.hpp"
 #include "iceoryx_posh/popo/trigger_handle.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iox/detail/mpmc_loffli.hpp"
 #include "iox/expected.hpp"
 #include "iox/function.hpp"
 
@@ -199,9 +199,10 @@ class Listener
         void push(const uint32_t index) noexcept;
         uint64_t indicesInUse() const noexcept;
 
-        using LoFFLi = concurrent::LoFFLi;
-        LoFFLi::Index_t m_loffliStorage[LoFFLi::requiredIndexMemorySize(MAX_NUMBER_OF_EVENTS) / sizeof(uint32_t)];
-        LoFFLi m_loffli;
+        using MpmcLoFFLi = concurrent::MpmcLoFFLi;
+        MpmcLoFFLi::Index_t
+            m_loffliStorage[MpmcLoFFLi::requiredIndexMemorySize(MAX_NUMBER_OF_EVENTS) / sizeof(uint32_t)];
+        MpmcLoFFLi m_loffli;
         std::atomic<uint64_t> m_indicesInUse{0U};
     } m_indexManager;
 

@@ -41,6 +41,7 @@ cc_library(
     name = "iceoryx_hoofs",
     srcs = glob([
         "cli/source/*.cpp",
+        "concurrent/buffer/source/*.cpp",
         "design/source/*.cpp",
         "filesystem/source/*.cpp",
         "memory/source/*.cpp",
@@ -59,13 +60,14 @@ cc_library(
         "utility/source/*.cpp",
         "vocabulary/source/**/*.cpp",
     ]),
-    hdrs = glob(["buffer/**"]) + glob(["cli/**"]) + glob(["container/**"]) + glob(["design/**"]) + glob(["filesystem/**"]) + glob(["functional/**"]) + glob(["include/**"]) + glob(["legacy/**"]) + glob(["memory/**"]) + glob(["posix/**"]) + glob(["primitives/**"]) + glob(["reporting/**"]) + glob(["time/**"]) + glob(["utility/**"]) + glob(["vocabulary/**"]) + [
+    hdrs = glob(["buffer/**"]) + glob(["cli/**"]) + glob(["concurrent/**"]) + glob(["container/**"]) + glob(["design/**"]) + glob(["filesystem/**"]) + glob(["functional/**"]) + glob(["include/**"]) + glob(["legacy/**"]) + glob(["memory/**"]) + glob(["posix/**"]) + glob(["primitives/**"]) + glob(["reporting/**"]) + glob(["time/**"]) + glob(["utility/**"]) + glob(["vocabulary/**"]) + [
         ":iceoryx_hoofs_deployment_hpp",
         ":iceoryx_versions_h",
     ],
     includes = [
         "buffer/include/",
         "cli/include/",
+        "concurrent/buffer/include/",
         "container/include/",
         "design/include",
         "filesystem/include",

@@ -49,18 +49,20 @@ iox_add_library(
     PRIVATE_LIBS_LINUX          acl atomic ${CODE_COVERAGE_LIBS}
     BUILD_INTERFACE             ${PROJECT_SOURCE_DIR}/include
                                 ${PROJECT_SOURCE_DIR}/legacy/include
-                                ${PROJECT_SOURCE_DIR}/cli/include
-                                ${PROJECT_SOURCE_DIR}/memory/include
-                                ${PROJECT_SOURCE_DIR}/container/include
-                                ${PROJECT_SOURCE_DIR}/vocabulary/include
-                                ${PROJECT_SOURCE_DIR}/utility/include
-                                ${PROJECT_SOURCE_DIR}/primitives/include
-                                ${PROJECT_SOURCE_DIR}/design/include
-                                ${PROJECT_SOURCE_DIR}/time/include
+
                                 ${PROJECT_SOURCE_DIR}/buffer/include
+                                ${PROJECT_SOURCE_DIR}/cli/include
+                                ${PROJECT_SOURCE_DIR}/concurrent/buffer/include
+                                ${PROJECT_SOURCE_DIR}/container/include
+                                ${PROJECT_SOURCE_DIR}/design/include
                                 ${PROJECT_SOURCE_DIR}/filesystem/include
                                 ${PROJECT_SOURCE_DIR}/functional/include
+                                ${PROJECT_SOURCE_DIR}/memory/include
+                                ${PROJECT_SOURCE_DIR}/primitives/include
                                 ${PROJECT_SOURCE_DIR}/reporting/include
+                                ${PROJECT_SOURCE_DIR}/time/include
+                                ${PROJECT_SOURCE_DIR}/utility/include
+                                ${PROJECT_SOURCE_DIR}/vocabulary/include
 
                                 ${PROJECT_SOURCE_DIR}/posix/auth/include
                                 ${PROJECT_SOURCE_DIR}/posix/design/include
@@ -75,18 +77,20 @@ iox_add_library(
     INSTALL_INTERFACE           include/${PREFIX}
     EXPORT_INCLUDE_DIRS         include/
                                 legacy/include/
-                                cli/include/
-                                memory/include/
-                                container/include/
-                                vocabulary/include/
-                                utility/include/
-                                primitives/include/
-                                design/include/
-                                time/include/
+
                                 buffer/include/
+                                cli/include/
+                                concurrent/buffer/include/
+                                container/include/
+                                design/include/
                                 filesystem/include/
                                 functional/include/
+                                memory/include/
+                                primitives/include/
                                 reporting/include/
+                                time/include/
+                                utility/include/
+                                vocabulary/include/
 
                                 posix/auth/include/
                                 posix/design/include/
@@ -102,6 +106,7 @@ iox_add_library(
         cli/source/option.cpp
         cli/source/option_definition.cpp
         cli/source/option_manager.cpp
+        concurrent/buffer/source/mpmc_loffli.cpp
         design/source/functional_interface.cpp
         filesystem/source/file_reader.cpp
         filesystem/source/filesystem.cpp
@@ -111,7 +116,6 @@ iox_add_library(
         primitives/source/type_traits.cpp
         reporting/source/log/building_blocks/console_logger.cpp
         reporting/source/log/building_blocks/logger.cpp
-        source/concurrent/loffli.cpp
         source/cxx/requires.cpp
         source/error_handling/error_handler.cpp
         source/error_handling/error_handling.cpp

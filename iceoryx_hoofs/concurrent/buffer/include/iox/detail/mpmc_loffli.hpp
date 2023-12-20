@@ -14,8 +14,9 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CONCURRENT_LOFFLI_HPP
-#define IOX_HOOFS_CONCURRENT_LOFFLI_HPP
+
+#ifndef IOX_HOOFS_CONCURRENT_BUFFER_MPMC_LOFFLI_HPP
+#define IOX_HOOFS_CONCURRENT_BUFFER_MPMC_LOFFLI_HPP
 
 #include "iox/not_null.hpp"
 #include "iox/relative_pointer.hpp"
@@ -30,7 +31,7 @@ namespace concurrent
 constexpr uint32_t NODE_ALIGNMENT{8};
 constexpr uint32_t NODE_SIZE{8};
 
-class LoFFLi
+class MpmcLoFFLi
 {
   public:
     using Index_t = uint32_t;
@@ -60,7 +61,7 @@ class LoFFLi
     ///        Id_t& operator=(const Id_t&) = delete;
     ///        Id_t& operator=(Id_t&) = default;
 
-    ///        friend class LoFFLi;
+    ///        friend class MpmcLoFFLi;
 
     ///      private:
     ///        uint32_t value;
@@ -74,7 +75,7 @@ class LoFFLi
     iox::RelativePointer<Index_t> m_nextFreeIndex;
 
   public:
-    LoFFLi() noexcept = default;
+    MpmcLoFFLi() noexcept = default;
     /// @todo iox-#680 move 'init()' to the ctor, remove !m_nextfreeIndex checks
 
     /// Initializes the lock-free free-list
@@ -95,12 +96,12 @@ class LoFFLi
     /// Calculates the required memory size for a free-list
     /// @param [in] capacity is the number of elements of the free-list
     /// @return the required memory size for a free-list with the requested capacity
-    static inline constexpr uint64_t requiredIndexMemorySize(const uint64_t capacity) noexcept;
+    static constexpr uint64_t requiredIndexMemorySize(const uint64_t capacity) noexcept;
 };
 
 } // namespace concurrent
 } // namespace iox
 
-#include "loffli.inl"
+#include "iox/detail/mpmc_loffli.inl"
 
-#endif // IOX_HOOFS_CONCURRENT_LOFFLI_HPP
+#endif // IOX_HOOFS_CONCURRENT_BUFFER_MPMC_LOFFLI_HPP
