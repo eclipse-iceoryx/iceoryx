@@ -112,6 +112,7 @@
 - Add public functions to create an 'access_rights' object from integer values [#2108](https://github.com/eclipse-iceoryx/iceoryx/issues/2108)
 - Fix `historyRequest` may be larger than `queueCapacity` during creating a subscriber [#2121](https://github.com/eclipse-iceoryx/iceoryx/issues/2121)
 - Unable to acquire file status due to an unknown failure [#2023](https://github.com/eclipse-iceoryx/iceoryx/issues/2023)
+- Bug in 'ListenerImpl' [#2137](https://github.com/eclipse-iceoryx/iceoryx/issues/2137)
 
 **Refactoring:**
 

@@ -22,11 +22,9 @@ namespace iox
 {
 namespace popo
 {
-template <uint64_t Capacity>
 template <typename T, typename ContextDataType>
 inline expected<void, ListenerError>
-ListenerImpl<Capacity>::attachEvent(T& eventOrigin,
-                                    const NotificationCallback<T, ContextDataType>& eventCallback) noexcept
+Listener::attachEvent(T& eventOrigin, const NotificationCallback<T, ContextDataType>& eventCallback) noexcept
 {
     if (eventCallback.m_callback == nullptr)
     {
@@ -42,14 +40,12 @@ ListenerImpl<Capacity>::attachEvent(T& eventOrigin,
                     NotificationAttorney::getInvalidateTriggerMethod(eventOrigin))
         .and_then([&](auto& eventId) {
             NotificationAttorney::enableEvent(
-                eventOrigin,
-                TriggerHandle(*m_conditionVariableData, {*this, &ListenerImpl<Capacity>::removeTrigger}, eventId));
+                eventOrigin, TriggerHandle(*m_conditionVariableData, {*this, &Listener::removeTrigger}, eventId));
         });
 }
 
-template <uint64_t Capacity>
 template <typename T, typename EventType, typename ContextDataType, typename>
-inline expected<void, ListenerError> ListenerImpl<Capacity>::attachEvent(
+inline expected<void, ListenerError> Listener::attachEvent(
     T& eventOrigin, const EventType eventType, const NotificationCallback<T, ContextDataType>& eventCallback) noexcept
 {
     if (eventCallback.m_callback == nullptr)
@@ -67,70 +63,23 @@ inline expected<void, ListenerError> ListenerImpl<Capacity>::attachEvent(
         .and_then([&](auto& eventId) {
             NotificationAttorney::enableEvent(
                 eventOrigin,
-                TriggerHandle(*m_conditionVariableData, {*this, &ListenerImpl<Capacity>::removeTrigger}, eventId),
+                TriggerHandle(*m_conditionVariableData, {*this, &Listener::removeTrigger}, eventId),
                 eventType);
         });
 }
 
-template <uint64_t Capacity>
-template <typename T, typename EventType, typename>
-inline void ListenerImpl<Capacity>::detachEvent(T& eventOrigin, const EventType eventType) noexcept
-{
-    static_assert(IS_EVENT_ENUM<EventType>,
-                  "Only enums with an underlying EventEnumIdentifier can be attached/detached to the Listener");
-    NotificationAttorney::disableEvent(eventOrigin, eventType);
-}
-
-template <uint64_t Capacity>
-template <typename T>
-inline void ListenerImpl<Capacity>::detachEvent(T& eventOrigin) noexcept
-{
-    NotificationAttorney::disableEvent(eventOrigin);
-}
-
-template <uint64_t Capacity>
-inline constexpr uint64_t ListenerImpl<Capacity>::capacity() noexcept
-{
-    return Capacity;
-}
-
-template <uint64_t Capacity>
-inline ListenerImpl<Capacity>::ListenerImpl() noexcept
-    : ListenerImpl(*runtime::PoshRuntime::getInstance().getMiddlewareConditionVariable())
-{
-}
-
-template <uint64_t Capacity>
-inline ListenerImpl<Capacity>::ListenerImpl(ConditionVariableData& conditionVariable) noexcept
-    : m_conditionVariableData(&conditionVariable)
-    , m_conditionListener(conditionVariable)
-{
-    m_thread = std::thread(&ListenerImpl<Capacity>::threadLoop, this);
-}
-
-template <uint64_t Capacity>
-inline ListenerImpl<Capacity>::~ListenerImpl() noexcept
-{
-    m_wasDtorCalled.store(true, std::memory_order_relaxed);
-    m_conditionListener.destroy();
-
-    m_thread.join();
-    m_conditionVariableData->m_toBeDestroyed.store(true, std::memory_order_relaxed);
-}
-
-template <uint64_t Capacity>
 inline expected<uint32_t, ListenerError>
-ListenerImpl<Capacity>::addEvent(void* const origin,
-                                 void* const userType,
-                                 const uint64_t eventType,
-                                 const uint64_t eventTypeHash,
-                                 internal::GenericCallbackRef_t callback,
-                                 internal::TranslationCallbackRef_t translationCallback,
-                                 const function<void(uint64_t)> invalidationCallback) noexcept
+Listener::addEvent(void* const origin,
+                   void* const userType,
+                   const uint64_t eventType,
+                   const uint64_t eventTypeHash,
+                   internal::GenericCallbackRef_t callback,
+                   internal::TranslationCallbackRef_t translationCallback,
+                   const function<void(uint64_t)> invalidationCallback) noexcept
 {
     std::lock_guard<std::mutex> lock(m_addEventMutex);
 
-    for (uint32_t i = 0U; i < MAX_NUMBER_OF_EVENTS_PER_LISTENER; ++i)
+    for (uint32_t i = 0U; i < MAX_NUMBER_OF_EVENTS; ++i)
     {
         if (m_events[i]->isEqualTo(origin, eventType, eventTypeHash))
         {
@@ -149,75 +98,25 @@ ListenerImpl<Capacity>::addEvent(void* const origin,
     return ok(index);
 }
 
-template <uint64_t Capacity>
-inline uint64_t ListenerImpl<Capacity>::size() const noexcept
+template <typename T, typename EventType, typename>
+inline void Listener::detachEvent(T& eventOrigin, const EventType eventType) noexcept
 {
-    return m_indexManager.indicesInUse();
+    static_assert(IS_EVENT_ENUM<EventType>,
+                  "Only enums with an underlying EventEnumIdentifier can be attached/detached to the Listener");
+    NotificationAttorney::disableEvent(eventOrigin, eventType);
 }
 
-template <uint64_t Capacity>
-inline void ListenerImpl<Capacity>::threadLoop() noexcept
+template <typename T>
+inline void Listener::detachEvent(T& eventOrigin) noexcept
 {
-    while (m_wasDtorCalled.load(std::memory_order_relaxed) == false)
-    {
-        auto activateNotificationIds = m_conditionListener.wait();
-
-        for (auto& id : activateNotificationIds)
-        {
-            m_events[id]->executeCallback();
-        }
-    }
+    NotificationAttorney::disableEvent(eventOrigin);
 }
 
-template <uint64_t Capacity>
-inline void ListenerImpl<Capacity>::removeTrigger(const uint64_t index) noexcept
+inline constexpr uint64_t Listener::capacity() noexcept
 {
-    if (index >= MAX_NUMBER_OF_EVENTS_PER_LISTENER)
-    {
-        return;
-    }
-
-    if (m_events[index]->reset())
-    {
-        m_indexManager.push(static_cast<uint32_t>(index));
-    }
+    return MAX_NUMBER_OF_EVENTS;
 }
 
-///////////////////////
-// BEGIN IndexManager_t
-///////////////////////
-template <uint64_t Capacity>
-inline ListenerImpl<Capacity>::IndexManager_t::IndexManager_t() noexcept
-{
-    m_loffli.init(m_loffliStorage, MAX_NUMBER_OF_EVENTS_PER_LISTENER);
-}
-
-template <uint64_t Capacity>
-inline bool ListenerImpl<Capacity>::IndexManager_t::pop(uint32_t& value) noexcept
-{
-    if (m_loffli.pop(value))
-    {
-        ++m_indicesInUse;
-        return true;
-    }
-    return false;
-}
-
-template <uint64_t Capacity>
-inline void ListenerImpl<Capacity>::IndexManager_t::push(const uint32_t index) noexcept
-{
-    IOX_EXPECTS(m_loffli.push(index));
-    --m_indicesInUse;
-}
-
-template <uint64_t Capacity>
-uint64_t ListenerImpl<Capacity>::IndexManager_t::indicesInUse() const noexcept
-{
-    return m_indicesInUse.load(std::memory_order_relaxed);
-}
-/////////////////////
-// END IndexManager_t
-/////////////////////
 } // namespace popo
 } // namespace iox
 #endif
