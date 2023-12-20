@@ -28,8 +28,9 @@ namespace runtime
 {
 IpcMessageType stringToIpcMessageType(const char* str) noexcept
 {
-    std::underlying_type<IpcMessageType>::type msg;
-    auto result = convert::from_string<std::underlying_type<IpcMessageType>::type>(str);
+    using UnderlyingType = std::underlying_type<IpcMessageType>::type;
+    UnderlyingType msg;
+    auto result = convert::from_string<UnderlyingType>(str);
 
     if (!result.has_value())
     {

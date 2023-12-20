@@ -106,6 +106,9 @@ class PoshRuntimeImpl : public PoshRuntime
     expected<popo::ConditionVariableData*, IpcMessageErrorType>
     requestConditionVariableFromRoudi(const IpcMessage& sendBuffer) noexcept;
 
+    expected<std::tuple<segment_id_underlying_t, UntypedRelativePointer::offset_t>, IpcMessageErrorType>
+    convert_id_and_offset(IpcMessage& msg);
+
     mutable optional<mutex> m_appIpcRequestMutex;
 
     IpcRuntimeInterface m_ipcChannelInterface;
