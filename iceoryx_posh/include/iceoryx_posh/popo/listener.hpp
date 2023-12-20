@@ -98,17 +98,16 @@ enum class ListenerError
 ///
 ///            Best practice: Detach a specific event only from one specific thread and not
 ///                           from multiple contexts.
-template <uint64_t Capacity>
-class ListenerImpl
+class Listener
 {
   public:
-    ListenerImpl() noexcept;
-    ListenerImpl(const ListenerImpl&) = delete;
-    ListenerImpl(ListenerImpl&&) = delete;
-    ~ListenerImpl() noexcept;
+    Listener() noexcept;
+    Listener(const Listener&) = delete;
+    Listener(Listener&&) = delete;
+    ~Listener() noexcept;
 
-    ListenerImpl& operator=(const ListenerImpl&) = delete;
-    ListenerImpl& operator=(ListenerImpl&&) = delete;
+    Listener& operator=(const Listener&) = delete;
+    Listener& operator=(Listener&&) = delete;
 
     /// @brief Attaches an event. Hereby the event is defined as a class T, the eventOrigin, an enum which further
     ///        defines the event inside the class and the corresponding callback which will be called when the event
@@ -168,7 +167,7 @@ class ListenerImpl
     uint64_t size() const noexcept;
 
   protected:
-    ListenerImpl(ConditionVariableData& conditionVariableData) noexcept;
+    Listener(ConditionVariableData& conditionVariableData) noexcept;
 
   private:
     class Event_t;
@@ -190,6 +189,7 @@ class ListenerImpl
         PLACEHOLDER = 0
     };
 
+    static constexpr uint32_t MAX_NUMBER_OF_EVENTS = MAX_NUMBER_OF_EVENTS_PER_LISTENER;
 
     class IndexManager_t
     {
@@ -200,29 +200,19 @@ class ListenerImpl
         uint64_t indicesInUse() const noexcept;
 
         using LoFFLi = concurrent::LoFFLi;
-        LoFFLi::Index_t m_loffliStorage[LoFFLi::requiredIndexMemorySize(Capacity) / sizeof(uint32_t)];
+        LoFFLi::Index_t m_loffliStorage[LoFFLi::requiredIndexMemorySize(MAX_NUMBER_OF_EVENTS) / sizeof(uint32_t)];
         LoFFLi m_loffli;
         std::atomic<uint64_t> m_indicesInUse{0U};
     } m_indexManager;
 
 
     std::thread m_thread;
-    concurrent::smart_lock<internal::Event_t, std::recursive_mutex> m_events[Capacity];
+    concurrent::smart_lock<internal::Event_t, std::recursive_mutex> m_events[MAX_NUMBER_OF_EVENTS];
     std::mutex m_addEventMutex;
 
     std::atomic_bool m_wasDtorCalled{false};
     ConditionVariableData* m_conditionVariableData = nullptr;
     ConditionListener m_conditionListener;
-};
-
-class Listener : public ListenerImpl<MAX_NUMBER_OF_EVENTS_PER_LISTENER>
-{
-  public:
-    using Parent = ListenerImpl<MAX_NUMBER_OF_EVENTS_PER_LISTENER>;
-    Listener() noexcept;
-
-  protected:
-    Listener(ConditionVariableData& conditionVariableData) noexcept;
 };
 
 } // namespace popo
