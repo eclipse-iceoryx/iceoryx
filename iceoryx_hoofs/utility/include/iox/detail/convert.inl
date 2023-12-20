@@ -153,7 +153,7 @@ inline iox::optional<long double> convert::from_string<long double>(const char* 
 }
 
 template <>
-inline iox::optional<uint64_t> convert::from_string<uint64_t>(const char* v) noexcept
+inline iox::optional<unsigned long long> convert::from_string<unsigned long long>(const char* v) noexcept
 {
     errno = 0;
     char* end_ptr = nullptr;
@@ -168,41 +168,11 @@ inline iox::optional<uint64_t> convert::from_string<uint64_t>(const char* v) noe
                     .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
                     .evaluate();
 
-    return evaluate_return_value<uint64_t>(call, errno, end_ptr, v);
+    return evaluate_return_value<unsigned long long>(call, errno, end_ptr, v);
 }
 
-#ifdef __APPLE__
-/// introduced for mac os since unsigned long is not uint64_t despite it has the same size
-/// who knows why ¯\_(ツ)_/¯
 template <>
-inline iox::optional<unsigned long> convert::from_string<unsigned long>(const char* v) noexcept
-{
-    auto ret = from_string<uint64_t>(v);
-    if (!ret.has_value())
-    {
-        return iox::nullopt;
-    }
-    return iox::optional<unsigned long>{static_cast<unsigned long>(ret.value())};
-}
-#endif
-
-#if defined(__GNUC__) && (INTPTR_MAX == INT32_MAX)
-/// introduced for 32-bit arm-none-eabi-gcc since uintptr_t is not uint32_t despite it has the same size
-/// who knows why ¯\_(ツ)_/¯
-template <>
-inline iox::optional<uintptr_t> convert::from_string<uintptr_t>(const char* v) noexcept
-{
-    auto ret = from_string<uint32_t>(v);
-    if (!ret.has_value())
-    {
-        return iox::nullopt;
-    }
-    return iox::optional<uintptr_t>{static_cast<uintptr_t>(ret.value())};
-}
-#endif
-
-template <>
-inline iox::optional<uint32_t> convert::from_string<uint32_t>(const char* v) noexcept
+inline iox::optional<unsigned int> convert::from_string<unsigned int>(const char* v) noexcept
 {
     errno = 0;
     char* end_ptr = nullptr;
@@ -217,11 +187,11 @@ inline iox::optional<uint32_t> convert::from_string<uint32_t>(const char* v) noe
                     .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
                     .evaluate();
 
-    return evaluate_return_value<uint32_t>(call, errno, end_ptr, v);
+    return evaluate_return_value<unsigned int>(call, errno, end_ptr, v);
 }
 
 template <>
-inline iox::optional<uint16_t> convert::from_string<uint16_t>(const char* v) noexcept
+inline iox::optional<unsigned short> convert::from_string<unsigned short>(const char* v) noexcept
 {
     errno = 0;
     char* end_ptr = nullptr;
@@ -236,11 +206,11 @@ inline iox::optional<uint16_t> convert::from_string<uint16_t>(const char* v) noe
                     .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
                     .evaluate();
 
-    return evaluate_return_value<uint16_t>(call, errno, end_ptr, v);
+    return evaluate_return_value<unsigned short>(call, errno, end_ptr, v);
 }
 
 template <>
-inline iox::optional<uint8_t> convert::from_string<uint8_t>(const char* v) noexcept
+inline iox::optional<unsigned char> convert::from_string<unsigned char>(const char* v) noexcept
 {
     errno = 0;
     char* end_ptr = nullptr;
@@ -255,11 +225,11 @@ inline iox::optional<uint8_t> convert::from_string<uint8_t>(const char* v) noexc
                     .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
                     .evaluate();
 
-    return evaluate_return_value<uint8_t>(call, errno, end_ptr, v);
+    return evaluate_return_value<unsigned char>(call, errno, end_ptr, v);
 }
 
 template <>
-inline iox::optional<int64_t> convert::from_string<int64_t>(const char* v) noexcept
+inline iox::optional<long long> convert::from_string<long long>(const char* v) noexcept
 {
     errno = 0;
     char* end_ptr = nullptr;
@@ -269,11 +239,11 @@ inline iox::optional<int64_t> convert::from_string<int64_t>(const char* v) noexc
                     .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
                     .evaluate();
 
-    return evaluate_return_value<int64_t>(call, errno, end_ptr, v);
+    return evaluate_return_value<long long>(call, errno, end_ptr, v);
 }
 
 template <>
-inline iox::optional<int32_t> convert::from_string<int32_t>(const char* v) noexcept
+inline iox::optional<int> convert::from_string<int>(const char* v) noexcept
 {
     errno = 0;
     char* end_ptr = nullptr;
@@ -283,11 +253,11 @@ inline iox::optional<int32_t> convert::from_string<int32_t>(const char* v) noexc
                     .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
                     .evaluate();
 
-    return evaluate_return_value<int32_t>(call, errno, end_ptr, v);
+    return evaluate_return_value<int>(call, errno, end_ptr, v);
 }
 
 template <>
-inline iox::optional<int16_t> convert::from_string<int16_t>(const char* v) noexcept
+inline iox::optional<short> convert::from_string<short>(const char* v) noexcept
 {
     errno = 0;
     char* end_ptr = nullptr;
@@ -297,11 +267,11 @@ inline iox::optional<int16_t> convert::from_string<int16_t>(const char* v) noexc
                     .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
                     .evaluate();
 
-    return evaluate_return_value<int16_t>(call, errno, end_ptr, v);
+    return evaluate_return_value<short>(call, errno, end_ptr, v);
 }
 
 template <>
-inline iox::optional<int8_t> convert::from_string<int8_t>(const char* v) noexcept
+inline iox::optional<signed char> convert::from_string<signed char>(const char* v) noexcept
 {
     errno = 0;
     char* end_ptr = nullptr;
@@ -311,7 +281,7 @@ inline iox::optional<int8_t> convert::from_string<int8_t>(const char* v) noexcep
                     .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
                     .evaluate();
 
-    return evaluate_return_value<int8_t>(call, errno, end_ptr, v);
+    return evaluate_return_value<signed char>(call, errno, end_ptr, v);
 }
 
 inline bool convert::start_with_neg_sign(const char* v) noexcept
