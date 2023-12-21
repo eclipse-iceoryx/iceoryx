@@ -56,7 +56,10 @@ class convert
         FLOAT
     };
 
-    static constexpr int32_t STRTOULL_BASE = 10;
+    static constexpr int32_t STRTOULL_BASE{10};
+    static constexpr int32_t STRTOUL_BASE{10};
+    static constexpr int32_t STRTOLL_BASE{10};
+    static constexpr int32_t STRTOL_BASE{10};
 
     /// @brief Converts every type which is either a pod (plain old data) type or is convertable
     ///         to a string (this means that the operator std::string() is defined)

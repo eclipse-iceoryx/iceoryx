@@ -105,7 +105,7 @@ inline iox::optional<bool> convert::from_string<bool>(const char* v) noexcept
         return iox::nullopt;
     }
 
-    auto call = IOX_POSIX_CALL(strtoul)(v, &end_ptr, STRTOULL_BASE)
+    auto call = IOX_POSIX_CALL(strtoul)(v, &end_ptr, STRTOUL_BASE)
                     .failureReturnValue(ULONG_MAX)
                     .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
                     .evaluate();
@@ -187,8 +187,8 @@ inline iox::optional<unsigned long> convert::from_string<unsigned long>(const ch
         return iox::nullopt;
     }
 
-    auto call = IOX_POSIX_CALL(strtoull)(v, &end_ptr, STRTOULL_BASE)
-                    .failureReturnValue(ULLONG_MAX)
+    auto call = IOX_POSIX_CALL(strtoul)(v, &end_ptr, STRTOUL_BASE)
+                    .alwaysSuccess()
                     .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
                     .evaluate();
 
@@ -206,8 +206,9 @@ inline iox::optional<unsigned int> convert::from_string<unsigned int>(const char
         return iox::nullopt;
     }
 
-    auto call = IOX_POSIX_CALL(strtoull)(v, &end_ptr, STRTOULL_BASE)
-                    .failureReturnValue(ULLONG_MAX)
+    // use alwaysSuccess for the conversion edge cases in 32-bit system?
+    auto call = IOX_POSIX_CALL(strtoul)(v, &end_ptr, STRTOUL_BASE)
+                    .alwaysSuccess()
                     .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
                     .evaluate();
 
@@ -225,7 +226,7 @@ inline iox::optional<unsigned short> convert::from_string<unsigned short>(const 
         return iox::nullopt;
     }
 
-    auto call = IOX_POSIX_CALL(strtoul)(v, &end_ptr, STRTOULL_BASE)
+    auto call = IOX_POSIX_CALL(strtoul)(v, &end_ptr, STRTOUL_BASE)
                     .failureReturnValue(ULONG_MAX)
                     .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
                     .evaluate();
@@ -258,8 +259,8 @@ inline iox::optional<long long> convert::from_string<long long>(const char* v) n
     errno = 0;
     char* end_ptr = nullptr;
 
-    auto call = IOX_POSIX_CALL(strtoll)(v, &end_ptr, STRTOULL_BASE)
-                    .failureReturnValue(LLONG_MAX, LLONG_MIN)
+    auto call = IOX_POSIX_CALL(strtoll)(v, &end_ptr, STRTOLL_BASE)
+                    .alwaysSuccess()
                     .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
                     .evaluate();
 
@@ -272,8 +273,8 @@ inline iox::optional<long> convert::from_string<long>(const char* v) noexcept
     errno = 0;
     char* end_ptr = nullptr;
 
-    auto call = IOX_POSIX_CALL(strtoll)(v, &end_ptr, STRTOULL_BASE)
-                    .failureReturnValue(LLONG_MAX, LLONG_MIN)
+    auto call = IOX_POSIX_CALL(strtol)(v, &end_ptr, STRTOL_BASE)
+                    .alwaysSuccess()
                     .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
                     .evaluate();
 
@@ -286,8 +287,9 @@ inline iox::optional<int> convert::from_string<int>(const char* v) noexcept
     errno = 0;
     char* end_ptr = nullptr;
 
-    auto call = IOX_POSIX_CALL(strtoll)(v, &end_ptr, STRTOULL_BASE)
-                    .failureReturnValue(LLONG_MAX, LLONG_MIN)
+    // use alwaysSuccess for the conversion edge cases in 32-bit system?
+    auto call = IOX_POSIX_CALL(strtol)(v, &end_ptr, STRTOL_BASE)
+                    .alwaysSuccess()
                     .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
                     .evaluate();
 
@@ -300,7 +302,7 @@ inline iox::optional<short> convert::from_string<short>(const char* v) noexcept
     errno = 0;
     char* end_ptr = nullptr;
 
-    auto call = IOX_POSIX_CALL(strtol)(v, &end_ptr, STRTOULL_BASE)
+    auto call = IOX_POSIX_CALL(strtol)(v, &end_ptr, STRTOL_BASE)
                     .failureReturnValue(LONG_MAX, LONG_MIN)
                     .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
                     .evaluate();
@@ -314,7 +316,7 @@ inline iox::optional<signed char> convert::from_string<signed char>(const char* 
     errno = 0;
     char* end_ptr = nullptr;
 
-    auto call = IOX_POSIX_CALL(strtol)(v, &end_ptr, STRTOULL_BASE)
+    auto call = IOX_POSIX_CALL(strtol)(v, &end_ptr, STRTOL_BASE)
                     .failureReturnValue(LONG_MAX, LONG_MIN)
                     .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
                     .evaluate();
