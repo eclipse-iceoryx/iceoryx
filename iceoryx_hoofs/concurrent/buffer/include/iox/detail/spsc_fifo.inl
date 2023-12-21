@@ -14,17 +14,18 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CONCURRENT_FIFO_INL
-#define IOX_HOOFS_CONCURRENT_FIFO_INL
 
-#include "iceoryx_hoofs/internal/concurrent/fifo.hpp"
+#ifndef IOX_HOOFS_CONCURRENT_BUFFER_SPSC_FIFO_INL
+#define IOX_HOOFS_CONCURRENT_BUFFER_SPSC_FIFO_INL
+
+#include "iox/detail/spsc_fifo.hpp"
 
 namespace iox
 {
 namespace concurrent
 {
 template <class ValueType, uint64_t Capacity>
-inline bool FiFo<ValueType, Capacity>::push(const ValueType& value) noexcept
+inline bool SpscFifo<ValueType, Capacity>::push(const ValueType& value) noexcept
 {
     if (is_full())
     {
@@ -42,31 +43,31 @@ inline bool FiFo<ValueType, Capacity>::push(const ValueType& value) noexcept
 }
 
 template <class ValueType, uint64_t Capacity>
-inline bool FiFo<ValueType, Capacity>::is_full() const noexcept
+inline bool SpscFifo<ValueType, Capacity>::is_full() const noexcept
 {
     return m_write_pos.load(std::memory_order_relaxed) == m_read_pos.load(std::memory_order_relaxed) + Capacity;
 }
 
 template <class ValueType, uint64_t Capacity>
-inline uint64_t FiFo<ValueType, Capacity>::size() const noexcept
+inline uint64_t SpscFifo<ValueType, Capacity>::size() const noexcept
 {
     return m_write_pos.load(std::memory_order_relaxed) - m_read_pos.load(std::memory_order_relaxed);
 }
 
 template <class ValueType, uint64_t Capacity>
-inline constexpr uint64_t FiFo<ValueType, Capacity>::capacity() noexcept
+inline constexpr uint64_t SpscFifo<ValueType, Capacity>::capacity() noexcept
 {
     return Capacity;
 }
 
 template <class ValueType, uint64_t Capacity>
-inline bool FiFo<ValueType, Capacity>::empty() const noexcept
+inline bool SpscFifo<ValueType, Capacity>::empty() const noexcept
 {
     return m_read_pos.load(std::memory_order_relaxed) == m_write_pos.load(std::memory_order_relaxed);
 }
 
 template <class ValueType, uint64_t Capacity>
-inline optional<ValueType> FiFo<ValueType, Capacity>::pop() noexcept
+inline optional<ValueType> SpscFifo<ValueType, Capacity>::pop() noexcept
 {
     auto currentReadPos = m_read_pos.load(std::memory_order_acquire);
     bool isEmpty = (currentReadPos ==
@@ -88,4 +89,4 @@ inline optional<ValueType> FiFo<ValueType, Capacity>::pop() noexcept
 } // namespace concurrent
 } // namespace iox
 
-#endif // IOX_HOOFS_CONCURRENT_FIFO_INL
+#endif // IOX_HOOFS_CONCURRENT_BUFFER_SPSC_FIFO_INL
