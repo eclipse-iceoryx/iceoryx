@@ -21,6 +21,7 @@
 #define IOX_HOOFS_UTILITY_CONVERT_INL
 
 #include "iox/detail/convert.hpp"
+#include "iox/detail/string_type_traits.hpp"
 #include "iox/logging.hpp"
 
 namespace iox
@@ -58,10 +59,24 @@ convert::toString(const Source& t) noexcept
     return t;
 }
 
-template <typename Destination, typename std::enable_if_t<!is_iox_string<Destination>::value, int>>
+template <typename Destination>
 inline iox::optional<Destination> convert::from_string(const char* v) noexcept
 {
-    return iox::optional<Destination>(Destination(v));
+    if constexpr (is_iox_string<Destination>::value)
+    {
+        using IoxString = Destination;
+        if (strlen(v) > IoxString::capacity())
+        {
+            return iox::nullopt;
+        }
+        return iox::optional<IoxString>(IoxString(TruncateToCapacity, v));
+    }
+    else
+    {
+        static_assert(always_false_v<Destination>,
+                      "For a conversion to 'std::string' please include 'iox/std_string_support.hpp'!\nConversion not "
+                      "supported!");
+    }
 }
 
 template <>
@@ -76,16 +91,6 @@ inline iox::optional<char> convert::from_string<char>(const char* v) noexcept
     /// @NOLINTJUSTIFICATION encapsulated in abstraction
     /// @NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     return iox::optional<char>(v[0]);
-}
-
-template <typename IoxString, typename std::enable_if_t<is_iox_string<IoxString>::value, int>>
-inline iox::optional<IoxString> convert::from_string(const char* v) noexcept
-{
-    if (strlen(v) > GetCapacity<IoxString>::value)
-    {
-        return iox::nullopt;
-    }
-    return iox::optional<IoxString>(IoxString(TruncateToCapacity, v));
 }
 
 template <>
@@ -172,6 +177,25 @@ inline iox::optional<unsigned long long> convert::from_string<unsigned long long
 }
 
 template <>
+inline iox::optional<unsigned long> convert::from_string<unsigned long>(const char* v) noexcept
+{
+    errno = 0;
+    char* end_ptr = nullptr;
+
+    if (start_with_neg_sign(v))
+    {
+        return iox::nullopt;
+    }
+
+    auto call = IOX_POSIX_CALL(strtoull)(v, &end_ptr, STRTOULL_BASE)
+                    .failureReturnValue(ULLONG_MAX)
+                    .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
+                    .evaluate();
+
+    return evaluate_return_value<unsigned long>(call, errno, end_ptr, v);
+}
+
+template <>
 inline iox::optional<unsigned int> convert::from_string<unsigned int>(const char* v) noexcept
 {
     errno = 0;
@@ -240,6 +264,20 @@ inline iox::optional<long long> convert::from_string<long long>(const char* v) n
                     .evaluate();
 
     return evaluate_return_value<long long>(call, errno, end_ptr, v);
+}
+
+template <>
+inline iox::optional<long> convert::from_string<long>(const char* v) noexcept
+{
+    errno = 0;
+    char* end_ptr = nullptr;
+
+    auto call = IOX_POSIX_CALL(strtoll)(v, &end_ptr, STRTOULL_BASE)
+                    .failureReturnValue(LLONG_MAX, LLONG_MIN)
+                    .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
+                    .evaluate();
+
+    return evaluate_return_value<long>(call, errno, end_ptr, v);
 }
 
 template <>
