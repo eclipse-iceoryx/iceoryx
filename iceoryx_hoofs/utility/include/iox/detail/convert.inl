@@ -333,7 +333,7 @@ inline bool convert::start_with_neg_sign(const char* v) noexcept
     while (*v != '\0' && (isspace((unsigned char)*v) != 0))
     {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-        v++;
+        ++v;
     }
 
     return (*v == '-');
