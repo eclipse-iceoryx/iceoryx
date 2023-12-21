@@ -345,7 +345,7 @@ inline bool convert::check_edge_case(decltype(errno) errno_cache,
                                      const char* v,
                                      const SourceType& source_val) noexcept
 {
-    return is_valid_input(end_ptr, v, source_val) && is_valid_errno(errno_cache, v)
+    return is_valid_input(end_ptr, v, source_val) && is_valid_errno(errno_cache, v, source_val)
            && is_within_range<TargetType>(source_val);
 }
 
@@ -362,6 +362,9 @@ convert::evaluate_return_value(CallType& call, decltype(errno) errno_cache, cons
     {
         return iox::nullopt;
     }
+
+    // clean errno
+    errno = 0;
 
     return iox::optional<TargetType>(static_cast<TargetType>(call->value));
 }
@@ -386,24 +389,42 @@ inline bool convert::is_valid_input(const char* end_ptr, const char* v, const So
     return true;
 }
 
-inline bool convert::is_valid_errno(decltype(errno) errno_cache, const char* str) noexcept
+template <typename SourceType>
+inline bool convert::is_valid_errno(decltype(errno) errno_cache, const char* v, const SourceType& source_val) noexcept
 {
     // check errno
     if (errno_cache == ERANGE)
     {
-        IOX_LOG(DEBUG, "ERANGE triggered during conversion of string: " << str);
+        if constexpr (std::is_floating_point_v<SourceType>)
+        {
+            /// @todo iox-#2055
+            // This could be a case of 'inf' or 'nan' for floating points,
+            // yet the use of 'failureReturnValue' effectively prevents the occurrence of 'inf'.
+            // In such instances, due to 'result.has_error' being true,
+            // 'from_string' will return prematurely.
+            // Consequently, this function will remain uncalled.
+
+            // currently, we still treat them as conversion error
+            // but they should be treated as potential result (instead of error)?
+            IOX_LOG(DEBUG,
+                    "ERANGE triggered during conversion of string: '" << v << "'. The result is: " << source_val);
+        }
+        else
+        {
+            IOX_LOG(DEBUG, "ERANGE triggered during conversion of string: '" << v << "'");
+        }
         return false;
     }
 
     if (errno_cache == EINVAL)
     {
-        IOX_LOG(DEBUG, "EINVAL triggered during conversion of string: " << str);
+        IOX_LOG(DEBUG, "EINVAL triggered during conversion of string: " << v);
         return false;
     }
 
     if (errno_cache != 0)
     {
-        IOX_LOG(DEBUG, "Unexpected errno: " << errno_cache << ". The input string is: " << str);
+        IOX_LOG(DEBUG, "Unexpected errno: " << errno_cache << ". The input string is: " << v);
         return false;
     }
 

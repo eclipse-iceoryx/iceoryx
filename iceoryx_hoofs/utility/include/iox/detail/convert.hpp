@@ -103,9 +103,10 @@ class convert
     template <typename TargetType, typename SourceType>
     static bool is_within_range(const SourceType& source_val) noexcept;
 
-    static bool start_with_neg_sign(const char* v) noexcept;
+    template <typename SourceType>
+    static bool is_valid_errno(decltype(errno) errno_cache, const char* v, const SourceType& source_val) noexcept;
 
-    static bool is_valid_errno(decltype(errno) errno_cache, const char* str) noexcept;
+    static bool start_with_neg_sign(const char* v) noexcept;
 };
 
 } // namespace iox
