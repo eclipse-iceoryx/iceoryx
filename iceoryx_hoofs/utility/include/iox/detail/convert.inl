@@ -339,14 +339,14 @@ inline bool convert::start_with_neg_sign(const char* v) noexcept
     return (*v == '-');
 }
 
-template <typename TargetType, typename RequireCheckValType>
+template <typename TargetType, typename SourceType>
 inline bool convert::check_edge_case(decltype(errno) errno_cache,
                                      const char* end_ptr,
                                      const char* v,
-                                     const RequireCheckValType& require_check_val) noexcept
+                                     const SourceType& source_val) noexcept
 {
-    return is_valid_input(end_ptr, v, require_check_val) && is_valid_errno(errno_cache, v)
-           && is_within_range<TargetType>(require_check_val);
+    return is_valid_input(end_ptr, v, source_val) && is_valid_errno(errno_cache, v)
+           && is_within_range<TargetType>(source_val);
 }
 
 template <typename TargetType, typename CallType>
@@ -366,12 +366,11 @@ convert::evaluate_return_value(CallType& call, decltype(errno) errno_cache, cons
     return iox::optional<TargetType>(static_cast<TargetType>(call->value));
 }
 
-template <typename RequireCheckValType>
-inline bool
-convert::is_valid_input(const char* end_ptr, const char* v, const RequireCheckValType& require_check_val) noexcept
+template <typename SourceType>
+inline bool convert::is_valid_input(const char* end_ptr, const char* v, const SourceType& source_val) noexcept
 {
     // invalid string
-    if (v == end_ptr && require_check_val == 0)
+    if (v == end_ptr && source_val == 0)
     {
         IOX_LOG(DEBUG, "invalid input");
         return false;
@@ -411,26 +410,26 @@ inline bool convert::is_valid_errno(decltype(errno) errno_cache, const char* str
     return true;
 }
 
-template <typename TargetType, typename RequireCheckValType>
-inline bool convert::is_within_range(const RequireCheckValType& require_check_val) noexcept
+template <typename TargetType, typename SourceType>
+inline bool convert::is_within_range(const SourceType& source_val) noexcept
 {
     if constexpr (std::is_arithmetic_v<TargetType>)
     {
         // out of range (upper bound)
-        if (require_check_val > std::numeric_limits<TargetType>::max())
+        if (source_val > std::numeric_limits<TargetType>::max())
         {
             IOX_LOG(DEBUG,
-                    require_check_val << " is out of range (upper bound), should be less than "
-                                      << std::numeric_limits<TargetType>::max());
+                    source_val << " is out of range (upper bound), should be less than "
+                               << std::numeric_limits<TargetType>::max());
             return false;
         }
 
         // out of range (lower bound)
-        if (require_check_val < std::numeric_limits<TargetType>::lowest())
+        if (source_val < std::numeric_limits<TargetType>::lowest())
         {
             IOX_LOG(DEBUG,
-                    require_check_val << " is out of range (lower bound), should be larger than "
-                                      << std::numeric_limits<TargetType>::lowest());
+                    source_val << " is out of range (lower bound), should be larger than "
+                               << std::numeric_limits<TargetType>::lowest());
             return false;
         }
     }

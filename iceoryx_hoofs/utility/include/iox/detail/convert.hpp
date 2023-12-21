@@ -91,18 +91,17 @@ class convert
     static iox::optional<TargetType>
     evaluate_return_value(CallType& call, decltype(errno) errno_cache, const char* end_ptr, const char* v) noexcept;
 
-    template <typename TargetType, typename RequireCheckValType>
+    template <typename TargetType, typename SourceType>
     static bool check_edge_case(decltype(errno) errno_cache,
                                 const char* end_ptr,
                                 const char* v,
-                                const RequireCheckValType& require_check_val) noexcept;
+                                const SourceType& source_val) noexcept;
 
-    template <typename RequireCheckValType>
-    static bool
-    is_valid_input(const char* end_ptr, const char* v, const RequireCheckValType& require_check_val) noexcept;
+    template <typename SourceType>
+    static bool is_valid_input(const char* end_ptr, const char* v, const SourceType& source_val) noexcept;
 
-    template <typename TargetType, typename RequireCheckValType>
-    static bool is_within_range(const RequireCheckValType& require_check_val) noexcept;
+    template <typename TargetType, typename SourceType>
+    static bool is_within_range(const SourceType& source_val) noexcept;
 
     static bool start_with_neg_sign(const char* v) noexcept;
 
