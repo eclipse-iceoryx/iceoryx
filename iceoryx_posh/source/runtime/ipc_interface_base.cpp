@@ -39,8 +39,8 @@ IpcMessageType stringToIpcMessageType(const char* str) noexcept
 
     msg = result.value();
 
-    if (static_cast<std::underlying_type<IpcMessageType>::type>(IpcMessageType::BEGIN) >= msg
-        || static_cast<std::underlying_type<IpcMessageType>::type>(IpcMessageType::END) <= msg)
+    if (static_cast<UnderlyingType>(IpcMessageType::BEGIN) >= msg
+        || static_cast<UnderlyingType>(IpcMessageType::END) <= msg)
     {
         return IpcMessageType::NOTYPE;
     }
@@ -50,8 +50,8 @@ IpcMessageType stringToIpcMessageType(const char* str) noexcept
     // // XXX We would like to write code in the following way but failed
     // // The return type of result.and_then seems have to be the same with input type
     // return result.and_then([](const auto& msg) {
-    //     if (static_cast<std::underlying_type<IpcMessageType>::type>(IpcMessageType::BEGIN) >= msg
-    //         || static_cast<std::underlying_type<IpcMessageType>::type>(IpcMessageType::END) <= msg) {
+    //     if (static_cast<UnderlyingType>(IpcMessageType::BEGIN) >= msg
+    //         || static_cast<UnderlyingType>(IpcMessageType::END) <= msg) {
     //         return iox::optional<IpcMessageType>{};
     //     }
     //     return iox::optional<IpcMessageType>{static_cast<IpcMessageType>(msg)};
@@ -61,7 +61,8 @@ IpcMessageType stringToIpcMessageType(const char* str) noexcept
 
 std::string IpcMessageTypeToString(const IpcMessageType msg) noexcept
 {
-    return convert::toString(static_cast<std::underlying_type<IpcMessageType>::type>(msg));
+    using UnderlyingType = std::underlying_type<IpcMessageType>::type;
+    return convert::toString(static_cast<UnderlyingType>(msg));
 }
 
 IpcMessageErrorType stringToIpcMessageErrorType(const char* str) noexcept
