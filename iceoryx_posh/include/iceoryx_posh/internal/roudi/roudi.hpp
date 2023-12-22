@@ -17,7 +17,6 @@
 #ifndef IOX_POSH_ROUDI_ROUDI_MULTI_PROCESS_HPP
 #define IOX_POSH_ROUDI_ROUDI_MULTI_PROCESS_HPP
 
-#include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
 #include "iceoryx_platform/file.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/roudi/introspection/mempool_introspection.hpp"
@@ -30,6 +29,7 @@
 #include "iox/posix_user.hpp"
 #include "iox/relative_pointer.hpp"
 #include "iox/scope_guard.hpp"
+#include "iox/smart_lock.hpp"
 
 #include <cstdint>
 #include <thread>

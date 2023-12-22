@@ -15,7 +15,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 
-#include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -23,6 +22,7 @@
 #include "iceoryx_posh/popo/listener.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iox/optional.hpp"
+#include "iox/smart_lock.hpp"
 #include "iox/unnamed_semaphore.hpp"
 #include "iox/vector.hpp"
 #include "test.hpp"
@@ -182,7 +182,7 @@ class Listener_test : public Test
 
     static void attachCallback(SimpleEventClass* const) noexcept
     {
-        for (auto& e : g_toBeAttached.getCopy())
+        for (auto& e : g_toBeAttached.get_copy())
         {
             ASSERT_FALSE(e.sut
                              ->attachEvent(*e.object,
@@ -194,7 +194,7 @@ class Listener_test : public Test
 
     static void detachCallback(SimpleEventClass* const) noexcept
     {
-        for (auto& e : g_toBeDetached.getCopy())
+        for (auto& e : g_toBeDetached.get_copy())
         {
             e.sut->detachEvent(*e.object, SimpleEvent::StoepselBachelorParty);
         }
@@ -202,7 +202,7 @@ class Listener_test : public Test
 
     static void notifyAndThenDetachStoepselCallback(SimpleEventClass* const) noexcept
     {
-        for (auto& e : g_toBeDetached.getCopy())
+        for (auto& e : g_toBeDetached.get_copy())
         {
             e.object->triggerStoepsel();
             e.sut->detachEvent(*e.object, SimpleEvent::StoepselBachelorParty);

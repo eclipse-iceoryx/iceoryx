@@ -11,8 +11,6 @@
 ./iceoryx_hoofs/memory/**/*
 ./iceoryx_hoofs/test/moduletests/test_memory_*
 
-./iceoryx_hoofs/include/iceoryx_hoofs/internal/concurrent/*
-
 ./iceoryx_hoofs/testing/include/iceoryx_hoofs/testing/mocks/logger_mock.hpp
 ./iceoryx_hoofs/testing/include/iceoryx_hoofs/testing/fatal_failure*
 ./iceoryx_hoofs/testing/include/iceoryx_hoofs/testing/testing_logger.hpp
