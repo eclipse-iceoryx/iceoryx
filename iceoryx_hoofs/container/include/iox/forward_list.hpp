@@ -35,7 +35,7 @@ namespace iox
 ///         Capacity must at least be 1, (unintended) negative initialization is rejected with compile assertion
 ///         limitation: concurrency concerns have to be handled by client side.
 ///
-///         overview of cxx::forward_list deviations to std::forward_list(C++11)
+///         overview of forward_list deviations to std::forward_list(C++11)
 ///         - list declaration with mandatory max list size argument
 ///         - member functions don't throw exception but will trigger different failure handling
 ///         - push_front returns a bool (instead of void) informing on successful insertion (true)

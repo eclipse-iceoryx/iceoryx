@@ -71,8 +71,6 @@ struct extract_into_type<lossy<T>>
 ///
 /// namespace iox
 /// {
-/// namespace cxx
-/// {
 /// template <>
 /// constexpr HighLevel from<LowLevel, HighLevel>(LowLevel e) noexcept
 /// {
@@ -86,7 +84,6 @@ struct extract_into_type<lossy<T>>
 ///         return HighLevel::Timeout;
 ///     }
 /// }
-/// } // namespace cxx
 /// } // namespace iox
 /// @endcode
 /// @tparam SourceType is the 'from' type

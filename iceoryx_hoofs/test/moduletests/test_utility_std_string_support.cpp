@@ -567,7 +567,7 @@ TYPED_TEST(StdString_test, FindEmptyStdStringInEmptyStringWorks)
 }
 
 /// @note template <typename T>
-/// iox::cxx::optional<uint64_t> find_first_of(const T& t, uint64_t pos = 0) const noexcept
+/// iox::optional<uint64_t> find_first_of(const T& t, uint64_t pos = 0) const noexcept
 TYPED_TEST(StdString_test, FindFirstOfFailsForEmptyStdStringInEmptyString)
 {
     ::testing::Test::RecordProperty("TEST_ID", "207671e4-cef3-40d2-8984-e8ae5c2b42ec");
@@ -646,7 +646,7 @@ TEST(String100, FindNotIncludedStdStringFails)
 }
 
 /// @note template <typename T>
-/// iox::cxx::optional<uint64_t> find_last_of(const T& t, uint64_t pos = 0) const noexcept
+/// iox::optional<uint64_t> find_last_of(const T& t, uint64_t pos = 0) const noexcept
 TYPED_TEST(StdString_test, FindLastOfFailsForEmptyStdStringInEmptyString)
 {
     ::testing::Test::RecordProperty("TEST_ID", "15f72273-8b90-407f-b7d0-07372f3cee29");

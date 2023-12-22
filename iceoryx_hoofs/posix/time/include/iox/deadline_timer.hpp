@@ -28,7 +28,7 @@ namespace iox
 /// it uses the intialized duration], reset timer to a customized duration, check if the timer is active and user can
 /// also get to know about the remaining time before the timer goes off
 /// @code
-///     iox::cxx::deadline_timer deadlineTimer(1000_ms);
+///     iox::deadline_timer deadlineTimer(1000_ms);
 ///
 ///     // to check if the timer is active
 ///     if( deadlineTimer.hasExpired()){

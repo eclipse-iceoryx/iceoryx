@@ -288,7 +288,7 @@ inline void optional<T>::destruct_value() noexcept
     value().~T();
     m_hasValue = false;
 }
-// AXIVION Next Construct AutosarC++19_03-M17.0.3 : make_optional is defined within iox::cxx which prevents easy misuse
+// AXIVION Next Construct AutosarC++19_03-M17.0.3 : make_optional is defined within the iox namespace which prevents easy misuse
 template <typename OptionalBaseType, typename... Targs>
 inline optional<OptionalBaseType> make_optional(Targs&&... args) noexcept
 {
