@@ -14,23 +14,24 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CONCURRENT_SOFI_INL
-#define IOX_HOOFS_CONCURRENT_SOFI_INL
 
-#include "iceoryx_hoofs/internal/concurrent/sofi.hpp"
+#ifndef IOX_HOOFS_CONCURRENT_BUFFER_SPSC_SOFI_INL
+#define IOX_HOOFS_CONCURRENT_BUFFER_SPSC_SOFI_INL
+
+#include "iox/detail/spsc_sofi.hpp"
 
 namespace iox
 {
 namespace concurrent
 {
 template <class ValueType, uint64_t CapacityValue>
-uint64_t SoFi<ValueType, CapacityValue>::capacity() const noexcept
+uint64_t SpscSofi<ValueType, CapacityValue>::capacity() const noexcept
 {
     return m_size - INTERNAL_SIZE_ADD_ON;
 }
 
 template <class ValueType, uint64_t CapacityValue>
-uint64_t SoFi<ValueType, CapacityValue>::size() const noexcept
+uint64_t SpscSofi<ValueType, CapacityValue>::size() const noexcept
 {
     uint64_t readPosition{0};
     uint64_t writePosition{0};
@@ -45,10 +46,10 @@ uint64_t SoFi<ValueType, CapacityValue>::size() const noexcept
 }
 
 template <class ValueType, uint64_t CapacityValue>
-bool SoFi<ValueType, CapacityValue>::setCapacity(const uint64_t newSize) noexcept
+bool SpscSofi<ValueType, CapacityValue>::setCapacity(const uint64_t newSize) noexcept
 {
     uint64_t newInternalSize = newSize + INTERNAL_SIZE_ADD_ON;
-    if (empty() && (newInternalSize <= INTERNAL_SOFI_SIZE))
+    if (empty() && (newInternalSize <= INTERNAL_SPSC_SOFI_SIZE))
     {
         m_size = newInternalSize;
 
@@ -62,7 +63,7 @@ bool SoFi<ValueType, CapacityValue>::setCapacity(const uint64_t newSize) noexcep
 }
 
 template <class ValueType, uint64_t CapacityValue>
-bool SoFi<ValueType, CapacityValue>::empty() const noexcept
+bool SpscSofi<ValueType, CapacityValue>::empty() const noexcept
 {
     uint64_t currentReadPosition{0};
     bool isEmpty{false};
@@ -82,14 +83,14 @@ bool SoFi<ValueType, CapacityValue>::empty() const noexcept
 }
 
 template <class ValueType, uint64_t CapacityValue>
-bool SoFi<ValueType, CapacityValue>::pop(ValueType& valueOut) noexcept
+bool SpscSofi<ValueType, CapacityValue>::pop(ValueType& valueOut) noexcept
 {
     return popIf(valueOut, [](ValueType) { return true; });
 }
 
 template <class ValueType, uint64_t CapacityValue>
 template <typename Verificator_T>
-inline bool SoFi<ValueType, CapacityValue>::popIf(ValueType& valueOut, const Verificator_T& verificator) noexcept
+inline bool SpscSofi<ValueType, CapacityValue>::popIf(ValueType& valueOut, const Verificator_T& verificator) noexcept
 {
     uint64_t currentReadPosition = m_readPosition.load(std::memory_order_acquire);
     uint64_t nextReadPosition{0};
@@ -139,7 +140,7 @@ inline bool SoFi<ValueType, CapacityValue>::popIf(ValueType& valueOut, const Ver
 }
 
 template <class ValueType, uint64_t CapacityValue>
-bool SoFi<ValueType, CapacityValue>::push(const ValueType& valueIn, ValueType& valueOut) noexcept
+bool SpscSofi<ValueType, CapacityValue>::push(const ValueType& valueIn, ValueType& valueOut) noexcept
 {
     constexpr bool SOFI_OVERFLOW{false};
 
@@ -186,8 +187,7 @@ bool SoFi<ValueType, CapacityValue>::push(const ValueType& valueIn, ValueType& v
     return !SOFI_OVERFLOW;
 }
 
-
 } // namespace concurrent
 } // namespace iox
 
-#endif // IOX_HOOFS_CONCURRENT_SOFI_INL
+#endif // IOX_HOOFS_CONCURRENT_BUFFER_SPSC_SOFI_INL

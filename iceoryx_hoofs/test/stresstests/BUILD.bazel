@@ -29,8 +29,8 @@ cc_binary(
 )
 
 cc_test(
-    name = "test_stress_sofi",
-    srcs = ["sofi/test_stress_sofi.cpp"],
+    name = "test_stress_spsc_sofi",
+    srcs = ["sofi/test_stress_spsc_sofi.cpp"],
     linkopts = select({
         "//iceoryx_platform:linux": ["-ldl"],
         "//iceoryx_platform:mac": [],

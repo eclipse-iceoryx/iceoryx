@@ -29,6 +29,9 @@
 
 ./iceoryx_hoofs/posix/**/*
 
+./iceoryx_hoofs/concurrent/**/*
+./iceoryx_hoofs/test/moduletests/test_concurrent_*
+
 ./iceoryx_hoofs/container/**/*
 ./iceoryx_hoofs/test/moduletests/test_container_*
 

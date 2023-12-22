@@ -18,8 +18,8 @@
 #define IOX_HOOFS_CXX_VARIANT_QUEUE_HPP
 
 #include "iceoryx_hoofs/concurrent/resizeable_lockfree_queue.hpp"
-#include "iceoryx_hoofs/internal/concurrent/sofi.hpp"
 #include "iox/detail/spsc_fifo.hpp"
+#include "iox/detail/spsc_sofi.hpp"
 #include "iox/optional.hpp"
 #include "iox/variant.hpp"
 
@@ -70,7 +70,7 @@ class VariantQueue
 {
   public:
     using fifo_t = variant<concurrent::SpscFifo<ValueType, Capacity>,
-                           concurrent::SoFi<ValueType, Capacity>,
+                           concurrent::SpscSofi<ValueType, Capacity>,
                            concurrent::ResizeableLockFreeQueue<ValueType, Capacity>,
                            concurrent::ResizeableLockFreeQueue<ValueType, Capacity>>;
 
