@@ -17,10 +17,10 @@
 #ifndef IOX_POSH_RUNTIME_POSH_RUNTIME_IMPL_HPP
 #define IOX_POSH_RUNTIME_POSH_RUNTIME_IMPL_HPP
 
-#include "iceoryx_hoofs/internal/concurrent/periodic_task.hpp"
 #include "iceoryx_posh/internal/runtime/heartbeat.hpp"
 #include "iceoryx_posh/internal/runtime/shared_memory_user.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iox/detail/periodic_task.hpp"
 #include "iox/function.hpp"
 #include "iox/mutex.hpp"
 #include "iox/optional.hpp"
@@ -118,7 +118,7 @@ class PoshRuntimeImpl : public PoshRuntime
     void sendKeepAliveAndHandleShutdownPreparation() noexcept;
 
     // the m_keepAliveTask should always be the last member, so that it will be the first member to be destroyed
-    optional<concurrent::PeriodicTask<function<void()>>> m_keepAliveTask;
+    optional<concurrent::detail::PeriodicTask<function<void()>>> m_keepAliveTask;
 };
 
 } // namespace runtime

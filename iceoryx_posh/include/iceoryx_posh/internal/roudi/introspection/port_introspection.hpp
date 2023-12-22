@@ -17,10 +17,10 @@
 #ifndef IOX_POSH_ROUDI_INTROSPECTION_PORT_INTROSPECTION_HPP
 #define IOX_POSH_ROUDI_INTROSPECTION_PORT_INTROSPECTION_HPP
 
-#include "iceoryx_hoofs/internal/concurrent/periodic_task.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_data.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
+#include "iox/detail/periodic_task.hpp"
 #include "iox/fixed_position_container.hpp"
 #include "iox/function.hpp"
 
@@ -316,8 +316,8 @@ class PortIntrospection
     PortData m_portData;
 
     units::Duration m_sendInterval{units::Duration::fromSeconds(1U)};
-    concurrent::PeriodicTask<function<void()>> m_publishingTask{
-        concurrent::PeriodicTaskManualStart, "PortIntr", *this, &PortIntrospection::send};
+    concurrent::detail::PeriodicTask<function<void()>> m_publishingTask{
+        concurrent::detail::PeriodicTaskManualStart, "PortIntr", *this, &PortIntrospection::send};
 };
 
 /// @brief typedef for the templated port introspection class that is used by RouDi for the

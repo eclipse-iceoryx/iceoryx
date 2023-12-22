@@ -53,6 +53,7 @@ iox_add_library(
                                 ${PROJECT_SOURCE_DIR}/buffer/include
                                 ${PROJECT_SOURCE_DIR}/cli/include
                                 ${PROJECT_SOURCE_DIR}/concurrent/buffer/include
+                                ${PROJECT_SOURCE_DIR}/concurrent/sync/include
                                 ${PROJECT_SOURCE_DIR}/container/include
                                 ${PROJECT_SOURCE_DIR}/design/include
                                 ${PROJECT_SOURCE_DIR}/filesystem/include
@@ -81,6 +82,7 @@ iox_add_library(
                                 buffer/include/
                                 cli/include/
                                 concurrent/buffer/include/
+                                concurrent/sync/include/
                                 container/include/
                                 design/include/
                                 filesystem/include/

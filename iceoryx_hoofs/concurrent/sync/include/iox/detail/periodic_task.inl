@@ -14,14 +14,16 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_CONCURRENT_PERIODIC_TASK_INL
-#define IOX_HOOFS_CONCURRENT_PERIODIC_TASK_INL
+#ifndef IOX_HOOFS_CONCURRENT_SYNC_PERIODIC_TASK_INL
+#define IOX_HOOFS_CONCURRENT_SYNC_PERIODIC_TASK_INL
 
-#include "iceoryx_hoofs/internal/concurrent/periodic_task.hpp"
+#include "iox/detail/periodic_task.hpp"
 
 namespace iox
 {
 namespace concurrent
+{
+namespace detail
 {
 template <typename T>
 template <typename... Args>
@@ -74,9 +76,15 @@ inline void PeriodicTask<T>::stop() noexcept
 }
 
 template <typename T>
-inline bool PeriodicTask<T>::isActive() const noexcept
+inline bool PeriodicTask<T>::is_active() const noexcept
 {
     return m_taskExecutor.joinable();
+}
+
+template <typename T>
+inline bool PeriodicTask<T>::isActive() const noexcept
+{
+    return is_active();
 }
 
 template <typename T>
@@ -96,6 +104,7 @@ inline void PeriodicTask<T>::run() noexcept
     } while (waitState == SemaphoreWaitState::TIMEOUT);
 }
 
+} // namespace detail
 } // namespace concurrent
 } // namespace iox
 

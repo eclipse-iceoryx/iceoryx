@@ -14,9 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_CONCURRENT_PERIODIC_TASK_HPP
-#define IOX_HOOFS_CONCURRENT_PERIODIC_TASK_HPP
+#ifndef IOX_HOOFS_CONCURRENT_SYNC_PERIODIC_TASK_HPP
+#define IOX_HOOFS_CONCURRENT_SYNC_PERIODIC_TASK_HPP
 
+#include "iox/detail/deprecation_marker.hpp"
 #include "iox/duration.hpp"
 #include "iox/string.hpp"
 #include "iox/thread.hpp"
@@ -29,6 +30,8 @@
 namespace iox
 {
 namespace concurrent
+{
+namespace detail
 {
 /// @brief This is a helper struct to make the immediate start of the task in the PeriodicTask ctor obvious to the user
 struct PeriodicTaskAutoStart_t
@@ -45,15 +48,15 @@ static constexpr PeriodicTaskManualStart_t PeriodicTaskManualStart;
 /// @brief This class periodically executes a callable specified by the template parameter.
 ///        This can be a struct with a 'operator()()' overload, a 'iox::function_ref<void()>' or 'std::fuction<void()>'.
 /// @code
-/// #include <iceoryx_hoofs/internal/concurrent/periodic_task.hpp>
+/// #include <iox/detail//periodic_task.hpp>
 /// #include <iox/duration.hpp>
 /// #include <iostream>
 ///
 /// int main()
 /// {
 ///     using namespace iox::units::duration_literals;
-///     PeriodicTask<iox::function_ref<void()>> task{
-///         PeriodicTaskAutoStart, 1_s, "MyTask", [] { IOX_LOG(INFO, "Hello World"; }});
+///     iox::concurrent::detail::PeriodicTask<iox::function_ref<void()>> task{
+///         iox::concurrent::detail::PeriodicTaskAutoStart, 1_s, "MyTask", [] { IOX_LOG(INFO, "Hello World"; }});
 ///
 ///         return 0;
 /// }
@@ -116,6 +119,9 @@ class PeriodicTask
 
     /// @brief This method check if a thread is spawned and running, potentially executing a task.
     /// @return true if the thread is running, false otherwise.
+    bool is_active() const noexcept;
+
+    IOX_DEPRECATED_SINCE(3, "Please use 'is_active' instead.")
     bool isActive() const noexcept;
 
   private:
@@ -129,9 +135,10 @@ class PeriodicTask
     std::thread m_taskExecutor;
 };
 
+} // namespace detail
 } // namespace concurrent
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/concurrent/periodic_task.inl"
+#include "iox/detail/periodic_task.inl"
 
-#endif // IOX_HOOFS_CONCURRENT_PERIODIC_TASK_HPP
+#endif // IOX_HOOFS_CONCURRENT_SYNC_PERIODIC_TASK_HPP

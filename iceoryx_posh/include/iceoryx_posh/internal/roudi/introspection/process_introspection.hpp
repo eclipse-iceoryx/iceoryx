@@ -17,10 +17,10 @@
 #ifndef IOX_POSH_ROUDI_INTROSPECTION_PROCESS_INTROSPECTION_HPP
 #define IOX_POSH_ROUDI_INTROSPECTION_PROCESS_INTROSPECTION_HPP
 
-#include "iceoryx_hoofs/internal/concurrent/periodic_task.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
+#include "iox/detail/periodic_task.hpp"
 #include "iox/function.hpp"
 #include "iox/list.hpp"
 
@@ -101,8 +101,8 @@ class ProcessIntrospection
     std::mutex m_mutex;
 
     units::Duration m_sendInterval{units::Duration::fromSeconds(1U)};
-    concurrent::PeriodicTask<function<void()>> m_publishingTask{
-        concurrent::PeriodicTaskManualStart, "ProcessIntr", *this, &ProcessIntrospection::send};
+    concurrent::detail::PeriodicTask<function<void()>> m_publishingTask{
+        concurrent::detail::PeriodicTaskManualStart, "ProcessIntr", *this, &ProcessIntrospection::send};
 };
 
 /// @brief typedef for the templated process introspection class that is used by RouDi for the
