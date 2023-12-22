@@ -3,6 +3,8 @@
 ./iceoryx_hoofs/test/moduletests/test_cxx*
 ./iceoryx_hoofs/source/cxx/*
 
+./iceoryx_hoofs/legacy/**/*
+
 ./iceoryx_hoofs/cli/**/*
 ./iceoryx_hoofs/test/moduletests/test_cli_*
 
