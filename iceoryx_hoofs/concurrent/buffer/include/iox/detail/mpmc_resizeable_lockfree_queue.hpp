@@ -14,10 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_CONCURRENT_RESIZEABLE_LOCKFREE_QUEUE_HPP
-#define IOX_HOOFS_CONCURRENT_RESIZEABLE_LOCKFREE_QUEUE_HPP
+#ifndef IOX_HOOFS_CONCURRENT_BUFFER_MPMC_RESIZEABLE_LOCKFREE_QUEUE_HPP
+#define IOX_HOOFS_CONCURRENT_BUFFER_MPMC_RESIZEABLE_LOCKFREE_QUEUE_HPP
 
-#include "iceoryx_hoofs/concurrent/lockfree_queue.hpp"
+#include "iox/detail/mpmc_lockfree_queue.hpp"
 #include "iox/type_traits.hpp"
 #include "iox/vector.hpp"
 
@@ -44,26 +44,26 @@ namespace concurrent
 // if the feature is not used, we provide a queue wihout resize functionality in an additional
 // base class that can be used separately.
 template <typename ElementType, uint64_t MaxCapacity>
-class ResizeableLockFreeQueue : protected LockFreeQueue<ElementType, MaxCapacity>
+class MpmcResizeableLockFreeQueue : protected MpmcLockFreeQueue<ElementType, MaxCapacity>
 {
   private:
-    using Base = LockFreeQueue<ElementType, MaxCapacity>;
+    using Base = MpmcLockFreeQueue<ElementType, MaxCapacity>;
 
   public:
     using element_t = ElementType;
     static constexpr uint64_t MAX_CAPACITY = MaxCapacity;
 
-    ResizeableLockFreeQueue() noexcept = default;
-    ~ResizeableLockFreeQueue() noexcept = default;
+    MpmcResizeableLockFreeQueue() noexcept = default;
+    ~MpmcResizeableLockFreeQueue() noexcept = default;
 
     // deleted for now, can be implemented later if needed
     // note: concurrent copying or moving in lockfree fashion is nontrivial
-    ResizeableLockFreeQueue(const ResizeableLockFreeQueue&) = delete;
-    ResizeableLockFreeQueue(ResizeableLockFreeQueue&&) = delete;
-    ResizeableLockFreeQueue& operator=(const ResizeableLockFreeQueue&) = delete;
-    ResizeableLockFreeQueue& operator=(ResizeableLockFreeQueue&&) = delete;
+    MpmcResizeableLockFreeQueue(const MpmcResizeableLockFreeQueue&) = delete;
+    MpmcResizeableLockFreeQueue(MpmcResizeableLockFreeQueue&&) = delete;
+    MpmcResizeableLockFreeQueue& operator=(const MpmcResizeableLockFreeQueue&) = delete;
+    MpmcResizeableLockFreeQueue& operator=(MpmcResizeableLockFreeQueue&&) = delete;
 
-    explicit ResizeableLockFreeQueue(const uint64_t initialCapacity) noexcept;
+    explicit MpmcResizeableLockFreeQueue(const uint64_t initialCapacity) noexcept;
 
     /// @brief returns the maximum capacity of the queue
     /// @return the maximum capacity
@@ -157,6 +157,6 @@ class ResizeableLockFreeQueue : protected LockFreeQueue<ElementType, MaxCapacity
 } // namespace concurrent
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/concurrent/lockfree_queue/resizeable_lockfree_queue.inl"
+#include "iox/detail/mpmc_lockfree_queue/mpmc_resizeable_lockfree_queue.inl"
 
-#endif // IOX_HOOFS_CONCURRENT_RESIZEABLE_LOCKFREE_QUEUE_HPP
+#endif // IOX_HOOFS_CONCURRENT_BUFFER_MPMC_RESIZEABLE_LOCKFREE_QUEUE_HPP

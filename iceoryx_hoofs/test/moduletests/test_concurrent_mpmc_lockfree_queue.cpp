@@ -18,8 +18,8 @@
 
 #include "test.hpp"
 
-#include "iceoryx_hoofs/concurrent/lockfree_queue.hpp"
-#include "iceoryx_hoofs/concurrent/resizeable_lockfree_queue.hpp"
+#include "iox/detail/mpmc_lockfree_queue.hpp"
+#include "iox/detail/mpmc_resizeable_lockfree_queue.hpp"
 
 // We test the common functionality of LockFreeQueue and ResizableLockFreeQueue here
 // in typed tests to reduce code duplication.
@@ -68,7 +68,7 @@ struct MoveOnlyInteger : public Integer
 };
 
 template <typename Config>
-class LockFreeQueueTest : public ::testing::Test
+class MpmcLockFreeQueueTest : public ::testing::Test
 {
   public:
     void SetUp() override
@@ -107,7 +107,7 @@ class LockFreeQueueTest : public ::testing::Test
 };
 
 template <size_t Capacity>
-using IntegerQueue = iox::concurrent::LockFreeQueue<Integer, Capacity>;
+using IntegerQueue = iox::concurrent::MpmcLockFreeQueue<Integer, Capacity>;
 
 // define the test configurations with varying types, capacities and dynamically reduced capacities
 
@@ -126,10 +126,10 @@ struct Config
 };
 
 template <typename T, uint64_t C>
-using LFQueue = iox::concurrent::LockFreeQueue<T, C>;
+using LFQueue = iox::concurrent::MpmcLockFreeQueue<T, C>;
 
 template <typename T, uint64_t C>
-using RLFQueue = iox::concurrent::ResizeableLockFreeQueue<T, C>;
+using RLFQueue = iox::concurrent::MpmcResizeableLockFreeQueue<T, C>;
 
 
 template <template <typename, uint64_t> class QueueType, typename ElementType, uint64_t Capacity>
@@ -187,9 +187,9 @@ typedef ::testing::Types<LFFull1,
                          AlmostEmpty3>
     TestConfigs;
 
-TYPED_TEST_SUITE(LockFreeQueueTest, TestConfigs, );
+TYPED_TEST_SUITE(MpmcLockFreeQueueTest, TestConfigs, );
 
-TEST(LockFreeQueueTest, capacityIsConsistent)
+TEST(MpmcLockFreeQueueTest, capacityIsConsistent)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0b56ef76-2eac-4174-9999-e26495758e6a");
     constexpr uint64_t CAPACITY{37};
@@ -197,7 +197,7 @@ TEST(LockFreeQueueTest, capacityIsConsistent)
     EXPECT_EQ(q.capacity(), CAPACITY);
 }
 
-TYPED_TEST(LockFreeQueueTest, constructedQueueIsEmpty)
+TYPED_TEST(MpmcLockFreeQueueTest, constructedQueueIsEmpty)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9bb8a86e-c3d0-44ef-9fb7-999f50f0c4ac");
     auto& q = this->queue;
@@ -205,7 +205,7 @@ TYPED_TEST(LockFreeQueueTest, constructedQueueIsEmpty)
     EXPECT_EQ(q.size(), 0);
 }
 
-TYPED_TEST(LockFreeQueueTest, pushAndPopSingleElement)
+TYPED_TEST(MpmcLockFreeQueueTest, pushAndPopSingleElement)
 {
     ::testing::Test::RecordProperty("TEST_ID", "381e13c3-d5dc-40c1-b4fd-65634578bdc8");
     auto& q = this->queue;
@@ -220,7 +220,7 @@ TYPED_TEST(LockFreeQueueTest, pushAndPopSingleElement)
     EXPECT_EQ(q.size(), 0);
 }
 
-TYPED_TEST(LockFreeQueueTest, popFromEmptyQueueReturnsNothing)
+TYPED_TEST(MpmcLockFreeQueueTest, popFromEmptyQueueReturnsNothing)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f9d4f232-e9e7-4089-bf61-2696a4bdc8f3");
     auto& q = this->queue;
@@ -232,7 +232,7 @@ TYPED_TEST(LockFreeQueueTest, popFromEmptyQueueReturnsNothing)
     EXPECT_EQ(q.size(), 0);
 }
 
-TYPED_TEST(LockFreeQueueTest, tryPushUntilFullCapacityIsUsed)
+TYPED_TEST(MpmcLockFreeQueueTest, tryPushUntilFullCapacityIsUsed)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6c6bb533-aab5-46bc-8368-977fc2503a74");
     auto& q = this->queue;
@@ -249,7 +249,7 @@ TYPED_TEST(LockFreeQueueTest, tryPushUntilFullCapacityIsUsed)
     EXPECT_EQ(q.size(), capacity);
 }
 
-TYPED_TEST(LockFreeQueueTest, tryPushInFullQueueFails)
+TYPED_TEST(MpmcLockFreeQueueTest, tryPushInFullQueueFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0b793a3e-1e47-46d9-91c2-4967569b508b");
     auto& q = this->queue;
@@ -258,7 +258,7 @@ TYPED_TEST(LockFreeQueueTest, tryPushInFullQueueFails)
     EXPECT_FALSE(q.tryPush(data));
 }
 
-TYPED_TEST(LockFreeQueueTest, poppedElementsAreInFifoOrder)
+TYPED_TEST(MpmcLockFreeQueueTest, poppedElementsAreInFifoOrder)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fecc997a-ae8e-49d3-a1ea-7ec07b5a93ed");
     auto& q = this->queue;
@@ -281,7 +281,7 @@ TYPED_TEST(LockFreeQueueTest, poppedElementsAreInFifoOrder)
     EXPECT_EQ(q.size(), 0);
 }
 
-TYPED_TEST(LockFreeQueueTest, pushDoesNotOverflowIfQueueIsNotFull)
+TYPED_TEST(MpmcLockFreeQueueTest, pushDoesNotOverflowIfQueueIsNotFull)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2096033c-5631-480e-8b9c-a8b472721cdb");
     auto& q = this->queue;
@@ -297,7 +297,7 @@ TYPED_TEST(LockFreeQueueTest, pushDoesNotOverflowIfQueueIsNotFull)
     }
 }
 
-TYPED_TEST(LockFreeQueueTest, pushReturnsOldestElementOnOverflow)
+TYPED_TEST(MpmcLockFreeQueueTest, pushReturnsOldestElementOnOverflow)
 {
     ::testing::Test::RecordProperty("TEST_ID", "df40eac8-11ba-4352-aef0-c1c4785a43f8");
     auto& q = this->queue;
@@ -317,7 +317,7 @@ TYPED_TEST(LockFreeQueueTest, pushReturnsOldestElementOnOverflow)
     }
 }
 
-TYPED_TEST(LockFreeQueueTest, pushInsertsInFifoOrder)
+TYPED_TEST(MpmcLockFreeQueueTest, pushInsertsInFifoOrder)
 {
     ::testing::Test::RecordProperty("TEST_ID", "18698a63-de51-407a-a2f0-dce591c92223");
     auto& q = this->queue;
@@ -343,7 +343,7 @@ TYPED_TEST(LockFreeQueueTest, pushInsertsInFifoOrder)
     }
 }
 
-TYPED_TEST(LockFreeQueueTest, checkEmptynessAfterOneElementWasPushedandPopped)
+TYPED_TEST(MpmcLockFreeQueueTest, checkEmptynessAfterOneElementWasPushedandPopped)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ef49cb74-9631-4804-b040-36cc28c2abfc");
     auto& q = this->queue;
@@ -355,7 +355,7 @@ TYPED_TEST(LockFreeQueueTest, checkEmptynessAfterOneElementWasPushedandPopped)
     EXPECT_EQ(q.size(), 0);
 }
 
-TYPED_TEST(LockFreeQueueTest, checkEmptynessAfterFullQueueWasEmptied)
+TYPED_TEST(MpmcLockFreeQueueTest, checkEmptynessAfterFullQueueWasEmptied)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fb0d2c27-25e6-41c6-a51a-909a01ec0052");
     auto& q = this->queue;

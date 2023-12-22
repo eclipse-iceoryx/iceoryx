@@ -10,10 +10,6 @@
 ./iceoryx_hoofs/test/moduletests/test_memory_*
 
 ./iceoryx_hoofs/include/iceoryx_hoofs/internal/concurrent/*
-./iceoryx_hoofs/include/iceoryx_hoofs/concurrent/*
-./iceoryx_hoofs/source/concurrent/*
-./iceoryx_hoofs/test/moduletests/test_concurrent_*
-./iceoryx_hoofs/test/stresstests/sofi/test_stress_sofi.cpp
 
 ./iceoryx_hoofs/testing/include/iceoryx_hoofs/testing/mocks/logger_mock.hpp
 ./iceoryx_hoofs/testing/include/iceoryx_hoofs/testing/fatal_failure*
@@ -31,6 +27,7 @@
 
 ./iceoryx_hoofs/concurrent/**/*
 ./iceoryx_hoofs/test/moduletests/test_concurrent_*
+./iceoryx_hoofs/test/stresstests/sofi/test_stress_spsc_sofi.cpp
 
 ./iceoryx_hoofs/container/**/*
 ./iceoryx_hoofs/test/moduletests/test_container_*

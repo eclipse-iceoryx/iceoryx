@@ -44,7 +44,7 @@ inline VariantQueue<ValueType, Capacity>::VariantQueue(const VariantQueueTypes t
         [[fallthrough]];
     case VariantQueueTypes::SoFi_MultiProducerSingleConsumer:
     {
-        m_fifo.template emplace<concurrent::ResizeableLockFreeQueue<ValueType, Capacity>>();
+        m_fifo.template emplace<concurrent::MpmcResizeableLockFreeQueue<ValueType, Capacity>>();
         break;
     }
     }

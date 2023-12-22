@@ -15,10 +15,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_HPP
-#define IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_HPP
+#ifndef IOX_HOOFS_CONCURRENT_BUFFER_MPMC_LOCKFREE_QUEUE_HPP
+#define IOX_HOOFS_CONCURRENT_BUFFER_MPMC_LOCKFREE_QUEUE_HPP
 
-#include "iceoryx_hoofs/internal/concurrent/lockfree_queue/index_queue.hpp"
+#include "iox/detail/mpmc_lockfree_queue/mpmc_index_queue.hpp"
 #include "iox/optional.hpp"
 #include "iox/uninitialized_array.hpp"
 
@@ -32,23 +32,23 @@ namespace concurrent
 /// @brief implements a lock free queue (i.e. container with FIFO order) of elements of type T
 /// with a fixed Capacity
 template <typename ElementType, uint64_t Capacity>
-class LockFreeQueue
+class MpmcLockFreeQueue
 {
   public:
     using element_t = ElementType;
 
-    /// @brief creates and initalizes an empty LockFreeQueue
-    LockFreeQueue() noexcept;
+    /// @brief creates and initalizes an empty MpmcLockFreeQueue
+    MpmcLockFreeQueue() noexcept;
 
-    ~LockFreeQueue() noexcept = default;
+    ~MpmcLockFreeQueue() noexcept = default;
 
     // remark: a thread-safe and lockfree implementation of copy seems impossible
     // but unsafe copying (i.e. where synchronization is up to the user) would be possible
     // can be implemented when it is needed
-    LockFreeQueue(const LockFreeQueue&) = delete;
-    LockFreeQueue(LockFreeQueue&&) = delete;
-    LockFreeQueue& operator=(const LockFreeQueue&) = delete;
-    LockFreeQueue& operator=(LockFreeQueue&&) = delete;
+    MpmcLockFreeQueue(const MpmcLockFreeQueue&) = delete;
+    MpmcLockFreeQueue(MpmcLockFreeQueue&&) = delete;
+    MpmcLockFreeQueue& operator=(const MpmcLockFreeQueue&) = delete;
+    MpmcLockFreeQueue& operator=(MpmcLockFreeQueue&&) = delete;
 
     /// @brief returns the capacity of the queue
     /// @note threadsafe, lockfree
@@ -101,13 +101,13 @@ class LockFreeQueue
     uint64_t size() const noexcept;
 
   protected:
-    using Queue = IndexQueue<Capacity>;
+    using Queue = MpmcIndexQueue<Capacity>;
 
     // remark: actually m_freeIndices do not have to be in a queue, it could be another
     // multi-push multi-pop capable lockfree container (e.g. a stack or a list)
     Queue m_freeIndices;
 
-    // required to be a queue for LockFreeQueue to exhibit FIFO behaviour
+    // required to be a queue for MpmcLockFreeQueue to exhibit FIFO behaviour
     Queue m_usedIndices;
 
     UninitializedArray<ElementType, Capacity> m_buffer;
@@ -128,6 +128,6 @@ class LockFreeQueue
 } // namespace concurrent
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/concurrent/lockfree_queue/lockfree_queue.inl"
+#include "iox/detail/mpmc_lockfree_queue/mpmc_lockfree_queue.inl"
 
-#endif // IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_HPP
+#endif // IOX_HOOFS_CONCURRENT_BUFFER_MPMC_LOCKFREE_QUEUE_HPP

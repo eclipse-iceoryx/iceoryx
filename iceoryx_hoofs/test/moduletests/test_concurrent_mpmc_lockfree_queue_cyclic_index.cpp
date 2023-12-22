@@ -17,7 +17,7 @@
 
 #include "test.hpp"
 
-#include "iceoryx_hoofs/internal/concurrent/lockfree_queue/cyclic_index.hpp"
+#include "iox/detail/mpmc_lockfree_queue/cyclic_index.hpp"
 namespace
 {
 using namespace ::testing;
@@ -25,7 +25,7 @@ using namespace ::testing;
 using iox::concurrent::CyclicIndex;
 
 template <typename T>
-class LockFreeQueueCyclicIndexTest : public ::testing::Test
+class MpmcLockFreeQueueCyclicIndexTest : public ::testing::Test
 {
   public:
     using Index = T;
@@ -33,7 +33,7 @@ class LockFreeQueueCyclicIndexTest : public ::testing::Test
 
 typedef ::testing::Types<CyclicIndex<1>, CyclicIndex<2>, CyclicIndex<10>, CyclicIndex<1000>> TestIndices;
 
-TYPED_TEST_SUITE(LockFreeQueueCyclicIndexTest, TestIndices, );
+TYPED_TEST_SUITE(MpmcLockFreeQueueCyclicIndexTest, TestIndices, );
 
 // note that in all tests we will check whether the getCycle and getIndex methods
 // behave as expected after certain operations (mainly addition),
@@ -41,7 +41,7 @@ TYPED_TEST_SUITE(LockFreeQueueCyclicIndexTest, TestIndices, );
 // overflow cases are tested as well
 
 
-TYPED_TEST(LockFreeQueueCyclicIndexTest, defaultConstructedIndexIsZero)
+TYPED_TEST(MpmcLockFreeQueueCyclicIndexTest, defaultConstructedIndexIsZero)
 {
     ::testing::Test::RecordProperty("TEST_ID", "86401c7a-73bc-4677-9f1a-1d08c38d4793");
     using Index = typename TestFixture::Index;
@@ -52,7 +52,7 @@ TYPED_TEST(LockFreeQueueCyclicIndexTest, defaultConstructedIndexIsZero)
     EXPECT_EQ(index.getValue(), 0);
 }
 
-TYPED_TEST(LockFreeQueueCyclicIndexTest, explicitIndexConstructionWithZeroWorks)
+TYPED_TEST(MpmcLockFreeQueueCyclicIndexTest, explicitIndexConstructionWithZeroWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c015eb36-cbd8-42e2-8083-2e446f4c0f50");
     using Index = typename TestFixture::Index;
@@ -72,7 +72,7 @@ TYPED_TEST(LockFreeQueueCyclicIndexTest, explicitIndexConstructionWithZeroWorks)
     }
 }
 
-TYPED_TEST(LockFreeQueueCyclicIndexTest, getValueReturnsValueIndexWasConstructedWith)
+TYPED_TEST(MpmcLockFreeQueueCyclicIndexTest, getValueReturnsValueIndexWasConstructedWith)
 {
     ::testing::Test::RecordProperty("TEST_ID", "707d066c-f81c-4086-a71a-5b6b5333ecb5");
     using Index = typename TestFixture::Index;
@@ -80,7 +80,7 @@ TYPED_TEST(LockFreeQueueCyclicIndexTest, getValueReturnsValueIndexWasConstructed
     EXPECT_EQ(index.getValue(), 73);
 }
 
-TYPED_TEST(LockFreeQueueCyclicIndexTest, explicitConstructionWorks)
+TYPED_TEST(MpmcLockFreeQueueCyclicIndexTest, explicitConstructionWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1e72a059-b297-4e04-9dea-39218595ecac");
     using Index = typename TestFixture::Index;
@@ -105,7 +105,7 @@ TYPED_TEST(LockFreeQueueCyclicIndexTest, explicitConstructionWorks)
     }
 }
 
-TYPED_TEST(LockFreeQueueCyclicIndexTest, explicitConstructionWithMaxIndexAndCycleWorks)
+TYPED_TEST(MpmcLockFreeQueueCyclicIndexTest, explicitConstructionWithMaxIndexAndCycleWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d15fba8a-c3c0-4820-a087-699feba1064d");
     using Index = typename TestFixture::Index;
@@ -127,7 +127,7 @@ TYPED_TEST(LockFreeQueueCyclicIndexTest, explicitConstructionWithMaxIndexAndCycl
     }
 }
 
-TYPED_TEST(LockFreeQueueCyclicIndexTest, copyConstructorWorks)
+TYPED_TEST(MpmcLockFreeQueueCyclicIndexTest, copyConstructorWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "896617da-a3b7-4667-ae56-a9f5229f548e");
     using Index = typename TestFixture::Index;
@@ -145,7 +145,7 @@ TYPED_TEST(LockFreeQueueCyclicIndexTest, copyConstructorWorks)
     EXPECT_EQ(indexCopy.getCycle(), c);
 }
 
-TYPED_TEST(LockFreeQueueCyclicIndexTest, assignmentWorks)
+TYPED_TEST(MpmcLockFreeQueueCyclicIndexTest, assignmentWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fb4ee1ac-5913-481e-aba4-18ef82ad1c2e");
     using Index = typename TestFixture::Index;
@@ -161,7 +161,7 @@ TYPED_TEST(LockFreeQueueCyclicIndexTest, assignmentWorks)
     EXPECT_EQ(index2.getCycle(), c);
 }
 
-TYPED_TEST(LockFreeQueueCyclicIndexTest, selfAssignmentWorks)
+TYPED_TEST(MpmcLockFreeQueueCyclicIndexTest, selfAssignmentWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "56e126b1-43d8-43e7-b483-4a0fa8ac620b");
     using Index = typename TestFixture::Index;
@@ -177,7 +177,7 @@ TYPED_TEST(LockFreeQueueCyclicIndexTest, selfAssignmentWorks)
     EXPECT_EQ(index.getCycle(), c);
 }
 
-TYPED_TEST(LockFreeQueueCyclicIndexTest, cyclicAdditionWorks)
+TYPED_TEST(MpmcLockFreeQueueCyclicIndexTest, cyclicAdditionWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e8d5f97f-cb11-47d8-9525-5d41c849d9d3");
     using Index = typename TestFixture::Index;
@@ -197,7 +197,7 @@ TYPED_TEST(LockFreeQueueCyclicIndexTest, cyclicAdditionWorks)
     EXPECT_EQ(result.getCycle(), expectedCycle);
 }
 
-TYPED_TEST(LockFreeQueueCyclicIndexTest, cyclicIncrementWorks)
+TYPED_TEST(MpmcLockFreeQueueCyclicIndexTest, cyclicIncrementWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fb3ced77-f8f8-4bc9-893a-c8fc4e001482");
     using Index = typename TestFixture::Index;
@@ -216,7 +216,7 @@ TYPED_TEST(LockFreeQueueCyclicIndexTest, cyclicIncrementWorks)
     EXPECT_EQ(next.getCycle(), expectedCycle);
 }
 
-TYPED_TEST(LockFreeQueueCyclicIndexTest, cyclicIncrementWraparound)
+TYPED_TEST(MpmcLockFreeQueueCyclicIndexTest, cyclicIncrementWraparound)
 {
     ::testing::Test::RecordProperty("TEST_ID", "947872d1-c222-47aa-9391-1fd250e8e457");
     using Index = typename TestFixture::Index;
@@ -239,7 +239,7 @@ TYPED_TEST(LockFreeQueueCyclicIndexTest, cyclicIncrementWraparound)
     EXPECT_EQ(next.getCycle(), expectedCycle);
 }
 
-TYPED_TEST(LockFreeQueueCyclicIndexTest, cyclicIncrementOverflow)
+TYPED_TEST(MpmcLockFreeQueueCyclicIndexTest, cyclicIncrementOverflow)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2582ca2a-9acf-400a-90a6-ac35e23ac362");
     using Index = typename TestFixture::Index;
@@ -264,7 +264,7 @@ TYPED_TEST(LockFreeQueueCyclicIndexTest, cyclicIncrementOverflow)
     EXPECT_EQ(next.getCycle(), expectedCycle);
 }
 
-TYPED_TEST(LockFreeQueueCyclicIndexTest, cyclicAdditionOverflow)
+TYPED_TEST(MpmcLockFreeQueueCyclicIndexTest, cyclicAdditionOverflow)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5578f2c1-b2e8-43db-8943-967b7d77ba65");
     using Index = typename TestFixture::Index;
@@ -288,7 +288,7 @@ TYPED_TEST(LockFreeQueueCyclicIndexTest, cyclicAdditionOverflow)
 }
 
 
-TYPED_TEST(LockFreeQueueCyclicIndexTest, isOneCycleBehindCheckNegative)
+TYPED_TEST(MpmcLockFreeQueueCyclicIndexTest, isOneCycleBehindCheckNegative)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d60bff1d-bc3f-40be-a555-56871e0b7248");
     using Index = typename TestFixture::Index;
@@ -328,7 +328,7 @@ TYPED_TEST(LockFreeQueueCyclicIndexTest, isOneCycleBehindCheckNegative)
     EXPECT_FALSE(nextCycleStart2.isOneCycleBehind(cycleStart));
 }
 
-TYPED_TEST(LockFreeQueueCyclicIndexTest, isOneCycleBehindCheckPositive)
+TYPED_TEST(MpmcLockFreeQueueCyclicIndexTest, isOneCycleBehindCheckPositive)
 {
     ::testing::Test::RecordProperty("TEST_ID", "313f9624-9a37-4376-a3f2-c23b8a29b610");
     using Index = typename TestFixture::Index;
@@ -358,7 +358,7 @@ TYPED_TEST(LockFreeQueueCyclicIndexTest, isOneCycleBehindCheckPositive)
     EXPECT_TRUE(cycleMid.isOneCycleBehind(nextCycleEnd));
 }
 
-TYPED_TEST(LockFreeQueueCyclicIndexTest, isOneCycleBehindCheckDuringOverflow)
+TYPED_TEST(MpmcLockFreeQueueCyclicIndexTest, isOneCycleBehindCheckDuringOverflow)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b94e9e40-9c43-46e1-96ee-319052018326");
     using Index = typename TestFixture::Index;

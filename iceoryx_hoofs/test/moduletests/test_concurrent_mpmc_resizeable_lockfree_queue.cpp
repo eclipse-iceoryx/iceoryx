@@ -16,7 +16,7 @@
 
 #include "test.hpp"
 
-#include "iceoryx_hoofs/concurrent/resizeable_lockfree_queue.hpp"
+#include "iox/detail/mpmc_resizeable_lockfree_queue.hpp"
 
 /// Test the added functionality of ResizeableLockFreeQueue
 /// to change the capacity (setCapacity).
@@ -46,7 +46,7 @@ struct Integer
 };
 
 template <typename T>
-class ResizeableLockFreeQueueTest : public ::testing::Test
+class MpmcResizeableLockFreeQueueTest : public ::testing::Test
 {
   public:
     void fillQueue(uint64_t start = 0)
@@ -64,23 +64,23 @@ class ResizeableLockFreeQueueTest : public ::testing::Test
 };
 
 template <size_t Capacity>
-using IntegerQueue = iox::concurrent::ResizeableLockFreeQueue<Integer, Capacity>;
+using IntegerQueue = iox::concurrent::MpmcResizeableLockFreeQueue<Integer, Capacity>;
 
 template <size_t Capacity>
-using IntQueue = iox::concurrent::ResizeableLockFreeQueue<uint64_t, Capacity>;
+using IntQueue = iox::concurrent::MpmcResizeableLockFreeQueue<uint64_t, Capacity>;
 
 typedef ::testing::Types<IntegerQueue<1>, IntegerQueue<11>, IntQueue<10>> TestQueues;
 
-TYPED_TEST_SUITE(ResizeableLockFreeQueueTest, TestQueues, );
+TYPED_TEST_SUITE(MpmcResizeableLockFreeQueueTest, TestQueues, );
 
-TEST(ResizeableLockFreeQueueTest, maxCapacityIsConsistent)
+TEST(MpmcResizeableLockFreeQueueTest, maxCapacityIsConsistent)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9ca4e449-aa07-4180-aab5-29aeffdaa544");
     using Queue = IntegerQueue<37U>;
     EXPECT_EQ(Queue::maxCapacity(), 37U);
 }
 
-TYPED_TEST(ResizeableLockFreeQueueTest, initialCapacityIsMaximalbyDefault)
+TYPED_TEST(MpmcResizeableLockFreeQueueTest, initialCapacityIsMaximalbyDefault)
 {
     ::testing::Test::RecordProperty("TEST_ID", "475e3359-2b84-482b-ab60-f00baa4544af");
     using Queue = typename TestFixture::Queue;
@@ -89,7 +89,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, initialCapacityIsMaximalbyDefault)
     EXPECT_EQ(q.capacity(), Queue::maxCapacity());
 }
 
-TYPED_TEST(ResizeableLockFreeQueueTest, constructWithMaxCapacity)
+TYPED_TEST(MpmcResizeableLockFreeQueueTest, constructWithMaxCapacity)
 {
     ::testing::Test::RecordProperty("TEST_ID", "616cc6b8-9b57-44c5-be12-e675b0ccb60e");
     constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
@@ -97,7 +97,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, constructWithMaxCapacity)
     EXPECT_EQ(q.capacity(), q.maxCapacity());
 }
 
-TYPED_TEST(ResizeableLockFreeQueueTest, constructWithMoreThanMaxCapacitySaturatesAtMaxCapacity)
+TYPED_TEST(MpmcResizeableLockFreeQueueTest, constructWithMoreThanMaxCapacitySaturatesAtMaxCapacity)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1e02b0bc-d7e0-4a66-9381-2f3d8b3b868d");
     constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
@@ -105,14 +105,14 @@ TYPED_TEST(ResizeableLockFreeQueueTest, constructWithMoreThanMaxCapacitySaturate
     EXPECT_EQ(q.capacity(), q.maxCapacity());
 }
 
-TYPED_TEST(ResizeableLockFreeQueueTest, constructWithNoCapacity)
+TYPED_TEST(MpmcResizeableLockFreeQueueTest, constructWithNoCapacity)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9b3f8fee-1045-4f4a-b241-7cd3c8e134af");
     typename TestFixture::Queue q(0U);
     EXPECT_EQ(q.capacity(), 0U);
 }
 
-TYPED_TEST(ResizeableLockFreeQueueTest, constructWithHalfOfMaxCapacity)
+TYPED_TEST(MpmcResizeableLockFreeQueueTest, constructWithHalfOfMaxCapacity)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fdcd764d-75d3-4cb7-9ed1-330de98bbd61");
     constexpr auto cap = TestFixture::Queue::MAX_CAPACITY / 2U;
@@ -120,7 +120,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, constructWithHalfOfMaxCapacity)
     EXPECT_EQ(q.capacity(), cap);
 }
 
-TYPED_TEST(ResizeableLockFreeQueueTest, decreaseCapacityToZeroOneByOne)
+TYPED_TEST(MpmcResizeableLockFreeQueueTest, decreaseCapacityToZeroOneByOne)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5f0c0319-bf83-409d-b3b9-8e021afaf091");
     auto& q = this->queue;
@@ -141,7 +141,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, decreaseCapacityToZeroOneByOne)
     }
 }
 
-TYPED_TEST(ResizeableLockFreeQueueTest, decreaseCapacityToZeroOneByOneWithHandler)
+TYPED_TEST(MpmcResizeableLockFreeQueueTest, decreaseCapacityToZeroOneByOneWithHandler)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d99088a8-725c-451f-8f4a-ae0aafba368d");
     constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
@@ -167,7 +167,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, decreaseCapacityToZeroOneByOneWithHandle
     }
 }
 
-TYPED_TEST(ResizeableLockFreeQueueTest, increaseToMaxCapacityOneByOne)
+TYPED_TEST(MpmcResizeableLockFreeQueueTest, increaseToMaxCapacityOneByOne)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ff282db3-b6dd-4f01-a9b1-e4f788172c49");
     typename TestFixture::Queue q(0U);
@@ -181,7 +181,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, increaseToMaxCapacityOneByOne)
     }
 }
 
-TYPED_TEST(ResizeableLockFreeQueueTest, increaseToMaxCapacityOneByOneWithHandler)
+TYPED_TEST(MpmcResizeableLockFreeQueueTest, increaseToMaxCapacityOneByOneWithHandler)
 {
     ::testing::Test::RecordProperty("TEST_ID", "cf4dcb07-b9be-4d81-8e9d-d170274bcc1d");
     constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
@@ -200,7 +200,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, increaseToMaxCapacityOneByOneWithHandler
     }
 }
 
-TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToZero)
+TYPED_TEST(MpmcResizeableLockFreeQueueTest, setCapacityToZero)
 {
     ::testing::Test::RecordProperty("TEST_ID", "74906aed-bd84-4f63-9d9b-c829e97971f6");
     auto& q = this->queue;
@@ -208,7 +208,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToZero)
     EXPECT_EQ(q.capacity(), 0U);
 }
 
-TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToZeroWithHandler)
+TYPED_TEST(MpmcResizeableLockFreeQueueTest, setCapacityToZeroWithHandler)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7af169f3-32a3-43b7-8e48-cc22728e13f0");
     constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
@@ -222,7 +222,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToZeroWithHandler)
     EXPECT_EQ(removedElements.size(), 0U);
 }
 
-TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToOne)
+TYPED_TEST(MpmcResizeableLockFreeQueueTest, setCapacityToOne)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3bf17fb8-f688-43c4-a9cc-91fcafd43012");
     auto& q = this->queue;
@@ -230,7 +230,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToOne)
     EXPECT_EQ(q.capacity(), 1U);
 }
 
-TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToOneWithHandler)
+TYPED_TEST(MpmcResizeableLockFreeQueueTest, setCapacityToOneWithHandler)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1f640a03-37f4-4cb8-9985-1c27a9a5480f");
     constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
@@ -244,7 +244,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToOneWithHandler)
     EXPECT_EQ(removedElements.size(), 0U);
 }
 
-TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToMaxCapacity)
+TYPED_TEST(MpmcResizeableLockFreeQueueTest, setCapacityToMaxCapacity)
 {
     ::testing::Test::RecordProperty("TEST_ID", "76bcd176-e3e2-4acc-a846-596e75be5869");
     typename TestFixture::Queue q(0U);
@@ -253,7 +253,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToMaxCapacity)
     EXPECT_EQ(q.capacity(), MAX_CAP);
 }
 
-TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToMaxCapacityWithHandler)
+TYPED_TEST(MpmcResizeableLockFreeQueueTest, setCapacityToMaxCapacityWithHandler)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2e485d0f-6dc1-46af-86d0-cec0840d0821");
     typename TestFixture::Queue q(0U);
@@ -268,7 +268,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToMaxCapacityWithHandler)
     EXPECT_EQ(removedElements.size(), 0U);
 }
 
-TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToHalfOfMaxCapacityAndFillIt)
+TYPED_TEST(MpmcResizeableLockFreeQueueTest, setCapacityToHalfOfMaxCapacityAndFillIt)
 {
     ::testing::Test::RecordProperty("TEST_ID", "054875b1-a0ab-4c65-a3ce-d1bb4113e94e");
     auto& q = this->queue;
@@ -288,7 +288,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToHalfOfMaxCapacityAndFillIt)
     EXPECT_EQ(element, NEW_CAP);
 }
 
-TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToHalfOfMaxCapacityAndFillItWithHandler)
+TYPED_TEST(MpmcResizeableLockFreeQueueTest, setCapacityToHalfOfMaxCapacityAndFillItWithHandler)
 {
     ::testing::Test::RecordProperty("TEST_ID", "192221e7-c883-42a1-b7b2-c123d442b512");
     auto& q = this->queue;
@@ -314,7 +314,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToHalfOfMaxCapacityAndFillItW
     EXPECT_EQ(element, NEW_CAP);
 }
 
-TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityFromHalfOfMaxCapacityToMaxCapacity)
+TYPED_TEST(MpmcResizeableLockFreeQueueTest, setCapacityFromHalfOfMaxCapacityToMaxCapacity)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d01bd6a0-c22d-4995-87ca-115c13269339");
     auto& q = this->queue;
@@ -346,7 +346,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityFromHalfOfMaxCapacityToMaxCap
     }
 }
 
-TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityFromHalfOfMaxCapacityToMaxCapacityWithHandler)
+TYPED_TEST(MpmcResizeableLockFreeQueueTest, setCapacityFromHalfOfMaxCapacityToMaxCapacityWithHandler)
 {
     ::testing::Test::RecordProperty("TEST_ID", "04bcc542-c6aa-4865-9b60-4058ccee2904");
     auto& q = this->queue;
@@ -384,7 +384,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityFromHalfOfMaxCapacityToMaxCap
     }
 }
 
-TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityOfFullQueueToHalfOfMaxCapacity)
+TYPED_TEST(MpmcResizeableLockFreeQueueTest, setCapacityOfFullQueueToHalfOfMaxCapacity)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9d1eb828-33fa-4e98-98c6-88c342b7ab53");
     auto& q = this->queue;
@@ -411,7 +411,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityOfFullQueueToHalfOfMaxCapacit
     }
 }
 
-TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityOfFullQueueToHalfOfMaxCapacityWithHandler)
+TYPED_TEST(MpmcResizeableLockFreeQueueTest, setCapacityOfFullQueueToHalfOfMaxCapacityWithHandler)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b06d2d45-e6a3-47b3-865c-8b940adfac9d");
     auto& q = this->queue;
@@ -446,7 +446,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityOfFullQueueToHalfOfMaxCapacit
 // note this is one of the most general cases and necessary to test:
 // decreasing the capacity starting with a partially filled queue and checking whether the last values
 // remain (and the others are removed)
-TYPED_TEST(ResizeableLockFreeQueueTest, DecreaseCapacityOfAPartiallyFilledQueue)
+TYPED_TEST(MpmcResizeableLockFreeQueueTest, DecreaseCapacityOfAPartiallyFilledQueue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fa79f745-212a-433b-a1f3-b1abbd6f845d");
     auto& q = this->queue;
@@ -505,7 +505,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, DecreaseCapacityOfAPartiallyFilledQueue)
     EXPECT_EQ(q.size(), 0U);
 }
 
-TYPED_TEST(ResizeableLockFreeQueueTest, DecreaseCapacityOfAPartiallyFilledQueueWithHandler)
+TYPED_TEST(MpmcResizeableLockFreeQueueTest, DecreaseCapacityOfAPartiallyFilledQueueWithHandler)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3b0f917b-fd9b-45d7-84b9-c0468cc86d70");
     auto& q = this->queue;

@@ -15,10 +15,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_LOCKFREE_QUEUE_INDEX_QUEUE_HPP
-#define IOX_HOOFS_LOCKFREE_QUEUE_INDEX_QUEUE_HPP
+#ifndef IOX_HOOFS_CONCURRENT_BUFFER_MPMC_LOCKFREE_QUEUE_MPMC_INDEX_QUEUE_HPP
+#define IOX_HOOFS_CONCURRENT_BUFFER_MPMC_LOCKFREE_QUEUE_MPMC_INDEX_QUEUE_HPP
 
-#include "iceoryx_hoofs/internal/concurrent/lockfree_queue/cyclic_index.hpp"
+#include "iox/detail/mpmc_lockfree_queue/cyclic_index.hpp"
 #include "iox/optional.hpp"
 
 #include <atomic>
@@ -29,14 +29,14 @@ namespace iox
 namespace concurrent
 {
 template <typename ElementType, uint64_t Capacity>
-class LockFreeQueue;
+class MpmcLockFreeQueue;
 
 template <typename ElementType, uint64_t Capacity>
-class ResizeableLockFreeQueue;
+class MpmcResizeableLockFreeQueue;
 
 /// @brief lockfree queue capable of storing indices 0,1,... Capacity-1
 template <uint64_t Capacity, typename ValueType = uint64_t>
-class IndexQueue
+class MpmcIndexQueue
 {
   public:
     static_assert(std::is_unsigned<ValueType>::value, "ValueType must be an unsigned integral type");
@@ -54,20 +54,20 @@ class IndexQueue
     static constexpr ConstructFull_t ConstructFull{};
     static constexpr ConstructEmpty_t ConstructEmpty{};
 
-    ~IndexQueue() noexcept = default;
-    IndexQueue(const IndexQueue&) = delete;
-    IndexQueue(IndexQueue&&) = delete;
-    IndexQueue& operator=(const IndexQueue&) = delete;
-    IndexQueue& operator=(IndexQueue&&) = delete;
+    ~MpmcIndexQueue() noexcept = default;
+    MpmcIndexQueue(const MpmcIndexQueue&) = delete;
+    MpmcIndexQueue(MpmcIndexQueue&&) = delete;
+    MpmcIndexQueue& operator=(const MpmcIndexQueue&) = delete;
+    MpmcIndexQueue& operator=(MpmcIndexQueue&&) = delete;
 
-    /// @brief constructs an empty IndexQueue
-    explicit IndexQueue(ConstructEmpty_t = ConstructEmpty) noexcept;
+    /// @brief constructs an empty MpmcIndexQueue
+    explicit MpmcIndexQueue(ConstructEmpty_t = ConstructEmpty) noexcept;
 
-    /// @brief constructs IndexQueue filled with all indices 0,1,...capacity-1
-    explicit IndexQueue(ConstructFull_t) noexcept;
+    /// @brief constructs MpmcIndexQueue filled with all indices 0,1,...capacity-1
+    explicit MpmcIndexQueue(ConstructFull_t) noexcept;
 
-    /// @brief get the capacity of the IndexQueue
-    /// @return capacity of the IndexQueue
+    /// @brief get the capacity of the MpmcIndexQueue
+    /// @return capacity of the MpmcIndexQueue
     /// threadsafe, lockfree
     constexpr uint64_t capacity() const noexcept;
 
@@ -101,10 +101,10 @@ class IndexQueue
 
   private:
     template <typename ElementType, uint64_t Cap>
-    friend class LockFreeQueue;
+    friend class MpmcLockFreeQueue;
 
     template <typename ElementType, uint64_t Cap>
-    friend class ResizeableLockFreeQueue;
+    friend class MpmcResizeableLockFreeQueue;
 
     // remark: a compile time check whether Index is actually lock free would be nice
     // note: there is a way  with is_always_lock_free in c++17 (which we cannot use here)
@@ -147,6 +147,6 @@ class IndexQueue
 } // namespace concurrent
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/concurrent/lockfree_queue/index_queue.inl"
+#include "iox/detail/mpmc_lockfree_queue/mpmc_index_queue.inl"
 
-#endif // IOX_HOOFS_LOCKFREE_QUEUE_INDEX_QUEUE_HPP
+#endif // IOX_HOOFS_CONCURRENT_BUFFER_MPMC_LOCKFREE_QUEUE_MPMC_INDEX_QUEUE_HPP
