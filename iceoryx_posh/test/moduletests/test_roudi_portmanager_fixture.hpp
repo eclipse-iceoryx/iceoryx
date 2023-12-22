@@ -41,7 +41,6 @@ namespace iox_test_roudi_portmanager
 using namespace ::testing;
 using namespace iox;
 using namespace iox::capro;
-using namespace iox::cxx;
 using namespace iox::popo;
 using namespace iox::roudi;
 using namespace iox::roudi_env;

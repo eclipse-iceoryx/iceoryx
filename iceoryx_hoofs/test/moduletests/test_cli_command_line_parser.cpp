@@ -34,7 +34,6 @@ namespace
 using namespace ::testing;
 using namespace iox::cli;
 using namespace iox;
-using namespace iox::cxx;
 
 class CommandLineParser_test : public Test
 {

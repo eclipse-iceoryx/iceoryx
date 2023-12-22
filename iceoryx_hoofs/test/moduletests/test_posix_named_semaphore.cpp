@@ -21,7 +21,6 @@
 namespace
 {
 using namespace ::testing;
-using namespace iox::cxx;
 using namespace iox;
 
 class NamedSemaphoreTest : public Test

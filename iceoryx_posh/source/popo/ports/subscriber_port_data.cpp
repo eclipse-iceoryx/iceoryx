@@ -24,7 +24,7 @@ namespace popo
 {
 SubscriberPortData::SubscriberPortData(const capro::ServiceDescription& serviceDescription,
                                        const RuntimeName_t& runtimeName,
-                                       cxx::VariantQueueTypes queueType,
+                                       const VariantQueueTypes queueType,
                                        const SubscriberOptions& subscriberOptions,
                                        const mepoo::MemoryInfo& memoryInfo) noexcept
     : BasePortData(serviceDescription, runtimeName, subscriberOptions.nodeName)

@@ -37,7 +37,6 @@ namespace
 using namespace ::testing;
 
 using namespace iox::popo;
-using namespace iox::cxx;
 using namespace iox::units::duration_literals;
 
 namespace

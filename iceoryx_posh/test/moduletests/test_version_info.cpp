@@ -23,7 +23,6 @@ namespace
 {
 using namespace ::testing;
 using namespace iox::version;
-using namespace iox::cxx;
 
 class VersionInfo_test : public Test
 {

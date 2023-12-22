@@ -44,7 +44,6 @@ using namespace ::testing;
 using namespace iox::testing;
 using namespace iox::roudi_env;
 using namespace iox::capro;
-using namespace iox::cxx;
 using namespace iox::mepoo;
 
 class iox_pub_test : public Test
@@ -103,7 +102,7 @@ class iox_pub_test : public Test
 
     using ChunkQueueData_t = popo::ChunkQueueData<DefaultChunkQueueConfig, popo::ThreadSafePolicy>;
     ChunkQueueData_t m_chunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
-                                      iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+                                      iox::popo::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
 
     BumpAllocator m_memoryAllocator{m_memory, MEMORY_SIZE};
     MePooConfig m_mempoolconf;

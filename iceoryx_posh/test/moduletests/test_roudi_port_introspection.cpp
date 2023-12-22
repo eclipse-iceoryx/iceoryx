@@ -351,10 +351,10 @@ TEST_F(PortIntrospection_test, addAndRemoveSubscriber)
     // test adding of ports
     // remark: duplicate subscriber insertions are not possible
     iox::popo::SubscriberPortData recData1{
-        service1, runtimeName1, iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer, subscriberOptions1};
+        service1, runtimeName1, iox::popo::VariantQueueTypes::FiFo_MultiProducerSingleConsumer, subscriberOptions1};
     MockSubscriberPortUser port1(&recData1);
     iox::popo::SubscriberPortData recData2{
-        service2, runtimeName2, iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer, subscriberOptions2};
+        service2, runtimeName2, iox::popo::VariantQueueTypes::FiFo_MultiProducerSingleConsumer, subscriberOptions2};
     MockSubscriberPortUser port2(&recData2);
     EXPECT_THAT(m_introspectionAccess.addSubscriber(recData1), Eq(true));
     EXPECT_THAT(m_introspectionAccess.addSubscriber(recData1), Eq(false));

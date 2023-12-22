@@ -331,7 +331,7 @@ TEST_F(PublisherPort_test, subscribeWhenNotOfferedReturnsNACK)
 {
     ::testing::Test::RecordProperty("TEST_ID", "71148938-58f1-4189-8461-8bab912e32c6");
     ChunkQueueData_t m_chunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
-                                      iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+                                      iox::popo::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::SUB,
                                           iox::capro::ServiceDescription("a", "b", "c"));
     caproMessage.m_chunkQueueData = &m_chunkQueueData;
@@ -350,7 +350,7 @@ TEST_F(PublisherPort_test, unsubscribeWhenNotSubscribedReturnsNACK)
     m_sutNoOfferOnCreateUserSide.offer();
     m_sutNoOfferOnCreateRouDiSide.tryGetCaProMessage();
     ChunkQueueData_t m_chunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
-                                      iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+                                      iox::popo::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::UNSUB,
                                           iox::capro::ServiceDescription("a", "b", "c"));
     caproMessage.m_chunkQueueData = &m_chunkQueueData;
@@ -369,7 +369,7 @@ TEST_F(PublisherPort_test, subscribeWhenOfferedReturnsACKAndWeHaveSubscribers)
     m_sutNoOfferOnCreateUserSide.offer();
     m_sutNoOfferOnCreateRouDiSide.tryGetCaProMessage();
     ChunkQueueData_t m_chunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
-                                      iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+                                      iox::popo::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::SUB,
                                           iox::capro::ServiceDescription("a", "b", "c"));
     caproMessage.m_chunkQueueData = &m_chunkQueueData;
@@ -389,7 +389,7 @@ TEST_F(PublisherPort_test, unsubscribeWhenSubscribedReturnsACKAndWeHaveNoMoreSub
     m_sutNoOfferOnCreateUserSide.offer();
     m_sutNoOfferOnCreateRouDiSide.tryGetCaProMessage();
     ChunkQueueData_t m_chunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
-                                      iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+                                      iox::popo::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::SUB,
                                           iox::capro::ServiceDescription("a", "b", "c"));
     caproMessage.m_chunkQueueData = &m_chunkQueueData;
@@ -415,7 +415,7 @@ TEST_F(PublisherPort_test, subscribeManyIsFine)
     uint64_t dummy;
     uint64_t* dummyPtr = &dummy;
     ChunkQueueData_t m_chunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
-                                      iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+                                      iox::popo::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::SUB,
                                           iox::capro::ServiceDescription("a", "b", "c"));
     caproMessage.m_chunkQueueData = reinterpret_cast<ChunkQueueData_t*>(dummyPtr);
@@ -441,7 +441,7 @@ TEST_F(PublisherPort_test, subscribeTillOverflowReturnsNACK)
     uint64_t dummy;
     uint64_t* dummyPtr = &dummy;
     ChunkQueueData_t m_chunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
-                                      iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+                                      iox::popo::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::SUB,
                                           iox::capro::ServiceDescription("a", "b", "c"));
     caproMessage.m_chunkQueueData = reinterpret_cast<ChunkQueueData_t*>(dummyPtr);
@@ -466,7 +466,7 @@ TEST_F(PublisherPort_test, sendWhenSubscribedDeliversAChunk)
     m_sutNoOfferOnCreateUserSide.offer();
     m_sutNoOfferOnCreateRouDiSide.tryGetCaProMessage();
     ChunkQueueData_t m_chunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
-                                      iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+                                      iox::popo::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::SUB,
                                           iox::capro::ServiceDescription("a", "b", "c"));
     caproMessage.m_chunkQueueData = &m_chunkQueueData;
@@ -512,7 +512,7 @@ TEST_F(PublisherPort_test, subscribeWithHistoryLikeTheARAField)
     sutWithHistoryRouDiSide.tryGetCaProMessage();
     // 3. subscribe with a history request
     ChunkQueueData_t m_chunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
-                                      iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+                                      iox::popo::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::SUB,
                                           iox::capro::ServiceDescription("a", "b", "c"));
     caproMessage.m_chunkQueueData = &m_chunkQueueData;

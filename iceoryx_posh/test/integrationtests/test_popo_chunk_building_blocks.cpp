@@ -33,7 +33,6 @@ namespace
 {
 using namespace ::testing;
 using namespace iox::popo;
-using namespace iox::cxx;
 using namespace iox::mepoo;
 
 struct DummySample
@@ -216,11 +215,11 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
     ChunkDistributor_t m_chunkDistributor{&m_chunkDistributorData};
     ChunkQueueData_t m_chunkQueueData{
         QueueFullPolicy::DISCARD_OLDEST_DATA,
-        iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer}; // SoFi intentionally not used
+        iox::popo::VariantQueueTypes::FiFo_SingleProducerSingleConsumer}; // SoFi intentionally not used
     ChunkQueuePopper_t m_popper{&m_chunkQueueData};
 
     // Objects used by subscribing thread
-    ChunkReceiverData_t m_chunkReceiverData{iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer,
+    ChunkReceiverData_t m_chunkReceiverData{iox::popo::VariantQueueTypes::FiFo_SingleProducerSingleConsumer,
                                             QueueFullPolicy::DISCARD_OLDEST_DATA}; // SoFi intentionally not used
     ChunkReceiver<ChunkReceiverData_t> m_chunkReceiver{&m_chunkReceiverData};
 };

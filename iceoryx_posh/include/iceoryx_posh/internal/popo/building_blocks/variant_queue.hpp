@@ -14,8 +14,9 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_VARIANT_QUEUE_HPP
-#define IOX_HOOFS_CXX_VARIANT_QUEUE_HPP
+
+#ifndef IOX_POSH_POPO_BUILDING_BLOCKS_VARIANT_QUEUE_HPP
+#define IOX_POSH_POPO_BUILDING_BLOCKS_VARIANT_QUEUE_HPP
 
 #include "iox/detail/mpmc_resizeable_lockfree_queue.hpp"
 #include "iox/detail/spsc_fifo.hpp"
@@ -27,14 +28,14 @@
 
 namespace iox
 {
-namespace cxx
+namespace popo
 {
 /// @brief list of the supported underlying queue types
 /// @note  if a new queue type is added the following steps have to be
 ///         performed:
 ///         1. add queue type here
 ///         2. add queue type in m_fifo data member variant type
-///         3. increase numberOfQueueTypes in test_cxx_variant_queue test
+///         3. increase numberOfQueueTypes in test_popo_variant_queue test
 enum class VariantQueueTypes : uint64_t
 {
     FiFo_SingleProducerSingleConsumer = 0,
@@ -51,8 +52,8 @@ enum class VariantQueueTypes : uint64_t
 /// @param[in] ValueType type which should be stored
 /// @param[in] Capacity capacity of the underlying fifo
 /// @code
-///     cxx::VariantQueue<int, 5> nonOverflowingQueue(cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer);
-///     cxx::VariantQueue<int, 5> overflowingQueue(cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer);
+///     popo::VariantQueue<int, 5> nonOverflowingQueue(popo::VariantQueueTypes::FiFo_SingleProducerSingleConsumer);
+///     popo::VariantQueue<int, 5> overflowingQueue(popo::VariantQueueTypes::SoFi_SingleProducerSingleConsumer);
 ///
 ///     // overflow case
 ///     auto status = nonOverflowingQueue.push(123);
@@ -116,9 +117,9 @@ class VariantQueue
     const VariantQueueTypes m_type;
     fifo_t m_fifo;
 };
-} // namespace cxx
+} // namespace popo
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/cxx/variant_queue.inl"
+#include "iceoryx_posh/internal/popo/building_blocks/variant_queue.inl"
 
-#endif // IOX_HOOFS_CXX_VARIANT_QUEUE_HPP
+#endif // IOX_POSH_POPO_BUILDING_BLOCKS_VARIANT_QUEUE_HPP

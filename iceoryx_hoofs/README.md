@@ -105,7 +105,6 @@ The module structure is a logical grouping. It is replicated for `concurrent` an
 |`SpscSofi`                          | i        | Single producer, single consumer lock-free safely overflowing FiFo (SpscSofi).                                                                                                                                                         |
 |`MpmcResizeableLockFreeQueue`       |          | Resizeable variant of the `MpmcLockfreeQueue`                                                                                                                                                                                          |
 |`stack`                             |          | Stack implementation with simple push/pop interface.                                                                                                                                                                               |
-|`VariantQueue`                      |          | A queue which wraps multiple variants of Queues (SpscFifo, SpscSofi, MpmcResizeableLockFreeQueue) - will be moved to `iceoryx_posh` -                                                                                                           |
 
 #### Attribute overview of the available buffers
 

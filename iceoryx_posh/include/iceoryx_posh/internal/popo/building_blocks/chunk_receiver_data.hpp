@@ -17,9 +17,9 @@
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_RECEIVER_DATA_HPP
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_RECEIVER_DATA_HPP
 
-#include "iceoryx_hoofs/cxx/variant_queue.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_data.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/variant_queue.hpp"
 #include "iceoryx_posh/internal/popo/used_chunk_list.hpp"
 #include "iceoryx_posh/mepoo/memory_info.hpp"
 
@@ -30,7 +30,7 @@ namespace popo
 template <uint32_t MaxChunksHeldSimultaneously, typename ChunkQueueDataType>
 struct ChunkReceiverData : public ChunkQueueDataType
 {
-    explicit ChunkReceiverData(const cxx::VariantQueueTypes queueType,
+    explicit ChunkReceiverData(const VariantQueueTypes queueType,
                                const QueueFullPolicy queueFullPolicy,
                                const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 

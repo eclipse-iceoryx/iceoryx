@@ -15,14 +15,15 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_VARIANT_QUEUE_INL
-#define IOX_HOOFS_CXX_VARIANT_QUEUE_INL
 
-#include "iceoryx_hoofs/cxx/variant_queue.hpp"
+#ifndef IOX_POSH_POPO_BUILDING_BLOCKS_VARIANT_QUEUE_INL
+#define IOX_POSH_POPO_BUILDING_BLOCKS_VARIANT_QUEUE_INL
+
+#include "iceoryx_posh/internal/popo/building_blocks/variant_queue.hpp"
 
 namespace iox
 {
-namespace cxx
+namespace popo
 {
 template <typename ValueType, uint64_t Capacity>
 inline VariantQueue<ValueType, Capacity>::VariantQueue(const VariantQueueTypes type) noexcept
@@ -259,7 +260,7 @@ inline uint64_t VariantQueue<ValueType, Capacity>::capacity() const noexcept
     return 0U;
 }
 
-} // namespace cxx
+} // namespace popo
 } // namespace iox
 
-#endif // IOX_HOOFS_CXX_VARIANT_QUEUE_INL
+#endif // IOX_POSH_POPO_BUILDING_BLOCKS_VARIANT_QUEUE_INL

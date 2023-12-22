@@ -210,7 +210,7 @@ class ClientPort_test : public Test
     static constexpr uint32_t USER_PAYLOAD_ALIGNMENT{8U};
 
     ServerChunkQueueData_t serverChunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
-                                                iox::cxx::VariantQueueTypes::SoFi_MultiProducerSingleConsumer};
+                                                iox::popo::VariantQueueTypes::SoFi_MultiProducerSingleConsumer};
     ChunkQueuePopper<ServerChunkQueueData_t> serverRequestQueue{&serverChunkQueueData};
 
     SutClientPort clientPortWithConnectOnCreate{

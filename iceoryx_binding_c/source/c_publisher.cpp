@@ -26,7 +26,6 @@
 
 
 using namespace iox;
-using namespace iox::cxx;
 using namespace iox::popo;
 using namespace iox::capro;
 using namespace iox::mepoo;

@@ -105,7 +105,7 @@ class ChunkSender_test : public Test
         iox::popo::ChunkSenderData<iox::MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY, ChunkDistributorData_t>;
 
     ChunkQueueData_t m_chunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
-                                      iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+                                      iox::popo::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     ChunkSenderData_t m_chunkSenderData{
         &m_memoryManager, iox::popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA, 0}; // must be 0 for test
     ChunkSenderData_t m_chunkSenderDataWithHistory{
