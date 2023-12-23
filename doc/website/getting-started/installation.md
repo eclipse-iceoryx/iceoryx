@@ -73,16 +73,38 @@ In case you do not have a Windows installation, Microsoft provides free develope
 
 Additionally, [CMake](https://cmake.org/download/) and [git](https://gitforwindows.org/) are required. The option to add CMake to the system PATH for all users should be set when it is installed.
 
-If the developer image from Microsoft is used, Visual Studio Community 2019 is already installed, else it can be found [here](https://visualstudio.microsoft.com/de/downloads/).
+Alternatively, [chocolatey](https://community.chocolatey.org) can be used to install the dev dependencies. Follow the instructions for the [individual install](https://chocolatey.org/install#individual) and then use the following commands to install `git` and `cmake`.
+```powershell
+choco install -y git
+choco install -y cmake --installargs 'ADD_CMAKE_TO_PATH=System'
+```
+Additional packages can be found [here](https://community.chocolatey.org/packages).
 
-To be able to compile iceoryx, the `Desktop development with C++` Workload must be installed. This is done by running `VisualStudioInstaller` and selecting the `Modify` button on `Visual Studio Community 2019`.
+#### Setup for MSVC
+
+If the developer image from Microsoft is used, Visual Studio Community 2022 is already installed, else it can be found [here](https://visualstudio.microsoft.com/de/downloads/).
+
+To be able to compile iceoryx, the `Desktop development with C++` Workload must be installed. This is done by running `VisualStudioInstaller` and selecting the `Modify` button on `Visual Studio Community 2022`.
 
 Either `VS Code` or `Developer Command Prompt` can be used to build iceoryx with CMake. Maybe one or two restarts are required to let CMake find the compiler.
 
-Alternatively, `C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat` can be executed in any shell to setup all the paths for compilation.
+Alternatively, `C:\Program Files (x86)\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat` can be executed in any shell to setup all the paths for compilation.
 
 !!! attention
     A Windows SDK Version of at least `10.0.18362.0` is required.
+
+#### Setup for MinGW
+
+`MinGW` can also be used to build iceoryx on Windows. The easist way to do this is to use `chocolatey`.
+
+```powershell
+choco install -y mingw --version=10.3.0
+```
+
+The `MinGW` library path needs to be added to the `Path` environment variable.
+```powershell
+$env:Path += 'C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin'
+```
 
 ## Build with CMake
 
@@ -108,6 +130,15 @@ The `CMakeLists.txt` from `iceoryx_meta` can be used to easily develop iceoryx w
     cmake -Bbuild -Hiceoryx_meta -DCMAKE_PREFIX_PATH=$(PWD)/build/dependencies/
     ```
 
+    On Windows, the commands are
+    ```powershell
+    # for MSVC
+    cmake -Bbuild -Hiceoryx_meta -DCMAKE_CXX_FLAGS="/MP" -DCMAKE_SYSTEM_VERSION="10.0.18362.0"
+
+    # for MinGW
+    cmake -Bbuild -Hiceoryx_meta -DCMAKE_SYSTEM_VERSION="10.0.18362.0" -G "MinGW Makefiles"
+    ```
+
     !!! tip
         To build all iceoryx components add `-DBUILD_ALL=ON` to the CMake command. For Windows it is currently recommended to use the `cmake -Bbuild -Hiceoryx_meta -DBUILD_TEST=ON -DINTROSPECTION=OFF -DBINDING_C=ON -DEXAMPLES=ON` instead
 
@@ -116,15 +147,6 @@ The `CMakeLists.txt` from `iceoryx_meta` can be used to easily develop iceoryx w
     ```bash
     cmake --build build
     ```
-
-    If the compilation fails, it is possible that the compilation failure originates
-    inside the Windows SDK and is not caused by iceoryx, see
-    [Windows vcpkg-issue \#15035](https://github.com/microsoft/vcpkg/issues/15035#issuecomment-742427969.)
-    In this case try to rebuild the cmake files with:
-    ```bash
-    cmake -Bbuild -Hiceoryx_meta -DCMAKE_SYSTEM_VERSION="10.0.18362.0"
-    ```
-    and restart the build command `cmake --build build`.
 
     !!! tip
         You can speed up the build by appending `-j 4` where 4 stands for the number of parallel build processes.
