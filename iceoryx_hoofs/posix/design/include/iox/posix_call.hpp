@@ -132,16 +132,6 @@ class [[nodiscard]] PosixCallVerificator
     /// @return the PosixCallEvaluator which evaluates the errno values
     PosixCallEvaluator<ReturnType> returnValueMatchesErrno() && noexcept;
 
-    /// @brief Sets the POSIX call to always be treated as successful.
-    /// @details This function marks the current POSIX call evaluation as always successful,
-    ///          regardless of the actual outcome. It is particularly useful in scenarios
-    ///          where the return value or error state should be ignored, and the operation
-    ///          should always be considered successful.
-    /// @tparam ReturnType The return type of the POSIX call.
-    /// @return An instance of PosixCallEvaluator that represents the modified
-    ///         state of the POSIX call evaluation, with success status enforced.
-    PosixCallEvaluator<ReturnType> alwaysSuccess() && noexcept;
-
   private:
     template <typename, typename...>
     friend class PosixCallBuilder;

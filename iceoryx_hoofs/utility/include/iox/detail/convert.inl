@@ -107,7 +107,7 @@ inline iox::optional<bool> convert::from_string<bool>(const char* v) noexcept
 
     auto call = IOX_POSIX_CALL(strtoul)(v, &end_ptr, STRTOUL_BASE)
                     .failureReturnValue(ULONG_MAX)
-                    .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
+                    .ignoreErrnos(0, EINVAL, ERANGE)
                     .evaluate();
 
     // we assume that in the IOX_POSIX_CALL procedure, no other POSIX call will change errno,
@@ -123,7 +123,7 @@ inline iox::optional<float> convert::from_string<float>(const char* v) noexcept
 
     auto call = IOX_POSIX_CALL(strtof)(v, &end_ptr)
                     .failureReturnValue(HUGE_VALF, -HUGE_VALF)
-                    .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
+                    .ignoreErrnos(0, EINVAL, ERANGE)
                     .evaluate();
 
     return evaluate_return_value<float>(call, errno, end_ptr, v);
@@ -137,7 +137,7 @@ inline iox::optional<double> convert::from_string<double>(const char* v) noexcep
 
     auto call = IOX_POSIX_CALL(strtod)(v, &end_ptr)
                     .failureReturnValue(HUGE_VAL, -HUGE_VAL)
-                    .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
+                    .ignoreErrnos(0, EINVAL, ERANGE)
                     .evaluate();
 
     return evaluate_return_value<double>(call, errno, end_ptr, v);
@@ -151,7 +151,7 @@ inline iox::optional<long double> convert::from_string<long double>(const char* 
 
     auto call = IOX_POSIX_CALL(strtold)(v, &end_ptr)
                     .failureReturnValue(HUGE_VALL, -HUGE_VALL)
-                    .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
+                    .ignoreErrnos(0, EINVAL, ERANGE)
                     .evaluate();
 
     return evaluate_return_value<long double>(call, errno, end_ptr, v);
@@ -169,8 +169,8 @@ inline iox::optional<unsigned long long> convert::from_string<unsigned long long
     }
 
     auto call = IOX_POSIX_CALL(strtoull)(v, &end_ptr, STRTOULL_BASE)
-                    .alwaysSuccess()
-                    .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
+                    .failureReturnValue(ULLONG_MAX)
+                    .ignoreErrnos(0, EINVAL, ERANGE)
                     .evaluate();
 
     return evaluate_return_value<unsigned long long>(call, errno, end_ptr, v);
@@ -188,8 +188,8 @@ inline iox::optional<unsigned long> convert::from_string<unsigned long>(const ch
     }
 
     auto call = IOX_POSIX_CALL(strtoul)(v, &end_ptr, STRTOUL_BASE)
-                    .alwaysSuccess()
-                    .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
+                    .failureReturnValue(ULONG_MAX)
+                    .ignoreErrnos(0, EINVAL, ERANGE)
                     .evaluate();
 
     return evaluate_return_value<unsigned long>(call, errno, end_ptr, v);
@@ -208,8 +208,8 @@ inline iox::optional<unsigned int> convert::from_string<unsigned int>(const char
 
     // use alwaysSuccess for the conversion edge cases in 32-bit system?
     auto call = IOX_POSIX_CALL(strtoul)(v, &end_ptr, STRTOUL_BASE)
-                    .alwaysSuccess()
-                    .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
+                    .failureReturnValue(ULONG_MAX)
+                    .ignoreErrnos(0, EINVAL, ERANGE)
                     .evaluate();
 
     return evaluate_return_value<unsigned int>(call, errno, end_ptr, v);
@@ -228,7 +228,7 @@ inline iox::optional<unsigned short> convert::from_string<unsigned short>(const 
 
     auto call = IOX_POSIX_CALL(strtoul)(v, &end_ptr, STRTOUL_BASE)
                     .failureReturnValue(ULONG_MAX)
-                    .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
+                    .ignoreErrnos(0, EINVAL, ERANGE)
                     .evaluate();
 
     return evaluate_return_value<unsigned short>(call, errno, end_ptr, v);
@@ -247,7 +247,7 @@ inline iox::optional<unsigned char> convert::from_string<unsigned char>(const ch
 
     auto call = IOX_POSIX_CALL(strtoul)(v, &end_ptr, STRTOULL_BASE)
                     .failureReturnValue(ULONG_MAX)
-                    .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
+                    .ignoreErrnos(0, EINVAL, ERANGE)
                     .evaluate();
 
     return evaluate_return_value<unsigned char>(call, errno, end_ptr, v);
@@ -260,8 +260,8 @@ inline iox::optional<long long> convert::from_string<long long>(const char* v) n
     char* end_ptr = nullptr;
 
     auto call = IOX_POSIX_CALL(strtoll)(v, &end_ptr, STRTOLL_BASE)
-                    .alwaysSuccess()
-                    .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
+                    .failureReturnValue(LLONG_MAX, LLONG_MIN)
+                    .ignoreErrnos(0, EINVAL, ERANGE)
                     .evaluate();
 
     return evaluate_return_value<long long>(call, errno, end_ptr, v);
@@ -274,8 +274,8 @@ inline iox::optional<long> convert::from_string<long>(const char* v) noexcept
     char* end_ptr = nullptr;
 
     auto call = IOX_POSIX_CALL(strtol)(v, &end_ptr, STRTOL_BASE)
-                    .alwaysSuccess()
-                    .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
+                    .failureReturnValue(LONG_MAX, LONG_MIN)
+                    .ignoreErrnos(0, EINVAL, ERANGE)
                     .evaluate();
 
     return evaluate_return_value<long>(call, errno, end_ptr, v);
@@ -289,8 +289,8 @@ inline iox::optional<int> convert::from_string<int>(const char* v) noexcept
 
     // use alwaysSuccess for the conversion edge cases in 32-bit system?
     auto call = IOX_POSIX_CALL(strtol)(v, &end_ptr, STRTOL_BASE)
-                    .alwaysSuccess()
-                    .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
+                    .failureReturnValue(LONG_MAX, LONG_MIN)
+                    .ignoreErrnos(0, EINVAL, ERANGE)
                     .evaluate();
 
     return evaluate_return_value<int>(call, errno, end_ptr, v);
@@ -304,7 +304,7 @@ inline iox::optional<short> convert::from_string<short>(const char* v) noexcept
 
     auto call = IOX_POSIX_CALL(strtol)(v, &end_ptr, STRTOL_BASE)
                     .failureReturnValue(LONG_MAX, LONG_MIN)
-                    .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
+                    .ignoreErrnos(0, EINVAL, ERANGE)
                     .evaluate();
 
     return evaluate_return_value<short>(call, errno, end_ptr, v);
@@ -318,7 +318,7 @@ inline iox::optional<signed char> convert::from_string<signed char>(const char* 
 
     auto call = IOX_POSIX_CALL(strtol)(v, &end_ptr, STRTOL_BASE)
                     .failureReturnValue(LONG_MAX, LONG_MIN)
-                    .suppressErrorMessagesForErrnos(EINVAL, ERANGE)
+                    .ignoreErrnos(0, EINVAL, ERANGE)
                     .evaluate();
 
     return evaluate_return_value<signed char>(call, errno, end_ptr, v);
@@ -364,9 +364,6 @@ convert::evaluate_return_value(CallType& call, decltype(errno) errno_cache, cons
     {
         return iox::nullopt;
     }
-
-    // clean errno
-    errno = 0;
 
     return iox::optional<TargetType>(static_cast<TargetType>(call->value));
 }
