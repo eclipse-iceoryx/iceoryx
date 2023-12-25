@@ -112,7 +112,7 @@ inline iox::optional<bool> convert::from_string<bool>(const char* v) noexcept
 
     // we assume that in the IOX_POSIX_CALL procedure, no other POSIX call will change errno,
     // except for the target function 'f'.
-    return evaluate_return_value<bool>(call, errno, end_ptr, v);
+    return evaluate_return_value<bool>(call, end_ptr, v);
 }
 
 template <>
@@ -126,7 +126,7 @@ inline iox::optional<float> convert::from_string<float>(const char* v) noexcept
                     .ignoreErrnos(0, EINVAL, ERANGE)
                     .evaluate();
 
-    return evaluate_return_value<float>(call, errno, end_ptr, v);
+    return evaluate_return_value<float>(call, end_ptr, v);
 }
 
 template <>
@@ -140,7 +140,7 @@ inline iox::optional<double> convert::from_string<double>(const char* v) noexcep
                     .ignoreErrnos(0, EINVAL, ERANGE)
                     .evaluate();
 
-    return evaluate_return_value<double>(call, errno, end_ptr, v);
+    return evaluate_return_value<double>(call, end_ptr, v);
 }
 
 template <>
@@ -154,7 +154,7 @@ inline iox::optional<long double> convert::from_string<long double>(const char* 
                     .ignoreErrnos(0, EINVAL, ERANGE)
                     .evaluate();
 
-    return evaluate_return_value<long double>(call, errno, end_ptr, v);
+    return evaluate_return_value<long double>(call, end_ptr, v);
 }
 
 template <>
@@ -173,7 +173,7 @@ inline iox::optional<unsigned long long> convert::from_string<unsigned long long
                     .ignoreErrnos(0, EINVAL, ERANGE)
                     .evaluate();
 
-    return evaluate_return_value<unsigned long long>(call, errno, end_ptr, v);
+    return evaluate_return_value<unsigned long long>(call, end_ptr, v);
 }
 
 template <>
@@ -192,7 +192,7 @@ inline iox::optional<unsigned long> convert::from_string<unsigned long>(const ch
                     .ignoreErrnos(0, EINVAL, ERANGE)
                     .evaluate();
 
-    return evaluate_return_value<unsigned long>(call, errno, end_ptr, v);
+    return evaluate_return_value<unsigned long>(call, end_ptr, v);
 }
 
 template <>
@@ -212,7 +212,7 @@ inline iox::optional<unsigned int> convert::from_string<unsigned int>(const char
                     .ignoreErrnos(0, EINVAL, ERANGE)
                     .evaluate();
 
-    return evaluate_return_value<unsigned int>(call, errno, end_ptr, v);
+    return evaluate_return_value<unsigned int>(call, end_ptr, v);
 }
 
 template <>
@@ -231,7 +231,7 @@ inline iox::optional<unsigned short> convert::from_string<unsigned short>(const 
                     .ignoreErrnos(0, EINVAL, ERANGE)
                     .evaluate();
 
-    return evaluate_return_value<unsigned short>(call, errno, end_ptr, v);
+    return evaluate_return_value<unsigned short>(call, end_ptr, v);
 }
 
 template <>
@@ -250,7 +250,7 @@ inline iox::optional<unsigned char> convert::from_string<unsigned char>(const ch
                     .ignoreErrnos(0, EINVAL, ERANGE)
                     .evaluate();
 
-    return evaluate_return_value<unsigned char>(call, errno, end_ptr, v);
+    return evaluate_return_value<unsigned char>(call, end_ptr, v);
 }
 
 template <>
@@ -264,7 +264,7 @@ inline iox::optional<long long> convert::from_string<long long>(const char* v) n
                     .ignoreErrnos(0, EINVAL, ERANGE)
                     .evaluate();
 
-    return evaluate_return_value<long long>(call, errno, end_ptr, v);
+    return evaluate_return_value<long long>(call, end_ptr, v);
 }
 
 template <>
@@ -278,7 +278,7 @@ inline iox::optional<long> convert::from_string<long>(const char* v) noexcept
                     .ignoreErrnos(0, EINVAL, ERANGE)
                     .evaluate();
 
-    return evaluate_return_value<long>(call, errno, end_ptr, v);
+    return evaluate_return_value<long>(call, end_ptr, v);
 }
 
 template <>
@@ -293,7 +293,7 @@ inline iox::optional<int> convert::from_string<int>(const char* v) noexcept
                     .ignoreErrnos(0, EINVAL, ERANGE)
                     .evaluate();
 
-    return evaluate_return_value<int>(call, errno, end_ptr, v);
+    return evaluate_return_value<int>(call, end_ptr, v);
 }
 
 template <>
@@ -307,7 +307,7 @@ inline iox::optional<short> convert::from_string<short>(const char* v) noexcept
                     .ignoreErrnos(0, EINVAL, ERANGE)
                     .evaluate();
 
-    return evaluate_return_value<short>(call, errno, end_ptr, v);
+    return evaluate_return_value<short>(call, end_ptr, v);
 }
 
 template <>
@@ -321,7 +321,7 @@ inline iox::optional<signed char> convert::from_string<signed char>(const char* 
                     .ignoreErrnos(0, EINVAL, ERANGE)
                     .evaluate();
 
-    return evaluate_return_value<signed char>(call, errno, end_ptr, v);
+    return evaluate_return_value<signed char>(call, end_ptr, v);
 }
 
 inline bool convert::start_with_neg_sign(const char* v) noexcept
@@ -353,14 +353,14 @@ inline bool convert::check_edge_case(decltype(errno) errno_cache,
 
 template <typename TargetType, typename CallType>
 inline iox::optional<TargetType>
-convert::evaluate_return_value(CallType& call, decltype(errno) errno_cache, const char* end_ptr, const char* v) noexcept
+convert::evaluate_return_value(CallType& call, const char* end_ptr, const char* v) noexcept
 {
     if (call.has_error())
     {
         return iox::nullopt;
     }
 
-    if (!check_edge_case<TargetType>(errno_cache, end_ptr, v, call->value))
+    if (!check_edge_case<TargetType>(call->errnum, end_ptr, v, call->value))
     {
         return iox::nullopt;
     }
@@ -391,27 +391,9 @@ inline bool convert::is_valid_input(const char* end_ptr, const char* v, const So
 template <typename SourceType>
 inline bool convert::is_valid_errno(decltype(errno) errno_cache, const char* v, const SourceType& source_val) noexcept
 {
-    // check errno
     if (errno_cache == ERANGE)
     {
-        if constexpr (std::is_floating_point_v<SourceType>)
-        {
-            /// @todo iox-#2055
-            // This could be a case of 'inf' or 'nan' for floating points,
-            // yet the use of 'failureReturnValue' effectively prevents the occurrence of 'inf'.
-            // In such instances, due to 'result.has_error' being true,
-            // 'from_string' will return prematurely.
-            // Consequently, this function will remain uncalled.
-
-            // currently, we still treat them as conversion error
-            // but they should be treated as potential result (instead of error)?
-            IOX_LOG(DEBUG,
-                    "ERANGE triggered during conversion of string: '" << v << "'. The result is: " << source_val);
-        }
-        else
-        {
-            IOX_LOG(DEBUG, "ERANGE triggered during conversion of string: '" << v << "'");
-        }
+        IOX_LOG(DEBUG, "ERANGE triggered during conversion of string: '" << v << "'");
         return false;
     }
 
@@ -435,6 +417,15 @@ inline bool convert::is_within_range(const SourceType& source_val) noexcept
 {
     if constexpr (std::is_arithmetic_v<TargetType>)
     {
+        if constexpr (std::is_floating_point_v<SourceType>)
+        {
+            if (source_val == std::numeric_limits<SourceType>::signaling_NaN())
+            {
+                IOX_LOG(DEBUG, "got signaling NaN");
+                return false;
+            }
+        }
+
         // out of range (upper bound)
         if (source_val > std::numeric_limits<TargetType>::max())
         {

@@ -91,8 +91,7 @@ class convert
 
   private:
     template <typename TargetType, typename CallType>
-    static iox::optional<TargetType>
-    evaluate_return_value(CallType& call, decltype(errno) errno_cache, const char* end_ptr, const char* v) noexcept;
+    static iox::optional<TargetType> evaluate_return_value(CallType& call, const char* end_ptr, const char* v) noexcept;
 
     template <typename TargetType, typename SourceType>
     static bool check_edge_case(decltype(errno) errno_cache,
