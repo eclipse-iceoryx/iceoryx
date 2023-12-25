@@ -61,6 +61,9 @@ class convert
     static constexpr int32_t STRTOLL_BASE{10};
     static constexpr int32_t STRTOL_BASE{10};
 
+    static constexpr uint32_t FLOAT_SIGNALING_NAN_MASK{static_cast<uint32_t>(1) << static_cast<uint32_t>(22)};
+    static constexpr uint64_t DOUBLE_SIGNALING_NAN_MASK{static_cast<uint64_t>(1) << static_cast<uint64_t>(51)};
+
     /// @brief Converts every type which is either a pod (plain old data) type or is convertable
     ///         to a string (this means that the operator std::string() is defined)
     /// @param Source type of the value which should be converted to a string
@@ -106,8 +109,9 @@ class convert
     static bool is_within_range(const SourceType& source_val) noexcept;
 
     template <typename SourceType>
-    static bool is_valid_errno(decltype(errno) errno_cache, const char* v, const SourceType& source_val) noexcept;
+    static bool is_signaling_nan(const SourceType& source_val) noexcept;
 
+    static bool is_valid_errno(decltype(errno) errno_cache, const char* v) noexcept;
     static bool start_with_neg_sign(const char* v) noexcept;
 };
 

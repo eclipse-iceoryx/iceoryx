@@ -324,30 +324,13 @@ inline iox::optional<signed char> convert::from_string<signed char>(const char* 
     return evaluate_return_value<signed char>(call, end_ptr, v);
 }
 
-inline bool convert::start_with_neg_sign(const char* v) noexcept
-{
-    if (v == nullptr)
-    {
-        return false;
-    }
-
-    // remove space
-    while (*v != '\0' && (isspace((unsigned char)*v) != 0))
-    {
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-        ++v;
-    }
-
-    return (*v == '-');
-}
-
 template <typename TargetType, typename SourceType>
 inline bool convert::check_edge_case(decltype(errno) errno_cache,
                                      const char* end_ptr,
                                      const char* v,
                                      const SourceType& source_val) noexcept
 {
-    return is_valid_input(end_ptr, v, source_val) && is_valid_errno(errno_cache, v, source_val)
+    return is_valid_input(end_ptr, v, source_val) && is_valid_errno(errno_cache, v)
            && is_within_range<TargetType>(source_val);
 }
 
@@ -388,8 +371,116 @@ inline bool convert::is_valid_input(const char* end_ptr, const char* v, const So
     return true;
 }
 
+template <typename TargetType, typename SourceType>
+inline bool convert::is_within_range(const SourceType& source_val) noexcept
+{
+    if constexpr (std::is_arithmetic_v<TargetType> == false)
+    {
+        return true;
+    }
+    // is_arithmetic_v
+    if constexpr (std::is_floating_point_v<SourceType>)
+    {
+        // special cases for floating point
+        if (std::isnan(source_val))
+        {
+            return !is_signaling_nan(source_val);
+        }
+        if (std::isinf(source_val))
+        {
+            IOX_LOG(DEBUG, "got infinity");
+            return true;
+        }
+    }
+
+    // out of range (upper bound)
+    if (source_val > std::numeric_limits<TargetType>::max())
+    {
+        IOX_LOG(DEBUG,
+                source_val << " is out of range (upper bound), should be less than "
+                           << std::numeric_limits<TargetType>::max());
+        return false;
+    }
+
+    // out of range (lower bound)
+    if (source_val < std::numeric_limits<TargetType>::lowest())
+    {
+        IOX_LOG(DEBUG,
+                source_val << " is out of range (lower bound), should be larger than "
+                           << std::numeric_limits<TargetType>::lowest());
+        return false;
+    }
+    return true;
+}
+
 template <typename SourceType>
-inline bool convert::is_valid_errno(decltype(errno) errno_cache, const char* v, const SourceType& source_val) noexcept
+inline bool convert::is_signaling_nan(const SourceType& source_val) noexcept
+{
+    static_assert(std::is_floating_point_v<SourceType>, "SourceType must be a floating point type");
+
+    if (std::isnan(source_val) == false)
+    {
+        return false;
+    }
+
+    if constexpr (std::is_same_v<SourceType, long double>)
+    {
+        return false;
+    }
+    else
+    {
+        using UintType =
+            typename std::conditional<sizeof(SourceType) == sizeof(uint32_t), const uint32_t, const uint64_t>::type;
+
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+        UintType in_bit = *reinterpret_cast<UintType*>(&source_val);
+
+        // check is_quiet
+        if constexpr (std::is_same_v<UintType, uint32_t>)
+        {
+// the platform use 'is_signaling' instead of 'is_quiet'
+#ifdef __hppa
+            return (in_bit & FLOAT_SIGNALING_NAN_MASK) != 0;
+#else
+            return (in_bit & FLOAT_SIGNALING_NAN_MASK) == 0;
+#endif
+        }
+        else if constexpr (std::is_same_v<UintType, uint64_t>)
+        {
+// the platform use 'is_signaling' instead of 'is_quiet'
+#ifdef __hppa
+            return (in_bit & DOUBLE_SIGNALING_NAN_MASK) != 0;
+#else
+            return (in_bit & DOUBLE_SIGNALING_NAN_MASK) == 0;
+#endif
+        }
+        else
+        {
+            static_assert(sizeof(SourceType) == sizeof(float) || sizeof(SourceType) == sizeof(double),
+                          "Function not implemented for this floating point size.");
+            return false;
+        }
+    }
+}
+
+inline bool convert::start_with_neg_sign(const char* v) noexcept
+{
+    if (v == nullptr)
+    {
+        return false;
+    }
+
+    // remove space
+    while (*v != '\0' && (isspace((unsigned char)*v) != 0))
+    {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        ++v;
+    }
+
+    return (*v == '-');
+}
+
+inline bool convert::is_valid_errno(decltype(errno) errno_cache, const char* v) noexcept
 {
     if (errno_cache == ERANGE)
     {
@@ -407,42 +498,6 @@ inline bool convert::is_valid_errno(decltype(errno) errno_cache, const char* v, 
     {
         IOX_LOG(DEBUG, "Unexpected errno: " << errno_cache << ". The input string is: " << v);
         return false;
-    }
-
-    return true;
-}
-
-template <typename TargetType, typename SourceType>
-inline bool convert::is_within_range(const SourceType& source_val) noexcept
-{
-    if constexpr (std::is_arithmetic_v<TargetType>)
-    {
-        if constexpr (std::is_floating_point_v<SourceType>)
-        {
-            if (source_val == std::numeric_limits<SourceType>::signaling_NaN())
-            {
-                IOX_LOG(DEBUG, "got signaling NaN");
-                return false;
-            }
-        }
-
-        // out of range (upper bound)
-        if (source_val > std::numeric_limits<TargetType>::max())
-        {
-            IOX_LOG(DEBUG,
-                    source_val << " is out of range (upper bound), should be less than "
-                               << std::numeric_limits<TargetType>::max());
-            return false;
-        }
-
-        // out of range (lower bound)
-        if (source_val < std::numeric_limits<TargetType>::lowest())
-        {
-            IOX_LOG(DEBUG,
-                    source_val << " is out of range (lower bound), should be larger than "
-                               << std::numeric_limits<TargetType>::lowest());
-            return false;
-        }
     }
 
     return true;
