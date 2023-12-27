@@ -22,8 +22,8 @@
 
 #include "errors.hpp"
 
-#include "iceoryx_hoofs/error_reporting/custom/error_reporting.hpp"
+#include "iox/error_reporting/custom/error_reporting.hpp"
 
-#include "iceoryx_hoofs/error_reporting/error_reporting_macros.hpp"
+#include "iox/error_reporting/macros.hpp"
 
 #endif

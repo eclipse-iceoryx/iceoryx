@@ -17,8 +17,8 @@
 #include "test.hpp"
 #include <gtest/gtest.h>
 
-#include "iceoryx_hoofs/error_reporting/errors.hpp"
-#include "iceoryx_hoofs/error_reporting/types.hpp"
+#include "iox/error_reporting/errors.hpp"
+#include "iox/error_reporting/types.hpp"
 
 #include "module_a/errors.hpp"
 #include "module_b/errors.hpp"

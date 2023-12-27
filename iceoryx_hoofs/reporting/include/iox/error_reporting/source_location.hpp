@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_ERROR_REPORTING_LOCATION_HPP
-#define IOX_HOOFS_ERROR_REPORTING_LOCATION_HPP
+#ifndef IOX_HOOFS_REPORTING_ERROR_REPORTING_LOCATION_HPP
+#define IOX_HOOFS_REPORTING_ERROR_REPORTING_LOCATION_HPP
 
 namespace iox
 {
@@ -46,4 +46,4 @@ struct SourceLocation
     } // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)
       // needed for source code location, safely wrapped in macro
 
-#endif
+#endif // IOX_HOOFS_REPORTING_ERROR_REPORTING_LOCATION_HPP

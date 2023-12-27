@@ -14,16 +14,16 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_ERROR_REPORTING_CUSTOM_DEFAULT_ERROR_REPORTING_INL
-#define IOX_HOOFS_ERROR_REPORTING_CUSTOM_DEFAULT_ERROR_REPORTING_INL
+#ifndef IOX_HOOFS_REPORTING_ERROR_REPORTING_CUSTOM_DEFAULT_ERROR_REPORTING_IMPL_HPP
+#define IOX_HOOFS_REPORTING_ERROR_REPORTING_CUSTOM_DEFAULT_ERROR_REPORTING_IMPL_HPP
 
-#include "iceoryx_hoofs/error_reporting/error_kind.hpp"
-#include "iceoryx_hoofs/error_reporting/error_logging.hpp"
-#include "iceoryx_hoofs/error_reporting/errors.hpp"
-#include "iceoryx_hoofs/error_reporting/source_location.hpp"
+#include "iox/error_reporting/error_kind.hpp"
+#include "iox/error_reporting/error_logging.hpp"
+#include "iox/error_reporting/errors.hpp"
+#include "iox/error_reporting/source_location.hpp"
 
-#include "iceoryx_hoofs/error_reporting/custom/default/error_handler.hpp"
-#include "iceoryx_hoofs/error_reporting/custom/error_kind.hpp"
+#include "iox/error_reporting/custom/default/error_handler.hpp"
+#include "iox/error_reporting/custom/error_kind.hpp"
 
 namespace iox
 {
@@ -148,4 +148,4 @@ report(const SourceLocation& location, iox::er::AssumptionViolationKind kind, co
 } // namespace er
 } // namespace iox
 
-#endif
+#endif // IOX_HOOFS_REPORTING_ERROR_REPORTING_CUSTOM_DEFAULT_ERROR_REPORTING_IMPL_HPP

@@ -14,12 +14,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_ERROR_REPORTING_ERRORS_HPP
-#define IOX_HOOFS_ERROR_REPORTING_ERRORS_HPP
+#ifndef IOX_HOOFS_REPORTING_ERROR_REPORTING_ERRORS_HPP
+#define IOX_HOOFS_REPORTING_ERROR_REPORTING_ERRORS_HPP
 
 #include <utility>
 
-#include "iceoryx_hoofs/error_reporting/types.hpp"
+#include "iox/error_reporting/types.hpp"
 
 namespace iox
 {
@@ -126,4 +126,4 @@ inline const char* toErrorName(const Error&)
 } // namespace er
 } // namespace iox
 
-#endif
+#endif // IOX_HOOFS_ERROR_REPORTING_ERRORS_HPP

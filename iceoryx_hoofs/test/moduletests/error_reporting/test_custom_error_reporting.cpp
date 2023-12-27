@@ -14,16 +14,16 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/error_reporting/custom/error_kind.hpp"
-#include "iceoryx_hoofs/error_reporting/error_kind.hpp"
-#include "iceoryx_hoofs/error_reporting/errors.hpp"
-#include "iceoryx_hoofs/error_reporting/source_location.hpp"
+#include "iox/error_reporting/custom/error_kind.hpp"
+#include "iox/error_reporting/error_kind.hpp"
+#include "iox/error_reporting/errors.hpp"
+#include "iox/error_reporting/source_location.hpp"
 #include "moduletests/error_reporting/module_a/errors.hpp"
 #include "test.hpp"
 #include <gtest/gtest.h>
 
-#include "iceoryx_hoofs/error_reporting/custom/error_reporting.hpp"
 #include "iceoryx_hoofs/testing/error_reporting/testing_support.hpp"
+#include "iox/error_reporting/custom/error_reporting.hpp"
 
 #include "module_a/errors.hpp"
 

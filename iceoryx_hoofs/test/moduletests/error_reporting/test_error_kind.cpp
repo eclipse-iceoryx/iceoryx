@@ -17,8 +17,8 @@
 #include "test.hpp"
 #include <gtest/gtest.h>
 
-#include "iceoryx_hoofs/error_reporting/custom/error_kind.hpp"
-#include "iceoryx_hoofs/error_reporting/error_kind.hpp"
+#include "iox/error_reporting/custom/error_kind.hpp"
+#include "iox/error_reporting/error_kind.hpp"
 
 namespace
 {

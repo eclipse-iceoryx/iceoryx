@@ -116,12 +116,12 @@ iox_add_library(
         memory/source/memory.cpp
         memory/source/relative_pointer_data.cpp
         primitives/source/type_traits.cpp
-        reporting/source/log/building_blocks/console_logger.cpp
-        reporting/source/log/building_blocks/logger.cpp
+        reporting/source/default_error_handler.cpp
+        reporting/source/console_logger.cpp
+        reporting/source/logger.cpp
         source/cxx/requires.cpp
         source/error_handling/error_handler.cpp
         source/error_handling/error_handling.cpp
-        source/error_reporting/custom/default/default_error_handler.cpp
         time/source/duration.cpp
         utility/source/unique_id.cpp
 

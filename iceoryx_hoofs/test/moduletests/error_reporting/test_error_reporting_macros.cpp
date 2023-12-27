@@ -16,6 +16,8 @@
 #include "test.hpp"
 #include <gtest/gtest.h>
 
+#include "iox/assertions.hpp"
+
 // some dummy modules under test
 #include "module_a/error_reporting.hpp"
 #include "module_b/error_reporting.hpp"

@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_ERROR_REPORTING_ERROR_KIND_HPP
-#define IOX_HOOFS_ERROR_REPORTING_ERROR_KIND_HPP
+#ifndef IOX_HOOFS_REPORTING_ERROR_REPORTING_ERROR_KIND_HPP
+#define IOX_HOOFS_REPORTING_ERROR_REPORTING_ERROR_KIND_HPP
 
 #include <type_traits>
 
@@ -50,6 +50,8 @@ struct AssumptionViolationKind
 template <class T>
 struct IsFatal : public std::false_type
 {
+    /// @todo iox-#1032 shouldn't there be a static_assert to prevent using this struct in a generic way without
+    /// specialization?
 };
 
 // This specialization makes it impossible to specialize them differently elsewhere,
@@ -108,4 +110,4 @@ constexpr AssumptionViolationKind ASSUMPTION_VIOLATION;
 } // namespace er
 } // namespace iox
 
-#endif
+#endif // IOX_HOOFS_REPORTING_ERROR_REPORTING_ERROR_LOGGING_HPP

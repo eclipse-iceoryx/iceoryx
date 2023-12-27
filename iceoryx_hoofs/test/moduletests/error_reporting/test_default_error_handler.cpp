@@ -17,8 +17,8 @@
 #include "test.hpp"
 #include <gtest/gtest.h>
 
-#include "iceoryx_hoofs/error_reporting/custom/default/error_handler.hpp"
-#include "iceoryx_hoofs/error_reporting/source_location.hpp"
+#include "iox/error_reporting/custom/default/error_handler.hpp"
+#include "iox/error_reporting/source_location.hpp"
 
 namespace
 {
