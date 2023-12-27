@@ -119,7 +119,6 @@ iox_add_library(
         reporting/source/default_error_handler.cpp
         reporting/source/console_logger.cpp
         reporting/source/logger.cpp
-        source/cxx/requires.cpp
         source/error_handling/error_handler.cpp
         source/error_handling/error_handling.cpp
         time/source/duration.cpp
