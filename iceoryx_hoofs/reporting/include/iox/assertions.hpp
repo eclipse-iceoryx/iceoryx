@@ -44,18 +44,28 @@
         iox::er::forwardPanic(CURRENT_SOURCE_LOCATION, message);                                                       \
     } while (false)
 
-/// @brief report fatal error if expr evaluates to false
-/// @note for conditions that may actually happen during correct use
-/// @param expr boolean expression that must hold
-/// @param error error object (or code)
-#define IOX_REQUIRE(expr, error) IOX_REPORT_FATAL_IF(!(expr), error)
-
 //************************************************************************************************
 //* For documentation of intent, defensive programming and debugging
 //*
 //* There are no error codes/errors required here on purpose, as it would make the use cumbersome.
 //* Instead a special internal error type is used.
 //************************************************************************************************
+
+/// @brief report fatal required condition violation if expr evaluates to false
+/// @note for conditions that may actually happen during correct use
+/// @param expr boolean expression that must hold
+/// @param message message to be forwarded in case of violation
+#define IOX_REQUIRE(expr, message)                                                                                     \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        if (!(expr))                                                                                                   \
+        {                                                                                                              \
+            iox::er::forwardFatalError(iox::er::Violation::createRequiredConditionViolation(),                         \
+                                       iox::er::REQUIRED_CONDITION_VIOLATION,                                          \
+                                       CURRENT_SOURCE_LOCATION,                                                        \
+                                       message); /* @todo iox-#1032 add strigified 'expr' as '#expr' */                \
+        }                                                                                                              \
+    } while (false)
 
 /// @brief if enabled: report fatal precondition violation if expr evaluates to false
 /// @param expr boolean expression that must hold upon entry of the function it appears in

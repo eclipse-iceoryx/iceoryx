@@ -67,6 +67,8 @@ template <class Message>
     panic();
 }
 
+/// @todo iox-#1032 add a 'StringifiedCondition' template parameter
+
 // Report any error, general version.
 template <class Kind, class Error>
 inline void report(const SourceLocation& location, Kind, const Error& error)
@@ -103,46 +105,67 @@ inline void report(const SourceLocation& location, iox::er::FatalKind kind, cons
     h.onReportError(ErrorDescriptor(location, code, module));
 }
 
-template <class Error>
-inline void report(const SourceLocation& location, iox::er::PreconditionViolationKind kind, const Error& error)
+namespace detail
+{
+enum class NoMessage
+{
+};
+
+template <class Kind, class Error, class Message>
+inline void report(const SourceLocation& location, Kind kind, const Error& error, Message&& msg)
 {
     auto code = toCode(error);
     auto module = toModule(error);
-    IOX_ERROR_INTERNAL_LOG_FATAL(location, kind.name);
+    if constexpr (std::is_same<NoMessage, Message>::value)
+    {
+        IOX_ERROR_INTERNAL_LOG_FATAL(location, kind.name);
+    }
+    else
+    {
+        IOX_ERROR_INTERNAL_LOG_FATAL(location, kind.name << " " << std::forward<Message>(msg));
+    }
     auto& h = ErrorHandler::get();
     h.onReportViolation(ErrorDescriptor(location, code, module));
+}
+} // namespace detail
+
+template <class Error>
+inline void report(const SourceLocation& location, iox::er::RequiredConditionViolationKind kind, const Error& error)
+{
+    detail::report(location, kind, error, detail::NoMessage{});
+}
+
+template <class Error>
+inline void report(const SourceLocation& location, iox::er::PreconditionViolationKind kind, const Error& error)
+{
+    detail::report(location, kind, error, detail::NoMessage{});
 }
 
 template <class Error>
 inline void report(const SourceLocation& location, iox::er::AssumptionViolationKind kind, const Error& error)
 {
-    auto code = toCode(error);
-    auto module = toModule(error);
-    IOX_ERROR_INTERNAL_LOG_FATAL(location, kind.name);
-    auto& h = ErrorHandler::get();
-    h.onReportViolation(ErrorDescriptor(location, code, module));
+    detail::report(location, kind, error, detail::NoMessage{});
+}
+
+template <class Error, class Message>
+inline void
+report(const SourceLocation& location, iox::er::RequiredConditionViolationKind kind, const Error& error, Message&& msg)
+{
+    detail::report(location, kind, error, std::forward<Message>(msg));
 }
 
 template <class Error, class Message>
 inline void
 report(const SourceLocation& location, iox::er::PreconditionViolationKind kind, const Error& error, Message&& msg)
 {
-    auto code = toCode(error);
-    auto module = toModule(error);
-    IOX_ERROR_INTERNAL_LOG_FATAL(location, kind.name << " " << std::forward<Message>(msg));
-    auto& h = ErrorHandler::get();
-    h.onReportViolation(ErrorDescriptor(location, code, module));
+    detail::report(location, kind, error, std::forward<Message>(msg));
 }
 
 template <class Error, class Message>
 inline void
 report(const SourceLocation& location, iox::er::AssumptionViolationKind kind, const Error& error, Message&& msg)
 {
-    auto code = toCode(error);
-    auto module = toModule(error);
-    IOX_ERROR_INTERNAL_LOG_FATAL(location, kind.name << " " << std::forward<Message>(msg));
-    auto& h = ErrorHandler::get();
-    h.onReportViolation(ErrorDescriptor(location, code, module));
+    detail::report(location, kind, error, std::forward<Message>(msg));
 }
 
 } // namespace er

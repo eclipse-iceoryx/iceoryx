@@ -61,7 +61,10 @@
     {                                                                                                                  \
         if (expr)                                                                                                      \
         {                                                                                                              \
-            iox::er::forwardNonFatalError(iox::er::toError(error), kind, CURRENT_SOURCE_LOCATION);                     \
+            iox::er::forwardNonFatalError(                                                                             \
+                iox::er::toError(error),                                                                               \
+                kind,                                                                                                  \
+                CURRENT_SOURCE_LOCATION); /* @todo iox-#1032 add strigified 'expr' as '#expr' */                       \
         }                                                                                                              \
     } while (false)
 

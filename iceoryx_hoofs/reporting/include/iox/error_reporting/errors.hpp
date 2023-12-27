@@ -70,6 +70,11 @@ class Violation
         return !(*this == rhs);
     }
 
+    static Violation createRequiredConditionViolation()
+    {
+        return Violation(ErrorCode(ErrorCode::REQUIRED_CONDITION_VIOLATION));
+    }
+
     static Violation createPreconditionViolation()
     {
         return Violation(ErrorCode(ErrorCode::PRECONDITION_VIOLATION));

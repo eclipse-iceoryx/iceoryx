@@ -165,7 +165,7 @@ the case that it does not hold
 ```cpp
 int x;
 // ...
-IOX_REQUIRE(x>=0, Code::OutOfBounds);
+IOX_REQUIRE(x>=0, "required condition violation message");
 ```
 
 The condition is required to hold and this requirement is always checked.
