@@ -25,39 +25,12 @@ namespace
 using namespace ::testing;
 using namespace ::iox::testing;
 
-TEST(FatalFailure, TriggeringFatalFailureIsDetectedAndDoesNotTerminate)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "5463f1c9-eb30-4fd1-85ce-351f03c37fe0");
-
-    auto hasFatalFailure = detail::IOX_FATAL_FAILURE_TEST<iox::HoofsError>(
-        [&] { IOX_EXPECTS(false); },
-        [&](const auto error, const auto errorLevel) {
-            EXPECT_THAT(error, Eq(iox::HoofsError::EXPECTS_ENSURES_FAILED));
-            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::FATAL));
-        },
-        [&] { GTEST_FAIL() << "This is the non-fatal path and should therefore not be called"; });
-
-    EXPECT_TRUE(hasFatalFailure);
-}
-
-TEST(FatalFailure, ExpectingFatalFailureWhichDoesNotOccurIsDetected)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "f6c1d4f2-cafe-45e3-bbb7-c1373b2e15a8");
-
-    auto hasFatalFailure = detail::IOX_FATAL_FAILURE_TEST<iox::HoofsError>(
-        [&] {},
-        [&](const auto, const auto) { GTEST_FAIL() << "This is the fatal path and should therefore not be called"; },
-        [&] { GTEST_SUCCEED() << "This is the non-fatal path and should be called"; });
-
-    EXPECT_FALSE(hasFatalFailure);
-}
-
 TEST(FatalFailure, UsingExpectFatalFailureWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "26393210-9738-462f-9d35-dbd53fbae9d2");
 
-    auto hasFatalFailure =
-        IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_EXPECTS(false); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    auto hasFatalFailure = IOX_EXPECT_FATAL_FAILURE<iox::er::ViolationErrorCode>(
+        [&] { IOX_ENFORCE(false, ""); }, iox::er::ViolationErrorCode::ENFORCE_VIOLATION);
 
     EXPECT_TRUE(hasFatalFailure);
 }
@@ -66,7 +39,7 @@ TEST(FatalFailure, UsingExpectNoFatalFailureWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "80bf8050-bfaa-4482-b69c-d0c80699bd4b");
 
-    auto hasNoFatalFailure = IOX_EXPECT_NO_FATAL_FAILURE<iox::HoofsError>([&] {});
+    auto hasNoFatalFailure = IOX_EXPECT_NO_FATAL_FAILURE([&] {});
 
     EXPECT_TRUE(hasNoFatalFailure);
 }

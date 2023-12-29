@@ -24,74 +24,21 @@ namespace iox
 {
 namespace testing
 {
-namespace detail
-{
 template <typename ErrorType>
-inline bool IOX_FATAL_FAILURE_TEST(const function_ref<void()> testFunction,
-                                   const function_ref<void(const ErrorType, const iox::ErrorLevel)> onFatalFailurePath,
-                                   const function_ref<void()> onNonFatalFailurePath)
+inline bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction,
+                                     const ErrorType expectedError [[maybe_unused]])
 {
-    std::atomic<bool> hasFatalFailure{false};
-    auto th = std::thread([&] {
-        constexpr int JMP_VALUE{1};
-        jmp_buf jmpBuffer;
+    runInTestThread([&] { testFunction(); });
+    IOX_TESTING_EXPECT_PANIC();
 
-        optional<ErrorType> detectedError;
-        optional<iox::ErrorLevel> detectedErrorLevel;
-
-        auto errorHandlerGuard =
-            iox::ErrorHandlerMock::setTemporaryErrorHandler<ErrorType>([&](const auto error, const auto errorLevel) {
-                detectedError.emplace(error);
-                detectedErrorLevel.emplace(errorLevel);
-
-                // NOLINTNEXTLINE(cert-err52-cpp) exception cannot be used and longjmp/setjmp is a working fallback
-                longjmp(&jmpBuffer[0], JMP_VALUE);
-            });
-
-        // NOLINTNEXTLINE(cert-err52-cpp) exception cannot be used and longjmp/setjmp is a working fallback
-        if (setjmp(&jmpBuffer[0]) == JMP_VALUE)
-        {
-            hasFatalFailure = true;
-            // using value directly is save since this path is only executed if the error handler was called and the
-            // respective values were set
-            onFatalFailurePath(detectedError.value(), detectedErrorLevel.value());
-            return;
-        }
-
-        testFunction();
-
-        onNonFatalFailurePath();
-    });
-
-    th.join();
-
-    return hasFatalFailure.load(std::memory_order_relaxed);
-}
-} // namespace detail
-
-template <typename ErrorType>
-inline bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction, const ErrorType expectedError)
-{
-    return detail::IOX_FATAL_FAILURE_TEST<ErrorType>(
-        testFunction,
-        [&](const auto error, const auto errorLevel) {
-            EXPECT_THAT(error, ::testing::Eq(expectedError));
-            EXPECT_THAT(errorLevel, ::testing::Eq(iox::ErrorLevel::FATAL));
-        },
-        [&] { GTEST_FAIL() << "Expected fatal failure but execution continued!"; });
+    // return iox::testing::hasError(expectedError);
+    return iox::testing::hasPanicked();
 }
 
-template <typename ErrorType>
 inline bool IOX_EXPECT_NO_FATAL_FAILURE(const function_ref<void()> testFunction)
 {
-    return !detail::IOX_FATAL_FAILURE_TEST<ErrorType>(
-        testFunction,
-        [&](const auto error, const auto errorLevel) {
-            GTEST_FAIL() << "Expected no fatal failure but execution failed! Error code: "
-                         << static_cast<uint64_t>(error) << "; Error level: " << static_cast<uint64_t>(errorLevel);
-        },
-        [&] { GTEST_SUCCEED() << "Non-fatal path taken!"; });
-    return false;
+    runInTestThread([&] { testFunction(); });
+    return !iox::testing::hasPanicked();
 }
 
 } // namespace testing

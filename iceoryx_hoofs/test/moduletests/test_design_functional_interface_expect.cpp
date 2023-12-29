@@ -41,7 +41,7 @@ void ExpectDoesNotCallTerminateWhenObjectIsValid(const ExpectCall& callExpect)
 {
     SutType sut = FactoryType::createValidObject();
 
-    IOX_EXPECT_NO_FATAL_FAILURE<iox::HoofsError>([&] { callExpect(sut); });
+    IOX_EXPECT_NO_FATAL_FAILURE([&] { callExpect(sut); });
 }
 
 TYPED_TEST(FunctionalInterface_test, ExpectDoesNotCallTerminateWhenObjectIsValid_LValueCase)

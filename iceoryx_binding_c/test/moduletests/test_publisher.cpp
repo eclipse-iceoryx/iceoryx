@@ -459,7 +459,7 @@ TEST(iox_pub_options_test, publisherOptionInitializationWithNullptrDoesNotCrash)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fe415d38-eaaf-466e-b7d8-d220612cb344");
 
-    IOX_EXPECT_NO_FATAL_FAILURE<iox::HoofsError>([&] { iox_pub_options_init(nullptr); });
+    IOX_EXPECT_NO_FATAL_FAILURE([&] { iox_pub_options_init(nullptr); });
 }
 
 } // namespace

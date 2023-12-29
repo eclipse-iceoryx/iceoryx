@@ -558,7 +558,7 @@ TEST(iox_sub_options_test, subscriberOptionInitializationWithNullptrDoesNotCrash
 {
     ::testing::Test::RecordProperty("TEST_ID", "4c8eeb6e-5681-4551-865b-11b6a599edf5");
 
-    IOX_EXPECT_NO_FATAL_FAILURE<iox::HoofsError>([&] { iox_sub_options_init(nullptr); });
+    IOX_EXPECT_NO_FATAL_FAILURE([&] { iox_sub_options_init(nullptr); });
 }
 
 } // namespace
