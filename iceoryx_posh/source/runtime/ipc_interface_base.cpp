@@ -56,13 +56,14 @@ std::string IpcMessageTypeToString(const IpcMessageType msg) noexcept
 
 IpcMessageErrorType stringToIpcMessageErrorType(const char* str) noexcept
 {
-    std::underlying_type<IpcMessageErrorType>::type msg;
-    auto result = convert::from_string<std::underlying_type<IpcMessageErrorType>::type>(str);
+    using UnderlyingType = std::underlying_type<IpcMessageErrorType>::type;
+    UnderlyingType msg;
+    auto result = convert::from_string<UnderlyingType>(str);
 
     msg = result.value();
 
-    if (static_cast<std::underlying_type<IpcMessageErrorType>::type>(IpcMessageErrorType::BEGIN) >= msg
-        || static_cast<std::underlying_type<IpcMessageErrorType>::type>(IpcMessageErrorType::END) <= msg)
+    if (static_cast<UnderlyingType>(IpcMessageErrorType::BEGIN) >= msg
+        || static_cast<UnderlyingType>(IpcMessageErrorType::END) <= msg)
     {
         return IpcMessageErrorType::NOTYPE;
     }
@@ -72,7 +73,8 @@ IpcMessageErrorType stringToIpcMessageErrorType(const char* str) noexcept
 
 std::string IpcMessageErrorTypeToString(const IpcMessageErrorType msg) noexcept
 {
-    return convert::toString(static_cast<std::underlying_type<IpcMessageErrorType>::type>(msg));
+    using UnderlyingType = std::underlying_type<IpcMessageErrorType>::type;
+    return convert::toString(static_cast<UnderlyingType>(msg));
 }
 
 template <typename IpcChannelType>
