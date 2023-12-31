@@ -59,12 +59,12 @@ convert::toString(const Source& t) noexcept
     return t;
 }
 
-template <typename Destination>
-inline iox::optional<Destination> convert::from_string(const char* v) noexcept
+template <typename TargetType>
+inline iox::optional<TargetType> convert::from_string(const char* v) noexcept
 {
-    if constexpr (is_iox_string<Destination>::value)
+    if constexpr (is_iox_string<TargetType>::value)
     {
-        using IoxString = Destination;
+        using IoxString = TargetType;
         if (strlen(v) > IoxString::capacity())
         {
             return iox::nullopt;
@@ -73,7 +73,7 @@ inline iox::optional<Destination> convert::from_string(const char* v) noexcept
     }
     else
     {
-        static_assert(always_false_v<Destination>,
+        static_assert(always_false_v<TargetType>,
                       "For a conversion to 'std::string' please include 'iox/std_string_support.hpp'!\nConversion not "
                       "supported!");
     }

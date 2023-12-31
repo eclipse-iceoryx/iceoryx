@@ -89,8 +89,8 @@ class convert
     /// @param v the input string in c type
     /// @return an iox::optional<Destination> where, if the return value is iox::nullopt, it indicates a failed
     /// conversion process
-    template <typename Destination>
-    static iox::optional<Destination> from_string(const char* v) noexcept;
+    template <typename TargetType>
+    static iox::optional<TargetType> from_string(const char* v) noexcept;
 
   private:
     template <typename TargetType, typename CallType>
