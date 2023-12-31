@@ -108,9 +108,6 @@ class convert
     template <typename TargetType, typename SourceType>
     static bool is_within_range(const SourceType& source_val) noexcept;
 
-    template <typename SourceType>
-    static bool is_signaling_nan(const SourceType& source_val) noexcept;
-
     static bool is_valid_errno(decltype(errno) errno_cache, const char* v) noexcept;
     static bool start_with_neg_sign(const char* v) noexcept;
 };

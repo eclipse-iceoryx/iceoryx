@@ -96,8 +96,6 @@ inline iox::optional<char> convert::from_string<char>(const char* v) noexcept
 template <>
 inline iox::optional<bool> convert::from_string<bool>(const char* v) noexcept
 {
-    // we should clean errno first
-    errno = 0;
     char* end_ptr = nullptr;
 
     if (start_with_neg_sign(v))
@@ -118,7 +116,6 @@ inline iox::optional<bool> convert::from_string<bool>(const char* v) noexcept
 template <>
 inline iox::optional<float> convert::from_string<float>(const char* v) noexcept
 {
-    errno = 0;
     char* end_ptr = nullptr;
 
     auto call = IOX_POSIX_CALL(strtof)(v, &end_ptr)
@@ -132,7 +129,6 @@ inline iox::optional<float> convert::from_string<float>(const char* v) noexcept
 template <>
 inline iox::optional<double> convert::from_string<double>(const char* v) noexcept
 {
-    errno = 0;
     char* end_ptr = nullptr;
 
     auto call = IOX_POSIX_CALL(strtod)(v, &end_ptr)
@@ -146,7 +142,6 @@ inline iox::optional<double> convert::from_string<double>(const char* v) noexcep
 template <>
 inline iox::optional<long double> convert::from_string<long double>(const char* v) noexcept
 {
-    errno = 0;
     char* end_ptr = nullptr;
 
     auto call = IOX_POSIX_CALL(strtold)(v, &end_ptr)
@@ -160,7 +155,6 @@ inline iox::optional<long double> convert::from_string<long double>(const char* 
 template <>
 inline iox::optional<unsigned long long> convert::from_string<unsigned long long>(const char* v) noexcept
 {
-    errno = 0;
     char* end_ptr = nullptr;
 
     if (start_with_neg_sign(v))
@@ -179,7 +173,6 @@ inline iox::optional<unsigned long long> convert::from_string<unsigned long long
 template <>
 inline iox::optional<unsigned long> convert::from_string<unsigned long>(const char* v) noexcept
 {
-    errno = 0;
     char* end_ptr = nullptr;
 
     if (start_with_neg_sign(v))
@@ -198,7 +191,6 @@ inline iox::optional<unsigned long> convert::from_string<unsigned long>(const ch
 template <>
 inline iox::optional<unsigned int> convert::from_string<unsigned int>(const char* v) noexcept
 {
-    errno = 0;
     char* end_ptr = nullptr;
 
     if (start_with_neg_sign(v))
@@ -218,7 +210,6 @@ inline iox::optional<unsigned int> convert::from_string<unsigned int>(const char
 template <>
 inline iox::optional<unsigned short> convert::from_string<unsigned short>(const char* v) noexcept
 {
-    errno = 0;
     char* end_ptr = nullptr;
 
     if (start_with_neg_sign(v))
@@ -237,7 +228,6 @@ inline iox::optional<unsigned short> convert::from_string<unsigned short>(const 
 template <>
 inline iox::optional<unsigned char> convert::from_string<unsigned char>(const char* v) noexcept
 {
-    errno = 0;
     char* end_ptr = nullptr;
 
     if (start_with_neg_sign(v))
@@ -256,7 +246,6 @@ inline iox::optional<unsigned char> convert::from_string<unsigned char>(const ch
 template <>
 inline iox::optional<long long> convert::from_string<long long>(const char* v) noexcept
 {
-    errno = 0;
     char* end_ptr = nullptr;
 
     auto call = IOX_POSIX_CALL(strtoll)(v, &end_ptr, STRTOLL_BASE)
@@ -270,7 +259,6 @@ inline iox::optional<long long> convert::from_string<long long>(const char* v) n
 template <>
 inline iox::optional<long> convert::from_string<long>(const char* v) noexcept
 {
-    errno = 0;
     char* end_ptr = nullptr;
 
     auto call = IOX_POSIX_CALL(strtol)(v, &end_ptr, STRTOL_BASE)
@@ -284,7 +272,6 @@ inline iox::optional<long> convert::from_string<long>(const char* v) noexcept
 template <>
 inline iox::optional<int> convert::from_string<int>(const char* v) noexcept
 {
-    errno = 0;
     char* end_ptr = nullptr;
 
     // use alwaysSuccess for the conversion edge cases in 32-bit system?
@@ -299,7 +286,6 @@ inline iox::optional<int> convert::from_string<int>(const char* v) noexcept
 template <>
 inline iox::optional<short> convert::from_string<short>(const char* v) noexcept
 {
-    errno = 0;
     char* end_ptr = nullptr;
 
     auto call = IOX_POSIX_CALL(strtol)(v, &end_ptr, STRTOL_BASE)
@@ -313,7 +299,6 @@ inline iox::optional<short> convert::from_string<short>(const char* v) noexcept
 template <>
 inline iox::optional<signed char> convert::from_string<signed char>(const char* v) noexcept
 {
-    errno = 0;
     char* end_ptr = nullptr;
 
     auto call = IOX_POSIX_CALL(strtol)(v, &end_ptr, STRTOL_BASE)
@@ -382,13 +367,8 @@ inline bool convert::is_within_range(const SourceType& source_val) noexcept
     if constexpr (std::is_floating_point_v<SourceType>)
     {
         // special cases for floating point
-        if (std::isnan(source_val))
+        if (std::isnan(source_val) || std::isinf(source_val))
         {
-            return !is_signaling_nan(source_val);
-        }
-        if (std::isinf(source_val))
-        {
-            IOX_LOG(DEBUG, "got infinity");
             return true;
         }
     }
@@ -411,56 +391,6 @@ inline bool convert::is_within_range(const SourceType& source_val) noexcept
         return false;
     }
     return true;
-}
-
-template <typename SourceType>
-inline bool convert::is_signaling_nan(const SourceType& source_val) noexcept
-{
-    static_assert(std::is_floating_point_v<SourceType>, "SourceType must be a floating point type");
-
-    if (std::isnan(source_val) == false)
-    {
-        return false;
-    }
-
-    if constexpr (std::is_same_v<SourceType, long double>)
-    {
-        return false;
-    }
-    else
-    {
-        using UintType =
-            typename std::conditional<sizeof(SourceType) == sizeof(uint32_t), const uint32_t, const uint64_t>::type;
-
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-        UintType in_bit = *reinterpret_cast<UintType*>(&source_val);
-
-        // check is_quiet
-        if constexpr (std::is_same_v<UintType, uint32_t>)
-        {
-// the platform use 'is_signaling' instead of 'is_quiet'
-#ifdef __hppa
-            return (in_bit & FLOAT_SIGNALING_NAN_MASK) != 0;
-#else
-            return (in_bit & FLOAT_SIGNALING_NAN_MASK) == 0;
-#endif
-        }
-        else if constexpr (std::is_same_v<UintType, uint64_t>)
-        {
-// the platform use 'is_signaling' instead of 'is_quiet'
-#ifdef __hppa
-            return (in_bit & DOUBLE_SIGNALING_NAN_MASK) != 0;
-#else
-            return (in_bit & DOUBLE_SIGNALING_NAN_MASK) == 0;
-#endif
-        }
-        else
-        {
-            static_assert(sizeof(SourceType) == sizeof(float) || sizeof(SourceType) == sizeof(double),
-                          "Function not implemented for this floating point size.");
-            return false;
-        }
-    }
 }
 
 inline bool convert::start_with_neg_sign(const char* v) noexcept
