@@ -59,7 +59,7 @@ PoshRuntimeImpl::PoshRuntimeImpl(optional<const RuntimeName_t*> name, const Runt
     }
 
     static_assert(PROCESS_KEEP_ALIVE_INTERVAL > roudi::DISCOVERY_INTERVAL, "Keep alive interval too small");
-    m_keepAliveTask.emplace(concurrent::PeriodicTaskAutoStart,
+    m_keepAliveTask.emplace(concurrent::detail::PeriodicTaskAutoStart,
                             PROCESS_KEEP_ALIVE_INTERVAL,
                             "KeepAlive",
                             *this,

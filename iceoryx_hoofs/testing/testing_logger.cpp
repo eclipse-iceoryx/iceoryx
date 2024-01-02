@@ -70,7 +70,7 @@ void TestingLogger::clearLogBuffer() noexcept
 
 void TestingLogger::printLogBuffer() noexcept
 {
-    auto loggerData = m_loggerData.getScopeGuard();
+    auto loggerData = m_loggerData.get_scope_guard();
     if (loggerData->buffer.empty())
     {
         return;
@@ -101,7 +101,7 @@ void TestingLogger::checkLogMessageIfLogLevelIsSupported(
 
 void TestingLogger::flush() noexcept
 {
-    auto loggerData = m_loggerData.getScopeGuard();
+    auto loggerData = m_loggerData.get_scope_guard();
     const auto logBuffer = Base::getLogBuffer();
     loggerData->buffer.emplace_back(logBuffer.buffer, logBuffer.writeIndex);
 

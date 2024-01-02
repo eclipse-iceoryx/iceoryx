@@ -15,7 +15,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -26,6 +25,7 @@
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iox/scope_guard.hpp"
+#include "iox/smart_lock.hpp"
 #include "test.hpp"
 
 #include <chrono>
@@ -159,7 +159,7 @@ class PortUser_IntegrationTest : public Test
             // Add delay to allow other thread accessing the shared resource
             std::this_thread::sleep_for(std::chrono::microseconds(100));
             {
-                auto guardedVector = concurrentCaproMessageVector.getScopeGuard();
+                auto guardedVector = concurrentCaproMessageVector.get_scope_guard();
                 if (guardedVector->size() != 0U)
                 {
                     caproMessage = guardedVector->back();

@@ -58,7 +58,7 @@ inline void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::
     const units::Duration interval) noexcept
 {
     m_sendInterval = interval;
-    if (m_publishingTask.isActive())
+    if (m_publishingTask.is_active())
     {
         m_publishingTask.stop();
         m_publishingTask.start(m_sendInterval);

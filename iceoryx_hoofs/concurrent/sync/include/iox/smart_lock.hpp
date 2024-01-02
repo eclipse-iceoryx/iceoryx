@@ -14,9 +14,11 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CONCURRENT_SMART_LOCK_HPP
-#define IOX_HOOFS_CONCURRENT_SMART_LOCK_HPP
 
+#ifndef IOX_HOOFS_CONCURRENT_SYNC_SMART_LOCK_HPP
+#define IOX_HOOFS_CONCURRENT_SYNC_SMART_LOCK_HPP
+
+#include "iox/detail/deprecation_marker.hpp"
 #include <mutex>
 
 namespace iox
@@ -47,7 +49,7 @@ constexpr ForwardArgsToCTor_t ForwardArgsToCTor{};
 ///         size_t vectorSize = threadSafeVector->size();
 ///
 ///         {
-///             auto guardedVector = threadSafeVector.getScopeGuard();
+///             auto guardedVector = threadSafeVector.get_scope_guard();
 ///             auto iter = std::find(guardVector->begin(), guardVector->end(), 456);
 ///             if (iter != guardVector->end()) guardVector->erase(iter);
 ///         }
@@ -134,12 +136,15 @@ class smart_lock
     ///     // since it would lead to a deadlock.
     ///     // You access the underlying object by using the vectorGuard object!
     ///     {
-    ///         auto vectorGuard = threadSafeVector.getScopeGuard();
+    ///         auto vectorGuard = threadSafeVector.get_scope_guard();
     ///         auto iter = std::find(vectorGuard->begin(), vectorGuard->end(),
     ///                 123);
     ///         if ( iter != vectorGuard->end() )
     ///             vectorGuard->erase(iter);
     ///     }
+    Proxy get_scope_guard() noexcept;
+
+    IOX_DEPRECATED_SINCE(3, "Please use 'get_scope_guard' instead.")
     Proxy getScopeGuard() noexcept;
 
     /// @brief If you need to lock your object over multiple method calls you
@@ -157,15 +162,21 @@ class smart_lock
     ///     // since it would lead to a deadlock.
     ///     // You access the underlying object by using the vectorGuard object!
     ///     {
-    ///         auto vectorGuard = threadSafeVector.getScopeGuard();
+    ///         auto vectorGuard = threadSafeVector.get_scope_guard();
     ///         auto iter = std::find(vectorGuard->begin(), vectorGuard->end(),
     ///                 123);
     ///         if ( iter != vectorGuard->end() )
     ///             vectorGuard->erase(iter);
     ///     }
+    const Proxy get_scope_guard() const noexcept;
+
+    IOX_DEPRECATED_SINCE(3, "Please use 'get_scope_guard' instead.")
     const Proxy getScopeGuard() const noexcept;
 
     /// @brief Returns a copy of the underlying object
+    T get_copy() const noexcept;
+
+    IOX_DEPRECATED_SINCE(3, "Please use 'get_copy' instead.")
     T getCopy() const noexcept;
 
   private:
@@ -175,6 +186,6 @@ class smart_lock
 } // namespace concurrent
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/concurrent/smart_lock.inl"
+#include "iox/detail/smart_lock.inl"
 
-#endif // IOX_HOOFS_CONCURRENT_SMART_LOCK_HPP
+#endif // IOX_HOOFS_CONCURRENT_SYNC_SMART_LOCK_HPP

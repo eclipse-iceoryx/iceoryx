@@ -14,10 +14,11 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CONCURRENT_SMART_LOCK_INL
-#define IOX_HOOFS_CONCURRENT_SMART_LOCK_INL
 
-#include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
+#ifndef IOX_HOOFS_CONCURRENT_SYNC_SMART_LOCK_INL
+#define IOX_HOOFS_CONCURRENT_SYNC_SMART_LOCK_INL
+
+#include "iox/smart_lock.hpp"
 
 namespace iox
 {
@@ -98,7 +99,7 @@ inline const typename smart_lock<T, MutexType>::Proxy smart_lock<T, MutexType>::
 }
 
 template <typename T, typename MutexType>
-inline typename smart_lock<T, MutexType>::Proxy smart_lock<T, MutexType>::getScopeGuard() noexcept
+inline typename smart_lock<T, MutexType>::Proxy smart_lock<T, MutexType>::get_scope_guard() noexcept
 {
     return Proxy(base, lock);
 }
@@ -106,17 +107,37 @@ inline typename smart_lock<T, MutexType>::Proxy smart_lock<T, MutexType>::getSco
 template <typename T, typename MutexType>
 // const return type improves const correctness, operator-> can be chained with underlying operator->
 // NOLINTNEXTLINE(readability-const-return-type)
-inline const typename smart_lock<T, MutexType>::Proxy smart_lock<T, MutexType>::getScopeGuard() const noexcept
+inline const typename smart_lock<T, MutexType>::Proxy smart_lock<T, MutexType>::get_scope_guard() const noexcept
 {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) const_cast to avoid code duplication
-    return const_cast<smart_lock<T, MutexType>*>(this)->getScopeGuard();
+    return const_cast<smart_lock<T, MutexType>*>(this)->get_scope_guard();
+}
+
+template <typename T, typename MutexType>
+inline typename smart_lock<T, MutexType>::Proxy smart_lock<T, MutexType>::getScopeGuard() noexcept
+{
+    return get_scope_guard();
+}
+
+template <typename T, typename MutexType>
+// const return type improves const correctness, operator-> can be chained with underlying operator->
+// NOLINTNEXTLINE(readability-const-return-type)
+inline const typename smart_lock<T, MutexType>::Proxy smart_lock<T, MutexType>::getScopeGuard() const noexcept
+{
+    return get_scope_guard();
+}
+
+template <typename T, typename MutexType>
+inline T smart_lock<T, MutexType>::get_copy() const noexcept
+{
+    std::lock_guard<MutexType> guard(lock);
+    return base;
 }
 
 template <typename T, typename MutexType>
 inline T smart_lock<T, MutexType>::getCopy() const noexcept
 {
-    std::lock_guard<MutexType> guard(lock);
-    return base;
+    return get_copy();
 }
 
 // PROXY OBJECT
@@ -163,4 +184,4 @@ inline const T& smart_lock<T, MutexType>::Proxy::operator*() const noexcept
 } // namespace concurrent
 } // namespace iox
 
-#endif // IOX_HOOFS_CONCURRENT_SMART_LOCK_INL
+#endif // IOX_HOOFS_CONCURRENT_SYNC_SMART_LOCK_INL

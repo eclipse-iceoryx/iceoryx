@@ -14,9 +14,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iox/optional.hpp"
+#include "iox/smart_lock.hpp"
 #include "iox/vector.hpp"
 #include "test.hpp"
 
@@ -246,7 +246,7 @@ TEST_F(smart_lock_test, AccessThroughConstScopeGuardWorks)
     ::testing::Test::RecordProperty("TEST_ID", "f52e9b24-0819-487b-947a-5f18d24b55e6");
     constexpr int32_t CTOR_VALUE = 6212818;
     const SutType_t constSut(ForwardArgsToCTor, CTOR_VALUE);
-    const auto guard = constSut.getScopeGuard();
+    const auto guard = constSut.get_scope_guard();
 
     EXPECT_THAT(guard->getA(), Eq(CTOR_VALUE));
 }
@@ -256,7 +256,7 @@ TEST_F(smart_lock_test, AccessThroughScopeGuardWorks)
     ::testing::Test::RecordProperty("TEST_ID", "9d91a04f-d84e-4fa3-9ee0-95ebc4bfbed1");
     constexpr int32_t CTOR_VALUE = 62818;
     SutType_t Sut(ForwardArgsToCTor, CTOR_VALUE);
-    auto guard = Sut.getScopeGuard();
+    auto guard = Sut.get_scope_guard();
 
     EXPECT_THAT(guard->getA(), Eq(CTOR_VALUE));
 }
@@ -266,7 +266,7 @@ TEST_F(smart_lock_test, AccessViaConstDereferenceOperatorWorks)
     ::testing::Test::RecordProperty("TEST_ID", "43db4ae1-86ad-4d36-93c4-c38f1faf68b5");
     constexpr int32_t CTOR_VALUE = 8182126;
     const SutType_t constSut(ForwardArgsToCTor, CTOR_VALUE);
-    const auto guard = constSut.getScopeGuard();
+    const auto guard = constSut.get_scope_guard();
 
     EXPECT_THAT((*guard).getA(), Eq(CTOR_VALUE));
 }
@@ -276,7 +276,7 @@ TEST_F(smart_lock_test, AccessViaDereferenceOperatorWorks)
     ::testing::Test::RecordProperty("TEST_ID", "45cccede-a609-493d-a285-20c1dfb77714");
     constexpr int32_t CTOR_VALUE = 81826;
     SutType_t Sut(ForwardArgsToCTor, CTOR_VALUE);
-    auto guard = Sut.getScopeGuard();
+    auto guard = Sut.get_scope_guard();
 
     EXPECT_THAT((*guard).getA(), Eq(CTOR_VALUE));
 }
@@ -287,7 +287,7 @@ TEST_F(smart_lock_test, AcquiringCopyWorks)
     constexpr int32_t CTOR_VALUE = 628189;
     m_sut.emplace(ForwardArgsToCTor, CTOR_VALUE);
 
-    EXPECT_THAT(m_sut->getCopy().getA(), Eq(CTOR_VALUE));
+    EXPECT_THAT(m_sut->get_copy().getA(), Eq(CTOR_VALUE));
 }
 
 //////////////////////////////////////
@@ -348,7 +348,7 @@ TEST_F(smart_lock_test, ThreadSafeAccessThroughScopedGuard)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2ffb9ba4-4df3-4851-8976-20f15a3bfa4b");
     threadSafeOperationTest(this, [=] {
-        auto guard = (*m_sut).getScopeGuard();
+        auto guard = (*m_sut).get_scope_guard();
         guard->incrementA();
     });
     EXPECT_THAT((*m_sut)->getA(), Eq(NUMBER_OF_RUNS_PER_THREAD * NUMBER_OF_THREADS));
@@ -358,8 +358,8 @@ TEST_F(smart_lock_test, ThreadSafeAccessThroughConstScopedGuard)
 {
     ::testing::Test::RecordProperty("TEST_ID", "dc2efd41-4c0a-4ac0-93ed-f8e9195e0dfd");
     threadSafeOperationTest(this, [=] {
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) used to explitly test const getScopeGuard()
-        auto guard = const_cast<const SutType_t&>(*m_sut).getScopeGuard();
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) used to explitly test const get_scope_guard()
+        auto guard = const_cast<const SutType_t&>(*m_sut).get_scope_guard();
         guard->incrementA();
     });
     EXPECT_THAT((*m_sut)->getA(), Eq(NUMBER_OF_RUNS_PER_THREAD * NUMBER_OF_THREADS));

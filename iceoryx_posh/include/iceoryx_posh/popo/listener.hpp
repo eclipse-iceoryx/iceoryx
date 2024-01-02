@@ -17,7 +17,6 @@
 #ifndef IOX_POSH_POPO_LISTENER_HPP
 #define IOX_POSH_POPO_LISTENER_HPP
 
-#include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_listener.hpp"
 #include "iceoryx_posh/popo/enum_trigger_type.hpp"
 #include "iceoryx_posh/popo/notification_attorney.hpp"
@@ -27,6 +26,7 @@
 #include "iox/detail/mpmc_loffli.hpp"
 #include "iox/expected.hpp"
 #include "iox/function.hpp"
+#include "iox/smart_lock.hpp"
 
 #include <thread>
 

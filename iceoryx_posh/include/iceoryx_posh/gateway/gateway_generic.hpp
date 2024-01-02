@@ -18,7 +18,6 @@
 #ifndef IOX_POSH_GW_GATEWAY_GENERIC_HPP
 #define IOX_POSH_GW_GATEWAY_GENERIC_HPP
 
-#include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/gateway/gateway_base.hpp"
 #include "iceoryx_posh/gateway/gateway_config.hpp"
@@ -28,6 +27,7 @@
 #include "iox/expected.hpp"
 #include "iox/function_ref.hpp"
 #include "iox/optional.hpp"
+#include "iox/smart_lock.hpp"
 #include "iox/string.hpp"
 #include "iox/vector.hpp"
 
