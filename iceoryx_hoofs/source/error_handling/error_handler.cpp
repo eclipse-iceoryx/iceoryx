@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/error_handling/error_handler.hpp"
+#include "iox/assertions.hpp"
 
 #include <cassert>
 
@@ -37,8 +38,7 @@ void ErrorHandler::reactOnErrorLevel(const ErrorLevel level, const char* errorNa
     {
     case ErrorLevel::FATAL:
         IOX_LOG(ERROR, ERROR_TEXT << errorName);
-        assert(false);
-        std::terminate();
+        IOX_PANIC("Fatal error detected!");
         break;
     case ErrorLevel::SEVERE:
         IOX_LOG(WARN, ERROR_TEXT << errorName);

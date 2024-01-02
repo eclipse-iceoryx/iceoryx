@@ -29,8 +29,8 @@ TEST(FatalFailure, UsingExpectFatalFailureWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "26393210-9738-462f-9d35-dbd53fbae9d2");
 
-    auto hasFatalFailure = IOX_EXPECT_FATAL_FAILURE<iox::er::ViolationErrorCode>(
-        [&] { IOX_ENFORCE(false, ""); }, iox::er::ViolationErrorCode::ENFORCE_VIOLATION);
+    auto hasFatalFailure = IOX_EXPECT_FATAL_FAILURE([&] { IOX_ENFORCE(false, ""); },
+                                                    iox::er::Violation{iox::er::ViolationErrorCode::ENFORCE_VIOLATION});
 
     EXPECT_TRUE(hasFatalFailure);
 }

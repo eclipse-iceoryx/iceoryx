@@ -28,11 +28,22 @@ template <typename ErrorType>
 inline bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction,
                                      const ErrorType expectedError [[maybe_unused]])
 {
+    iox::testing::ErrorHandler::instance().reset();
     runInTestThread([&] { testFunction(); });
     IOX_TESTING_EXPECT_PANIC();
 
-    // return iox::testing::hasError(expectedError);
-    return iox::testing::hasPanicked();
+    if constexpr (std::is_same<ErrorType, iox::er::Violation>::value)
+    {
+        /// @todo iox-#1032 'hasViolation' should not be necessary
+        auto hasExpectedError = iox::testing::hasError(expectedError) || iox::testing::hasViolation();
+        EXPECT_TRUE(hasExpectedError);
+        return hasExpectedError;
+    }
+    else
+    {
+        /// @todo iox-#1032 remove this branch once everything is ported to the new error reporting
+        return iox::testing::hasPanicked();
+    }
 }
 
 inline bool IOX_EXPECT_NO_FATAL_FAILURE(const function_ref<void()> testFunction)
