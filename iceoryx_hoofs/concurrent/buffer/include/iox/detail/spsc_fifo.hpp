@@ -14,8 +14,9 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CONCURRENT_FIFO_HPP
-#define IOX_HOOFS_CONCURRENT_FIFO_HPP
+
+#ifndef IOX_HOOFS_CONCURRENT_BUFFER_SPSC_FIFO_HPP
+#define IOX_HOOFS_CONCURRENT_BUFFER_SPSC_FIFO_HPP
 
 #include "iox/optional.hpp"
 #include "iox/uninitialized_array.hpp"
@@ -28,7 +29,7 @@ namespace concurrent
 {
 /// @brief single pusher single pop'er thread safe fifo
 template <typename ValueType, uint64_t Capacity>
-class FiFo
+class SpscFifo
 {
   public:
     /// @brief pushes a value into the fifo
@@ -62,6 +63,6 @@ class FiFo
 } // namespace concurrent
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/concurrent/fifo.inl"
+#include "iox/detail/spsc_fifo.inl"
 
-#endif // IOX_HOOFS_CONCURRENT_FIFO_HPP
+#endif // IOX_HOOFS_CONCURRENT_BUFFER_SPSC_FIFO_HPP

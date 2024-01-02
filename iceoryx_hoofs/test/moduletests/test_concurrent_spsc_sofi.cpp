@@ -15,14 +15,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/concurrent/sofi.hpp"
+#include "iox/detail/spsc_sofi.hpp"
 
 #include <cstdlib>
 #include <gtest/gtest.h>
 
 namespace
 {
-struct SoFiTest : public ::testing::Test
+struct SpscSofiTest : public ::testing::Test
 {
     /// @brief returns the ID of the current test in the format "TestCaseName.TestName"
     /// @return std::string: the id of the test
@@ -65,18 +65,18 @@ struct SoFiTest : public ::testing::Test
     void checkMultiOverflow(const std::string& scope, int serNumStart);
 
     static constexpr uint64_t TEST_SOFI_CAPACITY = 10;
-    iox::concurrent::SoFi<int, TEST_SOFI_CAPACITY> sofi;
+    iox::concurrent::SpscSofi<int, TEST_SOFI_CAPACITY> sofi;
     int returnVal{-1}; // set to a value that should not be present in the SoFi
 };
 
-std::string SoFiTest::testId()
+std::string SpscSofiTest::testId()
 {
     return std::string(::testing::UnitTest::GetInstance()->current_test_info()->test_case_name()) + "."
            + std::string(::testing::UnitTest::GetInstance()->current_test_info()->name());
 }
 
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters) used only for test purposes
-int SoFiTest::pushSome(int serNumStart, uint32_t numberOfItems)
+int SpscSofiTest::pushSome(int serNumStart, uint32_t numberOfItems)
 {
     int valIn = serNumStart;
     int valOut{-1};
@@ -95,7 +95,7 @@ int SoFiTest::pushSome(int serNumStart, uint32_t numberOfItems)
 }
 
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters) used only for test purposes
-void SoFiTest::popSome(int serNumOldest, uint32_t numberOfItems)
+void SpscSofiTest::popSome(int serNumOldest, uint32_t numberOfItems)
 {
     int valOut{-2};
     for (uint32_t i = 0; i < numberOfItems; i++)
@@ -106,7 +106,7 @@ void SoFiTest::popSome(int serNumOldest, uint32_t numberOfItems)
     }
 }
 
-void SoFiTest::popAll(int serNumOldest)
+void SpscSofiTest::popAll(int serNumOldest)
 {
     int valOut{-2}; // set valOut to a value not present in the SoFi
     int serNum = serNumOldest;
@@ -118,7 +118,7 @@ void SoFiTest::popAll(int serNumOldest)
     }
 }
 
-void SoFiTest::checkEmpty(const std::string& scope, int serNumStart)
+void SpscSofiTest::checkEmpty(const std::string& scope, int serNumStart)
 {
     SCOPED_TRACE(scope); // just a helper to trace the failure when subroutines are used
 
@@ -142,7 +142,7 @@ void SoFiTest::checkEmpty(const std::string& scope, int serNumStart)
     EXPECT_TRUE(sofi.empty()) << "SoFi should be empty again!";
 }
 
-void SoFiTest::checkCapacity(const std::string& scope, int serNumStart)
+void SpscSofiTest::checkCapacity(const std::string& scope, int serNumStart)
 {
     SCOPED_TRACE(scope); // just a helper to trace the failure when subroutines are used
 
@@ -157,7 +157,7 @@ void SoFiTest::checkCapacity(const std::string& scope, int serNumStart)
     popAll(valOut + 1);
 }
 
-void SoFiTest::checkOverflow(const std::string& scope, int serNumStart)
+void SpscSofiTest::checkOverflow(const std::string& scope, int serNumStart)
 {
     SCOPED_TRACE(scope); // just a helper to trace the failure when subroutines are used
 
@@ -179,7 +179,7 @@ void SoFiTest::checkOverflow(const std::string& scope, int serNumStart)
     EXPECT_EQ(-2, valOut); // valOut not changed if empty
 }
 
-void SoFiTest::checkMultiOverflow(const std::string& scope, int serNumStart)
+void SpscSofiTest::checkMultiOverflow(const std::string& scope, int serNumStart)
 {
     SCOPED_TRACE(scope); // just a helper to trace the failure when subroutines are used
 
@@ -209,7 +209,7 @@ void SoFiTest::checkMultiOverflow(const std::string& scope, int serNumStart)
     EXPECT_EQ(-2, valOut); // valOut not changed if empty
 }
 
-TEST_F(SoFiTest, Empty)
+TEST_F(SpscSofiTest, Empty)
 {
     ::testing::Test::RecordProperty("TEST_ID", "557d4e60-b214-4170-a07a-bf7ccbc38ba6");
     SCOPED_TRACE(testId()); // just a helper to trace the failure when subroutines are used
@@ -225,7 +225,7 @@ TEST_F(SoFiTest, Empty)
     checkEmpty("second", serNumStart);
 }
 
-TEST_F(SoFiTest, Capacity)
+TEST_F(SpscSofiTest, Capacity)
 {
     ::testing::Test::RecordProperty("TEST_ID", "693ea584-72b2-401a-8a52-b5159eecdb53");
     SCOPED_TRACE(testId()); // just a helper to trace the failure when subroutines are used
@@ -243,19 +243,19 @@ TEST_F(SoFiTest, Capacity)
     checkCapacity("second", serNumStart);
 }
 
-TEST_F(SoFiTest, NewlyCreatedSoFiIsEmpty)
+TEST_F(SpscSofiTest, NewlyCreatedSoFiIsEmpty)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1e29ee14-c592-4d60-b7c0-c38bd390e518");
     EXPECT_TRUE(sofi.empty());
 }
 
-TEST_F(SoFiTest, NewlyCreatedSoFiHasSizeZero)
+TEST_F(SpscSofiTest, NewlyCreatedSoFiHasSizeZero)
 {
     ::testing::Test::RecordProperty("TEST_ID", "89f0ccea-2e96-4a8c-9279-d33aec95b4c9");
-    EXPECT_EQ(sofi.size(), 0);
+    EXPECT_EQ(sofi.size(), 0U);
 }
 
-TEST_F(SoFiTest, SoFiSizeEqualsNumberOfPushes)
+TEST_F(SpscSofiTest, SoFiSizeEqualsNumberOfPushes)
 {
     ::testing::Test::RecordProperty("TEST_ID", "cf415600-d1f5-45bb-8e23-7d72a8212efe");
     SCOPED_TRACE(testId()); // just a helper to trace the failure when subroutines are used
@@ -272,7 +272,7 @@ TEST_F(SoFiTest, SoFiSizeEqualsNumberOfPushes)
     }
 }
 
-TEST_F(SoFiTest, SoFiSizeEqualsNumberOfPushesOverflow)
+TEST_F(SpscSofiTest, SoFiSizeEqualsNumberOfPushesOverflow)
 {
     ::testing::Test::RecordProperty("TEST_ID", "be946957-dddc-4038-8b34-cea6f8931e5e");
     SCOPED_TRACE(testId()); // just a helper to trace the failure when subroutines are used
@@ -289,7 +289,7 @@ TEST_F(SoFiTest, SoFiSizeEqualsNumberOfPushesOverflow)
     }
 }
 
-TEST_F(SoFiTest, Overflow)
+TEST_F(SpscSofiTest, Overflow)
 {
     ::testing::Test::RecordProperty("TEST_ID", "47548956-f8f6-4649-9a04-eb766a014171");
     SCOPED_TRACE(testId()); // just a helper to trace the failure when subroutines are used
@@ -302,7 +302,7 @@ TEST_F(SoFiTest, Overflow)
     checkOverflow("second", serNumStart);
 }
 
-TEST_F(SoFiTest, MultiOverflow)
+TEST_F(SpscSofiTest, MultiOverflow)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1b229258-250a-4cf6-b73f-ab5235a10624");
     SCOPED_TRACE(testId()); // just a helper to trace the failure when subroutines are used
@@ -315,14 +315,14 @@ TEST_F(SoFiTest, MultiOverflow)
     checkMultiOverflow("second", serNumStart);
 }
 
-TEST_F(SoFiTest, ResizeFailsWhenContainingASingleElement)
+TEST_F(SpscSofiTest, ResizeFailsWhenContainingASingleElement)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9c7c43d8-939c-4fa8-b1b9-b379515931e9");
     sofi.push(123, returnVal);
     EXPECT_EQ(sofi.setCapacity(4), false);
 }
 
-TEST_F(SoFiTest, ResizeFailsWhenContainingAMultipleElements)
+TEST_F(SpscSofiTest, ResizeFailsWhenContainingAMultipleElements)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a98bd656-7d39-4274-a77f-bc918a2c1301");
     sofi.push(123, returnVal);
@@ -331,7 +331,7 @@ TEST_F(SoFiTest, ResizeFailsWhenContainingAMultipleElements)
     EXPECT_EQ(sofi.setCapacity(4), false);
 }
 
-TEST_F(SoFiTest, ResizeFailsWhenFull)
+TEST_F(SpscSofiTest, ResizeFailsWhenFull)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6f58b6dd-20ab-42c7-9006-fbbcadb04f42");
     while (!sofi.push(123, returnVal))
@@ -340,25 +340,25 @@ TEST_F(SoFiTest, ResizeFailsWhenFull)
     EXPECT_EQ(sofi.setCapacity(4), false);
 }
 
-TEST_F(SoFiTest, ResizingLargeThanCapacityFails)
+TEST_F(SpscSofiTest, ResizingLargeThanCapacityFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "609918f3-56aa-4e7e-8f7c-d171f2ca4602");
     EXPECT_EQ(sofi.setCapacity(TEST_SOFI_CAPACITY + 1), false);
 }
 
-TEST_F(SoFiTest, ResizingToZeroIsValid)
+TEST_F(SpscSofiTest, ResizingToZeroIsValid)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6675b4c4-7866-43d3-b3b2-aa1bff6b3053");
     EXPECT_EQ(sofi.setCapacity(0), true);
 }
 
-TEST_F(SoFiTest, ResizingDefault)
+TEST_F(SpscSofiTest, ResizingDefault)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f2371e2a-56f2-4ab1-a168-a53fa2440f0b");
     EXPECT_EQ(sofi.setCapacity(TEST_SOFI_CAPACITY - 1), true);
 }
 
-TEST_F(SoFiTest, ResizeAndSizeCheck)
+TEST_F(SpscSofiTest, ResizeAndSizeCheck)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b916cb44-303c-4dc3-8900-aea244482ef6");
     for (uint32_t i = 0; i < TEST_SOFI_CAPACITY; ++i)
@@ -368,7 +368,7 @@ TEST_F(SoFiTest, ResizeAndSizeCheck)
     }
 }
 
-TEST_F(SoFiTest, ResizeAndSizeFillUp)
+TEST_F(SpscSofiTest, ResizeAndSizeFillUp)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3db02cd3-68ac-4507-8437-6bdbe423babf");
     for (uint32_t i = 0; i < TEST_SOFI_CAPACITY - 1; ++i)
@@ -388,7 +388,7 @@ TEST_F(SoFiTest, ResizeAndSizeFillUp)
     }
 }
 
-TEST_F(SoFiTest, PopIfWithValidCondition)
+TEST_F(SpscSofiTest, PopIfWithValidCondition)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f149035c-21cc-4f7d-ba4d-564a645e933b");
     sofi.push(10, returnVal);
@@ -402,7 +402,7 @@ TEST_F(SoFiTest, PopIfWithValidCondition)
     EXPECT_EQ(output, 10);
 }
 
-TEST_F(SoFiTest, PopIfWithInvalidCondition)
+TEST_F(SpscSofiTest, PopIfWithInvalidCondition)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1a494c28-928f-48f4-8b01-e68dfbd7563e");
     sofi.push(15, returnVal);
@@ -414,7 +414,7 @@ TEST_F(SoFiTest, PopIfWithInvalidCondition)
     EXPECT_EQ(result, false);
 }
 
-TEST_F(SoFiTest, PopIfOnEmpty)
+TEST_F(SpscSofiTest, PopIfOnEmpty)
 {
     ::testing::Test::RecordProperty("TEST_ID", "960ad78f-cb9b-4c34-a077-6adb343a841c");
     bool result = sofi.popIf(returnVal, [](const int& peek) { return peek < 7; });
@@ -422,7 +422,7 @@ TEST_F(SoFiTest, PopIfOnEmpty)
     EXPECT_EQ(result, false);
 }
 
-TEST_F(SoFiTest, PopIfFullWithValidCondition)
+TEST_F(SpscSofiTest, PopIfFullWithValidCondition)
 {
     ::testing::Test::RecordProperty("TEST_ID", "167f2f01-f926-4442-bc4f-ff5e7cfe9fe0");
     constexpr int INITIAL_VALUE = 100;
@@ -438,7 +438,7 @@ TEST_F(SoFiTest, PopIfFullWithValidCondition)
     EXPECT_EQ(returnVal, INITIAL_VALUE + OFFSET);
 }
 
-TEST_F(SoFiTest, PopIfFullWithInvalidCondition)
+TEST_F(SpscSofiTest, PopIfFullWithInvalidCondition)
 {
     ::testing::Test::RecordProperty("TEST_ID", "672881b9-eebd-471d-9d62-e792a8b8013f");
     for (int i = 0; i < static_cast<int>(sofi.capacity()) + 2; i++)
@@ -451,7 +451,7 @@ TEST_F(SoFiTest, PopIfFullWithInvalidCondition)
     EXPECT_EQ(result, false);
 }
 
-TEST_F(SoFiTest, PopIfValidEmptyAfter)
+TEST_F(SpscSofiTest, PopIfValidEmptyAfter)
 {
     ::testing::Test::RecordProperty("TEST_ID", "19444dcd-7746-4e6b-a3b3-398c9d62317d");
     sofi.push(2, returnVal);
@@ -461,7 +461,7 @@ TEST_F(SoFiTest, PopIfValidEmptyAfter)
     EXPECT_EQ(sofi.empty(), true);
 }
 
-TEST_F(SoFiTest, PopIfInvalidNotEmptyAfter)
+TEST_F(SpscSofiTest, PopIfInvalidNotEmptyAfter)
 {
     ::testing::Test::RecordProperty("TEST_ID", "cadd7f02-6fe5-49a5-bd5d-837f5fcb2a71");
     sofi.push(200, returnVal);

@@ -18,9 +18,9 @@
 #ifndef IOX_HOOFS_POSIX_IPC_NAMED_PIPE_HPP
 #define IOX_HOOFS_POSIX_IPC_NAMED_PIPE_HPP
 
-#include "iceoryx_hoofs/concurrent/lockfree_queue.hpp"
 #include "iceoryx_platform/semaphore.hpp"
 #include "iox/builder.hpp"
+#include "iox/detail/mpmc_lockfree_queue.hpp"
 #include "iox/duration.hpp"
 #include "iox/expected.hpp"
 #include "iox/iceoryx_hoofs_deployment.hpp"
@@ -57,7 +57,7 @@ class NamedPipe
     using Builder_t = NamedPipeBuilder;
 
     using Message_t = string<MAX_MESSAGE_SIZE>;
-    using MessageQueue_t = concurrent::LockFreeQueue<Message_t, MAX_NUMBER_OF_MESSAGES>;
+    using MessageQueue_t = concurrent::MpmcLockFreeQueue<Message_t, MAX_NUMBER_OF_MESSAGES>;
 
     NamedPipe() noexcept = delete;
     NamedPipe(const NamedPipe&) = delete;

@@ -18,7 +18,7 @@
 #include "iceoryx_hoofs/testing/test.hpp"
 #include "iox/logging.hpp"
 
-#include "iceoryx_hoofs/concurrent/lockfree_queue.hpp"
+#include "iox/detail/mpmc_lockfree_queue.hpp"
 using namespace ::testing;
 
 #include "iceoryx_hoofs/testing/barrier.hpp"
@@ -326,12 +326,12 @@ void randomWork(Queue& queue,
 
 
 template <typename T>
-class LockFreeQueueStressTest : public ::testing::Test
+class MpmcLockFreeQueueStressTest : public ::testing::Test
 {
   protected:
-    LockFreeQueueStressTest() = default;
+    MpmcLockFreeQueueStressTest() = default;
 
-    ~LockFreeQueueStressTest()
+    ~MpmcLockFreeQueueStressTest()
     {
     }
 
@@ -348,7 +348,7 @@ class LockFreeQueueStressTest : public ::testing::Test
 };
 
 template <size_t Capacity>
-using TestQueue = iox::concurrent::LockFreeQueue<Data, Capacity>;
+using TestQueue = iox::concurrent::MpmcLockFreeQueue<Data, Capacity>;
 using SingleElementQueue = TestQueue<1>;
 using SmallQueue = TestQueue<10>;
 using MediumQueue = TestQueue<1000>;
@@ -359,12 +359,12 @@ using LargeQueue = TestQueue<1000000>;
 typedef ::testing::Types<SingleElementQueue, SmallQueue, MediumQueue, LargeQueue> TestQueues;
 // typedef ::testing::Types<MediumQueue> TestQueues;
 
-TYPED_TEST_SUITE(LockFreeQueueStressTest, TestQueues, );
+TYPED_TEST_SUITE(MpmcLockFreeQueueStressTest, TestQueues, );
 
 ///@brief Tests concurrent operation of one producer and one consumer
 /// The producer pushes a fixed number of data elements which the consumer pops and checks.
 /// The order of popped elements and completeness (no data loss) is checked.
-TYPED_TEST(LockFreeQueueStressTest, SingleProducerSingleConsumer)
+TYPED_TEST(MpmcLockFreeQueueStressTest, SingleProducerSingleConsumer)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6987ee43-aeac-48dc-ba91-b9cc1f479d9b");
     using Queue = typename TestFixture::Queue;
@@ -388,7 +388,7 @@ TYPED_TEST(LockFreeQueueStressTest, SingleProducerSingleConsumer)
 ///@brief Tests concurrent operation of multiple producers and one consumer.
 /// The producers push a fixed number of data elements which the consumer pops and checks.
 /// The order of popped elements and completeness (no data loss) is checked.
-TYPED_TEST(LockFreeQueueStressTest, MultiProducerSingleConsumer)
+TYPED_TEST(MpmcLockFreeQueueStressTest, MultiProducerSingleConsumer)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e89cad23-5c2a-4da7-8d02-557aa3058e65");
     using Queue = typename TestFixture::Queue;
@@ -428,7 +428,7 @@ TYPED_TEST(LockFreeQueueStressTest, MultiProducerSingleConsumer)
 /// with multiple consumers > 2, so for now we just do this for 2 consumers.
 /// This is especially the case for many producers/iterations since we need to store intermediate
 /// states from the consumers to check later (which can get quite large).
-TYPED_TEST(LockFreeQueueStressTest, MultiProducerTwoConsumer)
+TYPED_TEST(MpmcLockFreeQueueStressTest, MultiProducerTwoConsumer)
 {
     ::testing::Test::RecordProperty("TEST_ID", "73d6047a-50b3-4d1d-9e64-a99ed3d393d1");
     using Queue = typename TestFixture::Queue;
@@ -471,7 +471,7 @@ TYPED_TEST(LockFreeQueueStressTest, MultiProducerTwoConsumer)
 /// data item back into the queue.
 /// Finally it is checked whether the queue still contains all elements it was initialized with
 ///(likely in a different order).
-TYPED_TEST(LockFreeQueueStressTest, TimedMultiProducerMultiConsumer)
+TYPED_TEST(MpmcLockFreeQueueStressTest, TimedMultiProducerMultiConsumer)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9e18cc73-a5e8-4874-aa75-09d170477d36");
     using Queue = typename TestFixture::Queue;
@@ -545,7 +545,7 @@ TYPED_TEST(LockFreeQueueStressTest, TimedMultiProducerMultiConsumer)
 /// aggregated over the queue and the local lists of each thread
 /// all elements occur exactly as often as there are threads + 1 (i.e. nothing was lost, the +1 is
 /// due to the initial values in the queue itself).
-TYPED_TEST(LockFreeQueueStressTest, TimedMultiProducerMultiConsumer0verflow)
+TYPED_TEST(MpmcLockFreeQueueStressTest, TimedMultiProducerMultiConsumer0verflow)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9adf76d8-beeb-4810-ac71-c4c9dd363219");
     using Queue = typename TestFixture::Queue;

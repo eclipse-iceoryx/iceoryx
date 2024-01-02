@@ -15,17 +15,17 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_INDEX_QUEUE_INL
-#define IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_INDEX_QUEUE_INL
+#ifndef IOX_HOOFS_CONCURRENT_BUFFER_MPMC_LOCKFREE_QUEUE_MPMC_INDEX_QUEUE_INL
+#define IOX_HOOFS_CONCURRENT_BUFFER_MPMC_LOCKFREE_QUEUE_MPMC_INDEX_QUEUE_INL
 
-#include "iceoryx_hoofs/internal/concurrent/lockfree_queue/index_queue.hpp"
+#include "iox/detail/mpmc_lockfree_queue/mpmc_index_queue.hpp"
 
 namespace iox
 {
 namespace concurrent
 {
 template <uint64_t Capacity, typename ValueType>
-inline IndexQueue<Capacity, ValueType>::IndexQueue(ConstructEmpty_t) noexcept
+inline MpmcIndexQueue<Capacity, ValueType>::MpmcIndexQueue(ConstructEmpty_t) noexcept
     : m_readPosition(Index(Capacity))
     , m_writePosition(Index(Capacity))
 {
@@ -36,7 +36,7 @@ inline IndexQueue<Capacity, ValueType>::IndexQueue(ConstructEmpty_t) noexcept
 }
 
 template <uint64_t Capacity, typename ValueType>
-IndexQueue<Capacity, ValueType>::IndexQueue(ConstructFull_t) noexcept
+inline MpmcIndexQueue<Capacity, ValueType>::MpmcIndexQueue(ConstructFull_t) noexcept
     : m_readPosition(Index(0U))
     , m_writePosition(Index(Capacity))
 {
@@ -47,13 +47,13 @@ IndexQueue<Capacity, ValueType>::IndexQueue(ConstructFull_t) noexcept
 }
 
 template <uint64_t Capacity, typename ValueType>
-constexpr uint64_t IndexQueue<Capacity, ValueType>::capacity() const noexcept
+inline constexpr uint64_t MpmcIndexQueue<Capacity, ValueType>::capacity() const noexcept
 {
     return Capacity;
 }
 
 template <uint64_t Capacity, typename ValueType>
-void IndexQueue<Capacity, ValueType>::push(const ValueType index) noexcept
+inline void MpmcIndexQueue<Capacity, ValueType>::push(const ValueType index) noexcept
 {
     // we need the CAS loop here since we may fail due to concurrent push operations
     // note that we are always able to succeed to publish since we have
@@ -136,7 +136,7 @@ void IndexQueue<Capacity, ValueType>::push(const ValueType index) noexcept
 }
 
 template <uint64_t Capacity, typename ValueType>
-bool IndexQueue<Capacity, ValueType>::pop(ValueType& index) noexcept
+inline bool MpmcIndexQueue<Capacity, ValueType>::pop(ValueType& index) noexcept
 {
     // we need the CAS loop here since we may fail due to concurrent pop operations
     // we leave when we detect an empty queue, otherwise we retry the pop operation
@@ -196,7 +196,7 @@ bool IndexQueue<Capacity, ValueType>::pop(ValueType& index) noexcept
 }
 
 template <uint64_t Capacity, typename ValueType>
-bool IndexQueue<Capacity, ValueType>::popIfFull(ValueType& index) noexcept
+inline bool MpmcIndexQueue<Capacity, ValueType>::popIfFull(ValueType& index) noexcept
 {
     // we do NOT need a CAS loop here since if we detect that the queue is not full
     // someone else popped an element and we do not retry to check whether it was filled AGAIN
@@ -232,7 +232,7 @@ bool IndexQueue<Capacity, ValueType>::popIfFull(ValueType& index) noexcept
 }
 
 template <uint64_t Capacity, typename ValueType>
-bool IndexQueue<Capacity, ValueType>::popIfSizeIsAtLeast(const uint64_t minSize, ValueType& index) noexcept
+inline bool MpmcIndexQueue<Capacity, ValueType>::popIfSizeIsAtLeast(const uint64_t minSize, ValueType& index) noexcept
 {
     if (minSize == 0)
     {
@@ -280,7 +280,7 @@ bool IndexQueue<Capacity, ValueType>::popIfSizeIsAtLeast(const uint64_t minSize,
 }
 
 template <uint64_t Capacity, typename ValueType>
-optional<ValueType> IndexQueue<Capacity, ValueType>::pop() noexcept
+inline optional<ValueType> MpmcIndexQueue<Capacity, ValueType>::pop() noexcept
 {
     ValueType value;
     if (pop(value))
@@ -291,7 +291,7 @@ optional<ValueType> IndexQueue<Capacity, ValueType>::pop() noexcept
 }
 
 template <uint64_t Capacity, typename ValueType>
-optional<ValueType> IndexQueue<Capacity, ValueType>::popIfFull() noexcept
+inline optional<ValueType> MpmcIndexQueue<Capacity, ValueType>::popIfFull() noexcept
 {
     ValueType value;
     if (popIfFull(value))
@@ -302,7 +302,7 @@ optional<ValueType> IndexQueue<Capacity, ValueType>::popIfFull() noexcept
 }
 
 template <uint64_t Capacity, typename ValueType>
-optional<ValueType> IndexQueue<Capacity, ValueType>::popIfSizeIsAtLeast(const uint64_t size) noexcept
+inline optional<ValueType> MpmcIndexQueue<Capacity, ValueType>::popIfSizeIsAtLeast(const uint64_t size) noexcept
 {
     ValueType value;
     if (popIfSizeIsAtLeast(size, value))
@@ -313,7 +313,7 @@ optional<ValueType> IndexQueue<Capacity, ValueType>::popIfSizeIsAtLeast(const ui
 }
 
 template <uint64_t Capacity, typename ValueType>
-bool IndexQueue<Capacity, ValueType>::empty() const noexcept
+inline bool MpmcIndexQueue<Capacity, ValueType>::empty() const noexcept
 {
     const auto readPosition = m_readPosition.load(std::memory_order_relaxed);
     const auto value = loadvalueAt(readPosition, std::memory_order_relaxed);
@@ -324,8 +324,8 @@ bool IndexQueue<Capacity, ValueType>::empty() const noexcept
 }
 
 template <uint64_t Capacity, typename ValueType>
-typename IndexQueue<Capacity, ValueType>::Index
-IndexQueue<Capacity, ValueType>::loadvalueAt(const Index& position, const std::memory_order memoryOrder) const noexcept
+typename MpmcIndexQueue<Capacity, ValueType>::Index inline MpmcIndexQueue<Capacity, ValueType>::loadvalueAt(
+    const Index& position, const std::memory_order memoryOrder) const noexcept
 {
     return m_cells[position.getIndex()].load(memoryOrder);
 }
@@ -333,4 +333,4 @@ IndexQueue<Capacity, ValueType>::loadvalueAt(const Index& position, const std::m
 } // namespace concurrent
 } // namespace iox
 
-#endif // IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_INDEX_QUEUE_INL
+#endif // IOX_HOOFS_CONCURRENT_BUFFER_MPMC_LOCKFREE_QUEUE_MPMC_INDEX_QUEUE_INL

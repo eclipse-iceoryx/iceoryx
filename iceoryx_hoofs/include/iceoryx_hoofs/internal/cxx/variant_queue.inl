@@ -32,19 +32,19 @@ inline VariantQueue<ValueType, Capacity>::VariantQueue(const VariantQueueTypes t
     {
     case VariantQueueTypes::FiFo_SingleProducerSingleConsumer:
     {
-        m_fifo.template emplace<concurrent::FiFo<ValueType, Capacity>>();
+        m_fifo.template emplace<concurrent::SpscFifo<ValueType, Capacity>>();
         break;
     }
     case VariantQueueTypes::SoFi_SingleProducerSingleConsumer:
     {
-        m_fifo.template emplace<concurrent::SoFi<ValueType, Capacity>>();
+        m_fifo.template emplace<concurrent::SpscSofi<ValueType, Capacity>>();
         break;
     }
     case VariantQueueTypes::FiFo_MultiProducerSingleConsumer:
         [[fallthrough]];
     case VariantQueueTypes::SoFi_MultiProducerSingleConsumer:
     {
-        m_fifo.template emplace<concurrent::ResizeableLockFreeQueue<ValueType, Capacity>>();
+        m_fifo.template emplace<concurrent::MpmcResizeableLockFreeQueue<ValueType, Capacity>>();
         break;
     }
     }

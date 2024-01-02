@@ -67,11 +67,11 @@ iox_add_executable( TARGET                  ${PROJECT_PREFIX}_stresstests
                     FILES                   ${STRESSTESTS_SRC}
 )
 
-iox_add_executable( TARGET                  test_stress_sofi
+iox_add_executable( TARGET                  test_stress_spsc_sofi
                     INCLUDE_DIRECTORIES     .
                     LIBS                    ${TEST_LINK_LIBS}
                     LIBS_LINUX              acl dl pthread rt
-                    FILES                   stresstests/sofi/test_stress_sofi.cpp
+                    FILES                   stresstests/sofi/test_stress_spsc_sofi.cpp
 )
 
 add_subdirectory(stresstests/benchmark_optional_and_expected)
@@ -79,4 +79,4 @@ add_subdirectory(stresstests/benchmark_optional_and_expected)
 target_compile_options(${PROJECT_PREFIX}_moduletests PRIVATE ${ICEORYX_TEST_CXX_FLAGS})
 target_compile_options(${PROJECT_PREFIX}_mocktests PRIVATE ${ICEORYX_TEST_CXX_FLAGS})
 target_compile_options(${PROJECT_PREFIX}_integrationtests PRIVATE ${ICEORYX_TEST_CXX_FLAGS})
-target_compile_options(test_stress_sofi PRIVATE ${ICEORYX_TEST_CXX_FLAGS})
+target_compile_options(test_stress_spsc_sofi PRIVATE ${ICEORYX_TEST_CXX_FLAGS})

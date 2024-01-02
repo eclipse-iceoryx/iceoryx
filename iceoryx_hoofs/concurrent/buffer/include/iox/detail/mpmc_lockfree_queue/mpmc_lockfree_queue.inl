@@ -16,10 +16,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_LOCKFREE_QUEUE_INL
-#define IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_LOCKFREE_QUEUE_INL
+#ifndef IOX_HOOFS_CONCURRENT_BUFFER_MPMC_LOCKFREE_QUEUE_MPMC_LOCKFREE_QUEUE_INL
+#define IOX_HOOFS_CONCURRENT_BUFFER_MPMC_LOCKFREE_QUEUE_MPMC_LOCKFREE_QUEUE_INL
 
-#include "iceoryx_hoofs/concurrent/lockfree_queue.hpp"
+#include "iox/detail/mpmc_lockfree_queue.hpp"
 #include "iox/optional.hpp"
 
 #include <utility>
@@ -29,20 +29,20 @@ namespace iox
 namespace concurrent
 {
 template <typename ElementType, uint64_t Capacity>
-LockFreeQueue<ElementType, Capacity>::LockFreeQueue() noexcept
-    : m_freeIndices(IndexQueue<Capacity>::ConstructFull)
-    , m_usedIndices(IndexQueue<Capacity>::ConstructEmpty)
+inline MpmcLockFreeQueue<ElementType, Capacity>::MpmcLockFreeQueue() noexcept
+    : m_freeIndices(MpmcIndexQueue<Capacity>::ConstructFull)
+    , m_usedIndices(MpmcIndexQueue<Capacity>::ConstructEmpty)
 {
 }
 
 template <typename ElementType, uint64_t Capacity>
-constexpr uint64_t LockFreeQueue<ElementType, Capacity>::capacity() const noexcept
+inline constexpr uint64_t MpmcLockFreeQueue<ElementType, Capacity>::capacity() const noexcept
 {
     return Capacity;
 }
 
 template <typename ElementType, uint64_t Capacity>
-bool LockFreeQueue<ElementType, Capacity>::tryPush(const ElementType& value) noexcept
+inline bool MpmcLockFreeQueue<ElementType, Capacity>::tryPush(const ElementType& value) noexcept
 {
     uint64_t index{0};
 
@@ -59,7 +59,7 @@ bool LockFreeQueue<ElementType, Capacity>::tryPush(const ElementType& value) noe
 }
 
 template <typename ElementType, uint64_t Capacity>
-bool LockFreeQueue<ElementType, Capacity>::tryPush(ElementType&& value) noexcept
+inline bool MpmcLockFreeQueue<ElementType, Capacity>::tryPush(ElementType&& value) noexcept
 {
     uint64_t index{0};
 
@@ -77,7 +77,7 @@ bool LockFreeQueue<ElementType, Capacity>::tryPush(ElementType&& value) noexcept
 
 template <typename ElementType, uint64_t Capacity>
 template <typename T>
-iox::optional<ElementType> LockFreeQueue<ElementType, Capacity>::pushImpl(T&& value) noexcept
+inline iox::optional<ElementType> MpmcLockFreeQueue<ElementType, Capacity>::pushImpl(T&& value) noexcept
 {
     optional<ElementType> evictedValue;
 
@@ -114,19 +114,19 @@ iox::optional<ElementType> LockFreeQueue<ElementType, Capacity>::pushImpl(T&& va
 }
 
 template <typename ElementType, uint64_t Capacity>
-iox::optional<ElementType> LockFreeQueue<ElementType, Capacity>::push(const ElementType& value) noexcept
+inline iox::optional<ElementType> MpmcLockFreeQueue<ElementType, Capacity>::push(const ElementType& value) noexcept
 {
     return pushImpl(std::forward<const ElementType>(value));
 }
 
 template <typename ElementType, uint64_t Capacity>
-iox::optional<ElementType> LockFreeQueue<ElementType, Capacity>::push(ElementType&& value) noexcept
+inline iox::optional<ElementType> MpmcLockFreeQueue<ElementType, Capacity>::push(ElementType&& value) noexcept
 {
     return pushImpl(std::forward<ElementType>(value));
 }
 
 template <typename ElementType, uint64_t Capacity>
-iox::optional<ElementType> LockFreeQueue<ElementType, Capacity>::pop() noexcept
+inline iox::optional<ElementType> MpmcLockFreeQueue<ElementType, Capacity>::pop() noexcept
 {
     uint64_t index{0};
 
@@ -143,19 +143,19 @@ iox::optional<ElementType> LockFreeQueue<ElementType, Capacity>::pop() noexcept
 }
 
 template <typename ElementType, uint64_t Capacity>
-bool LockFreeQueue<ElementType, Capacity>::empty() const noexcept
+inline bool MpmcLockFreeQueue<ElementType, Capacity>::empty() const noexcept
 {
     return m_usedIndices.empty();
 }
 
 template <typename ElementType, uint64_t Capacity>
-uint64_t LockFreeQueue<ElementType, Capacity>::size() const noexcept
+inline uint64_t MpmcLockFreeQueue<ElementType, Capacity>::size() const noexcept
 {
     return m_size.load(std::memory_order_relaxed);
 }
 
 template <typename ElementType, uint64_t Capacity>
-optional<ElementType> LockFreeQueue<ElementType, Capacity>::readBufferAt(const uint64_t& index) noexcept
+inline optional<ElementType> MpmcLockFreeQueue<ElementType, Capacity>::readBufferAt(const uint64_t& index) noexcept
 {
     // also used for buffer synchronization
     m_size.fetch_sub(1U, std::memory_order_acquire);
@@ -168,7 +168,7 @@ optional<ElementType> LockFreeQueue<ElementType, Capacity>::readBufferAt(const u
 
 template <typename ElementType, uint64_t Capacity>
 template <typename T>
-void LockFreeQueue<ElementType, Capacity>::writeBufferAt(const uint64_t& index, T&& value) noexcept
+inline void MpmcLockFreeQueue<ElementType, Capacity>::writeBufferAt(const uint64_t& index, T&& value) noexcept
 {
     auto elementPtr = &m_buffer[index];
     new (elementPtr) ElementType(std::forward<T>(value)); // move ctor invoked when available, copy ctor otherwise
@@ -180,4 +180,4 @@ void LockFreeQueue<ElementType, Capacity>::writeBufferAt(const uint64_t& index, 
 } // namespace concurrent
 } // namespace iox
 
-#endif // IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_LOCKFREE_QUEUE_INL
+#endif // IOX_HOOFS_CONCURRENT_BUFFER_MPMC_LOCKFREE_QUEUE_MPMC_LOCKFREE_QUEUE_INL

@@ -16,8 +16,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
-#include "iceoryx_hoofs/internal/concurrent/loffli.hpp"
 #include "iceoryx_hoofs/testing/fatal_failure.hpp"
+#include "iox/detail/mpmc_loffli.hpp"
 #include "test.hpp"
 
 #include <algorithm>
@@ -28,61 +28,57 @@ namespace
 {
 using namespace ::testing;
 using namespace iox::testing;
+using namespace iox::concurrent;
 
-constexpr uint32_t Size{4};
-using LoFFLiTestSubjects = Types<iox::concurrent::LoFFLi>;
-
-TYPED_TEST_SUITE(LoFFLi_test, LoFFLiTestSubjects, );
-
-template <typename LoFFLiType>
-class LoFFLi_test : public Test
+class MpmcLoFFLi_test : public Test
 {
   public:
     void SetUp() override
     {
-        m_loffli.init(&m_memoryLoFFLi[0], Size);
+        m_loffli.init(&m_memoryLoFFLi[0], CAPACITY);
     }
 
     void TearDown() override
     {
     }
 
-    using LoFFLiIndex_t = typename LoFFLiType::Index_t;
-    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) needed for LoFFLi::init
-    LoFFLiIndex_t m_memoryLoFFLi[LoFFLiType::requiredIndexMemorySize(Size)]{0};
-    LoFFLiType m_loffli;
+    static constexpr uint32_t CAPACITY{4};
+
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) needed for MpmcLoFFLi::init
+    MpmcLoFFLi::Index_t m_memoryLoFFLi[MpmcLoFFLi::requiredIndexMemorySize(CAPACITY)]{0};
+    MpmcLoFFLi m_loffli;
 };
 
-TYPED_TEST(LoFFLi_test, Misuse_NullptrMemory)
+TEST_F(MpmcLoFFLi_test, Misuse_NullptrMemory)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ab877f29-cab0-48ae-a2c0-054633b6415a");
 
-    decltype(this->m_loffli) loFFLi;
+    MpmcLoFFLi loFFLi;
 
     IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { loFFLi.init(nullptr, 1); },
                                               iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
-TYPED_TEST(LoFFLi_test, Misuse_ZeroSize)
+TEST_F(MpmcLoFFLi_test, Misuse_ZeroSize)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fb9c797b-22b4-4572-a7a2-eaf13574dbac");
 
-    // NOLINTBEGIN(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) needed to test LoFFLi::init
+    // NOLINTBEGIN(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) needed to test MpmcLoFFLi::init
     uint32_t memoryLoFFLi[4];
-    decltype(this->m_loffli) loFFLi;
+    MpmcLoFFLi loFFLi;
 
     IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { loFFLi.init(&memoryLoFFLi[0], 0); },
                                               iox::HoofsError::EXPECTS_ENSURES_FAILED);
     // NOLINTEND(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
 }
 
-TYPED_TEST(LoFFLi_test, Misuse_SizeToLarge)
+TEST_F(MpmcLoFFLi_test, Misuse_SizeToLarge)
 {
     ::testing::Test::RecordProperty("TEST_ID", "14b4b82c-ae2b-4bd2-97cf-93fcea87f050");
 
-    // NOLINTBEGIN(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) needed to test LoFFLi::init
+    // NOLINTBEGIN(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) needed to test MpmcLoFFLi::init
     uint32_t memoryLoFFLi[4];
-    decltype(this->m_loffli) loFFLi;
+    MpmcLoFFLi loFFLi;
 
     IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { loFFLi.init(&memoryLoFFLi[0], UINT32_MAX - 1); },
                                               iox::HoofsError::EXPECTS_ENSURES_FAILED);
@@ -90,14 +86,14 @@ TYPED_TEST(LoFFLi_test, Misuse_SizeToLarge)
 }
 
 
-TYPED_TEST(LoFFLi_test, Initialized)
+TEST_F(MpmcLoFFLi_test, Initialized)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d4ee0d3a-313d-4511-a759-f1bb7482c50b");
     // loffli must be full when initialized
     EXPECT_THAT(this->m_loffli.push(0), Eq(false));
 }
 
-TYPED_TEST(LoFFLi_test, SinglePop)
+TEST_F(MpmcLoFFLi_test, SinglePop)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5ed7c05a-3cee-4895-825e-b39fa127fb97");
     constexpr uint32_t AFFE = 0xAFFE;
@@ -106,11 +102,11 @@ TYPED_TEST(LoFFLi_test, SinglePop)
     EXPECT_THAT(index, Ne(AFFE));
 }
 
-TYPED_TEST(LoFFLi_test, PopEmpty)
+TEST_F(MpmcLoFFLi_test, PopEmpty)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6f5c9890-14d6-4b63-ae0e-b5754d2e0f23");
     constexpr uint32_t AFFE = 0xAFFE;
-    for (uint32_t i = 0; i < Size; i++)
+    for (uint32_t i = 0; i < CAPACITY; i++)
     {
         uint32_t index = AFFE;
         EXPECT_THAT(this->m_loffli.pop(index), Eq(true));
@@ -122,17 +118,17 @@ TYPED_TEST(LoFFLi_test, PopEmpty)
     EXPECT_THAT(index, Eq(AFFE));
 }
 
-TYPED_TEST(LoFFLi_test, PopFromUninitializedLoFFLi)
+TEST_F(MpmcLoFFLi_test, PopFromUninitializedLoFFLi)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1f516a22-07ac-43b5-9230-e09e4c202165");
     constexpr uint32_t AFFE = 0xAFFE;
     uint32_t index = AFFE;
 
-    decltype(this->m_loffli) loFFLi;
+    MpmcLoFFLi loFFLi;
     EXPECT_THAT(loFFLi.pop(index), Eq(false));
 }
 
-TYPED_TEST(LoFFLi_test, SinglePush)
+TEST_F(MpmcLoFFLi_test, SinglePush)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0b7bf346-056b-4b1c-a6e9-92b54233598e");
     constexpr uint32_t AFFE = 0xAFFE;
@@ -146,7 +142,7 @@ TYPED_TEST(LoFFLi_test, SinglePush)
     EXPECT_THAT(index, Eq(indexPush));
 }
 
-TYPED_TEST(LoFFLi_test, PushTillFull)
+TEST_F(MpmcLoFFLi_test, PushTillFull)
 {
     ::testing::Test::RecordProperty("TEST_ID", "610e3e8f-1db9-4a92-a5e8-2d1bb0077123");
     std::vector<uint32_t> useList;
@@ -162,7 +158,7 @@ TYPED_TEST(LoFFLi_test, PushTillFull)
     }
 }
 
-TYPED_TEST(LoFFLi_test, PushRandomOrder)
+TEST_F(MpmcLoFFLi_test, PushRandomOrder)
 {
     ::testing::Test::RecordProperty("TEST_ID", "73700ca3-3a37-48af-8485-91e0a7b4e3d0");
     std::vector<uint32_t> useListToPush;
@@ -194,7 +190,7 @@ TYPED_TEST(LoFFLi_test, PushRandomOrder)
     EXPECT_THAT(useListPoped, Eq(useListToPush));
 }
 
-TYPED_TEST(LoFFLi_test, PushWrongIndex)
+TEST_F(MpmcLoFFLi_test, PushWrongIndex)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9a3fabd1-17c0-4e40-8390-53ca4d656d91");
     uint32_t index{0};
@@ -204,27 +200,27 @@ TYPED_TEST(LoFFLi_test, PushWrongIndex)
     EXPECT_THAT(this->m_loffli.push(indexPush), Eq(false));
 }
 
-TYPED_TEST(LoFFLi_test, PushOutOfBoundIndex)
+TEST_F(MpmcLoFFLi_test, PushOutOfBoundIndex)
 {
     ::testing::Test::RecordProperty("TEST_ID", "261ba489-1cec-44db-8c41-d9e71c761d91");
     uint32_t index{0};
     this->m_loffli.pop(index);
 
-    EXPECT_THAT(this->m_loffli.push(Size), Eq(false));
-    EXPECT_THAT(this->m_loffli.push(Size + 42), Eq(false));
+    EXPECT_THAT(this->m_loffli.push(CAPACITY), Eq(false));
+    EXPECT_THAT(this->m_loffli.push(CAPACITY + 42), Eq(false));
 }
 
-TYPED_TEST(LoFFLi_test, PushWhenFull)
+TEST_F(MpmcLoFFLi_test, PushWhenFull)
 {
     ::testing::Test::RecordProperty("TEST_ID", "05505968-a3f9-4a8a-87e3-d32064ecdb66");
     uint32_t indexPush = 0;
     EXPECT_THAT(this->m_loffli.push(indexPush), Eq(false));
 }
 
-TYPED_TEST(LoFFLi_test, PushToUninitializedLoFFLi)
+TEST_F(MpmcLoFFLi_test, PushToUninitializedLoFFLi)
 {
     ::testing::Test::RecordProperty("TEST_ID", "34f5b48a-a30a-4dd1-81d6-7c963c005f1b");
-    decltype(this->m_loffli) loFFLi;
+    MpmcLoFFLi loFFLi;
     EXPECT_THAT(loFFLi.push(0), Eq(false));
 }
 } // namespace

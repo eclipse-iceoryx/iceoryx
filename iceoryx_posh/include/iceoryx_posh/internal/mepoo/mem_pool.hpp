@@ -18,10 +18,10 @@
 #ifndef IOX_POSH_MEPOO_MEM_POOL_HPP
 #define IOX_POSH_MEPOO_MEM_POOL_HPP
 
-#include "iceoryx_hoofs/internal/concurrent/loffli.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iox/algorithm.hpp"
 #include "iox/bump_allocator.hpp"
+#include "iox/detail/mpmc_loffli.hpp"
 #include "iox/relative_pointer.hpp"
 
 #include <atomic>
@@ -48,7 +48,7 @@ struct MemPoolInfo
 class MemPool
 {
   public:
-    using freeList_t = concurrent::LoFFLi;
+    using freeList_t = concurrent::MpmcLoFFLi;
     static constexpr uint64_t CHUNK_MEMORY_ALIGNMENT = 8U; // default alignment for 64 bit
 
     MemPool(const greater_or_equal<uint32_t, CHUNK_MEMORY_ALIGNMENT> chunkSize,

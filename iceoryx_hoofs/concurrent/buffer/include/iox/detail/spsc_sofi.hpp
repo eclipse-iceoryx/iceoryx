@@ -14,8 +14,9 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CONCURRENT_SOFI_HPP
-#define IOX_HOOFS_CONCURRENT_SOFI_HPP
+
+#ifndef IOX_HOOFS_CONCURRENT_BUFFER_SPSC_SOFI_HPP
+#define IOX_HOOFS_CONCURRENT_BUFFER_SPSC_SOFI_HPP
 
 #include "iceoryx_platform/platform_correction.hpp"
 #include "iox/type_traits.hpp"
@@ -31,49 +32,50 @@ namespace concurrent
 {
 /// @brief
 /// Thread safe producer and consumer queue with a safe overflowing behavior.
-/// SoFi is designed in a FIFO Manner but prevents data loss when pushing into
-/// a full SoFi. When SoFi is full and a Sender tries to push, the data at the
-/// current read position will be returned. SoFi is a Thread safe without using
+/// SpscSofi is designed in a FIFO Manner but prevents data loss when pushing into
+/// a full SpscSofi. When SpscSofi is full and a Sender tries to push, the data at the
+/// current read position will be returned. SpscSofi is threadsafe without using
 /// locks. When the buffer is filled, new data is written starting at the
-/// beginning of the buffer and overwriting the old.The SoFi is especially
+/// beginning of the buffer and overwriting the old.The SpscSofi is especially
 /// designed to provide fixed capacity storage. When its capacity is exhausted,
 /// newly inserted elements will cause elements either at the beginning
-/// to be overwritten.The SoFi only allocates memory when
+/// to be overwritten.The SpscSofi only allocates memory when
 /// created , capacity can be is adjusted explicitly.
 ///
 /// @param[in] ValueType        DataType to be stored, must be trivially copyable
-/// @param[in] CapacityValue    Capacity of the SoFi
+/// @param[in] CapacityValue    Capacity of the SpscSofi
 template <class ValueType, uint64_t CapacityValue>
-class SoFi
+class SpscSofi
 {
-    static_assert(std::is_trivially_copyable<ValueType>::value, "SoFi can handle only trivially copyable data types");
+    static_assert(std::is_trivially_copyable<ValueType>::value,
+                  "SpscSofi can handle only trivially copyable data types");
     /// @brief Check if Atomic integer is lockfree on platform
     /// ATOMIC_INT_LOCK_FREE = 2 - is always lockfree
     /// ATOMIC_INT_LOCK_FREE = 1 - is sometimes lockfree
     /// ATOMIC_INT_LOCK_FREE = 0 - is never lockfree
-    static_assert(2 <= ATOMIC_INT_LOCK_FREE, "SoFi is not able to run lock free on this data type");
+    static_assert(2 <= ATOMIC_INT_LOCK_FREE, "SpscSofi is not able to run lock free on this data type");
 
     /// @brief Internal size needs to be bigger than the size desirred by the user
     /// This is because of buffer empty detection and overflow handling
     static constexpr uint32_t INTERNAL_SIZE_ADD_ON = 1;
 
     /// @brief This is the resulting internal size on creation
-    static constexpr uint32_t INTERNAL_SOFI_SIZE = CapacityValue + INTERNAL_SIZE_ADD_ON;
+    static constexpr uint32_t INTERNAL_SPSC_SOFI_SIZE = CapacityValue + INTERNAL_SIZE_ADD_ON;
 
   public:
     /// @brief default constructor which constructs an empty sofi
-    SoFi() noexcept = default;
+    SpscSofi() noexcept = default;
 
-    /// @brief pushs an element into sofi. if sofi is full the oldest data will be
+    /// @brief pushs an element into SpscSofi. if SpscSofi is full the oldest data will be
     ///         returned and the pushed element is stored in its place instead.
     /// @param[in] valueIn value which should be stored
-    /// @param[out] valueOut if sofi is overflowing  the value of the overridden value
+    /// @param[out] valueOut if SpscSofi is overflowing  the value of the overridden value
     ///                      is stored here
     /// @concurrent restricted thread safe: single pop, single push no
     ///             push calls from multiple contexts
     /// @return return true if push was sucessfull else false.
     /// @code
-    /// (initial situation, SOFI is FULL)
+    /// (initial situation, SpscSofi is FULL)
     ///     Start|-----A-------|
     ///                        |-----B-------|
     ///                                      |-----C-------|
@@ -89,9 +91,9 @@ class SoFi
     ///
     /// ###################################################################
     ///
-    /// (if SOFI is not FULL , calling push() add new data)
+    /// (if SpscSofi is not FULL , calling push() add new data)
     ///     Start|-------------|
-    ///                        |-------------|  ( Initial SOFI )
+    ///                        |-------------|  ( Initial SpscSofi )
     ///  (push() Called two times)
     ///
     ///                                      |-------------|
@@ -105,7 +107,7 @@ class SoFi
     /// @param[out] valueOut storage of the pop'ed value
     /// @concurrent restricted thread safe: single pop, single push no
     ///             pop or popIf calls from multiple contexts
-    /// @return false if sofi is empty, otherwise true
+    /// @return false if SpscSofi is empty, otherwise true
     bool pop(ValueType& valueOut) noexcept;
 
     /// @brief conditional pop call to provide an alternative for a peek
@@ -125,35 +127,35 @@ class SoFi
     /// @endcode
     /// @concurrent restricted thread safe: single pop, single push no
     ///             pop or popIf calls from multiple contexts
-    /// @return false if sofi is empty or when verificator returns false, otherwise true
+    /// @return false if SpscSofi is empty or when verificator returns false, otherwise true
     template <typename Verificator_T>
     bool popIf(ValueType& valueOut, const Verificator_T& verificator) noexcept;
 
-    /// @brief returns true if sofi is empty, otherwise false
+    /// @brief returns true if SpscSofi is empty, otherwise false
     /// @note the use of this function is limited in the concurrency case. if you
     ///         call this and in another thread pop is called the result can be out
     ///         of date as soon as you require it
     /// @concurrent unrestricted thread safe
     bool empty() const noexcept;
 
-    /// @brief resizes sofi
+    /// @brief resizes SpscSofi
     /// @param[in] newSize valid values are 0 < newSize < CapacityValue
     /// @pre it is important that no pop or push calls occur during
     ///         this call
     /// @concurrent not thread safe
     bool setCapacity(const uint64_t newSize) noexcept;
 
-    /// @brief returns the capacity of sofi
+    /// @brief returns the capacity of SpscSofi
     /// @concurrent unrestricted thread safe
     uint64_t capacity() const noexcept;
 
-    /// @brief returns the current size of sofi
+    /// @brief returns the current size of SpscSofi
     /// @concurrent unrestricted thread safe
     uint64_t size() const noexcept;
 
   private:
-    UninitializedArray<ValueType, INTERNAL_SOFI_SIZE> m_data;
-    uint64_t m_size = INTERNAL_SOFI_SIZE;
+    UninitializedArray<ValueType, INTERNAL_SPSC_SOFI_SIZE> m_data;
+    uint64_t m_size = INTERNAL_SPSC_SOFI_SIZE;
 
     /// @brief the write/read pointers are "atomic pointers" so that they are not
     /// reordered (read or written too late)
@@ -164,6 +166,6 @@ class SoFi
 } // namespace concurrent
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/concurrent/sofi.inl"
+#include "iox/detail/spsc_sofi.inl"
 
-#endif // IOX_HOOFS_CONCURRENT_SOFI_HPP
+#endif // IOX_HOOFS_CONCURRENT_BUFFER_SPSC_SOFI_HPP

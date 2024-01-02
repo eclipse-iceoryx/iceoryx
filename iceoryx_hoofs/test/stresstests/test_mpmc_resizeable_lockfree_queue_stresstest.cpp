@@ -16,7 +16,7 @@
 
 #include "iceoryx_hoofs/testing/test.hpp"
 
-#include "iceoryx_hoofs/concurrent/resizeable_lockfree_queue.hpp"
+#include "iox/detail/mpmc_resizeable_lockfree_queue.hpp"
 
 // Remark: It would be nice to have way to configure the (maximum) runtime in a general way.
 
@@ -319,12 +319,12 @@ void changeCapacity(Queue& queue,
 
 
 template <typename Config>
-class ResizeableLockFreeQueueStressTest : public ::testing::Test
+class MpmcResizeableLockFreeQueueStressTest : public ::testing::Test
 {
   protected:
-    ResizeableLockFreeQueueStressTest() = default;
+    MpmcResizeableLockFreeQueueStressTest() = default;
 
-    ~ResizeableLockFreeQueueStressTest()
+    ~MpmcResizeableLockFreeQueueStressTest()
     {
     }
 
@@ -361,7 +361,7 @@ struct Config
     static_assert(DynamicCapacity <= Capacity, "DynamicCapacity can be at most Capacity");
 
 
-    using QueueType = iox::concurrent::ResizeableLockFreeQueue<ElementType, Capacity>;
+    using QueueType = iox::concurrent::MpmcResizeableLockFreeQueue<ElementType, Capacity>;
 };
 
 template <typename ElementType, uint64_t Capacity>
@@ -398,11 +398,11 @@ using HalfFull3 = HalfFull<Data, Large>;
 /// @endcode
 typedef ::testing::Types<HalfFull2> TestConfigs;
 
-TYPED_TEST_SUITE(ResizeableLockFreeQueueStressTest, TestConfigs, );
+TYPED_TEST_SUITE(MpmcResizeableLockFreeQueueStressTest, TestConfigs, );
 
 ///@brief Tests concurrent operation of multiple producers and consumers
 ///       with respect to completeness of the data, i.e. nothing is lost.
-TYPED_TEST(ResizeableLockFreeQueueStressTest, MultiProducerMultiConsumerCompleteness)
+TYPED_TEST(MpmcResizeableLockFreeQueueStressTest, MultiProducerMultiConsumerCompleteness)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9640d068-5c9f-4bc4-b4a0-c0a2225c15ed");
     using Queue = typename TestFixture::Queue;
@@ -474,7 +474,7 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, MultiProducerMultiConsumerComplete
 /// @brief Tests concurrent operation of multiple producers and consumers
 ///       with respect to order of the data (monotonic, FIFO).
 /// @note this cannot be done easily together with completeness and limited memory
-TYPED_TEST(ResizeableLockFreeQueueStressTest, MultiProducerMultiConsumerOrder)
+TYPED_TEST(MpmcResizeableLockFreeQueueStressTest, MultiProducerMultiConsumerOrder)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5a6e3e6b-7cd9-4079-a9e8-7a849ea3dfe9");
     using Queue = typename TestFixture::Queue;
@@ -527,7 +527,7 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, MultiProducerMultiConsumerOrder)
 /// data item back into the queue.
 /// Finally it is checked whether the queue still contains all elements it was initialized with
 ///(likely in a different order).
-TYPED_TEST(ResizeableLockFreeQueueStressTest, HybridMultiProducerMultiConsumer)
+TYPED_TEST(MpmcResizeableLockFreeQueueStressTest, HybridMultiProducerMultiConsumer)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0b5c7dc4-6e9a-4ac4-b2fc-6bd6dfb7ee1f");
     using Queue = typename TestFixture::Queue;
@@ -598,7 +598,7 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, HybridMultiProducerMultiConsumer)
 /// aggregated over the queue and the local lists of each thread
 /// all elements occur exactly as often as there are threads + 1 (i.e. nothing was lost, the +1 is
 /// due to the initial values in the queue itself).
-TYPED_TEST(ResizeableLockFreeQueueStressTest, HybridMultiProducerMultiConsumer0verflow)
+TYPED_TEST(MpmcResizeableLockFreeQueueStressTest, HybridMultiProducerMultiConsumer0verflow)
 {
     ::testing::Test::RecordProperty("TEST_ID", "57516ebd-e994-42c8-813c-613c61f2410f");
     using Queue = typename TestFixture::Queue;
@@ -699,7 +699,7 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, HybridMultiProducerMultiConsumer0v
 /// again it is checked that nothing is lost or created by accident.
 /// @note the tests are getting quite complicated but the complex setup is unavoidable
 /// in order to test the general case under load.
-TYPED_TEST(ResizeableLockFreeQueueStressTest, HybridMultiProducerMultiConsumer0verflowWithCapacityChange)
+TYPED_TEST(MpmcResizeableLockFreeQueueStressTest, HybridMultiProducerMultiConsumer0verflowWithCapacityChange)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6421f32a-a1f7-4fe2-978f-6ef2005e0cc9");
     using Queue = typename TestFixture::Queue;

@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/concurrent/fifo.hpp"
+#include "iox/detail/spsc_fifo.hpp"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -29,7 +29,7 @@ using namespace iox::concurrent;
 
 constexpr uint64_t FIFO_CAPACITY = 10;
 
-class FiFo_Test : public Test
+class SpscFifo_Test : public Test
 {
   public:
     void SetUp() override
@@ -40,10 +40,10 @@ class FiFo_Test : public Test
     {
     }
 
-    FiFo<uint64_t, FIFO_CAPACITY> sut;
+    SpscFifo<uint64_t, FIFO_CAPACITY> sut;
 };
 
-TEST_F(FiFo_Test, SinglePopSinglePush)
+TEST_F(SpscFifo_Test, SinglePopSinglePush)
 {
     ::testing::Test::RecordProperty("TEST_ID", "57059a17-ec89-42e3-a07c-4a53d0cdcb1d");
     EXPECT_THAT(sut.push(25), Eq(true));
@@ -52,14 +52,14 @@ TEST_F(FiFo_Test, SinglePopSinglePush)
     EXPECT_THAT(result.value(), Eq(25U));
 }
 
-TEST_F(FiFo_Test, PopFailsWhenEmpty)
+TEST_F(SpscFifo_Test, PopFailsWhenEmpty)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0063d54a-e3cb-43f8-ac32-fd0ad94ba7e1");
     auto result = sut.pop();
     EXPECT_THAT(result.has_value(), Eq(false));
 }
 
-TEST_F(FiFo_Test, PushFailsWhenFull)
+TEST_F(SpscFifo_Test, PushFailsWhenFull)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8d492e83-c0c3-47bd-b745-9f56e20199e9");
     for (uint64_t k = 0; k < FIFO_CAPACITY; ++k)
@@ -69,7 +69,7 @@ TEST_F(FiFo_Test, PushFailsWhenFull)
     EXPECT_THAT(sut.push(123), Eq(false));
 }
 
-TEST_F(FiFo_Test, IsEmptyWhenPopReturnsNullopt)
+TEST_F(SpscFifo_Test, IsEmptyWhenPopReturnsNullopt)
 {
     ::testing::Test::RecordProperty("TEST_ID", "81a538c8-f366-4625-8aad-d83ab1d5ecf4");
     for (uint64_t k = 0; k < FIFO_CAPACITY; ++k)
@@ -85,7 +85,7 @@ TEST_F(FiFo_Test, IsEmptyWhenPopReturnsNullopt)
     EXPECT_THAT(sut.empty(), Eq(true));
 }
 
-TEST_F(FiFo_Test, OverflowTestWithPushPopAlternation)
+TEST_F(SpscFifo_Test, OverflowTestWithPushPopAlternation)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6ea65156-ca3f-42fc-b199-1119696023c1");
     for (uint64_t k = 0; k < 100 * FIFO_CAPACITY; ++k)
@@ -97,7 +97,7 @@ TEST_F(FiFo_Test, OverflowTestWithPushPopAlternation)
     }
 }
 
-TEST_F(FiFo_Test, OverflowFromFullToEmptyRepetition)
+TEST_F(SpscFifo_Test, OverflowFromFullToEmptyRepetition)
 {
     ::testing::Test::RecordProperty("TEST_ID", "33a8c03f-5538-46b4-846e-9dec4badab0b");
     uint64_t m = 0;

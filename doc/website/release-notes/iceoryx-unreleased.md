@@ -1278,3 +1278,15 @@
     ```
 
 57. `iox::posix::getSchedulerPriorityMinimum` and `iox::posix::getSchedulerPriorityMaximum` has become internal API
+
+58. The concurrent queues have gained a `Spsc` or `Mpsc` prefix
+
+    ```cpp
+    // before
+    #include "iceoryx_hoofs/concurrent/lockfree_queue.hpp"
+    iox::concurrent::LockFreeQueue q;
+
+    // after
+    #include "iox/mpmc_lockfree_queue.hpp"
+    iox::concurrent::MpmcLockFreeQueue q;
+    ```

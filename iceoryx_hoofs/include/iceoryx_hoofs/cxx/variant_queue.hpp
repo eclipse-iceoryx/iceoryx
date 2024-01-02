@@ -17,9 +17,9 @@
 #ifndef IOX_HOOFS_CXX_VARIANT_QUEUE_HPP
 #define IOX_HOOFS_CXX_VARIANT_QUEUE_HPP
 
-#include "iceoryx_hoofs/concurrent/resizeable_lockfree_queue.hpp"
-#include "iceoryx_hoofs/internal/concurrent/fifo.hpp"
-#include "iceoryx_hoofs/internal/concurrent/sofi.hpp"
+#include "iox/detail/mpmc_resizeable_lockfree_queue.hpp"
+#include "iox/detail/spsc_fifo.hpp"
+#include "iox/detail/spsc_sofi.hpp"
 #include "iox/optional.hpp"
 #include "iox/variant.hpp"
 
@@ -69,10 +69,10 @@ template <typename ValueType, uint64_t Capacity>
 class VariantQueue
 {
   public:
-    using fifo_t = variant<concurrent::FiFo<ValueType, Capacity>,
-                           concurrent::SoFi<ValueType, Capacity>,
-                           concurrent::ResizeableLockFreeQueue<ValueType, Capacity>,
-                           concurrent::ResizeableLockFreeQueue<ValueType, Capacity>>;
+    using fifo_t = variant<concurrent::SpscFifo<ValueType, Capacity>,
+                           concurrent::SpscSofi<ValueType, Capacity>,
+                           concurrent::MpmcResizeableLockFreeQueue<ValueType, Capacity>,
+                           concurrent::MpmcResizeableLockFreeQueue<ValueType, Capacity>>;
 
     /// @brief Constructor of a VariantQueue
     /// @param[in] type type of the underlying queue

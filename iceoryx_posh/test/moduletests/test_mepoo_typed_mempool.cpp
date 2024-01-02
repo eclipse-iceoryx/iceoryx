@@ -44,11 +44,11 @@ class TypedMemPool_test : public Test
     static constexpr uint32_t ChunkSize{128};
 
     using FreeListIndex_t = MemPool::freeList_t::Index_t;
-    static constexpr FreeListIndex_t LoFFLiMemoryRequirement{
+    static constexpr FreeListIndex_t MpmcLoFFLiMemoryRequirement{
         MemPool::freeList_t::requiredIndexMemorySize(NumberOfChunks) + 100000};
 
     TypedMemPool_test()
-        : allocator(m_rawMemory, NumberOfChunks * ChunkSize + LoFFLiMemoryRequirement)
+        : allocator(m_rawMemory, NumberOfChunks * ChunkSize + MpmcLoFFLiMemoryRequirement)
         , sut(NumberOfChunks, allocator, allocator)
     {
     }
@@ -56,7 +56,8 @@ class TypedMemPool_test : public Test
     void SetUp(){};
     void TearDown(){};
 
-    alignas(MemPool::CHUNK_MEMORY_ALIGNMENT) uint8_t m_rawMemory[NumberOfChunks * ChunkSize + LoFFLiMemoryRequirement];
+    alignas(MemPool::CHUNK_MEMORY_ALIGNMENT) uint8_t
+        m_rawMemory[NumberOfChunks * ChunkSize + MpmcLoFFLiMemoryRequirement];
     iox::BumpAllocator allocator;
 
     TypedMemPool<TestClass> sut;

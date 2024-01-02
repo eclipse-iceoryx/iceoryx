@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/concurrent/sofi.hpp"
+#include "iox/detail/spsc_sofi.hpp"
 #include "iox/logging.hpp"
 
 #include "iceoryx_hoofs/testing/test.hpp"
@@ -37,7 +37,7 @@ constexpr int64_t STRESS_TIME_SECONDS{2};
 constexpr std::chrono::milliseconds STRESS_TIME{
     ((STRESS_TIME_HOURS * 60 + STRESS_TIME_MINUTES) * 60 + STRESS_TIME_SECONDS) * 1000};
 
-class SoFiStress : public Test
+class SpscSofiStress : public Test
 {
   protected:
     /// @brief Sets the CPU affinity for a thread
@@ -71,20 +71,21 @@ class SoFiStress : public Test
 
 /// @brief This tests a slow pusher and fast popper.
 ///
-/// In this case, we have an empty SoFi where continuously a pop is performed.
+/// In this case, we have an empty SpscSofi where continuously a pop is performed.
 /// From time to time there is a push.
-/// The test covers the situation when there is a push into an empty SoFi while there is a simultaneous pop.
+/// The test covers the situation when there is a push into an empty SpscSofi while there is a simultaneous pop.
 ///
-/// Consecutive values (starting with 0) are pushed into the SoFi, so the popped out values should also be consecutive.
+/// Consecutive values (starting with 0) are pushed into the SpscSofi, so the popped out values should also be
+/// consecutive.
 ///
 /// push and pop thread should run with the same priority to have an equal chance to interrupt each other.
 ///
 /// @note This test doesn't check for the correct memory ordering of the FIFO, but assumes that the used memory ordering
 /// is correct and tests the algorithm in general, e.g. if a load/store is used instead of a compare_exchange
-TEST_F(SoFiStress, SimultaneouslyPushAndPopOnEmptySoFi)
+TEST_F(SpscSofiStress, SimultaneouslyPushAndPopOnEmptySoFi)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e648d8b1-4eaf-449d-b6eb-4ec412b4f59d");
-    iox::concurrent::SoFi<SoFiData, 10> sofi;
+    iox::concurrent::SpscSofi<SoFiData, 10> sofi;
 
     SoFiData popCounter{0};
     SoFiData tryPopCounter{0};
@@ -102,7 +103,7 @@ TEST_F(SoFiStress, SimultaneouslyPushAndPopOnEmptySoFi)
             valOut = INVALID_SOFI_DATA;
             if (sofi.pop(valOut))
             {
-                // pop SoFi and do tests if successful
+                // pop SpscSofi and do tests if successful
                 // if we do not get an expected value, perform the test for logging and stop the threads
                 if (popCounter != valOut)
                 {
@@ -122,7 +123,7 @@ TEST_F(SoFiStress, SimultaneouslyPushAndPopOnEmptySoFi)
             }
             else if (valOut >= 0)
             {
-                EXPECT_THAT(valOut, Lt(0)) << "SoFi told us to be empty, but returned a value!";
+                EXPECT_THAT(valOut, Lt(0)) << "SpscSofi told us to be empty, but returned a value!";
                 stopPushThread = true;
                 stopPopThread = true;
             }
@@ -134,7 +135,8 @@ TEST_F(SoFiStress, SimultaneouslyPushAndPopOnEmptySoFi)
         SoFiData valOut{INVALID_SOFI_DATA};
         while (!stopPushThread)
         {
-            // we try to trigger a push into an empty SoFi, so wait until the pop thread tells us the SoFi is empty
+            // we try to trigger a push into an empty SpscSofi, so wait until the pop thread tells us the SpscSofi is
+            // empty
             if (!allowPush)
             {
                 std::this_thread::yield(); // allow other threads to run -> slows this thread down
@@ -169,7 +171,7 @@ TEST_F(SoFiStress, SimultaneouslyPushAndPopOnEmptySoFi)
         EXPECT_TRUE(setCpuAffinity(2, popThread.native_handle())) << "Could not run thread on specified CPU!";
     }
 
-    // let the games begin ... stress empty SoFi pop while pushing
+    // let the games begin ... stress empty SpscSofi pop while pushing
     std::this_thread::sleep_for(STRESS_TIME);
 
     stopPushThread = true; // stop the push thread -> this will also stop the pop thread
@@ -177,7 +179,7 @@ TEST_F(SoFiStress, SimultaneouslyPushAndPopOnEmptySoFi)
     pushThread.join();
     popThread.join();
 
-    // after stopping the threads, there might still be values in the SoFi; get them out and check for validity
+    // after stopping the threads, there might still be values in the SpscSofi; get them out and check for validity
     SoFiData valOut{INVALID_SOFI_DATA};
     while (sofi.pop(valOut))
     {
@@ -201,23 +203,21 @@ TEST_F(SoFiStress, SimultaneouslyPushAndPopOnEmptySoFi)
 
 /// @brief This tests a fast pusher and slow popper.
 ///
-/// In this case, we have a full SoFi where continuously a push is performed, which results in continuously overflowing.
-/// From time to time there is a pop.
-/// The test covers the situation when there is a pop on an overflowing SoFi while there is a simultaneous push and
-/// checks
-/// whether pop() and empty() works like expected.
+/// In this case, we have a full SpscSofi where continuously a push is performed, which results in continuously
+/// overflowing. From time to time there is a pop. The test covers the situation when there is a pop on an overflowing
+/// SpscSofi while there is a simultaneous push and checks whether pop() and empty() works like expected.
 ///
-/// Consecutive values (starting with 0) are pushed into the SoFi, so the overflowing and popped out values should also
-/// be consecutive.
+/// Consecutive values (starting with 0) are pushed into the SpscSofi, so the overflowing and popped out values should
+/// also be consecutive.
 ///
 /// push and pop thread should run with the same priority to have an equal chance to interrupt each other.
 ///
 /// @note This test doesn't check for the correct memory ordering of the FIFO, but assumes that the used memory ordering
 /// is correct and tests the algorithm in general, e.g. if a load/store is used instead of a compare_exchange
-TEST_F(SoFiStress, PopFromContinuouslyOverflowingSoFi)
+TEST_F(SpscSofiStress, PopFromContinuouslyOverflowingSoFi)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fce77c72-8136-4587-8cfb-578cb8c80d89");
-    iox::concurrent::SoFi<SoFiData, 10> sofi;
+    iox::concurrent::SpscSofi<SoFiData, 10> sofi;
 
     SoFiData pushCounter{0};
     SoFiData dataCounter{0};
@@ -252,9 +252,9 @@ TEST_F(SoFiStress, PopFromContinuouslyOverflowingSoFi)
             }
 
             // for the sake of completeness
-            // if "pushResult == true" and "valOut < 0" -> no error, we are pushing into an non-full SoFi
+            // if "pushResult == true" and "valOut < 0" -> no error, we are pushing into an non-full SpscSofi
 
-            // this is what we want, an overflowing SoFi
+            // this is what we want, an overflowing SpscSofi
             if (!pushResult && valOut >= 0)
             {
                 // we had our first overflow -> allow popping
@@ -307,19 +307,19 @@ TEST_F(SoFiStress, PopFromContinuouslyOverflowingSoFi)
         SoFiData valOut{INVALID_SOFI_DATA};
         while (!stopPopThread)
         {
-            // we try to trigger a pop from an overflowing SoFi, so wait until the push thread tells us the SoFi is
-            // overflowing
+            // we try to trigger a pop from an overflowing SpscSofi, so wait until the push thread tells us the SpscSofi
+            // is overflowing
             if (!allowPop)
             {
                 std::this_thread::yield(); // allow other threads to run -> slows this thread down
                 continue;
             }
 
-            // SoFi should never be empty
+            // SpscSofi should never be empty
             auto emptyResult = sofi.empty();
             if (emptyResult)
             {
-                EXPECT_THAT(emptyResult, Eq(false)) << "SoFi is continuously overflowing and shouldn't be empty!";
+                EXPECT_THAT(emptyResult, Eq(false)) << "SpscSofi is continuously overflowing and shouldn't be empty!";
                 stopPushThread = true;
                 stopPopThread = true;
             }
@@ -327,13 +327,13 @@ TEST_F(SoFiStress, PopFromContinuouslyOverflowingSoFi)
             isPopping = true;
             valOut = INVALID_SOFI_DATA;
             auto popResult = sofi.pop(valOut);
-            // SoFi is continuously overflowing, so the pop should always succeed
+            // SpscSofi is continuously overflowing, so the pop should always succeed
             if (popResult)
             {
                 if (valOut < 0)
                 {
                     EXPECT_THAT(valOut, Gt(INVALID_SOFI_DATA))
-                        << "This should not happen! SoFi promised to give us data, but we didn't get data!";
+                        << "This should not happen! SpscSofi promised to give us data, but we didn't get data!";
                     stopPushThread = true;
                     stopPopThread = true;
                 }
@@ -343,8 +343,8 @@ TEST_F(SoFiStress, PopFromContinuouslyOverflowingSoFi)
             }
             else
             {
-                EXPECT_THAT(popResult, Eq(true)) << "SoFi is continuously overflowing and shouldn't be empty!";
-                EXPECT_THAT(valOut, Lt(0)) << "SoFi told us to be empty, but returned a value!";
+                EXPECT_THAT(popResult, Eq(true)) << "SpscSofi is continuously overflowing and shouldn't be empty!";
+                EXPECT_THAT(valOut, Lt(0)) << "SpscSofi told us to be empty, but returned a value!";
                 stopPushThread = true;
                 stopPopThread = true;
             }
@@ -361,7 +361,7 @@ TEST_F(SoFiStress, PopFromContinuouslyOverflowingSoFi)
         EXPECT_TRUE(setCpuAffinity(2, popThread.native_handle())) << "Could not run thread on specified CPU!";
     }
 
-    // let the games begin ... stress SoFi push overflow while popping
+    // let the games begin ... stress SpscSofi push overflow while popping
     std::this_thread::sleep_for(STRESS_TIME);
 
     stopPushThread = true; // stop the push thread -> this will also stop the pop thread
@@ -369,8 +369,8 @@ TEST_F(SoFiStress, PopFromContinuouslyOverflowingSoFi)
     pushThread.join();
     popThread.join();
 
-    // after stopping the threads, there might still be values in the SoFi and an unchecked popped value; get them out
-    // and check for validity
+    // after stopping the threads, there might still be values in the SpscSofi and an unchecked popped value; get them
+    // out and check for validity
     if (lastPopValue >= 0)
     {
         EXPECT_THAT(lastPopValue, Eq(dataCounter)) << "There was a data loss!";
@@ -399,22 +399,23 @@ TEST_F(SoFiStress, PopFromContinuouslyOverflowingSoFi)
 
 /// @brief This tests a fast pusher and fast popper.
 ///
-/// The SoFi will never be empty or or full and there are continuously simultaneous pushes and pops.
-/// When the SoFi is almost full, the pusher will be slowed down until the SoFi is again half empty, then the pusher
-/// runs again with full speed. When the SoFi is almost empty, the popper will be slowed down until the Sofi is again
-/// half full, then the popper runs again with full speed.
+/// The SpscSofi will never be empty or or full and there are continuously simultaneous pushes and pops.
+/// When the SpscSofi is almost full, the pusher will be slowed down until the SpscSofi is again half empty, then the
+/// pusher runs again with full speed. When the SpscSofi is almost empty, the popper will be slowed down until the
+/// SpscSofi is again half full, then the popper runs again with full speed.
 ///
-/// Consecutive values (starting with 0) are pushed into the SoFi, so the popped out values should also be consecutive.
+/// Consecutive values (starting with 0) are pushed into the SpscSofi, so the popped out values should also be
+/// consecutive.
 ///
 /// push and pop thread should run with the same priority to have an equal chance to interrupt each other.
 ///
 /// @note This test doesn't check for the correct memory ordering of the FIFO, but assumes that the used memory ordering
 /// is correct and tests the algorithm in general, e.g. if a load/store is used instead of a compare_exchange
-TEST_F(SoFiStress, PushAndPopFromNonOverflowingNonEmptySoFi)
+TEST_F(SpscSofiStress, PushAndPopFromNonOverflowingNonEmptySoFi)
 {
     ::testing::Test::RecordProperty("TEST_ID", "aad26323-07b1-49c9-be4e-fe9248699713");
-    // SoFi is quite big in this test -> put it on the heap
-    using SoFi_t = iox::concurrent::SoFi<SoFiData, 1000000>;
+    // SpscSofi is quite big in this test -> put it on the heap
+    using SoFi_t = iox::concurrent::SpscSofi<SoFiData, 1000000>;
     std::unique_ptr<SoFi_t> sofi{new SoFi_t};
 
     std::atomic<SoFiData> pushCounter{0};
@@ -428,7 +429,7 @@ TEST_F(SoFiStress, PushAndPopFromNonOverflowingNonEmptySoFi)
         auto localPushCounter = pushCounter.load();
         while (!stopPushThread)
         {
-            // if the SoFi is almost full, slow down
+            // if the SpscSofi is almost full, slow down
             auto fillLevel = localPushCounter - popCounter.load();
             if (fillLevel > static_cast<int64_t>(sofi->capacity()) - 10)
             {
@@ -454,7 +455,7 @@ TEST_F(SoFiStress, PushAndPopFromNonOverflowingNonEmptySoFi)
             ++localPushCounter;
             pushCounter = localPushCounter;
 
-            // we are pushing to fast, slow down until the SoFi is half empty
+            // we are pushing to fast, slow down until the SpscSofi is half empty
             if (slowDownPush)
             {
                 std::this_thread::yield(); // allow other threads to run -> slows this thread down
@@ -473,7 +474,7 @@ TEST_F(SoFiStress, PushAndPopFromNonOverflowingNonEmptySoFi)
         auto localPopCounter = popCounter.load();
         while (!stopPopThread)
         {
-            // if the SoFi is almost empty, slow down
+            // if the SpscSofi is almost empty, slow down
             auto fillLevel = pushCounter.load() - localPopCounter;
             if (fillLevel < 10)
             {
@@ -487,7 +488,7 @@ TEST_F(SoFiStress, PushAndPopFromNonOverflowingNonEmptySoFi)
 
             if (!popResult)
             {
-                EXPECT_THAT(popResult, Eq(true)) << "We shouldn't have an empty SoFi!";
+                EXPECT_THAT(popResult, Eq(true)) << "We shouldn't have an empty SpscSofi!";
             }
 
             // there should be only consecutive values
@@ -498,7 +499,7 @@ TEST_F(SoFiStress, PushAndPopFromNonOverflowingNonEmptySoFi)
             ++localPopCounter;
             popCounter = localPopCounter;
 
-            // we are popping too fast, slow down until the SoFi is half full
+            // we are popping too fast, slow down until the SpscSofi is half full
             if (slowDownPop)
             {
                 std::this_thread::yield(); // allow other threads to run -> slows this thread down
@@ -517,7 +518,7 @@ TEST_F(SoFiStress, PushAndPopFromNonOverflowingNonEmptySoFi)
         EXPECT_TRUE(setCpuAffinity(2, popThread.native_handle())) << "Could not run thread on specified CPU!";
     }
 
-    // let the games begin ... stress SoFi push and pop
+    // let the games begin ... stress SpscSofi push and pop
     std::this_thread::sleep_for(STRESS_TIME);
 
     stopPushThread = true; // stop the push thread -> this will also stop the pop thread
@@ -525,7 +526,7 @@ TEST_F(SoFiStress, PushAndPopFromNonOverflowingNonEmptySoFi)
     pushThread.join();
     popThread.join();
 
-    // after stopping the threads, there might still be values in the SoFi; get them out and check for validity
+    // after stopping the threads, there might still be values in the SpscSofi; get them out and check for validity
     SoFiData valOut{INVALID_SOFI_DATA};
     while (sofi->pop(valOut))
     {

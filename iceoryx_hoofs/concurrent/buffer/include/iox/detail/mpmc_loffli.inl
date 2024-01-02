@@ -14,21 +14,22 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CONCURRENT_LOFFLI_INL
-#define IOX_HOOFS_CONCURRENT_LOFFLI_INL
 
-#include "iceoryx_hoofs/internal/concurrent/loffli.hpp"
+#ifndef IOX_HOOFS_CONCURRENT_BUFFER_MPMC_LOFFLI_INL
+#define IOX_HOOFS_CONCURRENT_BUFFER_MPMC_LOFFLI_INL
+
+#include "iox/detail/mpmc_loffli.hpp"
 
 namespace iox
 {
 namespace concurrent
 {
-inline constexpr uint64_t LoFFLi::requiredIndexMemorySize(const uint64_t capacity) noexcept
+inline constexpr uint64_t MpmcLoFFLi::requiredIndexMemorySize(const uint64_t capacity) noexcept
 {
-    return (capacity + 1U) * sizeof(LoFFLi::Index_t);
+    return (capacity + 1U) * sizeof(MpmcLoFFLi::Index_t);
 }
 
 } // namespace concurrent
 } // namespace iox
 
-#endif // IOX_HOOFS_CONCURRENT_LOFFLI_INL
+#endif // IOX_HOOFS_CONCURRENT_BUFFER_MPMC_LOFFLI_INL
