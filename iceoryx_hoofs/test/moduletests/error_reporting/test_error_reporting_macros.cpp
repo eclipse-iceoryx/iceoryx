@@ -128,7 +128,7 @@ TEST_F(ErrorReportingMacroApi_test, reportConditionalNoError)
     IOX_TESTING_EXPECT_OK();
 }
 
-TEST_F(ErrorReportingMacroApi_test, requireConditionSatisfied)
+TEST_F(ErrorReportingMacroApi_test, checkRequireConditionSatisfied)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3c684878-20f8-426f-bb8b-7576b567d04f");
     auto f = []() { IOX_REQUIRE(true, ""); };
@@ -138,7 +138,7 @@ TEST_F(ErrorReportingMacroApi_test, requireConditionSatisfied)
     IOX_TESTING_EXPECT_OK();
 }
 
-TEST_F(ErrorReportingMacroApi_test, requireConditionNotSatisfied)
+TEST_F(ErrorReportingMacroApi_test, checkRequireConditionViolate)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fb62d315-8854-401b-82af-6161ae45a34e");
     auto f = []() { IOX_REQUIRE(false, ""); };
@@ -146,6 +146,7 @@ TEST_F(ErrorReportingMacroApi_test, requireConditionNotSatisfied)
     runInTestThread(f);
 
     IOX_TESTING_EXPECT_PANIC();
+    IOX_TESTING_EXPECT_REQUIRED_CONDITION_VIOLATION();
 }
 
 TEST_F(ErrorReportingMacroApi_test, checkPreconditionSatisfied)
