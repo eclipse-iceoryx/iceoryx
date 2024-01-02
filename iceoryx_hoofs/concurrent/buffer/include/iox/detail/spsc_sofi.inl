@@ -25,13 +25,13 @@ namespace iox
 namespace concurrent
 {
 template <class ValueType, uint64_t CapacityValue>
-uint64_t SpscSofi<ValueType, CapacityValue>::capacity() const noexcept
+inline uint64_t SpscSofi<ValueType, CapacityValue>::capacity() const noexcept
 {
     return m_size - INTERNAL_SIZE_ADD_ON;
 }
 
 template <class ValueType, uint64_t CapacityValue>
-uint64_t SpscSofi<ValueType, CapacityValue>::size() const noexcept
+inline uint64_t SpscSofi<ValueType, CapacityValue>::size() const noexcept
 {
     uint64_t readPosition{0};
     uint64_t writePosition{0};
@@ -46,7 +46,7 @@ uint64_t SpscSofi<ValueType, CapacityValue>::size() const noexcept
 }
 
 template <class ValueType, uint64_t CapacityValue>
-bool SpscSofi<ValueType, CapacityValue>::setCapacity(const uint64_t newSize) noexcept
+inline bool SpscSofi<ValueType, CapacityValue>::setCapacity(const uint64_t newSize) noexcept
 {
     uint64_t newInternalSize = newSize + INTERNAL_SIZE_ADD_ON;
     if (empty() && (newInternalSize <= INTERNAL_SPSC_SOFI_SIZE))
@@ -63,7 +63,7 @@ bool SpscSofi<ValueType, CapacityValue>::setCapacity(const uint64_t newSize) noe
 }
 
 template <class ValueType, uint64_t CapacityValue>
-bool SpscSofi<ValueType, CapacityValue>::empty() const noexcept
+inline bool SpscSofi<ValueType, CapacityValue>::empty() const noexcept
 {
     uint64_t currentReadPosition{0};
     bool isEmpty{false};
@@ -83,7 +83,7 @@ bool SpscSofi<ValueType, CapacityValue>::empty() const noexcept
 }
 
 template <class ValueType, uint64_t CapacityValue>
-bool SpscSofi<ValueType, CapacityValue>::pop(ValueType& valueOut) noexcept
+inline bool SpscSofi<ValueType, CapacityValue>::pop(ValueType& valueOut) noexcept
 {
     return popIf(valueOut, [](ValueType) { return true; });
 }
@@ -140,7 +140,7 @@ inline bool SpscSofi<ValueType, CapacityValue>::popIf(ValueType& valueOut, const
 }
 
 template <class ValueType, uint64_t CapacityValue>
-bool SpscSofi<ValueType, CapacityValue>::push(const ValueType& valueIn, ValueType& valueOut) noexcept
+inline bool SpscSofi<ValueType, CapacityValue>::push(const ValueType& valueIn, ValueType& valueOut) noexcept
 {
     constexpr bool SOFI_OVERFLOW{false};
 

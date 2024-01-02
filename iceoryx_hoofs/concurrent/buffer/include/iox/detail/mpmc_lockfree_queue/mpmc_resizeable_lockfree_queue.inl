@@ -25,27 +25,27 @@ namespace iox
 namespace concurrent
 {
 template <typename ElementType, uint64_t MaxCapacity>
-MpmcResizeableLockFreeQueue<ElementType, MaxCapacity>::MpmcResizeableLockFreeQueue(
+inline MpmcResizeableLockFreeQueue<ElementType, MaxCapacity>::MpmcResizeableLockFreeQueue(
     const uint64_t initialCapacity) noexcept
 {
     setCapacity(initialCapacity);
 }
 
 template <typename ElementType, uint64_t MaxCapacity>
-constexpr uint64_t MpmcResizeableLockFreeQueue<ElementType, MaxCapacity>::maxCapacity() noexcept
+inline constexpr uint64_t MpmcResizeableLockFreeQueue<ElementType, MaxCapacity>::maxCapacity() noexcept
 {
     return MAX_CAPACITY;
 }
 
 template <typename ElementType, uint64_t MaxCapacity>
-uint64_t MpmcResizeableLockFreeQueue<ElementType, MaxCapacity>::capacity() const noexcept
+inline uint64_t MpmcResizeableLockFreeQueue<ElementType, MaxCapacity>::capacity() const noexcept
 {
     return m_capacity.load(std::memory_order_relaxed);
 }
 
 
 template <typename ElementType, uint64_t MaxCapacity>
-bool MpmcResizeableLockFreeQueue<ElementType, MaxCapacity>::setCapacity(const uint64_t newCapacity) noexcept
+inline bool MpmcResizeableLockFreeQueue<ElementType, MaxCapacity>::setCapacity(const uint64_t newCapacity) noexcept
 {
     auto removeHandler = [](const ElementType&) {};
     return setCapacity(newCapacity, removeHandler);
@@ -53,8 +53,8 @@ bool MpmcResizeableLockFreeQueue<ElementType, MaxCapacity>::setCapacity(const ui
 
 template <typename ElementType, uint64_t MaxCapacity>
 template <typename Function, typename>
-bool MpmcResizeableLockFreeQueue<ElementType, MaxCapacity>::setCapacity(const uint64_t newCapacity,
-                                                                        Function&& removeHandler) noexcept
+inline bool MpmcResizeableLockFreeQueue<ElementType, MaxCapacity>::setCapacity(const uint64_t newCapacity,
+                                                                               Function&& removeHandler) noexcept
 {
     if (newCapacity > MAX_CAPACITY)
     {
@@ -97,7 +97,8 @@ bool MpmcResizeableLockFreeQueue<ElementType, MaxCapacity>::setCapacity(const ui
 }
 
 template <typename ElementType, uint64_t MaxCapacity>
-uint64_t MpmcResizeableLockFreeQueue<ElementType, MaxCapacity>::increaseCapacity(const uint64_t toIncrease) noexcept
+inline uint64_t
+MpmcResizeableLockFreeQueue<ElementType, MaxCapacity>::increaseCapacity(const uint64_t toIncrease) noexcept
 {
     // we can be sure this is not called concurrently due to the m_resizeInProgress flag
     //(this must be ensured as the vector is modified)
@@ -120,8 +121,9 @@ uint64_t MpmcResizeableLockFreeQueue<ElementType, MaxCapacity>::increaseCapacity
 
 template <typename ElementType, uint64_t MaxCapacity>
 template <typename Function>
-uint64_t MpmcResizeableLockFreeQueue<ElementType, MaxCapacity>::decreaseCapacity(const uint64_t toDecrease,
-                                                                                 Function&& removeHandler) noexcept
+inline uint64_t
+MpmcResizeableLockFreeQueue<ElementType, MaxCapacity>::decreaseCapacity(const uint64_t toDecrease,
+                                                                        Function&& removeHandler) noexcept
 {
     uint64_t decreased = 0U;
     while (decreased < toDecrease)
@@ -170,7 +172,7 @@ uint64_t MpmcResizeableLockFreeQueue<ElementType, MaxCapacity>::decreaseCapacity
 }
 
 template <typename ElementType, uint64_t MaxCapacity>
-bool MpmcResizeableLockFreeQueue<ElementType, MaxCapacity>::tryGetUsedIndex(BufferIndex& index) noexcept
+inline bool MpmcResizeableLockFreeQueue<ElementType, MaxCapacity>::tryGetUsedIndex(BufferIndex& index) noexcept
 {
     /// @note: we have a problem here if we lose an index entirely, since the queue
     /// can then never be full again (or, more generally contain capacity indices)
@@ -181,21 +183,22 @@ bool MpmcResizeableLockFreeQueue<ElementType, MaxCapacity>::tryGetUsedIndex(Buff
 }
 
 template <typename ElementType, uint64_t MaxCapacity>
-iox::optional<ElementType>
-MpmcResizeableLockFreeQueue<ElementType, MaxCapacity>::push(const ElementType& value) noexcept
+iox::optional<ElementType> inline MpmcResizeableLockFreeQueue<ElementType, MaxCapacity>::push(
+    const ElementType& value) noexcept
 {
     return pushImpl(std::forward<const ElementType>(value));
 }
 
 template <typename ElementType, uint64_t MaxCapacity>
-iox::optional<ElementType> MpmcResizeableLockFreeQueue<ElementType, MaxCapacity>::push(ElementType&& value) noexcept
+inline iox::optional<ElementType>
+MpmcResizeableLockFreeQueue<ElementType, MaxCapacity>::push(ElementType&& value) noexcept
 {
     return pushImpl(std::forward<ElementType>(value));
 }
 
 template <typename ElementType, uint64_t MaxCapacity>
 template <typename T>
-iox::optional<ElementType> MpmcResizeableLockFreeQueue<ElementType, MaxCapacity>::pushImpl(T&& value) noexcept
+inline iox::optional<ElementType> MpmcResizeableLockFreeQueue<ElementType, MaxCapacity>::pushImpl(T&& value) noexcept
 {
     optional<ElementType> evictedValue;
 

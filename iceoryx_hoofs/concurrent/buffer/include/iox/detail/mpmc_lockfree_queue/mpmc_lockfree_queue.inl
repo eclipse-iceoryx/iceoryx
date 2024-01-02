@@ -29,20 +29,20 @@ namespace iox
 namespace concurrent
 {
 template <typename ElementType, uint64_t Capacity>
-MpmcLockFreeQueue<ElementType, Capacity>::MpmcLockFreeQueue() noexcept
+inline MpmcLockFreeQueue<ElementType, Capacity>::MpmcLockFreeQueue() noexcept
     : m_freeIndices(MpmcIndexQueue<Capacity>::ConstructFull)
     , m_usedIndices(MpmcIndexQueue<Capacity>::ConstructEmpty)
 {
 }
 
 template <typename ElementType, uint64_t Capacity>
-constexpr uint64_t MpmcLockFreeQueue<ElementType, Capacity>::capacity() const noexcept
+inline constexpr uint64_t MpmcLockFreeQueue<ElementType, Capacity>::capacity() const noexcept
 {
     return Capacity;
 }
 
 template <typename ElementType, uint64_t Capacity>
-bool MpmcLockFreeQueue<ElementType, Capacity>::tryPush(const ElementType& value) noexcept
+inline bool MpmcLockFreeQueue<ElementType, Capacity>::tryPush(const ElementType& value) noexcept
 {
     uint64_t index{0};
 
@@ -59,7 +59,7 @@ bool MpmcLockFreeQueue<ElementType, Capacity>::tryPush(const ElementType& value)
 }
 
 template <typename ElementType, uint64_t Capacity>
-bool MpmcLockFreeQueue<ElementType, Capacity>::tryPush(ElementType&& value) noexcept
+inline bool MpmcLockFreeQueue<ElementType, Capacity>::tryPush(ElementType&& value) noexcept
 {
     uint64_t index{0};
 
@@ -77,7 +77,7 @@ bool MpmcLockFreeQueue<ElementType, Capacity>::tryPush(ElementType&& value) noex
 
 template <typename ElementType, uint64_t Capacity>
 template <typename T>
-iox::optional<ElementType> MpmcLockFreeQueue<ElementType, Capacity>::pushImpl(T&& value) noexcept
+inline iox::optional<ElementType> MpmcLockFreeQueue<ElementType, Capacity>::pushImpl(T&& value) noexcept
 {
     optional<ElementType> evictedValue;
 
@@ -114,19 +114,19 @@ iox::optional<ElementType> MpmcLockFreeQueue<ElementType, Capacity>::pushImpl(T&
 }
 
 template <typename ElementType, uint64_t Capacity>
-iox::optional<ElementType> MpmcLockFreeQueue<ElementType, Capacity>::push(const ElementType& value) noexcept
+inline iox::optional<ElementType> MpmcLockFreeQueue<ElementType, Capacity>::push(const ElementType& value) noexcept
 {
     return pushImpl(std::forward<const ElementType>(value));
 }
 
 template <typename ElementType, uint64_t Capacity>
-iox::optional<ElementType> MpmcLockFreeQueue<ElementType, Capacity>::push(ElementType&& value) noexcept
+inline iox::optional<ElementType> MpmcLockFreeQueue<ElementType, Capacity>::push(ElementType&& value) noexcept
 {
     return pushImpl(std::forward<ElementType>(value));
 }
 
 template <typename ElementType, uint64_t Capacity>
-iox::optional<ElementType> MpmcLockFreeQueue<ElementType, Capacity>::pop() noexcept
+inline iox::optional<ElementType> MpmcLockFreeQueue<ElementType, Capacity>::pop() noexcept
 {
     uint64_t index{0};
 
@@ -143,19 +143,19 @@ iox::optional<ElementType> MpmcLockFreeQueue<ElementType, Capacity>::pop() noexc
 }
 
 template <typename ElementType, uint64_t Capacity>
-bool MpmcLockFreeQueue<ElementType, Capacity>::empty() const noexcept
+inline bool MpmcLockFreeQueue<ElementType, Capacity>::empty() const noexcept
 {
     return m_usedIndices.empty();
 }
 
 template <typename ElementType, uint64_t Capacity>
-uint64_t MpmcLockFreeQueue<ElementType, Capacity>::size() const noexcept
+inline uint64_t MpmcLockFreeQueue<ElementType, Capacity>::size() const noexcept
 {
     return m_size.load(std::memory_order_relaxed);
 }
 
 template <typename ElementType, uint64_t Capacity>
-optional<ElementType> MpmcLockFreeQueue<ElementType, Capacity>::readBufferAt(const uint64_t& index) noexcept
+inline optional<ElementType> MpmcLockFreeQueue<ElementType, Capacity>::readBufferAt(const uint64_t& index) noexcept
 {
     // also used for buffer synchronization
     m_size.fetch_sub(1U, std::memory_order_acquire);
@@ -168,7 +168,7 @@ optional<ElementType> MpmcLockFreeQueue<ElementType, Capacity>::readBufferAt(con
 
 template <typename ElementType, uint64_t Capacity>
 template <typename T>
-void MpmcLockFreeQueue<ElementType, Capacity>::writeBufferAt(const uint64_t& index, T&& value) noexcept
+inline void MpmcLockFreeQueue<ElementType, Capacity>::writeBufferAt(const uint64_t& index, T&& value) noexcept
 {
     auto elementPtr = &m_buffer[index];
     new (elementPtr) ElementType(std::forward<T>(value)); // move ctor invoked when available, copy ctor otherwise
