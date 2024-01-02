@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_ERROR_REPORTING_TYPES_HPP
-#define IOX_HOOFS_ERROR_REPORTING_TYPES_HPP
+#ifndef IOX_HOOFS_REPORTING_ERROR_REPORTING_TYPES_HPP
+#define IOX_HOOFS_REPORTING_ERROR_REPORTING_TYPES_HPP
 
 #include <cstdint>
 
@@ -84,4 +84,4 @@ struct ModuleId
 } // namespace er
 } // namespace iox
 
-#endif
+#endif // IOX_HOOFS_REPORTING_ERROR_REPORTING_TYPES_HPP

@@ -14,30 +14,27 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_ERROR_REPORTING_CUSTOM_ERROR_KIND_HPP
-#define IOX_HOOFS_ERROR_REPORTING_CUSTOM_ERROR_KIND_HPP
+#ifndef IOX_HOOFS_REPORTING_ERROR_REPORTING_CUSTOM_DEFAULT_CONFIGURATION_HPP
+#define IOX_HOOFS_REPORTING_ERROR_REPORTING_CUSTOM_DEFAULT_CONFIGURATION_HPP
 
-#include "iceoryx_hoofs/error_reporting/error_kind.hpp"
-
-// ***
-// * Extend error kinds
-// ***
+#include "iox/error_reporting/configuration.hpp"
 
 namespace iox
 {
 namespace er
 {
 
-// The non-fatal error kinds can all be defined here.
-
-struct RuntimeErrorKind
+// Specialize to change the checks (and other options if needed) at compile time.
+// this can later also be done depending on a #define to select a header
+// but we should avoid to have a #define for each option.
+template <>
+struct ConfigurationParameters<ConfigurationTag>
 {
-    static constexpr char const* name = "Runtime Error";
+    static constexpr bool CHECK_PRECONDITIONS{true};
+    static constexpr bool CHECK_ASSUMPTIONS{true};
 };
-
-constexpr RuntimeErrorKind RUNTIME_ERROR{};
 
 } // namespace er
 } // namespace iox
 
-#endif
+#endif // IOX_HOOFS_REPORTING_ERROR_REPORTING_CUSTOM_DEFAULT_CONFIGURATION_HPP

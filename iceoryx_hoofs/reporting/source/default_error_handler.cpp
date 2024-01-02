@@ -14,27 +14,23 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_ERROR_REPORTING_CUSTOM_DEFAULT_CONFIGURATION_HPP
-#define IOX_HOOFS_ERROR_REPORTING_CUSTOM_DEFAULT_CONFIGURATION_HPP
-
-#include "iceoryx_hoofs/error_reporting/configuration.hpp"
+#include "iox/error_reporting/custom/default/default_error_handler.hpp"
 
 namespace iox
 {
 namespace er
 {
-
-// Specialize to change the checks (and other options if needed) at compile time.
-// this can later also be done depending on a #define to select a header
-// but we should avoid to have a #define for each option.
-template <>
-struct ConfigurationParameters<ConfigurationTag>
+void DefaultErrorHandler::onPanic()
 {
-    static constexpr bool CHECK_PRECONDITIONS{true};
-    static constexpr bool CHECK_ASSUMPTIONS{true};
-};
+}
+
+void DefaultErrorHandler::onReportError(ErrorDescriptor)
+{
+}
+
+void DefaultErrorHandler::onReportViolation(ErrorDescriptor)
+{
+}
 
 } // namespace er
 } // namespace iox
-
-#endif

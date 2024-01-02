@@ -17,8 +17,8 @@
 #ifndef IOX_HOOFS_MODULETESTS_ERROR_REPORTING_MODULE_A_ERRORS_HPP
 #define IOX_HOOFS_MODULETESTS_ERROR_REPORTING_MODULE_A_ERRORS_HPP
 
-#include "iceoryx_hoofs/error_reporting/errors.hpp"
-#include "iceoryx_hoofs/error_reporting/types.hpp"
+#include "iox/error_reporting/errors.hpp"
+#include "iox/error_reporting/types.hpp"
 
 namespace module_a
 {

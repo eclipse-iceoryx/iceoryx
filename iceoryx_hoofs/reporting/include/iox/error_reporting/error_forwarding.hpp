@@ -14,14 +14,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_ERROR_REPORTING_ERROR_FORWARDING_HPP
-#define IOX_HOOFS_ERROR_REPORTING_ERROR_FORWARDING_HPP
+#ifndef IOX_HOOFS_REPORTING_ERROR_REPORTING_ERROR_FORWARDING_HPP
+#define IOX_HOOFS_REPORTING_ERROR_REPORTING_ERROR_FORWARDING_HPP
 
-#include "iceoryx_hoofs/error_reporting/error_kind.hpp"
-#include "iceoryx_hoofs/error_reporting/source_location.hpp"
+#include "iox/error_reporting/error_kind.hpp"
+#include "iox/error_reporting/source_location.hpp"
 
 // to establish connection to the custom implementation
-#include "iceoryx_hoofs/error_reporting/custom/error_reporting.hpp"
+#include "iox/error_reporting/custom/error_reporting.hpp"
 
 #include <type_traits>
 #include <utility>
@@ -91,4 +91,4 @@ template <typename Error, typename Kind, typename Message>
 } // namespace er
 } // namespace iox
 
-#endif
+#endif // IOX_HOOFS_REPORTING_ERROR_REPORTING_ERROR_FORWARDING_HPP

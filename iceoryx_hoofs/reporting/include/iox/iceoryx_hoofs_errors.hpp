@@ -14,11 +14,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_ERROR_REPORTING_MODULES_HOOFS_ERRORS_HPP
-#define IOX_HOOFS_ERROR_REPORTING_MODULES_HOOFS_ERRORS_HPP
+#ifndef IOX_HOOFS_REPORTING_ICEORYX_HOOFS_ERRORS_HPP
+#define IOX_HOOFS_REPORTING_ICEORYX_HOOFS_ERRORS_HPP
 
-#include "iceoryx_hoofs/error_reporting/errors.hpp"
-#include "iceoryx_hoofs/error_reporting/types.hpp"
+#include "iox/error_reporting/errors.hpp"
+#include "iox/error_reporting/types.hpp"
 
 /// @todo iox-#1032 Incomplete and not used yet, will be used in integration or error reporting into
 /// iceoryx_hoofs. This is just a sketch/proof of concept.
@@ -91,4 +91,4 @@ inline ModuleId toModule(hoofs_errors::Code)
 } // namespace er
 } // namespace iox
 
-#endif
+#endif // IOX_HOOFS_REPORTING_ICEORYX_HOOFS_ERRORS_HPP

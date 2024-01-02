@@ -409,13 +409,13 @@ backend implementation.
 The overall implementation concepts allow customization of the implementation level and provide
 a default implementation.
 
-Everything related to error reporting is located in the corresponding folder `error_reporting`.
+Everything related to error reporting is located in the corresponding folder `iceoryx_hoofs/reporting/error_reporting`.
 Since the main API is stateless, there is no need for classes. Everything directly in this folder
 (i.e. not in a subfolder) is not supposed to be changed.
 
 These are
 
-1. `error_reporting_macros.hpp`: the reporting macro API to be used
+1. `macros.hpp`: the reporting macro API to be used (don't include this directly but only via the specific module header, e.g. `iox/iceoryx_hoofs_error_reporting.hpp`)
 2. `configuration.hpp`: the default configuration (compile time flags)
 3. `error_forwarding.hpp`: forwarding to the custom implementation
 4. `error_kind.hpp`: mandatory error categories
@@ -423,6 +423,9 @@ These are
 6. `source_location.hpp`: source location related definitions
 7. `types.hpp`: auxiliary types
 8. `errors.hpp` : supported error types and related free functions
+
+Additionally there is the `assertions.hpp` in `iceoryx_hoofs/reporting` which contains the `IOX_PANIC`,
+`IOX_UNREACHABLE`, `IOX_REQUIRE`, `IOX_PRECONDITION` and `IOX_ASSUME` macros
 
 All the files focus on singular aspects to allow fine-grained inclusion.
 All definitions have to reside in `iox::er`, which is considered a private (detail) namespace
@@ -470,12 +473,12 @@ There must be a single point where all modules are defined to ensure they use un
 same custom implementation. Currently this happens in the `modules` folder but is work in progress
 to be completed during integration of error reporting.
 
-There is `modules/hoofs/error_reporting.hpp` that defines all the errors and custom implementation
-used by `iceoryx_hoofs`. This header includes `error_reporting_macros.hpp` to make it easy to use
-the custom error reporting in any iceoryx hoofs file by including `modules/hoofs/error_reporting.hpp`.
+There is `iceoryx_hoofs_error_reporting.hpp` that defines all the errors and custom implementation
+used by `iceoryx_hoofs`. This header includes `error_reporting/macros.hpp` to make it easy to use
+the custom error reporting in any iceoryx hoofs file by including `iceoryx_hoofs_error_reporting.hpp`.
 
 Replacing the previous error handling is supposed to happen by
 
-1. Adapting the error definitions for `iceoryx_hoofs` in `modules/hoofs/errors.hpp`
+1. Adapting the error definitions for `iceoryx_hoofs` in `iceoryx_hoofs_errors.hpp`
 2. Introducing a similar folder structure for `iceoryx_posh`
 3. Replacing occurrences of the previous error handler call (including `IOX_EXPECTS`)

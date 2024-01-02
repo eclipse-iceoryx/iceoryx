@@ -14,18 +14,18 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_ERROR_REPORTING_MODULES_HOOFS_ERROR_REPORTING_HPP
-#define IOX_HOOFS_ERROR_REPORTING_MODULES_HOOFS_ERROR_REPORTING_HPP
+#ifndef IOX_HOOFS_REPORTING_ICEORYX_HOOFS_ERROR_REPORTING_HPP
+#define IOX_HOOFS_REPORTING_ICEORYX_HOOFS_ERROR_REPORTING_HPP
 
 // Each module (= some unit with its own errors) must provide the following.
 
 // 1. Define the errors of the module
-#include "iceoryx_hoofs/error_reporting/modules/hoofs/errors.hpp"
+#include "iox/iceoryx_hoofs_errors.hpp"
 
 // 2. Include the custom reporting implementation
-#include "iceoryx_hoofs/error_reporting/custom/error_reporting.hpp"
+#include "iox/error_reporting/custom/error_reporting.hpp"
 
 // 3. Include the error reporting macro API
-#include "iceoryx_hoofs/error_reporting/error_reporting_macros.hpp"
+#include "iox/error_reporting/macros.hpp"
 
-#endif
+#endif // IOX_HOOFS_REPORTING_ICEORYX_HOOFS_ERROR_REPORTING_HPP

@@ -14,10 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_ERROR_REPORTING_ERROR_LOGGING_HPP
-#define IOX_HOOFS_ERROR_REPORTING_ERROR_LOGGING_HPP
+#ifndef IOX_HOOFS_REPORTING_ERROR_REPORTING_ERROR_LOGGING_HPP
+#define IOX_HOOFS_REPORTING_ERROR_REPORTING_ERROR_LOGGING_HPP
 
-#include "iceoryx_hoofs/error_reporting/source_location.hpp"
+#include "iox/error_reporting/source_location.hpp"
 #include "iox/logging.hpp"
 
 // with a log stream interface this could be done with functions, not macros
@@ -50,4 +50,4 @@
 
 // NOLINTEND(cppcoreguidelines-macro-usage, bugprone-macro-parentheses)
 
-#endif
+#endif // IOX_HOOFS_REPORTING_ERROR_REPORTING_ERROR_LOGGING_HPP

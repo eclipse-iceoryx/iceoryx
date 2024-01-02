@@ -14,25 +14,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_ERROR_REPORTING_CUSTOM_ERROR_HANDLER_HPP
-#define IOX_HOOFS_ERROR_REPORTING_CUSTOM_ERROR_HANDLER_HPP
+#ifndef IOX_HOOFS_REPORTING_ERROR_REPORTING_CUSTOM_ERROR_REPORTING_HPP
+#define IOX_HOOFS_REPORTING_ERROR_REPORTING_CUSTOM_ERROR_REPORTING_HPP
 
-#include "iox/polymorphic_handler.hpp"
-#include "iox/static_lifetime_guard.hpp"
+// ***
+// * Include this header in a module to use custom error reporting
+// ***
 
-#include "iceoryx_hoofs/error_reporting/custom/default/default_error_handler.hpp"
-#include "iceoryx_hoofs/error_reporting/custom/default/error_handler_interface.hpp"
+#include "iox/error_reporting/custom/default/configuration.hpp"
 
-namespace iox
-{
-namespace er
-{
+#include "iox/error_reporting/custom/default/error_reporting_impl.hpp"
 
-using ErrorHandler = iox::PolymorphicHandler<ErrorHandlerInterface, DefaultErrorHandler>;
-
-using DefaultErrorHandlerGuard = iox::StaticLifetimeGuard<DefaultErrorHandler>;
-
-} // namespace er
-} // namespace iox
-
-#endif
+#endif // IOX_HOOFS_REPORTING_ERROR_REPORTING_CUSTOM_ERROR_REPORTING_HPP

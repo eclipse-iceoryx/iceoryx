@@ -14,13 +14,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_ERROR_REPORTING_CONFIGURATION_HPP
-#define IOX_HOOFS_ERROR_REPORTING_CONFIGURATION_HPP
+#ifndef IOX_HOOFS_REPORTING_ERROR_REPORTING_CUSTOM_ERROR_KIND_HPP
+#define IOX_HOOFS_REPORTING_ERROR_REPORTING_CUSTOM_ERROR_KIND_HPP
 
-#include <type_traits>
+#include "iox/error_reporting/error_kind.hpp"
 
 // ***
-// * Configure active checks and other compile time parameters
+// * Extend error kinds
 // ***
 
 namespace iox
@@ -28,25 +28,16 @@ namespace iox
 namespace er
 {
 
-// tag type that can be used to override the configuration in a custom implementation
-struct ConfigurationTag
+// The non-fatal error kinds can all be defined here.
+
+struct RuntimeErrorKind
 {
+    static constexpr char const* name = "Runtime Error";
 };
 
-// can be specialized here to change parameters at compile time
-template <typename T>
-struct ConfigurationParameters
-{
-    static_assert(std::is_same<T, ConfigurationTag>::value, "Incorrect configuration tag type");
-
-    static constexpr bool CHECK_PRECONDITIONS{true};
-    static constexpr bool CHECK_ASSUMPTIONS{true};
-};
-
-// used by the API to obtain the compile time parameters
-using Configuration = ConfigurationParameters<ConfigurationTag>;
+constexpr RuntimeErrorKind RUNTIME_ERROR{};
 
 } // namespace er
 } // namespace iox
 
-#endif
+#endif // IOX_HOOFS_REPORTING_ERROR_REPORTING_CUSTOM_ERROR_KIND_HPP

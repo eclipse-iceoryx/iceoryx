@@ -14,12 +14,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_ERROR_REPORTING_CUSTOM_ERROR_HANDLER_INTERFACE_HPP
-#define IOX_HOOFS_ERROR_REPORTING_CUSTOM_ERROR_HANDLER_INTERFACE_HPP
+#ifndef IOX_HOOFS_REPORTING_ERROR_REPORTING_CUSTOM_ERROR_HANDLER_INTERFACE_HPP
+#define IOX_HOOFS_REPORTING_ERROR_REPORTING_CUSTOM_ERROR_HANDLER_INTERFACE_HPP
 
-#include "iceoryx_hoofs/error_reporting/errors.hpp"
-#include "iceoryx_hoofs/error_reporting/source_location.hpp"
-#include "iceoryx_hoofs/error_reporting/types.hpp"
+#include "iox/error_reporting/errors.hpp"
+#include "iox/error_reporting/source_location.hpp"
+#include "iox/error_reporting/types.hpp"
 
 namespace iox
 {
@@ -68,4 +68,4 @@ class ErrorHandlerInterface
 } // namespace er
 } // namespace iox
 
-#endif
+#endif // IOX_HOOFS_REPORTING_ERROR_REPORTING_CUSTOM_ERROR_HANDLER_INTERFACE_HPP

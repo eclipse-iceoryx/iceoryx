@@ -14,13 +14,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/error_reporting/error_kind.hpp"
-#include "iceoryx_hoofs/error_reporting/types.hpp"
+#include "iox/error_reporting/error_kind.hpp"
+#include "iox/error_reporting/types.hpp"
 #include "test.hpp"
 #include <gtest/gtest.h>
 
-#include "iceoryx_hoofs/error_reporting/source_location.hpp"
 #include "iceoryx_hoofs/testing/error_reporting/testing_error_handler.hpp"
+#include "iox/error_reporting/source_location.hpp"
 
 // NOLINTNEXTLINE(hicpp-deprecated-headers) required to work on some platforms
 #include <setjmp.h>

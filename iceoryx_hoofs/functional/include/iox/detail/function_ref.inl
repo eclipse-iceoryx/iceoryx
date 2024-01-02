@@ -18,7 +18,7 @@
 #ifndef IOX_HOOFS_FUNCTIONAL_FUNCTION_REF_INL
 #define IOX_HOOFS_FUNCTIONAL_FUNCTION_REF_INL
 
-#include "iceoryx_hoofs/error_reporting/error_reporting_macros.hpp"
+#include "iox/assertions.hpp"
 #include "iox/function_ref.hpp"
 
 #include <memory>

@@ -17,7 +17,7 @@
 #include "test.hpp"
 #include <gtest/gtest.h>
 
-#include "iceoryx_hoofs/error_reporting/types.hpp"
+#include "iox/error_reporting/types.hpp"
 
 namespace
 {
