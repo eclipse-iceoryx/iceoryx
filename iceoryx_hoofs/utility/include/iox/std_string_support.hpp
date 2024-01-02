@@ -17,6 +17,7 @@
 #ifndef IOX_HOOFS_UTILITY_STD_STRING_SUPPORT_HPP
 #define IOX_HOOFS_UTILITY_STD_STRING_SUPPORT_HPP
 
+#include "iox/detail/convert.hpp"
 #include "iox/into.hpp"
 #include "iox/optional.hpp"
 #include "iox/string.hpp"
@@ -88,6 +89,17 @@ struct FromImpl<std::string, lossy<string<N>>>
 /// @return the stream output of the fixed string
 template <uint64_t Capacity>
 std::ostream& operator<<(std::ostream& stream, const string<Capacity>& str) noexcept;
+
+/// @brief A specialization function of convert::from_string for std::string
+/// @param v the input string in c type
+/// @return an iox::optional<Destination> where, if the return value is iox::nullopt, it indicates a failed conversion
+/// process
+template <>
+inline iox::optional<std::string> convert::from_string(const char* v) noexcept
+{
+    return iox::optional<std::string>(v);
+}
+
 } // namespace iox
 
 #include "iox/detail/std_string_support.inl"

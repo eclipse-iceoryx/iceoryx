@@ -35,9 +35,9 @@ expected<ClientOptions, Serialization::Error> ClientOptions::deserialize(const S
     using QueueFullPolicyUT = std::underlying_type_t<QueueFullPolicy>;
     using ConsumerTooSlowPolicyUT = std::underlying_type_t<ConsumerTooSlowPolicy>;
 
-    ClientOptions clientOptions;
-    QueueFullPolicyUT responseQueueFullPolicy;
-    ConsumerTooSlowPolicyUT serverTooSlowPolicy;
+    ClientOptions clientOptions{};
+    QueueFullPolicyUT responseQueueFullPolicy{};
+    ConsumerTooSlowPolicyUT serverTooSlowPolicy{};
 
     auto deserializationSuccessful = serialized.extract(clientOptions.responseQueueCapacity,
                                                         clientOptions.nodeName,

@@ -185,13 +185,17 @@ PoshRuntimeImpl::requestPublisherFromRoudi(const IpcMessage& sendBuffer) noexcep
         std::string IpcMessage = receiveBuffer.getElementAtIndex(0U);
 
         if (stringToIpcMessageType(IpcMessage.c_str()) == IpcMessageType::CREATE_PUBLISHER_ACK)
-
         {
-            segment_id_underlying_t segmentId{0U};
-            convert::fromString(receiveBuffer.getElementAtIndex(2U).c_str(), segmentId);
-            UntypedRelativePointer::offset_t offset{0U};
-            convert::fromString(receiveBuffer.getElementAtIndex(1U).c_str(), offset);
-            auto ptr = UntypedRelativePointer::getPtr(segment_id_t{segmentId}, offset);
+            auto result = convert_id_and_offset(receiveBuffer);
+
+            if (!result)
+            {
+                return err(result.error());
+            }
+
+            auto [segment_id, offset] = result.value();
+
+            auto ptr = UntypedRelativePointer::getPtr(segment_id_t{segment_id}, offset);
             return ok(reinterpret_cast<PublisherPortUserType::MemberType_t*>(ptr));
         }
     }
@@ -299,11 +303,16 @@ PoshRuntimeImpl::requestSubscriberFromRoudi(const IpcMessage& sendBuffer) noexce
 
         if (stringToIpcMessageType(IpcMessage.c_str()) == IpcMessageType::CREATE_SUBSCRIBER_ACK)
         {
-            segment_id_underlying_t segmentId{0U};
-            convert::fromString(receiveBuffer.getElementAtIndex(2U).c_str(), segmentId);
-            UntypedRelativePointer::offset_t offset{0U};
-            convert::fromString(receiveBuffer.getElementAtIndex(1U).c_str(), offset);
-            auto ptr = UntypedRelativePointer::getPtr(segment_id_t{segmentId}, offset);
+            auto result = convert_id_and_offset(receiveBuffer);
+
+            if (!result)
+            {
+                return err(result.error());
+            }
+
+            auto [segment_id, offset] = result.value();
+
+            auto ptr = UntypedRelativePointer::getPtr(segment_id_t{segment_id}, offset);
             return ok(reinterpret_cast<SubscriberPortUserType::MemberType_t*>(ptr));
         }
     }
@@ -407,11 +416,16 @@ PoshRuntimeImpl::requestClientFromRoudi(const IpcMessage& sendBuffer) noexcept
 
         if (stringToIpcMessageType(IpcMessage.c_str()) == IpcMessageType::CREATE_CLIENT_ACK)
         {
-            segment_id_underlying_t segmentId{0U};
-            convert::fromString(receiveBuffer.getElementAtIndex(2U).c_str(), segmentId);
-            UntypedRelativePointer::offset_t offset{0U};
-            convert::fromString(receiveBuffer.getElementAtIndex(1U).c_str(), offset);
-            auto ptr = UntypedRelativePointer::getPtr(segment_id_t{segmentId}, offset);
+            auto result = convert_id_and_offset(receiveBuffer);
+
+            if (!result)
+            {
+                return err(result.error());
+            }
+
+            auto [segment_id, offset] = result.value();
+
+            auto ptr = UntypedRelativePointer::getPtr(segment_id_t{segment_id}, offset);
             return ok(reinterpret_cast<popo::ClientPortUser::MemberType_t*>(ptr));
         }
     }
@@ -515,11 +529,16 @@ PoshRuntimeImpl::requestServerFromRoudi(const IpcMessage& sendBuffer) noexcept
 
         if (stringToIpcMessageType(IpcMessage.c_str()) == IpcMessageType::CREATE_SERVER_ACK)
         {
-            segment_id_underlying_t segmentId{0U};
-            convert::fromString(receiveBuffer.getElementAtIndex(2U).c_str(), segmentId);
-            UntypedRelativePointer::offset_t offset{0U};
-            convert::fromString(receiveBuffer.getElementAtIndex(1U).c_str(), offset);
-            auto ptr = UntypedRelativePointer::getPtr(segment_id_t{segmentId}, offset);
+            auto result = convert_id_and_offset(receiveBuffer);
+
+            if (!result)
+            {
+                return err(result.error());
+            }
+
+            auto [segment_id, offset] = result.value();
+
+            auto ptr = UntypedRelativePointer::getPtr(segment_id_t{segment_id}, offset);
             return ok(reinterpret_cast<popo::ServerPortUser::MemberType_t*>(ptr));
         }
     }
@@ -559,11 +578,16 @@ popo::InterfacePortData* PoshRuntimeImpl::getMiddlewareInterface(const capro::In
 
         if (stringToIpcMessageType(IpcMessage.c_str()) == IpcMessageType::CREATE_INTERFACE_ACK)
         {
-            segment_id_underlying_t segmentId{0U};
-            convert::fromString(receiveBuffer.getElementAtIndex(2U).c_str(), segmentId);
-            UntypedRelativePointer::offset_t offset{0U};
-            convert::fromString(receiveBuffer.getElementAtIndex(1U).c_str(), offset);
-            auto ptr = UntypedRelativePointer::getPtr(segment_id_t{segmentId}, offset);
+            auto result = convert_id_and_offset(receiveBuffer);
+
+            if (!result)
+            {
+                return nullptr;
+            }
+
+            auto [segment_id, offset] = result.value();
+
+            auto ptr = UntypedRelativePointer::getPtr(segment_id_t{segment_id}, offset);
             return reinterpret_cast<popo::InterfacePortData*>(ptr);
         }
     }
@@ -593,11 +617,16 @@ NodeData* PoshRuntimeImpl::createNode(const NodeProperty& nodeProperty) noexcept
 
         if (stringToIpcMessageType(IpcMessage.c_str()) == IpcMessageType::CREATE_NODE_ACK)
         {
-            segment_id_underlying_t segmentId{0U};
-            convert::fromString(receiveBuffer.getElementAtIndex(2U).c_str(), segmentId);
-            UntypedRelativePointer::offset_t offset{0U};
-            convert::fromString(receiveBuffer.getElementAtIndex(1U).c_str(), offset);
-            auto ptr = UntypedRelativePointer::getPtr(segment_id_t{segmentId}, offset);
+            auto result = convert_id_and_offset(receiveBuffer);
+
+            if (!result)
+            {
+                return nullptr;
+            }
+
+            auto [segment_id, offset] = result.value();
+
+            auto ptr = UntypedRelativePointer::getPtr(segment_id_t{segment_id}, offset);
             return reinterpret_cast<NodeData*>(ptr);
         }
     }
@@ -622,11 +651,16 @@ PoshRuntimeImpl::requestConditionVariableFromRoudi(const IpcMessage& sendBuffer)
 
         if (stringToIpcMessageType(IpcMessage.c_str()) == IpcMessageType::CREATE_CONDITION_VARIABLE_ACK)
         {
-            segment_id_underlying_t segmentId{0U};
-            convert::fromString(receiveBuffer.getElementAtIndex(2U).c_str(), segmentId);
-            UntypedRelativePointer::offset_t offset{0U};
-            convert::fromString(receiveBuffer.getElementAtIndex(1U).c_str(), offset);
-            auto ptr = UntypedRelativePointer::getPtr(segment_id_t{segmentId}, offset);
+            auto result = convert_id_and_offset(receiveBuffer);
+
+            if (!result)
+            {
+                return err(result.error());
+            }
+
+            auto [segment_id, offset] = result.value();
+
+            auto ptr = UntypedRelativePointer::getPtr(segment_id_t{segment_id}, offset);
             return ok(reinterpret_cast<popo::ConditionVariableData*>(ptr));
         }
     }
@@ -728,6 +762,28 @@ void PoshRuntimeImpl::sendKeepAliveAndHandleShutdownPreparation() noexcept
         }
     }
 }
+
+expected<std::tuple<segment_id_underlying_t, UntypedRelativePointer::offset_t>, IpcMessageErrorType>
+PoshRuntimeImpl::convert_id_and_offset(IpcMessage& msg)
+{
+    auto id = convert::from_string<segment_id_underlying_t>(msg.getElementAtIndex(2U).c_str());
+    auto offset = convert::from_string<UntypedRelativePointer::offset_t>(msg.getElementAtIndex(1U).c_str());
+
+    if (!id.has_value())
+    {
+        IOX_LOG(ERROR, "segment_id conversion failed");
+        return err(IpcMessageErrorType::SEGMENT_ID_CONVERSION_FAILURE);
+    }
+
+    if (!offset.has_value())
+    {
+        IOX_LOG(ERROR, "offset conversion failed");
+        return err(IpcMessageErrorType::OFFSET_CONVERSION_FAILURE);
+    }
+
+    return ok(std::make_tuple(id.value(), offset.value()));
+}
+
 
 } // namespace runtime
 } // namespace iox

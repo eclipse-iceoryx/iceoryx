@@ -1,6 +1,7 @@
 // Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 // Copyright (c) 2022 by NXP. All rights reserved.
+// Copyright (c) 2023 by Dennis Liu. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -40,8 +41,8 @@ namespace iox
 ///
 ///     int i;
 ///     unsigned int a;
-///     if ( iox::convert::fromString("123", i) ) {}  // will succeed
-///     if ( iox::convert::fromString("-123", a) ) {} // will fail since -123 is not unsigned
+///     if ( iox::convert::from_string("123", i) ) {}  // will succeed
+///     if ( iox::convert::from_string("-123", a) ) {} // will fail since -123 is not unsigned
 /// @endcode
 /// @todo iox-#260 Refactor 'convert' so that one can use 'into' to directly to convert numbers to strings:
 /// 'ClassExpectingAnIoxString(iox::into<iox::string<100>>(42)'
@@ -55,7 +56,13 @@ class convert
         FLOAT
     };
 
-    static constexpr int32_t STRTOULL_BASE = 10;
+    static constexpr int32_t STRTOULL_BASE{10};
+    static constexpr int32_t STRTOUL_BASE{10};
+    static constexpr int32_t STRTOLL_BASE{10};
+    static constexpr int32_t STRTOL_BASE{10};
+
+    static constexpr uint32_t FLOAT_SIGNALING_NAN_MASK{static_cast<uint32_t>(1) << static_cast<uint32_t>(22)};
+    static constexpr uint64_t DOUBLE_SIGNALING_NAN_MASK{static_cast<uint64_t>(1) << static_cast<uint64_t>(51)};
 
     /// @brief Converts every type which is either a pod (plain old data) type or is convertable
     ///         to a string (this means that the operator std::string() is defined)
@@ -75,30 +82,34 @@ class convert
     static typename std::enable_if<std::is_convertible<Source, std::string>::value, std::string>::type
     toString(const Source& t) noexcept;
 
-    /// @brief Sets dest from a given string. If the conversion fails false is
-    ///         returned and the value of dest is undefined.
-    /// @param[in] v string which contains the value of dest
-    /// @param[in] dest destination to which the value should be written
-    /// @return false = if the conversion fails otherwise true
-    template <typename Destination>
-    static bool fromString(const char* v, Destination& dest) noexcept;
-
-    /// @brief Sets dest from a given string. If the conversion fails false is
-    ///         returned and the value of dest is undefined.
-    /// @param[in] v string which contains the value of dest
-    /// @param[in] dest destination to which the value should be written
-    /// @return false = if the conversion fails otherwise true
-    template <uint64_t Capacity>
-    static bool fromString(const char* v, string<Capacity>& dest) noexcept;
-
-    /// @brief checks if a given string v is a number
-    /// @param[in] v string which contains the number
-    /// @param[in] type is the expected contained type in v
-    /// @return true if the given string is a number, otherwise false
-    static bool stringIsNumber(const char* v, const NumberType type) noexcept;
+    /// @brief  convert the input based on the 'Destination', allowing only 'iox::string' and numeric types as valid
+    /// destination types
+    /// @note   for the 'Destination' equal to 'std::string,' please include 'iox/std_string_support.hpp'
+    /// @tparam Destination the desired target type for converting text
+    /// @param v the input string in c type
+    /// @return an iox::optional<Destination> where, if the return value is iox::nullopt, it indicates a failed
+    /// conversion process
+    template <typename TargetType>
+    static iox::optional<TargetType> from_string(const char* v) noexcept;
 
   private:
-    static bool stringIsNumberWithErrorMessage(const char* v, const NumberType type) noexcept;
+    template <typename TargetType, typename CallType>
+    static iox::optional<TargetType> evaluate_return_value(CallType& call, const char* end_ptr, const char* v) noexcept;
+
+    template <typename TargetType, typename SourceType>
+    static bool check_edge_case(decltype(errno) errno_cache,
+                                const char* end_ptr,
+                                const char* v,
+                                const SourceType& source_val) noexcept;
+
+    template <typename SourceType>
+    static bool is_valid_input(const char* end_ptr, const char* v, const SourceType& source_val) noexcept;
+
+    template <typename TargetType, typename SourceType>
+    static bool is_within_range(const SourceType& source_val) noexcept;
+
+    static bool is_valid_errno(decltype(errno) errno_cache, const char* v) noexcept;
+    static bool start_with_neg_sign(const char* v) noexcept;
 };
 
 } // namespace iox

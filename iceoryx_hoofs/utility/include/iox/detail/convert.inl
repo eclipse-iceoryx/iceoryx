@@ -1,6 +1,7 @@
 // Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 // Copyright (c) 2022 by NXP. All rights reserved.
+// Copyright (c) 2023 by Dennis Liu. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,6 +21,7 @@
 #define IOX_HOOFS_UTILITY_CONVERT_INL
 
 #include "iox/detail/convert.hpp"
+#include "iox/detail/string_type_traits.hpp"
 #include "iox/logging.hpp"
 
 namespace iox
@@ -57,385 +59,378 @@ convert::toString(const Source& t) noexcept
     return t;
 }
 
-template <typename Destination>
-inline bool convert::fromString(const char* v, Destination& dest) noexcept
+template <typename TargetType>
+inline iox::optional<TargetType> convert::from_string(const char* v) noexcept
 {
-    dest = Destination(v);
-    return true;
+    if constexpr (is_iox_string<TargetType>::value)
+    {
+        using IoxString = TargetType;
+        if (strlen(v) > IoxString::capacity())
+        {
+            return iox::nullopt;
+        }
+        return iox::optional<IoxString>(IoxString(TruncateToCapacity, v));
+    }
+    else
+    {
+        static_assert(always_false_v<TargetType>,
+                      "For a conversion to 'std::string' please include 'iox/std_string_support.hpp'!\nConversion not "
+                      "supported!");
+    }
 }
 
 template <>
-inline bool convert::fromString<char>(const char* v, char& dest) noexcept
+inline iox::optional<char> convert::from_string<char>(const char* v) noexcept
 {
     if (strlen(v) != 1U)
     {
         IOX_LOG(DEBUG, v << " is not a char");
-        return false;
+        return iox::nullopt;
     }
 
     /// @NOLINTJUSTIFICATION encapsulated in abstraction
     /// @NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-    dest = v[0];
-    return true;
-}
-
-template <uint64_t Capacity>
-inline bool convert::fromString(const char* v, string<Capacity>& dest) noexcept
-{
-    if (strlen(v) > Capacity)
-    {
-        return false;
-    }
-
-    dest = string<Capacity>(TruncateToCapacity, v);
-    return true;
-}
-
-inline bool convert::stringIsNumber(const char* v, const NumberType type) noexcept
-{
-    /// @NOLINTJUSTIFICATION encapsulated in abstraction
-    /// @NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-    if (v[0] == '\0')
-    {
-        return false;
-    }
-
-    bool hasDot = false;
-
-    for (uint32_t i = 0U; v[i] != '\0'; ++i)
-    {
-        if (v[i] >= '0' && v[i] <= '9')
-        {
-            continue;
-        }
-
-        if (type != NumberType::UNSIGNED_INTEGER && i == 0U && (v[i] == '+' || v[i] == '-'))
-        {
-            continue;
-        }
-
-        if (type == NumberType::FLOAT && !hasDot && v[i] == '.')
-        {
-            hasDot = true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-    /// @NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-
-    return true;
-}
-
-inline bool convert::stringIsNumberWithErrorMessage(const char* v, const NumberType type) noexcept
-{
-    if (!stringIsNumber(v, type))
-    {
-        IOX_LOG(DEBUG, v << " is not ");
-        switch (type)
-        {
-        case NumberType::FLOAT:
-        {
-            IOX_LOG(DEBUG, "a float");
-            break;
-        }
-        case NumberType::INTEGER:
-        {
-            IOX_LOG(DEBUG, "a signed integer");
-            break;
-        }
-        case NumberType::UNSIGNED_INTEGER:
-        {
-            IOX_LOG(DEBUG, "an unsigned integer");
-            break;
-        }
-        }
-        return false;
-    }
-    return true;
+    return iox::optional<char>(v[0]);
 }
 
 template <>
-inline bool convert::fromString<float>(const char* v, float& dest) noexcept
+inline iox::optional<bool> convert::from_string<bool>(const char* v) noexcept
 {
-    if (!stringIsNumberWithErrorMessage(v, NumberType::FLOAT))
+    char* end_ptr = nullptr;
+
+    if (start_with_neg_sign(v))
     {
-        return false;
+        return iox::nullopt;
     }
 
-    return !IOX_POSIX_CALL(strtof)(v, nullptr)
-                .failureReturnValue(HUGE_VALF, -HUGE_VALF)
-                .evaluate()
-                .and_then([&](auto& r) { dest = r.value; })
-                .has_error();
+    auto call = IOX_POSIX_CALL(strtoul)(v, &end_ptr, STRTOUL_BASE)
+                    .failureReturnValue(ULONG_MAX)
+                    .ignoreErrnos(0, EINVAL, ERANGE)
+                    .evaluate();
+
+    // we assume that in the IOX_POSIX_CALL procedure, no other POSIX call will change errno,
+    // except for the target function 'f'.
+    return evaluate_return_value<bool>(call, end_ptr, v);
 }
 
 template <>
-inline bool convert::fromString<double>(const char* v, double& dest) noexcept
+inline iox::optional<float> convert::from_string<float>(const char* v) noexcept
 {
-    if (!stringIsNumberWithErrorMessage(v, NumberType::FLOAT))
-    {
-        return false;
-    }
+    char* end_ptr = nullptr;
 
-    return !IOX_POSIX_CALL(strtod)(v, nullptr)
-                .failureReturnValue(HUGE_VAL, -HUGE_VAL)
-                .evaluate()
-                .and_then([&](auto& r) { dest = r.value; })
-                .has_error();
+    auto call = IOX_POSIX_CALL(strtof)(v, &end_ptr)
+                    .failureReturnValue(HUGE_VALF, -HUGE_VALF)
+                    .ignoreErrnos(0, EINVAL, ERANGE)
+                    .evaluate();
+
+    return evaluate_return_value<float>(call, end_ptr, v);
 }
 
 template <>
-inline bool convert::fromString<long double>(const char* v, long double& dest) noexcept
+inline iox::optional<double> convert::from_string<double>(const char* v) noexcept
 {
-    if (!stringIsNumberWithErrorMessage(v, NumberType::FLOAT))
-    {
-        return false;
-    }
+    char* end_ptr = nullptr;
 
-    return !IOX_POSIX_CALL(strtold)(v, nullptr)
-                .failureReturnValue(HUGE_VALL, -HUGE_VALL)
-                .evaluate()
-                .and_then([&](auto& r) { dest = r.value; })
-                .has_error();
+    auto call = IOX_POSIX_CALL(strtod)(v, &end_ptr)
+                    .failureReturnValue(HUGE_VAL, -HUGE_VAL)
+                    .ignoreErrnos(0, EINVAL, ERANGE)
+                    .evaluate();
+
+    return evaluate_return_value<double>(call, end_ptr, v);
 }
 
 template <>
-inline bool convert::fromString<uint64_t>(const char* v, uint64_t& dest) noexcept
+inline iox::optional<long double> convert::from_string<long double>(const char* v) noexcept
 {
-    if (!stringIsNumberWithErrorMessage(v, NumberType::UNSIGNED_INTEGER))
+    char* end_ptr = nullptr;
+
+    auto call = IOX_POSIX_CALL(strtold)(v, &end_ptr)
+                    .failureReturnValue(HUGE_VALL, -HUGE_VALL)
+                    .ignoreErrnos(0, EINVAL, ERANGE)
+                    .evaluate();
+
+    return evaluate_return_value<long double>(call, end_ptr, v);
+}
+
+template <>
+inline iox::optional<unsigned long long> convert::from_string<unsigned long long>(const char* v) noexcept
+{
+    char* end_ptr = nullptr;
+
+    if (start_with_neg_sign(v))
     {
-        return false;
+        return iox::nullopt;
     }
 
-    auto call = IOX_POSIX_CALL(strtoull)(v, nullptr, STRTOULL_BASE).failureReturnValue(ULLONG_MAX).evaluate();
+    auto call = IOX_POSIX_CALL(strtoull)(v, &end_ptr, STRTOULL_BASE)
+                    .failureReturnValue(ULLONG_MAX)
+                    .ignoreErrnos(0, EINVAL, ERANGE)
+                    .evaluate();
 
+    return evaluate_return_value<unsigned long long>(call, end_ptr, v);
+}
+
+template <>
+inline iox::optional<unsigned long> convert::from_string<unsigned long>(const char* v) noexcept
+{
+    char* end_ptr = nullptr;
+
+    if (start_with_neg_sign(v))
+    {
+        return iox::nullopt;
+    }
+
+    auto call = IOX_POSIX_CALL(strtoul)(v, &end_ptr, STRTOUL_BASE)
+                    .failureReturnValue(ULONG_MAX)
+                    .ignoreErrnos(0, EINVAL, ERANGE)
+                    .evaluate();
+
+    return evaluate_return_value<unsigned long>(call, end_ptr, v);
+}
+
+template <>
+inline iox::optional<unsigned int> convert::from_string<unsigned int>(const char* v) noexcept
+{
+    char* end_ptr = nullptr;
+
+    if (start_with_neg_sign(v))
+    {
+        return iox::nullopt;
+    }
+
+    // use alwaysSuccess for the conversion edge cases in 32-bit system?
+    auto call = IOX_POSIX_CALL(strtoul)(v, &end_ptr, STRTOUL_BASE)
+                    .failureReturnValue(ULONG_MAX)
+                    .ignoreErrnos(0, EINVAL, ERANGE)
+                    .evaluate();
+
+    return evaluate_return_value<unsigned int>(call, end_ptr, v);
+}
+
+template <>
+inline iox::optional<unsigned short> convert::from_string<unsigned short>(const char* v) noexcept
+{
+    char* end_ptr = nullptr;
+
+    if (start_with_neg_sign(v))
+    {
+        return iox::nullopt;
+    }
+
+    auto call = IOX_POSIX_CALL(strtoul)(v, &end_ptr, STRTOUL_BASE)
+                    .failureReturnValue(ULONG_MAX)
+                    .ignoreErrnos(0, EINVAL, ERANGE)
+                    .evaluate();
+
+    return evaluate_return_value<unsigned short>(call, end_ptr, v);
+}
+
+template <>
+inline iox::optional<unsigned char> convert::from_string<unsigned char>(const char* v) noexcept
+{
+    char* end_ptr = nullptr;
+
+    if (start_with_neg_sign(v))
+    {
+        return iox::nullopt;
+    }
+
+    auto call = IOX_POSIX_CALL(strtoul)(v, &end_ptr, STRTOULL_BASE)
+                    .failureReturnValue(ULONG_MAX)
+                    .ignoreErrnos(0, EINVAL, ERANGE)
+                    .evaluate();
+
+    return evaluate_return_value<unsigned char>(call, end_ptr, v);
+}
+
+template <>
+inline iox::optional<long long> convert::from_string<long long>(const char* v) noexcept
+{
+    char* end_ptr = nullptr;
+
+    auto call = IOX_POSIX_CALL(strtoll)(v, &end_ptr, STRTOLL_BASE)
+                    .failureReturnValue(LLONG_MAX, LLONG_MIN)
+                    .ignoreErrnos(0, EINVAL, ERANGE)
+                    .evaluate();
+
+    return evaluate_return_value<long long>(call, end_ptr, v);
+}
+
+template <>
+inline iox::optional<long> convert::from_string<long>(const char* v) noexcept
+{
+    char* end_ptr = nullptr;
+
+    auto call = IOX_POSIX_CALL(strtol)(v, &end_ptr, STRTOL_BASE)
+                    .failureReturnValue(LONG_MAX, LONG_MIN)
+                    .ignoreErrnos(0, EINVAL, ERANGE)
+                    .evaluate();
+
+    return evaluate_return_value<long>(call, end_ptr, v);
+}
+
+template <>
+inline iox::optional<int> convert::from_string<int>(const char* v) noexcept
+{
+    char* end_ptr = nullptr;
+
+    // use alwaysSuccess for the conversion edge cases in 32-bit system?
+    auto call = IOX_POSIX_CALL(strtol)(v, &end_ptr, STRTOL_BASE)
+                    .failureReturnValue(LONG_MAX, LONG_MIN)
+                    .ignoreErrnos(0, EINVAL, ERANGE)
+                    .evaluate();
+
+    return evaluate_return_value<int>(call, end_ptr, v);
+}
+
+template <>
+inline iox::optional<short> convert::from_string<short>(const char* v) noexcept
+{
+    char* end_ptr = nullptr;
+
+    auto call = IOX_POSIX_CALL(strtol)(v, &end_ptr, STRTOL_BASE)
+                    .failureReturnValue(LONG_MAX, LONG_MIN)
+                    .ignoreErrnos(0, EINVAL, ERANGE)
+                    .evaluate();
+
+    return evaluate_return_value<short>(call, end_ptr, v);
+}
+
+template <>
+inline iox::optional<signed char> convert::from_string<signed char>(const char* v) noexcept
+{
+    char* end_ptr = nullptr;
+
+    auto call = IOX_POSIX_CALL(strtol)(v, &end_ptr, STRTOL_BASE)
+                    .failureReturnValue(LONG_MAX, LONG_MIN)
+                    .ignoreErrnos(0, EINVAL, ERANGE)
+                    .evaluate();
+
+    return evaluate_return_value<signed char>(call, end_ptr, v);
+}
+
+template <typename TargetType, typename SourceType>
+inline bool convert::check_edge_case(decltype(errno) errno_cache,
+                                     const char* end_ptr,
+                                     const char* v,
+                                     const SourceType& source_val) noexcept
+{
+    return is_valid_input(end_ptr, v, source_val) && is_valid_errno(errno_cache, v)
+           && is_within_range<TargetType>(source_val);
+}
+
+template <typename TargetType, typename CallType>
+inline iox::optional<TargetType>
+convert::evaluate_return_value(CallType& call, const char* end_ptr, const char* v) noexcept
+{
     if (call.has_error())
     {
-        return false;
+        return iox::nullopt;
     }
 
-    if (call->value > std::numeric_limits<uint64_t>::max())
+    if (!check_edge_case<TargetType>(call->errnum, end_ptr, v, call->value))
     {
-        IOX_LOG(DEBUG, call->value << " too large, uint64_t overflow");
+        return iox::nullopt;
+    }
+
+    return iox::optional<TargetType>(static_cast<TargetType>(call->value));
+}
+
+template <typename SourceType>
+inline bool convert::is_valid_input(const char* end_ptr, const char* v, const SourceType& source_val) noexcept
+{
+    // invalid string
+    if (v == end_ptr && source_val == 0)
+    {
+        IOX_LOG(DEBUG, "invalid input");
         return false;
     }
 
-    dest = static_cast<uint64_t>(call->value);
+    // end_ptr is not '\0' which means conversion failure at end_ptr
+    if (end_ptr != nullptr && v != end_ptr && *end_ptr != '\0')
+    {
+        IOX_LOG(DEBUG, "conversion failed at " << end_ptr - v << " : " << *end_ptr);
+        return false;
+    }
+
     return true;
 }
 
-#ifdef __APPLE__
-/// introduced for mac os since unsigned long is not uint64_t despite it has the same size
-/// who knows why ¯\_(ツ)_/¯
-template <>
-inline bool convert::fromString<unsigned long>(const char* v, unsigned long& dest) noexcept
+template <typename TargetType, typename SourceType>
+inline bool convert::is_within_range(const SourceType& source_val) noexcept
 {
-    uint64_t temp{0};
-    bool retVal = fromString(v, temp);
-    dest = temp;
-    return retVal;
-}
-#endif
-
-#if defined(__GNUC__) && (INTPTR_MAX == INT32_MAX)
-/// introduced for 32-bit arm-none-eabi-gcc since uintptr_t is not uint32_t despite it has the same size
-/// who knows why ¯\_(ツ)_/¯
-template <>
-inline bool convert::fromString<uintptr_t>(const char* v, uintptr_t& dest) noexcept
-{
-    uint64_t temp{0};
-    bool retVal = fromString(v, temp);
-    dest = temp;
-    return retVal;
-}
-#endif
-
-template <>
-inline bool convert::fromString<uint32_t>(const char* v, uint32_t& dest) noexcept
-{
-    if (!stringIsNumberWithErrorMessage(v, NumberType::UNSIGNED_INTEGER))
+    if constexpr (std::is_arithmetic_v<TargetType> == false)
     {
+        return true;
+    }
+    // is_arithmetic_v
+    if constexpr (std::is_floating_point_v<SourceType>)
+    {
+        // special cases for floating point
+        if (std::isnan(source_val) || std::isinf(source_val))
+        {
+            return true;
+        }
+    }
+
+    // out of range (upper bound)
+    if (source_val > std::numeric_limits<TargetType>::max())
+    {
+        IOX_LOG(DEBUG,
+                source_val << " is out of range (upper bound), should be less than "
+                           << std::numeric_limits<TargetType>::max());
         return false;
     }
 
-    auto call = IOX_POSIX_CALL(strtoull)(v, nullptr, STRTOULL_BASE).failureReturnValue(ULLONG_MAX).evaluate();
-
-    if (call.has_error())
+    // out of range (lower bound)
+    if (source_val < std::numeric_limits<TargetType>::lowest())
     {
+        IOX_LOG(DEBUG,
+                source_val << " is out of range (lower bound), should be larger than "
+                           << std::numeric_limits<TargetType>::lowest());
         return false;
     }
-
-    if (call->value > std::numeric_limits<uint32_t>::max())
-    {
-        IOX_LOG(DEBUG, call->value << " too large, uint32_t overflow");
-        return false;
-    }
-
-    dest = static_cast<uint32_t>(call->value);
     return true;
 }
 
-template <>
-inline bool convert::fromString<uint16_t>(const char* v, uint16_t& dest) noexcept
+inline bool convert::start_with_neg_sign(const char* v) noexcept
 {
-    if (!stringIsNumberWithErrorMessage(v, NumberType::UNSIGNED_INTEGER))
+    if (v == nullptr)
     {
         return false;
     }
 
-    auto call = IOX_POSIX_CALL(strtoul)(v, nullptr, STRTOULL_BASE).failureReturnValue(ULONG_MAX).evaluate();
-
-    if (call.has_error())
+    // remove space
+    while (*v != '\0' && (isspace((unsigned char)*v) != 0))
     {
-        return false;
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        ++v;
     }
 
-    if (call->value > std::numeric_limits<uint16_t>::max())
-    {
-        IOX_LOG(DEBUG, call->value << " too large, uint16_t overflow");
-        return false;
-    }
-
-    dest = static_cast<uint16_t>(call->value);
-    return true;
+    return (*v == '-');
 }
 
-template <>
-inline bool convert::fromString<uint8_t>(const char* v, uint8_t& dest) noexcept
+inline bool convert::is_valid_errno(decltype(errno) errno_cache, const char* v) noexcept
 {
-    if (!stringIsNumberWithErrorMessage(v, NumberType::UNSIGNED_INTEGER))
+    if (errno_cache == ERANGE)
     {
+        IOX_LOG(DEBUG, "ERANGE triggered during conversion of string: '" << v << "'");
         return false;
     }
 
-    auto call = IOX_POSIX_CALL(strtoul)(v, nullptr, STRTOULL_BASE).failureReturnValue(ULONG_MAX).evaluate();
-
-    if (call.has_error())
+    if (errno_cache == EINVAL)
     {
+        IOX_LOG(DEBUG, "EINVAL triggered during conversion of string: " << v);
         return false;
     }
 
-    if (call->value > std::numeric_limits<uint8_t>::max())
+    if (errno_cache != 0)
     {
-        IOX_LOG(DEBUG, call->value << " too large, uint8_t overflow");
+        IOX_LOG(DEBUG, "Unexpected errno: " << errno_cache << ". The input string is: " << v);
         return false;
     }
 
-    dest = static_cast<uint8_t>(call->value);
     return true;
-}
-
-template <>
-inline bool convert::fromString<int64_t>(const char* v, int64_t& dest) noexcept
-{
-    if (!stringIsNumberWithErrorMessage(v, NumberType::INTEGER))
-    {
-        return false;
-    }
-
-    auto call = IOX_POSIX_CALL(strtoll)(v, nullptr, STRTOULL_BASE).failureReturnValue(LLONG_MAX, LLONG_MIN).evaluate();
-    if (call.has_error())
-    {
-        return false;
-    }
-
-    if (call->value > std::numeric_limits<int64_t>::max() || call->value < std::numeric_limits<int64_t>::min())
-    {
-        IOX_LOG(DEBUG, call->value << " is out of range, int64_t overflow");
-        return false;
-    }
-
-    dest = static_cast<int64_t>(call->value);
-    return true;
-}
-
-template <>
-inline bool convert::fromString<int32_t>(const char* v, int32_t& dest) noexcept
-{
-    if (!stringIsNumberWithErrorMessage(v, NumberType::INTEGER))
-    {
-        return false;
-    }
-
-    auto call = IOX_POSIX_CALL(strtoll)(v, nullptr, STRTOULL_BASE).failureReturnValue(LLONG_MAX, LLONG_MIN).evaluate();
-    if (call.has_error())
-    {
-        return false;
-    }
-
-    if (call->value > std::numeric_limits<int32_t>::max() || call->value < std::numeric_limits<int32_t>::min())
-    {
-        IOX_LOG(DEBUG, call->value << " is out of range, int32_t overflow");
-        return false;
-    }
-
-    dest = static_cast<int32_t>(call->value);
-    return true;
-}
-
-template <>
-inline bool convert::fromString<int16_t>(const char* v, int16_t& dest) noexcept
-{
-    if (!stringIsNumberWithErrorMessage(v, NumberType::INTEGER))
-    {
-        return false;
-    }
-
-    auto call = IOX_POSIX_CALL(strtol)(v, nullptr, STRTOULL_BASE).failureReturnValue(LONG_MAX, LONG_MIN).evaluate();
-    if (call.has_error())
-    {
-        return false;
-    }
-
-    if (call->value > std::numeric_limits<int16_t>::max() || call->value < std::numeric_limits<int16_t>::min())
-    {
-        IOX_LOG(DEBUG, call->value << " is out of range, int16_t overflow");
-        return false;
-    }
-
-    dest = static_cast<int16_t>(call->value);
-    return true;
-}
-
-template <>
-inline bool convert::fromString<int8_t>(const char* v, int8_t& dest) noexcept
-{
-    if (!stringIsNumberWithErrorMessage(v, NumberType::INTEGER))
-    {
-        return false;
-    }
-
-    auto call = IOX_POSIX_CALL(strtol)(v, nullptr, STRTOULL_BASE).failureReturnValue(LONG_MAX, LONG_MIN).evaluate();
-    if (call.has_error())
-    {
-        return false;
-    }
-
-    if (call->value > std::numeric_limits<int8_t>::max() || call->value < std::numeric_limits<int8_t>::min())
-    {
-        IOX_LOG(DEBUG, call->value << " is out of range, int8_t overflow");
-        return false;
-    }
-
-    dest = static_cast<int8_t>(call->value);
-    return true;
-}
-
-template <>
-inline bool convert::fromString<bool>(const char* v, bool& dest) noexcept
-{
-    if (!stringIsNumberWithErrorMessage(v, NumberType::UNSIGNED_INTEGER))
-    {
-        return false;
-    }
-
-    return !IOX_POSIX_CALL(strtoul)(v, nullptr, STRTOULL_BASE)
-                .failureReturnValue(ULONG_MAX)
-                .evaluate()
-                .and_then([&](auto& r) { dest = static_cast<bool>(r.value); })
-                .has_error();
 }
 
 } // namespace iox

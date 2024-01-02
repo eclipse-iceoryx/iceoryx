@@ -70,7 +70,8 @@ class IpcRuntimeInterface
     enum class RegAckResult
     {
         SUCCESS,
-        TIMEOUT
+        TIMEOUT,
+        MALFORMED_RESPONSE
     };
 
     void waitForRoudi(deadline_timer& timer) noexcept;

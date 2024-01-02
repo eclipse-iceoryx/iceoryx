@@ -26,15 +26,13 @@ namespace cli
 template <typename T>
 inline expected<T, Arguments::Error> Arguments::convertFromString(const Argument_t& stringValue) const noexcept
 {
-    // @todo iox-#2055 there are edge cases which lead to not initializing the value even when the return value of
-    // 'fromString' is true; value initialization can be removed when #2055 is fixed
-    T value{};
-    if (!convert::fromString(stringValue.c_str(), value))
+    auto result = convert::from_string<T>(stringValue.c_str());
+    if (!result.has_value())
     {
         std::cout << "\"" << stringValue.c_str() << "\" could not be converted to the requested type" << std::endl;
         return err(Error::UNABLE_TO_CONVERT_VALUE);
     }
-    return ok(value);
+    return ok(result.value());
 }
 
 template <>

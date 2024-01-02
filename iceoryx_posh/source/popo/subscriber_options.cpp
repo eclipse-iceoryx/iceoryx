@@ -36,8 +36,8 @@ SubscriberOptions::deserialize(const Serialization& serialized) noexcept
 {
     using QueueFullPolicyUT = std::underlying_type_t<QueueFullPolicy>;
 
-    SubscriberOptions subscriberOptions;
-    QueueFullPolicyUT queueFullPolicy;
+    SubscriberOptions subscriberOptions{};
+    QueueFullPolicyUT queueFullPolicy{};
 
     auto deserializationSuccessful = serialized.extract(subscriberOptions.queueCapacity,
                                                         subscriberOptions.historyRequest,

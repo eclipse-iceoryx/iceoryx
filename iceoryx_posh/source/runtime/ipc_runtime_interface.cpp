@@ -235,19 +235,39 @@ IpcRuntimeInterface::RegAckResult IpcRuntimeInterface::waitForRegAck(int64_t tra
                 }
 
                 // read out the shared memory base address and save it
-                iox::convert::fromString(receiveBuffer.getElementAtIndex(1U).c_str(), m_shmTopicSize);
                 UntypedRelativePointer::offset_t segmentManagerOffset{UntypedRelativePointer::NULL_POINTER_OFFSET};
-                iox::convert::fromString(receiveBuffer.getElementAtIndex(2U).c_str(), segmentManagerOffset);
+                UntypedRelativePointer::offset_t heartbeatOffset{UntypedRelativePointer::NULL_POINTER_OFFSET};
+                int64_t receivedTimestamp{0U};
+
+                auto topic_size_result =
+                    iox::convert::from_string<uint64_t>(receiveBuffer.getElementAtIndex(1U).c_str());
+                auto segment_manager_offset_result =
+                    iox::convert::from_string<uintptr_t>(receiveBuffer.getElementAtIndex(2U).c_str());
+                auto recv_timestamp_result =
+                    iox::convert::from_string<int64_t>(receiveBuffer.getElementAtIndex(3U).c_str());
+                auto segment_id_result =
+                    iox::convert::from_string<uint64_t>(receiveBuffer.getElementAtIndex(4U).c_str());
+                auto heartbeat_offset_result =
+                    iox::convert::from_string<uintptr_t>(receiveBuffer.getElementAtIndex(5U).c_str());
+
+                // validate conversion results
+                if (!topic_size_result.has_value() || !segment_manager_offset_result.has_value()
+                    || !recv_timestamp_result.has_value() || !segment_id_result.has_value()
+                    || !heartbeat_offset_result.has_value())
+                {
+                    return RegAckResult::MALFORMED_RESPONSE;
+                }
+
+                // assign conversion results
+                m_shmTopicSize = topic_size_result.value();
+                m_segmentId = segment_id_result.value();
+                segmentManagerOffset = segment_manager_offset_result.value();
+                receivedTimestamp = recv_timestamp_result.value();
+                heartbeatOffset = heartbeat_offset_result.value();
+
                 m_segmentManagerAddressOffset.emplace(segmentManagerOffset);
 
-                int64_t receivedTimestamp{0U};
-                iox::convert::fromString(receiveBuffer.getElementAtIndex(3U).c_str(), receivedTimestamp);
-                iox::convert::fromString(receiveBuffer.getElementAtIndex(4U).c_str(), m_segmentId);
-                UntypedRelativePointer::offset_t heartbeatOffset{UntypedRelativePointer::NULL_POINTER_OFFSET};
-                iox::convert::fromString(receiveBuffer.getElementAtIndex(5U).c_str(), heartbeatOffset);
-                /// @todo iox-#2055 this workaround is required sind the conversion of edge cases is broken
-                constexpr uint8_t IOX_2055_WORKAROUND{1};
-                if (heartbeatOffset != (UntypedRelativePointer::NULL_POINTER_OFFSET - IOX_2055_WORKAROUND))
+                if (heartbeatOffset != UntypedRelativePointer::NULL_POINTER_OFFSET)
                 {
                     m_heartbeatAddressOffset = heartbeatOffset;
                 }
