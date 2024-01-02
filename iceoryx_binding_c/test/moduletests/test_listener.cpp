@@ -141,7 +141,7 @@ class iox_listener_test : public Test
         m_subscriberPortData.resize(MAX_NUMBER_OF_EVENTS_PER_LISTENER + 1U,
                                     TEST_SERVICE_DESCRIPTION,
                                     "myApp",
-                                    iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
+                                    iox::popo::VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
                                     subscriberOptions);
         m_subscriber.resize(MAX_NUMBER_OF_EVENTS_PER_LISTENER + 1U);
         for (uint64_t i = 0U; i < MAX_NUMBER_OF_EVENTS_PER_LISTENER + 1U; ++i)

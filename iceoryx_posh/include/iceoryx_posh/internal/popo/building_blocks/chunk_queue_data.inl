@@ -22,8 +22,8 @@ namespace iox
 namespace popo
 {
 template <typename ChunkQueueProperties, typename LockingPolicy>
-inline ChunkQueueData<ChunkQueueProperties, LockingPolicy>::ChunkQueueData(
-    const QueueFullPolicy policy, const cxx::VariantQueueTypes queueType) noexcept
+inline ChunkQueueData<ChunkQueueProperties, LockingPolicy>::ChunkQueueData(const QueueFullPolicy policy,
+                                                                           const VariantQueueTypes queueType) noexcept
     : m_queue(queueType)
     , m_queueFullPolicy(policy)
 {

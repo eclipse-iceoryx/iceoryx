@@ -28,7 +28,6 @@
 using namespace iox::popo;
 using namespace iox::capro;
 using namespace iox;
-using namespace iox::cxx;
 using namespace iox::testing;
 
 extern "C" {
@@ -111,7 +110,7 @@ class iox_server_test : public Test
     iox_server_storage_t sutStorage;
 
     ClientChunkQueueData_t clientResponseQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
-                                                   iox::cxx::VariantQueueTypes::SoFi_MultiProducerSingleConsumer};
+                                                   iox::popo::VariantQueueTypes::SoFi_MultiProducerSingleConsumer};
     ChunkQueuePopper<ClientChunkQueueData_t> clientResponseQueue{&clientResponseQueueData};
 
     static constexpr const char SERVICE[] = "TheHoff";

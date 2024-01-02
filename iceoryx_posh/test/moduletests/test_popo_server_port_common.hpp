@@ -226,7 +226,7 @@ class ServerPort_test : public Test
     static constexpr uint32_t USER_PAYLOAD_ALIGNMENT{8U};
 
     ClientChunkQueueData_t clientChunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
-                                                iox::cxx::VariantQueueTypes::SoFi_MultiProducerSingleConsumer};
+                                                iox::popo::VariantQueueTypes::SoFi_MultiProducerSingleConsumer};
     ChunkQueuePopper<ClientChunkQueueData_t> clientResponseQueue{&clientChunkQueueData};
 
     SutServerPort serverPortWithOfferOnCreate{

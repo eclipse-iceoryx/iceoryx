@@ -51,7 +51,7 @@ struct MePooConfig
     MePooConfig() noexcept = default;
 
     /// @brief Get function for receiving memory pool configuration
-    /// @return cxx::vector of config information size and count of chunks
+    /// @return iox::vector of config information size and count of chunks
     const MePooConfigContainerType* getMemPoolConfig() const noexcept;
 
     /// @brief Function for adding new entry

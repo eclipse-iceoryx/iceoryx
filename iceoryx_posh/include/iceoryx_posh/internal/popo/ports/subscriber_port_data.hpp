@@ -18,8 +18,8 @@
 #ifndef IOX_POSH_POPO_PORTS_SUBSCRIBER_PORT_DATA_HPP
 #define IOX_POSH_POPO_PORTS_SUBSCRIBER_PORT_DATA_HPP
 
-#include "iceoryx_hoofs/cxx/variant_queue.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/variant_queue.hpp"
 #include "iceoryx_posh/internal/popo/ports/base_port_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/pub_sub_port_types.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
@@ -36,7 +36,7 @@ struct SubscriberPortData : public BasePortData
 {
     SubscriberPortData(const capro::ServiceDescription& serviceDescription,
                        const RuntimeName_t& runtimeName,
-                       cxx::VariantQueueTypes queueType,
+                       const VariantQueueTypes queueType,
                        const SubscriberOptions& subscriberOptions,
                        const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 

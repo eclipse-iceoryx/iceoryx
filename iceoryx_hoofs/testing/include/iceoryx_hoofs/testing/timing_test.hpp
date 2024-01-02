@@ -27,8 +27,8 @@
 ///        repetitions all results of the test are successful then the timing
 ///        test itself is successful.
 ///
-///        You can get to know them in praxis in the test_cxx_deadline_timer.cpp
-///        unit test for instance.
+///        The test_time_deadline_timer.cpp has is a good source to get an idea
+///        on how to use it in unit test.
 ///
 /// @code
 /// class MyClass_test : public Test {};

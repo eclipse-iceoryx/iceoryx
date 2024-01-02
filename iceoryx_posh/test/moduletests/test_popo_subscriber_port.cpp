@@ -62,7 +62,7 @@ class SubscriberPortSingleProducer_test : public Test
     iox::popo::SubscriberPortData m_subscriberPortDataSingleProducer{
         TEST_SERVICE_DESCRIPTION,
         "myApp",
-        iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
+        iox::popo::VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
         m_noSubscribeOnCreateOptions};
     iox::popo::SubscriberPortUser m_sutUserSideSingleProducer{&m_subscriberPortDataSingleProducer};
     iox::popo::SubscriberPortSingleProducer m_sutRouDiSideSingleProducer{&m_subscriberPortDataSingleProducer};
@@ -71,7 +71,7 @@ class SubscriberPortSingleProducer_test : public Test
     iox::popo::SubscriberPortData m_subscriberPortDataDefaultOptions{
         TEST_SERVICE_DESCRIPTION,
         "myApp",
-        iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
+        iox::popo::VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
         m_defaultSubscriberOptions};
     iox::popo::SubscriberPortUser m_sutUserSideDefaultOptions{&m_subscriberPortDataDefaultOptions};
     iox::popo::SubscriberPortSingleProducer m_sutRouDiSideDefaultOptions{&m_subscriberPortDataDefaultOptions};
@@ -382,7 +382,7 @@ class SubscriberPortMultiProducer_test : public Test
     iox::popo::SubscriberPortData m_subscriberPortDataMultiProducer{
         SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION,
         "myApp",
-        iox::cxx::VariantQueueTypes::SoFi_MultiProducerSingleConsumer,
+        iox::popo::VariantQueueTypes::SoFi_MultiProducerSingleConsumer,
         iox::popo::SubscriberOptions()};
     iox::popo::SubscriberPortUser m_sutUserSideMultiProducer{&m_subscriberPortDataMultiProducer};
     iox::popo::SubscriberPortMultiProducer m_sutRouDiSideMultiProducer{&m_subscriberPortDataMultiProducer};

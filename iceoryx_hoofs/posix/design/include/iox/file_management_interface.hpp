@@ -78,12 +78,12 @@ class Ownership
     gid_t gid() const noexcept;
 
     /// @brief Constructs a ownership object from a uid and a gid.
-    /// @returns If the user or group does not exist it returns 'cxx::nullopt' otherwise an Ownership object
+    /// @returns If the user or group does not exist it returns 'iox::nullopt' otherwise an Ownership object
     ///             with existing user and group
     static optional<Ownership> from_user_and_group(const uid_t uid, const gid_t gid) noexcept;
 
     /// @brief Constructs a ownership object from a user name and a group name.
-    /// @returns If the user or group does not exist it returns 'cxx::nullopt' otherwise an Ownership object
+    /// @returns If the user or group does not exist it returns 'iox::nullopt' otherwise an Ownership object
     ///             with existing user and group
     static optional<Ownership> from_user_and_group(const UserName& user_name, const GroupName& group_name) noexcept;
 

@@ -27,7 +27,6 @@ namespace
 {
 using namespace ::testing;
 
-using namespace iox::cxx;
 using namespace iox::config;
 
 class CmdLineParserConfigFileOption_test : public Test

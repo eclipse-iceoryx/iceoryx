@@ -22,7 +22,6 @@
 namespace
 {
 using namespace ::testing;
-using namespace iox::cxx;
 using namespace iox;
 
 /// NOLINTJUSTIFICATION compile time string literal used only in tests

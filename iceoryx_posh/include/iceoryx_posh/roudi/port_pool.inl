@@ -31,8 +31,8 @@ inline iox::popo::SubscriberPortData* PortPool::constructSubscriber(const capro:
         serviceDescription,
         runtimeName,
         (subscriberOptions.queueFullPolicy == popo::QueueFullPolicy::DISCARD_OLDEST_DATA)
-            ? cxx::VariantQueueTypes::SoFi_MultiProducerSingleConsumer
-            : cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer,
+            ? popo::VariantQueueTypes::SoFi_MultiProducerSingleConsumer
+            : popo::VariantQueueTypes::FiFo_MultiProducerSingleConsumer,
         subscriberOptions,
         memoryInfo);
     if (port == getSubscriberPortDataList().end())
@@ -53,8 +53,8 @@ inline iox::popo::SubscriberPortData* PortPool::constructSubscriber(const capro:
         serviceDescription,
         runtimeName,
         (subscriberOptions.queueFullPolicy == popo::QueueFullPolicy::DISCARD_OLDEST_DATA)
-            ? cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer
-            : cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer,
+            ? popo::VariantQueueTypes::SoFi_SingleProducerSingleConsumer
+            : popo::VariantQueueTypes::FiFo_SingleProducerSingleConsumer,
         subscriberOptions,
         memoryInfo);
     if (port == getSubscriberPortDataList().end())

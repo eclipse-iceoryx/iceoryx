@@ -17,10 +17,10 @@
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_DATA_HPP
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_DATA_HPP
 
-#include "iceoryx_hoofs/cxx/variant_queue.hpp"
 #include "iceoryx_posh/internal/mepoo/shm_safe_unmanaged_chunk.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_notifier.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/variant_queue.hpp"
 #include "iceoryx_posh/popo/port_queue_policies.hpp"
 #include "iox/detail/unique_id.hpp"
 #include "iox/relative_pointer.hpp"
@@ -38,12 +38,12 @@ struct ChunkQueueData : public LockingPolicy
     using LockGuard_t = std::lock_guard<const ThisType_t>;
     using ChunkQueueDataProperties_t = ChunkQueueDataProperties;
 
-    ChunkQueueData(const QueueFullPolicy policy, const cxx::VariantQueueTypes queueType) noexcept;
+    ChunkQueueData(const QueueFullPolicy policy, const VariantQueueTypes queueType) noexcept;
 
     UniqueId m_uniqueId{};
 
     static constexpr uint64_t MAX_CAPACITY = ChunkQueueDataProperties_t::MAX_QUEUE_CAPACITY;
-    cxx::VariantQueue<mepoo::ShmSafeUnmanagedChunk, MAX_CAPACITY> m_queue;
+    VariantQueue<mepoo::ShmSafeUnmanagedChunk, MAX_CAPACITY> m_queue;
     std::atomic_bool m_queueHasLostChunks{false};
 
     RelativePointer<ConditionVariableData> m_conditionVariableDataPtr;

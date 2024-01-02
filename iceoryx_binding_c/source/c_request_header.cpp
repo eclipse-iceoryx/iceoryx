@@ -20,7 +20,6 @@ using namespace iox;
 using namespace iox::popo;
 using namespace iox::runtime;
 using namespace iox::capro;
-using namespace iox::cxx;
 
 extern "C" {
 #include "iceoryx_binding_c/request_header.h"

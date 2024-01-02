@@ -21,10 +21,10 @@ namespace iox
 {
 namespace popo
 {
-cxx::VariantQueueTypes getRequestQueueType(const QueueFullPolicy policy) noexcept
+VariantQueueTypes getRequestQueueType(const QueueFullPolicy policy) noexcept
 {
-    return policy == QueueFullPolicy::DISCARD_OLDEST_DATA ? cxx::VariantQueueTypes::SoFi_MultiProducerSingleConsumer
-                                                          : cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer;
+    return policy == QueueFullPolicy::DISCARD_OLDEST_DATA ? VariantQueueTypes::SoFi_MultiProducerSingleConsumer
+                                                          : VariantQueueTypes::FiFo_MultiProducerSingleConsumer;
 }
 
 constexpr uint64_t ServerPortData::HISTORY_REQUEST_OF_ZERO;

@@ -15,7 +15,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/variant_queue.hpp"
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/testing/barrier.hpp"
 #include "iceoryx_hoofs/testing/fatal_failure.hpp"
@@ -27,6 +26,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_popper.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/variant_queue.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "test.hpp"
 
@@ -37,7 +37,6 @@ namespace
 using namespace ::testing;
 using namespace iox::testing;
 using namespace iox::popo;
-using namespace iox::cxx;
 using namespace iox::mepoo;
 
 using ChunkDistributorTestSubjects = Types<ThreadSafePolicy, SingleThreadedPolicy>;

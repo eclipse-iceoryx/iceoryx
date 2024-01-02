@@ -49,7 +49,6 @@ namespace
 {
 using namespace ::testing;
 using namespace iox::capro;
-using namespace iox::cxx;
 using namespace iox::mepoo;
 
 class iox_notification_info_test : public Test
@@ -115,7 +114,7 @@ class iox_notification_info_test : public Test
     SubscriberOptions m_subscriberOptions{MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY, 0U};
     iox::popo::SubscriberPortData m_portPtr{TEST_TheHoff_DESCRIPTION,
                                             "myApp",
-                                            iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
+                                            iox::popo::VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
                                             m_subscriberOptions};
     ChunkQueuePusher<SubscriberPortData::ChunkQueueData_t> m_chunkPusher{&m_portPtr.m_chunkReceiverData};
     cpp2c_Subscriber m_subscriber;

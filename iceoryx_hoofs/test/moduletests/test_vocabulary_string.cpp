@@ -2457,7 +2457,7 @@ TYPED_TEST(stringTyped_test, AppendCharDoesNotChangeStringWhenCapacityIsExceeded
     EXPECT_THAT(this->testSubject.c_str(), StrEq(temp.substr(0, STRINGCAP)));
 }
 
-/// @note iox::cxx::optional<string<Capacity>> substr(uint64_t pos = 0) const noexcept;
+/// @note iox::optional<string<Capacity>> substr(uint64_t pos = 0) const noexcept;
 TYPED_TEST(stringTyped_test, SubstrWithDefaultPosAndSizeResultsInWholeString)
 {
     ::testing::Test::RecordProperty("TEST_ID", "da66bb36-2a1c-435b-8a47-874eb12315ef");
@@ -2495,7 +2495,7 @@ TEST(String100, SubstrWithDefaultSizeWorks)
     EXPECT_THAT(testSubstring.c_str(), StrEq(testStdSubstring));
 }
 
-/// @note iox::cxx::optional<string<Capacity>> substr(uint64_t pos, uint64_t count) const noexcept
+/// @note iox::optional<string<Capacity>> substr(uint64_t pos, uint64_t count) const noexcept
 TEST(String100, SubstrWithValidPosAndSizeWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3cd90af2-97f4-4767-854d-d3ca726bd348");
@@ -2554,7 +2554,7 @@ TYPED_TEST(stringTyped_test, SubstrWithInvalidPosFails)
 }
 
 /// @note template <typename T>
-/// iox::cxx::optional<uint64_t> find(const T& t, uint64_t pos = 0) const noexcept
+/// iox::optional<uint64_t> find(const T& t, uint64_t pos = 0) const noexcept
 TYPED_TEST(stringTyped_test, FindEmptyStringInEmptyStringWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3ceb4ed6-1395-445e-afe4-94f6c9b2cee8");
@@ -2655,7 +2655,7 @@ TEST(String100, FindNotIncludedStringLiteralFails)
 }
 
 /// @note template <typename T>
-/// iox::cxx::optional<uint64_t> find_first_of(const T& t, uint64_t pos = 0) const noexcept
+/// iox::optional<uint64_t> find_first_of(const T& t, uint64_t pos = 0) const noexcept
 TYPED_TEST(stringTyped_test, FindFirstOfFailsForEmptyStringInEmptyString)
 {
     ::testing::Test::RecordProperty("TEST_ID", "21f90f13-6b15-4ce1-9258-c21154b6043c");
@@ -2771,7 +2771,7 @@ TEST(String100, FindFirstOfForNotIncludedStringLiteralFails)
 }
 
 /// @note template <typename T>
-/// iox::cxx::optional<uint64_t> find_last_of(const T& t, uint64_t pos = 0) const noexcept
+/// iox::optional<uint64_t> find_last_of(const T& t, uint64_t pos = 0) const noexcept
 TYPED_TEST(stringTyped_test, FindLastOfFailsForEmptyStringInEmptyString)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7e09947d-762f-4d7f-a1ab-65696877da06");

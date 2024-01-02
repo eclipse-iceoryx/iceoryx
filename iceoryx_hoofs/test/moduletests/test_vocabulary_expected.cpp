@@ -22,7 +22,6 @@
 #include "test.hpp"
 
 using namespace ::testing;
-using namespace ::iox::cxx;
 using namespace ::iox;
 using namespace ::iox::testing;
 

@@ -65,7 +65,7 @@ class iox_ws_test : public Test
         {
             m_portDataVector.emplace_back(TEST_SERVICE_DESCRIPTION,
                                           "someAppName",
-                                          iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
+                                          iox::popo::VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
                                           m_subscriberOptions);
             m_subscriberVector.emplace_back();
             m_subscriberVector[i].m_portData = &m_portDataVector[i];

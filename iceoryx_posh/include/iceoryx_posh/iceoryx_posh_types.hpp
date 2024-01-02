@@ -18,7 +18,6 @@
 #ifndef IOX_POSH_ICEORYX_POSH_TYPES_HPP
 #define IOX_POSH_ICEORYX_POSH_TYPES_HPP
 
-#include "iceoryx_hoofs/cxx/variant_queue.hpp"
 #include "iceoryx_platform/platform_settings.hpp"
 #include "iceoryx_posh/iceoryx_posh_deployment.hpp"
 #include "iox/duration.hpp"

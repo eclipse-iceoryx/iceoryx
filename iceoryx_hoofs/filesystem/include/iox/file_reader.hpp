@@ -26,14 +26,14 @@ namespace iox
 /// can be decided by means of the ErrorMode argument.
 ///
 /// @code
-///     cxx::FileReader reader("filename");
+///     iox::FileReader reader("filename");
 ///     std::string str;
 ///     if(reader.isOpen()) {
 ///         reader.readLine(str);
 ///     }
 ///
 ///     // Terminates program execution, if file cannot be opened (or found):
-///     cxx::FileReader reader("filename", "path/to/file", cxx::FileReader::ErrorMode::Terminate);
+///     iox::FileReader reader("filename", "path/to/file", iox::FileReader::ErrorMode::Terminate);
 /// @endcode
 class FileReader
 {

@@ -29,7 +29,6 @@ namespace
 using namespace ::testing;
 using namespace iox;
 using namespace iox::capro;
-using namespace iox::cxx;
 using namespace iox::mepoo;
 using namespace iox::popo;
 using namespace iox::runtime;

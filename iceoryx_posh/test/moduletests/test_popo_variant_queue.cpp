@@ -15,14 +15,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/variant_queue.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/variant_queue.hpp"
 #include "test.hpp"
 
 namespace
 {
 using namespace ::testing;
 using namespace iox;
-using namespace iox::cxx;
+using namespace iox::popo;
 
 
 template <typename T>
