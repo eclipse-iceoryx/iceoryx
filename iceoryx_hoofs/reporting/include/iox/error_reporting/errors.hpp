@@ -36,9 +36,21 @@ static constexpr const char* UNKNOWN_ERROR_NAME = "unknown error";
 // By default, there are only error codes and violations.
 // Custom errors can be added but must satisfy the minimal interface.
 
+enum class ViolationErrorCode : uint32_t
+{
+    REQUIRED_CONDITION_VIOLATION,
+    ASSUMPTION_VIOLATION,
+    PRECONDITION_VIOLATION
+};
+
 class Violation
 {
   public:
+    explicit Violation(ViolationErrorCode code)
+        : m_code(static_cast<ErrorCode::type>(code))
+    {
+    }
+
     explicit Violation(ErrorCode code)
         : m_code(code)
     {
@@ -72,17 +84,17 @@ class Violation
 
     static Violation createRequiredConditionViolation()
     {
-        return Violation(ErrorCode(ErrorCode::REQUIRED_CONDITION_VIOLATION));
+        return Violation(ViolationErrorCode::REQUIRED_CONDITION_VIOLATION);
     }
 
     static Violation createPreconditionViolation()
     {
-        return Violation(ErrorCode(ErrorCode::PRECONDITION_VIOLATION));
+        return Violation(ViolationErrorCode::PRECONDITION_VIOLATION);
     }
 
     static Violation createAssumptionViolation()
     {
-        return Violation(ErrorCode(ErrorCode::ASSUMPTION_VIOLATION));
+        return Violation(ViolationErrorCode::ASSUMPTION_VIOLATION);
     }
 
   private:

@@ -33,10 +33,6 @@ struct ErrorCode
 
     type value;
 
-    static constexpr type REQUIRED_CONDITION_VIOLATION{0};
-    static constexpr type ASSUMPTION_VIOLATION{1};
-    static constexpr type PRECONDITION_VIOLATION{2};
-
     constexpr explicit ErrorCode(uint32_t value)
         : value(value)
     {

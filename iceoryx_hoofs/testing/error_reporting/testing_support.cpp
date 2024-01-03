@@ -33,19 +33,19 @@ bool hasError()
 
 bool hasRequiredConditionViolation()
 {
-    auto code = iox::er::ErrorCode{iox::er::ErrorCode::REQUIRED_CONDITION_VIOLATION};
+    auto code = iox::er::Violation(iox::er::ViolationErrorCode::REQUIRED_CONDITION_VIOLATION).code();
     return ErrorHandler::instance().hasViolation(code);
 }
 
 bool hasPreconditionViolation()
 {
-    auto code = iox::er::ErrorCode{iox::er::ErrorCode::PRECONDITION_VIOLATION};
+    auto code = iox::er::Violation(iox::er::ViolationErrorCode::PRECONDITION_VIOLATION).code();
     return ErrorHandler::instance().hasViolation(code);
 }
 
 bool hasAssumptionViolation()
 {
-    auto code = iox::er::ErrorCode{iox::er::ErrorCode::ASSUMPTION_VIOLATION};
+    auto code = iox::er::Violation(iox::er::ViolationErrorCode::ASSUMPTION_VIOLATION).code();
     return ErrorHandler::instance().hasViolation(code);
 }
 

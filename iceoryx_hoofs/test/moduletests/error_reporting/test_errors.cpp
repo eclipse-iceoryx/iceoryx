@@ -200,12 +200,22 @@ TYPED_TEST(ErrorType_test, toErrorPreservesCodeAndModule)
     EXPECT_EQ(err.module(), this->sut.module());
 }
 
+TEST(Violation_test, createRequiredConditionWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "9a2f9d1c-41dc-4a7e-a0dc-aa40047ae9a0");
+
+    auto sut = Violation::createRequiredConditionViolation();
+    auto exp = Violation{iox::er::ViolationErrorCode::REQUIRED_CONDITION_VIOLATION};
+
+    EXPECT_EQ(sut, exp);
+}
+
 TEST(Violation_test, createPreconditionWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "cc535c67-0003-4a6f-842e-6c5477aae108");
 
     auto sut = Violation::createPreconditionViolation();
-    auto exp = Violation{ErrorCode{ErrorCode::PRECONDITION_VIOLATION}, ANY_ID};
+    auto exp = Violation{iox::er::ViolationErrorCode::PRECONDITION_VIOLATION};
 
     EXPECT_EQ(sut, exp);
 }
@@ -215,7 +225,7 @@ TEST(Violation_test, createAssumptionWorks)
     ::testing::Test::RecordProperty("TEST_ID", "2a5f24a7-4d82-4c27-bc45-57d9f1c759fa");
 
     auto sut = Violation::createAssumptionViolation();
-    auto exp = Violation{ErrorCode{ErrorCode::ASSUMPTION_VIOLATION}, ANY_ID};
+    auto exp = Violation{iox::er::ViolationErrorCode::ASSUMPTION_VIOLATION};
 
     EXPECT_EQ(sut, exp);
 }
