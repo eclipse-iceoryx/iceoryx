@@ -20,6 +20,8 @@
 #include "iox/detail/deprecation_marker.hpp"
 #include "iox/iceoryx_hoofs_types.hpp"
 
+#include <cstddef>
+
 IOX_DEPRECATED_HEADER_SINCE(3, "Please include 'iox/iceoryx_hoofs_types.hpp' instead.")
 
 namespace iox
@@ -29,7 +31,7 @@ namespace iox
 namespace cxx
 {
 /// @deprecated use 'std::byte' instead of 'iox::cxx::byte_t'
-using byte_t IOX_DEPRECATED_SINCE(3, "Please use 'std::byte' instead.") = byte;
+using byte_t IOX_DEPRECATED_SINCE(3, "Please use 'std::byte' instead.") = std::byte;
 
 } // namespace cxx
 namespace log
