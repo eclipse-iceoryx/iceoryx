@@ -31,6 +31,12 @@ bool hasError()
     return ErrorHandler::instance().hasError();
 }
 
+bool hasRequiredConditionViolation()
+{
+    auto code = iox::er::ErrorCode{iox::er::ErrorCode::REQUIRED_CONDITION_VIOLATION};
+    return ErrorHandler::instance().hasViolation(code);
+}
+
 bool hasPreconditionViolation()
 {
     auto code = iox::er::ErrorCode{iox::er::ErrorCode::PRECONDITION_VIOLATION};
@@ -45,7 +51,7 @@ bool hasAssumptionViolation()
 
 bool hasViolation()
 {
-    return hasPreconditionViolation() || hasAssumptionViolation();
+    return hasRequiredConditionViolation() || hasPreconditionViolation() || hasAssumptionViolation();
 }
 
 bool isInNormalState()

@@ -37,6 +37,11 @@ struct FatalKind
     static constexpr char const* name = "Fatal Error";
 };
 
+struct RequiredConditionViolationKind
+{
+    static constexpr char const* name = "Required Condition Violation";
+};
+
 struct PreconditionViolationKind
 {
     static constexpr char const* name = "Precondition Violation";
@@ -59,6 +64,11 @@ struct IsFatal : public std::false_type
 // This enforces that these errors are always fatal in the sense that they cause panic and abort.
 template <>
 struct IsFatal<FatalKind> : public std::true_type
+{
+};
+
+template <>
+struct IsFatal<RequiredConditionViolationKind> : public std::true_type
 {
 };
 
@@ -87,6 +97,12 @@ bool constexpr isFatal<FatalKind>(FatalKind)
 }
 
 template <>
+bool constexpr isFatal<RequiredConditionViolationKind>(RequiredConditionViolationKind)
+{
+    return IsFatal<RequiredConditionViolationKind>::value;
+}
+
+template <>
 bool constexpr isFatal<PreconditionViolationKind>(PreconditionViolationKind)
 {
     return IsFatal<PreconditionViolationKind>::value;
@@ -100,6 +116,9 @@ bool constexpr isFatal<AssumptionViolationKind>(AssumptionViolationKind)
 
 // indicates serious condition, unable to continue
 constexpr FatalKind FATAL;
+
+// indicates a bug (contract breach by caller)
+constexpr RequiredConditionViolationKind REQUIRED_CONDITION_VIOLATION;
 
 // indicates a bug (contract breach by caller)
 constexpr PreconditionViolationKind PRECONDITION_VIOLATION;

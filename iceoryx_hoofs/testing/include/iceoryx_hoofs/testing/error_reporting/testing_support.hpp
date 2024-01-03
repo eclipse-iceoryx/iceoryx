@@ -50,6 +50,9 @@ bool hasPanicked();
 /// @brief indicates whether the test error handler registered any error
 bool hasError();
 
+/// @brief indicates whether the test error handler registered a required condition violation
+bool hasRequiredConditionViolation();
+
 /// @brief indicates whether the test error handler registered a precondition violation
 bool hasPreconditionViolation();
 
@@ -120,11 +123,11 @@ inline void runInTestThread(Function&& testFunction, Args&&... args)
 
 #define IOX_TESTING_ASSERT_NO_ERROR() ASSERT_FALSE(iox::testing::hasError())
 
-#define IOX_TESTING_ASSERT_VIOLATION()                                                                                 \
-    ASSERT_TRUE(iox::testing::hasPreconditionViolation() || iox::testing::hasAssumptionViolation())
+#define IOX_TESTING_ASSERT_VIOLATION() ASSERT_TRUE(iox::testing::hasViolation())
 
-#define IOX_TESTING_ASSERT_NO_VIOLATION()                                                                              \
-    ASSERT_FALSE(iox::testing::hasPreconditionViolation() || iox::testing::hasAssumptionViolation())
+#define IOX_TESTING_ASSERT_NO_VIOLATION() ASSERT_FALSE(iox::testing::hasViolation())
+
+#define IOX_TESTING_ASSERT_REQUIRED_CONDITION_VIOLATION() ASSERT_TRUE(iox::testing::hasRequiredConditionViolation())
 
 #define IOX_TESTING_ASSERT_PRECONDITION_VIOLATION() ASSERT_TRUE(iox::testing::hasPreconditionViolation())
 
@@ -142,11 +145,11 @@ inline void runInTestThread(Function&& testFunction, Args&&... args)
 
 #define IOX_TESTING_EXPECT_NO_ERROR() EXPECT_FALSE(iox::testing::hasError())
 
-#define IOX_TESTING_EXPECT_VIOLATION()                                                                                 \
-    EXPECT_TRUE(iox::testing::hasPreconditionViolation() || iox::testing::hasAssumptionViolation())
+#define IOX_TESTING_EXPECT_VIOLATION() EXPECT_TRUE(iox::testing::hasViolation())
 
-#define IOX_TESTING_EXPECT_NO_VIOLATION()                                                                              \
-    EXPECT_FALSE(iox::testing::hasPreconditionViolation() || iox::testing::hasAssumptionViolation())
+#define IOX_TESTING_EXPECT_NO_VIOLATION() EXPECT_FALSE(iox::testing::hasViolation())
+
+#define IOX_TESTING_EXPECT_REQUIRED_CONDITION_VIOLATION() EXPECT_TRUE(iox::testing::hasRequiredConditionViolation())
 
 #define IOX_TESTING_EXPECT_PRECONDITION_VIOLATION() EXPECT_TRUE(iox::testing::hasPreconditionViolation())
 
