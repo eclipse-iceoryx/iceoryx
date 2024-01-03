@@ -20,8 +20,6 @@
 #include <gtest/gtest.h>
 
 #include "iceoryx_hoofs/testing/error_reporting/testing_error_handler.hpp"
-#include "iox/error_reporting/custom/default/error_handler.hpp"
-#include "iox/static_lifetime_guard.hpp"
 
 #include <thread>
 #include <utility>
@@ -33,8 +31,6 @@ namespace iox
 {
 namespace testing
 {
-
-using ErrorHandler = iox::StaticLifetimeGuard<iox::testing::TestErrorHandler>;
 
 /// @brief indicates whether the test error handler registered a specific error
 template <typename Code>

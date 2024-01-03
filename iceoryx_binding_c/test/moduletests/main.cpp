@@ -15,6 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/testing/error_reporting/testing_error_handler.hpp"
 #include "iceoryx_hoofs/testing/testing_logger.hpp"
 
 #include "test.hpp"
@@ -23,9 +24,6 @@
 #include "iceoryx_binding_c/api.h"
 
 #include "test_types_storage_size.hpp"
-
-using namespace ::testing;
-using ::testing::_;
 
 // in case this isn't executed before the other tests, just call
 // 'checkIceoryxBindingCStorageSizes' directly in main
@@ -41,6 +39,7 @@ int main(int argc, char* argv[])
     ::testing::InitGoogleTest(&argc, argv);
 
     iox::testing::TestingLogger::init();
+    iox::testing::TestingErrorHandler::init();
 
     return RUN_ALL_TESTS();
 }

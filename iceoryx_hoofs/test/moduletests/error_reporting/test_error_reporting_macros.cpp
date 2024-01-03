@@ -46,8 +46,6 @@ class ErrorReportingMacroApi_test : public Test
   public:
     void SetUp() override
     {
-        /// @todo iox-#1032 this should be done for all tests (using Gtest hooks) in integration
-        iox::testing::ErrorHandler::instance().reset();
     }
 
     void TearDown() override

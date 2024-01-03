@@ -463,7 +463,7 @@ The default implementation does not depend on any code that uses the error repor
 ### Testing
 
 All testing related definitions are located in `iceoryx_hoofs/testing/error_reporting`.
-These are the definition of `TestErrorHandler` in `testing_error_handler.hpp` and auxiliary
+These are the definition of `TestingErrorHandler` in `testing_error_handler.hpp` and auxiliary
 functions in `testing_support.hpp` to be used in tests to verify errors.
 The latter can be extended as required.
 

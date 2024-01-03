@@ -37,15 +37,13 @@ constexpr auto CODE{module_a::errors::Code::OutOfBounds};
 constexpr module_a::errors::Error ERROR{CODE};
 
 // Here we test the custom API that the public API forwards to.
-// To observe the side effects, this requires using the TestErrorHandler (similar to the public API).
+// To observe the side effects, this requires using the TestingErrorHandler (similar to the public API).
 
 class ErrorReporting_test : public Test
 {
   public:
     void SetUp() override
     {
-        /// @todo iox-#1032 this should be done for all tests (using Gtest hooks) in integration
-        iox::testing::ErrorHandler::instance().reset();
     }
 
     void TearDown() override

@@ -40,7 +40,7 @@ constexpr ErrorCode VIOLATION{12};
 
 constexpr ModuleId MODULE{66};
 
-class TestErrorHandler_test : public Test
+class TestingErrorHandler_test : public Test
 {
   public:
     void SetUp() override
@@ -51,7 +51,7 @@ class TestErrorHandler_test : public Test
     {
     }
 
-    TestErrorHandler sut;
+    TestingErrorHandler sut;
 
     bool hasPanicked() const
     {
@@ -79,13 +79,13 @@ class TestErrorHandler_test : public Test
     }
 };
 
-TEST_F(TestErrorHandler_test, constructionAndDestructionWorks)
+TEST_F(TestingErrorHandler_test, constructionAndDestructionWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "09f24453-aea1-4128-83f3-929337b9892a");
     EXPECT_FALSE(hasAnyError());
 }
 
-TEST_F(TestErrorHandler_test, panicWorks)
+TEST_F(TestingErrorHandler_test, panicWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e2c5e639-722f-4bab-85c7-98268345b033");
     sut.onPanic();
@@ -96,7 +96,7 @@ TEST_F(TestErrorHandler_test, panicWorks)
     EXPECT_FALSE(hasAnyError());
 }
 
-TEST_F(TestErrorHandler_test, reportErrorWorks)
+TEST_F(TestingErrorHandler_test, reportErrorWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "90bd13cf-ece2-4221-8cce-7b2a99568a6a");
     sut.onReportError(ErrorDescriptor{CURRENT_SOURCE_LOCATION, CODE1, MODULE});
@@ -109,7 +109,7 @@ TEST_F(TestErrorHandler_test, reportErrorWorks)
     EXPECT_FALSE(hasError(CODE1)); // checked for consistency
 }
 
-TEST_F(TestErrorHandler_test, reportViolationWorks)
+TEST_F(TestingErrorHandler_test, reportViolationWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5746886e-7309-4435-9e0a-2e6856a318f5");
     sut.onReportViolation(ErrorDescriptor{CURRENT_SOURCE_LOCATION, VIOLATION, MODULE});
@@ -120,7 +120,7 @@ TEST_F(TestErrorHandler_test, reportViolationWorks)
     EXPECT_FALSE(hasAnyError());
 }
 
-TEST_F(TestErrorHandler_test, hasErrorDetectsOnlyreportErroredErrors)
+TEST_F(TestingErrorHandler_test, hasErrorDetectsOnlyreportErroredErrors)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0ee52915-88b7-4041-9f63-93ec5c882e95");
     sut.onReportError(ErrorDescriptor{CURRENT_SOURCE_LOCATION, CODE1, MODULE});
@@ -137,7 +137,7 @@ TEST_F(TestErrorHandler_test, hasErrorDetectsOnlyreportErroredErrors)
     EXPECT_FALSE(sut.hasError(CODE3, MODULE));
 }
 
-TEST_F(TestErrorHandler_test, resettingMultipleErrorsWorks)
+TEST_F(TestingErrorHandler_test, resettingMultipleErrorsWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9715c394-5576-4fd8-a0f6-24560f60c161");
     sut.onReportError(ErrorDescriptor{CURRENT_SOURCE_LOCATION, CODE1, MODULE});
@@ -150,14 +150,14 @@ TEST_F(TestErrorHandler_test, resettingMultipleErrorsWorks)
     EXPECT_FALSE(hasAnyError());
 }
 
-TEST_F(TestErrorHandler_test, prepareJumpWorks)
+TEST_F(TestingErrorHandler_test, prepareJumpWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "df6356a6-9e9e-4ee3-8a7c-7eb68cfe2516");
     auto* buf = sut.prepareJump();
     EXPECT_NE(buf, nullptr);
 }
 
-TEST_F(TestErrorHandler_test, onlyOneJumpCanBePrepared)
+TEST_F(TestingErrorHandler_test, onlyOneJumpCanBePrepared)
 {
     ::testing::Test::RecordProperty("TEST_ID", "45ad9ab9-0f79-4b7c-8e36-76da3067c0fd");
     auto* buf1 = sut.prepareJump();
@@ -166,7 +166,7 @@ TEST_F(TestErrorHandler_test, onlyOneJumpCanBePrepared)
     EXPECT_EQ(buf2, nullptr);
 }
 
-void jump(TestErrorHandler& handler, int& jmpValue)
+void jump(TestingErrorHandler& handler, int& jmpValue)
 {
     auto* buf = handler.prepareJump();
     // setjmp must be used in a control flow construct like if, while (UB otherwise)
@@ -183,7 +183,7 @@ void jump(TestErrorHandler& handler, int& jmpValue)
     }
 }
 
-TEST_F(TestErrorHandler_test, panicTriggersPreparedJump)
+TEST_F(TestingErrorHandler_test, panicTriggersPreparedJump)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2d99e382-ed43-4357-86f2-ef8d70c6acd8");
     int jmpValue{0};
@@ -198,11 +198,11 @@ TEST_F(TestErrorHandler_test, panicTriggersPreparedJump)
 
     EXPECT_TRUE(sut.hasPanicked());
     // jumpIndicator() is consistent with value of setjmp after onPanic
-    EXPECT_EQ(jmpValue, TestErrorHandler::jumpIndicator());
+    EXPECT_EQ(jmpValue, TestingErrorHandler::jumpIndicator());
     EXPECT_NE(jmpValue, 0);
 }
 
-void noJump(TestErrorHandler& handler, int& jmpValue)
+void noJump(TestingErrorHandler& handler, int& jmpValue)
 {
     jmp_buf buf;
     // setjmp must be used in a control flow construct like if, while (UB otherwise)
@@ -220,9 +220,9 @@ void noJump(TestErrorHandler& handler, int& jmpValue)
 }
 
 // This checks that onPanic will not jump without proper setup by test code
-// Note that this must happen outside of the TestErrorHandler implementation due to
+// Note that this must happen outside of the TestingErrorHandler implementation due to
 // limitations of setjmp.
-TEST_F(TestErrorHandler_test, panicDoesNotTriggerUnpreparedJump)
+TEST_F(TestingErrorHandler_test, panicDoesNotTriggerUnpreparedJump)
 {
     ::testing::Test::RecordProperty("TEST_ID", "23004b9e-4ec9-4fe5-9312-54907ad05967");
     int jmpValue{0};
@@ -236,7 +236,7 @@ TEST_F(TestErrorHandler_test, panicDoesNotTriggerUnpreparedJump)
     t.join();
 
     EXPECT_TRUE(sut.hasPanicked());
-    EXPECT_NE(jmpValue, TestErrorHandler::jumpIndicator());
+    EXPECT_NE(jmpValue, TestingErrorHandler::jumpIndicator());
     EXPECT_EQ(jmpValue, 0);
 }
 
