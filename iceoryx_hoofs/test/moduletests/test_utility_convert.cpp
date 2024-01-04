@@ -303,58 +303,102 @@ TEST_F(convert_test, fromString_LongInt_Fail)
     ASSERT_THAT(result.has_value(), Eq(false));
 }
 
-TEST_F(convert_test, fromString_MinMaxShort)
+/// EDGE CASES START
+/// inc: increment, dec: decrement
+
+TEST_F(convert_test, fromString_EdgeCase_SignedShort)
 {
     ::testing::Test::RecordProperty("TEST_ID", "98e33efd-ba39-4b88-8307-358be30e4e73");
-    std::string source = "32767";
-    auto gg = iox::convert::from_string<int16_t>(source.c_str());
-    EXPECT_THAT(iox::convert::from_string<int16_t>(source.c_str()).has_value(), Eq(true));
-    source = "32768";
-    EXPECT_THAT(iox::convert::from_string<int16_t>(source.c_str()).has_value(), Eq(false));
-    source = "-32768";
-    EXPECT_THAT(iox::convert::from_string<int16_t>(source.c_str()).has_value(), Eq(true));
+
+    std::string source = "-32768";
+    auto short_min = iox::convert::from_string<short>(source.c_str());
+    ASSERT_THAT(short_min.has_value(), Eq(true));
+    EXPECT_THAT(short_min.value(), Eq(-32768));
+
     source = "-32769";
-    EXPECT_THAT(iox::convert::from_string<int16_t>(source.c_str()).has_value(), Eq(false));
+    auto short_min_dec_1 = iox::convert::from_string<short>(source.c_str());
+    ASSERT_THAT(short_min_dec_1.has_value(), Eq(false));
+
+    source = "32767";
+    auto short_max = iox::convert::from_string<short>(source.c_str());
+    ASSERT_THAT(short_max.has_value(), Eq(true));
+    EXPECT_THAT(short_max.value(), Eq(32767));
+
+    source = "32768";
+    auto short_max_inc_1 = iox::convert::from_string<short>(source.c_str());
+    ASSERT_THAT(short_max_inc_1.has_value(), Eq(false));
 }
 
-TEST_F(convert_test, fromString_MinMaxUNSIGNED_Short)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "f9196939-ae5d-4c27-85bf-b3b084343261");
-    std::string source = "65535";
-    EXPECT_THAT(iox::convert::from_string<uint16_t>(source.c_str()).has_value(), Eq(true));
-    source = "65536";
-    EXPECT_THAT(iox::convert::from_string<uint16_t>(source.c_str()).has_value(), Eq(false));
-    source = "0";
-    EXPECT_THAT(iox::convert::from_string<uint16_t>(source.c_str()).has_value(), Eq(true));
-    source = "-1";
-    EXPECT_THAT(iox::convert::from_string<uint16_t>(source.c_str()).has_value(), Eq(false));
-}
-
-TEST_F(convert_test, fromString_MinMaxInt)
+TEST_F(convert_test, fromString_EdgeCase_SignedInt)
 {
     ::testing::Test::RecordProperty("TEST_ID", "abf0fda5-044e-4f1b-bb1e-31b701578a3d");
-    std::string source = "2147483647";
-    EXPECT_THAT(iox::convert::from_string<int32_t>(source.c_str()).has_value(), Eq(true));
-    source = "2147483648";
-    EXPECT_THAT(iox::convert::from_string<int32_t>(source.c_str()).has_value(), Eq(false));
-    source = "-2147483648";
-    EXPECT_THAT(iox::convert::from_string<int32_t>(source.c_str()).has_value(), Eq(true));
+
+    std::string source = "-2147483648";
+    auto int_min = iox::convert::from_string<int>(source.c_str());
+    ASSERT_THAT(int_min.has_value(), Eq(true));
+    EXPECT_THAT(int_min.value(), Eq(-2147483648));
+
     source = "-2147483649";
-    EXPECT_THAT(iox::convert::from_string<int32_t>(source.c_str()).has_value(), Eq(false));
+    auto int_min_dec_1 = iox::convert::from_string<int>(source.c_str());
+    ASSERT_THAT(int_min_dec_1.has_value(), Eq(false));
+
+    source = "2147483647";
+    auto int_max = iox::convert::from_string<int>(source.c_str());
+    ASSERT_THAT(int_max.has_value(), Eq(true));
+    EXPECT_THAT(int_max.value(), Eq(2147483647));
+
+    source = "2147483648";
+    auto int_max_inc_1 = iox::convert::from_string<int>(source.c_str());
+    ASSERT_THAT(int_max_inc_1.has_value(), Eq(false));
 }
 
-TEST_F(convert_test, fromString_MinMaxUNSIGNED_Int)
+TEST_F(convert_test, fromString_EdgeCase_UnSignedShort)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "f9196939-ae5d-4c27-85bf-b3b084343261");
+
+    std::string source = "0";
+    auto unshort_min = iox::convert::from_string<unsigned short>(source.c_str());
+    ASSERT_THAT(unshort_min.has_value(), Eq(true));
+    EXPECT_THAT(unshort_min.value(), Eq(0));
+
+    source = "-1";
+    auto unshort_min_dec_1 = iox::convert::from_string<unsigned short>(source.c_str());
+    ASSERT_THAT(unshort_min_dec_1.has_value(), Eq(false));
+
+    source = "65535";
+    auto unshort_max = iox::convert::from_string<unsigned short>(source.c_str());
+    ASSERT_THAT(unshort_max.has_value(), Eq(true));
+    EXPECT_THAT(unshort_max.value(), Eq(65535));
+
+    source = "65536";
+    auto unshort_max_inc_1 = iox::convert::from_string<unsigned short>(source.c_str());
+    ASSERT_THAT(unshort_max_inc_1.has_value(), Eq(false));
+}
+
+TEST_F(convert_test, fromString_EdgeCase_UnSignedInt)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c2a832ef-3e86-4303-a98c-63c7b11ea789");
-    std::string source = "4294967295";
-    EXPECT_THAT(iox::convert::from_string<uint32_t>(source.c_str()).has_value(), Eq(true));
-    source = "4294967296";
-    EXPECT_THAT(iox::convert::from_string<uint32_t>(source.c_str()).has_value(), Eq(false));
-    source = "0";
-    EXPECT_THAT(iox::convert::from_string<uint32_t>(source.c_str()).has_value(), Eq(true));
+
+    std::string source = "0";
+    auto unint_min = iox::convert::from_string<unsigned int>(source.c_str());
+    ASSERT_THAT(unint_min.has_value(), Eq(true));
+    EXPECT_THAT(unint_min.value(), Eq(0));
+
     source = "-1";
-    EXPECT_THAT(iox::convert::from_string<uint32_t>(source.c_str()).has_value(), Eq(false));
+    auto unint_min_dec_1 = iox::convert::from_string<unsigned int>(source.c_str());
+    ASSERT_THAT(unint_min_dec_1.has_value(), Eq(false));
+
+    source = "4294967295";
+    auto unint_max = iox::convert::from_string<unsigned int>(source.c_str());
+    ASSERT_THAT(unint_max.has_value(), Eq(true));
+    EXPECT_THAT(unint_max.value(), Eq(4294967295));
+
+    source = "4294967296";
+    auto unint_max_inc_1 = iox::convert::from_string<unsigned int>(source.c_str());
+    ASSERT_THAT(unint_max_inc_1.has_value(), Eq(false));
 }
+
+/// EDGE CASES END
 
 TEST_F(convert_test, fromString_cxxString)
 {
