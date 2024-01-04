@@ -18,6 +18,7 @@
 #define IOX_HOOFS_WIN_PLATFORM_WIN32_ERRORHANDLING_HPP
 
 #include <type_traits>
+#include <utility>
 
 #include "iceoryx_platform/windows.hpp"
 

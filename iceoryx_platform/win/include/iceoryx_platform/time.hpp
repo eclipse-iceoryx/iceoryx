@@ -17,6 +17,9 @@
 #ifndef IOX_HOOFS_WIN_PLATFORM_TIME_HPP
 #define IOX_HOOFS_WIN_PLATFORM_TIME_HPP
 
+#if defined(__GNUC__) || defined(__GNUG__)
+#include <sys/time.h>
+#elif defined(_MSC_VER)
 #include "iceoryx_platform/signal.hpp"
 #include "iceoryx_platform/win32_errorHandling.hpp"
 #include "iceoryx_platform/windows.hpp"
@@ -29,6 +32,7 @@
 #include <mutex>
 #include <thread>
 
+
 #define CLOCK_REALTIME 0
 #define CLOCK_MONOTONIC 1
 
@@ -40,6 +44,7 @@ struct itimerspec
     timespec it_interval;
     timespec it_value;
 };
+
 
 struct appleTimer_t
 {
@@ -70,5 +75,6 @@ int timer_getoverrun(timer_t timerid);
 
 int clock_gettime(clockid_t clk_id, struct timespec* tp);
 int gettimeofday(struct timeval* tp, struct timezone* tzp);
+#endif
 
 #endif // IOX_HOOFS_WIN_PLATFORM_TIME_HPP

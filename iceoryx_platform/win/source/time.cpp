@@ -17,6 +17,8 @@
 
 #include "iceoryx_platform/time.hpp"
 
+#if defined(_MSC_VER)
+
 static std::chrono::nanoseconds getNanoSeconds(const timespec& value)
 {
     static constexpr uint64_t NANOSECONDS = 1000000000u;
@@ -199,3 +201,5 @@ int gettimeofday(struct timeval* tp, struct timezone* tzp)
     tp->tv_usec = static_cast<suseconds_t>(systemTime.wMilliseconds * 1000);
     return 0;
 }
+
+#endif

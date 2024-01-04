@@ -23,9 +23,13 @@
 
 int iox_open(const char* pathname, int flags, mode_t mode)
 {
+#if defined(__GNUC__) || defined(__GNUG__)
+    return open(pathname, flags, mode);
+#elif defined(_MSC_VER)
     int fd;
     _sopen_s(&fd, pathname, flags, _SH_DENYNO, _S_IREAD | _S_IWRITE);
     return fd;
+#endif
 }
 
 int iox_ext_open(const char* pathname, int flags, mode_t mode)

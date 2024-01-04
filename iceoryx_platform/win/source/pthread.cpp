@@ -22,6 +22,44 @@
 #include <cwchar>
 #include <vector>
 
+#if defined(__GNUC__) || defined(__GNUG__)
+int iox_pthread_setname_np(iox_pthread_t thread, const char* name)
+{
+    return pthread_setname_np(thread, name);
+}
+
+int iox_pthread_getname_np(iox_pthread_t thread, char* name, size_t len)
+{
+    return pthread_getname_np(thread, name, len);
+}
+
+int iox_pthread_create(iox_pthread_t* thread, const iox_pthread_attr_t* attr, void* (*start_routine)(void*), void* arg)
+{
+    return pthread_create(thread, attr, start_routine, arg);
+}
+
+int iox_pthread_join(iox_pthread_t thread, void** retval)
+{
+    return pthread_join(thread, retval);
+}
+
+iox_pthread_t iox_pthread_self()
+{
+    return pthread_self();
+}
+
+int pthread_mutexattr_setrobust(pthread_mutexattr_t* attr, int robustness)
+{
+    return 0;
+}
+
+int pthread_mutex_consistent(pthread_mutex_t* mutex)
+{
+    return 0;
+}
+
+#elif defined(_MSC_VER)
+
 int iox_pthread_setname_np(iox_pthread_t thread, const char* name)
 {
     std::mbstate_t state = std::mbstate_t();
@@ -243,3 +281,4 @@ int pthread_mutex_unlock(pthread_mutex_t* mutex)
     }
     return 0;
 }
+#endif

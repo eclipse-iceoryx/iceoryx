@@ -21,6 +21,8 @@
 #include <limits>
 #include <sys/stat.h>
 
+#if defined(_MSC_VER)
+
 #define S_IRUSR 0
 #define S_IWUSR 1
 #define S_IRGRP 2
@@ -31,6 +33,8 @@
 #define S_IXUSR 7
 #define S_IXGRP 8
 #define S_IRWXO 9
+
+#endif
 
 using iox_stat = struct __stat64;
 using iox_mode_t = int;

@@ -20,8 +20,9 @@
 #define _WINSOCKAPI_
 #define WIN32_LEAN_AND_MEAN
 
+#include <winsock2.h> // needs to be included before windows.h and therefore the blank line to prevent clang format from reordering
+
 #include <windows.h>
-#include <winsock2.h>
 #include <ws2tcpip.h>
 
 #pragma comment(lib, "ws2_32.lib")
