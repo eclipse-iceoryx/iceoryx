@@ -570,10 +570,17 @@ TEST_F(convert_test, fromString_EdgeCase_Float)
     EXPECT_THAT(float_min.value(), FloatEq(std::numeric_limits<float>::min()));
 
     // strtof will trigger ERANGE if the input is a subnormal float, resulting in a nullopt return value.
+    // note that for MSVC, sub normal float is a valid input!
     auto normal_float_min_eps = std::nextafter(std::numeric_limits<float>::min(), 0.0F);
     source = fp_to_string(std::numeric_limits<float>::min() - normal_float_min_eps);
     auto float_min_dec_eps = iox::convert::from_string<float>(source.c_str());
+#ifdef _MSC_VER
+    ASSERT_THAT(float_min_dec_eps.has_value(), Eq(true));
+    ASSERT_THAT(std::fpclassify(float_min_dec_eps.value()), Eq(FP_SUBNORMAL));
+    EXPECT_THAT(float_min_dec_eps.value(), FloatNear(0.0F, std::numeric_limits<float>::min()));
+#else
     ASSERT_THAT(float_min_dec_eps.has_value(), Eq(false));
+#endif
 
     source = fp_to_string(std::numeric_limits<float>::lowest());
     auto float_lowest = iox::convert::from_string<float>(source.c_str());
@@ -598,7 +605,13 @@ TEST_F(convert_test, fromString_EdgeCase_Double)
     auto normal_double_min_eps = std::nextafter(std::numeric_limits<double>::min(), 0.0);
     source = fp_to_string(std::numeric_limits<double>::min() - normal_double_min_eps);
     auto double_min_dec_eps = iox::convert::from_string<double>(source.c_str());
+#ifdef _MSC_VER
+    ASSERT_THAT(double_min_dec_eps.has_value(), Eq(true));
+    ASSERT_THAT(std::fpclassify(double_min_dec_eps.value()), Eq(FP_SUBNORMAL));
+    EXPECT_THAT(double_min_dec_eps.value(), DoubleNear(0.0L, std::numeric_limits<double>::min()));
+#else
     ASSERT_THAT(double_min_dec_eps.has_value(), Eq(false));
+#endif
 
     source = fp_to_string(std::numeric_limits<double>::lowest());
     auto double_lowest = iox::convert::from_string<double>(source.c_str());
@@ -624,7 +637,14 @@ TEST_F(convert_test, fromString_EdgeCase_LongDouble)
     auto normal_long_double_min_eps = std::nextafter(std::numeric_limits<long double>::min(), 0.0L);
     source = fp_to_string(std::numeric_limits<long double>::min() - normal_long_double_min_eps);
     auto long_double_min_dec_eps = iox::convert::from_string<long double>(source.c_str());
+#ifdef _MSC_VER
+    ASSERT_THAT(long_double_min_dec_eps.has_value(), Eq(true));
+    ASSERT_THAT(std::fpclassify(long_double_min_dec_eps.value()), Eq(FP_SUBNORMAL));
+    // There's no LongDoubleNear
+    EXPECT_TRUE(std::fabsl(long_double_min_dec_eps.value() - 0.0L) <= std::numeric_limits<long double>::min());
+#else
     ASSERT_THAT(long_double_min_dec_eps.has_value(), Eq(false));
+#endif
 
     source = fp_to_string(std::numeric_limits<long double>::lowest());
     auto long_double_lowest = iox::convert::from_string<long double>(source.c_str());
@@ -645,7 +665,7 @@ TEST_F(convert_test, fromString_EdgeCase_Float_NaN)
 {
     ::testing::Test::RecordProperty("TEST_ID", "772bcbc3-d55b-464f-873f-82754ad543f3");
 
-    std::vector<std::string> nan_vec = {"NaN", "nan"};
+    std::vector<std::string> nan_vec = {"NAN", "NaN", "nan"};
 
     for (const auto& v : nan_vec)
     {
@@ -659,7 +679,7 @@ TEST_F(convert_test, fromString_EdgeCase_Double_NaN)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a27c8575-658c-465d-a1a2-4f2f6b9a723a");
 
-    std::vector<std::string> nan_vec = {"NaN", "nan"};
+    std::vector<std::string> nan_vec = {"NAN", "NaN", "nan"};
 
     for (const auto& v : nan_vec)
     {
@@ -673,7 +693,7 @@ TEST_F(convert_test, fromString_EdgeCase_LongDouble_NaN)
 {
     ::testing::Test::RecordProperty("TEST_ID", "486f4e78-6000-4401-bb66-62d26b1d0cce");
 
-    std::vector<std::string> nan_vec = {"NaN", "nan"};
+    std::vector<std::string> nan_vec = {"NAN", "NaN", "nan"};
 
     for (const auto& v : nan_vec)
     {
