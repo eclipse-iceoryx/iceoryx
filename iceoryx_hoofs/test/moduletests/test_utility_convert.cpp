@@ -21,7 +21,7 @@
 #include "iox/std_string_support.hpp"
 #include "test.hpp"
 
-
+#include <cmath>
 #include <cstdint>
 namespace
 {
@@ -37,6 +37,15 @@ class convert_test : public Test
     }
     void TearDown() override
     {
+    }
+    template <typename T>
+    std::string fp_to_string(T value)
+    {
+        static_assert(std::is_floating_point<T>::value, "fp_to_string requires floating point type");
+
+        std::ostringstream oss;
+        oss << std::scientific << std::setprecision(std::numeric_limits<T>::max_digits10) << value;
+        return oss.str();
     }
 };
 
@@ -548,6 +557,178 @@ TEST_F(convert_test, fromString_EdgeCase_UnSignedLongLong)
 }
 
 /// UNSINGED INTEGRAL EDGE CASES END
+
+/// NORMAL FLOATING POINT TYPE EDGE CASES START
+
+TEST_F(convert_test, fromString_EdgeCase_Float)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "68d4f096-a93c-406b-b081-fe50e4b1a2c9");
+
+    std::string source = fp_to_string(std::numeric_limits<float>::min());
+    auto float_min = iox::convert::from_string<float>(source.c_str());
+    ASSERT_THAT(float_min.has_value(), Eq(true));
+    EXPECT_THAT(float_min.value(), FloatEq(std::numeric_limits<float>::min()));
+
+    // strtof will trigger ERANGE if the input is a subnormal float, resulting in a nullopt return value.
+    auto normal_float_min_eps = std::nextafter(std::numeric_limits<float>::min(), 0.0F);
+    source = fp_to_string(std::numeric_limits<float>::min() - normal_float_min_eps);
+    auto float_min_dec_eps = iox::convert::from_string<float>(source.c_str());
+    ASSERT_THAT(float_min_dec_eps.has_value(), Eq(false));
+
+    source = fp_to_string(std::numeric_limits<float>::lowest());
+    auto float_lowest = iox::convert::from_string<float>(source.c_str());
+    ASSERT_THAT(float_lowest.has_value(), Eq(true));
+    EXPECT_THAT(float_lowest.value(), FloatEq(std::numeric_limits<float>::lowest()));
+
+    source = fp_to_string(std::numeric_limits<float>::max());
+    auto float_max = iox::convert::from_string<float>(source.c_str());
+    ASSERT_THAT(float_max.has_value(), Eq(true));
+    EXPECT_THAT(float_max.value(), FloatEq(std::numeric_limits<float>::max()));
+}
+
+TEST_F(convert_test, fromString_EdgeCase_Double)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "af7ca2e6-ba7e-41f7-a321-5f68617d3566");
+
+    std::string source = fp_to_string(std::numeric_limits<double>::min());
+    auto double_min = iox::convert::from_string<double>(source.c_str());
+    ASSERT_THAT(double_min.has_value(), Eq(true));
+    EXPECT_THAT(double_min.value(), DoubleEq(std::numeric_limits<double>::min()));
+
+    auto normal_double_min_eps = std::nextafter(std::numeric_limits<double>::min(), 0.0);
+    source = fp_to_string(std::numeric_limits<double>::min() - normal_double_min_eps);
+    auto double_min_dec_eps = iox::convert::from_string<double>(source.c_str());
+    ASSERT_THAT(double_min_dec_eps.has_value(), Eq(false));
+
+    source = fp_to_string(std::numeric_limits<double>::lowest());
+    auto double_lowest = iox::convert::from_string<double>(source.c_str());
+    ASSERT_THAT(double_lowest.has_value(), Eq(true));
+    EXPECT_THAT(double_lowest.value(), DoubleEq(std::numeric_limits<double>::lowest()));
+
+    source = fp_to_string(std::numeric_limits<double>::max());
+    auto double_max = iox::convert::from_string<double>(source.c_str());
+    ASSERT_THAT(double_max.has_value(), Eq(true));
+    EXPECT_THAT(double_max.value(), DoubleEq(std::numeric_limits<double>::max()));
+}
+
+TEST_F(convert_test, fromString_EdgeCase_LongDouble)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "fb96e526-8fb6-4af9-87f0-dfd4193237a5");
+
+    std::string source = fp_to_string(std::numeric_limits<long double>::min());
+    auto long_double_min = iox::convert::from_string<long double>(source.c_str());
+    ASSERT_THAT(long_double_min.has_value(), Eq(true));
+    // There's no LongDoubleEq
+    EXPECT_THAT(long_double_min.value(), Eq(std::numeric_limits<long double>::min()));
+
+    auto normal_long_double_min_eps = std::nextafter(std::numeric_limits<long double>::min(), 0.0L);
+    source = fp_to_string(std::numeric_limits<long double>::min() - normal_long_double_min_eps);
+    auto long_double_min_dec_eps = iox::convert::from_string<long double>(source.c_str());
+    ASSERT_THAT(long_double_min_dec_eps.has_value(), Eq(false));
+
+    source = fp_to_string(std::numeric_limits<long double>::lowest());
+    auto long_double_lowest = iox::convert::from_string<long double>(source.c_str());
+    ASSERT_THAT(long_double_lowest.has_value(), Eq(true));
+    EXPECT_THAT(long_double_lowest.value(), Eq(std::numeric_limits<long double>::lowest()));
+
+    source = fp_to_string(std::numeric_limits<long double>::max());
+    auto long_double_max = iox::convert::from_string<long double>(source.c_str());
+    ASSERT_THAT(long_double_max.has_value(), Eq(true));
+    EXPECT_THAT(long_double_max.value(), Eq(std::numeric_limits<long double>::max()));
+}
+
+/// NORMAL FLOATING POINT TYPE EDGE CASES END
+
+/// SPECIAL FLOATING POINT TYPE EDGE CASES START
+
+TEST_F(convert_test, fromString_EdgeCase_Float_NaN)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "772bcbc3-d55b-464f-873f-82754ad543f3");
+
+    std::vector<std::string> nan_vec = {"NaN", "nan"};
+
+    for (const auto& v : nan_vec)
+    {
+        auto nan_ret = iox::convert::from_string<float>(v.c_str());
+        ASSERT_THAT(nan_ret.has_value(), Eq(true));
+        ASSERT_THAT(std::isnan(nan_ret.value()), Eq(true));
+    }
+}
+
+TEST_F(convert_test, fromString_EdgeCase_Double_NaN)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "a27c8575-658c-465d-a1a2-4f2f6b9a723a");
+
+    std::vector<std::string> nan_vec = {"NaN", "nan"};
+
+    for (const auto& v : nan_vec)
+    {
+        auto nan_ret = iox::convert::from_string<double>(v.c_str());
+        ASSERT_THAT(nan_ret.has_value(), Eq(true));
+        ASSERT_THAT(std::isnan(nan_ret.value()), Eq(true));
+    }
+}
+
+TEST_F(convert_test, fromString_EdgeCase_LongDouble_NaN)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "486f4e78-6000-4401-bb66-62d26b1d0cce");
+
+    std::vector<std::string> nan_vec = {"NaN", "nan"};
+
+    for (const auto& v : nan_vec)
+    {
+        auto nan_ret = iox::convert::from_string<long double>(v.c_str());
+        ASSERT_THAT(nan_ret.has_value(), Eq(true));
+        ASSERT_THAT(std::isnan(nan_ret.value()), Eq(true));
+    }
+}
+
+TEST_F(convert_test, fromString_EdgeCase_Float_Inf)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "82dba3ae-5802-4fbc-aa91-15f4a2953573");
+
+    std::vector<std::string> inf_vec = {
+        "INF", "Inf", "inf", "INFINITY", "Infinity", "-INF", "-Inf", "-inf", "-INFINITY", "-Infinity"};
+
+    for (const auto& v : inf_vec)
+    {
+        auto inf_ret = iox::convert::from_string<float>(v.c_str());
+        ASSERT_THAT(inf_ret.has_value(), Eq(true));
+        ASSERT_THAT(std::isinf(inf_ret.value()), Eq(true));
+    }
+}
+
+TEST_F(convert_test, fromString_EdgeCase_Double_Inf)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "e4ccd01d-b1d1-433e-ba04-548dcc479bb1");
+
+    std::vector<std::string> inf_vec = {
+        "INF", "Inf", "inf", "INFINITY", "Infinity", "-INF", "-Inf", "-inf", "-INFINITY", "-Infinity"};
+
+    for (const auto& v : inf_vec)
+    {
+        auto inf_ret = iox::convert::from_string<double>(v.c_str());
+        ASSERT_THAT(inf_ret.has_value(), Eq(true));
+        ASSERT_THAT(std::isinf(inf_ret.value()), Eq(true));
+    }
+}
+
+TEST_F(convert_test, fromString_EdgeCase_LongDouble_Inf)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "6b8a3284-5f20-4cd6-9958-a2abb348ebe2");
+
+    std::vector<std::string> inf_vec = {
+        "INF", "Inf", "inf", "INFINITY", "Infinity", "-INF", "-Inf", "-inf", "-INFINITY", "-Infinity"};
+
+    for (const auto& v : inf_vec)
+    {
+        auto inf_ret = iox::convert::from_string<long double>(v.c_str());
+        ASSERT_THAT(inf_ret.has_value(), Eq(true));
+        ASSERT_THAT(std::isinf(inf_ret.value()), Eq(true));
+    }
+}
+
+/// SPECIAL FLOATING POINT TYPE EDGE CASES END
 
 TEST_F(convert_test, fromString_cxxString)
 {
