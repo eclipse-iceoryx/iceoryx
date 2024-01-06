@@ -322,12 +322,12 @@ TEST_F(convert_test, fromString_SignedChar_EdgeCase_InRange_Success)
     std::string source = "-128";
     auto signed_char_min = iox::convert::from_string<signed char>(source.c_str());
     ASSERT_THAT(signed_char_min.has_value(), Eq(true));
-    EXPECT_THAT(signed_char_min.value(), Eq(static_cast<signed char>(-128)));
+    EXPECT_THAT(signed_char_min.value(), Eq(std::numeric_limits<signed char>::min()));
 
     source = "127";
     auto signed_char_max = iox::convert::from_string<signed char>(source.c_str());
     ASSERT_THAT(signed_char_max.has_value(), Eq(true));
-    EXPECT_THAT(signed_char_max.value(), Eq(static_cast<signed char>(127)));
+    EXPECT_THAT(signed_char_max.value(), Eq(std::numeric_limits<signed char>::max()));
 }
 
 TEST_F(convert_test, fromString_SignedChar_EdgeCase_OutOfRange_Fail)
@@ -350,12 +350,12 @@ TEST_F(convert_test, fromString_SignedShort_EdgeCase_InRange_Success)
     std::string source = "-32768";
     auto short_min = iox::convert::from_string<short>(source.c_str());
     ASSERT_THAT(short_min.has_value(), Eq(true));
-    EXPECT_THAT(short_min.value(), Eq(static_cast<short>(-32768)));
+    EXPECT_THAT(short_min.value(), Eq(std::numeric_limits<short>::min()));
 
     source = "32767";
     auto short_max = iox::convert::from_string<short>(source.c_str());
     ASSERT_THAT(short_max.has_value(), Eq(true));
-    EXPECT_THAT(short_max.value(), Eq(static_cast<short>(32767)));
+    EXPECT_THAT(short_max.value(), Eq(std::numeric_limits<short>::max()));
 }
 
 TEST_F(convert_test, fromString_SignedShort_EdgeCase_OutOfRange_Fail)
@@ -378,12 +378,12 @@ TEST_F(convert_test, fromString_SignedInt_EdgeCase_InRange_Success)
     std::string source = "-2147483648";
     auto int_min = iox::convert::from_string<int>(source.c_str());
     ASSERT_THAT(int_min.has_value(), Eq(true));
-    EXPECT_THAT(int_min.value(), Eq(-2147483648));
+    EXPECT_THAT(int_min.value(), Eq(std::numeric_limits<int>::min()));
 
     source = "2147483647";
     auto int_max = iox::convert::from_string<int>(source.c_str());
     ASSERT_THAT(int_max.has_value(), Eq(true));
-    EXPECT_THAT(int_max.value(), Eq(2147483647));
+    EXPECT_THAT(int_max.value(), Eq(std::numeric_limits<int>::max()));
 }
 
 TEST_F(convert_test, fromString_SignedInt_EdgeCase_OutOfRange_Fail)
@@ -443,7 +443,7 @@ TEST_F(convert_test, fromString_SignedLongLong_EdgeCase_InRange_Success)
     source = "9223372036854775807";
     auto long_long_max = iox::convert::from_string<long long>(source.c_str());
     ASSERT_THAT(long_long_max.has_value(), Eq(true));
-    EXPECT_THAT(long_long_max.value(), Eq(9223372036854775807LL));
+    EXPECT_THAT(long_long_max.value(), Eq(std::numeric_limits<long long>::max()));
 }
 
 TEST_F(convert_test, fromString_SignedLongLong_EdgeCase_OutOfRange_Fail)
@@ -475,7 +475,7 @@ TEST_F(convert_test, fromString_UnSignedChar_EdgeCase_InRange_Success)
     source = "255";
     auto unchar_max = iox::convert::from_string<unsigned char>(source.c_str());
     ASSERT_THAT(unchar_max.has_value(), Eq(true));
-    EXPECT_THAT(unchar_max.value(), Eq(static_cast<unsigned char>(255)));
+    EXPECT_THAT(unchar_max.value(), Eq(std::numeric_limits<unsigned char>::max()));
 }
 
 TEST_F(convert_test, fromString_UnSignedChar_EdgeCase_OutOfRange_Fail)
@@ -503,7 +503,7 @@ TEST_F(convert_test, fromString_UnSignedShort_EdgeCase_InRange_Success)
     source = "65535";
     auto unshort_max = iox::convert::from_string<unsigned short>(source.c_str());
     ASSERT_THAT(unshort_max.has_value(), Eq(true));
-    EXPECT_THAT(unshort_max.value(), Eq(static_cast<unsigned short>(65535)));
+    EXPECT_THAT(unshort_max.value(), Eq(std::numeric_limits<unsigned short>::max()));
 }
 
 TEST_F(convert_test, fromString_UnSignedShort_EdgeCase_OutOfRange_Fail)
@@ -531,7 +531,7 @@ TEST_F(convert_test, fromString_UnSignedInt_EdgeCase_InRange_Success)
     source = "4294967295";
     auto unint_max = iox::convert::from_string<unsigned int>(source.c_str());
     ASSERT_THAT(unint_max.has_value(), Eq(true));
-    EXPECT_THAT(unint_max.value(), Eq(4294967295U));
+    EXPECT_THAT(unint_max.value(), Eq(std::numeric_limits<unsigned int>::max()));
 }
 
 TEST_F(convert_test, fromString_UnSignedInt_EdgeCase_OutOfRange_Fail)
@@ -590,7 +590,7 @@ TEST_F(convert_test, fromString_UnSignedLongLong_EdgeCase_InRange_Success)
     source = "18446744073709551615";
     auto unlong_long_max = iox::convert::from_string<unsigned long long>(source.c_str());
     ASSERT_THAT(unlong_long_max.has_value(), Eq(true));
-    EXPECT_THAT(unlong_long_max.value(), Eq(18446744073709551615ULL));
+    EXPECT_THAT(unlong_long_max.value(), Eq(std::numeric_limits<unsigned long long>::max()));
 }
 
 TEST_F(convert_test, fromString_UnSignedLongLong_EdgeCase_OutOfRange_Fail)
