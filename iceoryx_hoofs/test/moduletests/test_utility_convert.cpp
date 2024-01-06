@@ -815,7 +815,7 @@ TEST_F(convert_test, fromString_LongDouble_EdgeCase_Inf_Success)
 
 /// SPECIAL FLOATING POINT TYPE EDGE CASES END
 
-TEST_F(convert_test, fromString_cxxString)
+TEST_F(convert_test, fromString_ioxString)
 {
     ::testing::Test::RecordProperty("TEST_ID", "dbf015bb-5f51-47e1-9d0e-0525f65e7803");
     std::string source = "hello";
