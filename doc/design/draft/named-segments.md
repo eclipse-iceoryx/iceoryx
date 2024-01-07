@@ -44,27 +44,45 @@ name instead of by access control. This will increase flexibility while still gr
 
 * The RouDi configuration must support specifying names for shared memory segments.
 * If a name is not configured, the fallback behavior must be the same as it is currently - assigning the name of the current process user.
-* Communication endpoints should be able to specify which segments they intend to use.
+* Producers should be able to specify which segments they intend to use.
   * Publishers may specify a single segment into which they will publish.
-  * Subscribers may specify one or more segments from which they may receive messages.
-  * Clients and Servers may specify a single segment into which they send requests/responses, and multiple segments from which they receive responses/requests.
+  * Clients and Servers may specify a single segment into which they send requests and responses, respectively.
 * When no segment is specified, the fallback behavior must be the same as it is currently
   * Publishers will select the *unique* segment they have write access to.
-  * Subscribers will receive messages from all segments they have read access to.
-  * Clients and Servers follow the same rules as Publishers for data they send and the same rules as Subscribers for data they receive.
-* Creation will fail if a communication endpoint requests to use a segment to which it does not
-have the proper access rights.
+  * Clients and Servers will select the *unique* segment they have write access to, for publishing requests and responses, respectively.
+* Creation will fail if a producer requests to use a segment to which it does not have write access.
 
 ### Optional additional requirements
 
-* When initializing the runtime, a list of segment names may be provided. In this case, rather than mapping all shared memory segments available in the system, only those that are named shall be mapped.
-  * When a communication endpoint requests a segment that has not been mapped, this may be configured to either result in a failure or in mapping the requested segment on the fly.
+* When initializing the runtime, the user may specify via an enum whether they wish to map
+  * All segments to which the current process has read access
+  * All segments to which the current process has write access
+  * All segments to which the current process has either read or write access (deprecated-default)
+  * No segments (future default)
+* The user may additionally map specific segments after initialization by calling
+  * `mapSegmentForReading(name)`
+    * This will check for existence of the specified segment and map it as long as user has read access to it
+    * An informative error will be returned under the following circumstances
+      * The segment has already been mapped
+      * The segment does not exist
+      * The segment exists but the current process does not have read access to it
+  * `mapSegmentForWriting(name)`
+    * This will check for the existence of the specified segment and map it as long as the user has write access to it
+    * An informative error will be returned under the following circumstances
+      * The segment has already been mapped
+      * The segment does not exist
+      * The segment exists but the current process does not have write access to it
+* When the user attempts to create a producer that requests a segment which is not mapped, this will trigger the error handler and cause program termination.
+  * In the future if we expose a builder-pattern method of creating producers, we could instead have the builder return an error indicating the segment is not mapped.
+  * An alternative to the above is to add an additional enum with configuration options allowing for the runtime to map requested segments on the fly. This increases flexibility, but because it is already possible to tell the runtime to map a specific segment, this would not add much value. A user who wishes to ensure a producer's segment is already mapped may simply call `mapSegmentForWriting(name)`, ignoring the error indicating that the segment has already been mapped.
+* When a consumer is created, an error will only occur if **no** segment has been mapped. Otherwise if a producer on the same channel as the consumer uses a segment the consumer does not have access to (whether because the segment is unmapped or because the consumer does not have read access), this will result in a fatal error. 
+  * Improvements could be made to the RouDi logic determining if producers and consumers are compatible - to check if the consumer has access to the segment the producer writes to. This is however considered out of scope for the current design proposal.
 
 ## Design
 
 ### Updated RouDi Config
 
-Supporting named segments will require add an additional `name` field to the RouDi config under the `[[segment]]` heading, as well as updating the config version Example:
+Supporting named segments will require adding an additional `name` field to the RouDi config under the `[[segment]]` heading, as well as updating the config version Example:
 
 ```
 [general]
@@ -93,38 +111,21 @@ struct PublisherOptions
   ShmName_t segmentName{""};
 ```
 
-#### When creating a Subscriber
-
-A similar field will be added to the [SubscriberOptions struct](../../../iceoryx_posh/include/iceoryx_posh/popo/subscriber_options.hpp), except that it will support multiple elements
-
-```
-struct SubscriberOptions
-{
-  ...
-  vector<ShmName_t, MAX_SUBSCRIBER_SEGMENTS> segmentNames{};
-```
-
-`MAX_SUBSCRIBER_SEGMENTS` can be set to some reasonably small value to start with since explicitly allowing many but not all read-access segments is an unlikely use case. 
-
-If this assumption turns out to be wrong however, we can always update it to be `MAX_SHM_SEGMENTS` instead.
-
 #### When creating Clients and Servers
 
-Clients and Servers will have similar fields, distinguished by request/response:
+Clients and Servers will have similar fields as publishers for the messages which they produce:
 
 ```
 struct ClientOptions
 {
   ...
   ShmName_t requestSegmentName{""};
-  vector<ShmName_t, MAX_RESPONSE_SEGMENTS> responseSegmentNames{};
 ```
 
 ```
 struct ServerOptions
 {
   ...
-  vector<ShmName_t, MAX_REQUEST_SEGMENTS> requestSegmentNames{};
   ShmName_t responseSegmentName{""};
 ```
 
@@ -141,23 +142,26 @@ Tying this together with requesting segments, this could look something like:
 class DefaultRuntimeBuilder
 {
   ...
-  IOX_BUILDER_PARAMETER(vector<ShmName_t>, shmSegmentNames, {});
-  IOX_BUILDER_PARAMETER(bool, allowUnmappedSegments, false);
+  IOX_BUILDER_PARAMETER(MappedSegments, premappedSegments, MappedSegments::ReadAndWrite)
+  IOX_BUILDER_PARAMETER(vector<ShmName_t, MAX_SHM_SEGMENTS>, shmSegmentNames, {});
+  IOX_BUILDER_PARAMETER(UnmappedSegmentBehavior, unmappedSegmentBehavior, UnmappedSegmentBehavior::LoadOnDemand);
   ...
   public:
     expected<DefaultRuntime, RuntimeBuilderError> create() noexcept;
 ```
 
-The `create` method of this builder would then return a custom error if a 
-segment was requested that either does not exist or the current process does not have access to.
+The `create` method of this builder would then return a custom error if:
+  * A segment is requested which does not exist
+  * A segment is requested which the current process does not have access to
+  * A segment is requested which has already been captured by the `premappedSegments` option
 
-Additionally, when a publisher or subscriber is created, the `allowUnmappedSegments` would determine whether or not we fail or try to map the newly requested segment on the fly.
+Additionally, when a producer is created, the `unamppedSegmentBehavior` option would determine whether or not we fail or try to map the newly requested segment on the fly.
 
 ### Segment Matching Algorithm
 
 Ensuring backwards compatibility means carefully crafting how we register segments. The following pseudocode demonstrates how this should work in different scenarios
 
-#### Endpoints requesting write access (Publisher, Client Request, Server Response)
+#### Producers requesting write access (Publisher, Client Request, Server Response)
 
 In RouDi, given:
 * `userGroups` - A list of POSIX user groups a publishing process belongs to called 
@@ -177,48 +181,35 @@ In RouDi, given:
     4. At the end of iteration, if a matching segment has been found, return the segment information
     5. Otherwise return an error indicating that no matching segment has been found
 
-#### Endpoints requesting read access (Subscriber, Client Response, Server Request)
-
-In RouDi, when handling a port request for a new subscriber (and WLOG for clients and servers), given:
-* PublisherOptions for a single publisher publishing on the requested topic
-* SubscriberOptions for the requested subscriber
-
-We determine if the endpoints are compatible as follows (and we repeat this for each publisher if there are several):
-1. To determine if the subscriber and publisher segments match:
-    1. If the list of segment names provided by the subscriber is non-empty, check if any name matches the name provided by the publisher (an empty name is a non-match)
-    2. If the list of segment names provided by the subscriber is empty, then it is always a match
-2. Determine if blocking policies are compatible
-3. Determine if history request is compatible
-4. Return true if all cases are met
-
-If no publisher is compatible with a subscriber, then RouDi will refuse to provide a port, as is the current behavior when subscribers have incompatible blocking policies.
-
 #### Runtime requesting segments to map
 
 In the client process, while initializing the runtime, given:
 * `userGroups` - A list of POSIX user groups a publishing process belongs to called 
-* `segmentContainer` - A list of shared memory segment information 
+* `segmentContainer` - A list of shared memory segment information
+* `premappedSegments` - An enum indicating which group of segments should be mapped by default
 * `segmentFilter` - A (possibly empty) list of segment names to filter against
 
 In order to determine which segments to map:
 
-1. If `segmentFilter` is empty then
-    1. Determine which segments the process has access rights (read or write) to.
-    2. Map all of them.
+1. Map segments according to the `premappedSegments` option
+  1. If read access segments are requested, map every segment the user has read access to, but not write access
+  2. If write access segments are requested, map every segment the user has write access to
+  3. If read and write access segmeents are requested, map every segment the user has either read or write access to
+  4. If no segments are requested, do nothing
 2. If `segmentFilter` is not empty
     1. Iterate over each name in the filter
     2. If there is a segment that matches the name in the filter
-        1. If the process has access rights to that segment, map it
-        2. If not, return an error indicating that a segment was requested the runtime does not have access to.
+        1. If the segment has already been mapped, return an error indicating that a segment has been requested twice. The error should contain access permissions and the value of the `premappedSegments` option the user understands why it has already been mapped.
+        2. Otherwise, if the process has access rights to that segment, map it
+        2. If the process does not have access rights, return an error indicating that a segment was requested the runtime does not have access to.
     3. If there is no segment that matches the name in the filter, return an error indicating that there is no segment matching the one requested to be mapped.
 
 ## Development Roadmap
 
-- [ ] Extend the RouDi config to support specifying segment names
-- [ ] Add the name to the `MePooSegment` data structure and populate it based on the RouDi config
-- [ ] Update communication endpoint options structs to include segment names
-- [ ] Update the publisher, client request, and server response segment selection logic to take the segment name into account
-- [ ] Update the subscriber, client response, and server request compatibility check to check for a segment name match
+- [ ] Extend the RouDi config to support specifying segment names to be added to the `SegmentConfig`
+- [ ] Add the name to the `MePooSegment` data structure and allow multiple write-access segments to be mapped.
+- [ ] Update producer options structs to include segment names
+- [ ] Update producer segment selection logic to take the segment name into account
 
 ### Optional
 
