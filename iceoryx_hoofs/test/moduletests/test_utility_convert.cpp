@@ -339,7 +339,7 @@ TEST_F(convert_test, fromString_Integer_InvalidTrailingChar_Fail)
         }
     };
 
-    std::apply([&](auto... args) { (..., expect_failure(args)); }, IntegerType{});
+    std::apply([&expect_failure](auto... args) { (..., expect_failure(args)); }, IntegerType{});
 }
 
 /// SINGED INTEGRAL EDGE CASES START
