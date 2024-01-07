@@ -23,6 +23,7 @@
 
 #include <cmath>
 #include <cstdint>
+#include <tuple>
 namespace
 {
 using namespace ::testing;
@@ -811,6 +812,81 @@ TEST_F(convert_test, fromString_LongDouble_EdgeCase_Inf_Success)
         ASSERT_THAT(inf_ret.has_value(), Eq(true));
         ASSERT_THAT(std::isinf(inf_ret.value()), Eq(true));
     }
+}
+
+TEST_F(convert_test, fromString_Float_EdgeCase_ZeroDecimalNotation_Success)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "4ac285f9-e107-4d74-8aca-5d87032794db");
+
+    std::vector<std::string> decimal_notation_vec = {"0", "-0", ".0", "-.0", "0.0", "-0.0", "0.", "-0."};
+
+    for (const auto& v : decimal_notation_vec)
+    {
+        auto decimal_ret = iox::convert::from_string<float>(v.c_str());
+        ASSERT_THAT(decimal_ret.has_value(), Eq(true));
+        ASSERT_THAT(decimal_ret.value(), Eq(0.0F));
+    }
+}
+
+TEST_F(convert_test, fromString_Double_EdgeCase_ZeroDecimalNotation_Success)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "98938eaa-c472-4338-a153-5c2de9eb4940");
+
+    std::vector<std::string> decimal_notation_vec = {"0", "-0", ".0", "-.0", "0.0", "-0.0", "0.", "-0."};
+
+    for (const auto& v : decimal_notation_vec)
+    {
+        auto decimal_ret = iox::convert::from_string<double>(v.c_str());
+        ASSERT_THAT(decimal_ret.has_value(), Eq(true));
+        ASSERT_THAT(decimal_ret.value(), Eq(0.0));
+    }
+}
+
+TEST_F(convert_test, fromString_LongDouble_EdgeCase_ZeroDecimalNotation_Success)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "49fc0812-47c0-4815-8a15-a94a81493ea0");
+
+    std::vector<std::string> decimal_notation_vec = {"0", "-0", ".0", "-.0", "0.0", "-0.0", "0.", "-0."};
+
+    for (const auto& v : decimal_notation_vec)
+    {
+        auto decimal_ret = iox::convert::from_string<long double>(v.c_str());
+        ASSERT_THAT(decimal_ret.has_value(), Eq(true));
+        ASSERT_THAT(decimal_ret.value(), Eq(0.0L));
+    }
+}
+
+TEST_F(convert_test, fromString_Float_EdgeCase_OtherDecimalNotation_Success)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "278ff5af-28bd-4c11-839e-160e148c5a64");
+
+    std::string source = ".1";
+
+    auto decimal_ret = iox::convert::from_string<float>(source.c_str());
+    ASSERT_THAT(decimal_ret.has_value(), Eq(true));
+    ASSERT_THAT(decimal_ret.value(), Eq(0.1F));
+}
+
+TEST_F(convert_test, fromString_Double_EdgeCase_OtherDecimalNotation_Success)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "a8539f9a-1c7a-4d81-9a88-ef8a6630f065");
+
+    std::string source = ".1";
+
+    auto decimal_ret = iox::convert::from_string<double>(source.c_str());
+    ASSERT_THAT(decimal_ret.has_value(), Eq(true));
+    ASSERT_THAT(decimal_ret.value(), Eq(0.1));
+}
+
+TEST_F(convert_test, fromString_LongDouble_EdgeCase_OtherDecimalNotation_Success)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "d71ec687-aaab-45d5-aee5-2ec9a51602d0");
+
+    std::string source = ".1";
+
+    auto decimal_ret = iox::convert::from_string<long double>(source.c_str());
+    ASSERT_THAT(decimal_ret.has_value(), Eq(true));
+    ASSERT_THAT(decimal_ret.value(), Eq(0.1L));
 }
 
 /// SPECIAL FLOATING POINT TYPE EDGE CASES END
