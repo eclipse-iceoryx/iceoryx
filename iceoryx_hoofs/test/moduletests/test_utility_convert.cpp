@@ -313,6 +313,35 @@ TEST_F(convert_test, fromString_LongInt_Fail)
     ASSERT_THAT(result.has_value(), Eq(false));
 }
 
+TEST_F(convert_test, fromString_Integer_InvalidTrailingChar_Fail)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "6a70f10f-227b-4b0a-8149-e5ca3c793b5d");
+
+    using IntegerType = std::tuple<signed char,
+                                   short,
+                                   int,
+                                   long,
+                                   long long,
+                                   unsigned char,
+                                   unsigned short,
+                                   unsigned int,
+                                   unsigned long,
+                                   unsigned long long>;
+    std::vector<std::string> invalid_input = {"42a", "74 ", "-52-"};
+
+    // a lambda to iterate all invalid_input cases converting to type decltype(dummy)
+    auto expect_failure = [&invalid_input](auto dummy) {
+        using T = decltype(dummy);
+        for (const auto& v : invalid_input)
+        {
+            auto invalid_ret = iox::convert::from_string<T>(v.c_str());
+            ASSERT_THAT(invalid_ret.has_value(), Eq(false));
+        }
+    };
+
+    std::apply([&](auto... args) { (..., expect_failure(args)); }, IntegerType{});
+}
+
 /// SINGED INTEGRAL EDGE CASES START
 /// inc: increment, dec: decrement
 
