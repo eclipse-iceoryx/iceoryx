@@ -16,13 +16,29 @@
 
 # This script builds iceoryx_hoofs und iceoryx_posh and executes all tests
 
+param(
+    [Parameter()]
+    [String]$toolchain = "MSVC"
+)
+
 $ErrorActionPreference = "Stop"
 
-if ($?) { Write-Host "building sources" }
-
-# We require the Windows SDK Version 10.0.18362.0 since a previous version had a bug which caused a fatal compilation error within iceoryx and was
-# fixed with this version, see: https://github.com/microsoft/vcpkg/issues/15035#issuecomment-742427969.
-if ($?) { cmake -Bbuild -Hiceoryx_meta -DBUILD_TEST=ON -DINTROSPECTION=OFF -DBINDING_C=ON -DEXAMPLES=ON -DCMAKE_CXX_FLAGS="/MP" -DCMAKE_SYSTEM_VERSION="10.0.18362.0" }
+switch ($toolchain) {
+    "MSVC" {
+        if ($?) { Write-Host "Building sources with MSVC toolchain" }
+        # We require the Windows SDK Version 10.0.18362.0 since a previous version had a bug which caused a fatal compilation error within iceoryx and was
+        # fixed with this version, see: https://github.com/microsoft/vcpkg/issues/15035#issuecomment-742427969.
+        if ($?) { cmake -Bbuild -Hiceoryx_meta -DBUILD_TEST=ON -DINTROSPECTION=OFF -DBINDING_C=ON -DEXAMPLES=ON -DCMAKE_CXX_FLAGS="/MP" -DCMAKE_SYSTEM_VERSION="10.0.18362.0" }
+    }
+    "MinGW" {
+        if ($?) { Write-Host "Building sources with MinGW toolchain" }
+        if ($?) { cmake -Bbuild -Hiceoryx_meta -DBUILD_TEST=ON -DINTROSPECTION=OFF -DBINDING_C=ON -DEXAMPLES=ON -DCMAKE_SYSTEM_VERSION="10.0.18362.0" -G "MinGW Makefiles" }
+    }
+    default {
+        if ($?) { Write-Host "The '$toolchain' toolchain is not supported. Currently only 'MSVC' and 'MingGW' is supported to build iceoryx." }
+        exit 1
+    }
+}
 
 if ($?) { cmake --build build }
 
