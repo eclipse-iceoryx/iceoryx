@@ -19,6 +19,7 @@
 
 #include "iox/error_reporting/configuration.hpp"
 #include "iox/error_reporting/error_forwarding.hpp"
+#include "iox/error_reporting/types.hpp"
 
 #include "iox/error_reporting/source_location.hpp"
 

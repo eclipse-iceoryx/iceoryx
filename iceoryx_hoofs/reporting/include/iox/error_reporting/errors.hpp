@@ -26,9 +26,6 @@ namespace iox
 namespace er
 {
 
-static constexpr const char* UNKNOWN_MODULE_NAME = "unknown module";
-static constexpr const char* UNKNOWN_ERROR_NAME = "unknown error";
-
 // We expect an error to have the following interface
 // 1. ErrorCode code() const
 // 2. ModuleId module() const
@@ -101,44 +98,6 @@ class Violation
     ErrorCode m_code;
     ModuleId m_module{ModuleId::ANY};
 };
-
-// primary template is the identity
-// this can be overriden by modules to handle specific errors
-template <typename ErrorLike>
-auto toError(ErrorLike&& value)
-{
-    return std::forward<ErrorLike>(value);
-}
-
-template <class Error>
-inline ErrorCode toCode(const Error& error)
-{
-    return error.code();
-}
-
-template <>
-inline ErrorCode toCode<ErrorCode>(const ErrorCode& error)
-{
-    return error;
-}
-
-template <class Error>
-inline ModuleId toModule(const Error& error)
-{
-    return error.module();
-}
-
-template <class Error>
-inline const char* toModuleName(const Error&)
-{
-    return UNKNOWN_MODULE_NAME;
-}
-
-template <class Error>
-inline const char* toErrorName(const Error&)
-{
-    return UNKNOWN_ERROR_NAME;
-}
 
 } // namespace er
 } // namespace iox
