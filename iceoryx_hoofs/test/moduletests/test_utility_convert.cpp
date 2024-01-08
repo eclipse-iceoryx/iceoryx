@@ -45,8 +45,27 @@ class convert_test : public Test
         static_assert(std::is_floating_point<T>::value, "fp_to_string requires floating point type");
 
         std::ostringstream oss;
-        oss << std::scientific << std::setprecision(std::numeric_limits<T>::max_digits10) << value;
+        oss << std::scientific << std::setprecision(get_digits<T>()) << value;
         return oss.str();
+    }
+
+  private:
+    // see https://github.com/eclipse-iceoryx/iceoryx/pull/2155
+    template <typename T>
+    constexpr static uint32_t get_digits()
+    {
+        if constexpr (std::is_same_v<T, float>)
+        {
+            return 9;
+        }
+        else if (std::is_same_v<T, double> || std::is_same_v<T, long double>)
+        {
+            return 19;
+        }
+        else
+        {
+            static_assert("T should be floating point");
+        }
     }
 };
 
@@ -664,8 +683,6 @@ TEST_F(convert_test, fromString_Float_EdgeCase_SubNormalFloat_ShouldFail)
 {
     ::testing::Test::RecordProperty("TEST_ID", "68d4f096-a93c-406b-b081-fe50e4b1a2c9");
 
-    // strtof will trigger ERANGE if the input is a subnormal float, resulting in a nullopt return value.
-    // note that for MSVC, sub normal float is a valid input!
     auto normal_float_min_eps = std::nextafter(std::numeric_limits<float>::min(), 0.0F);
     std::string source = fp_to_string(std::numeric_limits<float>::min() - normal_float_min_eps);
     auto float_min_dec_eps = iox::convert::from_string<float>(source.c_str());
@@ -673,14 +690,11 @@ TEST_F(convert_test, fromString_Float_EdgeCase_SubNormalFloat_ShouldFail)
     GTEST_SKIP() << "@todo iox-#2055 temporarily skipped";
 #else
     ASSERT_THAT(float_min_dec_eps.has_value(), Eq(false));
-#endif
 }
 
 TEST_F(convert_test, fromString_Double_EdgeCase_InRange_Success)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d5e5e5ad-92ed-4229-8128-4ee82059fbf7");
-
-    GTEST_SKIP() << "@todo iox-#2055 Temporarily skipped due to issues in aarch64";
 
     std::string source = fp_to_string(std::numeric_limits<double>::min());
     auto double_min = iox::convert::from_string<double>(source.c_str());
@@ -709,7 +723,6 @@ TEST_F(convert_test, fromString_Double_EdgeCase_SubNormalDouble_ShouldFailExcept
     GTEST_SKIP() << "@todo iox-#2055 temporarily skipped";
 #else
     ASSERT_THAT(double_min_dec_eps.has_value(), Eq(false));
-#endif
 }
 
 TEST_F(convert_test, fromString_LongDouble_EdgeCase_InRange_Success)
@@ -744,7 +757,6 @@ TEST_F(convert_test, fromString_LongDouble_EdgeCase_SubNormalLongDouble_ShouldFa
     GTEST_SKIP() << "@todo iox-#2055 temporarily skipped";
 #else
     ASSERT_THAT(long_double_min_dec_eps.has_value(), Eq(false));
-#endif
 }
 
 /// NORMAL FLOATING POINT TYPE EDGE CASES END

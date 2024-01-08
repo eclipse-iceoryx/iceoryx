@@ -363,7 +363,6 @@ inline bool convert::is_within_range(const SourceType& source_val) noexcept
     {
         return true;
     }
-    // is_arithmetic_v
     if constexpr (std::is_floating_point_v<SourceType>)
     {
         // special cases for floating point
@@ -371,8 +370,13 @@ inline bool convert::is_within_range(const SourceType& source_val) noexcept
         {
             return true;
         }
+#ifdef _MSC_VER
+        if (!std::isnormal(source_val) && (source_val != 0.0))
+        {
+            return false;
+        }
+#endif
     }
-
     // out of range (upper bound)
     if (source_val > std::numeric_limits<TargetType>::max())
     {
@@ -381,7 +385,6 @@ inline bool convert::is_within_range(const SourceType& source_val) noexcept
                            << std::numeric_limits<TargetType>::max());
         return false;
     }
-
     // out of range (lower bound)
     if (source_val < std::numeric_limits<TargetType>::lowest())
     {
