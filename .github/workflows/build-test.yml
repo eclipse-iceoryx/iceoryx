@@ -65,14 +65,28 @@ jobs:
           cmake-version: '3.16.3' # version used in Ubuntu 20.04 LTS
       - run: ./tools/ci/build-test-ubuntu.sh
 
-  build-test-windows:
+  build-test-windows-msvc:
     # prevent stuck jobs consuming runners for 6 hours
     timeout-minutes: 60
     runs-on: windows-latest
     needs: pre-flight-check
     steps:
       - uses: actions/checkout@v3
-      - run: ./tools/ci/build-test-windows.ps1
+      - run: ./tools/ci/build-test-windows.ps1 -toolchain MSVC
+        shell: powershell
+
+  build-test-windows-mingw:
+    # prevent stuck jobs consuming runners for 6 hours
+    timeout-minutes: 60
+    runs-on: windows-latest
+    needs: pre-flight-check
+    steps:
+      - uses: actions/checkout@v3
+      - uses: egor-tensin/setup-mingw@v2
+        with:
+          version: 10.3
+          platform: x64
+      - run: ./tools/ci/build-test-windows.ps1 -toolchain MinGW
         shell: powershell
 
   run-integration-test:
