@@ -39,8 +39,7 @@ struct ConfigurationParameters
 {
     static_assert(std::is_same<T, ConfigurationTag>::value, "Incorrect configuration tag type");
 
-    static constexpr bool CHECK_PRECONDITIONS{true};
-    static constexpr bool CHECK_ASSUMPTIONS{true};
+    static constexpr bool CHECK_ASSERT{true}; /// @todo iox-#1032 deactive for release builds
 };
 
 // used by the API to obtain the compile time parameters

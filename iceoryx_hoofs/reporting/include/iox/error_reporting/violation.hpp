@@ -35,9 +35,8 @@ namespace er
 
 enum class ViolationErrorCode : uint32_t
 {
-    REQUIRED_CONDITION_VIOLATION,
-    ASSUMPTION_VIOLATION,
-    PRECONDITION_VIOLATION
+    ASSERT_VIOLATION,
+    ENFORCE_VIOLATION
 };
 
 class Violation
@@ -79,19 +78,14 @@ class Violation
         return !(*this == rhs);
     }
 
-    static Violation createRequiredConditionViolation()
+    static Violation createAssertViolation()
     {
-        return Violation(ViolationErrorCode::REQUIRED_CONDITION_VIOLATION);
+        return Violation(ViolationErrorCode::ASSERT_VIOLATION);
     }
 
-    static Violation createPreconditionViolation()
+    static Violation createEnforceViolation()
     {
-        return Violation(ViolationErrorCode::PRECONDITION_VIOLATION);
-    }
-
-    static Violation createAssumptionViolation()
-    {
-        return Violation(ViolationErrorCode::ASSUMPTION_VIOLATION);
+        return Violation(ViolationErrorCode::ENFORCE_VIOLATION);
     }
 
   private:

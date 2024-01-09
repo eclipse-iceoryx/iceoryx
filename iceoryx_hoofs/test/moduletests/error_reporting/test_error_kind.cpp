@@ -38,24 +38,24 @@ TEST(ErrorKind_test, fatalErrorsAreFatal)
     EXPECT_TRUE(isFatal(sut));
 }
 
-TEST(ErrorKind_test, preconditionViolationsAreFatal)
+TEST(ErrorKind_test, enforceViolationsAreFatal)
 {
     ::testing::Test::RecordProperty("TEST_ID", "21b79757-e46b-44fe-854a-7579b7f2243b");
 
-    PreconditionViolationKind sut;
-    EXPECT_TRUE(IsFatal<PreconditionViolationKind>::value);
+    EnforceViolationKind sut;
+    EXPECT_TRUE(IsFatal<EnforceViolationKind>::value);
     EXPECT_TRUE(isFatal(sut));
-    EXPECT_TRUE(isFatal(PRECONDITION_VIOLATION));
+    EXPECT_TRUE(isFatal(ENFORCE_VIOLATION));
 }
 
-TEST(ErrorKind_test, assumptionViolationsAreFatal)
+TEST(ErrorKind_test, assertViolationsAreFatal)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b502e70e-157d-45a0-9654-61ada213531d");
 
-    AssumptionViolationKind sut;
-    EXPECT_TRUE(IsFatal<AssumptionViolationKind>::value);
+    AssertViolationKind sut;
+    EXPECT_TRUE(IsFatal<AssertViolationKind>::value);
     EXPECT_TRUE(isFatal(sut));
-    EXPECT_TRUE(isFatal(ASSUMPTION_VIOLATION));
+    EXPECT_TRUE(isFatal(ASSERT_VIOLATION));
 }
 
 TEST(ErrorKind_test, runtimeErrorsAreNotFatal)

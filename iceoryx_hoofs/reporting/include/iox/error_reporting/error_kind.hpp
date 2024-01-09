@@ -37,19 +37,14 @@ struct FatalKind
     static constexpr char const* name = "Fatal Error";
 };
 
-struct RequiredConditionViolationKind
+struct AssertViolationKind
 {
-    static constexpr char const* name = "Required Condition Violation";
+    static constexpr char const* name = "Assert Violation";
 };
 
-struct PreconditionViolationKind
+struct EnforceViolationKind
 {
-    static constexpr char const* name = "Precondition Violation";
-};
-
-struct AssumptionViolationKind
-{
-    static constexpr char const* name = "Assumption Violation";
+    static constexpr char const* name = "EnforceViolation";
 };
 
 template <class T>
@@ -68,17 +63,12 @@ struct IsFatal<FatalKind> : public std::true_type
 };
 
 template <>
-struct IsFatal<RequiredConditionViolationKind> : public std::true_type
+struct IsFatal<AssertViolationKind> : public std::true_type
 {
 };
 
 template <>
-struct IsFatal<PreconditionViolationKind> : public std::true_type
-{
-};
-
-template <>
-struct IsFatal<AssumptionViolationKind> : public std::true_type
+struct IsFatal<EnforceViolationKind> : public std::true_type
 {
 };
 
@@ -97,34 +87,25 @@ bool constexpr isFatal<FatalKind>(FatalKind)
 }
 
 template <>
-bool constexpr isFatal<RequiredConditionViolationKind>(RequiredConditionViolationKind)
+bool constexpr isFatal<AssertViolationKind>(AssertViolationKind)
 {
-    return IsFatal<RequiredConditionViolationKind>::value;
+    return IsFatal<AssertViolationKind>::value;
 }
 
 template <>
-bool constexpr isFatal<PreconditionViolationKind>(PreconditionViolationKind)
+bool constexpr isFatal<EnforceViolationKind>(EnforceViolationKind)
 {
-    return IsFatal<PreconditionViolationKind>::value;
-}
-
-template <>
-bool constexpr isFatal<AssumptionViolationKind>(AssumptionViolationKind)
-{
-    return IsFatal<AssumptionViolationKind>::value;
+    return IsFatal<EnforceViolationKind>::value;
 }
 
 // indicates serious condition, unable to continue
 constexpr FatalKind FATAL;
 
-// indicates a bug (contract breach by caller)
-constexpr RequiredConditionViolationKind REQUIRED_CONDITION_VIOLATION;
+// indicates a bug (check only active in debug builds)
+constexpr AssertViolationKind ASSERT_VIOLATION;
 
-// indicates a bug (contract breach by caller)
-constexpr PreconditionViolationKind PRECONDITION_VIOLATION;
-
-// indicates a bug (contract breach by callee)
-constexpr AssumptionViolationKind ASSUMPTION_VIOLATION;
+// indicates a bug (check always active)
+constexpr EnforceViolationKind ENFORCE_VIOLATION;
 
 } // namespace er
 } // namespace iox

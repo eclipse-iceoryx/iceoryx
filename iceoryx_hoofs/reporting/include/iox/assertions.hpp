@@ -51,50 +51,35 @@
 //* Instead a special internal error type is used.
 //************************************************************************************************
 
-/// @brief report fatal required condition violation if expr evaluates to false
+/// @brief only for debug builds: report fatal assert violation if expr evaluates to false
+/// @note for conditions that should not happen with correct use
+/// @param expr boolean expression that must hold
+/// @param message message to be forwarded in case of violation
+#define IOX_ASSERT(expr, message)                                                                                      \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        if (iox::er::Configuration::CHECK_ASSERT && !(expr))                                                           \
+        {                                                                                                              \
+            iox::er::forwardFatalError(iox::er::Violation::createAssertViolation(),                                    \
+                                       iox::er::ASSERT_VIOLATION,                                                      \
+                                       CURRENT_SOURCE_LOCATION,                                                        \
+                                       message);                                                                       \
+        }                                                                                                              \
+    } while (false)
+
+/// @brief report fatal enforce violation if expr evaluates to false
 /// @note for conditions that may actually happen during correct use
 /// @param expr boolean expression that must hold
 /// @param message message to be forwarded in case of violation
-#define IOX_REQUIRE(expr, message)                                                                                     \
+#define IOX_ENFORCE(expr, message)                                                                                     \
     do                                                                                                                 \
     {                                                                                                                  \
         if (!(expr))                                                                                                   \
         {                                                                                                              \
-            iox::er::forwardFatalError(iox::er::Violation::createRequiredConditionViolation(),                         \
-                                       iox::er::REQUIRED_CONDITION_VIOLATION,                                          \
+            iox::er::forwardFatalError(iox::er::Violation::createEnforceViolation(),                                   \
+                                       iox::er::ENFORCE_VIOLATION,                                                     \
                                        CURRENT_SOURCE_LOCATION,                                                        \
                                        message); /* @todo iox-#1032 add strigified 'expr' as '#expr' */                \
-        }                                                                                                              \
-    } while (false)
-
-/// @brief if enabled: report fatal precondition violation if expr evaluates to false
-/// @param expr boolean expression that must hold upon entry of the function it appears in
-/// @param message message to be forwarded in case of violation
-#define IOX_PRECONDITION(expr, message)                                                                                \
-    do                                                                                                                 \
-    {                                                                                                                  \
-        if (iox::er::Configuration::CHECK_PRECONDITIONS && !(expr))                                                    \
-        {                                                                                                              \
-            iox::er::forwardFatalError(iox::er::Violation::createPreconditionViolation(),                              \
-                                       iox::er::PRECONDITION_VIOLATION,                                                \
-                                       CURRENT_SOURCE_LOCATION,                                                        \
-                                       message);                                                                       \
-        }                                                                                                              \
-    } while (false)
-
-/// @brief if enabled: report fatal assumption violation if expr evaluates to false
-/// @note for conditions that should not happen with correct use
-/// @param expr boolean expression that must hold
-/// @param message message to be forwarded in case of violation
-#define IOX_ASSUME(expr, message)                                                                                      \
-    do                                                                                                                 \
-    {                                                                                                                  \
-        if (iox::er::Configuration::CHECK_ASSUMPTIONS && !(expr))                                                      \
-        {                                                                                                              \
-            iox::er::forwardFatalError(iox::er::Violation::createAssumptionViolation(),                                \
-                                       iox::er::ASSUMPTION_VIOLATION,                                                  \
-                                       CURRENT_SOURCE_LOCATION,                                                        \
-                                       message);                                                                       \
         }                                                                                                              \
     } while (false)
 

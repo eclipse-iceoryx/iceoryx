@@ -46,14 +46,11 @@ bool hasPanicked();
 /// @brief indicates whether the test error handler registered any error
 bool hasError();
 
-/// @brief indicates whether the test error handler registered a required condition violation
-bool hasRequiredConditionViolation();
+/// @brief indicates whether the test error handler registered an enforce violation
+bool hasEnforceViolation();
 
-/// @brief indicates whether the test error handler registered a precondition violation
-bool hasPreconditionViolation();
-
-/// @brief indicates whether the test error handler registered an assumption violation
-bool hasAssumptionViolation();
+/// @brief indicates whether the test error handler registered an assert violation
+bool hasAssertViolation();
 
 /// @brief indicates whether the test error handler registered  violation (there are only two kinds).
 bool hasViolation();
@@ -123,11 +120,9 @@ inline void runInTestThread(Function&& testFunction, Args&&... args)
 
 #define IOX_TESTING_ASSERT_NO_VIOLATION() ASSERT_FALSE(iox::testing::hasViolation())
 
-#define IOX_TESTING_ASSERT_REQUIRED_CONDITION_VIOLATION() ASSERT_TRUE(iox::testing::hasRequiredConditionViolation())
+#define IOX_TESTING_ASSERT_ASSERT_VIOLATION() ASSERT_TRUE(iox::testing::hasAssertViolation())
 
-#define IOX_TESTING_ASSERT_PRECONDITION_VIOLATION() ASSERT_TRUE(iox::testing::hasPreconditionViolation())
-
-#define IOX_TESTING_ASSERT_ASSUMPTION_VIOLATION() ASSERT_TRUE(iox::testing::hasAssumptionViolation())
+#define IOX_TESTING_ASSERT_ENFORCE_VIOLATION() ASSERT_TRUE(iox::testing::hasEnforceViolation())
 
 // EXPECT_* continues with test if the check fails.
 
@@ -145,11 +140,9 @@ inline void runInTestThread(Function&& testFunction, Args&&... args)
 
 #define IOX_TESTING_EXPECT_NO_VIOLATION() EXPECT_FALSE(iox::testing::hasViolation())
 
-#define IOX_TESTING_EXPECT_REQUIRED_CONDITION_VIOLATION() EXPECT_TRUE(iox::testing::hasRequiredConditionViolation())
+#define IOX_TESTING_EXPECT_ASSERT_VIOLATION() EXPECT_TRUE(iox::testing::hasAssertViolation())
 
-#define IOX_TESTING_EXPECT_PRECONDITION_VIOLATION() EXPECT_TRUE(iox::testing::hasPreconditionViolation())
-
-#define IOX_TESTING_EXPECT_ASSUMPTION_VIOLATION() EXPECT_TRUE(iox::testing::hasAssumptionViolation())
+#define IOX_TESTING_EXPECT_ENFORCE_VIOLATION() EXPECT_TRUE(iox::testing::hasEnforceViolation())
 
 // NOLINTEND(cppcoreguidelines-macro-usage)
 
