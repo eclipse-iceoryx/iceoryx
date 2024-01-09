@@ -47,19 +47,19 @@ TestingErrorHandler::TestingErrorHandler() noexcept
 {
 }
 
-void TestingErrorHandler::onPanic() noexcept
+void TestingErrorHandler::onPanic()
 {
     m_panicked = true;
     jump();
 }
 
-void TestingErrorHandler::onReportError(er::ErrorDescriptor desc) noexcept
+void TestingErrorHandler::onReportError(er::ErrorDescriptor desc)
 {
     std::lock_guard<std::mutex> g(m_mutex);
     m_errors.push_back(desc);
 }
 
-void TestingErrorHandler::onReportViolation(er::ErrorDescriptor desc) noexcept
+void TestingErrorHandler::onReportViolation(er::ErrorDescriptor desc)
 {
     std::lock_guard<std::mutex> g(m_mutex);
     m_violations.push_back(desc);

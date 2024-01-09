@@ -70,15 +70,15 @@ class TestingErrorHandler : public iox::er::ErrorHandlerInterface
     static void init() noexcept;
 
     /// @brief Defines the reaction on panic.
-    void onPanic() noexcept override;
+    void onPanic() override;
 
     /// @brief Defines the reaction on error.
     /// @param desc error descriptor
-    void onReportError(er::ErrorDescriptor desc) noexcept override;
+    void onReportError(er::ErrorDescriptor desc) override;
 
     /// @brief Defines the reaction on violation.
     /// @param desc error descriptor
-    void onReportViolation(er::ErrorDescriptor desc) noexcept override;
+    void onReportViolation(er::ErrorDescriptor desc) override;
 
     /// @brief Indicates whether there was a panic call previously.
     /// @return true if there was a panic call, false otherwise
