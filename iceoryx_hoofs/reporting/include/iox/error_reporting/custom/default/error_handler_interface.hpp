@@ -17,9 +17,9 @@
 #ifndef IOX_HOOFS_REPORTING_ERROR_REPORTING_CUSTOM_ERROR_HANDLER_INTERFACE_HPP
 #define IOX_HOOFS_REPORTING_ERROR_REPORTING_CUSTOM_ERROR_HANDLER_INTERFACE_HPP
 
-#include "iox/error_reporting/errors.hpp"
 #include "iox/error_reporting/source_location.hpp"
 #include "iox/error_reporting/types.hpp"
+#include "iox/error_reporting/violation.hpp"
 
 namespace iox
 {

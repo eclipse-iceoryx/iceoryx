@@ -19,9 +19,9 @@
 
 #include "iox/error_reporting/error_kind.hpp"
 #include "iox/error_reporting/error_logging.hpp"
-#include "iox/error_reporting/errors.hpp"
 #include "iox/error_reporting/source_location.hpp"
 #include "iox/error_reporting/types.hpp"
+#include "iox/error_reporting/violation.hpp"
 
 #include "iox/error_reporting/custom/default/error_handler.hpp"
 #include "iox/error_reporting/custom/error_kind.hpp"

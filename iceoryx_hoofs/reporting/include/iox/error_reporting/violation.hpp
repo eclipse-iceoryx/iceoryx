@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_REPORTING_ERROR_REPORTING_ERRORS_HPP
-#define IOX_HOOFS_REPORTING_ERROR_REPORTING_ERRORS_HPP
+#ifndef IOX_HOOFS_ERROR_REPORTING_VIOLATION_HPP
+#define IOX_HOOFS_ERROR_REPORTING_VIOLATION_HPP
 
 #include <utility>
 
@@ -102,4 +102,4 @@ class Violation
 } // namespace er
 } // namespace iox
 
-#endif // IOX_HOOFS_ERROR_REPORTING_ERRORS_HPP
+#endif // IOX_HOOFS_ERROR_REPORTING_VIOLATION_HPP

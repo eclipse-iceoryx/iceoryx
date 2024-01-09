@@ -20,9 +20,9 @@
 
 #include "iox/error_reporting/custom/default/error_handler_interface.hpp"
 #include "iox/error_reporting/error_logging.hpp"
-#include "iox/error_reporting/errors.hpp"
 #include "iox/error_reporting/source_location.hpp"
 #include "iox/error_reporting/types.hpp"
+#include "iox/error_reporting/violation.hpp"
 #include "iox/static_lifetime_guard.hpp"
 
 #include "iceoryx_hoofs/testing/test.hpp"

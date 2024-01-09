@@ -16,8 +16,8 @@
 
 #include "iox/error_reporting/custom/error_kind.hpp"
 #include "iox/error_reporting/error_kind.hpp"
-#include "iox/error_reporting/errors.hpp"
 #include "iox/error_reporting/source_location.hpp"
+#include "iox/error_reporting/violation.hpp"
 #include "moduletests/error_reporting/module_a/errors.hpp"
 #include "test.hpp"
 #include <gtest/gtest.h>

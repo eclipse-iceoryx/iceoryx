@@ -17,8 +17,8 @@
 #ifndef IOX_HOOFS_MODULETESTS_ERROR_REPORTING_MODULE_B_ERRORS_HPP
 #define IOX_HOOFS_MODULETESTS_ERROR_REPORTING_MODULE_B_ERRORS_HPP
 
-#include "iox/error_reporting/errors.hpp"
 #include "iox/error_reporting/types.hpp"
+#include "iox/error_reporting/violation.hpp"
 
 namespace module_b
 {
