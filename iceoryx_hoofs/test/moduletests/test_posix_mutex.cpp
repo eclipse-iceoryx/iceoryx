@@ -138,24 +138,31 @@ TEST_F(Mutex_test, TryLockReturnsFalseWhenMutexLockedInOtherThreadRecursiveMutex
 void lockedMutexBlocks(Mutex_test* test, mutex& mutex)
 {
     const std::chrono::milliseconds WAIT_IN_MS(100);
+    std::chrono::milliseconds blockingDuration{0};
 
     ASSERT_FALSE(mutex.lock().has_error());
 
     std::thread lockThread([&] {
+        auto start = std::chrono::steady_clock::now();
         test->signalThreadReady();
 
-        auto start = std::chrono::steady_clock::now();
         EXPECT_FALSE(mutex.lock().has_error());
         EXPECT_FALSE(mutex.unlock().has_error());
         auto end = std::chrono::steady_clock::now();
-        EXPECT_THAT(end - start, Gt(WAIT_IN_MS));
+        blockingDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
     });
 
     test->waitForThread();
 
+    auto start = std::chrono::steady_clock::now();
     std::this_thread::sleep_for(WAIT_IN_MS);
+    auto end = std::chrono::steady_clock::now();
+    auto realWaitDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+
     ASSERT_FALSE(mutex.unlock().has_error());
     lockThread.join();
+
+    EXPECT_THAT(blockingDuration.count(), Ge(realWaitDuration.count()));
 }
 
 TEST_F(Mutex_test, LockedMutexBlocksNonRecursiveMutex)
