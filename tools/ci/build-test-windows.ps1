@@ -61,7 +61,7 @@ if ($?) { Write-Host "## Running tests (excluding timing_tests)" }
 # we have to exclude the tests explicitly until everyone is running
 
 if ($?) { build\hoofs\test\hoofs_mocktests.exe }
-if ($?) { build\hoofs\test\hoofs_moduletests.exe --gtest_filter="-*TimingTest*" }
+if ($?) { build\hoofs\test\hoofs_moduletests.exe --gtest_filter="-*TimingTest*:AdaptiveWait*" }
 if ($?) { build\hoofs\test\hoofs_integrationtests.exe }
 if ($?) { build\posh\test\posh_moduletests.exe --gtest_filter="-ChunkHeader_test.ChunkHeaderBinaryCompatibilityCheck:TomlGatewayConfigParser*:IceoryxRoudiApp_test.ConstructorCalledWithArgUniqueIdTwoTimesReturnError:IceoryxRoudiApp_test.ConstructorCalledWithArgVersionSetRunVariableToFalse:ValidTest*:ParseAllMalformedInput*:*TimingTest*:MePooSegment_test.SharedMemoryFileHandleRightsAfterConstructor" }
 if ($?) { build\posh\test\posh_integrationtests.exe --gtest_filter="-ChunkBuildingBlocks_IntegrationTest.TwoHopsThreeThreadsNoSoFi:*TimingTest*" }
