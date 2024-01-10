@@ -109,7 +109,7 @@ int iox_sem_trywait(iox_sem_t* sem)
 int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
 {
     struct timeval tv;
-    gettimeofday(&tv, nullptr);
+    iox_gettimeofday(&tv, nullptr);
     if (abs_timeout->tv_sec < tv.tv_sec
         || (abs_timeout->tv_sec == tv.tv_sec && abs_timeout->tv_nsec <= tv.tv_usec * 1000))
     {

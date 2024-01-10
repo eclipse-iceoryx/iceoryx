@@ -23,13 +23,15 @@
 #include <sys/time.h>
 #include <thread>
 
+using iox_clockid_t = clockid_t;
+
 struct itimerspec
 {
     timespec it_interval;
     timespec it_value;
 };
 
-struct appleTimer_t
+struct IceoryxPlatformTimer_t
 {
     std::thread thread;
     void (*callback)(union sigval);
@@ -48,12 +50,22 @@ struct appleTimer_t
     } parameter;
 };
 
-using timer_t = appleTimer_t*;
+using iox_timer_t = IceoryxPlatformTimer_t*;
 
-int timer_create(clockid_t clockid, struct sigevent* sevp, timer_t* timerid);
-int timer_delete(timer_t timerid);
-int timer_settime(timer_t timerid, int flags, const struct itimerspec* new_value, struct itimerspec* old_value);
-int timer_gettime(timer_t timerid, struct itimerspec* curr_value);
-int timer_getoverrun(timer_t timerid);
+int iox_timer_create(iox_clockid_t clockid, struct sigevent* sevp, iox_timer_t* timerid);
+int iox_timer_delete(iox_timer_t timerid);
+int iox_timer_settime(iox_timer_t timerid, int flags, const struct itimerspec* new_value, struct itimerspec* old_value);
+int iox_timer_gettime(iox_timer_t timerid, struct itimerspec* curr_value);
+int iox_timer_getoverrun(iox_timer_t timerid);
+
+
+inline int iox_clock_gettime(iox_clockid_t clk_id, struct timespec* tp)
+{
+    return clock_gettime(clk_id, tp);
+}
+inline int iox_gettimeofday(struct timeval* tp, struct timezone* tzp)
+{
+    return gettimeofday(tp, tzp);
+}
 
 #endif // IOX_HOOFS_MAC_PLATFORM_TIME_HPP

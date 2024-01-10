@@ -1080,13 +1080,13 @@ TEST(Duration_test, ConvertTimespecWithMonotonicReference)
     constexpr int64_t NANOSECONDS{66};
 
     struct timespec referenceTimeForMonotonicEpoch = {};
-    ASSERT_FALSE((IOX_POSIX_CALL(clock_gettime)(CLOCK_MONOTONIC, &referenceTimeForMonotonicEpoch)
+    ASSERT_FALSE((IOX_POSIX_CALL(iox_clock_gettime)(CLOCK_MONOTONIC, &referenceTimeForMonotonicEpoch)
                       .failureReturnValue(-1)
                       .evaluate()
                       .has_error()));
 
     struct timespec referenceTimeForUnixEpoch = {};
-    ASSERT_FALSE((IOX_POSIX_CALL(clock_gettime)(CLOCK_REALTIME, &referenceTimeForUnixEpoch)
+    ASSERT_FALSE((IOX_POSIX_CALL(iox_clock_gettime)(CLOCK_REALTIME, &referenceTimeForUnixEpoch)
                       .failureReturnValue(-1)
                       .evaluate()
                       .has_error()));
