@@ -33,15 +33,15 @@ using ThreadName_t IOX_DEPRECATED_SINCE(3,
                                         "Please use 'iox::ThreadName_t' from 'iox/thread.hpp' instead.") = ThreadName_t;
 
 IOX_DEPRECATED_SINCE(3, "Please use 'iox::setThreadName' from 'iox/thread.hpp' instead.")
-inline void setThreadName(std::thread::native_handle_type thread, const ThreadName_t& name) noexcept
+inline void setThreadName(const ThreadName_t& name) noexcept
 {
-    iox::setThreadName(thread, name);
+    iox::setThreadName(name);
 }
 
 IOX_DEPRECATED_SINCE(3, "Please use 'iox::getThreadName' from 'iox/thread.hpp' instead.")
-inline ThreadName_t getThreadName(std::thread::native_handle_type thread) noexcept
+inline ThreadName_t getThreadName() noexcept
 {
-    return iox::getThreadName(thread);
+    return iox::getThreadName();
 }
 
 } // namespace posix

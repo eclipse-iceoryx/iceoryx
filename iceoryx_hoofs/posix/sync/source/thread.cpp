@@ -20,25 +20,31 @@
 
 namespace iox
 {
-void setThreadName(std::thread::native_handle_type thread, const ThreadName_t& name) noexcept
+bool setThreadName(const ThreadName_t& name) noexcept
 {
-    IOX_POSIX_CALL(iox_pthread_setname_np)
-    (thread, name.c_str()).successReturnValue(0).evaluate().or_else([](auto& r) {
-        // String length limit is ensured through iox::string
-        // ERANGE (string too long) intentionally not handled to avoid untestable and dead code
-        IOX_LOG(ERROR, "This should never happen! " << r.getHumanReadableErrnum());
-        IOX_ENSURES(false && "internal logic error");
-    });
+    auto threadHandle = iox_pthread_self();
+    auto result =
+        IOX_POSIX_CALL(iox_pthread_setname_np)(threadHandle, name.c_str())
+            .successReturnValue(0)
+            .evaluate()
+            .or_else([&name](auto& r) {
+                // String length limit is ensured through iox::string
+                // ERANGE (string too long) intentionally not handled to avoid untestable and dead code
+                IOX_LOG(WARN, "Failed to set thread name '" << name << "'! error: " << r.getHumanReadableErrnum());
+            });
+
+    return !result.has_error();
 }
 
-ThreadName_t getThreadName(std::thread::native_handle_type thread) noexcept
+ThreadName_t getThreadName() noexcept
 {
     // NOLINTJUSTIFICATION required as name buffer for iox_pthread_getname_np
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     char tempName[MAX_THREAD_NAME_LENGTH + 1U];
 
+    auto threadHandle = iox_pthread_self();
     IOX_POSIX_CALL(iox_pthread_getname_np)
-    (thread, &tempName[0], MAX_THREAD_NAME_LENGTH + 1U).successReturnValue(0).evaluate().or_else([](auto& r) {
+    (threadHandle, &tempName[0], MAX_THREAD_NAME_LENGTH + 1U).successReturnValue(0).evaluate().or_else([](auto& r) {
         // String length limit is ensured through MAX_THREAD_NAME_LENGTH
         // ERANGE (string too small) intentionally not handled to avoid untestable and dead code
         IOX_LOG(ERROR, "This should never happen! " << r.getHumanReadableErrnum());
@@ -130,13 +136,11 @@ ThreadError Thread::errnoToEnum(const int errnoValue) noexcept
 void* Thread::startRoutine(void* callable)
 {
     auto* self = static_cast<Thread*>(callable);
-    auto threadHandle = iox_pthread_self();
 
-    IOX_POSIX_CALL(iox_pthread_setname_np)
-    (threadHandle, self->m_threadName.c_str()).successReturnValue(0).evaluate().or_else([&self](auto&) {
-        IOX_LOG(WARN, "failed to set thread name " << self->m_threadName);
+    if (!setThreadName(self->m_threadName))
+    {
         self->m_threadName.clear();
-    });
+    }
 
     self->m_callable();
     return nullptr;

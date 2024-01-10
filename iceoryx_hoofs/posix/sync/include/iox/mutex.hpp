@@ -138,7 +138,7 @@ class mutex
     friend class MutexBuilder;
     friend class optional<mutex>;
 
-    pthread_mutex_t m_handle = PTHREAD_MUTEX_INITIALIZER;
+    iox_pthread_mutex_t m_handle = IOX_PTHREAD_MUTEX_INITIALIZER;
     bool m_isDestructable = true;
     bool m_hasInconsistentState = false;
 };
@@ -148,17 +148,17 @@ enum class MutexType : int32_t
 {
     /// @brief Behavior without error detection and multiple locks from within
     ///        the same thread lead to deadlock
-    NORMAL = PTHREAD_MUTEX_NORMAL,
+    NORMAL = IOX_PTHREAD_MUTEX_NORMAL,
 
     /// @brief Multiple locks from within the same thread do not lead to deadlock
     ///        but one requires the same amount of unlocks to make the thread lockable
     ///        from other threads
-    RECURSIVE = PTHREAD_MUTEX_RECURSIVE,
+    RECURSIVE = IOX_PTHREAD_MUTEX_RECURSIVE,
 
     /// @brief Multiple locks from within the same thread will be detected and
     ///        reported. It detects also when unlock is called from a different
     ///        thread.
-    WITH_DEADLOCK_DETECTION = PTHREAD_MUTEX_ERRORCHECK,
+    WITH_DEADLOCK_DETECTION = IOX_PTHREAD_MUTEX_ERRORCHECK,
 };
 
 /// @brief Describes how the priority of a mutex owning thread changes when another thread
@@ -166,15 +166,15 @@ enum class MutexType : int32_t
 enum class MutexPriorityInheritance : int32_t
 {
     /// @brief No priority setting.
-    NONE = PTHREAD_PRIO_NONE,
+    NONE = IOX_PTHREAD_PRIO_NONE,
 
     /// @brief The priority of a thread holding the mutex is promoted to the priority of the
     ///        highest priority thread waiting for the lock.
-    INHERIT = PTHREAD_PRIO_INHERIT,
+    INHERIT = IOX_PTHREAD_PRIO_INHERIT,
 
     /// @brief The priority of a thread holding the mutex is always promoted to the priority set up
     ///        in priorityCeiling.
-    PROTECT = PTHREAD_PRIO_PROTECT
+    PROTECT = IOX_PTHREAD_PRIO_PROTECT
 };
 
 /// @brief Defines the behavior when a mutex owning thread is terminated
@@ -182,14 +182,14 @@ enum class MutexThreadTerminationBehavior : int32_t
 {
     /// @brief The mutex stays locked, is unlockable and no longer usable.
     ///        This can also lead to a mutex leak in the destructor.
-    STALL_WHEN_LOCKED = PTHREAD_MUTEX_STALLED,
+    STALL_WHEN_LOCKED = IOX_PTHREAD_MUTEX_STALLED,
 
     /// @brief It implies the same behavior as MutexType::WITH_DEADLOCK_DETECTION. Additionally, when a mutex owning
     ///        thread/process dies the mutex is put into an inconsistent state which can be recovered with
     ///        Mutex::make_consistent(). The inconsistent state is detected by the next instance which calls
     ///        Mutex::lock() or Mutex::try_lock() by the error value
     ///        MutexError::LOCK_ACQUIRED_BUT_HAS_INCONSISTENT_STATE_SINCE_OWNER_DIED
-    RELEASE_WHEN_LOCKED = PTHREAD_MUTEX_ROBUST,
+    RELEASE_WHEN_LOCKED = IOX_PTHREAD_MUTEX_ROBUST,
 };
 
 /// @brief Builder which creates a posix mutex

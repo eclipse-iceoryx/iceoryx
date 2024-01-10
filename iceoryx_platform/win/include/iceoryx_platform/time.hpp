@@ -32,7 +32,6 @@
 #include <mutex>
 #include <thread>
 
-
 #define CLOCK_REALTIME 0
 #define CLOCK_MONOTONIC 1
 
@@ -44,7 +43,6 @@ struct itimerspec
     timespec it_interval;
     timespec it_value;
 };
-
 
 struct appleTimer_t
 {

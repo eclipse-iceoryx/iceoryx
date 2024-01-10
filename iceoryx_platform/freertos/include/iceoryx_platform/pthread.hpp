@@ -28,74 +28,105 @@
 #include "FreeRTOS_POSIX.h"
 #include "FreeRTOS_POSIX/pthread.h"
 
-#include <thread>
+#define IOX_PTHREAD_MUTEX_INITIALIZER PTHREAD_MUTEX_INITIALIZER
+#define IOX_PTHREAD_PROCESS_SHARED PTHREAD_PROCESS_SHARED
+#define IOX_PTHREAD_PROCESS_PRIVATE 0
+#define IOX_PTHREAD_MUTEX_RECURSIVE 1
+#define IOX_PTHREAD_MUTEX_NORMAL PTHREAD_MUTEX_NORMAL
+#define IOX_PTHREAD_MUTEX_ERRORCHECK PTHREAD_MUTEX_ERRORCHECK
+#define IOX_PTHREAD_MUTEX_DEFAULT PTHREAD_MUTEX_DEFAULT
 
-#define PTHREAD_MUTEX_STALLED 1
-#define PTHREAD_MUTEX_ROBUST 2
+#define IOX_PTHREAD_MUTEX_STALLED 1
+#define IOX_PTHREAD_MUTEX_ROBUST 2
 
-#define PTHREAD_MUTEX_RECURSIVE_NP PTHREAD_MUTEX_RECURSIVE
-#define PTHREAD_MUTEX_FAST_NP PTHREAD_MUTEX_DEFAULT
+/* Values for blocking protocol. */
+#define IOX_PTHREAD_PRIO_NONE 0
+#define IOX_PTHREAD_PRIO_INHERIT 1
+#define IOX_PTHREAD_PRIO_PROTECT 2
 
-#define PTHREAD_PROCESS_PRIVATE 0
-#define PTHREAD_PROCESS_SHARED 1
+using iox_pthread_mutex_t = pthread_mutex_t;
+using iox_pthread_mutexattr_t = pthread_mutexattr_t;
+
+inline int iox_pthread_mutexattr_init(iox_pthread_mutexattr_t* attr)
+{
+    return pthread_mutexattr_init(attr);
+}
+
+inline int iox_pthread_mutexattr_destroy(iox_pthread_mutexattr_t* attr)
+{
+    return pthread_mutexattr_destroy(attr);
+}
+
+inline int iox_pthread_mutexattr_setpshared(iox_pthread_mutexattr_t* attr, int pshared)
+{
+    // Not needed on FreeRTOS
+    return 0;
+}
+
+inline int iox_pthread_mutexattr_settype(iox_pthread_mutexattr_t* attr, int type)
+{
+    return pthread_mutexattr_settype(attr, type);
+}
+
+inline int iox_pthread_mutexattr_setprotocol(iox_pthread_mutexattr_t* attr, int protocol)
+{
+    // Not needed on FreeRTOS
+    return 0;
+}
+
+inline int iox_pthread_mutexattr_setrobust(iox_pthread_mutexattr_t* attr, int robustness)
+{
+    // Not needed on FreeRTOS
+    return 0;
+}
+
+inline int iox_pthread_mutexattr_setprioceiling(iox_pthread_mutexattr_t* attr, int prioceiling)
+{
+    // Not needed on FreeRTOS
+    return 0;
+}
+
+inline int iox_pthread_mutex_init(iox_pthread_mutex_t* mutex, const iox_pthread_mutexattr_t* attr)
+{
+    return pthread_mutex_init(mutex, attr);
+}
+
+inline int iox_pthread_mutex_destroy(iox_pthread_mutex_t* mutex)
+{
+    return pthread_mutex_destroy(mutex);
+}
+
+inline int iox_pthread_mutex_lock(iox_pthread_mutex_t* mutex)
+{
+    return pthread_mutex_lock(mutex);
+}
+
+inline int iox_pthread_mutex_trylock(iox_pthread_mutex_t* mutex)
+{
+    return pthread_mutex_trylock(mutex);
+}
+
+inline int iox_pthread_mutex_unlock(iox_pthread_mutex_t* mutex)
+{
+    return pthread_mutex_unlock(mutex);
+}
+
+inline int iox_pthread_mutex_consistent(iox_pthread_mutex_t* mutex)
+{
+    // Not needed on FreeRTOS
+    return 0;
+}
 
 using iox_pthread_t = pthread_t;
 using iox_pthread_attr_t = pthread_attr_t;
 
-inline int iox_pthread_getname_np(std::thread::native_handle_type, char*, size_t)
+inline int iox_pthread_setname_np(iox_pthread_t, const char*)
 {
     // Not needed on FreeRTOS
     return 0;
 }
 
-inline int iox_pthread_setname_np(std::thread::native_handle_type, const char*)
-{
-    // Not needed on FreeRTOS
-    return 0;
-}
-
-inline int pthread_mutexattr_getpshared(const pthread_mutexattr_t*, int*)
-{
-    // Not needed on FreeRTOS
-    return 0;
-}
-
-inline int pthread_mutexattr_setpshared(pthread_mutexattr_t*, int)
-{
-    // Not needed on FreeRTOS
-    return 0;
-}
-
-inline int pthread_mutexattr_getprotocol(const pthread_mutexattr_t*, int*)
-{
-    // Not needed on FreeRTOS
-    return 0;
-}
-
-/* Values for blocking protocol. */
-#define PTHREAD_PRIO_NONE 0
-#define PTHREAD_PRIO_INHERIT 1
-#define PTHREAD_PRIO_PROTECT 2
-
-inline int pthread_mutexattr_setprotocol(pthread_mutexattr_t*, int)
-{
-    // Not needed on FreeRTOS
-    return 0;
-}
-
-inline int pthread_mutexattr_setrobust(pthread_mutexattr_t*, int)
-{
-    // Not needed on FreeRTOS
-    return 0;
-}
-
-inline int pthread_mutexattr_setprioceiling(pthread_mutexattr_t*, int)
-{
-    // Not needed on FreeRTOS
-    return 0;
-}
-
-inline int pthread_mutex_consistent(pthread_mutex_t*)
+inline int iox_pthread_getname_np(iox_pthread_t, char*, size_t)
 {
     // Not needed on FreeRTOS
     return 0;
@@ -112,10 +143,9 @@ inline int iox_pthread_join(iox_pthread_t thread, void** retval)
     return pthread_join(thread, retval);
 }
 
-inline std::thread::native_handle_type iox_pthread_self()
+inline iox_pthread_t iox_pthread_self()
 {
     return {};
 }
-
 
 #endif // IOX_HOOFS_FREERTOS_PLATFORM_PTHREAD_HPP

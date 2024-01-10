@@ -39,7 +39,7 @@ struct MutexAttributes
         if (m_attributes)
         {
             auto destroyResult =
-                IOX_POSIX_CALL(pthread_mutexattr_destroy)(&*m_attributes).returnValueMatchesErrno().evaluate();
+                IOX_POSIX_CALL(iox_pthread_mutexattr_destroy)(&*m_attributes).returnValueMatchesErrno().evaluate();
             if (destroyResult.has_error())
             {
                 IOX_LOG(ERROR,
@@ -51,7 +51,7 @@ struct MutexAttributes
     expected<void, MutexCreationError> init() noexcept
     {
         m_attributes.emplace();
-        auto result = IOX_POSIX_CALL(pthread_mutexattr_init)(&*m_attributes).returnValueMatchesErrno().evaluate();
+        auto result = IOX_POSIX_CALL(iox_pthread_mutexattr_init)(&*m_attributes).returnValueMatchesErrno().evaluate();
         if (result.has_error())
         {
             switch (result.error().errnum)
@@ -72,8 +72,9 @@ struct MutexAttributes
     expected<void, MutexCreationError> enableIpcSupport(const bool enableIpcSupport) noexcept
     {
         auto result =
-            IOX_POSIX_CALL(pthread_mutexattr_setpshared)(
-                &*m_attributes, static_cast<int>((enableIpcSupport) ? PTHREAD_PROCESS_SHARED : PTHREAD_PROCESS_PRIVATE))
+            IOX_POSIX_CALL(iox_pthread_mutexattr_setpshared)(
+                &*m_attributes,
+                static_cast<int>((enableIpcSupport) ? IOX_PTHREAD_PROCESS_SHARED : IOX_PTHREAD_PROCESS_PRIVATE))
                 .returnValueMatchesErrno()
                 .evaluate();
         if (result.has_error())
@@ -96,7 +97,7 @@ struct MutexAttributes
 
     expected<void, MutexCreationError> setType(const MutexType mutexType) noexcept
     {
-        auto result = IOX_POSIX_CALL(pthread_mutexattr_settype)(&*m_attributes, static_cast<int>(mutexType))
+        auto result = IOX_POSIX_CALL(iox_pthread_mutexattr_settype)(&*m_attributes, static_cast<int>(mutexType))
                           .returnValueMatchesErrno()
                           .evaluate();
         if (result.has_error())
@@ -111,7 +112,7 @@ struct MutexAttributes
     expected<void, MutexCreationError> setProtocol(const MutexPriorityInheritance priorityInheritance)
     {
         auto result =
-            IOX_POSIX_CALL(pthread_mutexattr_setprotocol)(&*m_attributes, static_cast<int>(priorityInheritance))
+            IOX_POSIX_CALL(iox_pthread_mutexattr_setprotocol)(&*m_attributes, static_cast<int>(priorityInheritance))
                 .returnValueMatchesErrno()
                 .evaluate();
         if (result.has_error())
@@ -140,7 +141,7 @@ struct MutexAttributes
     expected<void, MutexCreationError> setPrioCeiling(const int32_t priorityCeiling) noexcept
     {
         auto result =
-            IOX_POSIX_CALL(pthread_mutexattr_setprioceiling)(&*m_attributes, static_cast<int>(priorityCeiling))
+            IOX_POSIX_CALL(iox_pthread_mutexattr_setprioceiling)(&*m_attributes, static_cast<int>(priorityCeiling))
                 .returnValueMatchesErrno()
                 .evaluate();
         if (result.has_error())
@@ -173,7 +174,7 @@ struct MutexAttributes
     expected<void, MutexCreationError>
     setThreadTerminationBehavior(const MutexThreadTerminationBehavior behavior) noexcept
     {
-        auto result = IOX_POSIX_CALL(pthread_mutexattr_setrobust)(&*m_attributes, static_cast<int>(behavior))
+        auto result = IOX_POSIX_CALL(iox_pthread_mutexattr_setrobust)(&*m_attributes, static_cast<int>(behavior))
                           .returnValueMatchesErrno()
                           .evaluate();
         if (result.has_error())
@@ -187,13 +188,13 @@ struct MutexAttributes
         return ok();
     }
 
-    optional<pthread_mutexattr_t> m_attributes;
+    optional<iox_pthread_mutexattr_t> m_attributes;
 };
 
-expected<void, MutexCreationError> initializeMutex(pthread_mutex_t* const handle,
-                                                   const pthread_mutexattr_t* const attributes) noexcept
+expected<void, MutexCreationError> initializeMutex(iox_pthread_mutex_t* const handle,
+                                                   const iox_pthread_mutexattr_t* const attributes) noexcept
 {
-    auto initResult = IOX_POSIX_CALL(pthread_mutex_init)(handle, attributes).returnValueMatchesErrno().evaluate();
+    auto initResult = IOX_POSIX_CALL(iox_pthread_mutex_init)(handle, attributes).returnValueMatchesErrno().evaluate();
     if (initResult.has_error())
     {
         switch (initResult.error().errnum)
@@ -285,7 +286,7 @@ mutex::~mutex() noexcept
 {
     if (m_isDestructable)
     {
-        auto destroyCall = IOX_POSIX_CALL(pthread_mutex_destroy)(&m_handle).returnValueMatchesErrno().evaluate();
+        auto destroyCall = IOX_POSIX_CALL(iox_pthread_mutex_destroy)(&m_handle).returnValueMatchesErrno().evaluate();
 
         if (destroyCall.has_error())
         {
@@ -308,7 +309,7 @@ void mutex::make_consistent() noexcept
 {
     if (this->m_hasInconsistentState)
     {
-        IOX_POSIX_CALL(pthread_mutex_consistent)
+        IOX_POSIX_CALL(iox_pthread_mutex_consistent)
         (&m_handle)
             .returnValueMatchesErrno()
             .evaluate()
@@ -321,7 +322,7 @@ void mutex::make_consistent() noexcept
 
 expected<void, MutexLockError> mutex::lock() noexcept
 {
-    auto result = IOX_POSIX_CALL(pthread_mutex_lock)(&m_handle).returnValueMatchesErrno().evaluate();
+    auto result = IOX_POSIX_CALL(iox_pthread_mutex_lock)(&m_handle).returnValueMatchesErrno().evaluate();
     if (result.has_error())
     {
         switch (result.error().errnum)
@@ -355,7 +356,7 @@ expected<void, MutexLockError> mutex::lock() noexcept
 
 expected<void, MutexUnlockError> mutex::unlock() noexcept
 {
-    auto result = IOX_POSIX_CALL(pthread_mutex_unlock)(&m_handle).returnValueMatchesErrno().evaluate();
+    auto result = IOX_POSIX_CALL(iox_pthread_mutex_unlock)(&m_handle).returnValueMatchesErrno().evaluate();
     if (result.has_error())
     {
         switch (result.error().errnum)
@@ -379,7 +380,7 @@ expected<void, MutexUnlockError> mutex::unlock() noexcept
 expected<MutexTryLock, MutexTryLockError> mutex::try_lock() noexcept
 {
     auto result =
-        IOX_POSIX_CALL(pthread_mutex_trylock)(&m_handle).returnValueMatchesErrno().ignoreErrnos(EBUSY).evaluate();
+        IOX_POSIX_CALL(iox_pthread_mutex_trylock)(&m_handle).returnValueMatchesErrno().ignoreErrnos(EBUSY).evaluate();
 
     if (result.has_error())
     {
