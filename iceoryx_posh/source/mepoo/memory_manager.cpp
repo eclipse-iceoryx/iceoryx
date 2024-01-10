@@ -40,10 +40,10 @@ void MemoryManager::printMemPoolVector(log::LogStream& log) const noexcept
 
 void MemoryManager::addMemPool(BumpAllocator& managementAllocator,
                                BumpAllocator& chunkMemoryAllocator,
-                               const greater_or_equal<uint32_t, MemPool::CHUNK_MEMORY_ALIGNMENT> chunkPayloadSize,
+                               const greater_or_equal<uint64_t, MemPool::CHUNK_MEMORY_ALIGNMENT> chunkPayloadSize,
                                const greater_or_equal<uint32_t, 1> numberOfChunks) noexcept
 {
-    uint32_t adjustedChunkSize = sizeWithChunkHeaderStruct(static_cast<uint32_t>(chunkPayloadSize));
+    uint64_t adjustedChunkSize = sizeWithChunkHeaderStruct(static_cast<uint64_t>(chunkPayloadSize));
     if (m_denyAddMemPool)
     {
         IOX_LOG(FATAL, "After the generation of the chunk management pool you are not allowed to create new mempools.");
@@ -58,7 +58,7 @@ void MemoryManager::addMemPool(BumpAllocator& managementAllocator,
                 return log;
             } << "These mempools must be added in an increasing chunk size ordering. The newly added  MemPool [ "
                  "ChunkSize = "
-              << adjustedChunkSize << ", ChunkPayloadSize = " << static_cast<uint32_t>(chunkPayloadSize)
+              << adjustedChunkSize << ", ChunkPayloadSize = " << static_cast<uint64_t>(chunkPayloadSize)
               << ", ChunkCount = " << static_cast<uint32_t>(numberOfChunks) << "] breaks that requirement!");
         errorHandler(iox::PoshError::MEPOO__MEMPOOL_CONFIG_MUST_BE_ORDERED_BY_INCREASING_SIZE);
     }
@@ -70,7 +70,7 @@ void MemoryManager::addMemPool(BumpAllocator& managementAllocator,
 void MemoryManager::generateChunkManagementPool(BumpAllocator& managementAllocator) noexcept
 {
     m_denyAddMemPool = true;
-    uint32_t chunkSize = sizeof(ChunkManagement);
+    uint64_t chunkSize = sizeof(ChunkManagement);
     m_chunkManagementPool.emplace_back(chunkSize, m_totalNumberOfChunks, managementAllocator, managementAllocator);
 }
 
@@ -88,9 +88,9 @@ MemPoolInfo MemoryManager::getMemPoolInfo(const uint32_t index) const noexcept
     return m_memPoolVector[index].getInfo();
 }
 
-uint32_t MemoryManager::sizeWithChunkHeaderStruct(const MaxChunkPayloadSize_t size) noexcept
+uint64_t MemoryManager::sizeWithChunkHeaderStruct(const MaxChunkPayloadSize_t size) noexcept
 {
-    return size + static_cast<uint32_t>(sizeof(ChunkHeader));
+    return size + sizeof(ChunkHeader);
 }
 
 uint64_t MemoryManager::requiredChunkMemorySize(const MePooConfig& mePooConfig) noexcept
@@ -149,11 +149,11 @@ expected<SharedChunk, MemoryManager::Error> MemoryManager::getChunk(const ChunkS
     MemPool* memPoolPointer{nullptr};
     const auto requiredChunkSize = chunkSettings.requiredChunkSize();
 
-    uint32_t aquiredChunkSize = 0U;
+    uint64_t aquiredChunkSize = 0U;
 
     for (auto& memPool : m_memPoolVector)
     {
-        uint32_t chunkSizeOfMemPool = memPool.getChunkSize();
+        uint64_t chunkSizeOfMemPool = memPool.getChunkSize();
         if (chunkSizeOfMemPool >= requiredChunkSize)
         {
             chunk = memPool.getChunk();

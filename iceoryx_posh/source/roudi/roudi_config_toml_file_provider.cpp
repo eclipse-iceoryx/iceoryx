@@ -144,7 +144,7 @@ TomlRouDiConfigFileProvider::parse(std::istream& stream) noexcept
 
         for (auto mempool : *mempools)
         {
-            auto chunkSize = mempool->get_as<uint32_t>("size");
+            auto chunkSize = mempool->get_as<uint64_t>("size");
             auto chunkCount = mempool->get_as<uint32_t>("count");
             if (!chunkSize)
             {

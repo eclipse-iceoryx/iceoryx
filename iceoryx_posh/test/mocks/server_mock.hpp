@@ -56,7 +56,7 @@ class MockServerPortUser : public MockBasePort
     MOCK_METHOD(bool, hasLostRequestsSinceLastCall, (), (noexcept));
     MOCK_METHOD((iox::expected<iox::popo::ResponseHeader*, iox::popo::AllocationError>),
                 allocateResponse,
-                (const iox::popo::RequestHeader* const, const uint32_t, const uint32_t),
+                (const iox::popo::RequestHeader* const, const uint64_t, const uint32_t),
                 (noexcept));
     MOCK_METHOD(void, releaseResponse, (const iox::popo::ResponseHeader* const), (noexcept));
     MOCK_METHOD((iox::expected<void, iox::popo::ServerSendError>),

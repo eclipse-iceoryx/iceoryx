@@ -35,7 +35,6 @@ class ChunkSettings
         ALIGNMENT_NOT_POWER_OF_TWO,
         USER_HEADER_ALIGNMENT_EXCEEDS_CHUNK_HEADER_ALIGNMENT,
         USER_HEADER_SIZE_NOT_MULTIPLE_OF_ITS_ALIGNMENT,
-        REQUIRED_CHUNK_SIZE_EXCEEDS_MAX_CHUNK_SIZE,
     };
 
     /// @brief constructs and initializes a ChunkSettings
@@ -45,18 +44,18 @@ class ChunkSettings
     /// @param[in] userHeaderSize is the size of the user-header
     /// @param[in] userHeaderAlignment is the alignment for the user-header
     static expected<ChunkSettings, ChunkSettings::Error>
-    create(const uint32_t userPayloadSize,
+    create(const uint64_t userPayloadSize,
            const uint32_t userPayloadAlignment = iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT,
            const uint32_t userHeaderSize = iox::CHUNK_NO_USER_HEADER_SIZE,
            const uint32_t userHeaderAlignment = iox::CHUNK_NO_USER_HEADER_ALIGNMENT) noexcept;
 
     /// @brief getter method for the chunk size fulfilling the user-payload and user-header requirements
     /// @return the chunk size
-    uint32_t requiredChunkSize() const noexcept;
+    uint64_t requiredChunkSize() const noexcept;
 
     /// @brief getter method for the user-payload size
     /// @return the user-payload size
-    uint32_t userPayloadSize() const noexcept;
+    uint64_t userPayloadSize() const noexcept;
 
     /// @brief getter method for the user-payload alignment
     /// @return the user-payload alignment
@@ -71,22 +70,22 @@ class ChunkSettings
     uint32_t userHeaderAlignment() const noexcept;
 
   private:
-    ChunkSettings(const uint32_t userPayloadSize,
+    ChunkSettings(const uint64_t userPayloadSize,
                   const uint32_t userPayloadAlignment,
                   const uint32_t userHeaderSize,
                   const uint32_t userHeaderAlignment,
-                  const uint32_t requiredChunkSize) noexcept;
+                  const uint64_t requiredChunkSize) noexcept;
 
-    static uint64_t calculateRequiredChunkSize(const uint32_t userPayloadSize,
+    static uint64_t calculateRequiredChunkSize(const uint64_t userPayloadSize,
                                                const uint32_t userPayloadAlignment,
                                                const uint32_t userHeaderSize) noexcept;
 
   private:
-    uint32_t m_userPayloadSize{0U};
+    uint64_t m_userPayloadSize{0U};
     uint32_t m_userPayloadAlignment{0U};
     uint32_t m_userHeaderSize{0U};
     uint32_t m_userHeaderAlignment{0U};
-    uint32_t m_requiredChunkSize{0U};
+    uint64_t m_requiredChunkSize{0U};
 };
 
 } // namespace mepoo

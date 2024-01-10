@@ -39,7 +39,7 @@ PublisherPortUser::MemberType_t* PublisherPortUser::getMembers() noexcept
 }
 
 expected<mepoo::ChunkHeader*, AllocationError>
-PublisherPortUser::tryAllocateChunk(const uint32_t userPayloadSize,
+PublisherPortUser::tryAllocateChunk(const uint64_t userPayloadSize,
                                     const uint32_t userPayloadAlignment,
                                     const uint32_t userHeaderSize,
                                     const uint32_t userHeaderAlignment) noexcept

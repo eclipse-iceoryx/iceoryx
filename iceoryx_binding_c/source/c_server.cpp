@@ -115,7 +115,7 @@ void iox_server_release_request(iox_server_t const self, const void* const paylo
 iox_AllocationResult iox_server_loan_response(iox_server_t const self,
                                               const void* const requestPayload,
                                               void** const payload,
-                                              const uint32_t payloadSize)
+                                              const uint64_t payloadSize)
 {
     return iox_server_loan_aligned_response(
         self, requestPayload, payload, payloadSize, IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
@@ -124,7 +124,7 @@ iox_AllocationResult iox_server_loan_response(iox_server_t const self,
 iox_AllocationResult iox_server_loan_aligned_response(iox_server_t const self,
                                                       const void* const requestPayload,
                                                       void** const payload,
-                                                      const uint32_t payloadSize,
+                                                      const uint64_t payloadSize,
                                                       const uint32_t payloadAlignment)
 {
     IOX_EXPECTS(self != nullptr);

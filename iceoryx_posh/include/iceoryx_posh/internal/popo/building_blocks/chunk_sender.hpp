@@ -99,7 +99,7 @@ class ChunkSender : public ChunkDistributor<typename ChunkSenderDataType::ChunkD
     /// @return on success pointer to a ChunkHeader which can be used to access the chunk-header, user-header and
     /// user-payload fields, error if not
     expected<mepoo::ChunkHeader*, AllocationError> tryAllocate(const UniquePortId originId,
-                                                               const uint32_t userPayloadSize,
+                                                               const uint64_t userPayloadSize,
                                                                const uint32_t userPayloadAlignment,
                                                                const uint32_t userHeaderSize,
                                                                const uint32_t userHeaderAlignment) noexcept;

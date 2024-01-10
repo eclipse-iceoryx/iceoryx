@@ -23,11 +23,11 @@ namespace iox
 {
 namespace mepoo
 {
-ChunkSettings::ChunkSettings(const uint32_t userPayloadSize,
+ChunkSettings::ChunkSettings(const uint64_t userPayloadSize,
                              const uint32_t userPayloadAlignment,
                              const uint32_t userHeaderSize,
                              const uint32_t userHeaderAlignment,
-                             const uint32_t requiredChunkSize) noexcept
+                             const uint64_t requiredChunkSize) noexcept
     : m_userPayloadSize(userPayloadSize)
     , m_userPayloadAlignment(userPayloadAlignment)
     , m_userHeaderSize(userHeaderSize)
@@ -36,7 +36,7 @@ ChunkSettings::ChunkSettings(const uint32_t userPayloadSize,
 {
 }
 
-expected<ChunkSettings, ChunkSettings::Error> ChunkSettings::create(const uint32_t userPayloadSize,
+expected<ChunkSettings, ChunkSettings::Error> ChunkSettings::create(const uint64_t userPayloadSize,
                                                                     const uint32_t userPayloadAlignment,
                                                                     const uint32_t userHeaderSize,
                                                                     const uint32_t userHeaderAlignment) noexcept
@@ -66,18 +66,10 @@ expected<ChunkSettings, ChunkSettings::Error> ChunkSettings::create(const uint32
     uint64_t requiredChunkSize =
         calculateRequiredChunkSize(userPayloadSize, adjustedUserPayloadAlignment, userHeaderSize);
 
-    if (requiredChunkSize > std::numeric_limits<uint32_t>::max())
-    {
-        return err(ChunkSettings::Error::REQUIRED_CHUNK_SIZE_EXCEEDS_MAX_CHUNK_SIZE);
-    }
-
-    return ok(ChunkSettings{userPayloadSize,
-                            adjustedUserPayloadAlignment,
-                            userHeaderSize,
-                            adjustedUserHeaderAlignment,
-                            static_cast<uint32_t>(requiredChunkSize)});
+    return ok(ChunkSettings{
+        userPayloadSize, adjustedUserPayloadAlignment, userHeaderSize, adjustedUserHeaderAlignment, requiredChunkSize});
 }
-uint64_t ChunkSettings::calculateRequiredChunkSize(const uint32_t userPayloadSize,
+uint64_t ChunkSettings::calculateRequiredChunkSize(const uint64_t userPayloadSize,
                                                    const uint32_t userPayloadAlignment,
                                                    const uint32_t userHeaderSize) noexcept
 {
@@ -111,12 +103,12 @@ uint64_t ChunkSettings::calculateRequiredChunkSize(const uint32_t userPayloadSiz
     return requiredChunkSize;
 }
 
-uint32_t ChunkSettings::requiredChunkSize() const noexcept
+uint64_t ChunkSettings::requiredChunkSize() const noexcept
 {
     return m_requiredChunkSize;
 }
 
-uint32_t ChunkSettings::userPayloadSize() const noexcept
+uint64_t ChunkSettings::userPayloadSize() const noexcept
 {
     return m_userPayloadSize;
 }

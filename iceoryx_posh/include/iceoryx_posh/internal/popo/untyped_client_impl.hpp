@@ -48,7 +48,7 @@ class UntypedClientImpl : public BaseClientT
     /// @return A pointer to the payload of a chunk of memory with the requested size or
     ///         an AllocationError if no chunk could be loaned.
     /// @note An AllocationError occurs if no chunk is available in the shared memory.
-    expected<void*, AllocationError> loan(const uint32_t payloadSize, const uint32_t payloadAlignment) noexcept;
+    expected<void*, AllocationError> loan(const uint64_t payloadSize, const uint32_t payloadAlignment) noexcept;
 
     /// @brief Releases the ownership of the request chunk provided by the payload pointer.
     /// @param requestPayload pointer to the payload of the chunk to be released

@@ -135,7 +135,7 @@ class ServerPortUser : public BasePort
     /// @return on success pointer to a ChunkHeader which can be used to access the chunk-header, user-header and
     /// user-payload fields, error if not
     expected<ResponseHeader*, AllocationError> allocateResponse(const RequestHeader* const requestHeader,
-                                                                const uint32_t userPayloadSize,
+                                                                const uint64_t userPayloadSize,
                                                                 const uint32_t userPayloadAlignment) noexcept;
 
     /// @brief Releases an allocated response without sending it

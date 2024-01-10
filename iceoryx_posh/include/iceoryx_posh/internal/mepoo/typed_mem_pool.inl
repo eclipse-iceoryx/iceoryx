@@ -30,7 +30,7 @@ template <typename T>
 inline TypedMemPool<T>::TypedMemPool(const greater_or_equal<uint32_t, 1> numberOfChunks,
                                      BumpAllocator& managementAllocator,
                                      BumpAllocator& chunkMemoryAllocator) noexcept
-    : m_memPool(static_cast<uint32_t>(requiredChunkSize()), numberOfChunks, managementAllocator, chunkMemoryAllocator)
+    : m_memPool(requiredChunkSize(), numberOfChunks, managementAllocator, chunkMemoryAllocator)
     , m_chunkManagementPool(sizeof(ChunkManagement), numberOfChunks, managementAllocator, managementAllocator)
 {
 }
@@ -101,7 +101,7 @@ inline uint64_t TypedMemPool<T>::requiredChunkSize() noexcept
     // this is safe since we use correct values for size and alignment
     auto& chunkSettings = chunkSettingsResult.value();
 
-    return align(static_cast<uint64_t>(chunkSettings.requiredChunkSize()), MemPool::CHUNK_MEMORY_ALIGNMENT);
+    return align(chunkSettings.requiredChunkSize(), MemPool::CHUNK_MEMORY_ALIGNMENT);
 }
 
 template <typename T>

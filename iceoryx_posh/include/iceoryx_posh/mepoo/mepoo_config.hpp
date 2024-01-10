@@ -35,12 +35,12 @@ struct MePooConfig
     struct Entry
     {
         /// @brief set the size and count of memory chunks
-        Entry(uint32_t f_size, uint32_t f_chunkCount) noexcept
+        Entry(uint64_t f_size, uint32_t f_chunkCount) noexcept
             : m_size(f_size)
             , m_chunkCount(f_chunkCount)
         {
         }
-        uint32_t m_size{0};
+        uint64_t m_size{0};
         uint32_t m_chunkCount{0};
     };
 

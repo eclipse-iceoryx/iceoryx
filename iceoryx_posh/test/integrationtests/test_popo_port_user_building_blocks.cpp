@@ -56,7 +56,7 @@ constexpr uint32_t NUMBER_OF_PUBLISHERS = 17U;
 constexpr uint32_t ITERATIONS = 1000U;
 
 constexpr uint32_t NUM_CHUNKS_IN_POOL = NUMBER_OF_PUBLISHERS * ITERATIONS;
-constexpr uint32_t SMALL_CHUNK = 128U;
+constexpr uint64_t SMALL_CHUNK = 128U;
 constexpr uint32_t CHUNK_META_INFO_SIZE = 256U;
 constexpr size_t MEMORY_SIZE = NUM_CHUNKS_IN_POOL * (SMALL_CHUNK + CHUNK_META_INFO_SIZE);
 alignas(64) static uint8_t g_memory[MEMORY_SIZE];

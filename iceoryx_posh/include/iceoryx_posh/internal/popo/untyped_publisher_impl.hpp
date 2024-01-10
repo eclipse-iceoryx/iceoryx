@@ -48,7 +48,7 @@ class UntypedPublisherImpl : public BasePublisherType
     /// @note An AllocationError occurs if no chunk is available in the shared memory.
     ///
     expected<void*, AllocationError>
-    loan(const uint32_t userPayloadSize,
+    loan(const uint64_t userPayloadSize,
          const uint32_t userPayloadAlignment = iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT,
          const uint32_t userHeaderSize = iox::CHUNK_NO_USER_HEADER_SIZE,
          const uint32_t userHeaderAlignment = iox::CHUNK_NO_USER_HEADER_ALIGNMENT) noexcept;

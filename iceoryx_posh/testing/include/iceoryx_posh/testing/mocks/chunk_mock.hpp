@@ -34,7 +34,7 @@ class ChunkMock
   public:
     ChunkMock()
     {
-        const uint32_t userPayloadSize = sizeof(Topic);
+        const uint64_t userPayloadSize = sizeof(Topic);
         const uint32_t userPayloadAlignment = alignof(Topic);
         const uint32_t userHeaderSize =
             std::is_same<UserHeader, iox::mepoo::NoUserHeader>::value ? 0U : sizeof(UserHeader);

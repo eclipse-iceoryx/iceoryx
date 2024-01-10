@@ -39,8 +39,8 @@ using UserPayloadOffset_t = ChunkHeader::UserPayloadOffset_t;
 TEST(ChunkHeader_test, ChunkHeaderHasInitializedMembers)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b998bcb8-7db0-457d-a25a-86eae34f68dd");
-    constexpr uint32_t CHUNK_SIZE{753U};
-    constexpr uint32_t USER_PAYLOAD_SIZE{8U};
+    constexpr uint64_t CHUNK_SIZE{753U};
+    constexpr uint64_t USER_PAYLOAD_SIZE{8U};
     constexpr uint32_t USER_PAYLOAD_ALIGNMENT{iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT};
 
     auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT);
@@ -52,7 +52,7 @@ TEST(ChunkHeader_test, ChunkHeaderHasInitializedMembers)
     EXPECT_THAT(sut.chunkSize(), Eq(CHUNK_SIZE));
 
     // deliberately used a magic number to make the test fail when CHUNK_HEADER_VERSION changes
-    EXPECT_THAT(sut.chunkHeaderVersion(), Eq(1U));
+    EXPECT_THAT(sut.chunkHeaderVersion(), Eq(2U));
 
     EXPECT_THAT(sut.originId(), Eq(iox::popo::UniquePortId(iox::popo::InvalidPortId)));
 
@@ -79,19 +79,19 @@ TEST(ChunkHeader_test, ChunkHeaderBinaryCompatibilityCheck)
     // When this struct is touched, the CHUNK_HEADER_VERSION must be changed
     struct ExpectedChunkHeaderLayout
     {
-        uint32_t chunkSize{0U};
+        uint32_t userHeaderSize{0U};
         uint8_t chunkHeaderVersion{0U};
         uint8_t reserved{0U};
         uint16_t userHeaderId{0};
         uint64_t originId{0U};
         uint64_t sequenceNumber{0U};
-        uint32_t userHeaderSize{0U};
-        uint32_t userPayloadSize{0U};
+        uint64_t chunkSize{0U};
+        uint64_t userPayloadSize{0U};
         uint32_t userPayloadAlignment{0U};
         uint32_t userPayloadOffset{0U};
     };
 
-    constexpr auto EXPECTED_CHUNK_HEADER_VERSION{1U};
+    constexpr auto EXPECTED_CHUNK_HEADER_VERSION{2U};
     EXPECT_THAT(ChunkHeader::CHUNK_HEADER_VERSION, Eq(EXPECTED_CHUNK_HEADER_VERSION));
 
     EXPECT_THAT(sizeof(ChunkHeader), Eq(sizeof(ExpectedChunkHeaderLayout)));
@@ -158,8 +158,8 @@ TEST(ChunkHeader_test, ChunkHeaderUserPayloadSizeTypeIsLargeEnoughForMempoolChun
 TEST(ChunkHeader_test, UserPayloadFunctionCalledFromNonConstChunkHeaderWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d6b0fcce-8b49-429c-a1d2-c047b4b2e368");
-    constexpr uint32_t CHUNK_SIZE{753U};
-    constexpr uint32_t USER_PAYLOAD_SIZE{8U};
+    constexpr uint64_t CHUNK_SIZE{753U};
+    constexpr uint64_t USER_PAYLOAD_SIZE{8U};
 
     auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
     ASSERT_FALSE(chunkSettingsResult.has_error());
@@ -176,8 +176,8 @@ TEST(ChunkHeader_test, UserPayloadFunctionCalledFromNonConstChunkHeaderWorks)
 TEST(ChunkHeader_test, UserPayloadFunctionCalledFromConstChunkHeaderWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "091451db-09ed-4aa4-bcfe-d45c0c6d6c14");
-    constexpr uint32_t CHUNK_SIZE{753U};
-    constexpr uint32_t USER_PAYLOAD_SIZE{8U};
+    constexpr uint64_t CHUNK_SIZE{753U};
+    constexpr uint64_t USER_PAYLOAD_SIZE{8U};
 
     auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
     ASSERT_FALSE(chunkSettingsResult.has_error());
@@ -210,8 +210,8 @@ TEST(ChunkHeader_test, UserHeaderFunctionCalledFromNonConstChunkHeaderWorks)
     ::testing::Test::RecordProperty("TEST_ID", "2ddbb681-e8bb-42e0-9546-e9fd64c44be0");
     alignas(ChunkHeader) static uint8_t storage[1024 * 1024];
 
-    constexpr uint32_t CHUNK_SIZE{753U};
-    constexpr uint32_t USER_PAYLOAD_SIZE{8U};
+    constexpr uint64_t CHUNK_SIZE{753U};
+    constexpr uint64_t USER_PAYLOAD_SIZE{8U};
     constexpr uint32_t USER_HEADER_SIZE{16U};
     constexpr uint32_t USER_HEADER_ALIGNMENT{8U};
 
@@ -233,8 +233,8 @@ TEST(ChunkHeader_test, UserHeaderFunctionCalledFromConstChunkHeaderWorks)
     ::testing::Test::RecordProperty("TEST_ID", "04f902b9-0870-4ba4-b761-856e9bbfcd85");
     alignas(ChunkHeader) static uint8_t storage[1024 * 1024];
 
-    constexpr uint32_t CHUNK_SIZE{753U};
-    constexpr uint32_t USER_PAYLOAD_SIZE{8U};
+    constexpr uint64_t CHUNK_SIZE{753U};
+    constexpr uint64_t USER_PAYLOAD_SIZE{8U};
     constexpr uint32_t USER_HEADER_SIZE{16U};
     constexpr uint32_t USER_HEADER_ALIGNMENT{8U};
 
@@ -333,8 +333,8 @@ TEST(ChunkHeader_test, FromUserHeaderFunctionCalledWithConstParamReturnsConstTyp
 TEST(ChunkHeader_test, UsedChunkSizeIsSizeOfChunkHeaderWhenUserPayloadIsZero)
 {
     ::testing::Test::RecordProperty("TEST_ID", "67d3907e-5090-4814-b726-2a37e8780395");
-    constexpr uint32_t CHUNK_SIZE{2 * sizeof(ChunkHeader)};
-    constexpr uint32_t USER_PAYLOAD_SIZE{0U};
+    constexpr uint64_t CHUNK_SIZE{2 * sizeof(ChunkHeader)};
+    constexpr uint64_t USER_PAYLOAD_SIZE{0U};
 
     auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
     ASSERT_FALSE(chunkSettingsResult.has_error());
@@ -348,8 +348,8 @@ TEST(ChunkHeader_test, UsedChunkSizeIsSizeOfChunkHeaderWhenUserPayloadIsZero)
 TEST(ChunkHeader_test, UsedChunkSizeIsSizeOfChunkHeaderPlusOneWhenUserPayloadIsOne)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5a0cd3a1-3edc-441a-9ba6-486a463ad9d7");
-    constexpr uint32_t CHUNK_SIZE{2 * sizeof(ChunkHeader)};
-    constexpr uint32_t USER_PAYLOAD_SIZE{1U};
+    constexpr uint64_t CHUNK_SIZE{2 * sizeof(ChunkHeader)};
+    constexpr uint64_t USER_PAYLOAD_SIZE{1U};
 
     auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
     ASSERT_FALSE(chunkSettingsResult.has_error());
@@ -363,8 +363,8 @@ TEST(ChunkHeader_test, UsedChunkSizeIsSizeOfChunkHeaderPlusOneWhenUserPayloadIsO
 TEST(ChunkHeader_test, ConstructorTerminatesWhenUserPayloadSizeExceedsChunkSize)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c8f911eb-ed0d-495a-8858-9fc45f5a06e8");
-    constexpr uint32_t CHUNK_SIZE{128U};
-    constexpr uint32_t USER_PAYLOAD_SIZE{2U * CHUNK_SIZE};
+    constexpr uint64_t CHUNK_SIZE{128U};
+    constexpr uint64_t USER_PAYLOAD_SIZE{2U * CHUNK_SIZE};
 
     auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
     ASSERT_FALSE(chunkSettingsResult.has_error());
@@ -382,7 +382,7 @@ TEST(ChunkHeader_test, ConstructorTerminatesWhenUserPayloadSizeExceedsChunkSize)
 
 struct PayloadParams
 {
-    uint32_t size{0U};
+    uint64_t size{0U};
     uint32_t alignment{iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT};
 };
 

@@ -38,7 +38,7 @@ ClientPortUser::MemberType_t* ClientPortUser::getMembers() noexcept
     return reinterpret_cast<MemberType_t*>(BasePort::getMembers());
 }
 
-expected<RequestHeader*, AllocationError> ClientPortUser::allocateRequest(const uint32_t userPayloadSize,
+expected<RequestHeader*, AllocationError> ClientPortUser::allocateRequest(const uint64_t userPayloadSize,
                                                                           const uint32_t userPayloadAlignment) noexcept
 {
     auto allocateResult = m_chunkSender.tryAllocate(

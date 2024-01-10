@@ -92,14 +92,14 @@ void iox_client_deinit(iox_client_t const self)
     delete self;
 }
 
-iox_AllocationResult iox_client_loan_request(iox_client_t const self, void** const payload, const uint32_t payloadSize)
+iox_AllocationResult iox_client_loan_request(iox_client_t const self, void** const payload, const uint64_t payloadSize)
 {
     return iox_client_loan_aligned_request(self, payload, payloadSize, IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
 }
 
 iox_AllocationResult iox_client_loan_aligned_request(iox_client_t const self,
                                                      void** const payload,
-                                                     const uint32_t payloadSize,
+                                                     const uint64_t payloadSize,
                                                      const uint32_t payloadAlignment)
 {
     IOX_EXPECTS(self != nullptr);

@@ -87,7 +87,7 @@ void iox_pub_deinit(iox_pub_t const self);
 ///       for a custom user-payload alignment please use 'iox_pub_loan_aligned_chunk'
 ENUM iox_AllocationResult iox_pub_loan_chunk(iox_pub_t const self,
                                              void** const userPayload,
-                                             const uint32_t userPayloadSize);
+                                             const uint64_t userPayloadSize);
 
 /// @brief allocates a chunk in the shared memory with a custom alignment for the user-payload
 /// @param[in] self handle of the publisher
@@ -98,7 +98,7 @@ ENUM iox_AllocationResult iox_pub_loan_chunk(iox_pub_t const self,
 ///         describes the error
 ENUM iox_AllocationResult iox_pub_loan_aligned_chunk(iox_pub_t const self,
                                                      void** const userPayload,
-                                                     const uint32_t userPayloadSize,
+                                                     const uint64_t userPayloadSize,
                                                      const uint32_t userPayloadAlignment);
 
 /// @brief allocates a chunk in the shared memory with a section for the user-header and a custom alignment for the
@@ -113,7 +113,7 @@ ENUM iox_AllocationResult iox_pub_loan_aligned_chunk(iox_pub_t const self,
 ///         describes the error
 ENUM iox_AllocationResult iox_pub_loan_aligned_chunk_with_user_header(iox_pub_t const self,
                                                                       void** const userPayload,
-                                                                      const uint32_t userPayloadSize,
+                                                                      const uint64_t userPayloadSize,
                                                                       const uint32_t userPayloadAlignment,
                                                                       const uint32_t userHeaderSize,
                                                                       const uint32_t userHeaderAlignment);

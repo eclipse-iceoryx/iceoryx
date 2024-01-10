@@ -66,7 +66,7 @@ class iox_server_test : public Test
         return &*sutPort;
     }
 
-    void receiveRequest(const int64_t requestValue = 0, const uint32_t chunkSize = sizeof(int64_t))
+    void receiveRequest(const int64_t requestValue = 0, const uint64_t chunkSize = sizeof(int64_t))
     {
         auto chunk = memoryManager.getChunk(*iox::mepoo::ChunkSettings::create(
             chunkSize, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT, sizeof(RequestHeader)));

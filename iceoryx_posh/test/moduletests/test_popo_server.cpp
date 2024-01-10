@@ -50,7 +50,7 @@ class Server_test : public Test
     }
 
     static constexpr uint64_t PAYLOAD_SIZE{sizeof(DummyResponse)};
-    static constexpr uint64_t PAYLOAD_ALIGNMENT{alignof(DummyResponse)};
+    static constexpr uint32_t PAYLOAD_ALIGNMENT{alignof(DummyResponse)};
 
     ChunkMock<DummyRequest, RequestHeader> requestMock;
     ChunkMock<DummyResponse, ResponseHeader> responseMock;

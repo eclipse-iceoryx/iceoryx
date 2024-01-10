@@ -56,7 +56,7 @@ class PublisherPortUser : public BasePort
     /// to omit a user-header
     /// @return on success pointer to a ChunkHeader which can be used to access the chunk-header, user-header and
     /// user-payload fields, error if not
-    expected<mepoo::ChunkHeader*, AllocationError> tryAllocateChunk(const uint32_t userPayloadSize,
+    expected<mepoo::ChunkHeader*, AllocationError> tryAllocateChunk(const uint64_t userPayloadSize,
                                                                     const uint32_t userPayloadAlignment,
                                                                     const uint32_t userHeaderSize = 0U,
                                                                     const uint32_t userHeaderAlignment = 1U) noexcept;

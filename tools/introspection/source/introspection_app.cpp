@@ -293,8 +293,8 @@ void IntrospectionApp::printMemPoolInfo(const MemPoolIntrospectionInfo& introspe
             wprintw(pad, "%*d |", usedchunksWidth, info.m_usedChunks);
             wprintw(pad, "%*d |", numchunksWidth, info.m_numChunks);
             wprintw(pad, "%*d |", minFreechunksWidth, info.m_minFreeChunks);
-            wprintw(pad, "%*d |", chunkSizeWidth, info.m_chunkSize);
-            wprintw(pad, "%*d\n", chunkPayloadSizeWidth, info.m_chunkPayloadSize);
+            wprintw(pad, "%*ld |", chunkSizeWidth, info.m_chunkSize);
+            wprintw(pad, "%*ld\n", chunkPayloadSizeWidth, info.m_chunkPayloadSize);
         }
     }
     wprintw(pad, "\n");
