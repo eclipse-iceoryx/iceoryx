@@ -150,94 +150,47 @@ TEST_F(TestingErrorHandler_test, resettingMultipleErrorsWorks)
     EXPECT_FALSE(hasAnyError());
 }
 
-TEST_F(TestingErrorHandler_test, prepareJumpWorks)
+TEST_F(TestingErrorHandler_test, fatalFailureTestContextWorksAndDoesNotPanic)
 {
     ::testing::Test::RecordProperty("TEST_ID", "df6356a6-9e9e-4ee3-8a7c-7eb68cfe2516");
-    auto* buf = sut.prepareJump();
-    EXPECT_NE(buf, nullptr);
+    EXPECT_TRUE(sut.fatalFailureTestContext([] {}));
+    EXPECT_FALSE(sut.hasPanicked());
 }
 
-TEST_F(TestingErrorHandler_test, onlyOneJumpCanBePrepared)
+TEST_F(TestingErrorHandler_test, fatalFailureTestContextCanOnlyBeCalledOnce)
 {
     ::testing::Test::RecordProperty("TEST_ID", "45ad9ab9-0f79-4b7c-8e36-76da3067c0fd");
-    auto* buf1 = sut.prepareJump();
-    auto* buf2 = sut.prepareJump();
-    EXPECT_NE(buf1, nullptr);
-    EXPECT_EQ(buf2, nullptr);
+    EXPECT_TRUE(sut.fatalFailureTestContext([] {}));
+    EXPECT_FALSE(sut.fatalFailureTestContext([] {}));
 }
 
-void jump(TestingErrorHandler& handler, int& jmpValue)
+TEST_F(TestingErrorHandler_test, fatalFailureTestContextWorksAfterReset)
 {
-    auto* buf = handler.prepareJump();
-    // setjmp must be used in a control flow construct like if, while (UB otherwise)
-    // NOLINTNEXTLINE(cert-err52-cpp) exception cannot be used, required for testing to jump in case of failure
-    if (setjmp(&(*buf)[0]) != handler.jumpIndicator())
-    {
-        // regular control flow panics
-        handler.onPanic();
-    }
-    else
-    {
-        // jumped after regular control flow
-        jmpValue = handler.jumpIndicator();
-    }
+    ::testing::Test::RecordProperty("TEST_ID", "1ff7942e-dd6a-4774-a162-0ec7050e4df1");
+    EXPECT_TRUE(sut.fatalFailureTestContext([] {}));
+    sut.reset();
+    EXPECT_TRUE(sut.fatalFailureTestContext([] {}));
 }
 
-TEST_F(TestingErrorHandler_test, panicTriggersPreparedJump)
+TEST_F(TestingErrorHandler_test, panicTriggersJump)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2d99e382-ed43-4357-86f2-ef8d70c6acd8");
-    int jmpValue{0};
-    std::thread t(jump, std::ref(sut), std::ref(jmpValue));
-
-    if (!t.joinable())
-    {
-        FAIL();
-    }
-
-    t.join();
-
-    EXPECT_TRUE(sut.hasPanicked());
-    // jumpIndicator() is consistent with value of setjmp after onPanic
-    EXPECT_EQ(jmpValue, TestingErrorHandler::jumpIndicator());
-    EXPECT_NE(jmpValue, 0);
-}
-
-void noJump(TestingErrorHandler& handler, int& jmpValue)
-{
-    jmp_buf buf;
-    // setjmp must be used in a control flow construct like if, while (UB otherwise)
-    // NOLINTNEXTLINE(cert-err52-cpp) exception cannot be used, required for testing to jump in case of failure
-    if (setjmp(&(buf[0])) != handler.jumpIndicator())
-    {
+    std::thread t([&] {
         // regular control flow panics
-        handler.onPanic();
-    }
-    else
-    {
-        // jumped after regular control flow
-        jmpValue = handler.jumpIndicator();
-    }
-}
-
-// This checks that onPanic will not jump without proper setup by test code
-// Note that this must happen outside of the TestingErrorHandler implementation due to
-// limitations of setjmp.
-TEST_F(TestingErrorHandler_test, panicDoesNotTriggerUnpreparedJump)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "23004b9e-4ec9-4fe5-9312-54907ad05967");
-    int jmpValue{0};
-    std::thread t(noJump, std::ref(sut), std::ref(jmpValue));
+        sut.fatalFailureTestContext([&] {
+            sut.onPanic();
+            GTEST_FAIL() << "EXPECTED longjmp but control flow continued!";
+        });
+    });
 
     if (!t.joinable())
     {
-        FAIL();
+        GTEST_FAIL() << "Thread should be joinable after longjmp but is not!";
     }
 
     t.join();
 
     EXPECT_TRUE(sut.hasPanicked());
-    EXPECT_NE(jmpValue, TestingErrorHandler::jumpIndicator());
-    EXPECT_EQ(jmpValue, 0);
 }
 
 } // namespace

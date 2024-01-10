@@ -20,6 +20,7 @@
 #include <gtest/gtest.h>
 
 #include "iceoryx_hoofs/testing/error_reporting/testing_error_handler.hpp"
+#include "iox/function_ref.hpp"
 
 #include <thread>
 #include <utility>
@@ -59,43 +60,9 @@ bool hasViolation();
 bool isInNormalState();
 
 /// @brief runs testFunction in a testContext that can detect fatal failures;
-/// runs in the same thread
-/// @note uses setjmp/longjmp
-template <typename Function, typename... Args>
-inline void testContext(Function&& testFunction, Args&&... args)
-{
-    jmp_buf* buf = ErrorHandler::instance().prepareJump();
-
-    if (buf == nullptr)
-    {
-        GTEST_FAIL() << "This should not fail! Incorrect usage!";
-    };
-
-    // setjmp must be called in a stackframe that still exists when longjmp is called
-    // Therefore there cannot be a convenient abstraction that does not also
-    // know the test function that is being called.
-    // NOLINTNEXTLINE(cert-err52-cpp) exception cannot be used, required for testing to jump in case of failure
-    if (setjmp(&(*buf)[0]) != ErrorHandler::instance().jumpIndicator())
-    {
-        testFunction(std::forward<Args>(args)...);
-    }
-}
-
-/// @brief runs testFunction in a testContext that can detect fatal failures;
 /// runs in a separate thread
 /// @note uses a longjump inside the thread it runs the function in
-template <typename Function, typename... Args>
-inline void runInTestThread(Function&& testFunction, Args&&... args)
-{
-    // needed to infer the testContext arguments
-    auto f = [&]() { testContext(std::forward<Function>(testFunction), std::forward<Args>(args)...); };
-
-    std::thread t(f);
-    if (t.joinable())
-    {
-        t.join();
-    }
-}
+void runInTestThread(const function_ref<void()> testFunction);
 
 } // namespace testing
 } // namespace iox

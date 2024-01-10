@@ -23,6 +23,7 @@
 #include "iox/error_reporting/source_location.hpp"
 #include "iox/error_reporting/types.hpp"
 #include "iox/error_reporting/violation.hpp"
+#include "iox/function_ref.hpp"
 #include "iox/static_lifetime_guard.hpp"
 
 #include "iceoryx_hoofs/testing/test.hpp"
@@ -45,7 +46,7 @@ namespace testing
 class TestingErrorHandler : public iox::er::ErrorHandlerInterface
 {
   public:
-    TestingErrorHandler() noexcept;
+    TestingErrorHandler() noexcept = default;
     ~TestingErrorHandler() noexcept override = default;
     TestingErrorHandler(const TestingErrorHandler&) noexcept = delete;
     TestingErrorHandler(TestingErrorHandler&&) noexcept = delete;
@@ -97,16 +98,16 @@ class TestingErrorHandler : public iox::er::ErrorHandlerInterface
     /// @note We do not track module id for violations.
     bool hasViolation(iox::er::ErrorCode code) const noexcept;
 
-    /// @brief Prepare a jump and return jump buffer
-    /// @return pointer to jump buffer if successful, nullptr otherwise
-    jmp_buf* prepareJump() noexcept;
-
-    /// @brief Returns the value that is set by longjmp in case of a jump.
-    /// @return the jump indicator value
-    static int jumpIndicator() noexcept;
+    /// @brief runs testFunction in a test context that can detect fatal failures;
+    /// runs in the same thread
+    /// @note uses setjmp/longjmp
+    bool fatalFailureTestContext(const function_ref<void()> testFunction);
 
   private:
-    static constexpr int JUMPED{1};
+    void jump() noexcept;
+
+  private:
+    static constexpr int JUMPED_INDICATOR{1};
 
     mutable std::mutex m_mutex;
     std::atomic<bool> m_panicked{false};
@@ -119,13 +120,16 @@ class TestingErrorHandler : public iox::er::ErrorHandlerInterface
     // and we would need multiple jump buffers
     jmp_buf m_jumpBuffer{};
 
+    enum class JumpState : uint8_t
+    {
+        Obtainable,
+        Pending,
+    };
     // Actually not needed to be atomic since it is not supposed to be used from multiple threads
     // (longjmp does not support this)
     // We need to ensure though that only one jump buffer is considered by panic and controlling
     // ownership of the buffer is one way to accomplish that.
-    std::atomic<jmp_buf*> m_jump{nullptr};
-
-    void jump() noexcept;
+    std::atomic<JumpState> m_jumpState{JumpState::Obtainable};
 };
 
 /// @brief This class hooks into gTest to automatically resets the error handler on the start of a test

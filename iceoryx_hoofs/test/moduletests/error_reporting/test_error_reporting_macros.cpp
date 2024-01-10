@@ -152,7 +152,7 @@ TEST_F(ErrorReportingMacroApi_test, checkAssertConditionSatisfied)
     ::testing::Test::RecordProperty("TEST_ID", "a76ce780-3387-4ae8-8e4c-c96bdb8aa753");
     auto f = [](int x) { IOX_ASSERT(x > 0, ""); };
 
-    runInTestThread(f, 1);
+    runInTestThread([&]() { f(1); });
 
     IOX_TESTING_EXPECT_OK();
 }
@@ -162,7 +162,7 @@ TEST_F(ErrorReportingMacroApi_test, checkAssertConditionNotSatisfied)
     ::testing::Test::RecordProperty("TEST_ID", "9ee71bd3-9004-4950-8441-25e98cf8409c");
     auto f = [](int x) { IOX_ASSERT(x > 0, ""); };
 
-    runInTestThread(f, 0);
+    runInTestThread([&]() { f(0); });
 
     IOX_TESTING_EXPECT_PANIC();
     IOX_TESTING_EXPECT_ASSERT_VIOLATION();
@@ -174,7 +174,7 @@ TEST_F(ErrorReportingMacroApi_test, checkEnforceConditionNotSatisfiedWithMessage
 
     auto f = [](int x) { IOX_ENFORCE(x > 0, "some message"); };
 
-    runInTestThread(f, 0);
+    runInTestThread([&]() { f(0); });
 
     IOX_TESTING_EXPECT_PANIC();
     IOX_TESTING_EXPECT_ENFORCE_VIOLATION();
@@ -185,7 +185,7 @@ TEST_F(ErrorReportingMacroApi_test, checkAssertNotSatisfiedWithMessage)
     ::testing::Test::RecordProperty("TEST_ID", "b416674a-5861-4ab7-947b-0bd0af2f627b");
     auto f = [](int x) { IOX_ASSERT(x > 0, "some message"); };
 
-    runInTestThread(f, 0);
+    runInTestThread([&]() { f(0); });
 
     IOX_TESTING_EXPECT_PANIC();
     IOX_TESTING_EXPECT_ASSERT_VIOLATION();

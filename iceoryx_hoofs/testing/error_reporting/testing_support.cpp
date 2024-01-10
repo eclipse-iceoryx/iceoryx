@@ -53,5 +53,21 @@ bool isInNormalState()
     return !(hasPanicked() || hasError() || hasViolation());
 }
 
+void runInTestThread(const function_ref<void()> testFunction)
+{
+    auto t = std::thread([&]() {
+        auto successfullRun = ErrorHandler::instance().fatalFailureTestContext(testFunction);
+        if (!successfullRun)
+        {
+            GTEST_FAIL() << "This should not fail! Incorrect usage!";
+        }
+    });
+
+    if (t.joinable())
+    {
+        t.join();
+    }
+}
+
 } // namespace testing
 } // namespace iox
