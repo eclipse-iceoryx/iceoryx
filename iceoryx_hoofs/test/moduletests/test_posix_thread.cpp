@@ -47,25 +47,28 @@ TEST_F(Thread_test, DtorOfThreadBlocksUntilCallbackHasFinished)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1062a036-e825-4f30-bfb8-00d5de47fdfd");
 
-    std::chrono::steady_clock::time_point start;
-    std::chrono::steady_clock::time_point end;
     constexpr Duration TEST_WAIT_TIME = 100_ms;
+    std::chrono::milliseconds realWaitDuration{0};
     Barrier threadSync;
 
     ASSERT_FALSE(ThreadBuilder()
                      .create(sut,
                              [&] {
                                  threadSync.wait();
+                                 auto start = std::chrono::steady_clock::now();
                                  std::this_thread::sleep_for(std::chrono::nanoseconds(TEST_WAIT_TIME.toNanoseconds()));
+                                 auto end = std::chrono::steady_clock::now();
+                                 realWaitDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
                              })
                      .has_error());
 
-    start = std::chrono::steady_clock::now();
+    auto start = std::chrono::steady_clock::now();
     threadSync.notify();
     sut.reset();
-    end = std::chrono::steady_clock::now();
+    auto end = std::chrono::steady_clock::now();
+    auto blockingDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
-    EXPECT_THAT((end - start).count(), Ge(TEST_WAIT_TIME.toNanoseconds()));
+    EXPECT_THAT(blockingDuration.count(), Ge(realWaitDuration.count()));
 }
 
 TEST_F(Thread_test, SetAndGetWithEmptyThreadNameIsWorking)
