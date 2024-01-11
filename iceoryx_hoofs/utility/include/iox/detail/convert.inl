@@ -366,16 +366,16 @@ inline bool convert::is_within_range(const SourceType& source_val) noexcept
     if constexpr (std::is_floating_point_v<SourceType>)
     {
         // special cases for floating point
+        // can be nan or inf
         if (std::isnan(source_val) || std::isinf(source_val))
         {
             return true;
         }
-#ifdef _MSC_VER
+        // should be normal or zero
         if (!std::isnormal(source_val) && (source_val != 0.0))
         {
             return false;
         }
-#endif
     }
     // out of range (upper bound)
     if (source_val > std::numeric_limits<TargetType>::max())
