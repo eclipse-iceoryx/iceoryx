@@ -14,12 +14,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include <io.h>
-
 #include "iceoryx_platform/fcntl.hpp"
 #include "iceoryx_platform/handle_translator.hpp"
 #include "iceoryx_platform/win32_errorHandling.hpp"
 #include "iceoryx_platform/windows.hpp"
+
+#include <io.h>
+#include <share.h>
+#include <sys/stat.h>
 
 int iox_open(const char* pathname, int flags, mode_t mode)
 {

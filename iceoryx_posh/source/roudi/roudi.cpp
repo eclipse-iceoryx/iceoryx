@@ -75,7 +75,6 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
 
     // run the threads
     m_monitoringAndDiscoveryThread = std::thread(&RouDi::monitorAndDiscoveryUpdate, this);
-    setThreadName(m_monitoringAndDiscoveryThread.native_handle(), "Mon+Discover");
 
     if (roudiStartupParameters.m_runtimesMessagesThreadStart == RuntimeMessagesThreadStart::IMMEDIATE)
     {
@@ -91,7 +90,6 @@ RouDi::~RouDi() noexcept
 void RouDi::startProcessRuntimeMessagesThread() noexcept
 {
     m_handleRuntimeMessageThread = std::thread(&RouDi::processRuntimeMessages, this);
-    setThreadName(m_handleRuntimeMessageThread.native_handle(), "IPC-msg-process");
 }
 
 void RouDi::shutdown() noexcept
@@ -203,6 +201,8 @@ void RouDi::triggerDiscoveryLoopAndWaitToFinish(units::Duration timeout) noexcep
 
 void RouDi::monitorAndDiscoveryUpdate() noexcept
 {
+    setThreadName("Mon+Discover");
+
     class DiscoveryWaitSet : public popo::WaitSet<1>
     {
       public:
@@ -246,6 +246,8 @@ void RouDi::monitorAndDiscoveryUpdate() noexcept
 
 void RouDi::processRuntimeMessages() noexcept
 {
+    setThreadName("IPC-msg-process");
+
     runtime::IpcInterfaceCreator roudiIpcInterface{IPC_CHANNEL_ROUDI_NAME};
 
     IOX_LOG(INFO, "RouDi is ready for clients");

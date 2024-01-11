@@ -26,11 +26,14 @@
 
 #include <cstring>
 
+#if defined(_MSC_VER)
+
 #ifndef __PRETTY_FUNCTION__
 #define __PRETTY_FUNCTION__ __FUNCSIG__
 #endif
 
 #pragma pointers_to_members(full_generality)
+#endif
 
 #undef CreateMutex
 #undef max

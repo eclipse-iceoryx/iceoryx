@@ -24,50 +24,48 @@
 #include <thread>
 #include <type_traits>
 
-#define PTHREAD_PROCESS_SHARED 0
-#define PTHREAD_PROCESS_PRIVATE 1
-#define PTHREAD_MUTEX_RECURSIVE 2
-#define PTHREAD_MUTEX_NORMAL 3
-#define PTHREAD_MUTEX_ERRORCHECK 4
-#define PTHREAD_MUTEX_DEFAULT PTHREAD_MUTEX_NORMAL
+#define IOX_PTHREAD_PROCESS_SHARED 0
+#define IOX_PTHREAD_PROCESS_PRIVATE 1
+#define IOX_PTHREAD_MUTEX_RECURSIVE 2
+#define IOX_PTHREAD_MUTEX_NORMAL 3
+#define IOX_PTHREAD_MUTEX_ERRORCHECK 4
+#define IOX_PTHREAD_MUTEX_DEFAULT IOX_PTHREAD_MUTEX_NORMAL
 
-#define PTHREAD_PRIO_NONE 4
-#define PTHREAD_PRIO_INHERIT 5
-#define PTHREAD_PRIO_PROTECT 6
+#define IOX_PTHREAD_MUTEX_STALLED 7
+#define IOX_PTHREAD_MUTEX_ROBUST 8
 
-#define PTHREAD_MUTEX_STALLED 7
-#define PTHREAD_MUTEX_ROBUST 8
+#define IOX_PTHREAD_PRIO_NONE 4
+#define IOX_PTHREAD_PRIO_INHERIT 5
+#define IOX_PTHREAD_PRIO_PROTECT 6
 
-struct pthread_mutex_t
+struct iox_pthread_mutex_t
 {
     HANDLE handle = INVALID_HANDLE_VALUE;
     bool isInterprocessMutex = false;
     UniqueSystemId uniqueId;
 };
 
-const pthread_mutex_t PTHREAD_MUTEX_INITIALIZER;
+const iox_pthread_mutex_t IOX_PTHREAD_MUTEX_INITIALIZER;
 
-struct pthread_mutexattr_t
+struct iox_pthread_mutexattr_t
 {
     bool isInterprocessMutex = false;
 };
 
-using pthread_t = std::thread::native_handle_type;
+int iox_pthread_mutexattr_init(iox_pthread_mutexattr_t* attr);
+int iox_pthread_mutexattr_destroy(iox_pthread_mutexattr_t* attr);
+int iox_pthread_mutexattr_setpshared(iox_pthread_mutexattr_t* attr, int pshared);
+int iox_pthread_mutexattr_settype(iox_pthread_mutexattr_t* attr, int type);
+int iox_pthread_mutexattr_setprotocol(iox_pthread_mutexattr_t* attr, int protocol);
+int iox_pthread_mutexattr_setprioceiling(iox_pthread_mutexattr_t* attr, int prioceiling);
+int iox_pthread_mutexattr_setrobust(iox_pthread_mutexattr_t* attr, int robustness);
 
-int pthread_mutexattr_destroy(pthread_mutexattr_t* attr);
-int pthread_mutexattr_init(pthread_mutexattr_t* attr);
-int pthread_mutexattr_setpshared(pthread_mutexattr_t* attr, int pshared);
-int pthread_mutexattr_settype(pthread_mutexattr_t* attr, int type);
-int pthread_mutexattr_setprotocol(pthread_mutexattr_t* attr, int protocol);
-int pthread_mutexattr_setrobust(pthread_mutexattr_t* attr, int robustness);
-int pthread_mutexattr_setprioceiling(pthread_mutexattr_t* attr, int prioceiling);
-
-int pthread_mutex_destroy(pthread_mutex_t* mutex);
-int pthread_mutex_init(pthread_mutex_t* mutex, const pthread_mutexattr_t* attr);
-int pthread_mutex_lock(pthread_mutex_t* mutex);
-int pthread_mutex_trylock(pthread_mutex_t* mutex);
-int pthread_mutex_unlock(pthread_mutex_t* mutex);
-int pthread_mutex_consistent(pthread_mutex_t* mutex);
+int iox_pthread_mutex_init(iox_pthread_mutex_t* mutex, const iox_pthread_mutexattr_t* attr);
+int iox_pthread_mutex_destroy(iox_pthread_mutex_t* mutex);
+int iox_pthread_mutex_lock(iox_pthread_mutex_t* mutex);
+int iox_pthread_mutex_trylock(iox_pthread_mutex_t* mutex);
+int iox_pthread_mutex_unlock(iox_pthread_mutex_t* mutex);
+int iox_pthread_mutex_consistent(iox_pthread_mutex_t* mutex);
 
 using iox_pthread_t = HANDLE;
 using iox_pthread_attr_t = void;

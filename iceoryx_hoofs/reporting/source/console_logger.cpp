@@ -59,7 +59,7 @@ void ConsoleLogger::createLogMessageHeader(const char* file,
 {
     timespec timestamp{0, 0};
     // intentionally avoid using 'IOX_POSIX_CALL' here to keep the logger dependency free
-    if (clock_gettime(CLOCK_REALTIME, &timestamp) != 0)
+    if (iox_clock_gettime(CLOCK_REALTIME, &timestamp) != 0)
     {
         timestamp = {0, 0};
         // intentionally do nothing since a timestamp from 01.01.1970 already indicates  an issue with the clock

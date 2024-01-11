@@ -17,6 +17,11 @@
 #ifndef IOX_HOOFS_WIN_PLATFORM_TIME_HPP
 #define IOX_HOOFS_WIN_PLATFORM_TIME_HPP
 
+#if defined(__GNUC__) || defined(__GNUG__)
+#include <sys/time.h>
+#include <time.h>
+#endif
+
 #include "iceoryx_platform/signal.hpp"
 #include "iceoryx_platform/win32_errorHandling.hpp"
 #include "iceoryx_platform/windows.hpp"
@@ -29,11 +34,13 @@
 #include <mutex>
 #include <thread>
 
+using iox_useconds_t = uint64_t;
+using iox_clockid_t = int;
+
+#if defined(_MSC_VER)
+
 #define CLOCK_REALTIME 0
 #define CLOCK_MONOTONIC 1
-
-using suseconds_t = uint64_t;
-using clockid_t = int;
 
 struct itimerspec
 {
@@ -41,7 +48,9 @@ struct itimerspec
     timespec it_value;
 };
 
-struct appleTimer_t
+#endif
+
+struct IceoryxPlatformTimer_t
 {
     std::thread thread;
     void (*callback)(union sigval);
@@ -60,15 +69,15 @@ struct appleTimer_t
     } parameter;
 };
 
-using timer_t = appleTimer_t*;
+using iox_timer_t = IceoryxPlatformTimer_t*;
 
-int timer_create(clockid_t clockid, struct sigevent* sevp, timer_t* timerid);
-int timer_delete(timer_t timerid);
-int timer_settime(timer_t timerid, int flags, const struct itimerspec* new_value, struct itimerspec* old_value);
-int timer_gettime(timer_t timerid, struct itimerspec* curr_value);
-int timer_getoverrun(timer_t timerid);
+int iox_timer_create(iox_clockid_t clockid, struct sigevent* sevp, iox_timer_t* timerid);
+int iox_timer_delete(iox_timer_t timerid);
+int iox_timer_settime(iox_timer_t timerid, int flags, const struct itimerspec* new_value, struct itimerspec* old_value);
+int iox_timer_gettime(iox_timer_t timerid, struct itimerspec* curr_value);
+int iox_timer_getoverrun(iox_timer_t timerid);
 
-int clock_gettime(clockid_t clk_id, struct timespec* tp);
-int gettimeofday(struct timeval* tp, struct timezone* tzp);
+int iox_clock_gettime(iox_clockid_t clk_id, struct timespec* tp);
+int iox_gettimeofday(struct timeval* tp, struct timezone* tzp);
 
 #endif // IOX_HOOFS_WIN_PLATFORM_TIME_HPP

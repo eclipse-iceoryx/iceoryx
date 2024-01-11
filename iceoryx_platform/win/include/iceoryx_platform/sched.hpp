@@ -16,9 +16,17 @@
 #ifndef IOX_HOOFS_WIN_PLATFORM_SCHED_HPP
 #define IOX_HOOFS_WIN_PLATFORM_SCHED_HPP
 
+#if defined(__GNUC__) || defined(__GNUG__)
+
+#include <sched.h>
+
+#elif defined(_MSC_VER)
+
 #define SCHED_FIFO 1
 
 int sched_get_priority_max(int policy);
 int sched_get_priority_min(int policy);
+
+#endif
 
 #endif

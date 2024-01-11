@@ -18,20 +18,23 @@ set_global(VAR ICEORYX_PLATFORM_STRING      VALUE "Windows")
 set_global(VAR ICEORYX_CXX_STANDARD         VALUE 17)
 
 set_global(VAR ICEORYX_C_FLAGS              VALUE )
-set_global(VAR ICEORYX_CXX_FLAGS            VALUE /EHsc)
-set_global(VAR ICEORYX_TEST_CXX_FLAGS       VALUE /bigobj)
+set_global(VAR ICEORYX_CXX_FLAGS            VALUE $<$<CXX_COMPILER_ID:MSVC>:/EHsc>)
+set_global(VAR ICEORYX_TEST_CXX_FLAGS       VALUE $<$<CXX_COMPILER_ID:MSVC>:/bigobj>)
 
-set_global(VAR ICEORYX_C_WARNINGS           VALUE /W0) # @todo iox-#846 set to /W1
+set_global(VAR ICEORYX_C_WARNINGS           VALUE
+    $<$<CXX_COMPILER_ID:MSVC>:/W0> # @todo iox-#846 set to /W1
+    $<$<CXX_COMPILER_ID:GNU>:> # @todo iox-#846 set to -W -Wall -Wextra -Wuninitialized -Wpedantic -Wstrict-aliasing -Wcast-align -Wconversion
+)
 set_global(VAR ICEORYX_CXX_WARNINGS         VALUE ${ICEORYX_C_WARNINGS})
 
 if(BUILD_STRICT)
-    set_global(VAR ICEORYX_C_WARNINGS       VALUE /W0)
+    set_global(VAR ICEORYX_C_WARNINGS       VALUE $<$<CXX_COMPILER_ID:MSVC>:/W0>)
     set_global(VAR ICEORYX_CXX_WARNINGS     VALUE ${ICEORYX_C_WARNINGS}) # @todo iox-#846 set to /WX
 endif()
 
 
 # check platform requirements
 
-if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-    message( FATAL_ERROR "The platform ${ICEORYX_PLATFORM_STRING} supports only the MSVC compiler and not ${CMAKE_CXX_COMPILER_ID}!" )
+if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC" AND NOT CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+    message( FATAL_ERROR "The platform ${ICEORYX_PLATFORM_STRING} supports only the MSVC and GNU compiler and not ${CMAKE_CXX_COMPILER_ID}!" )
 endif()

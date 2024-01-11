@@ -24,7 +24,7 @@ static std::chrono::nanoseconds getNanoSeconds(const timespec& value)
                                     + static_cast<uint64_t>(value.tv_nsec));
 }
 
-static void stopTimerThread(timer_t timerid)
+static void stopTimerThread(iox_timer_t timerid)
 {
     timerid->parameter.mutex.lock();
     timerid->parameter.keepRunning = false;
@@ -37,7 +37,7 @@ static void stopTimerThread(timer_t timerid)
     }
 }
 
-static bool waitForExecution(timer_t timerid)
+static bool waitForExecution(iox_timer_t timerid)
 {
     using timePoint_t = std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>;
     std::unique_lock<std::mutex> ulock(timerid->parameter.mutex);
@@ -45,7 +45,7 @@ static bool waitForExecution(timer_t timerid)
     if (timerid->parameter.isTimerRunning)
     {
         timespec waitUntil;
-        clock_gettime(CLOCK_REALTIME, &waitUntil);
+        iox_clock_gettime(CLOCK_REALTIME, &waitUntil);
         waitUntil.tv_sec += timerid->parameter.timeParameters.it_value.tv_sec;
         waitUntil.tv_nsec += timerid->parameter.timeParameters.it_value.tv_nsec;
         timerid->parameter.wakeup.wait_until(ulock, timePoint_t(getNanoSeconds(waitUntil)), [timerid] {
@@ -62,19 +62,19 @@ static bool waitForExecution(timer_t timerid)
 }
 
 static void
-setTimeParameters(timer_t timerid, const itimerspec& timeParameters, const bool runOnce, const bool isTimerRunning)
+setTimeParameters(iox_timer_t timerid, const itimerspec& timeParameters, const bool runOnce, const bool isTimerRunning)
 {
     std::lock_guard<std::mutex> l(timerid->parameter.mutex);
-    clock_gettime(CLOCK_REALTIME, &timerid->parameter.startTime);
+    iox_clock_gettime(CLOCK_REALTIME, &timerid->parameter.startTime);
     timerid->parameter.timeParameters = timeParameters;
     timerid->parameter.runOnce = runOnce;
     timerid->parameter.wasCallbackCalled = false;
     timerid->parameter.isTimerRunning = isTimerRunning;
 }
 
-int timer_create(clockid_t, struct sigevent* sevp, timer_t* timerid)
+int iox_timer_create(iox_clockid_t, struct sigevent* sevp, iox_timer_t* timerid)
 {
-    timer_t timer = new appleTimer_t();
+    iox_timer_t timer = new IceoryxPlatformTimer_t();
     timer->callback = sevp->sigev_notify_function;
     timer->callbackParameter = sevp->sigev_value;
 
@@ -106,14 +106,14 @@ int timer_create(clockid_t, struct sigevent* sevp, timer_t* timerid)
     return 0;
 }
 
-int timer_delete(timer_t timerid)
+int iox_timer_delete(iox_timer_t timerid)
 {
     stopTimerThread(timerid);
     delete timerid;
     return 0;
 }
 
-int timer_settime(timer_t timerid, int, const struct itimerspec* new_value, struct itimerspec*)
+int iox_timer_settime(iox_timer_t timerid, int, const struct itimerspec* new_value, struct itimerspec*)
 {
     // disarm timer
     if (new_value->it_value.tv_sec == 0 && new_value->it_value.tv_nsec == 0)
@@ -135,11 +135,11 @@ int timer_settime(timer_t timerid, int, const struct itimerspec* new_value, stru
     return 0;
 }
 
-int timer_gettime(timer_t timerid, struct itimerspec* curr_value)
+int iox_timer_gettime(iox_timer_t timerid, struct itimerspec* curr_value)
 {
     constexpr int64_t NANO_SECONDS{1000000000};
     timespec currentTime;
-    clock_gettime(CLOCK_REALTIME, &currentTime);
+    iox_clock_gettime(CLOCK_REALTIME, &currentTime);
     int64_t currentTimeNs = currentTime.tv_sec * NANO_SECONDS + currentTime.tv_nsec;
     int64_t intervalTimeNs{0}, startTimeNs{0};
     {
@@ -155,13 +155,17 @@ int timer_gettime(timer_t timerid, struct itimerspec* curr_value)
     return 0;
 }
 
-int timer_getoverrun(timer_t)
+int iox_timer_getoverrun(iox_timer_t)
 {
     return 0;
 }
 
-int clock_gettime(clockid_t clk_id, struct timespec* tp)
+
+int iox_clock_gettime(iox_clockid_t clk_id, struct timespec* tp)
 {
+#if defined(__GNUC__) || defined(__GNUG__)
+    return clock_gettime(clk_id, tp);
+#elif defined(_MSC_VER)
     if (clk_id == CLOCK_MONOTONIC)
     {
         constexpr int64_t NANO_SECONDS_PER_SECOND = 1000000000;
@@ -179,9 +183,10 @@ int clock_gettime(clockid_t clk_id, struct timespec* tp)
     }
     errno = EINVAL;
     return -1;
+#endif
 }
 
-int gettimeofday(struct timeval* tp, struct timezone* tzp)
+int iox_gettimeofday(struct timeval* tp, struct timezone* tzp)
 {
     // difference in nano seconds between 01.01.1601 (UTC) and 01.01.1970 (EPOCH, unix time)
     static constexpr uint64_t UTC_EPOCH_DIFF{116444736000000000};
@@ -196,6 +201,6 @@ int gettimeofday(struct timeval* tp, struct timezone* tzp)
 
     constexpr uint64_t TEN_MILLISECONDS_IN_NANOSECONDS = 10000000;
     tp->tv_sec = static_cast<time_t>((time - UTC_EPOCH_DIFF) / TEN_MILLISECONDS_IN_NANOSECONDS);
-    tp->tv_usec = static_cast<suseconds_t>(systemTime.wMilliseconds * 1000);
+    tp->tv_usec = static_cast<iox_useconds_t>(systemTime.wMilliseconds * 1000);
     return 0;
 }

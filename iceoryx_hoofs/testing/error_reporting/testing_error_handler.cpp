@@ -42,11 +42,6 @@ void TestingErrorHandler::init() noexcept
     listeners.Append(new (std::nothrow) ErrorHandlerSetup);
 }
 
-TestingErrorHandler::TestingErrorHandler() noexcept
-    : m_jump(&m_jumpBuffer)
-{
-}
-
 void TestingErrorHandler::onPanic()
 {
     m_panicked = true;
@@ -76,7 +71,7 @@ void TestingErrorHandler::reset() noexcept
     m_panicked = false;
     m_errors.clear();
     m_violations.clear();
-    m_jump.store(&m_jumpBuffer);
+    m_jumpState.store(JumpState::Obtainable);
 }
 
 bool TestingErrorHandler::hasError() const noexcept
@@ -116,28 +111,33 @@ bool TestingErrorHandler::hasViolation(ErrorCode code) const noexcept
     return false;
 }
 
-jmp_buf* TestingErrorHandler::prepareJump() noexcept
+bool TestingErrorHandler::fatalFailureTestContext(const function_ref<void()> testFunction)
 {
-    // winner can prepare the jump
-    return m_jump.exchange(nullptr);
+    // if there are multiple threads trying to perform a test, only the winner can proceed with the jump
+    if (m_jumpState.exchange(JumpState::Pending) == JumpState::Pending)
+    {
+        return false;
+    };
+
+    // setjmp must be called in a stackframe that still exists when longjmp is called
+    // Therefore there cannot be a convenient abstraction that does not also
+    // know the test function that is being called.
+    // NOLINTNEXTLINE(cert-err52-cpp) exception cannot be used, required for testing to jump in case of failure
+    if (setjmp(&(m_jumpBuffer)[0]) != JUMPED_INDICATOR)
+    {
+        testFunction();
+    }
+
+    return true;
 }
 
 void TestingErrorHandler::jump() noexcept
 {
-    jmp_buf* exp = nullptr;
-    // if it is a nullptr, somebody (and only one) has prepared jump
-    // it will be reset on first jump, so there cannot be concurrent jumps
-    // essentially the first panic call wins, resets and and jumps
-    if (m_jump.compare_exchange_strong(exp, &m_jumpBuffer))
+    if (m_jumpState == JumpState::Pending)
     {
         // NOLINTNEXTLINE(cert-err52-cpp) exception handling is not used by design
-        longjmp(&m_jumpBuffer[0], jumpIndicator());
+        longjmp(&m_jumpBuffer[0], JUMPED_INDICATOR);
     }
-}
-
-int TestingErrorHandler::jumpIndicator() noexcept
-{
-    return JUMPED;
 }
 
 void ErrorHandlerSetup::OnTestStart(const ::testing::TestInfo&)

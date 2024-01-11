@@ -200,7 +200,7 @@ int f(int x)
 }
 ```
 
-Is can be used to verify preconditions before any logic in the function body is executed. Technically copy
+It can be used to verify preconditions before any logic in the function body is executed. Technically copy
 constructors may run before any condition can be checked, and there is also the possibility of
 reordering if the following code does not depend on the condition at all.
 This is not a problem since any reordering is not allowed to affect the observable result.

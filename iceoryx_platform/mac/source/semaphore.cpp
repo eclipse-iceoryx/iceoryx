@@ -140,7 +140,7 @@ int iox_sem_trywait(iox_sem_t* sem)
 int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
 {
     struct timeval tv;
-    gettimeofday(&tv, nullptr);
+    iox_gettimeofday(&tv, nullptr);
 
     static constexpr int64_t NANOSECONDS_PER_SECOND = 1000000000;
     static constexpr int64_t NANOSECONDS_PER_MICROSECOND = 1000;

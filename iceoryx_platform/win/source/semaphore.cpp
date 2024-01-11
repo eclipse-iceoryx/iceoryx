@@ -109,7 +109,7 @@ int iox_sem_trywait(iox_sem_t* sem)
 int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
 {
     struct timeval tv;
-    gettimeofday(&tv, nullptr);
+    iox_gettimeofday(&tv, nullptr);
     if (abs_timeout->tv_sec < tv.tv_sec
         || (abs_timeout->tv_sec == tv.tv_sec && abs_timeout->tv_nsec <= tv.tv_usec * 1000))
     {
@@ -217,7 +217,10 @@ iox_sem_t* iox_sem_open_impl(const char* name, int oflag, ...) // mode_t mode, u
     {
         va_list va;
         va_start(va, oflag);
-        mode_t mode = va_arg(va, mode_t);
+        // mode_t is an alias for unsigned short but this causes undefined
+        // behavior in va_arg since it is a promotable type - which will be
+        // promoted to int
+        mode_t mode = static_cast<mode_t>(va_arg(va, unsigned int));
         unsigned int value = va_arg(va, unsigned int);
         va_end(va);
 

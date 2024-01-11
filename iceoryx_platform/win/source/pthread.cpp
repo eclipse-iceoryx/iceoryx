@@ -22,18 +22,35 @@
 #include <cwchar>
 #include <vector>
 
-int iox_pthread_setname_np(iox_pthread_t thread, const char* name)
+HRESULT GetThreadDescription(HANDLE hThread, PWSTR* ppszThreadDescription);
+HRESULT SetThreadDescription(HANDLE hThread, PCWSTR lpThreadDescription);
+
+int iox_pthread_setname_np(iox_pthread_t thread [[maybe_unused]], const char* name [[maybe_unused]])
 {
+#if defined(__GNUC__) || defined(__GNUG__)
+
+    return 0;
+
+#elif defined(_MSC_VER)
+
     std::mbstate_t state = std::mbstate_t();
     uint64_t length = std::mbsrtowcs(nullptr, &name, 0, &state) + 1U;
     std::vector<wchar_t> wName(length);
     std::mbsrtowcs(wName.data(), &name, length, &state);
 
     return Win32Call(SetThreadDescription, thread, wName.data()).error;
+
+#endif
 }
 
 int iox_pthread_getname_np(iox_pthread_t thread, char* name, size_t len)
 {
+#if defined(__GNUC__) || defined(__GNUG__)
+
+    return 0;
+
+#elif defined(_MSC_VER)
+
     wchar_t* wName;
     auto result = Win32Call(GetThreadDescription, thread, &wName).error;
     if (result == 0)
@@ -43,6 +60,8 @@ int iox_pthread_getname_np(iox_pthread_t thread, char* name, size_t len)
     }
 
     return result;
+
+#endif
 }
 
 struct win_routine_args
@@ -92,52 +111,52 @@ iox_pthread_t iox_pthread_self()
     return GetCurrentThread();
 }
 
-int pthread_mutexattr_destroy(pthread_mutexattr_t* attr)
+int iox_pthread_mutexattr_destroy(iox_pthread_mutexattr_t* attr)
 {
     return 0;
 }
 
-int pthread_mutexattr_init(pthread_mutexattr_t* attr)
+int iox_pthread_mutexattr_init(iox_pthread_mutexattr_t* attr)
 {
-    new (attr) pthread_mutexattr_t();
+    new (attr) iox_pthread_mutexattr_t();
     return 0;
 }
 
-int pthread_mutexattr_setpshared(pthread_mutexattr_t* attr, int pshared)
+int iox_pthread_mutexattr_setpshared(iox_pthread_mutexattr_t* attr, int pshared)
 {
-    if (pshared == PTHREAD_PROCESS_SHARED)
+    if (pshared == IOX_PTHREAD_PROCESS_SHARED)
     {
         attr->isInterprocessMutex = true;
     }
     return 0;
 }
 
-int pthread_mutexattr_settype(pthread_mutexattr_t* attr, int type)
+int iox_pthread_mutexattr_settype(iox_pthread_mutexattr_t* attr, int type)
 {
     return 0;
 }
 
-int pthread_mutexattr_setprotocol(pthread_mutexattr_t* attr, int protocol)
+int iox_pthread_mutexattr_setprotocol(iox_pthread_mutexattr_t* attr, int protocol)
 {
     return 0;
 }
 
-int pthread_mutexattr_setrobust(pthread_mutexattr_t* attr, int robustness)
+int iox_pthread_mutexattr_setrobust(iox_pthread_mutexattr_t* attr, int robustness)
 {
     return 0;
 }
 
-int pthread_mutexattr_setprioceiling(pthread_mutexattr_t* attr, int prioceiling)
+int iox_pthread_mutexattr_setprioceiling(iox_pthread_mutexattr_t* attr, int prioceiling)
 {
     return 0;
 }
 
-int pthread_mutex_consistent(pthread_mutex_t* mutex)
+int iox_pthread_mutex_consistent(iox_pthread_mutex_t* mutex)
 {
     return 0;
 }
 
-int pthread_mutex_destroy(pthread_mutex_t* mutex)
+int iox_pthread_mutex_destroy(iox_pthread_mutex_t* mutex)
 {
     if (!mutex->isInterprocessMutex)
     {
@@ -157,7 +176,7 @@ static std::string generateMutexName(const UniqueSystemId& id) noexcept
     return "iox_mutex_" + static_cast<std::string>(id);
 }
 
-static HANDLE acquireMutexHandle(pthread_mutex_t* mutex)
+static HANDLE acquireMutexHandle(iox_pthread_mutex_t* mutex)
 {
     if (!mutex->isInterprocessMutex)
     {
@@ -183,9 +202,9 @@ static HANDLE acquireMutexHandle(pthread_mutex_t* mutex)
     return newHandle;
 }
 
-int pthread_mutex_init(pthread_mutex_t* mutex, const pthread_mutexattr_t* attr)
+int iox_pthread_mutex_init(iox_pthread_mutex_t* mutex, const iox_pthread_mutexattr_t* attr)
 {
-    *mutex = pthread_mutex_t();
+    *mutex = iox_pthread_mutex_t();
     mutex->isInterprocessMutex = (attr != NULL && attr->isInterprocessMutex);
 
     if (!mutex->isInterprocessMutex)
@@ -204,7 +223,7 @@ int pthread_mutex_init(pthread_mutex_t* mutex, const pthread_mutexattr_t* attr)
     return (mutex->handle == nullptr) ? EINVAL : 0;
 }
 
-int pthread_mutex_lock(pthread_mutex_t* mutex)
+int iox_pthread_mutex_lock(iox_pthread_mutex_t* mutex)
 {
     DWORD waitResult = Win32Call(WaitForSingleObject, acquireMutexHandle(mutex), INFINITE).value;
 
@@ -218,7 +237,7 @@ int pthread_mutex_lock(pthread_mutex_t* mutex)
     return 0;
 }
 
-int pthread_mutex_trylock(pthread_mutex_t* mutex)
+int iox_pthread_mutex_trylock(iox_pthread_mutex_t* mutex)
 {
     DWORD waitResult = Win32Call(WaitForSingleObject, acquireMutexHandle(mutex), 0).value;
 
@@ -234,7 +253,7 @@ int pthread_mutex_trylock(pthread_mutex_t* mutex)
     return 0;
 }
 
-int pthread_mutex_unlock(pthread_mutex_t* mutex)
+int iox_pthread_mutex_unlock(iox_pthread_mutex_t* mutex)
 {
     auto releaseResult = Win32Call(ReleaseMutex, acquireMutexHandle(mutex)).value;
     if (!releaseResult)

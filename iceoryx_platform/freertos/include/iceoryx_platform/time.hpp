@@ -21,6 +21,18 @@
 
 #include "FreeRTOS_POSIX.h"
 #include "FreeRTOS_POSIX/time.h"
+#include <sys/time.h>
 #include <time.h>
+
+using iox_clockid_t = clockid_t;
+
+inline int iox_clock_gettime(iox_clockid_t clk_id, struct timespec* tp)
+{
+    return clock_gettime(clk_id, tp);
+}
+inline int iox_gettimeofday(struct timeval* tp, struct timezone* tzp)
+{
+    return gettimeofday(tp, tzp);
+}
 
 #endif // IOX_HOOFS_FREERTOS_PLATFORM_TIME_HPP

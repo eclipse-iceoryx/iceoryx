@@ -62,7 +62,6 @@ inline void PeriodicTask<T>::start(const units::Duration interval) noexcept
     stop();
     m_interval = interval;
     m_taskExecutor = std::thread(&PeriodicTask::run, this);
-    setThreadName(m_taskExecutor.native_handle(), m_taskName);
 }
 
 template <typename T>
@@ -90,6 +89,8 @@ inline bool PeriodicTask<T>::isActive() const noexcept
 template <typename T>
 inline void PeriodicTask<T>::run() noexcept
 {
+    setThreadName(m_taskName);
+
     auto waitState = SemaphoreWaitState::NO_TIMEOUT;
     do
     {
