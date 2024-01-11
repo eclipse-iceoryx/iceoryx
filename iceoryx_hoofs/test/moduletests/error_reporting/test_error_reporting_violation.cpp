@@ -17,8 +17,8 @@
 #include "test.hpp"
 #include <gtest/gtest.h>
 
-#include "iox/error_reporting/errors.hpp"
 #include "iox/error_reporting/types.hpp"
+#include "iox/error_reporting/violation.hpp"
 
 #include "module_a/errors.hpp"
 #include "module_b/errors.hpp"
@@ -200,22 +200,22 @@ TYPED_TEST(ErrorType_test, toErrorPreservesCodeAndModule)
     EXPECT_EQ(err.module(), this->sut.module());
 }
 
-TEST(Violation_test, createPreconditionWorks)
+TEST(Violation_test, createEnforceViolationWorks)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "cc535c67-0003-4a6f-842e-6c5477aae108");
+    ::testing::Test::RecordProperty("TEST_ID", "9a2f9d1c-41dc-4a7e-a0dc-aa40047ae9a0");
 
-    auto sut = Violation::createPreconditionViolation();
-    auto exp = Violation{ErrorCode{ErrorCode::PRECONDITION_VIOLATION}, ANY_ID};
+    auto sut = Violation::createEnforceViolation();
+    auto exp = Violation{iox::er::ViolationErrorCode::ENFORCE_VIOLATION};
 
     EXPECT_EQ(sut, exp);
 }
 
-TEST(Violation_test, createAssumptionWorks)
+TEST(Violation_test, createAssertViolationWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2a5f24a7-4d82-4c27-bc45-57d9f1c759fa");
 
-    auto sut = Violation::createAssumptionViolation();
-    auto exp = Violation{ErrorCode{ErrorCode::ASSUMPTION_VIOLATION}, ANY_ID};
+    auto sut = Violation::createAssertViolation();
+    auto exp = Violation{iox::er::ViolationErrorCode::ASSERT_VIOLATION};
 
     EXPECT_EQ(sut, exp);
 }

@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_REPORTING_ERROR_REPORTING_ERRORS_HPP
-#define IOX_HOOFS_REPORTING_ERROR_REPORTING_ERRORS_HPP
+#ifndef IOX_HOOFS_ERROR_REPORTING_VIOLATION_HPP
+#define IOX_HOOFS_ERROR_REPORTING_VIOLATION_HPP
 
 #include <utility>
 
@@ -26,9 +26,6 @@ namespace iox
 namespace er
 {
 
-static constexpr const char* UNKNOWN_MODULE_NAME = "unknown module";
-static constexpr const char* UNKNOWN_ERROR_NAME = "unknown error";
-
 // We expect an error to have the following interface
 // 1. ErrorCode code() const
 // 2. ModuleId module() const
@@ -36,9 +33,20 @@ static constexpr const char* UNKNOWN_ERROR_NAME = "unknown error";
 // By default, there are only error codes and violations.
 // Custom errors can be added but must satisfy the minimal interface.
 
+enum class ViolationErrorCode : uint32_t
+{
+    ASSERT_VIOLATION,
+    ENFORCE_VIOLATION
+};
+
 class Violation
 {
   public:
+    explicit Violation(ViolationErrorCode code)
+        : m_code(static_cast<ErrorCode::type>(code))
+    {
+    }
+
     explicit Violation(ErrorCode code)
         : m_code(code)
     {
@@ -70,19 +78,14 @@ class Violation
         return !(*this == rhs);
     }
 
-    static Violation createRequiredConditionViolation()
+    static Violation createAssertViolation()
     {
-        return Violation(ErrorCode(ErrorCode::REQUIRED_CONDITION_VIOLATION));
+        return Violation(ViolationErrorCode::ASSERT_VIOLATION);
     }
 
-    static Violation createPreconditionViolation()
+    static Violation createEnforceViolation()
     {
-        return Violation(ErrorCode(ErrorCode::PRECONDITION_VIOLATION));
-    }
-
-    static Violation createAssumptionViolation()
-    {
-        return Violation(ErrorCode(ErrorCode::ASSUMPTION_VIOLATION));
+        return Violation(ViolationErrorCode::ENFORCE_VIOLATION);
     }
 
   private:
@@ -90,45 +93,7 @@ class Violation
     ModuleId m_module{ModuleId::ANY};
 };
 
-// primary template is the identity
-// this can be overriden by modules to handle specific errors
-template <typename ErrorLike>
-auto toError(ErrorLike&& value)
-{
-    return std::forward<ErrorLike>(value);
-}
-
-template <class Error>
-inline ErrorCode toCode(const Error& error)
-{
-    return error.code();
-}
-
-template <>
-inline ErrorCode toCode<ErrorCode>(const ErrorCode& error)
-{
-    return error;
-}
-
-template <class Error>
-inline ModuleId toModule(const Error& error)
-{
-    return error.module();
-}
-
-template <class Error>
-inline const char* toModuleName(const Error&)
-{
-    return UNKNOWN_MODULE_NAME;
-}
-
-template <class Error>
-inline const char* toErrorName(const Error&)
-{
-    return UNKNOWN_ERROR_NAME;
-}
-
 } // namespace er
 } // namespace iox
 
-#endif // IOX_HOOFS_ERROR_REPORTING_ERRORS_HPP
+#endif // IOX_HOOFS_ERROR_REPORTING_VIOLATION_HPP

@@ -18,11 +18,15 @@
 #define IOX_HOOFS_REPORTING_ERROR_REPORTING_TYPES_HPP
 
 #include <cstdint>
+#include <utility>
 
 namespace iox
 {
 namespace er
 {
+
+static constexpr const char* UNKNOWN_ERROR_NAME = "unknown error";
+static constexpr const char* UNKNOWN_MODULE_NAME = "unknown module";
 
 // These are lightweight regular read/write types that do not require encapsulation (no invariants
 // can be broken).
@@ -32,10 +36,6 @@ struct ErrorCode
     using type = uint32_t;
 
     type value;
-
-    static constexpr type REQUIRED_CONDITION_VIOLATION{0};
-    static constexpr type ASSUMPTION_VIOLATION{1};
-    static constexpr type PRECONDITION_VIOLATION{2};
 
     constexpr explicit ErrorCode(uint32_t value)
         : value(value)
@@ -81,6 +81,44 @@ struct ModuleId
         return !(*this == rhs);
     }
 };
+
+// primary template is the identity
+// this can be overriden by modules to handle specific errors
+template <typename ErrorLike>
+auto toError(ErrorLike&& value)
+{
+    return std::forward<ErrorLike>(value);
+}
+
+template <class Error>
+inline ErrorCode toCode(const Error& error)
+{
+    return error.code();
+}
+
+template <>
+inline ErrorCode toCode<ErrorCode>(const ErrorCode& error)
+{
+    return error;
+}
+
+template <class Error>
+inline ModuleId toModule(const Error& error)
+{
+    return error.module();
+}
+
+template <class Error>
+inline const char* toModuleName(const Error&)
+{
+    return UNKNOWN_MODULE_NAME;
+}
+
+template <class Error>
+inline const char* toErrorName(const Error&)
+{
+    return UNKNOWN_ERROR_NAME;
+}
 
 } // namespace er
 } // namespace iox

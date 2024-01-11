@@ -31,27 +31,21 @@ bool hasError()
     return ErrorHandler::instance().hasError();
 }
 
-bool hasRequiredConditionViolation()
+bool hasAssertViolation()
 {
-    auto code = iox::er::ErrorCode{iox::er::ErrorCode::REQUIRED_CONDITION_VIOLATION};
+    auto code = iox::er::Violation(iox::er::ViolationErrorCode::ASSERT_VIOLATION).code();
     return ErrorHandler::instance().hasViolation(code);
 }
 
-bool hasPreconditionViolation()
+bool hasEnforceViolation()
 {
-    auto code = iox::er::ErrorCode{iox::er::ErrorCode::PRECONDITION_VIOLATION};
-    return ErrorHandler::instance().hasViolation(code);
-}
-
-bool hasAssumptionViolation()
-{
-    auto code = iox::er::ErrorCode{iox::er::ErrorCode::ASSUMPTION_VIOLATION};
+    auto code = iox::er::Violation(iox::er::ViolationErrorCode::ENFORCE_VIOLATION).code();
     return ErrorHandler::instance().hasViolation(code);
 }
 
 bool hasViolation()
 {
-    return hasRequiredConditionViolation() || hasPreconditionViolation() || hasAssumptionViolation();
+    return hasEnforceViolation() || hasAssertViolation();
 }
 
 bool isInNormalState()

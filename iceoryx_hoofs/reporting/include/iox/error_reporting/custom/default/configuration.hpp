@@ -30,8 +30,7 @@ namespace er
 template <>
 struct ConfigurationParameters<ConfigurationTag>
 {
-    static constexpr bool CHECK_PRECONDITIONS{true};
-    static constexpr bool CHECK_ASSUMPTIONS{true};
+    static constexpr bool CHECK_ASSERT{true}; /// @todo iox-#1032 deactive for release builds
 };
 
 } // namespace er

@@ -14,16 +14,19 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+
+#include "iceoryx_hoofs/testing/error_reporting/testing_error_handler.hpp"
+#include "iceoryx_hoofs/testing/testing_logger.hpp"
+
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-
-using namespace ::testing;
-using ::testing::_;
-
 
 int main(int argc, char* argv[])
 {
     ::testing::InitGoogleTest(&argc, argv);
+
+    iox::testing::TestingLogger::init();
+    iox::testing::TestingErrorHandler::init();
 
     return RUN_ALL_TESTS();
 }

@@ -157,15 +157,15 @@ Fatal errors can be conditionally reported in a similar way.
 IOX_REPORT_FATAL_IF(x<0, Code::OutOfBounds);
 ```
 
-### Require That a Condition Holds
+### Enforce a Condition
 
-Similarly we can conditionally check whether a condition does hold and report a fatal error in
+Similarly we can conditionally enforce whether a condition does hold and report a fatal error in
 the case that it does not hold
 
 ```cpp
 int x;
 // ...
-IOX_REQUIRE(x>=0, "required condition violation message");
+IOX_ENFORCE(x>=0, "enforce violation message");
 ```
 
 The condition is required to hold and this requirement is always checked.
@@ -173,67 +173,46 @@ If the condition does not hold, panic is invoked and the execution stops.
 
 This should be used for conditions that may not hold on the correct path, e.g. for error cases.
 It should not be used for assumptions that have to be true in correct code
-(use `IOX_ASSUME` or `IOX_PRECONDITION` for this).
+(use `IOX_ASSERT` for this).
 
 Note that no condition can generally be enforced in the sense that it must be true and no checking is required.
 
-## Using the API to Check Contracts and Assumptions
+### Assert a Condition
 
-The following checks can be disabled and are intended to increase safety during incorrect
+The following check is disabled for release builds and is intended to increase safety during incorrect
 use, specifically detect incorrect use at runtime.
 
-This means they should only be used for checks that are not needed in correct code (i.e. defensive
+This means it should only be used for checks that are not needed in correct code (i.e. defensive
 programming).
 
-If these checks are disabled, there is no overhead in the code, i.e. no checking or reporting takes place.
-
-### Checking Preconditions
-
-A precondition check
+When check is disabled, there is no overhead in the code, i.e. no checking or reporting takes place.
 
 ```cpp
 int f(int x)
 {
-IOX_PRECONDITION(x>=0, "precondition violation message");
+    IOX_ASSERT(x>=0, "precondition violation message");
 
-// ...
+    // some computation
+    int y = g(x);
+
+    IOX_ASSERT(y>=0, "assumption violation message");
+    // proceed assuming that y>=0 holds
 }
 ```
 
-is used to verify assumptions **BEFORE** any logic in the function body is executed. Technically copy
+Is can be used to verify preconditions before any logic in the function body is executed. Technically copy
 constructors may run before any condition can be checked, and there is also the possibility of
 reordering if the following code does not depend on the condition at all.
 This is not a problem since any reordering is not allowed to affect the observable result.
 Specifically it cannot affect the value of the precondition itself as this would change the
 observable behaviour.
 
+When used in the middle of a function it serves as documentation of assumptions that should hold at this
+point in the code before the next statement and can be used e.g. to check for out-of-bounds accesses. It can
+also be used to check postconditions.
+
 In case of violation, the violation and a (potentially empty) message are forwarded to the backend,
 panic is invoked and execution stops.
-
-The verification can be optionally disabled, and hence this also documents assumptions of the
-function itself.
-
-### Checking Assumptions
-
-Checking assumptions is similar to checking preconditions, but can happen anywhere in the code.
-
-```cpp
-int f(int x)
-{
-    // some computation
-    int y = g(x);
-
-    IOX_ASSUME(y>=0, "assumption violation message");
-    // proceed assuming that y>=0 holds
-}
-```
-
-These serve as documentation of assumptions that should hold at this point in the code before the
-next statement and can be used e.g. to check for out-of-bounds accesses. It can also be used to
-check postconditions.
-
-It should not be used at the start of a function body and instead replaced with a precondition check
-in this case.
 
 ## Marking Unreachable Code
 
@@ -394,7 +373,7 @@ Alternatively the shorthand version can be used
 int algorithm(int x)
 {
     // require that the condition holds or raise a fatal error
-    IOX_REQUIRE(!errorCondition(x), SomeError);
+    IOX_REPORT_FATAL_IF(errorCondition(x), SomeError);
     return 42;
 }
 ```
@@ -425,7 +404,7 @@ These are
 8. `errors.hpp` : supported error types and related free functions
 
 Additionally there is the `assertions.hpp` in `iceoryx_hoofs/reporting` which contains the `IOX_PANIC`,
-`IOX_UNREACHABLE`, `IOX_REQUIRE`, `IOX_PRECONDITION` and `IOX_ASSUME` macros
+`IOX_UNREACHABLE`, `IOX_ASSERT` and `IOX_ENFORCE` macros.
 
 All the files focus on singular aspects to allow fine-grained inclusion.
 All definitions have to reside in `iox::er`, which is considered a private (detail) namespace
@@ -463,7 +442,7 @@ The default implementation does not depend on any code that uses the error repor
 ### Testing
 
 All testing related definitions are located in `iceoryx_hoofs/testing/error_reporting`.
-These are the definition of `TestErrorHandler` in `testing_error_handler.hpp` and auxiliary
+These are the definition of `TestingErrorHandler` in `testing_error_handler.hpp` and auxiliary
 functions in `testing_support.hpp` to be used in tests to verify errors.
 The latter can be extended as required.
 

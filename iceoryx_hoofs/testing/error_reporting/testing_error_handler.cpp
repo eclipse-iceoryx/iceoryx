@@ -1,4 +1,5 @@
 // Copyright (c) 2023 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2024 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/testing/error_reporting/testing_error_handler.hpp"
+#include "iox/error_reporting/custom/default/error_handler.hpp"
 #include "iox/error_reporting/custom/default/error_handler_interface.hpp"
 #include "iox/error_reporting/types.hpp"
 
@@ -30,35 +32,45 @@ namespace testing
 
 using namespace iox::er;
 
-TestErrorHandler::TestErrorHandler()
+void TestingErrorHandler::init() noexcept
+{
+    iox::testing::ErrorHandler handler;
+    iox::er::ErrorHandler::set(handler);
+
+    auto& listeners = ::testing::UnitTest::GetInstance()->listeners();
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory) required by the callee
+    listeners.Append(new (std::nothrow) ErrorHandlerSetup);
+}
+
+TestingErrorHandler::TestingErrorHandler() noexcept
     : m_jump(&m_jumpBuffer)
 {
 }
 
-void TestErrorHandler::onPanic()
+void TestingErrorHandler::onPanic()
 {
     m_panicked = true;
     jump();
 }
 
-void TestErrorHandler::onReportError(er::ErrorDescriptor desc)
+void TestingErrorHandler::onReportError(er::ErrorDescriptor desc)
 {
     std::lock_guard<std::mutex> g(m_mutex);
     m_errors.push_back(desc);
 }
 
-void TestErrorHandler::onReportViolation(er::ErrorDescriptor desc)
+void TestingErrorHandler::onReportViolation(er::ErrorDescriptor desc)
 {
     std::lock_guard<std::mutex> g(m_mutex);
     m_violations.push_back(desc);
 }
 
-bool TestErrorHandler::hasPanicked() const
+bool TestingErrorHandler::hasPanicked() const noexcept
 {
     return m_panicked;
 }
 
-void TestErrorHandler::reset()
+void TestingErrorHandler::reset() noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
     m_panicked = false;
@@ -67,13 +79,13 @@ void TestErrorHandler::reset()
     m_jump.store(&m_jumpBuffer);
 }
 
-bool TestErrorHandler::hasError() const
+bool TestingErrorHandler::hasError() const noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
     return !m_errors.empty();
 }
 
-bool TestErrorHandler::hasError(ErrorCode code, iox::er::ModuleId module) const
+bool TestingErrorHandler::hasError(ErrorCode code, iox::er::ModuleId module) const noexcept
 {
     constexpr iox::er::ModuleId ANY_MODULE{iox::er::ModuleId::ANY};
     std::lock_guard<std::mutex> g(m_mutex);
@@ -91,7 +103,7 @@ bool TestErrorHandler::hasError(ErrorCode code, iox::er::ModuleId module) const
     return false;
 }
 
-bool TestErrorHandler::hasViolation(ErrorCode code) const
+bool TestingErrorHandler::hasViolation(ErrorCode code) const noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
     for (auto desc : m_violations)
@@ -104,13 +116,13 @@ bool TestErrorHandler::hasViolation(ErrorCode code) const
     return false;
 }
 
-jmp_buf* TestErrorHandler::prepareJump()
+jmp_buf* TestingErrorHandler::prepareJump() noexcept
 {
     // winner can prepare the jump
     return m_jump.exchange(nullptr);
 }
 
-void TestErrorHandler::jump()
+void TestingErrorHandler::jump() noexcept
 {
     jmp_buf* exp = nullptr;
     // if it is a nullptr, somebody (and only one) has prepared jump
@@ -123,9 +135,14 @@ void TestErrorHandler::jump()
     }
 }
 
-int TestErrorHandler::jumpIndicator()
+int TestingErrorHandler::jumpIndicator() noexcept
 {
     return JUMPED;
+}
+
+void ErrorHandlerSetup::OnTestStart(const ::testing::TestInfo&)
+{
+    ErrorHandler::instance().reset();
 }
 
 } // namespace testing

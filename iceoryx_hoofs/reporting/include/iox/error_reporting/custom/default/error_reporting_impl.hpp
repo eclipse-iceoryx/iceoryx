@@ -19,8 +19,9 @@
 
 #include "iox/error_reporting/error_kind.hpp"
 #include "iox/error_reporting/error_logging.hpp"
-#include "iox/error_reporting/errors.hpp"
 #include "iox/error_reporting/source_location.hpp"
+#include "iox/error_reporting/types.hpp"
+#include "iox/error_reporting/violation.hpp"
 
 #include "iox/error_reporting/custom/default/error_handler.hpp"
 #include "iox/error_reporting/custom/error_kind.hpp"
@@ -130,40 +131,26 @@ inline void report(const SourceLocation& location, Kind kind, const Error& error
 } // namespace detail
 
 template <class Error>
-inline void report(const SourceLocation& location, iox::er::RequiredConditionViolationKind kind, const Error& error)
+inline void report(const SourceLocation& location, iox::er::AssertViolationKind kind, const Error& error)
 {
     detail::report(location, kind, error, detail::NoMessage{});
 }
 
 template <class Error>
-inline void report(const SourceLocation& location, iox::er::PreconditionViolationKind kind, const Error& error)
-{
-    detail::report(location, kind, error, detail::NoMessage{});
-}
-
-template <class Error>
-inline void report(const SourceLocation& location, iox::er::AssumptionViolationKind kind, const Error& error)
+inline void report(const SourceLocation& location, iox::er::EnforceViolationKind kind, const Error& error)
 {
     detail::report(location, kind, error, detail::NoMessage{});
 }
 
 template <class Error, class Message>
-inline void
-report(const SourceLocation& location, iox::er::RequiredConditionViolationKind kind, const Error& error, Message&& msg)
+inline void report(const SourceLocation& location, iox::er::AssertViolationKind kind, const Error& error, Message&& msg)
 {
     detail::report(location, kind, error, std::forward<Message>(msg));
 }
 
 template <class Error, class Message>
 inline void
-report(const SourceLocation& location, iox::er::PreconditionViolationKind kind, const Error& error, Message&& msg)
-{
-    detail::report(location, kind, error, std::forward<Message>(msg));
-}
-
-template <class Error, class Message>
-inline void
-report(const SourceLocation& location, iox::er::AssumptionViolationKind kind, const Error& error, Message&& msg)
+report(const SourceLocation& location, iox::er::EnforceViolationKind kind, const Error& error, Message&& msg)
 {
     detail::report(location, kind, error, std::forward<Message>(msg));
 }
