@@ -21,7 +21,10 @@ set_global(VAR ICEORYX_C_FLAGS              VALUE )
 set_global(VAR ICEORYX_CXX_FLAGS            VALUE $<$<CXX_COMPILER_ID:MSVC>:/EHsc>)
 set_global(VAR ICEORYX_TEST_CXX_FLAGS       VALUE $<$<CXX_COMPILER_ID:MSVC>:/bigobj>)
 
-set_global(VAR ICEORYX_C_WARNINGS           VALUE $<$<CXX_COMPILER_ID:MSVC>:/W0>) # @todo iox-#846 set to /W1
+set_global(VAR ICEORYX_C_WARNINGS           VALUE
+    $<$<CXX_COMPILER_ID:MSVC>:/W0> # @todo iox-#846 set to /W1
+    $<$<CXX_COMPILER_ID:GNU>:> # @todo iox-#846 set to -W -Wall -Wextra -Wuninitialized -Wpedantic -Wstrict-aliasing -Wcast-align -Wconversion
+)
 set_global(VAR ICEORYX_CXX_WARNINGS         VALUE ${ICEORYX_C_WARNINGS})
 
 if(BUILD_STRICT)
