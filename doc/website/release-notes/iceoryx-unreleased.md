@@ -57,6 +57,7 @@
 - Add the introspection to the ROS release [\#2099](https://github.com/eclipse-iceoryx/iceoryx/issues/2099)
 - Fast POD data in `iox::vector` [#2082](https://github.com/eclipse-iceoryx/iceoryx/issues/2082)
 - MinGW support for Windows [#2150](https://github.com/eclipse-iceoryx/iceoryx/issues/2150)
+- Add support for `iox::string` in `UnixDomainSocket` and created `unix_domain_socket.inl` [#2040](https://github.com/eclipse-iceoryx/iceoryx/issues/2040)
 
 **Bugfixes:**
 
