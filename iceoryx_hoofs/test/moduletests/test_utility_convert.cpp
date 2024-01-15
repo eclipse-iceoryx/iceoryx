@@ -30,6 +30,35 @@ using namespace ::testing;
 
 using NumberType = iox::convert::NumberType;
 
+class LongDouble
+{
+  public:
+    static bool Eq(long double a, long double b)
+    {
+        IOX_LOG(DEBUG, "a: " << a << ", b: " << b);
+
+        long double min_val = std::min(std::fabs(a), std::fabs(b));
+        long double epsilon = std::fabs(min_val - std::nextafter(min_val, static_cast<long double>(0)));
+
+        IOX_LOG(DEBUG, "epsilon from min_val: " << epsilon);
+        IOX_LOG(DEBUG, "abs min_val: " << min_val);
+
+        if (epsilon <= 0 || epsilon < std::numeric_limits<long double>::min())
+        {
+            epsilon = std::numeric_limits<long double>::min();
+        }
+        IOX_LOG(DEBUG, "epsilon: " << epsilon);
+
+        long double abs_diff = std::fabs(a - b);
+        IOX_LOG(DEBUG, "fabs result: " << abs_diff);
+
+        bool is_equal = abs_diff <= epsilon;
+        IOX_LOG(DEBUG, "<< a and b " << ((is_equal) ? "IS" : "IS NOT") << " considered equal! >>");
+
+        return is_equal;
+    }
+};
+
 class convert_test : public Test
 {
   public:
@@ -40,12 +69,12 @@ class convert_test : public Test
     {
     }
     template <typename T>
-    std::string fp_to_string(T value)
+    std::string fp_to_string(T value, uint16_t digits = std::numeric_limits<T>::digits10)
     {
-        static_assert(std::is_floating_point<T>::value, "fp_to_string requires floating point type");
+        static_assert(std::is_floating_point<T>::value, "requires floating point type");
 
         std::ostringstream oss;
-        oss << std::scientific << std::setprecision(std::numeric_limits<T>::max_digits10) << value;
+        oss << std::scientific << std::setprecision(digits) << value;
         return oss.str();
     }
 };
@@ -179,11 +208,13 @@ TEST_F(convert_test, fromString_Double_Fail)
 TEST_F(convert_test, fromString_LongDouble_Success)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2864fbae-ef1c-48ab-97f2-745baadc4dc5");
+    constexpr long double VERIFY = 121.01L;
     std::string source = "121.01";
-    constexpr long double VERIFY = 121.01;
+
     auto result = iox::convert::from_string<long double>(source.c_str());
     ASSERT_THAT(result.has_value(), Eq(true));
-    EXPECT_THAT(static_cast<double>(result.value()), DoubleEq(static_cast<double>(VERIFY)));
+    // NOLINTNEXTLINE(clang-analyzer-core.CallAndMessage)
+    EXPECT_THAT(LongDouble::Eq(VERIFY, result.value()), Eq(true));
 }
 
 TEST_F(convert_test, fromString_LongDouble_Fail)
@@ -467,7 +498,6 @@ TEST_F(convert_test, fromString_SignedLongLong_EdgeCase_InRange_Success)
     std::string source = "-9223372036854775808";
     auto long_long_min = iox::convert::from_string<long long>(source.c_str());
     ASSERT_THAT(long_long_min.has_value(), Eq(true));
-    // we don't use -9223372036854775808LL here for the compiler will parse it in way we don't want
     EXPECT_THAT(long_long_min.value(), Eq(std::numeric_limits<long long>::min()));
 
     source = "9223372036854775807";
@@ -644,17 +674,21 @@ TEST_F(convert_test, fromString_Float_EdgeCase_InRange_Success)
 {
     ::testing::Test::RecordProperty("TEST_ID", "cf849d5d-d0ed-4447-89b8-d6b9f47287c7");
 
-    std::string source = fp_to_string(std::numeric_limits<float>::min());
+    // the number larger than numeric_limits<long double>::digits10 that will pass all tests for all platforms
+    constexpr uint16_t PLATFORM_DIGIT_WORKAROUND_MIN{7};
+    constexpr uint16_t PLATFORM_DIGIT_WORKAROUND_MAX{7};
+
+    std::string source = fp_to_string(std::numeric_limits<float>::min(), PLATFORM_DIGIT_WORKAROUND_MIN);
     auto float_min = iox::convert::from_string<float>(source.c_str());
     ASSERT_THAT(float_min.has_value(), Eq(true));
     EXPECT_THAT(float_min.value(), FloatEq(std::numeric_limits<float>::min()));
 
-    source = fp_to_string(std::numeric_limits<float>::lowest());
+    source = fp_to_string(std::numeric_limits<float>::lowest(), PLATFORM_DIGIT_WORKAROUND_MAX);
     auto float_lowest = iox::convert::from_string<float>(source.c_str());
     ASSERT_THAT(float_lowest.has_value(), Eq(true));
     EXPECT_THAT(float_lowest.value(), FloatEq(std::numeric_limits<float>::lowest()));
 
-    source = fp_to_string(std::numeric_limits<float>::max());
+    source = fp_to_string(std::numeric_limits<float>::max(), PLATFORM_DIGIT_WORKAROUND_MAX);
     auto float_max = iox::convert::from_string<float>(source.c_str());
     ASSERT_THAT(float_max.has_value(), Eq(true));
     EXPECT_THAT(float_max.value(), FloatEq(std::numeric_limits<float>::max()));
@@ -664,73 +698,71 @@ TEST_F(convert_test, fromString_Float_EdgeCase_SubNormalFloat_ShouldFail)
 {
     ::testing::Test::RecordProperty("TEST_ID", "68d4f096-a93c-406b-b081-fe50e4b1a2c9");
 
-    // strtof will trigger ERANGE if the input is a subnormal float, resulting in a nullopt return value.
-    // note that for MSVC, sub normal float is a valid input!
     auto normal_float_min_eps = std::nextafter(std::numeric_limits<float>::min(), 0.0F);
     std::string source = fp_to_string(std::numeric_limits<float>::min() - normal_float_min_eps);
     auto float_min_dec_eps = iox::convert::from_string<float>(source.c_str());
-#ifdef _WIN32
-    GTEST_SKIP() << "@todo iox-#2055 temporarily skipped";
-#else
     ASSERT_THAT(float_min_dec_eps.has_value(), Eq(false));
-#endif
 }
 
 TEST_F(convert_test, fromString_Double_EdgeCase_InRange_Success)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d5e5e5ad-92ed-4229-8128-4ee82059fbf7");
 
-    GTEST_SKIP() << "@todo iox-#2055 Temporarily skipped due to issues in aarch64";
+    // the number larger than numeric_limits<double>::digits10 that will pass all tests for all platforms
+    constexpr uint16_t PLATFORM_DIGIT_WORKAROUND_MIN{19};
+    constexpr uint16_t PLATFORM_DIGIT_WORKAROUND_MAX{18};
 
-    std::string source = fp_to_string(std::numeric_limits<double>::min());
+    std::string source = fp_to_string(std::numeric_limits<double>::min(), PLATFORM_DIGIT_WORKAROUND_MIN);
     auto double_min = iox::convert::from_string<double>(source.c_str());
     ASSERT_THAT(double_min.has_value(), Eq(true));
     EXPECT_THAT(double_min.value(), DoubleEq(std::numeric_limits<double>::min()));
 
-    source = fp_to_string(std::numeric_limits<double>::lowest());
+    source = fp_to_string(std::numeric_limits<double>::lowest(), PLATFORM_DIGIT_WORKAROUND_MAX);
     auto double_lowest = iox::convert::from_string<double>(source.c_str());
     ASSERT_THAT(double_lowest.has_value(), Eq(true));
     EXPECT_THAT(double_lowest.value(), DoubleEq(std::numeric_limits<double>::lowest()));
 
-    source = fp_to_string(std::numeric_limits<double>::max());
+    source = fp_to_string(std::numeric_limits<double>::max(), PLATFORM_DIGIT_WORKAROUND_MAX);
     auto double_max = iox::convert::from_string<double>(source.c_str());
     ASSERT_THAT(double_max.has_value(), Eq(true));
     EXPECT_THAT(double_max.value(), DoubleEq(std::numeric_limits<double>::max()));
 }
 
-TEST_F(convert_test, fromString_Double_EdgeCase_SubNormalDouble_ShouldFailExcept)
+TEST_F(convert_test, fromString_Double_EdgeCase_SubNormalDouble_ShouldFail)
 {
     ::testing::Test::RecordProperty("TEST_ID", "af7ca2e6-ba7e-41f7-a321-5f68617d3566");
 
     auto normal_double_min_eps = std::nextafter(std::numeric_limits<double>::min(), 0.0);
     std::string source = fp_to_string(std::numeric_limits<double>::min() - normal_double_min_eps);
     auto double_min_dec_eps = iox::convert::from_string<double>(source.c_str());
-#ifdef _WIN32
-    GTEST_SKIP() << "@todo iox-#2055 temporarily skipped";
-#else
     ASSERT_THAT(double_min_dec_eps.has_value(), Eq(false));
-#endif
 }
 
 TEST_F(convert_test, fromString_LongDouble_EdgeCase_InRange_Success)
 {
     ::testing::Test::RecordProperty("TEST_ID", "cab1c90b-1de0-4654-bbea-4bb4e55e4fc3");
 
-    std::string source = fp_to_string(std::numeric_limits<long double>::min());
+    // the number larger than numeric_limits<long double>::digits10 that will pass all tests for all platforms
+    constexpr uint16_t PLATFORM_DIGIT_WORKAROUND_MIN{36};
+    constexpr uint16_t PLATFORM_DIGIT_WORKAROUND_MAX{34};
+
+    std::string source = fp_to_string(std::numeric_limits<long double>::min(), PLATFORM_DIGIT_WORKAROUND_MIN);
     auto long_double_min = iox::convert::from_string<long double>(source.c_str());
     ASSERT_THAT(long_double_min.has_value(), Eq(true));
-    // There's no LongDoubleEq
-    EXPECT_THAT(long_double_min.value(), Eq(std::numeric_limits<long double>::min()));
+    // NOLINTNEXTLINE(clang-analyzer-core.CallAndMessage)
+    EXPECT_THAT(LongDouble::Eq(long_double_min.value(), std::numeric_limits<long double>::min()), Eq(true));
 
-    source = fp_to_string(std::numeric_limits<long double>::lowest());
+    source = fp_to_string(std::numeric_limits<long double>::lowest(), PLATFORM_DIGIT_WORKAROUND_MAX);
     auto long_double_lowest = iox::convert::from_string<long double>(source.c_str());
     ASSERT_THAT(long_double_lowest.has_value(), Eq(true));
-    EXPECT_THAT(long_double_lowest.value(), Eq(std::numeric_limits<long double>::lowest()));
+    // NOLINTNEXTLINE(clang-analyzer-core.CallAndMessage)
+    EXPECT_THAT(LongDouble::Eq(long_double_lowest.value(), std::numeric_limits<long double>::lowest()), Eq(true));
 
-    source = fp_to_string(std::numeric_limits<long double>::max());
+    source = fp_to_string(std::numeric_limits<long double>::max(), PLATFORM_DIGIT_WORKAROUND_MAX);
     auto long_double_max = iox::convert::from_string<long double>(source.c_str());
     ASSERT_THAT(long_double_max.has_value(), Eq(true));
-    EXPECT_THAT(long_double_max.value(), Eq(std::numeric_limits<long double>::max()));
+    // NOLINTNEXTLINE(clang-analyzer-core.CallAndMessage)
+    EXPECT_THAT(LongDouble::Eq(long_double_max.value(), std::numeric_limits<long double>::max()), Eq(true));
 }
 
 TEST_F(convert_test, fromString_LongDouble_EdgeCase_SubNormalLongDouble_ShouldFail)
@@ -740,11 +772,7 @@ TEST_F(convert_test, fromString_LongDouble_EdgeCase_SubNormalLongDouble_ShouldFa
     auto normal_long_double_min_eps = std::nextafter(std::numeric_limits<long double>::min(), 0.0L);
     std::string source = fp_to_string(std::numeric_limits<long double>::min() - normal_long_double_min_eps);
     auto long_double_min_dec_eps = iox::convert::from_string<long double>(source.c_str());
-#ifdef _WIN32
-    GTEST_SKIP() << "@todo iox-#2055 temporarily skipped";
-#else
     ASSERT_THAT(long_double_min_dec_eps.has_value(), Eq(false));
-#endif
 }
 
 /// NORMAL FLOATING POINT TYPE EDGE CASES END
@@ -876,7 +904,8 @@ TEST_F(convert_test, fromString_LongDouble_EdgeCase_ZeroDecimalNotation_Success)
     {
         auto decimal_ret = iox::convert::from_string<long double>(v.c_str());
         ASSERT_THAT(decimal_ret.has_value(), Eq(true));
-        ASSERT_THAT(decimal_ret.value(), Eq(0.0L));
+        // NOLINTNEXTLINE(clang-analyzer-core.CallAndMessage)
+        ASSERT_THAT(LongDouble::Eq(decimal_ret.value(), 0.0L), Eq(true));
     }
 }
 
