@@ -69,16 +69,7 @@ class convert_test : public Test
     {
     }
     template <typename T>
-    std::string fp_to_string(T value)
-    {
-        static_assert(std::is_floating_point<T>::value, "requires floating point type");
-
-        std::ostringstream oss;
-        oss << std::scientific << std::setprecision(std::numeric_limits<T>::digits10) << value;
-        return oss.str();
-    }
-    template <typename T>
-    std::string fp_to_string(T value, uint16_t digits)
+    std::string fp_to_string(T value, uint16_t digits = std::numeric_limits<T>::digits10)
     {
         static_assert(std::is_floating_point<T>::value, "requires floating point type");
 
@@ -703,7 +694,7 @@ TEST_F(convert_test, fromString_Float_EdgeCase_InRange_Success)
     EXPECT_THAT(float_max.value(), FloatEq(std::numeric_limits<float>::max()));
 }
 
-TEST_F(convert_test, fromString_Float_EdgeCase_SubNormalFloat_ShouldFailExceptMsvc)
+TEST_F(convert_test, fromString_Float_EdgeCase_SubNormalFloat_ShouldFail)
 {
     ::testing::Test::RecordProperty("TEST_ID", "68d4f096-a93c-406b-b081-fe50e4b1a2c9");
 
@@ -737,7 +728,7 @@ TEST_F(convert_test, fromString_Double_EdgeCase_InRange_Success)
     EXPECT_THAT(double_max.value(), DoubleEq(std::numeric_limits<double>::max()));
 }
 
-TEST_F(convert_test, fromString_Double_EdgeCase_SubNormalDouble_ShouldFailExceptMsvc)
+TEST_F(convert_test, fromString_Double_EdgeCase_SubNormalDouble_ShouldFail)
 {
     ::testing::Test::RecordProperty("TEST_ID", "af7ca2e6-ba7e-41f7-a321-5f68617d3566");
 
@@ -774,7 +765,7 @@ TEST_F(convert_test, fromString_LongDouble_EdgeCase_InRange_Success)
     EXPECT_THAT(LongDouble::Eq(long_double_max.value(), std::numeric_limits<long double>::max()), Eq(true));
 }
 
-TEST_F(convert_test, fromString_LongDouble_EdgeCase_SubNormalLongDouble_ShouldFailExceptMsvc)
+TEST_F(convert_test, fromString_LongDouble_EdgeCase_SubNormalLongDouble_ShouldFail)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fb96e526-8fb6-4af9-87f0-dfd4193237a5");
 
