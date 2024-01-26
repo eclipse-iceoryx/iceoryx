@@ -39,7 +39,7 @@ struct SourceLocation
 } // namespace iox
 
 /// NOLINTNEXTLINE(cppcoreguidelines-macro-usage) macro is required for use of location intrinsics (__FILE__ etc.)
-#define CURRENT_SOURCE_LOCATION                                                                                        \
+#define IOX_CURRENT_SOURCE_LOCATION                                                                                    \
     iox::er::SourceLocation                                                                                            \
     {                                                                                                                  \
         __FILE__, __LINE__, static_cast<const char*>(__FUNCTION__)                                                     \

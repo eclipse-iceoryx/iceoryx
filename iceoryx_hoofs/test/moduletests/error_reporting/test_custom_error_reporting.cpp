@@ -66,7 +66,7 @@ TEST_F(ErrorReporting_test, panicWithLocationWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5aca0c31-1c1b-4004-bd41-b4b400258c12");
 
-    auto f = []() { panic(CURRENT_SOURCE_LOCATION); };
+    auto f = []() { panic(IOX_CURRENT_SOURCE_LOCATION); };
 
     iox::testing::runInTestThread(f);
 
@@ -77,7 +77,7 @@ TEST_F(ErrorReporting_test, panicWithMessageWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f0e44332-ea9b-4041-88f4-8155ccf7538d");
 
-    auto f = []() { panic(CURRENT_SOURCE_LOCATION, "message"); };
+    auto f = []() { panic(IOX_CURRENT_SOURCE_LOCATION, "message"); };
 
     iox::testing::runInTestThread(f);
 
@@ -88,7 +88,7 @@ TEST_F(ErrorReporting_test, reportNonFatalErrorWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1a1cec1b-5297-487a-bb95-e80af99886b6");
 
-    auto f = []() { report(CURRENT_SOURCE_LOCATION, RUNTIME_ERROR, ERROR); };
+    auto f = []() { report(IOX_CURRENT_SOURCE_LOCATION, RUNTIME_ERROR, ERROR); };
 
     iox::testing::runInTestThread(f);
 
@@ -100,7 +100,7 @@ TEST_F(ErrorReporting_test, reportFatalErrorWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "");
 
-    auto f = []() { report(CURRENT_SOURCE_LOCATION, FATAL, ERROR); };
+    auto f = []() { report(IOX_CURRENT_SOURCE_LOCATION, FATAL, ERROR); };
 
     iox::testing::runInTestThread(f);
 
@@ -116,7 +116,7 @@ TEST_F(ErrorReporting_test, reportAssertViolatonWorks)
 
     auto f = []() {
         auto v = Violation::createAssertViolation();
-        report(CURRENT_SOURCE_LOCATION, ASSERT_VIOLATION, v);
+        report(IOX_CURRENT_SOURCE_LOCATION, ASSERT_VIOLATION, v);
     };
 
     iox::testing::runInTestThread(f);
@@ -131,7 +131,7 @@ TEST_F(ErrorReporting_test, reportAssertViolatonWithMessageWorks)
 
     auto f = []() {
         auto v = Violation::createAssertViolation();
-        report(CURRENT_SOURCE_LOCATION, ASSERT_VIOLATION, v, "message");
+        report(IOX_CURRENT_SOURCE_LOCATION, ASSERT_VIOLATION, v, "message");
     };
 
     iox::testing::runInTestThread(f);
@@ -145,7 +145,7 @@ TEST_F(ErrorReporting_test, reportEnforceViolatonWorks)
 
     auto f = []() {
         auto v = Violation::createEnforceViolation();
-        report(CURRENT_SOURCE_LOCATION, ENFORCE_VIOLATION, v);
+        report(IOX_CURRENT_SOURCE_LOCATION, ENFORCE_VIOLATION, v);
     };
 
     iox::testing::runInTestThread(f);
@@ -160,7 +160,7 @@ TEST_F(ErrorReporting_test, reportEnforceViolatonWithMessageWorks)
 
     auto f = []() {
         auto v = Violation::createEnforceViolation();
-        report(CURRENT_SOURCE_LOCATION, ENFORCE_VIOLATION, v, "message");
+        report(IOX_CURRENT_SOURCE_LOCATION, ENFORCE_VIOLATION, v, "message");
     };
 
     iox::testing::runInTestThread(f);

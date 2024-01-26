@@ -53,8 +53,8 @@ TEST_F(DefaultErrorHandler_test, panicDoesNothing)
 TEST_F(DefaultErrorHandler_test, reportDoesNothing)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9e288318-c756-4666-b779-b944b89ffaf5");
-    sut.onReportError(ErrorDescriptor{CURRENT_SOURCE_LOCATION, CODE});
-    sut.onReportViolation(ErrorDescriptor{CURRENT_SOURCE_LOCATION, CODE});
+    sut.onReportError(ErrorDescriptor{IOX_CURRENT_SOURCE_LOCATION, CODE});
+    sut.onReportViolation(ErrorDescriptor{IOX_CURRENT_SOURCE_LOCATION, CODE});
 }
 
 } // namespace

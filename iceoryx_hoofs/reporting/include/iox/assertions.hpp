@@ -41,7 +41,7 @@
 #define IOX_PANIC(message)                                                                                             \
     do                                                                                                                 \
     {                                                                                                                  \
-        iox::er::forwardPanic(CURRENT_SOURCE_LOCATION, message);                                                       \
+        iox::er::forwardPanic(IOX_CURRENT_SOURCE_LOCATION, message);                                                   \
     } while (false)
 
 //************************************************************************************************
@@ -62,7 +62,7 @@
         {                                                                                                              \
             iox::er::forwardFatalError(iox::er::Violation::createAssertViolation(),                                    \
                                        iox::er::ASSERT_VIOLATION,                                                      \
-                                       CURRENT_SOURCE_LOCATION,                                                        \
+                                       IOX_CURRENT_SOURCE_LOCATION,                                                    \
                                        message);                                                                       \
         }                                                                                                              \
     } while (false)
@@ -78,7 +78,7 @@
         {                                                                                                              \
             iox::er::forwardFatalError(iox::er::Violation::createEnforceViolation(),                                   \
                                        iox::er::ENFORCE_VIOLATION,                                                     \
-                                       CURRENT_SOURCE_LOCATION,                                                        \
+                                       IOX_CURRENT_SOURCE_LOCATION,                                                    \
                                        message); /* @todo iox-#1032 add strigified 'expr' as '#expr' */                \
         }                                                                                                              \
     } while (false)
@@ -87,7 +87,7 @@
 #define IOX_UNREACHABLE()                                                                                              \
     do                                                                                                                 \
     {                                                                                                                  \
-        iox::er::forwardPanic(CURRENT_SOURCE_LOCATION, "Reached code that was supposed to be unreachable.");           \
+        iox::er::forwardPanic(IOX_CURRENT_SOURCE_LOCATION, "Reached code that was supposed to be unreachable.");       \
     } while (false)
 
 // NOLINTEND(cppcoreguidelines-macro-usage)

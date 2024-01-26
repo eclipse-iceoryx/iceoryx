@@ -42,7 +42,7 @@
 #define IOX_REPORT(error, kind)                                                                                        \
     do                                                                                                                 \
     {                                                                                                                  \
-        iox::er::forwardNonFatalError(iox::er::toError(error), kind, CURRENT_SOURCE_LOCATION);                         \
+        iox::er::forwardNonFatalError(iox::er::toError(error), kind, IOX_CURRENT_SOURCE_LOCATION);                     \
     } while (false)
 
 /// @brief report fatal error
@@ -50,7 +50,7 @@
 #define IOX_REPORT_FATAL(error)                                                                                        \
     do                                                                                                                 \
     {                                                                                                                  \
-        iox::er::forwardFatalError(iox::er::toError(error), iox::er::FATAL, CURRENT_SOURCE_LOCATION);                  \
+        iox::er::forwardFatalError(iox::er::toError(error), iox::er::FATAL, IOX_CURRENT_SOURCE_LOCATION);              \
     } while (false)
 
 /// @brief report error of some non-fatal kind if expr evaluates to true
@@ -65,7 +65,7 @@
             iox::er::forwardNonFatalError(                                                                             \
                 iox::er::toError(error),                                                                               \
                 kind,                                                                                                  \
-                CURRENT_SOURCE_LOCATION); /* @todo iox-#1032 add strigified 'expr' as '#expr' */                       \
+                IOX_CURRENT_SOURCE_LOCATION); /* @todo iox-#1032 add strigified 'expr' as '#expr' */                   \
         }                                                                                                              \
     } while (false)
 
@@ -77,7 +77,7 @@
     {                                                                                                                  \
         if (expr)                                                                                                      \
         {                                                                                                              \
-            iox::er::forwardFatalError(iox::er::toError(error), iox::er::FATAL, CURRENT_SOURCE_LOCATION);              \
+            iox::er::forwardFatalError(iox::er::toError(error), iox::er::FATAL, IOX_CURRENT_SOURCE_LOCATION);          \
         }                                                                                                              \
     } while (false)
 
