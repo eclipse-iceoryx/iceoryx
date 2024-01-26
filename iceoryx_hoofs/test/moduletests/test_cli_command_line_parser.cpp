@@ -22,6 +22,7 @@
 #include "iox/std_string_support.hpp"
 #include "test.hpp"
 #include "test_cli_command_line_common.hpp"
+#include "iceoryx_hoofs/testing/error_reporting/testing_support.hpp"
 
 #include <cstdlib>
 #include <iostream>
@@ -891,7 +892,6 @@ Arguments SuccessTest(const std::vector<std::string>& options,
     CmdArgs args(optionVector);
     Arguments retVal;
 
-    bool wasErrorHandlerCalled = false;
     {
         OptionDefinition optionSet("");
         for (const auto& o : optionsToRegister)
@@ -909,12 +909,12 @@ Arguments SuccessTest(const std::vector<std::string>& options,
         }
 
         {
-            auto handle = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::HoofsError>(
-                [&](const iox::HoofsError, const iox::ErrorLevel) { wasErrorHandlerCalled = true; });
             retVal = parseCommandLineArguments(optionSet, args.argc, args.argv, argcOffset);
         }
     }
-    EXPECT_FALSE(wasErrorHandlerCalled);
+
+    IOX_TESTING_EXPECT_OK();
+
     return retVal;
 }
 
