@@ -115,6 +115,55 @@ TEST(ChunkSettings_test, CallingRequiredChunkSizeReturnsCorrectValue)
 
 // END GETTER METHOD TESTS
 
+// BEGIN EXCEEDING CHUNK SIZE TESTS
+
+TEST(ChunkSettings_test, NoCustomUserPayloadAlignmentAndTooLargeUserPayload_Fails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "1ac315d5-fb8d-4529-b141-110fe7c7988d");
+    constexpr uint64_t USER_PAYLOAD_SIZE{std::numeric_limits<uint64_t>::max()};
+    constexpr uint32_t USER_PAYLOAD_ALIGNMENT{iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT};
+    constexpr uint32_t USER_HEADER_SIZE{iox::CHUNK_NO_USER_HEADER_SIZE};
+    constexpr uint32_t USER_HEADER_ALIGNMENT{iox::CHUNK_NO_USER_HEADER_ALIGNMENT};
+
+    auto sutResult =
+        ChunkSettings::create(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
+
+    ASSERT_TRUE(sutResult.has_error());
+    EXPECT_THAT(sutResult.error(), Eq(ChunkSettings::Error::REQUIRED_CHUNK_SIZE_EXCEEDS_MAX_CHUNK_SIZE));
+}
+
+TEST(ChunkSettings_test, CustomUserPayloadAlignmentAndTooLargeUserPayload_Fails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "fade135d-636f-4b06-8f5d-b33eece1175c");
+    constexpr uint64_t USER_PAYLOAD_SIZE{std::numeric_limits<uint64_t>::max()};
+    constexpr uint32_t USER_PAYLOAD_ALIGNMENT{alignof(ChunkHeader) * 2};
+    constexpr uint32_t USER_HEADER_SIZE{iox::CHUNK_NO_USER_HEADER_SIZE};
+    constexpr uint32_t USER_HEADER_ALIGNMENT{iox::CHUNK_NO_USER_HEADER_ALIGNMENT};
+
+    auto sutResult =
+        ChunkSettings::create(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
+
+    ASSERT_TRUE(sutResult.has_error());
+    EXPECT_THAT(sutResult.error(), Eq(ChunkSettings::Error::REQUIRED_CHUNK_SIZE_EXCEEDS_MAX_CHUNK_SIZE));
+}
+
+TEST(ChunkSettings_test, UserHeaderAndTooLargeUserPayload_Fails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "b61df037-6dae-4350-896e-9ffad96db028");
+    constexpr uint64_t USER_PAYLOAD_SIZE{std::numeric_limits<uint64_t>::max()};
+    constexpr uint32_t USER_PAYLOAD_ALIGNMENT{alignof(ChunkHeader) * 2};
+    constexpr uint32_t USER_HEADER_SIZE{8U};
+    constexpr uint32_t USER_HEADER_ALIGNMENT{8U};
+
+    auto sutResult =
+        ChunkSettings::create(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
+
+    ASSERT_TRUE(sutResult.has_error());
+    EXPECT_THAT(sutResult.error(), Eq(ChunkSettings::Error::REQUIRED_CHUNK_SIZE_EXCEEDS_MAX_CHUNK_SIZE));
+}
+
+// END EXCEEDING CHUNK SIZE TESTS
+
 // BEGIN INVALID USER-HEADER AND USER-PAYLOAD ALIGNMENT TESTS
 
 TEST(ChunkSettings_test, UserPayloadAlignmentNotPowerOfTwo_Fails)

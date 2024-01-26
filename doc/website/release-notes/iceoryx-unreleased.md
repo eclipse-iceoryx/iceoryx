@@ -1294,30 +1294,8 @@
     iox::concurrent::MpmcLockFreeQueue q;
     ```
 
-59. Payload Size for Memory Chunks is now `uin64_t`. Therefore the `ChunkHeader` layout changes:
+59. Payload Size for Memory Chunks is now `uin64_t`.
+    Hence the `ChunkHeader` (iceoryx_posh/mepoo/chunk_header.hpp) layout changes
+    and `m_chunkHeaderVersion` is getting increased.
+    Moreover many functions' signatures are also affected by this change.
 
-    ```cpp
-    // before
-    uint32_t m_chunkSize;
-    uint8_t m_chunkHeaderVersion;
-    uint8_t m_reserved;
-    uint16_t m_userHeaderId;
-    popo::UniquePortId m_originId;
-    uint64_t m_sequenceNumber;
-    uint32_t m_userHeaderSize;
-    uint64_t m_userPayloadSize;
-    uint32_t m_userPayloadAlignment;
-    UserPayloadOffset_t m_userPayloadOffset;
-
-    // after
-    uint32_t m_userHeaderSize;
-    uint8_t m_chunkHeaderVersion;
-    uint8_t m_reserved;
-    uint16_t m_userHeaderId;
-    popo::UniquePortId m_originId;
-    uint64_t m_sequenceNumber;
-    uint64_t m_chunkSize;
-    uint64_t m_userPayloadSize;
-    uint32_t m_userPayloadAlignment;
-    UserPayloadOffset_t m_userPayloadOffset;
-    ```

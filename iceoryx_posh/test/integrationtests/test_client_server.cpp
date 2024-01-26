@@ -35,6 +35,8 @@ using namespace iox::capro;
 using namespace iox::runtime;
 using namespace iox::roudi_env;
 
+constexpr uint64_t BIG_PAYLOAD_SIZE = std::numeric_limits<uint32_t>::max() + 105UL;
+
 class DummyRequest
 {
   public:
@@ -59,8 +61,19 @@ class DummyResponse
     uint64_t sum{0U};
 };
 
+struct BigPayloadStruct
+{
+    uint8_t bigPayload[BIG_PAYLOAD_SIZE]{0U};
+};
+
 class ClientServer_test : public RouDi_GTest
 {
+  protected:
+    ClientServer_test(iox::RouDiConfig_t&& roudiConfig)
+        : RouDi_GTest(std::move(roudiConfig))
+    {
+    }
+
   public:
     ClientServer_test()
         : RouDi_GTest(MinimalRouDiConfigBuilder().create())
@@ -81,6 +94,25 @@ class ClientServer_test : public RouDi_GTest
     iox::popo::ServerOptions serverOptions;
 };
 constexpr iox::units::Duration ClientServer_test::DEADLOCK_TIMEOUT;
+
+class BigPayloadClientServer_test : public ClientServer_test
+{
+  public:
+    BigPayloadClientServer_test()
+        : ClientServer_test(
+            MinimalRouDiConfigBuilder().payloadChunkSize(BIG_PAYLOAD_SIZE + 128).payloadChunkCount(2).create())
+    {
+    }
+
+    void SetUp() override
+    {
+        PoshRuntime::initRuntime("together");
+        deadlockWatchdog.watchAndActOnFailure([] { std::terminate(); });
+    }
+
+    static constexpr iox::units::Duration DEADLOCK_TIMEOUT{10_s};
+    Watchdog deadlockWatchdog{DEADLOCK_TIMEOUT};
+};
 
 TEST_F(ClientServer_test, TypedApiWithMatchingOptionsWorks)
 {
@@ -449,5 +481,128 @@ TEST_F(ClientServer_test, ClientTakesResponseUnblocksServerSendingResponse)
     blockingServer.join(); // ensure the wasResponseSent store happens before the read
     EXPECT_THAT(wasResponseSent.load(), Eq(true));
 }
+
+#ifdef RUN_BIG_PAYLOAD_TESTS
+
+TEST_F(BigPayloadClientServer_test, TypedApiWithBigPayloadWithMatchingOptionsWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "9838d2dc-bd87-42aa-b581-a9526e35e46a");
+
+    constexpr int64_t SEQUENCE_ID{73};
+    constexpr uint64_t START{1337};
+    constexpr uint64_t END{2137};
+    constexpr uint8_t SHIFT{13U};
+
+    Client<BigPayloadStruct, BigPayloadStruct> client{sd};
+    Server<BigPayloadStruct, BigPayloadStruct> server{sd};
+
+    // send request
+    {
+        auto loanResult = client.loan();
+        ASSERT_FALSE(loanResult.has_error());
+        auto& request = loanResult.value();
+        request.getRequestHeader().setSequenceId(SEQUENCE_ID);
+        for (uint64_t i = START; i < END; ++i)
+        {
+            request->bigPayload[i] = static_cast<uint8_t>(i % 256U);
+        }
+        ASSERT_FALSE(client.send(std::move(request)).has_error());
+    }
+
+    // take request and send response
+    {
+        auto takeResult = server.take();
+        ASSERT_FALSE(takeResult.has_error());
+        auto& request = takeResult.value();
+
+        auto loanResult = server.loan(request);
+        ASSERT_FALSE(loanResult.has_error());
+        auto& response = loanResult.value();
+        for (uint64_t i = START; i < END; ++i)
+        {
+            response->bigPayload[i] = request->bigPayload[i] + SHIFT;
+        }
+        ASSERT_FALSE(server.send(std::move(response)).has_error());
+    }
+
+    // take response
+    {
+        auto takeResult = client.take();
+        ASSERT_FALSE(takeResult.has_error());
+        auto& response = takeResult.value();
+        EXPECT_THAT(response.getResponseHeader().getSequenceId(), Eq(SEQUENCE_ID));
+        for (uint64_t i = START; i < END; ++i)
+        {
+            if (response->bigPayload[i] != static_cast<uint8_t>((i % 256U) + SHIFT))
+            {
+                EXPECT_THAT(response->bigPayload[i], Eq(static_cast<uint8_t>((i % 256U) + SHIFT)));
+                break;
+            }
+        }
+    }
+}
+
+TEST_F(BigPayloadClientServer_test, UntypedApiWithBigPayloadWithMatchingOptionsWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "3c784d7f-6fe8-2137-b267-7f3e70a307f3");
+
+    constexpr int64_t SEQUENCE_ID{37};
+    constexpr uint64_t START{1337};
+    constexpr uint64_t END{2137};
+    constexpr uint8_t SHIFT{13U};
+
+    UntypedClient client{sd};
+    UntypedServer server{sd};
+
+    // send request
+    {
+        auto loanResult = client.loan(sizeof(BigPayloadStruct), alignof(BigPayloadStruct));
+        ASSERT_FALSE(loanResult.has_error());
+        auto request = static_cast<BigPayloadStruct*>(loanResult.value());
+        RequestHeader::fromPayload(request)->setSequenceId(SEQUENCE_ID);
+        for (uint64_t i = START; i < END; ++i)
+        {
+            request->bigPayload[i] = static_cast<uint8_t>(i % 256U);
+        }
+        ASSERT_FALSE(client.send(request).has_error());
+    }
+
+    // take request and send response
+    {
+        auto takeResult = server.take();
+        ASSERT_FALSE(takeResult.has_error());
+        auto request = static_cast<const BigPayloadStruct*>(takeResult.value());
+
+        auto loanResult =
+            server.loan(RequestHeader::fromPayload(request), sizeof(BigPayloadStruct), alignof(BigPayloadStruct));
+        ASSERT_FALSE(loanResult.has_error());
+        auto response = static_cast<BigPayloadStruct*>(loanResult.value());
+        for (uint64_t i = START; i < END; ++i)
+        {
+            response->bigPayload[i] = request->bigPayload[i] + SHIFT;
+        }
+        ASSERT_FALSE(server.send(response).has_error());
+        server.releaseRequest(request);
+    }
+
+    // take response
+    {
+        auto takeResult = client.take();
+        ASSERT_FALSE(takeResult.has_error());
+        auto response = static_cast<const BigPayloadStruct*>(takeResult.value());
+        EXPECT_THAT(ResponseHeader::fromPayload(response)->getSequenceId(), Eq(SEQUENCE_ID));
+        for (uint64_t i = START; i < END; ++i)
+        {
+            if (response->bigPayload[i] != static_cast<uint8_t>((i % 256U) + SHIFT))
+            {
+                EXPECT_THAT(response->bigPayload[i], Eq(static_cast<uint8_t>((i % 256U) + SHIFT)));
+                break;
+            }
+        }
+        client.releaseResponse(response);
+    }
+}
+
+#endif // RUN_BIG_PAYLOAD_TESTS
 
 } // namespace

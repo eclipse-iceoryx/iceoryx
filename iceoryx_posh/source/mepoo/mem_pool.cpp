@@ -49,6 +49,7 @@ MemPool::MemPool(const greater_or_equal<uint64_t, CHUNK_MEMORY_ALIGNMENT> chunkS
 {
     if (isMultipleOfAlignment(chunkSize))
     {
+        IOX_EXPECTS(m_chunkSize <= std::numeric_limits<uint64_t>::max() / m_numberOfChunks);
         auto allocationResult = chunkMemoryAllocator.allocate(static_cast<uint64_t>(m_numberOfChunks) * m_chunkSize,
                                                               CHUNK_MEMORY_ALIGNMENT);
         IOX_EXPECTS(allocationResult.has_value());
@@ -63,9 +64,8 @@ MemPool::MemPool(const greater_or_equal<uint64_t, CHUNK_MEMORY_ALIGNMENT> chunkS
     else
     {
         IOX_LOG(FATAL,
-                "Chunk size must be multiple of '" << CHUNK_MEMORY_ALIGNMENT << "'! Requested size is "
-                                                   << static_cast<uint64_t>(chunkSize) << " for "
-                                                   << static_cast<uint32_t>(numberOfChunks) << " chunks!");
+                "Chunk size must be multiple of '" << CHUNK_MEMORY_ALIGNMENT << "'! Requested size is " << chunkSize
+                                                   << " for " << numberOfChunks << " chunks!");
         errorHandler(PoshError::MEPOO__MEMPOOL_CHUNKSIZE_MUST_BE_MULTIPLE_OF_CHUNK_MEMORY_ALIGNMENT);
     }
 }

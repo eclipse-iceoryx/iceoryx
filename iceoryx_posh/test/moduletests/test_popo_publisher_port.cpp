@@ -66,7 +66,7 @@ class PublisherPort_test : public Test
     static constexpr uint64_t SMALL_CHUNK = 128;
     static constexpr uint64_t BIG_CHUNK = 256;
 
-    static constexpr uint64_t USER_PAYLOAD_ALIGNMENT = iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT;
+    static constexpr uint32_t USER_PAYLOAD_ALIGNMENT = iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT;
     static constexpr uint32_t USER_HEADER_SIZE = iox::CHUNK_NO_USER_HEADER_SIZE;
     static constexpr uint32_t USER_HEADER_ALIGNMENT = iox::CHUNK_NO_USER_HEADER_ALIGNMENT;
 
@@ -262,7 +262,7 @@ TEST_F(PublisherPort_test, allocatingAChunkWithLargeUserHeaderResultsInLargeChun
 {
     ::testing::Test::RecordProperty("TEST_ID", "598e04d8-8a37-43ef-b686-64e7b2723ffe");
     constexpr uint64_t USER_PAYLOAD_SIZE{SMALL_CHUNK / 2};
-    constexpr uint64_t LARGE_USER_HEADER_SIZE{SMALL_CHUNK};
+    constexpr uint32_t LARGE_USER_HEADER_SIZE{SMALL_CHUNK};
     auto maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(
         USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT, LARGE_USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
 

@@ -35,6 +35,7 @@ class ChunkSettings
         ALIGNMENT_NOT_POWER_OF_TWO,
         USER_HEADER_ALIGNMENT_EXCEEDS_CHUNK_HEADER_ALIGNMENT,
         USER_HEADER_SIZE_NOT_MULTIPLE_OF_ITS_ALIGNMENT,
+        REQUIRED_CHUNK_SIZE_EXCEEDS_MAX_CHUNK_SIZE,
     };
 
     /// @brief constructs and initializes a ChunkSettings
@@ -76,9 +77,9 @@ class ChunkSettings
                   const uint32_t userHeaderAlignment,
                   const uint64_t requiredChunkSize) noexcept;
 
-    static uint64_t calculateRequiredChunkSize(const uint64_t userPayloadSize,
-                                               const uint32_t userPayloadAlignment,
-                                               const uint32_t userHeaderSize) noexcept;
+    static expected<uint64_t, ChunkSettings::Error> calculateRequiredChunkSize(const uint64_t userPayloadSize,
+                                                                               const uint32_t userPayloadAlignment,
+                                                                               const uint32_t userHeaderSize) noexcept;
 
   private:
     uint64_t m_userPayloadSize{0U};

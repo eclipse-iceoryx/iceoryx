@@ -43,26 +43,26 @@ Framing with terminology
 ```
 class ChunkHeader
 {
-    uint32_t chunkSize;
+    uint32_t userHeaderSize{0U};
     uint8_t chunkHeaderVersion;
     uint8_t reserved{0};
     uint16_t userHeaderId;
     popo::UniquePortId originId; // underlying type = uint64_t
     uint64_t sequenceNumber;
-    uint32_t userHeaderSize{0U};
+    uint64_t chunkSize;
     uint32_t userPayloadSize{0U};
     uint32_t userPayloadAlignment{1U};
     UserPayloadOffset_t userPayloadOffset; // alias to uint32_t
 };
 ```
 
-- **chunkSize** is the size of the whole chunk
+- **userHeaderSize** is the size of the chunk occupied by the user-header
 - **chunkHeaderVersion** is used to detect incompatibilities for record&replay functionality
 - **reserved** is currently not used and set to `0`
 - **userHeaderId** is currently not used and set to `NO_USER_HEADER`
 - **originId** is the unique identifier of the publisher the chunk was sent from
 - **sequenceNumber** is a serial number for the sent chunks
-- **userHeaderSize** is the size of the chunk occupied by the user-header
+- **chunkSize** is the size of the whole chunk
 - **userPayloadSize** is the size of the chunk occupied by the user-payload
 - **userPayloadAlignment** is the alignment of the chunk occupied by the user-payload
 - **userPayloadOffset** is the offset of the user-payload relative to the begin of the chunk

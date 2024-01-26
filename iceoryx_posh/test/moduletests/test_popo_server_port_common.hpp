@@ -223,7 +223,7 @@ class ServerPort_test : public Test
 
   public:
     static constexpr uint64_t USER_PAYLOAD_SIZE{32U};
-    static constexpr uint64_t USER_PAYLOAD_ALIGNMENT{8U};
+    static constexpr uint32_t USER_PAYLOAD_ALIGNMENT{8U};
 
     ClientChunkQueueData_t clientChunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
                                                 iox::popo::VariantQueueTypes::SoFi_MultiProducerSingleConsumer};

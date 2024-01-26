@@ -58,8 +58,8 @@ void MemoryManager::addMemPool(BumpAllocator& managementAllocator,
                 return log;
             } << "These mempools must be added in an increasing chunk size ordering. The newly added  MemPool [ "
                  "ChunkSize = "
-              << adjustedChunkSize << ", ChunkPayloadSize = " << static_cast<uint64_t>(chunkPayloadSize)
-              << ", ChunkCount = " << static_cast<uint32_t>(numberOfChunks) << "] breaks that requirement!");
+              << adjustedChunkSize << ", ChunkPayloadSize = " << chunkPayloadSize << ", ChunkCount = " << numberOfChunks
+              << "] breaks that requirement!");
         errorHandler(iox::PoshError::MEPOO__MEMPOOL_CONFIG_MUST_BE_ORDERED_BY_INCREASING_SIZE);
     }
 

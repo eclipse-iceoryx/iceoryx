@@ -63,15 +63,20 @@ expected<ChunkSettings, ChunkSettings::Error> ChunkSettings::create(const uint64
         return err(ChunkSettings::Error::USER_HEADER_SIZE_NOT_MULTIPLE_OF_ITS_ALIGNMENT);
     }
 
-    uint64_t requiredChunkSize =
-        calculateRequiredChunkSize(userPayloadSize, adjustedUserPayloadAlignment, userHeaderSize);
+    auto expectChunkSize = calculateRequiredChunkSize(userPayloadSize, adjustedUserPayloadAlignment, userHeaderSize);
+    if (expectChunkSize.has_error())
+    {
+        return err(expectChunkSize.get_error());
+    }
+    uint64_t requiredChunkSize = expectChunkSize.value();
+
 
     return ok(ChunkSettings{
         userPayloadSize, adjustedUserPayloadAlignment, userHeaderSize, adjustedUserHeaderAlignment, requiredChunkSize});
 }
-uint64_t ChunkSettings::calculateRequiredChunkSize(const uint64_t userPayloadSize,
-                                                   const uint32_t userPayloadAlignment,
-                                                   const uint32_t userHeaderSize) noexcept
+
+expected<uint64_t, ChunkSettings::Error> ChunkSettings::calculateRequiredChunkSize(
+    const uint64_t userPayloadSize, const uint32_t userPayloadAlignment, const uint32_t userHeaderSize) noexcept
 {
     // have a look at »Required Chunk Size Calculation« in chunk_header.md for more details regarding the calculation
     if (userHeaderSize == 0)
@@ -79,17 +84,29 @@ uint64_t ChunkSettings::calculateRequiredChunkSize(const uint64_t userPayloadSiz
         // the most simple case with no user-header and the user-payload adjacent to the ChunkHeader
         if (userPayloadAlignment <= alignof(mepoo::ChunkHeader))
         {
+            if (userPayloadSize > std::numeric_limits<uint64_t>::max() - sizeof(ChunkHeader))
+            {
+                return err(ChunkSettings::Error::REQUIRED_CHUNK_SIZE_EXCEEDS_MAX_CHUNK_SIZE);
+            }
+
             uint64_t requiredChunkSize = sizeof(ChunkHeader) + userPayloadSize;
 
-            return requiredChunkSize;
+            return ok(requiredChunkSize);
         }
 
         // the second most simple case with no user-header but the user-payload alignment
         // exceeds the ChunkHeader alignment and is therefore not necessarily adjacent
         uint64_t preUserPayloadAlignmentOverhang = sizeof(ChunkHeader) - alignof(ChunkHeader);
+
+        if (userPayloadSize
+            > std::numeric_limits<uint64_t>::max() - preUserPayloadAlignmentOverhang - userPayloadAlignment)
+        {
+            return err(ChunkSettings::Error::REQUIRED_CHUNK_SIZE_EXCEEDS_MAX_CHUNK_SIZE);
+        }
+
         uint64_t requiredChunkSize = preUserPayloadAlignmentOverhang + userPayloadAlignment + userPayloadSize;
 
-        return requiredChunkSize;
+        return ok(requiredChunkSize);
     }
 
     // the most complex case with a user-header
@@ -98,9 +115,15 @@ uint64_t ChunkSettings::calculateRequiredChunkSize(const uint64_t userPayloadSiz
     uint64_t headerSize = sizeof(ChunkHeader) + userHeaderSize;
     uint64_t preUserPayloadAlignmentOverhang = align(headerSize, ALIGNMENT_OF_USER_PAYLOAD_OFFSET_T);
     uint64_t maxPadding = algorithm::maxVal(SIZE_OF_USER_PAYLOAD_OFFSET_T, static_cast<uint64_t>(userPayloadAlignment));
+
+    if (userPayloadSize > std::numeric_limits<uint64_t>::max() - preUserPayloadAlignmentOverhang - maxPadding)
+    {
+        return err(ChunkSettings::Error::REQUIRED_CHUNK_SIZE_EXCEEDS_MAX_CHUNK_SIZE);
+    }
+
     uint64_t requiredChunkSize = preUserPayloadAlignmentOverhang + maxPadding + userPayloadSize;
 
-    return requiredChunkSize;
+    return ok(requiredChunkSize);
 }
 
 uint64_t ChunkSettings::requiredChunkSize() const noexcept

@@ -41,6 +41,8 @@ using namespace iox::popo;
 using namespace iox::roudi_env;
 using namespace iox::testing;
 
+constexpr uint64_t BIG_PAYLOAD_SIZE = std::numeric_limits<uint32_t>::max() + 105UL;
+
 template <typename T>
 struct ComplexDataType
 {
@@ -48,8 +50,19 @@ struct ComplexDataType
     T complexType;
 };
 
+struct BigPayloadStruct
+{
+    uint8_t bigPayload[BIG_PAYLOAD_SIZE];
+};
+
 class PublisherSubscriberCommunication_test : public RouDi_GTest
 {
+  protected:
+    PublisherSubscriberCommunication_test(iox::RouDiConfig_t&& roudiConfig)
+        : RouDi_GTest(std::move(roudiConfig))
+    {
+    }
+
   public:
     PublisherSubscriberCommunication_test()
         : RouDi_GTest(MinimalRouDiConfigBuilder().payloadChunkSize(512).create())
@@ -132,6 +145,23 @@ class PublisherSubscriberCommunication_test : public RouDi_GTest
     Watchdog m_watchdog{units::Duration::fromSeconds(5)};
     capro::ServiceDescription m_serviceDescription{
         "PublisherSubscriberCommunication", "IntegrationTest", "AllHailHypnotoad"};
+};
+
+class PublisherSubscriberCommunicationWithBigPayload_test : public PublisherSubscriberCommunication_test
+{
+  public:
+    PublisherSubscriberCommunicationWithBigPayload_test()
+        : PublisherSubscriberCommunication_test(
+            MinimalRouDiConfigBuilder().payloadChunkSize(BIG_PAYLOAD_SIZE + 128).payloadChunkCount(2).create())
+    {
+    }
+
+    void SetUp()
+    {
+        runtime::PoshRuntime::initRuntime("PublisherSubscriberCommunication_test");
+        m_watchdog.watchAndActOnFailure([] { std::terminate(); });
+    };
+    Watchdog m_watchdog{units::Duration::fromSeconds(10)};
 };
 
 // intentional reference to unique pointer, we do not want to pass ownership in this helper function
@@ -712,5 +742,37 @@ TEST_F(PublisherSubscriberCommunication_test, PublisherUniqueIdMatchesReceivedSa
                          .has_error());
     }
 }
+
+#ifdef RUN_BIG_PAYLOAD_TESTS
+
+TEST_F(PublisherSubscriberCommunicationWithBigPayload_test, SendingComplexDataType_BigPayloadStruct)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "f612a4ef-5f3a-4951-8f2e-bbc28f6b1a66");
+
+    using Type_t = ComplexDataType<BigPayloadStruct>;
+    auto publisher = createPublisher<Type_t>();
+    auto subscriber = createSubscriber<Type_t>();
+
+    ASSERT_FALSE(publisher->loan()
+                     .and_then([](auto& sample) {
+                         for (uint64_t i = 4242; i < 5353; ++i)
+                         {
+                             sample->complexType.bigPayload[i] = static_cast<uint8_t>(i % 256U);
+                         }
+                         sample.publish();
+                     })
+                     .has_error());
+
+    EXPECT_FALSE(subscriber->take()
+                     .and_then([](auto& sample) {
+                         for (uint64_t i = 4242; i < 5353; ++i)
+                         {
+                             EXPECT_THAT(sample->complexType.bigPayload[i], Eq(static_cast<uint8_t>(i % 256U)));
+                         }
+                     })
+                     .has_error());
+}
+
+#endif
 
 } // namespace
