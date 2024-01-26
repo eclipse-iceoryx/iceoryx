@@ -27,37 +27,47 @@ namespace iox
 {
 namespace concurrent
 {
-/// @brief single pusher single pop'er thread safe fifo
+/// @brief single producer single consumer thread safe fifo
+/// @note there are at most one push and one pop threads that can work concurrently on the fifo
 template <typename ValueType, uint64_t Capacity>
 class SpscFifo
 {
   public:
     /// @brief pushes a value into the fifo
-    /// @return if the values was pushed successfully into the fifo it returns
+    /// @note restricted thread-safe: can be called from different threads but not concurrently (i.e.
+    /// simultaneously)
+    /// @return if the value was pushed successfully into the fifo, returns
     ///         true, otherwise false
     bool push(const ValueType& value) noexcept;
 
     /// @brief returns the oldest value from the fifo and removes it
-    /// @return if the fifo was not empty the optional contains the value,
+    /// @note restricted thread-safe: can be called from different threads but not concurrently (i.e.
+    /// simultaneously)
+    /// @return if the fifo was not empty, the optional contains the value,
     ///         otherwise it contains a nullopt
     optional<ValueType> pop() noexcept;
 
     /// @brief returns true when the fifo is empty, otherwise false
+    /// @note thread safe (the result might already be outdated when used)
     bool empty() const noexcept;
 
     /// @brief returns the size of the fifo
+    /// @note thread safe (the result might already be outdated when used)
     uint64_t size() const noexcept;
 
     /// @brief returns the capacity of the fifo
     static constexpr uint64_t capacity() noexcept;
 
   private:
+    // thread safe (the result might already be outdated when used)
     bool is_full() const noexcept;
+    std::pair<uint64_t, uint64_t> get_read_write_positions() const noexcept;
+
 
   private:
     UninitializedArray<ValueType, Capacity> m_data;
-    std::atomic<uint64_t> m_write_pos{0};
-    std::atomic<uint64_t> m_read_pos{0};
+    std::atomic<uint64_t> m_writePos{0};
+    std::atomic<uint64_t> m_readPos{0};
 };
 
 } // namespace concurrent

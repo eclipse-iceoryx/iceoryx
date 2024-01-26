@@ -31,27 +31,69 @@ inline bool SpscFifo<ValueType, Capacity>::push(const ValueType& value) noexcept
     {
         return false;
     }
-    auto currentWritePos = m_write_pos.load(std::memory_order_relaxed);
+    // Memory order relaxed is enough since:
+    // - there is no concurrent access to this method
+    // - the load statement cannot be reordered with writing m_data otherwise it would not compile
+    auto currentWritePos = m_writePos.load(std::memory_order_relaxed);
     m_data[currentWritePos % Capacity] = value;
 
-    // m_write_pos must be increased after writing the new value otherwise
-    // it is possible that the value is read by pop while it is written.
-    // this fifo is a single producer, single consumer fifo therefore
-    // store is allowed.
-    m_write_pos.store(currentWritePos + 1, std::memory_order_release);
+    // SYNC POINT WRITE: m_data
+    // We need to make sure that writing the value happens before incrementing the
+    // m_writePos otherwise the following scenario can happen:
+    // 1. m_writePos is increased (but the value has not been written yet)
+    // 2. Another thread calls pop(): we check if the queue is empty => no
+    // 3. In pop(), when we read a value, a data race can occur when at the same time a value is
+    // written by push. With memory_order_release, this cannot happen as it is guaranteed that
+    // writing the data happens before incrementing m_writePos. Note that the following scenario
+    // can still happen (but this is not a problem):
+    // 1. A value is written (m_writePos hasn't been incremented yet)
+    // 2. Another thread calls pop(): we check if the queue is empty => yes
+    // 3. An element was already stored so we could have popped the element
+    m_writePos.store(currentWritePos + 1, std::memory_order_release);
     return true;
 }
 
 template <class ValueType, uint64_t Capacity>
 inline bool SpscFifo<ValueType, Capacity>::is_full() const noexcept
 {
-    return m_write_pos.load(std::memory_order_relaxed) == m_read_pos.load(std::memory_order_relaxed) + Capacity;
+    auto [readPos, writePos] = get_read_write_positions();
+    return writePos == readPos + Capacity;
 }
 
 template <class ValueType, uint64_t Capacity>
 inline uint64_t SpscFifo<ValueType, Capacity>::size() const noexcept
 {
-    return m_write_pos.load(std::memory_order_relaxed) - m_read_pos.load(std::memory_order_relaxed);
+    auto [readPos, writePos] = get_read_write_positions();
+    return writePos - readPos;
+}
+
+template <class ValueType, uint64_t Capacity>
+inline std::pair<uint64_t, uint64_t> SpscFifo<ValueType, Capacity>::get_read_write_positions() const noexcept
+{
+    uint64_t readPos{0};
+    uint64_t writePos{0};
+    do
+    {
+        readPos = m_readPos.load(std::memory_order_relaxed);
+        writePos = m_writePos.load(std::memory_order_relaxed);
+
+        // These checks are needed to make sure the result is consistent (but not necessarily
+        // up-to-date), otherwise the following scenario could happen (e.g. with the size() method):
+        // 1. We read m_writePos = 5
+        // 2. The OS puts the thread A to sleep
+        // 3. Other threads continue to call push and pop
+        // 4. New state m_writePos == 8, m_readPos == 6
+        // 5. The OS schedules again thread A and we read m_readPos = 6
+        // 6. We calculate 5 - 6 == -1  => overflow in uint64_t and size() returns
+        // 18446744073709551615
+        // 7. Another algorithm may depend on the reasonable argument that the size is always less or
+        // equal capacity it may lead to weird bugs.
+        // Note: it is still possible to return a size that is not up-to-date anymore but at least
+        // this size is logically valid
+    } while (m_writePos.load(std::memory_order_relaxed) != writePos
+             || m_readPos.load(std::memory_order_relaxed) != readPos);
+
+    return {readPos, writePos};
 }
 
 template <class ValueType, uint64_t Capacity>
@@ -63,27 +105,50 @@ inline constexpr uint64_t SpscFifo<ValueType, Capacity>::capacity() noexcept
 template <class ValueType, uint64_t Capacity>
 inline bool SpscFifo<ValueType, Capacity>::empty() const noexcept
 {
-    return m_read_pos.load(std::memory_order_relaxed) == m_write_pos.load(std::memory_order_relaxed);
+    auto [readPos, writePos] = get_read_write_positions();
+    return readPos == writePos;
 }
 
 template <class ValueType, uint64_t Capacity>
 inline optional<ValueType> SpscFifo<ValueType, Capacity>::pop() noexcept
 {
-    auto currentReadPos = m_read_pos.load(std::memory_order_acquire);
-    bool isEmpty = (currentReadPos ==
-                    // we are not allowed to use the empty method since we have to sync with
-                    // the producer pop - this is done here
-                    m_write_pos.load(std::memory_order_acquire));
-    if (isEmpty)
+    // Memory order relaxed is enough since:
+    // - there is no concurrent access to this method
+    // - the load statement cannot be reordered with the is_empty check otherwise it would not
+    // compile
+    auto current_readPos = m_readPos.load(std::memory_order_relaxed);
+
+    bool is_empty = (current_readPos ==
+                     // SYNC POINT READ: m_data
+                     // See explanation of the corresponding sync point.
+                     // As a consequence, we are not allowed to use the empty method
+                     // since we have to sync with m_writePos in the push method
+                     m_writePos.load(std::memory_order_acquire));
+    if (is_empty)
     {
         return nullopt_t();
     }
-    ValueType out = m_data[currentReadPos % Capacity];
 
-    // m_read_pos must be increased after reading the pop'ed value otherwise
-    // it is possible that the pop'ed value is overwritten by push while it is read.
-    // Implementing a single consumer fifo here allows us to use store.
-    m_read_pos.store(currentReadPos + 1, std::memory_order_release);
+    ValueType out = m_data[current_readPos % Capacity];
+
+    // We need to make sure that reading the value happens before incrementing the m_readPos
+    // otherwise the following can happen:
+    // 1. We increment m_readPos (but the value hasn't been read yet)
+    // 2. Another thread calls push(): we check if the queue is full => no
+    // 3. In push(), a data race can occur
+    // With memory_order_acq_rel,
+    // m_readPos must be increased after reading the popped value otherwise
+    // it is possible that the popped value is overwritten by push while being read
+    // (e.g. when the queue is full, i.e. m_readPos == m_writePos)
+    // Note that the following situation can still happen but is not a problem:
+    // 1. We read the value
+    // 2. Another thread calls push(): we check if the queue is full => yes
+    // 3. The queue was not really full as the value was already read
+    // Memory order acq_rel to avoid:
+    // - reading m_data to happen after the fence (rel)
+    // - incrementing m_readPos before the fence (acq)
+    std::atomic_thread_fence(std::memory_order::memory_order_acq_rel);
+    m_readPos.store(current_readPos + 1, std::memory_order_relaxed);
     return out;
 }
 } // namespace concurrent
