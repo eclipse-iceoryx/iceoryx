@@ -51,6 +51,7 @@ iox_add_library(
     PUBLIC_LIBS_APPLE   stdc++ pthread
     PRIVATE_LIBS        iceoryx_posh::iceoryx_posh
     FILES
+        source/binding_c_error_reporting.cpp
         source/c_client.cpp
         source/c_config.cpp
         source/c_notification_info.cpp
@@ -72,7 +73,6 @@ iox_add_library(
         source/cpp2c_subscriber.cpp
         source/cpp2c_service_description_translation.cpp
         source/c_service_discovery.cpp
-        source/error_handling.cpp
 )
 
 #

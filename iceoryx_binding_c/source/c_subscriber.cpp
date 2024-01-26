@@ -16,7 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_binding_c/enums.h"
-#include "iceoryx_binding_c/error_handling/error_handling.hpp"
+#include "iceoryx_binding_c/internal/binding_c_error_reporting.hpp"
 #include "iceoryx_binding_c/internal/c2cpp_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_service_description_translation.hpp"
@@ -92,7 +92,7 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
             // note that they may have been initialized but the initCheck
             // pattern overwritten afterwards, we cannot be sure but it is a misuse
             IOX_LOG(FATAL, "subscriber options may not have been initialized with iox_sub_init");
-            errorHandler(CBindingError::BINDING_C__SUBSCRIBER_OPTIONS_NOT_INITIALIZED);
+            IOX_REPORT_FATAL(CBindingError::BINDING_C__SUBSCRIBER_OPTIONS_NOT_INITIALIZED);
         }
         subscriberOptions.queueCapacity = options->queueCapacity;
         subscriberOptions.historyRequest = options->historyRequest;

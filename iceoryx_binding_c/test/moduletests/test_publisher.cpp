@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_binding_c/error_handling/error_handling.hpp"
+#include "iceoryx_binding_c/internal/binding_c_error_reporting.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_publisher.hpp"
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"

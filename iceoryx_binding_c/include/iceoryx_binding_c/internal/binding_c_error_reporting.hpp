@@ -14,13 +14,29 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_BINDING_C_BINDING_ERROR_HANDLING_ERROR_HANDLING_HPP
-#define IOX_BINDING_C_BINDING_ERROR_HANDLING_ERROR_HANDLING_HPP
 
+#ifndef IOX_BINDING_C_BINDING_C_ERROR_REPORTING_HPP
+#define IOX_BINDING_C_BINDING_C_ERROR_REPORTING_HPP
+
+// Each module (= some unit with its own errors) must provide the following.
+
+// 1. Define the errors of the module -> see below
+
+// 2. Include the custom reporting implementation
+#include "iox/error_reporting/custom/error_reporting.hpp"
+
+// 3. Include the error reporting macro API
+#include "iox/error_reporting/macros.hpp"
+
+// additional includes
+#include "iox/error_reporting/types.hpp"
+
+/// @todo iox-#1032 Remove once C_BINDING_MODULE_IDENTIFIER is moved to 'ModuleId' in 'error_reporting/types.hpp'
 #include "iceoryx_hoofs/error_handling/error_handler.hpp"
 
 namespace iox
 {
+
 // clang-format off
 #define C_BINDING_ERRORS(error) \
     error(BINDING_C__UNDEFINED_STATE_IN_IOX_QUEUE_FULL_POLICY) \
@@ -34,19 +50,68 @@ namespace iox
     error(BINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_SERVER_EVENT_VALUE) \
     error(BINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_SERVER_STATE_VALUE) \
     error(BINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_SERVICE_DISCOVERY_EVENT_VALUE) \
-    error(BINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_MESSAGING_PATTERN_VALUE)
+    error(BINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_MESSAGING_PATTERN_VALUE) \
+    error(DO_NOT_USE_AS_ERROR_THIS_IS_AN_INTERNAL_MARKER) // keep this always at the end of the error list
 
 // clang-format on
 
 // DO NOT TOUCH THE ENUM, you can doodle around with the lines above!!!
 
-enum class CBindingError : uint32_t
+enum class CBindingError : iox::er::ErrorCode::type
 {
-    NO_ERROR = C_BINDING_MODULE_IDENTIFIER << ERROR_ENUM_OFFSET_IN_BITS,
     C_BINDING_ERRORS(CREATE_ICEORYX_ERROR_ENUM)
 };
 
 const char* asStringLiteral(const CBindingError error) noexcept;
 
+class CBindingErrorType
+{
+  public:
+    explicit CBindingErrorType(CBindingError code)
+        : m_code(static_cast<iox::er::ErrorCode::type>(code))
+    {
+    }
+
+    static constexpr iox::er::ModuleId module()
+    {
+        return MODULE_ID;
+    }
+
+    iox::er::ErrorCode code() const
+    {
+        return m_code;
+    }
+
+    const char* name() const
+    {
+        return asStringLiteral(static_cast<CBindingError>(m_code.value));
+    }
+
+    static const char* moduleName()
+    {
+        return "iceoryx_binding_c";
+    }
+
+    static constexpr iox::er::ModuleId MODULE_ID{C_BINDING_MODULE_IDENTIFIER};
+
+  protected:
+    iox::er::ErrorCode m_code;
+};
+
+namespace er
+{
+
+inline CBindingErrorType toError(CBindingError code)
+{
+    return CBindingErrorType(code);
+}
+
+inline ModuleId toModule(CBindingError)
+{
+    return CBindingErrorType::MODULE_ID;
+}
+
+} // namespace er
 } // namespace iox
-#endif // IOX_BINDING_C_ERROR_HANDLING_ERROR_HANDLING_HPP
+
+#endif // IOX_BINDING_C_BINDING_C_ERROR_REPORTING_HPP
