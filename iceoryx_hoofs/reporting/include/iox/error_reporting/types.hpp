@@ -109,15 +109,15 @@ inline ModuleId toModule(const Error& error)
 }
 
 template <class Error>
-inline const char* toModuleName(const Error&)
+inline const char* toModuleName(const Error& error)
 {
-    return UNKNOWN_MODULE_NAME;
+    return toError(error).moduleName();
 }
 
 template <class Error>
-inline const char* toErrorName(const Error&)
+inline const char* toErrorName(const Error& error)
 {
-    return UNKNOWN_ERROR_NAME;
+    return toError(error).name();
 }
 
 } // namespace er
