@@ -17,11 +17,11 @@
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_SENDER_HPP
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_SENDER_HPP
 
-#include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/unique_port_id.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iox/detail/unique_id.hpp"
 #include "iox/expected.hpp"

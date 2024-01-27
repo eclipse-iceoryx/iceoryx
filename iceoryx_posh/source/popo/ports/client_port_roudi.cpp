@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/popo/ports/client_port_roudi.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 
 namespace iox
 {
@@ -114,7 +115,7 @@ void ClientPortRouDi::handleCaProProtocolViolation(const iox::capro::CaproMessag
     IOX_LOG(FATAL,
             "CaPro Protocol Violation! Got '"
                 << messageType << "' in '" << getMembers()->m_connectionState.load(std::memory_order_relaxed) << "'");
-    errorHandler(PoshError::POPO__CAPRO_PROTOCOL_ERROR, ErrorLevel::SEVERE);
+    IOX_REPORT_FATAL(PoshError::POPO__CAPRO_PROTOCOL_ERROR);
 }
 
 optional<capro::CaproMessage>

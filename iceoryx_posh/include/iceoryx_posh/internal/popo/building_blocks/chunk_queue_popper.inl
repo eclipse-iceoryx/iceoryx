@@ -18,6 +18,7 @@
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_POPPER_INL
 
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_popper.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iox/logging.hpp"
 
 namespace iox
@@ -61,8 +62,8 @@ inline optional<mepoo::SharedChunk> ChunkQueuePopper<ChunkQueueDataType>::tryPop
                     "Received chunk with CHUNK_HEADER_VERSION '" << receivedChunkHeaderVersion << "' but expected '"
                                                                  << mepoo::ChunkHeader::CHUNK_HEADER_VERSION
                                                                  << "'! Dropping chunk!");
-            errorHandler(PoshError::POPO__CHUNK_QUEUE_POPPER_CHUNK_WITH_INCOMPATIBLE_CHUNK_HEADER_VERSION,
-                         ErrorLevel::SEVERE);
+            IOX_REPORT(PoshError::POPO__CHUNK_QUEUE_POPPER_CHUNK_WITH_INCOMPATIBLE_CHUNK_HEADER_VERSION,
+                       iox::er::RUNTIME_ERROR);
             return nullopt_t();
         }
         return make_optional<mepoo::SharedChunk>(chunk);

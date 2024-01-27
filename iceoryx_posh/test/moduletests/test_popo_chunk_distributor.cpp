@@ -17,7 +17,6 @@
 
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/testing/barrier.hpp"
-#include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor.hpp"
@@ -27,7 +26,11 @@
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/variant_queue.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+
+#include "iceoryx_hoofs/testing/error_reporting/testing_support.hpp"
+#include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "test.hpp"
 
 #include <memory>
@@ -166,10 +169,6 @@ TYPED_TEST(ChunkDistributor_test, QueueOverflow)
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
-    auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-        [&errorHandlerCalled](const iox::PoshError, const iox::ErrorLevel) { errorHandlerCalled = true; });
-
     for (uint32_t i = 0; i < this->MAX_NUMBER_QUEUES; ++i)
     {
         auto queueData = this->getChunkQueueData();
@@ -177,13 +176,14 @@ TYPED_TEST(ChunkDistributor_test, QueueOverflow)
         queueVector.push_back(queueData);
     }
 
-    EXPECT_FALSE(errorHandlerCalled);
+    IOX_TESTING_ASSERT_OK();
 
     auto queueData = this->getChunkQueueData();
     auto ret = sut.tryAddQueue(queueData.get());
     EXPECT_TRUE(ret.has_error());
     EXPECT_THAT(ret.error(), Eq(iox::popo::ChunkDistributorError::QUEUE_CONTAINER_OVERFLOW));
-    EXPECT_TRUE(errorHandlerCalled);
+
+    IOX_TESTING_EXPECT_ERROR(iox::PoshError::POPO__CHUNK_DISTRIBUTOR_OVERFLOW_OF_QUEUE_CONTAINER);
 }
 
 TYPED_TEST(ChunkDistributor_test, RemovingExistingQueueWorks)

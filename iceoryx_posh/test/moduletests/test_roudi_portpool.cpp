@@ -15,6 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iceoryx_posh/internal/roudi/port_pool_data.hpp"
 #include "iceoryx_posh/internal/runtime/node_data.hpp"
 #include "iceoryx_posh/popo/client_options.hpp"
@@ -23,6 +24,7 @@
 #include "iox/detail/convert.hpp"
 #include "iox/std_string_support.hpp"
 
+#include "iceoryx_hoofs/testing/error_reporting/testing_support.hpp"
 #include "test.hpp"
 
 namespace
@@ -136,18 +138,11 @@ TEST_F(PortPool_test, AddNodeDataWhenNodeListIsFullReturnsError)
         ASSERT_FALSE(sut.addNodeData(m_runtimeName, m_nodeName, i).has_error());
     }
 
-    auto errorHandlerCalled{false};
-    PoshError error{PoshError::NO_ERROR};
-    auto errorHandlerGuard =
-        ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>([&](const auto e, const ErrorLevel) {
-            error = e;
-            errorHandlerCalled = true;
-        });
+    IOX_TESTING_EXPECT_OK();
 
     ASSERT_TRUE(sut.addNodeData(m_runtimeName, m_nodeName, MAX_NODE_NUMBER).has_error());
 
-    ASSERT_TRUE(errorHandlerCalled);
-    EXPECT_EQ(error, PoshError::PORT_POOL__NODELIST_OVERFLOW);
+    IOX_TESTING_EXPECT_ERROR(iox::PoshError::PORT_POOL__NODELIST_OVERFLOW);
 }
 
 TEST_F(PortPool_test, GetNodeDataListIsSuccessful)
@@ -254,18 +249,11 @@ TEST_F(PortPool_test, AddPublisherPortWhenPublisherListOverflowsReturnsError)
         EXPECT_FALSE(addPublisherPort(i));
     }
 
-    auto errorHandlerCalled{false};
-    PoshError error{PoshError::NO_ERROR};
-    auto errorHandlerGuard =
-        ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>([&](const auto e, const ErrorLevel) {
-            error = e;
-            errorHandlerCalled = true;
-        });
+    IOX_TESTING_EXPECT_OK();
 
     EXPECT_TRUE(addPublisherPort(MAX_PUBLISHERS));
 
-    ASSERT_TRUE(errorHandlerCalled);
-    EXPECT_EQ(error, PoshError::PORT_POOL__PUBLISHERLIST_OVERFLOW);
+    IOX_TESTING_EXPECT_ERROR(iox::PoshError::PORT_POOL__PUBLISHERLIST_OVERFLOW);
 }
 
 TEST_F(PortPool_test, GetPublisherPortDataListIsSuccessful)
@@ -380,17 +368,11 @@ TEST_F(PortPool_test, AddSubscriberPortWhenSubscriberListOverflowsReturnsError)
         EXPECT_FALSE(addSubscriberPort(i));
     }
 
-    auto errorHandlerCalled{false};
-    PoshError error{PoshError::NO_ERROR};
-    auto errorHandlerGuard =
-        ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>([&](const auto e, const ErrorLevel) {
-            error = e;
-            errorHandlerCalled = true;
-        });
+    IOX_TESTING_EXPECT_OK();
+
     EXPECT_TRUE(addSubscriberPort(MAX_SUBSCRIBERS));
 
-    ASSERT_TRUE(errorHandlerCalled);
-    EXPECT_EQ(error, PoshError::PORT_POOL__SUBSCRIBERLIST_OVERFLOW);
+    IOX_TESTING_EXPECT_ERROR(iox::PoshError::PORT_POOL__SUBSCRIBERLIST_OVERFLOW);
 }
 
 TEST_F(PortPool_test, GetSubscriberPortDataListIsSuccessful)
@@ -484,20 +466,14 @@ TEST_F(PortPool_test, AddClientPortWhenClientListOverflowsReturnsError)
     auto addSuccessful = addClientPorts(NUMBER_OF_CLIENTS_TO_ADD, [&](const auto&, const auto&, const auto&) {});
 
     EXPECT_TRUE(addSuccessful);
-
-    auto errorHandlerCalled{false};
-    auto errorHandlerGuard =
-        ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>([&](const auto error, const ErrorLevel level) {
-            errorHandlerCalled = true;
-            EXPECT_THAT(error, Eq(PoshError::PORT_POOL__CLIENTLIST_OVERFLOW));
-            EXPECT_THAT(level, Eq(ErrorLevel::MODERATE));
-        });
+    IOX_TESTING_EXPECT_OK();
 
     constexpr uint32_t ONE_MORE_CLIENT{1U};
     auto additionalAddSuccessful = addClientPorts(ONE_MORE_CLIENT, [&](const auto&, const auto&, const auto&) {});
 
     EXPECT_FALSE(additionalAddSuccessful);
-    EXPECT_TRUE(errorHandlerCalled);
+
+    IOX_TESTING_EXPECT_ERROR(iox::PoshError::PORT_POOL__CLIENTLIST_OVERFLOW);
 }
 
 TEST_F(PortPool_test, GetClientPortDataListIsSuccessful)
@@ -586,19 +562,12 @@ TEST_F(PortPool_test, AddServerPortWhenServerListOverflowsReturnsError)
 
     EXPECT_TRUE(addSuccessful);
 
-    auto errorHandlerCalled{false};
-    auto errorHandlerGuard =
-        ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>([&](const auto error, const ErrorLevel level) {
-            errorHandlerCalled = true;
-            EXPECT_THAT(error, Eq(PoshError::PORT_POOL__SERVERLIST_OVERFLOW));
-            EXPECT_THAT(level, Eq(ErrorLevel::MODERATE));
-        });
-
     constexpr uint32_t ONE_MORE_SERVER{1U};
     auto additionalAddSuccessful = addServerPorts(ONE_MORE_SERVER, [&](const auto&, const auto&, const auto&) {});
 
     EXPECT_FALSE(additionalAddSuccessful);
-    EXPECT_TRUE(errorHandlerCalled);
+
+    IOX_TESTING_EXPECT_ERROR(iox::PoshError::PORT_POOL__SERVERLIST_OVERFLOW);
 }
 
 TEST_F(PortPool_test, GetServerPortDataListIsSuccessful)
@@ -674,17 +643,9 @@ TEST_F(PortPool_test, AddInterfacePortWhenInterfaceListOverflowsReturnsError)
         EXPECT_FALSE(sut.addInterfacePort(m_applicationName, Interfaces::INTERFACE_END).has_error());
     }
 
-    auto errorHandlerCalled{false};
-    PoshError error{PoshError::NO_ERROR};
-    auto errorHandlerGuard =
-        ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>([&](const auto e, const ErrorLevel) {
-            error = e;
-            errorHandlerCalled = true;
-        });
     EXPECT_TRUE(sut.addInterfacePort(m_applicationName, Interfaces::INTERFACE_END).has_error());
 
-    ASSERT_TRUE(errorHandlerCalled);
-    EXPECT_EQ(error, PoshError::PORT_POOL__INTERFACELIST_OVERFLOW);
+    IOX_TESTING_EXPECT_ERROR(iox::PoshError::PORT_POOL__INTERFACELIST_OVERFLOW);
 }
 
 TEST_F(PortPool_test, GetInterfacePortDataListIsSuccessful)
@@ -758,17 +719,9 @@ TEST_F(PortPool_test, AddConditionVariableDataWhenContainerIsFullReturnsError)
         EXPECT_FALSE(sut.addConditionVariableData(m_applicationName).has_error());
     }
 
-    auto errorHandlerCalled{false};
-    PoshError error{PoshError::NO_ERROR};
-    auto errorHandlerGuard =
-        ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>([&](const auto e, const ErrorLevel) {
-            error = e;
-            errorHandlerCalled = true;
-        });
     EXPECT_TRUE(sut.addConditionVariableData(m_applicationName).has_error());
 
-    ASSERT_TRUE(errorHandlerCalled);
-    EXPECT_EQ(error, PoshError::PORT_POOL__CONDITION_VARIABLE_LIST_OVERFLOW);
+    IOX_TESTING_EXPECT_ERROR(iox::PoshError::PORT_POOL__CONDITION_VARIABLE_LIST_OVERFLOW);
 }
 
 TEST_F(PortPool_test, GetConditionVariableDataListIsSuccessful)

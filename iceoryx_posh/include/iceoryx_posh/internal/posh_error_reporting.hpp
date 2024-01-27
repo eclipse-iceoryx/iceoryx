@@ -14,9 +14,24 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_POSH_ERROR_HANDLING_ERROR_HANDLING_HPP
-#define IOX_POSH_ERROR_HANDLING_ERROR_HANDLING_HPP
 
+#ifndef IOX_POSH_POSH_ERROR_REPORTING_HPP
+#define IOX_POSH_POSH_ERROR_REPORTING_HPP
+
+// Each module (= some unit with its own errors) must provide the following.
+
+// 1. Define the errors of the module -> see below
+
+// 2. Include the custom reporting implementation
+#include "iox/error_reporting/custom/error_reporting.hpp"
+
+// 3. Include the error reporting macro API
+#include "iox/error_reporting/macros.hpp"
+
+// additional includes
+#include "iox/error_reporting/types.hpp"
+
+/// @todo iox-#1032 Remove once C_BINDING_MODULE_IDENTIFIER is moved to 'ModuleId' in 'error_reporting/types.hpp'
 #include "iceoryx_hoofs/error_handling/error_handler.hpp"
 
 namespace iox
@@ -154,19 +169,69 @@ namespace iox
     error(IPC_INTERFACE__REG_ACK_INVALIG_NUMBER_OF_PARAMS) \
     error(IPC_INTERFACE__REG_ACK_NO_RESPONSE) \
     error(IPC_INTERFACE__APP_WITH_SAME_NAME_STILL_RUNNING) \
-    error(IPC_INTERFACE__COULD_NOT_ACQUIRE_FILE_LOCK)
+    error(IPC_INTERFACE__COULD_NOT_ACQUIRE_FILE_LOCK) \
+    error(DO_NOT_USE_AS_ERROR_THIS_IS_AN_INTERNAL_MARKER) // keep this always at the end of the error list
+
 
 // clang-format on
 
 // DO NOT TOUCH THE ENUM, you can doodle around with the lines above!!!
 
-enum class PoshError : uint32_t
+enum class PoshError : iox::er::ErrorCode::type
 {
-    NO_ERROR = POSH_MODULE_IDENTIFIER << ERROR_ENUM_OFFSET_IN_BITS,
     POSH_ERRORS(CREATE_ICEORYX_ERROR_ENUM)
 };
 
 const char* asStringLiteral(const PoshError error) noexcept;
 
+class PoshErrorType
+{
+  public:
+    explicit PoshErrorType(PoshError code)
+        : m_code(static_cast<iox::er::ErrorCode::type>(code))
+    {
+    }
+
+    static constexpr iox::er::ModuleId module()
+    {
+        return MODULE_ID;
+    }
+
+    iox::er::ErrorCode code() const
+    {
+        return m_code;
+    }
+
+    const char* name() const
+    {
+        return asStringLiteral(static_cast<PoshError>(m_code.value));
+    }
+
+    static const char* moduleName()
+    {
+        return "iceoryx_posh";
+    }
+
+    static constexpr iox::er::ModuleId MODULE_ID{POSH_MODULE_IDENTIFIER};
+
+  protected:
+    iox::er::ErrorCode m_code;
+};
+
+namespace er
+{
+
+inline PoshErrorType toError(PoshError code)
+{
+    return PoshErrorType(code);
+}
+
+inline ModuleId toModule(PoshError)
+{
+    return PoshErrorType::MODULE_ID;
+}
+
+} // namespace er
 } // namespace iox
-#endif // IOX_POSH_ERROR_HANDLING_ERROR_HANDLING_HPP
+
+#endif // IOX_POSH_POSH_ERROR_REPORTING_HPP

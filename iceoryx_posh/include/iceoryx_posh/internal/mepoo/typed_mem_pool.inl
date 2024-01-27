@@ -17,10 +17,10 @@
 #ifndef IOX_POSH_MEPOO_TYPED_MEM_POOL_INL
 #define IOX_POSH_MEPOO_TYPED_MEM_POOL_INL
 
-#include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/mepoo/chunk_management.hpp"
 #include "iceoryx_posh/internal/mepoo/typed_mem_pool.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 
 namespace iox
 {
@@ -47,7 +47,7 @@ inline expected<ChunkManagement*, TypedMemPoolError> TypedMemPool<T>::acquireChu
     ChunkManagement* chunkManagement = static_cast<ChunkManagement*>(m_chunkManagementPool.getChunk());
     if (chunkManagement == nullptr)
     {
-        errorHandler(PoshError::MEPOO__TYPED_MEMPOOL_HAS_INCONSISTENT_STATE);
+        IOX_REPORT_FATAL(PoshError::MEPOO__TYPED_MEMPOOL_HAS_INCONSISTENT_STATE);
         return err(TypedMemPoolError::FatalErrorReachedInconsistentState);
     }
 
@@ -75,7 +75,7 @@ inline expected<SharedPointer<T>, TypedMemPoolError> TypedMemPool<T>::createObje
 
     if (newObject.has_error())
     {
-        errorHandler(PoshError::MEPOO__TYPED_MEMPOOL_MANAGEMENT_SEGMENT_IS_BROKEN);
+        IOX_REPORT_FATAL(PoshError::MEPOO__TYPED_MEMPOOL_MANAGEMENT_SEGMENT_IS_BROKEN);
         return err(TypedMemPoolError::FatalErrorReachedInconsistentState);
     }
 

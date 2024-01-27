@@ -17,6 +17,7 @@
 
 #include "iceoryx_posh/roudi/memory/default_roudi_memory.hpp"
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iceoryx_posh/internal/roudi/service_registry.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iox/memory.hpp"
@@ -32,18 +33,16 @@ DefaultRouDiMemory::DefaultRouDiMemory(const RouDiConfig_t& roudiConfig) noexcep
     , m_managementShm(SHM_NAME, AccessMode::READ_WRITE, OpenMode::PURGE_AND_CREATE)
 {
     m_managementShm.addMemoryBlock(&m_introspectionMemPoolBlock).or_else([](auto) {
-        errorHandler(PoshError::ROUDI__DEFAULT_ROUDI_MEMORY_FAILED_TO_ADD_INTROSPECTION_MEMORY_BLOCK,
-                     ErrorLevel::FATAL);
+        IOX_REPORT_FATAL(PoshError::ROUDI__DEFAULT_ROUDI_MEMORY_FAILED_TO_ADD_INTROSPECTION_MEMORY_BLOCK);
     });
     m_managementShm.addMemoryBlock(&m_discoveryMemPoolBlock).or_else([](auto) {
-        errorHandler(PoshError::ROUDI__DEFAULT_ROUDI_MEMORY_FAILED_TO_ADD_DISCOVERY_MEMORY_BLOCK, ErrorLevel::FATAL);
+        IOX_REPORT_FATAL(PoshError::ROUDI__DEFAULT_ROUDI_MEMORY_FAILED_TO_ADD_DISCOVERY_MEMORY_BLOCK);
     });
     m_managementShm.addMemoryBlock(&heartbeatPoolBlock).or_else([](auto) {
-        errorHandler(PoshError::ROUDI__DEFAULT_ROUDI_MEMORY_FAILED_TO_ADD_HEARTBEAT_MEMORY_BLOCK, ErrorLevel::FATAL);
+        IOX_REPORT_FATAL(PoshError::ROUDI__DEFAULT_ROUDI_MEMORY_FAILED_TO_ADD_HEARTBEAT_MEMORY_BLOCK);
     });
     m_managementShm.addMemoryBlock(&m_segmentManagerBlock).or_else([](auto) {
-        errorHandler(PoshError::ROUDI__DEFAULT_ROUDI_MEMORY_FAILED_TO_ADD_SEGMENT_MANAGER_MEMORY_BLOCK,
-                     ErrorLevel::FATAL);
+        IOX_REPORT_FATAL(PoshError::ROUDI__DEFAULT_ROUDI_MEMORY_FAILED_TO_ADD_SEGMENT_MANAGER_MEMORY_BLOCK);
     });
 }
 

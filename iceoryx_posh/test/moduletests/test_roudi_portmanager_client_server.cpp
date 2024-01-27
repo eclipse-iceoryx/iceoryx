@@ -14,7 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "test_roudi_portmanager_fixture.hpp"
+
+#include "iceoryx_hoofs/testing/error_reporting/testing_support.hpp"
 
 namespace iox_test_roudi_portmanager
 {
@@ -107,14 +110,6 @@ TEST_F(PortManager_test, AcquireServerPortDataWithSameServiceDescriptionTwiceCal
             GTEST_FAIL() << "Expected ClientPortData but got PortPoolError: " << static_cast<uint8_t>(error);
         });
 
-    iox::optional<iox::PoshError> detectedError;
-    auto errorHandlerGuard =
-        iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>([&](const auto error, const auto errorLevel) {
-            EXPECT_THAT(error, Eq(iox::PoshError::POSH__PORT_MANAGER_SERVERPORT_NOT_UNIQUE));
-            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
-            detectedError.emplace(error);
-        });
-
     // second call must fail
     m_portManager->acquireServerPortData(sd, serverOptions, runtimeName, m_payloadDataSegmentMemoryManager, {})
         .and_then([&](const auto&) {
@@ -122,7 +117,7 @@ TEST_F(PortManager_test, AcquireServerPortDataWithSameServiceDescriptionTwiceCal
         })
         .or_else([&](const auto& error) { EXPECT_THAT(error, Eq(PortPoolError::UNIQUE_SERVER_PORT_ALREADY_EXISTS)); });
 
-    EXPECT_TRUE(detectedError.has_value());
+    IOX_TESTING_EXPECT_ERROR(iox::PoshError::POSH__PORT_MANAGER_SERVERPORT_NOT_UNIQUE);
 }
 
 TEST_F(PortManager_test, AcquireServerPortDataWithSameServiceDescriptionTwiceAndFirstPortMarkedToBeDestroyedReturnsPort)
@@ -140,20 +135,13 @@ TEST_F(PortManager_test, AcquireServerPortDataWithSameServiceDescriptionTwiceAnd
 
     serverPortDataResult.value()->m_toBeDestroyed = true;
 
-    iox::optional<iox::PoshError> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-        [&](const auto error, const auto) { detectedError.emplace(error); });
-
     // second call must now also succeed
     m_portManager->acquireServerPortData(sd, serverOptions, runtimeName, m_payloadDataSegmentMemoryManager, {})
         .or_else([&](const auto& error) {
             GTEST_FAIL() << "Expected ClientPortData but got PortPoolError: " << static_cast<uint8_t>(error);
         });
 
-    detectedError.and_then([&](const auto& error) {
-        GTEST_FAIL() << "Expected error handler to not be called but got: "
-                     << static_cast<std::underlying_type<iox::PoshError>::type>(error);
-    });
+    IOX_TESTING_EXPECT_OK();
 }
 
 // END aquireServerPortData tests

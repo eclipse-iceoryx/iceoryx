@@ -17,6 +17,7 @@
 #ifndef IOX_POSH_POPO_SAMPLE_INL
 #define IOX_POSH_POPO_SAMPLE_INL
 
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iceoryx_posh/popo/sample.hpp"
 
 namespace iox
@@ -34,7 +35,7 @@ void Sample<T, H>::publish() noexcept
     else
     {
         IOX_LOG(ERROR, "Tried to publish empty Sample! Might be an already published or moved Sample!");
-        errorHandler(PoshError::POSH__PUBLISHING_EMPTY_SAMPLE, ErrorLevel::MODERATE);
+        IOX_REPORT(PoshError::POSH__PUBLISHING_EMPTY_SAMPLE, iox::er::RUNTIME_ERROR);
     }
 }
 } // namespace popo

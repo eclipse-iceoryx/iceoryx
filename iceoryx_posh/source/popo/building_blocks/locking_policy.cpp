@@ -16,7 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
-#include "iceoryx_posh/error_handling/error_handling.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iox/logging.hpp"
 
 namespace iox
@@ -39,7 +39,7 @@ void ThreadSafePolicy::lock() const noexcept
         IOX_LOG(FATAL,
                 "Locking of an inter-process mutex failed! This indicates that the application holding the lock "
                 "was terminated or the resources were cleaned up by RouDi due to an unresponsive application.");
-        errorHandler(PoshError::POPO__CHUNK_LOCKING_ERROR, ErrorLevel::FATAL);
+        IOX_REPORT_FATAL(PoshError::POPO__CHUNK_LOCKING_ERROR);
     }
 }
 
@@ -50,7 +50,7 @@ void ThreadSafePolicy::unlock() const noexcept
         IOX_LOG(FATAL,
                 "Unlocking of an inter-process mutex failed! This indicates that the resources were cleaned up "
                 "by RouDi due to an unresponsive application.");
-        errorHandler(PoshError::POPO__CHUNK_UNLOCKING_ERROR, ErrorLevel::FATAL);
+        IOX_REPORT_FATAL(PoshError::POPO__CHUNK_UNLOCKING_ERROR);
     }
 }
 
@@ -59,7 +59,7 @@ bool ThreadSafePolicy::tryLock() const noexcept
     auto tryLockResult = m_mutex->try_lock();
     if (tryLockResult.has_error())
     {
-        errorHandler(PoshError::POPO__CHUNK_TRY_LOCK_ERROR, ErrorLevel::FATAL);
+        IOX_REPORT_FATAL(PoshError::POPO__CHUNK_TRY_LOCK_ERROR);
     }
     return *tryLockResult == MutexTryLock::LOCK_SUCCEEDED;
 }

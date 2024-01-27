@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_multi_producer.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 
 namespace iox
 {
@@ -89,8 +90,7 @@ optional<capro::CaproMessage> SubscriberPortMultiProducer::dispatchCaProMessageA
     else
     {
         // but others should not be received here
-        errorHandler(PoshError::POPO__CAPRO_PROTOCOL_ERROR, ErrorLevel::SEVERE);
-        return nullopt_t();
+        IOX_REPORT_FATAL(PoshError::POPO__CAPRO_PROTOCOL_ERROR);
     }
 }
 

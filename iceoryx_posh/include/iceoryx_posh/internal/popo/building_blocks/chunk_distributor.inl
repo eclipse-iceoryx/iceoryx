@@ -19,6 +19,7 @@
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_DISTRIBUTOR_INL
 
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 
 namespace iox
 {
@@ -90,7 +91,7 @@ ChunkDistributor<ChunkDistributorDataType>::tryAddQueue(not_null<ChunkQueueData_
         {
             // that's not the fault of the chunk distributor user, we report a moderate error and indicate that
             // adding the queue was not possible
-            errorHandler(PoshError::POPO__CHUNK_DISTRIBUTOR_OVERFLOW_OF_QUEUE_CONTAINER, ErrorLevel::MODERATE);
+            IOX_REPORT(PoshError::POPO__CHUNK_DISTRIBUTOR_OVERFLOW_OF_QUEUE_CONTAINER, iox::er::RUNTIME_ERROR);
 
             return err(ChunkDistributorError::QUEUE_CONTAINER_OVERFLOW);
         }
@@ -360,8 +361,7 @@ inline void ChunkDistributor<ChunkDistributorDataType>::cleanup() noexcept
         /// and a sending application dies when having the lock for sending. If the RouDi daemon wants to
         /// cleanup or does discovery changes we have a deadlock or an exception when destroying the mutex
         /// As long as we don't have a multi-threaded lock-free ChunkDistributor or another concept we die here
-        errorHandler(PoshError::POPO__CHUNK_DISTRIBUTOR_CLEANUP_DEADLOCK_BECAUSE_BAD_APPLICATION_TERMINATION,
-                     ErrorLevel::FATAL);
+        IOX_REPORT_FATAL(PoshError::POPO__CHUNK_DISTRIBUTOR_CLEANUP_DEADLOCK_BECAUSE_BAD_APPLICATION_TERMINATION);
     }
 }
 

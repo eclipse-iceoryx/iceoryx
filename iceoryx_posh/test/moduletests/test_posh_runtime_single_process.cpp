@@ -15,15 +15,18 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iceoryx_posh/roudi_env/minimal_roudi_config.hpp"
 #include "iceoryx_posh/roudi_env/roudi_env.hpp"
 #include "iceoryx_posh/runtime/posh_runtime_single_process.hpp"
 
+#include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "test.hpp"
 
 namespace
 {
 using namespace ::testing;
+using namespace iox::testing;
 using namespace iox::runtime;
 using namespace iox::roudi;
 using namespace iox::roudi_env;
@@ -59,8 +62,8 @@ TEST_F(PoshRuntimeSingleProcess_test, ConstructorPoshRuntimeSingleProcessIsSucce
 
     const RuntimeName_t runtimeName{"App"};
 
-    EXPECT_NO_FATAL_FAILURE(
-        { std::unique_ptr<PoshRuntimeSingleProcess> sut{new PoshRuntimeSingleProcess(runtimeName)}; });
+    IOX_EXPECT_NO_FATAL_FAILURE(
+        [&] { std::unique_ptr<PoshRuntimeSingleProcess> sut{new PoshRuntimeSingleProcess(runtimeName)}; });
 }
 
 TEST_F(PoshRuntimeSingleProcess_test, ConstructorPoshRuntimeSingleProcessMultipleProcessIsFound)
@@ -70,17 +73,9 @@ TEST_F(PoshRuntimeSingleProcess_test, ConstructorPoshRuntimeSingleProcessMultipl
 
     const RuntimeName_t runtimeName{"App"};
 
-    iox::optional<iox::PoshError> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-        [&detectedError](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
-            detectedError.emplace(error);
-            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::FATAL));
-        });
-
-    std::unique_ptr<PoshRuntimeSingleProcess> sut{new PoshRuntimeSingleProcess(runtimeName)};
-
-    ASSERT_THAT(detectedError.has_value(), Eq(true));
-    EXPECT_THAT(detectedError.value(), Eq(iox::PoshError::POSH__RUNTIME_IS_CREATED_MULTIPLE_TIMES));
+    IOX_EXPECT_FATAL_FAILURE(
+        [&] { std::unique_ptr<PoshRuntimeSingleProcess> sut{new PoshRuntimeSingleProcess(runtimeName)}; },
+        iox::PoshError::POSH__RUNTIME_IS_CREATED_MULTIPLE_TIMES);
 }
 
 } // namespace

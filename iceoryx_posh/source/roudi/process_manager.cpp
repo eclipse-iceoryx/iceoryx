@@ -21,6 +21,7 @@
 #include "iceoryx_platform/types.hpp"
 #include "iceoryx_platform/wait.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iox/detail/convert.hpp"
 #include "iox/logging.hpp"
 #include "iox/posix_call.hpp"
@@ -93,7 +94,7 @@ ProcessManager::ProcessManager(RouDiMemoryInterface& roudiMemoryInterface,
     if (fatalError)
     {
         /// @todo iox-#539 Use separate error enums once RouDi is more modular
-        errorHandler(PoshError::ROUDI__PRECONDITIONS_FOR_PROCESS_MANAGER_NOT_FULFILLED, ErrorLevel::FATAL);
+        IOX_REPORT_FATAL(PoshError::ROUDI__PRECONDITIONS_FOR_PROCESS_MANAGER_NOT_FULFILLED);
     }
 }
 
@@ -204,7 +205,7 @@ void ProcessManager::evaluateKillError(const Process& process,
                               << (shutdownPolicy == ShutdownPolicy::SIG_KILL ? "SIGKILL" : "SIGTERM")
                               << ", because the command failed with the following error: " << errorString
                               << " See manpage for kill(2) or type 'man 2 kill' in console for more information");
-        errorHandler(PoshError::POSH__ROUDI_PROCESS_SHUTDOWN_FAILED, ErrorLevel::SEVERE);
+        IOX_REPORT(PoshError::POSH__ROUDI_PROCESS_SHUTDOWN_FAILED, iox::er::RUNTIME_ERROR);
     }
     else
     {
@@ -212,7 +213,7 @@ void ProcessManager::evaluateKillError(const Process& process,
                 "Process ID " << process.getPid() << " named '" << process.getName() << "' could not be killed with"
                               << (shutdownPolicy == ShutdownPolicy::SIG_KILL ? "SIGKILL" : "SIGTERM")
                               << " for unknown reason: '" << errorString << "'");
-        errorHandler(PoshError::POSH__ROUDI_PROCESS_SHUTDOWN_FAILED, ErrorLevel::SEVERE);
+        IOX_REPORT(PoshError::POSH__ROUDI_PROCESS_SHUTDOWN_FAILED, iox::er::RUNTIME_ERROR);
     }
 }
 

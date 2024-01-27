@@ -15,7 +15,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/testing/mocks/logger_mock.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "test_popo_server_port_common.hpp"
+
+#include "iceoryx_hoofs/testing/error_reporting/testing_support.hpp"
 
 namespace iox_test_popo_server_port
 {
@@ -402,17 +405,9 @@ TEST_F(ServerPort_test, ReleaseRequestWithInvalidChunkCallsTheErrorHandler)
 
     auto sharedChunk = getChunkWithInitializedRequestHeaderAndData();
 
-    iox::optional<iox::PoshError> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-        [&](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
-            EXPECT_THAT(error, Eq(iox::PoshError::POPO__CHUNK_RECEIVER_INVALID_CHUNK_TO_RELEASE_FROM_USER));
-            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
-            detectedError.emplace(error);
-        });
-
     sut.portUser.releaseRequest(static_cast<const RequestHeader*>(sharedChunk.getChunkHeader()->userHeader()));
 
-    EXPECT_TRUE(detectedError.has_value());
+    IOX_TESTING_EXPECT_ERROR(iox::PoshError::POPO__CHUNK_RECEIVER_INVALID_CHUNK_TO_RELEASE_FROM_USER);
 }
 
 TEST_F(ServerPort_test, ReleaseRequestWithNullptrRequestHeaderCallsTheErrorHandler)
@@ -420,17 +415,9 @@ TEST_F(ServerPort_test, ReleaseRequestWithNullptrRequestHeaderCallsTheErrorHandl
     ::testing::Test::RecordProperty("TEST_ID", "b505019f-ba47-4df4-ba5e-d2d16e5c44cd");
     auto& sut = serverPortWithOfferOnCreate;
 
-    iox::optional<iox::PoshError> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-        [&](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
-            EXPECT_THAT(error, Eq(iox::PoshError::POPO__SERVER_PORT_INVALID_REQUEST_TO_RELEASE_FROM_USER));
-            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
-            detectedError.emplace(error);
-        });
-
     sut.portUser.releaseRequest(nullptr);
 
-    EXPECT_TRUE(detectedError.has_value());
+    IOX_TESTING_EXPECT_ERROR(iox::PoshError::POPO__SERVER_PORT_INVALID_REQUEST_TO_RELEASE_FROM_USER);
 }
 
 // END releaseRequest tests
@@ -634,14 +621,6 @@ TEST_F(ServerPort_test, ReleaseResponseWithInvalidChunkCallsTheErrorHandler)
     ::testing::Test::RecordProperty("TEST_ID", "fb09c788-0e1b-41c6-877a-1b13a37829d4");
     auto& sut = serverPortWithOfferOnCreate;
 
-    iox::optional<iox::PoshError> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-        [&](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
-            EXPECT_THAT(error, Eq(iox::PoshError::POPO__CHUNK_SENDER_INVALID_CHUNK_TO_FREE_FROM_USER));
-            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
-            detectedError.emplace(error);
-        });
-
     allocateResponseWithRequestHeaderAndThen(sut, [&](const auto, auto res) {
         sut.portUser.releaseResponse(res);
         // since the response is already freed, it should not be in the UsedChunkList anymore and the error handler
@@ -649,7 +628,7 @@ TEST_F(ServerPort_test, ReleaseResponseWithInvalidChunkCallsTheErrorHandler)
         sut.portUser.releaseResponse(res);
     });
 
-    EXPECT_TRUE(detectedError.has_value());
+    IOX_TESTING_EXPECT_ERROR(iox::PoshError::POPO__CHUNK_SENDER_INVALID_CHUNK_TO_FREE_FROM_USER);
 }
 
 TEST_F(ServerPort_test, ReleaseResponseWithWithNullptrResponseHeaderCallsTheErrorHandler)
@@ -657,17 +636,9 @@ TEST_F(ServerPort_test, ReleaseResponseWithWithNullptrResponseHeaderCallsTheErro
     ::testing::Test::RecordProperty("TEST_ID", "ecb40c4d-7b95-4780-9b51-ac1708830453");
     auto& sut = serverPortWithOfferOnCreate;
 
-    iox::optional<iox::PoshError> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-        [&](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
-            EXPECT_THAT(error, Eq(iox::PoshError::POPO__SERVER_PORT_INVALID_RESPONSE_TO_FREE_FROM_USER));
-            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
-            detectedError.emplace(error);
-        });
-
     sut.portUser.releaseResponse(nullptr);
 
-    EXPECT_TRUE(detectedError.has_value());
+    IOX_TESTING_EXPECT_ERROR(iox::PoshError::POPO__SERVER_PORT_INVALID_RESPONSE_TO_FREE_FROM_USER);
 }
 
 // END releaseResponse tests
@@ -679,19 +650,11 @@ TEST_F(ServerPort_test, SendResponseWithWithNullptrResponseHeaderCallsTheErrorHa
     ::testing::Test::RecordProperty("TEST_ID", "8d0b0a7f-d1ab-4249-b885-cbc6429eab83");
     auto& sut = serverPortWithOfferOnCreate;
 
-    iox::optional<iox::PoshError> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-        [&](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
-            EXPECT_THAT(error, Eq(iox::PoshError::POPO__SERVER_PORT_INVALID_RESPONSE_TO_SEND_FROM_USER));
-            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
-            detectedError.emplace(error);
-        });
-
     sut.portUser.sendResponse(nullptr)
         .and_then([&]() { GTEST_FAIL() << "Expected response not successfully sent"; })
         .or_else([&](auto error) { EXPECT_THAT(error, Eq(ServerSendError::INVALID_RESPONSE)); });
 
-    EXPECT_TRUE(detectedError.has_value());
+    IOX_TESTING_EXPECT_ERROR(iox::PoshError::POPO__SERVER_PORT_INVALID_RESPONSE_TO_SEND_FROM_USER);
 }
 
 TEST_F(ServerPort_test, SendResponseWithoutOfferReleasesTheChunkToTheMempool)

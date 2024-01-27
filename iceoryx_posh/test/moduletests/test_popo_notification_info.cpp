@@ -15,9 +15,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iceoryx_posh/popo/notification_info.hpp"
 
+#include "iceoryx_hoofs/testing/error_reporting/testing_support.hpp"
 #include "test.hpp"
+
 #include <thread>
 
 namespace
@@ -92,35 +95,19 @@ TEST_F(NotificationInfo_test, constGetOriginReturnsCorrectOriginWhenHavingCorrec
 TEST_F(NotificationInfo_test, getOriginReturnsNullptrWithWrongType)
 {
     ::testing::Test::RecordProperty("TEST_ID", "badb467b-bf64-4e43-af30-77c163e90c99");
-    auto errorHandlerCalled{false};
-    iox::PoshError error{PoshError::NO_ERROR};
-    auto errorHandlerGuard =
-        iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>([&](const auto e, const iox::ErrorLevel) {
-            error = e;
-            errorHandlerCalled = true;
-        });
 
-    m_sut.getOrigin<int>();
+    EXPECT_THAT(m_sut.getOrigin<int>(), Eq(nullptr));
 
-    ASSERT_TRUE(errorHandlerCalled);
-    EXPECT_EQ(error, iox::PoshError::POPO__NOTIFICATION_INFO_TYPE_INCONSISTENCY_IN_GET_ORIGIN);
+    IOX_TESTING_EXPECT_ERROR(iox::PoshError::POPO__NOTIFICATION_INFO_TYPE_INCONSISTENCY_IN_GET_ORIGIN);
 }
 
 TEST_F(NotificationInfo_test, constGetOriginReturnsNullptrWithWrongType)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4fdb2bed-9928-4181-b195-e411d1b16572");
-    auto errorHandlerCalled{false};
-    iox::PoshError error{PoshError::NO_ERROR};
-    auto errorHandlerGuard =
-        iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>([&](const auto e, const iox::ErrorLevel) {
-            error = e;
-            errorHandlerCalled = true;
-        });
 
-    const_cast<const NotificationInfo&>(m_sut).getOrigin<int>();
+    EXPECT_THAT(const_cast<const NotificationInfo&>(m_sut).getOrigin<int>(), Eq(nullptr));
 
-    ASSERT_TRUE(errorHandlerCalled);
-    EXPECT_EQ(error, iox::PoshError::POPO__NOTIFICATION_INFO_TYPE_INCONSISTENCY_IN_GET_ORIGIN);
+    IOX_TESTING_EXPECT_ERROR(iox::PoshError::POPO__NOTIFICATION_INFO_TYPE_INCONSISTENCY_IN_GET_ORIGIN);
 }
 
 TEST_F(NotificationInfo_test, triggerCallbackReturnsTrueAndCallsCallbackWithSettedCallback)

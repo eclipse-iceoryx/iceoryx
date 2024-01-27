@@ -16,11 +16,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
-#include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "iceoryx_hoofs/testing/mocks/logger_mock.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iox/bump_allocator.hpp"
+
+#include "iceoryx_hoofs/testing/error_reporting/testing_support.hpp"
+#include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "test.hpp"
 
 namespace
@@ -94,17 +97,9 @@ TEST_F(MemoryManager_test, AddingMempoolNotInTheIncreasingOrderReturnsError)
     mempoolconf.addMemPool({CHUNK_SIZE_128, CHUNK_COUNT});
     mempoolconf.addMemPool({CHUNK_SIZE_256, CHUNK_COUNT});
     mempoolconf.addMemPool({CHUNK_SIZE_64, CHUNK_COUNT});
-    iox::optional<iox::PoshError> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-        [&detectedError](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
-            detectedError.emplace(error);
-            EXPECT_EQ(errorLevel, iox::ErrorLevel::FATAL);
-        });
 
-    sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
-
-    ASSERT_TRUE(detectedError.has_value());
-    EXPECT_EQ(detectedError.value(), iox::PoshError::MEPOO__MEMPOOL_CONFIG_MUST_BE_ORDERED_BY_INCREASING_SIZE);
+    IOX_EXPECT_FATAL_FAILURE([&] { sut->configureMemoryManager(mempoolconf, *allocator, *allocator); },
+                             iox::PoshError::MEPOO__MEMPOOL_CONFIG_MUST_BE_ORDERED_BY_INCREASING_SIZE);
 }
 
 TEST_F(MemoryManager_test, WrongCallOfConfigureMemoryManagerReturnsError)
@@ -114,17 +109,9 @@ TEST_F(MemoryManager_test, WrongCallOfConfigureMemoryManagerReturnsError)
     mempoolconf.addMemPool({CHUNK_SIZE_32, CHUNK_COUNT});
     mempoolconf.addMemPool({CHUNK_SIZE_64, CHUNK_COUNT});
     sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
-    iox::optional<iox::PoshError> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-        [&detectedError](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
-            detectedError.emplace(error);
-            EXPECT_EQ(errorLevel, iox::ErrorLevel::FATAL);
-        });
 
-    sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
-
-    ASSERT_TRUE(detectedError.has_value());
-    EXPECT_EQ(detectedError.value(), iox::PoshError::MEPOO__MEMPOOL_ADDMEMPOOL_AFTER_GENERATECHUNKMANAGEMENTPOOL);
+    IOX_EXPECT_FATAL_FAILURE([&] { sut->configureMemoryManager(mempoolconf, *allocator, *allocator); },
+                             iox::PoshError::MEPOO__MEMPOOL_ADDMEMPOOL_AFTER_GENERATECHUNKMANAGEMENTPOOL);
 }
 
 TEST_F(MemoryManager_test, GetMempoolInfoMethodForOutOfBoundaryMempoolIndexReturnsZeroForAllMempoolAttributes)
@@ -160,12 +147,6 @@ TEST_F(MemoryManager_test, GetNumberOfMemPoolsMethodReturnsTheNumberOfMemPools)
 TEST_F(MemoryManager_test, GetChunkMethodWithNoMemPoolInMemConfigReturnsError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "dff31ea2-8ae0-4786-8c97-633af59c287d");
-    iox::optional<iox::PoshError> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-        [&detectedError](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
-            detectedError.emplace(error);
-            EXPECT_EQ(errorLevel, iox::ErrorLevel::SEVERE);
-        });
 
     constexpr uint64_t USER_PAYLOAD_SIZE{15U};
     auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
@@ -178,8 +159,7 @@ TEST_F(MemoryManager_test, GetChunkMethodWithNoMemPoolInMemConfigReturnsError)
             [&](auto&) { GTEST_FAIL() << "getChunk should fail with '" << EXPECTED_ERROR << "' but did not fail"; })
         .or_else([&](const auto& error) { EXPECT_EQ(error, EXPECTED_ERROR); });
 
-    ASSERT_TRUE(detectedError.has_value());
-    EXPECT_EQ(detectedError.value(), iox::PoshError::MEPOO__MEMPOOL_GETCHUNK_CHUNK_WITHOUT_MEMPOOL);
+    IOX_TESTING_EXPECT_ERROR(iox::PoshError::MEPOO__MEMPOOL_GETCHUNK_CHUNK_WITHOUT_MEMPOOL);
 }
 
 
@@ -192,13 +172,6 @@ TEST_F(MemoryManager_test, GetChunkMethodWithChunkSizeGreaterThanAvailableChunkS
     mempoolconf.addMemPool({CHUNK_SIZE_128, CHUNK_COUNT});
     sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
 
-    iox::optional<iox::PoshError> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-        [&detectedError](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
-            detectedError.emplace(error);
-            EXPECT_EQ(errorLevel, iox::ErrorLevel::SEVERE);
-        });
-
     constexpr uint64_t USER_PAYLOAD_SIZE{200U};
     auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
     ASSERT_FALSE(chunkSettingsResult.has_error());
@@ -210,8 +183,7 @@ TEST_F(MemoryManager_test, GetChunkMethodWithChunkSizeGreaterThanAvailableChunkS
             [&](auto&) { GTEST_FAIL() << "getChunk should fail with '" << EXPECTED_ERROR << "' but did not fail"; })
         .or_else([&](const auto& error) { EXPECT_EQ(error, EXPECTED_ERROR); });
 
-    ASSERT_TRUE(detectedError.has_value());
-    EXPECT_EQ(detectedError.value(), iox::PoshError::MEPOO__MEMPOOL_GETCHUNK_CHUNK_IS_TOO_LARGE);
+    IOX_TESTING_EXPECT_ERROR(iox::PoshError::MEPOO__MEMPOOL_GETCHUNK_CHUNK_IS_TOO_LARGE);
 }
 
 TEST_F(MemoryManager_test, GetChunkMethodWhenNoFreeChunksInMemPoolConfigReturnsError)
@@ -226,21 +198,13 @@ TEST_F(MemoryManager_test, GetChunkMethodWhenNoFreeChunksInMemPoolConfigReturnsE
     auto& chunkSettings = chunkSettingsResult.value();
     auto chunkStore = getChunksFromSut(CHUNK_COUNT, chunkSettings);
 
-    iox::optional<iox::PoshError> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-        [&detectedError](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
-            detectedError.emplace(error);
-            EXPECT_EQ(errorLevel, iox::ErrorLevel::MODERATE);
-        });
-
     constexpr auto EXPECTED_ERROR{iox::mepoo::MemoryManager::Error::MEMPOOL_OUT_OF_CHUNKS};
     sut->getChunk(chunkSettings)
         .and_then(
             [&](auto&) { GTEST_FAIL() << "getChunk should fail with '" << EXPECTED_ERROR << "' but did not fail"; })
         .or_else([&](const auto& error) { EXPECT_EQ(error, EXPECTED_ERROR); });
 
-    ASSERT_TRUE(detectedError.has_value());
-    EXPECT_EQ(detectedError.value(), iox::PoshError::MEPOO__MEMPOOL_GETCHUNK_POOL_IS_RUNNING_OUT_OF_CHUNKS);
+    IOX_TESTING_EXPECT_ERROR(iox::PoshError::MEPOO__MEMPOOL_GETCHUNK_POOL_IS_RUNNING_OUT_OF_CHUNKS);
 }
 
 TEST_F(MemoryManager_test, VerifyGetChunkMethodWhenTheRequestedChunkIsAvailableInMemPoolConfig)
@@ -476,8 +440,8 @@ TEST_F(MemoryManager_test, addMemPoolWithChunkCountZeroShouldFail)
     ::testing::Test::RecordProperty("TEST_ID", "be653b65-a2d1-42eb-98b5-d161c6ba7c08");
     mempoolconf.addMemPool({32, 0});
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut->configureMemoryManager(mempoolconf, *allocator, *allocator); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { sut->configureMemoryManager(mempoolconf, *allocator, *allocator); },
+                             iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TEST(MemoryManagerEnumString_test, asStringLiteralConvertsEnumValuesToStrings)

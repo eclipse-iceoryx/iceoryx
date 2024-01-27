@@ -16,7 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/testing/timing_test.hpp"
-#include "iceoryx_posh/error_handling/error_handling.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
@@ -28,11 +28,12 @@
 #include "iox/optional.hpp"
 #include "iox/std_chrono_support.hpp"
 
+#include "iceoryx_hoofs/testing/fatal_failure.hpp"
+#include "test.hpp"
+
 #include <algorithm>
 #include <chrono>
 #include <iostream>
-
-#include "test.hpp"
 
 namespace
 {
@@ -394,14 +395,10 @@ TEST_F(Mepoo_IntegrationTest, WrongSampleSize)
     SetUp(memPoolTestContainer, testMempoolConfig, configType::CUSTOM);
     constexpr uint32_t SAMPLE_SIZE = 2048U;
     constexpr uint32_t REPETITION = 1U;
-    iox::optional<iox::PoshError> receivedError;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-        [&receivedError](const iox::PoshError error, const iox::ErrorLevel) { receivedError.emplace(error); });
 
     EXPECT_TRUE(sendReceiveSample<SAMPLE_SIZE>(REPETITION, {iox::popo::AllocationError::NO_MEMPOOLS_AVAILABLE}));
 
-    ASSERT_TRUE(receivedError.has_value());
-    EXPECT_THAT(receivedError.value(), Eq(iox::PoshError::MEPOO__MEMPOOL_GETCHUNK_CHUNK_IS_TOO_LARGE));
+    IOX_TESTING_EXPECT_ERROR(iox::PoshError::MEPOO__MEMPOOL_GETCHUNK_CHUNK_IS_TOO_LARGE);
 }
 
 TEST_F(Mepoo_IntegrationTest, SampleOverflow)
@@ -412,9 +409,6 @@ TEST_F(Mepoo_IntegrationTest, SampleOverflow)
     SetUp(memPoolTestContainer, testMempoolConfig, configType::CUSTOM);
     constexpr uint32_t SAMPLE_SIZE_1 = 200U;
     constexpr uint32_t REPETITION = 1U;
-    iox::optional<iox::PoshError> receivedError;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-        [&receivedError](const iox::PoshError error, const iox::ErrorLevel) { receivedError.emplace(error); });
 
     // make the mempool empty
     EXPECT_TRUE(sendReceiveSample<SAMPLE_SIZE_1>(DEFAULT_NUMBER_OF_CHUNKS));
@@ -422,8 +416,7 @@ TEST_F(Mepoo_IntegrationTest, SampleOverflow)
     // trigger out of chunk error
     EXPECT_TRUE(sendReceiveSample<SAMPLE_SIZE_1>(REPETITION, {iox::popo::AllocationError::RUNNING_OUT_OF_CHUNKS}));
 
-    ASSERT_TRUE(receivedError.has_value());
-    ASSERT_THAT(receivedError.value(), Eq(iox::PoshError::MEPOO__MEMPOOL_GETCHUNK_POOL_IS_RUNNING_OUT_OF_CHUNKS));
+    IOX_TESTING_EXPECT_ERROR(iox::PoshError::MEPOO__MEMPOOL_GETCHUNK_POOL_IS_RUNNING_OUT_OF_CHUNKS);
 }
 
 TIMING_TEST_F(Mepoo_IntegrationTest, MempoolCreationTimeDefaultConfig, Repeat(5), [&] {

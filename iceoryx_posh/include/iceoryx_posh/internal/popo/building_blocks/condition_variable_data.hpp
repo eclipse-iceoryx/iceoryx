@@ -17,8 +17,8 @@
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CONDITION_VARIABLE_DATA_HPP
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CONDITION_VARIABLE_DATA_HPP
 
-#include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iox/unnamed_semaphore.hpp"
 
 #include <atomic>

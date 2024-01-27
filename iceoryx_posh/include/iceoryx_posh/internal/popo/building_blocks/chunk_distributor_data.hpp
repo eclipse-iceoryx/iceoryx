@@ -17,9 +17,9 @@
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_DISTRIBUTOR_DATA_HPP
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_DISTRIBUTOR_DATA_HPP
 
-#include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/internal/mepoo/shm_safe_unmanaged_chunk.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iceoryx_posh/popo/port_queue_policies.hpp"
 #include "iox/algorithm.hpp"
 #include "iox/logging.hpp"

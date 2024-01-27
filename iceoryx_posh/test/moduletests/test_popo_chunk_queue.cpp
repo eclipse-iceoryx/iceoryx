@@ -23,9 +23,11 @@
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_listener.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iox/bump_allocator.hpp"
 
+#include "iceoryx_hoofs/testing/error_reporting/testing_support.hpp"
 #include "test.hpp"
 
 namespace
@@ -191,15 +193,8 @@ TYPED_TEST(ChunkQueue_test, PopChunkWithIncompatibleChunkHeaderCallsErrorHandler
 
     this->m_pusher.push(chunk);
 
-    iox::PoshError receivedError{iox::PoshError::NO_ERROR};
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-        [&](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
-            receivedError = error;
-            EXPECT_EQ(errorLevel, iox::ErrorLevel::SEVERE);
-        });
-
     EXPECT_FALSE(this->m_popper.tryPop().has_value());
-    EXPECT_EQ(receivedError, iox::PoshError::POPO__CHUNK_QUEUE_POPPER_CHUNK_WITH_INCOMPATIBLE_CHUNK_HEADER_VERSION);
+    IOX_TESTING_EXPECT_ERROR(iox::PoshError::POPO__CHUNK_QUEUE_POPPER_CHUNK_WITH_INCOMPATIBLE_CHUNK_HEADER_VERSION);
 }
 
 TYPED_TEST(ChunkQueue_test, ClearOnEmpty)

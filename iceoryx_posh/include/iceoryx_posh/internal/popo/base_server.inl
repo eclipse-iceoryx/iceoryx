@@ -19,6 +19,7 @@
 #define IOX_POSH_POPO_BASE_SERVER_INL
 
 #include "iceoryx_posh/internal/popo/base_server.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 
 namespace iox
 {
@@ -116,10 +117,10 @@ inline void BaseServer<PortT, TriggerHandleT>::enableState(TriggerHandleT&& trig
                 "ServerEvent::REQUEST_RECEIVED to a WaitSet/Listener. Detaching it from previous one and "
                 "attaching it to the new one with ServerState::HAS_REQUEST. Best practice is to call detach first.");
 
-            errorHandler(
+            IOX_REPORT(
                 PoshError::
                     POPO__BASE_SERVER_OVERRIDING_WITH_STATE_SINCE_HAS_REQUEST_OR_REQUEST_RECEIVED_ALREADY_ATTACHED,
-                ErrorLevel::MODERATE);
+                iox::er::RUNTIME_ERROR);
         }
         m_trigger = std::move(triggerHandle);
         m_port.setConditionVariable(*m_trigger.getConditionVariableData(), m_trigger.getUniqueId());
@@ -165,10 +166,10 @@ inline void BaseServer<PortT, TriggerHandleT>::enableEvent(TriggerHandleT&& trig
                     "ServerEvent::REQUEST_RECEIVED to a WaitSet/Listener. Detaching it from previous one and "
                     "attaching it to the new one with ServerEvent::REQUEST_RECEIVED. Best practice is to call detach "
                     "first.");
-            errorHandler(
+            IOX_REPORT(
                 PoshError::
                     POPO__BASE_SERVER_OVERRIDING_WITH_EVENT_SINCE_HAS_REQUEST_OR_REQUEST_RECEIVED_ALREADY_ATTACHED,
-                ErrorLevel::MODERATE);
+                iox::er::RUNTIME_ERROR);
         }
         m_trigger = std::move(triggerHandle);
         m_port.setConditionVariable(*m_trigger.getConditionVariableData(), m_trigger.getUniqueId());

@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 
 namespace iox
 {
@@ -25,10 +26,10 @@ IceOryxRouDiMemoryManager::IceOryxRouDiMemoryManager(const RouDiConfig_t& roudiC
     : m_defaultMemory(roudiConfig)
 {
     m_defaultMemory.m_managementShm.addMemoryBlock(&m_portPoolBlock).or_else([](auto) {
-        errorHandler(PoshError::ICEORYX_ROUDI_MEMORY_MANAGER__FAILED_TO_ADD_PORTPOOL_MEMORY_BLOCK, ErrorLevel::FATAL);
+        IOX_REPORT_FATAL(PoshError::ICEORYX_ROUDI_MEMORY_MANAGER__FAILED_TO_ADD_PORTPOOL_MEMORY_BLOCK);
     });
     m_memoryManager.addMemoryProvider(&m_defaultMemory.m_managementShm).or_else([](auto) {
-        errorHandler(PoshError::ICEORYX_ROUDI_MEMORY_MANAGER__FAILED_TO_ADD_MANAGEMENT_MEMORY_BLOCK, ErrorLevel::FATAL);
+        IOX_REPORT_FATAL(PoshError::ICEORYX_ROUDI_MEMORY_MANAGER__FAILED_TO_ADD_MANAGEMENT_MEMORY_BLOCK);
     });
 }
 

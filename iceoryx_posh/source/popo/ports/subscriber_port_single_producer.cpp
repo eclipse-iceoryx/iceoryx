@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_single_producer.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 
 namespace iox
 {
@@ -99,7 +100,7 @@ optional<capro::CaproMessage> SubscriberPortSingleProducer::dispatchCaProMessage
         }
         else
         {
-            errorHandler(PoshError::POPO__CAPRO_PROTOCOL_ERROR, ErrorLevel::MODERATE);
+            IOX_REPORT_FATAL(PoshError::POPO__CAPRO_PROTOCOL_ERROR);
         }
 
         return nullopt_t();
@@ -116,7 +117,7 @@ optional<capro::CaproMessage> SubscriberPortSingleProducer::dispatchCaProMessage
         }
         else
         {
-            errorHandler(PoshError::POPO__CAPRO_PROTOCOL_ERROR, ErrorLevel::MODERATE);
+            IOX_REPORT_FATAL(PoshError::POPO__CAPRO_PROTOCOL_ERROR);
         }
 
         return nullopt_t();
@@ -130,8 +131,7 @@ optional<capro::CaproMessage> SubscriberPortSingleProducer::dispatchCaProMessage
     }
     else
     {
-        errorHandler(PoshError::POPO__CAPRO_PROTOCOL_ERROR, ErrorLevel::SEVERE);
-        return nullopt_t();
+        IOX_REPORT_FATAL(PoshError::POPO__CAPRO_PROTOCOL_ERROR);
     }
 }
 

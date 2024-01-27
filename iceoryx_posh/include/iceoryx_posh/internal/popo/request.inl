@@ -17,6 +17,7 @@
 #ifndef IOX_POSH_POPO_REQUEST_INL
 #define IOX_POSH_POPO_REQUEST_INL
 
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iceoryx_posh/popo/request.hpp"
 
 namespace iox
@@ -34,7 +35,7 @@ inline expected<void, ClientSendError> Request<T>::send() noexcept
     else
     {
         IOX_LOG(ERROR, "Tried to send empty Request! Might be an already sent or moved Request!");
-        errorHandler(PoshError::POSH__SENDING_EMPTY_REQUEST, ErrorLevel::MODERATE);
+        IOX_REPORT(PoshError::POSH__SENDING_EMPTY_REQUEST, iox::er::RUNTIME_ERROR);
         return err(ClientSendError::INVALID_REQUEST);
     }
 }

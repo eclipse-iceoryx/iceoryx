@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/runtime/service_discovery.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 
 namespace iox
 {
@@ -69,7 +70,7 @@ void ServiceDiscovery::findService(const optional<capro::IdString_t>& service,
     default:
     {
         IOX_LOG(WARN, "ServiceDiscovery could not perform search due to unknown MessagingPattern!");
-        errorHandler(PoshError::POSH__SERVICE_DISCOVERY_UNKNOWN_MESSAGE_PATTERN_PROVIDED, ErrorLevel::MODERATE);
+        IOX_REPORT(PoshError::POSH__SERVICE_DISCOVERY_UNKNOWN_MESSAGE_PATTERN_PROVIDED, iox::er::RUNTIME_ERROR);
     }
     }
 }
@@ -86,7 +87,7 @@ void ServiceDiscovery::enableEvent(popo::TriggerHandle&& triggerHandle, const Se
     default:
     {
         IOX_LOG(WARN, "ServiceDiscovery::enableEvent() called with unknown event!");
-        errorHandler(PoshError::POSH__SERVICE_DISCOVERY_UNKNOWN_EVENT_PROVIDED, ErrorLevel::MODERATE);
+        IOX_REPORT(PoshError::POSH__SERVICE_DISCOVERY_UNKNOWN_EVENT_PROVIDED, iox::er::RUNTIME_ERROR);
     }
     }
 }
@@ -103,7 +104,7 @@ void ServiceDiscovery::disableEvent(const ServiceDiscoveryEvent event) noexcept
     default:
     {
         IOX_LOG(WARN, "ServiceDiscovery::disableEvent() called with unknown event!");
-        errorHandler(PoshError::POSH__SERVICE_DISCOVERY_UNKNOWN_EVENT_PROVIDED, ErrorLevel::MODERATE);
+        IOX_REPORT(PoshError::POSH__SERVICE_DISCOVERY_UNKNOWN_EVENT_PROVIDED, iox::er::RUNTIME_ERROR);
     }
     }
 }

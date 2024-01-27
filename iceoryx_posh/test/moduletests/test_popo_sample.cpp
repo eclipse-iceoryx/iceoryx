@@ -14,9 +14,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
 #include "iox/unique_ptr.hpp"
 
+#include "iceoryx_hoofs/testing/error_reporting/testing_support.hpp"
 #include "test.hpp"
 #include "test_popo_smart_chunk_common.hpp"
 
@@ -59,35 +61,24 @@ TEST_F(Sample_test, PublishingAlreadyPublishedSampleCallsErrorHandler)
 
     sutProducer.publish();
 
-    iox::optional<iox::PoshError> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-        [&detectedError](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
-            detectedError.emplace(error);
-            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
-        });
+    IOX_TESTING_EXPECT_OK();
 
     sutProducer.publish();
 
-    ASSERT_TRUE(detectedError.has_value());
-    ASSERT_THAT(detectedError.value(), Eq(iox::PoshError::POSH__PUBLISHING_EMPTY_SAMPLE));
+    IOX_TESTING_EXPECT_ERROR(iox::PoshError::POSH__PUBLISHING_EMPTY_SAMPLE);
 }
 
 TEST_F(Sample_test, PublishingMovedSampleCallsErrorHandler)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4c3a9a19-0581-4e47-aed7-f55892bef7fa");
 
-    iox::optional<iox::PoshError> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-        [&detectedError](const iox::PoshError error, const auto errorLevel) {
-            detectedError.emplace(error);
-            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
-        });
-
     auto movedSut = std::move(sutProducer);
+
+    IOX_TESTING_EXPECT_OK();
+
     sutProducer.publish();
 
-    ASSERT_TRUE(detectedError.has_value());
-    ASSERT_THAT(detectedError.value(), Eq(iox::PoshError::POSH__PUBLISHING_EMPTY_SAMPLE));
+    IOX_TESTING_EXPECT_ERROR(iox::PoshError::POSH__PUBLISHING_EMPTY_SAMPLE);
 }
 
 } // namespace

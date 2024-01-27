@@ -17,11 +17,14 @@
 
 #include "iceoryx_platform/types.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iceoryx_posh/internal/roudi/process.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_interface.hpp"
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
 #include "iox/string.hpp"
+
+#include "iceoryx_hoofs/testing/error_reporting/testing_support.hpp"
 #include "test.hpp"
 
 namespace
@@ -96,20 +99,11 @@ TEST_F(Process_test, sendViaIpcChannelFail)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c4d5c133-bf93-45a4-aa4f-9c3c2a50f91a");
     iox::runtime::IpcMessage data{""};
-    iox::optional<iox::PoshError> sendViaIpcChannelStatusFail;
-
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-        [&sendViaIpcChannelStatusFail](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
-            sendViaIpcChannelStatusFail.emplace(error);
-            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
-        });
 
     Process roudiproc(processname, pid, user, heartbeatPoolIndex, sessionId);
     roudiproc.sendViaIpcChannel(data);
 
-    ASSERT_THAT(sendViaIpcChannelStatusFail.has_value(), Eq(true));
-    EXPECT_THAT(sendViaIpcChannelStatusFail.value(),
-                Eq(iox::PoshError::POSH__ROUDI_PROCESS_SEND_VIA_IPC_CHANNEL_FAILED));
+    IOX_TESTING_EXPECT_ERROR(iox::PoshError::POSH__ROUDI_PROCESS_SEND_VIA_IPC_CHANNEL_FAILED);
 }
 
 TEST_F(Process_test, Heartbeat)

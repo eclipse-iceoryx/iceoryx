@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/runtime/posh_runtime_single_process.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iox/logging.hpp"
 
 namespace iox
@@ -47,7 +48,7 @@ PoshRuntimeSingleProcess::PoshRuntimeSingleProcess(const RuntimeName_t& name) no
         IOX_LOG(ERROR,
                 "PoshRuntimeSingleProcess can only created once per process and only if the default PoshRuntime "
                 "factory method is set!");
-        errorHandler(PoshError::POSH__RUNTIME_IS_CREATED_MULTIPLE_TIMES);
+        IOX_REPORT_FATAL(PoshError::POSH__RUNTIME_IS_CREATED_MULTIPLE_TIMES);
     }
 }
 
