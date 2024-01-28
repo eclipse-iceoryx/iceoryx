@@ -25,6 +25,7 @@
 #include "iox/builder.hpp"
 #include "iox/duration.hpp"
 #include "iox/expected.hpp"
+#include "iox/not_null.hpp"
 #include "iox/optional.hpp"
 #include "iox/posix_ipc_channel.hpp"
 
@@ -58,6 +59,7 @@ class MessageQueue
     static constexpr uint64_t MAX_NUMBER_OF_MESSAGES = 10;
 
     using Builder_t = MessageQueueBuilder;
+    using Message_t = iox::string<MAX_MESSAGE_SIZE>;
 
     MessageQueue() noexcept = delete;
     MessageQueue(const MessageQueue& other) = delete;
@@ -88,6 +90,38 @@ class MessageQueue
     expected<void, PosixIpcChannelError> timedSend(const std::string& msg,
                                                    const units::Duration& timeout) const noexcept;
 
+    /// @brief send a message using iox::string
+    /// @tparam N capacity of the iox::string
+    /// @param[in] buf data to send
+    /// @return PosixIpcChannelError if error occured
+    template <uint64_t N>
+    expected<void, PosixIpcChannelError> send(const iox::string<N>& buf) const noexcept;
+
+    /// @brief try to send a message for a given timeout duration using iox::string
+    /// @tparam N capacity of the iox::string
+    /// @param[in] buf data to send
+    /// @param[in] timeout for the send operation
+    /// @return PosixIpcChannelError if error occured
+    template <uint64_t N>
+    expected<void, PosixIpcChannelError> timedSend(const iox::string<N>& buf,
+                                                   const units::Duration& timeout) const noexcept;
+
+    /// @brief receive message using iox::string
+    /// @tparam N capacity of the iox::string
+    /// @param[in] buf data to receive
+    /// @return  PosixIpcChannelError if error occured
+    template <uint64_t N>
+    expected<void, PosixIpcChannelError> receive(iox::string<N>& buf) const noexcept;
+
+    /// @brief try to receive message for a given timeout duration using iox::string
+    /// @tparam N capacity of the iox::string
+    /// @param[in] buf data to receive
+    /// @param[in] timeout for the send operation
+    /// @return  PosixIpcChannelError if error occured
+    template <uint64_t N>
+    expected<void, PosixIpcChannelError> timedReceive(iox::string<N>& buf,
+                                                      const units::Duration& timeout) const noexcept;
+
     static expected<bool, PosixIpcChannelError> isOutdated() noexcept;
 
   private:
@@ -108,6 +142,26 @@ class MessageQueue
     static expected<PosixIpcChannelName_t, PosixIpcChannelError>
     sanitizeIpcChannelName(const PosixIpcChannelName_t& name) noexcept;
     expected<void, PosixIpcChannelError> destroy() noexcept;
+
+    enum class Termination
+    {
+        NONE,
+        NULL_TERMINATOR
+    };
+
+    template <typename Type, Termination Terminator>
+    expected<void, PosixIpcChannelError>
+    timedSendImpl(not_null<const Type*> msg, uint64_t msgSize, const units::Duration& timeout) const noexcept;
+    template <typename Type, Termination Terminator>
+    expected<uint64_t, PosixIpcChannelError>
+    timedReceiveImpl(not_null<Type*> msg, uint64_t maxMsgSize, const units::Duration& timeout) const noexcept;
+    template <typename Type, Termination Terminator>
+    expected<void, PosixIpcChannelError> sendImpl(not_null<const Type*> msg, uint64_t msgSize) const noexcept;
+    template <typename Type, Termination Terminator>
+    expected<uint64_t, PosixIpcChannelError> receiveImpl(not_null<Type*> msg, uint64_t maxMsgSize) const noexcept;
+    template <typename Type, Termination Terminator>
+    expected<uint64_t, PosixIpcChannelError> receiveVerification(not_null<Type*> msg,
+                                                                 uint64_t msgLenght) const noexcept;
 
   private:
     PosixIpcChannelName_t m_name;
@@ -148,5 +202,7 @@ class MessageQueueBuilder
 };
 
 } // namespace iox
+
+#include "detail/message_queue.inl"
 
 #endif // IOX_HOOFS_POSIX_IPC_MESSAGE_QUEUE_HPP
