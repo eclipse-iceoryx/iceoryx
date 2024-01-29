@@ -52,6 +52,7 @@ else()
 endif()
 
 set(PREFIX iceoryx/v${CMAKE_PROJECT_VERSION})
+include(cmake/iceoryxversions.cmake)
 
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPackageHelper.cmake")
 include("${ICEORYX_PLATFORM}/IceoryxPlatformSettings.cmake")
@@ -67,12 +68,15 @@ iox_add_library(
     TARGET                      iceoryx_platform
     NAMESPACE                   iceoryx_platform
     PROJECT_PREFIX              ${PREFIX}
-    EXPORT_INCLUDE_DIRS         ${ICEORYX_PLATFORM}/include/
+    EXPORT_INCLUDE_DIRS         generic/include/
+                                ${ICEORYX_PLATFORM}/include/
     PUBLIC_LIBS_LINUX           rt pthread
     PUBLIC_LIBS_UNIX            rt pthread
     PRIVATE_LIBS_QNX            socket
     PUBLIC_LIBS_FREERTOS        freertos_sdk::FreeRTOS_POSIX
-    BUILD_INTERFACE             ${ICEORYX_PLATFORM}/include/
+    BUILD_INTERFACE             ${PROJECT_SOURCE_DIR}/generic/include/
+                                ${ICEORYX_PLATFORM}/include/
+                                ${CMAKE_BINARY_DIR}/generated/iceoryx_platform/include
     INSTALL_INTERFACE           include/${PREFIX}
     FILES                       ${ICEORYX_PLATFORM_FILES}
 )
@@ -80,6 +84,7 @@ iox_add_library(
 install(
     FILES
         cmake/IceoryxPackageHelper.cmake
+        cmake/IceoryxVersion.cmake
         ${ICEORYX_PLATFORM}/IceoryxPlatformSettings.cmake
     DESTINATION ${DESTINATION_CONFIGDIR}
     COMPONENT dev
