@@ -18,7 +18,7 @@
 
 namespace iox
 {
-const char* C_BINDING_ERROR_NAMES[] = {C_BINDING_ERRORS(CREATE_ICEORYX_ERROR_STRING)};
+const char* BINDING_C_ERROR_NAMES[] = {IOX_BINDING_C_ERRORS(IOX_CREATE_ERROR_STRING)};
 
 const char* asStringLiteral(const CBindingError error) noexcept
 {
@@ -31,6 +31,6 @@ const char* asStringLiteral(const CBindingError error) noexcept
     }
     // NOLINTJUSTIFICATION Bounds are checked and access is safe
     // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
-    return C_BINDING_ERROR_NAMES[index];
+    return BINDING_C_ERROR_NAMES[index];
 }
 } // namespace iox

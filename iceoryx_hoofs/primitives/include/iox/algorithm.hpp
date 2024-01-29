@@ -17,7 +17,7 @@
 #ifndef IOX_HOOFS_PRIMITIVES_ALGORITHM_HPP
 #define IOX_HOOFS_PRIMITIVES_ALGORITHM_HPP
 
-#include "iceoryx_hoofs/cxx/requires.hpp"
+#include "iox/assertions.hpp"
 #include "iox/attributes.hpp"
 #include "iox/type_traits.hpp"
 

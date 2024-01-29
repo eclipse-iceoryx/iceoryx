@@ -55,7 +55,6 @@ cc_library(
         "posix/vocabulary/source/*.cpp",
         "primitives/source/*.cpp",
         "reporting/source/*.cpp",
-        "source/**/*.cpp",
         "time/source/*.cpp",
         "utility/source/*.cpp",
         "vocabulary/source/**/*.cpp",

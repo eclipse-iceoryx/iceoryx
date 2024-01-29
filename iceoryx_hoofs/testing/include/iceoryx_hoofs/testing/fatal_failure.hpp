@@ -17,9 +17,9 @@
 #ifndef IOX_HOOFS_TESTING_FATAL_FAILURE_HPP
 #define IOX_HOOFS_TESTING_FATAL_FAILURE_HPP
 
-#include "iceoryx_hoofs/testing/mocks/error_handler_mock.hpp"
 #include "iox/function_ref.hpp"
 #include "iox/optional.hpp"
+
 #include "test.hpp"
 
 #include <atomic>

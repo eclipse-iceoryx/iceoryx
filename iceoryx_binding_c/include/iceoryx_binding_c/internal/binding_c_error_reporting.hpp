@@ -31,14 +31,11 @@
 // additional includes
 #include "iox/error_reporting/types.hpp"
 
-/// @todo iox-#1032 Remove once C_BINDING_MODULE_IDENTIFIER is moved to 'ModuleId' in 'error_reporting/types.hpp'
-#include "iceoryx_hoofs/error_handling/error_handler.hpp"
-
 namespace iox
 {
 
 // clang-format off
-#define C_BINDING_ERRORS(error) \
+#define IOX_BINDING_C_ERRORS(error) \
     error(BINDING_C__UNDEFINED_STATE_IN_IOX_QUEUE_FULL_POLICY) \
     error(BINDING_C__UNDEFINED_STATE_IN_IOX_CONSUMER_TOO_SLOW_POLICY) \
     error(BINDING_C__PUBLISHER_OPTIONS_NOT_INITIALIZED) \
@@ -59,7 +56,7 @@ namespace iox
 
 enum class CBindingError : iox::er::ErrorCode::type
 {
-    C_BINDING_ERRORS(CREATE_ICEORYX_ERROR_ENUM)
+    IOX_BINDING_C_ERRORS(IOX_CREATE_ERROR_ENUM)
 };
 
 const char* asStringLiteral(const CBindingError error) noexcept;
@@ -92,7 +89,7 @@ class CBindingErrorType
         return "iceoryx_binding_c";
     }
 
-    static constexpr iox::er::ModuleId MODULE_ID{C_BINDING_MODULE_IDENTIFIER};
+    static constexpr iox::er::ModuleId MODULE_ID{iox::er::ModuleId::BINDING_C};
 
   protected:
     iox::er::ErrorCode m_code;

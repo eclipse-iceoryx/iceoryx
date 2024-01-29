@@ -17,7 +17,7 @@
 #ifndef IOX_HOOFS_VOCABULARY_SPAN_HPP
 #define IOX_HOOFS_VOCABULARY_SPAN_HPP
 
-#include "iceoryx_hoofs/cxx/requires.hpp"
+#include "iox/assertions.hpp"
 #include "iox/detail/span_iterator.hpp"
 #include "iox/detail/uninitialized_array_type_traits.hpp"
 #include "iox/size.hpp"

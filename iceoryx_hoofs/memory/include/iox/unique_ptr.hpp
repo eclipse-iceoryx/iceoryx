@@ -18,7 +18,7 @@
 #ifndef IOX_HOOFS_MEMORY_UNIQUE_PTR_HPP
 #define IOX_HOOFS_MEMORY_UNIQUE_PTR_HPP
 
-#include "iceoryx_hoofs/cxx/requires.hpp"
+#include "iox/assertions.hpp"
 #include "iox/function.hpp"
 #include <memory>
 

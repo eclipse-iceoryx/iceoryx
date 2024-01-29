@@ -22,13 +22,15 @@ namespace iox
 {
 // NOLINTJUSTIFICATION Use to map enum tag names to strings
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays)
-const char* const HOOFS_ERROR_NAMES[] = {HOOFS_ERRORS(CREATE_ICEORYX_ERROR_STRING)};
+const char* const HOOFS_ERROR_NAMES[] = {IOX_HOOFS_ERRORS(IOX_CREATE_ERROR_STRING)};
 
 const char* asStringLiteral(const HoofsError error) noexcept
 {
-    auto end = static_cast<std::underlying_type<HoofsError>::type>(HoofsError::DO_NOT_USE_AS_ERROR_THIS_IS_AN_INTERNAL_MARKER);
+    auto end =
+        static_cast<std::underlying_type<HoofsError>::type>(HoofsError::DO_NOT_USE_AS_ERROR_THIS_IS_AN_INTERNAL_MARKER);
     auto index = static_cast<std::underlying_type<HoofsError>::type>(error);
-    if(index >= end) {
+    if (index >= end)
+    {
         return "Unknown Error Code!";
     }
     // NOLINTJUSTIFICATION Bounds are checked and access is safe

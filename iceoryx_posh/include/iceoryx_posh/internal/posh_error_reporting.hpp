@@ -31,13 +31,10 @@
 // additional includes
 #include "iox/error_reporting/types.hpp"
 
-/// @todo iox-#1032 Remove once C_BINDING_MODULE_IDENTIFIER is moved to 'ModuleId' in 'error_reporting/types.hpp'
-#include "iceoryx_hoofs/error_handling/error_handler.hpp"
-
 namespace iox
 {
 // clang-format off
-#define POSH_ERRORS(error) \
+#define IOX_POSH_ERRORS(error) \
     error(POSH__ROUDI_PROCESS_SHUTDOWN_FAILED) \
     error(POSH__ROUDI_PROCESS_SEND_VIA_IPC_CHANNEL_FAILED)\
     error(POSH__RUNTIME_FACTORY_IS_NOT_SET) \
@@ -179,7 +176,7 @@ namespace iox
 
 enum class PoshError : iox::er::ErrorCode::type
 {
-    POSH_ERRORS(CREATE_ICEORYX_ERROR_ENUM)
+    IOX_POSH_ERRORS(IOX_CREATE_ERROR_ENUM)
 };
 
 const char* asStringLiteral(const PoshError error) noexcept;
@@ -212,7 +209,7 @@ class PoshErrorType
         return "iceoryx_posh";
     }
 
-    static constexpr iox::er::ModuleId MODULE_ID{POSH_MODULE_IDENTIFIER};
+    static constexpr iox::er::ModuleId MODULE_ID{iox::er::ModuleId::POSH};
 
   protected:
     iox::er::ErrorCode m_code;

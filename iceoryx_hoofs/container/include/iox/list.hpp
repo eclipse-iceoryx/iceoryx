@@ -18,7 +18,7 @@
 #ifndef IOX_HOOFS_CONTAINER_LIST_HPP
 #define IOX_HOOFS_CONTAINER_LIST_HPP
 
-#include "iceoryx_hoofs/cxx/requires.hpp"
+#include "iox/assertions.hpp"
 #include "iox/uninitialized_array.hpp"
 
 #include <cstdint>

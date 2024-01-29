@@ -15,7 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iox/detail/posix_scheduler.hpp"
-#include "iceoryx_hoofs/cxx/requires.hpp"
+#include "iox/assertions.hpp"
 #include "iox/logging.hpp"
 #include "iox/posix_call.hpp"
 

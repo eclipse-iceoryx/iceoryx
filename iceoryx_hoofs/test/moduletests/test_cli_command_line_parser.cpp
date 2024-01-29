@@ -14,15 +14,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iox/detail/hoofs_error_reporting.hpp"
-#include "iceoryx_hoofs/testing/mocks/error_handler_mock.hpp"
 #include "iox/cli/command_line_parser.hpp"
+#include "iox/detail/hoofs_error_reporting.hpp"
 #include "iox/function.hpp"
 #include "iox/optional.hpp"
 #include "iox/std_string_support.hpp"
-#include "test.hpp"
 #include "test_cli_command_line_common.hpp"
+
 #include "iceoryx_hoofs/testing/error_reporting/testing_support.hpp"
+#include "test.hpp"
 
 #include <cstdlib>
 #include <iostream>

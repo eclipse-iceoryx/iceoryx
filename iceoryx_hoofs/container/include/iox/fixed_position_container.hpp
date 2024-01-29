@@ -17,8 +17,8 @@
 #ifndef IOX_HOOFS_CONTAINER_FIXED_POSITION_CONTAINER_HPP
 #define IOX_HOOFS_CONTAINER_FIXED_POSITION_CONTAINER_HPP
 
-#include "iceoryx_hoofs/cxx/requires.hpp"
 #include "iox/algorithm.hpp"
+#include "iox/assertions.hpp"
 #include "iox/move_and_copy_helper.hpp"
 #include "iox/uninitialized_array.hpp"
 

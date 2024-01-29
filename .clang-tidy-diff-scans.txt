@@ -1,5 +1,3 @@
-./iceoryx_hoofs/include/iceoryx_hoofs/cxx/*
-
 ./iceoryx_hoofs/legacy/**/*
 
 ./iceoryx_hoofs/cli/**/*

@@ -16,8 +16,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iox/detail/mpmc_loffli.hpp"
-#include "iceoryx_hoofs/cxx/requires.hpp"
 #include "iceoryx_platform/platform_correction.hpp"
+#include "iox/assertions.hpp"
 
 namespace iox
 {

@@ -17,7 +17,7 @@
 #ifndef IOX_HOOFS_FUNCTIONAL_STORABLE_FUNCTION_INL
 #define IOX_HOOFS_FUNCTIONAL_STORABLE_FUNCTION_INL
 
-#include "iceoryx_hoofs/cxx/requires.hpp"
+#include "iox/assertions.hpp"
 #include "iox/detail/storable_function.hpp"
 #include "iox/memory.hpp"
 

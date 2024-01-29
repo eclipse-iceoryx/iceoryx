@@ -15,8 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/requires.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iox/assertions.hpp"
 
 using namespace iox;
 using namespace iox::runtime;

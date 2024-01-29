@@ -120,7 +120,6 @@ iox_add_library(
         reporting/source/hoofs_error_reporting.cpp
         reporting/source/console_logger.cpp
         reporting/source/logger.cpp
-        source/error_handling/error_handler.cpp
         time/source/duration.cpp
         utility/source/unique_id.cpp
 

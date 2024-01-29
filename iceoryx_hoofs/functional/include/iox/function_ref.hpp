@@ -21,7 +21,7 @@
 #define IOX_HOOFS_FUNCTIONAL_FUNCTION_REF_HPP
 
 // AXIVION Next Line AutosarC++19_03-A16.2.2 : Needed for IOX_EXPECTS and IOX_ENSURES macros
-#include "iceoryx_hoofs/cxx/requires.hpp"
+#include "iox/assertions.hpp"
 #include "iox/type_traits.hpp"
 
 #include <type_traits>

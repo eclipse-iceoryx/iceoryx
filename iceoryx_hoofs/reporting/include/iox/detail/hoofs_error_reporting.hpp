@@ -30,13 +30,13 @@
 // additional includes
 #include "iox/error_reporting/types.hpp"
 
-/// @todo iox-#1032 Remove once HOOFS_MODULE_IDENTIFIER is moved to 'ModuleId' in 'error_reporting/types.hpp'
-#include "iceoryx_hoofs/error_handling/error_handler.hpp"
-
 namespace iox
 {
 // clang-format off
-#define HOOFS_ERRORS(error) \
+
+// NOLINTJUSTIFICATION This macro is usee to define an enum and an array with corresponding enum tag names
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define IOX_HOOFS_ERRORS(error) \
     error(EXPECTS_ENSURES_FAILED) \
     error(DO_NOT_USE_AS_ERROR_THIS_IS_AN_INTERNAL_MARKER) // keep this always at the end of the error list
 
@@ -48,7 +48,7 @@ namespace iox
 
 enum class HoofsError : iox::er::ErrorCode::type
 {
-    HOOFS_ERRORS(CREATE_ICEORYX_ERROR_ENUM)
+    IOX_HOOFS_ERRORS(IOX_CREATE_ERROR_ENUM)
 };
 
 const char* asStringLiteral(const HoofsError error) noexcept;
@@ -76,11 +76,12 @@ class HoofsErrorType
         return asStringLiteral(static_cast<HoofsError>(m_code.value));
     }
 
-    const char* moduleName() const {
+    static const char* moduleName()
+    {
         return "iceoryx_hoofs";
     }
 
-    static constexpr iox::er::ModuleId MODULE_ID{POSH_MODULE_IDENTIFIER};
+    static constexpr iox::er::ModuleId MODULE_ID{iox::er::ModuleId::HOOFS};
 
   protected:
     iox::er::ErrorCode m_code;

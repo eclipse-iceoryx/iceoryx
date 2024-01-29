@@ -14,9 +14,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/requires.hpp"
-#include "iox/detail/hoofs_error_reporting.hpp"
 #include "iceoryx_hoofs/testing/fatal_failure.hpp"
+#include "iox/assertions.hpp"
+#include "iox/detail/hoofs_error_reporting.hpp"
 
 #include "test.hpp"
 

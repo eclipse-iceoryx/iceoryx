@@ -16,7 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "uds.hpp"
-#include "iceoryx_hoofs/cxx/requires.hpp"
+#include "iox/assertions.hpp"
 #include "iox/posix_call.hpp"
 #include "iox/size.hpp"
 #include "iox/std_string_support.hpp"
