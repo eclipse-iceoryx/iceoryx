@@ -33,7 +33,8 @@ inline bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction,
     IOX_TESTING_EXPECT_PANIC();
 
     /// @todo iox-#1032 'hasViolation' should not be necessary
-    auto hasExpectedError = iox::testing::hasError(expectedError) || iox::testing::hasViolation();
+    auto hasExpectedError =
+        iox::testing::hasError(expectedError) || iox::testing::hasViolation() || iox::testing::hasPanicked();
     EXPECT_TRUE(hasExpectedError);
     return hasExpectedError;
 }
