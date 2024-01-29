@@ -14,11 +14,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iox/attributes.hpp"
 #include "iox/detail/hoofs_error_reporting.hpp"
+#include "iox/forward_list.hpp"
+
 #include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "iceoryx_hoofs/testing/lifetime_and_assignment_tracker.hpp"
-#include "iox/attributes.hpp"
-#include "iox/forward_list.hpp"
 #include "test.hpp"
 
 namespace

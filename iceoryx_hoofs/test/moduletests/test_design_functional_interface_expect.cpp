@@ -15,8 +15,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iox/detail/hoofs_error_reporting.hpp"
-#include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "test_design_functional_interface_types.hpp"
+
+#include "iceoryx_hoofs/testing/fatal_failure.hpp"
 
 namespace
 {

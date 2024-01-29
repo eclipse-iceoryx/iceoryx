@@ -14,10 +14,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_posh/runtime/service_discovery.hpp"
 #include "iox/detail/hoofs_error_reporting.hpp"
+
 #include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "iceoryx_posh/roudi_env/minimal_roudi_config.hpp"
-#include "iceoryx_posh/runtime/service_discovery.hpp"
 #include "iceoryx_posh/testing/roudi_gtest.hpp"
 
 using namespace iox;

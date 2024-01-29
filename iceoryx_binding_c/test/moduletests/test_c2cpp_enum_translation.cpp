@@ -124,9 +124,9 @@ TEST(c2cpp_enum_translation_test, ConsumerTooSlowPolicy)
 #if !defined(__clang__)
     EXPECT_EQ(c2cpp::consumerTooSlowPolicy(iox_test_binding_c::maxUnderlyingCEnumValue<iox_ConsumerTooSlowPolicy>()),
               iox::popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA);
-#endif
 
     IOX_TESTING_EXPECT_ERROR(iox::CBindingError::BINDING_C__UNDEFINED_STATE_IN_IOX_CONSUMER_TOO_SLOW_POLICY);
+#endif
 }
 
 TEST(c2cpp_enum_translation_test, QueueFullPolicy)
@@ -159,9 +159,9 @@ TEST(c2cpp_enum_translation_test, QueueFullPolicy)
 #if !defined(__clang__)
     EXPECT_EQ(c2cpp::queueFullPolicy(iox_test_binding_c::maxUnderlyingCEnumValue<iox_QueueFullPolicy>()),
               iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA);
-#endif
 
     IOX_TESTING_EXPECT_ERROR(iox::CBindingError::BINDING_C__UNDEFINED_STATE_IN_IOX_QUEUE_FULL_POLICY);
+#endif
 }
 
 TEST(c2cpp_enum_translation_test, ClientState)
