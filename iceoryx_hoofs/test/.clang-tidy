@@ -5,6 +5,8 @@ InheritParentConfig:  true
 
 Checks: '
 -cert-err58-cpp,
+-cppcoreguidelines-avoid-const-or-ref-data-members
+-cppcoreguidelines-avoid-do-while
 -cppcoreguidelines-avoid-magic-numbers,
 -cppcoreguidelines-avoid-non-const-global-variables,
 -cppcoreguidelines-owning-memory,
@@ -13,8 +15,13 @@ Checks: '
 -readability-identifier-naming,
 -readability-magic-numbers,
 '
-
 ## Justifications for rule deactivation ##
+#
+# * rule: cppcoreguidelines-avoid-const-or-ref-data-members
+#   justification: this is non-production code and it improves the readability of tests
+#
+# * rule: cppcoreguidelines-avoid-do-while
+#   justification: this is non-production code and there is nothing inherently wrong with do-while loops
 #
 # * rule: cert-err58-cpp
 #   justification: caused by TEST_F in gtest with internal macro generated construct: test_info_

@@ -117,10 +117,10 @@ iox_add_library(
         memory/source/relative_pointer_data.cpp
         primitives/source/type_traits.cpp
         reporting/source/default_error_handler.cpp
+        reporting/source/hoofs_error_reporting.cpp
         reporting/source/console_logger.cpp
         reporting/source/logger.cpp
         source/error_handling/error_handler.cpp
-        source/error_handling/error_handling.cpp
         time/source/duration.cpp
         utility/source/unique_id.cpp
 

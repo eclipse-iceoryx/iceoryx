@@ -32,18 +32,10 @@ inline bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction,
     runInTestThread([&] { testFunction(); });
     IOX_TESTING_EXPECT_PANIC();
 
-    if constexpr (std::is_same<ErrorType, iox::er::Violation>::value)
-    {
-        /// @todo iox-#1032 'hasViolation' should not be necessary
-        auto hasExpectedError = iox::testing::hasError(expectedError) || iox::testing::hasViolation();
-        EXPECT_TRUE(hasExpectedError);
-        return hasExpectedError;
-    }
-    else
-    {
-        /// @todo iox-#1032 remove this branch once everything is ported to the new error reporting
-        return iox::testing::hasPanicked();
-    }
+    /// @todo iox-#1032 'hasViolation' should not be necessary
+    auto hasExpectedError = iox::testing::hasError(expectedError) || iox::testing::hasViolation();
+    EXPECT_TRUE(hasExpectedError);
+    return hasExpectedError;
 }
 
 inline bool IOX_EXPECT_NO_FATAL_FAILURE(const function_ref<void()> testFunction)
