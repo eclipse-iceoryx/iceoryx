@@ -169,39 +169,26 @@ expected<void, PosixIpcChannelError> MessageQueue::destroy() noexcept
 
 expected<void, PosixIpcChannelError> MessageQueue::send(const std::string& msg) const noexcept
 {
-    const uint64_t messageSize = msg.size() + NULL_TERMINATOR_SIZE;
-    if (messageSize > static_cast<uint64_t>(m_attributes.mq_msgsize))
-    {
-        return err(PosixIpcChannelError::MESSAGE_TOO_LONG);
-    }
-
-    auto mqCall =
-        IOX_POSIX_CALL(mq_send)(m_mqDescriptor, msg.c_str(), messageSize, 1U).failureReturnValue(ERROR_CODE).evaluate();
-
-    if (mqCall.has_error())
-    {
-        return err(errnoToEnum(mqCall.error().errnum));
-    }
-
-    return ok();
+    return sendImpl<char, Termination::NULL_TERMINATOR>(msg.c_str(), msg.size());
 }
 
 expected<std::string, PosixIpcChannelError> MessageQueue::receive() const noexcept
 {
-    /// NOLINTJUSTIFICATION required as raw memory buffer for mq_receive
-    /// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
-    char message[MAX_MESSAGE_SIZE];
-
-    auto mqCall = IOX_POSIX_CALL(mq_receive)(m_mqDescriptor, &message[0], MAX_MESSAGE_SIZE, nullptr)
-                      .failureReturnValue(ERROR_CODE)
-                      .evaluate();
-
-    if (mqCall.has_error())
+    auto result = expected<uint64_t, PosixIpcChannelError>(in_place, uint64_t(0));
+    Message_t msg;
+    msg.unsafe_raw_access([&](auto* str, const auto info) -> uint64_t {
+        result = this->receiveImpl<char, Termination::NULL_TERMINATOR>(str, info.total_size);
+        if (result.has_error())
+        {
+            return 0;
+        }
+        return result.value();
+    });
+    if (result.has_error())
     {
-        return err(errnoToEnum(mqCall.error().errnum));
+        return err(result.error());
     }
-
-    return ok(std::string(&(message[0])));
+    return ok<std::string>(msg.c_str());
 }
 
 expected<mqd_t, PosixIpcChannelError> MessageQueue::open(const PosixIpcChannelName_t& name,
@@ -274,60 +261,27 @@ expected<void, PosixIpcChannelError> MessageQueue::unlink() noexcept
 
 expected<std::string, PosixIpcChannelError> MessageQueue::timedReceive(const units::Duration& timeout) const noexcept
 {
-    timespec timeOut = timeout.timespec(units::TimeSpecReference::Epoch);
-    /// NOLINTJUSTIFICATION required as internal buffer for receive
-    /// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
-    char message[MAX_MESSAGE_SIZE];
-
-    auto mqCall = IOX_POSIX_CALL(mq_timedreceive)(m_mqDescriptor, &message[0], MAX_MESSAGE_SIZE, nullptr, &timeOut)
-                      .failureReturnValue(ERROR_CODE)
-                      // don't use the suppressErrorMessagesForErrnos method since QNX used EINTR instead of ETIMEDOUT
-                      .ignoreErrnos(TIMEOUT_ERRNO)
-                      .evaluate();
-
-    if (mqCall.has_error())
+    auto result = expected<uint64_t, PosixIpcChannelError>(in_place, uint64_t(0));
+    Message_t msg;
+    msg.unsafe_raw_access([&](auto* str, const auto info) -> uint64_t {
+        result = this->timedReceiveImpl<char, Termination::NULL_TERMINATOR>(str, info.total_size, timeout);
+        if (result.has_error())
+        {
+            return 0;
+        }
+        return result.value();
+    });
+    if (result.has_error())
     {
-        return err(errnoToEnum(mqCall.error().errnum));
+        return err(result.error());
     }
-
-    if (mqCall->errnum == TIMEOUT_ERRNO)
-    {
-        return err(errnoToEnum(ETIMEDOUT));
-    }
-
-    return ok(std::string(&(message[0])));
+    return ok<std::string>(msg.c_str());
 }
 
 expected<void, PosixIpcChannelError> MessageQueue::timedSend(const std::string& msg,
                                                              const units::Duration& timeout) const noexcept
 {
-    const uint64_t messageSize = msg.size() + NULL_TERMINATOR_SIZE;
-    if (messageSize > static_cast<uint64_t>(m_attributes.mq_msgsize))
-    {
-        IOX_LOG(ERROR,
-                "the message '" << msg << "' which should be sent to the message queue '" << m_name << "' is too long");
-        return err(PosixIpcChannelError::MESSAGE_TOO_LONG);
-    }
-
-    timespec timeOut = timeout.timespec(units::TimeSpecReference::Epoch);
-
-    auto mqCall = IOX_POSIX_CALL(mq_timedsend)(m_mqDescriptor, msg.c_str(), messageSize, 1U, &timeOut)
-                      .failureReturnValue(ERROR_CODE)
-                      // don't use the suppressErrorMessagesForErrnos method since QNX used EINTR instead of ETIMEDOUT
-                      .ignoreErrnos(TIMEOUT_ERRNO)
-                      .evaluate();
-
-    if (mqCall.has_error())
-    {
-        return err(errnoToEnum(mqCall.error().errnum));
-    }
-
-    if (mqCall->errnum == TIMEOUT_ERRNO)
-    {
-        return err(errnoToEnum(ETIMEDOUT));
-    }
-
-    return ok();
+    return timedSendImpl<char, Termination::NULL_TERMINATOR>(msg.c_str(), msg.size(), timeout);
 }
 
 expected<bool, PosixIpcChannelError> MessageQueue::isOutdated() noexcept
