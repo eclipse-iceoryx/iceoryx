@@ -102,18 +102,19 @@ iox_roudi_executable_files = [
 cc_library(
     name = "iceoryx_posh",
     srcs = glob(
-               [
-                   "source/log/**",
-                   "source/capro/**",
-                   "source/error_handling/**",
-                   "source/mepoo/**",
-                   "source/popo/**",
-                   "source/version/**",
-                   "source/runtime/**",
-               ],
-               exclude = iceory_posh_config_files,
-           ) +
-           iceory_posh_extra_roudi_files,
+        [
+            "source/log/**",
+            "source/capro/**",
+            "source/error_handling/**",
+            "source/mepoo/**",
+            "source/popo/**",
+            "source/version/**",
+            "source/runtime/**",
+        ],
+        exclude = iceory_posh_config_files,
+    ) + [
+        "source/posh_error_reporting.cpp",
+    ] + iceory_posh_extra_roudi_files,
     hdrs = glob(["include/**"]) + [
         ":iceoryx_posh_deployment_hpp",
     ],

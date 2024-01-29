@@ -63,7 +63,9 @@ if ($?) { Write-Host "## Running tests (excluding timing_tests)" }
 if ($?) { build\hoofs\test\hoofs_mocktests.exe }
 if ($?) { build\hoofs\test\hoofs_moduletests.exe --gtest_filter="-*TimingTest*:AdaptiveWait*" }
 if ($?) { build\hoofs\test\hoofs_integrationtests.exe }
-if ($?) { build\posh\test\posh_moduletests.exe --gtest_filter="-ChunkHeader_test.ChunkHeaderBinaryCompatibilityCheck:TomlGatewayConfigParser*:IceoryxRoudiApp_test.ConstructorCalledWithArgUniqueIdTwoTimesReturnError:IceoryxRoudiApp_test.ConstructorCalledWithArgVersionSetRunVariableToFalse:ValidTest*:ParseAllMalformedInput*:*TimingTest*:MePooSegment_test.SharedMemoryFileHandleRightsAfterConstructor" }
+if ($?) { build\posh\test\posh_moduletests.exe --gtest_filter="-ChunkHeader_test.ChunkHeaderBinaryCompatibilityCheck:TomlGatewayConfigParser*:IceoryxRoudiApp_test.ConstructorCalledWithArgUniqueIdTwoTimesReturnError:IceoryxRoudiApp_test.ConstructorCalledWithArgVersionSetRunVariableToFalse:ValidTest*:ParseAllMalformedInput*:*TimingTest*:MePooSegment_test.SharedMemoryFileHandleRightsAfterConstructor:PoshRuntimeSingleProcess_test*" }
+# The PoshRuntimeSingleProcess_test brings the system into a state from which it will not recover until the process is terminated
+if ($?) { build\posh\test\posh_moduletests.exe --gtest_filter="PoshRuntimeSingleProcess_test*" }
 if ($?) { build\posh\test\posh_integrationtests.exe --gtest_filter="-ChunkBuildingBlocks_IntegrationTest.TwoHopsThreeThreadsNoSoFi:*TimingTest*" }
 if ($?) { build\binding_c\test\binding_c_moduletests.exe --gtest_filter="-BindingC_Runtime_test.RuntimeNameLengthIsOutOfLimit:BindingC_Runtime_test.RuntimeNameIsNullptr:*TimingTest*" }
 

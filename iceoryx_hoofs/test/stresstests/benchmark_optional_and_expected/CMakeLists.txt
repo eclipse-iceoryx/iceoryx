@@ -30,5 +30,5 @@ include(IceoryxPlatformSettings)
 iox_add_executable(
     TARGET      iox-bm-optional-and-expected
     FILES       ./benchmark_optional_and_expected.cpp
-    LIBS        iceoryx_hoofs::iceoryx_hoofs Threads::Threads
+    LIBS        iceoryx_hoofs::iceoryx_hoofs iceoryx_platform::iceoryx_platform Threads::Threads
 )

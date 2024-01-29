@@ -34,7 +34,7 @@ expected<PublisherOptions, Serialization::Error> PublisherOptions::deserialize(c
     using ConsumerTooSlowPolicyUT = std::underlying_type_t<ConsumerTooSlowPolicy>;
 
     PublisherOptions publisherOptions;
-    ConsumerTooSlowPolicyUT subscriberTooSlowPolicy;
+    ConsumerTooSlowPolicyUT subscriberTooSlowPolicy{};
 
     auto deserializationSuccessful = serialized.extract(publisherOptions.historyCapacity,
                                                         publisherOptions.nodeName,

@@ -27,6 +27,7 @@
 #include "iox/posix_user.hpp"
 
 #include "iceoryx_hoofs/testing/error_reporting/testing_support.hpp"
+#include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "test.hpp"
 
 namespace
@@ -191,9 +192,9 @@ TEST_F(SegmentManager_test, addingMoreThanOneWriterGroupFails)
     SegmentConfig segmentConfig = getInvalidSegmentConfig();
     SUT sut{segmentConfig, &allocator};
 
-    sut.getSegmentMappings(PosixUser("iox_roudi_test1"));
 
-    IOX_TESTING_EXPECT_ERROR(iox::PoshError::MEPOO__USER_WITH_MORE_THAN_ONE_WRITE_SEGMENT);
+    IOX_EXPECT_FATAL_FAILURE([&] { sut.getSegmentMappings(PosixUser("iox_roudi_test1")); },
+                             iox::PoshError::MEPOO__USER_WITH_MORE_THAN_ONE_WRITE_SEGMENT);
 }
 
 TEST_F(SegmentManager_test, addingMaximumNumberOfSegmentsWorks)

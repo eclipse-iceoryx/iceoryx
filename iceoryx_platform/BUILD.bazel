@@ -84,7 +84,7 @@ cc_library(
         ":unix": glob(["unix/include/**"]),
         ":win": glob(["win/include/**"]),
         "//conditions:default": glob(["linux/include/**"]),
-    }) + glob(["generic/**"]) + [
+    }) + glob(["generic/include/**"]) + [
         ":iceoryx_versions_h",
     ],
     includes = select({
@@ -95,7 +95,8 @@ cc_library(
         ":win": ["win/include/**"],
         "//conditions:default": ["linux/include/**"],
     }) + [
-        generic/include
+        "generated/include",
+        "generic/include",
     ],
     linkopts = select({
         ":linux": [

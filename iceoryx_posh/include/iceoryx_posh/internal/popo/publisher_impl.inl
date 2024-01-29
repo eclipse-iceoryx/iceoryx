@@ -38,7 +38,7 @@ template <typename T, typename H, typename BasePublisherType>
 template <typename... Args>
 inline expected<Sample<T, H>, AllocationError> PublisherImpl<T, H, BasePublisherType>::loan(Args&&... args) noexcept
 {
-    return std::move(loanSample().and_then([&](auto& sample) { new (sample.get()) T(std::forward<Args>(args)...); }));
+    return loanSample().and_then([&](auto& sample) { new (sample.get()) T(std::forward<Args>(args)...); });
 }
 
 template <typename T, typename H, typename BasePublisherType>
