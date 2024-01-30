@@ -743,7 +743,7 @@ TEST_F(PublisherSubscriberCommunication_test, PublisherUniqueIdMatchesReceivedSa
     }
 }
 
-#ifdef RUN_BIG_PAYLOAD_TESTS
+#ifdef TEST_WITH_HUGE_PAYLOAD
 
 TEST_F(PublisherSubscriberCommunicationWithBigPayload_test, SendingComplexDataType_BigPayloadStruct)
 {
@@ -755,9 +755,9 @@ TEST_F(PublisherSubscriberCommunicationWithBigPayload_test, SendingComplexDataTy
 
     ASSERT_FALSE(publisher->loan()
                      .and_then([](auto& sample) {
-                         for (uint64_t i = 4242; i < 5353; ++i)
+                         for (uint64_t i = 4095; i < BIG_PAYLOAD_SIZE; i += 4096)
                          {
-                             sample->complexType.bigPayload[i] = static_cast<uint8_t>(i % 256U);
+                             sample->complexType.bigPayload[i] = static_cast<uint8_t>((i / 4096) % 256U);
                          }
                          sample.publish();
                      })
@@ -765,9 +765,10 @@ TEST_F(PublisherSubscriberCommunicationWithBigPayload_test, SendingComplexDataTy
 
     EXPECT_FALSE(subscriber->take()
                      .and_then([](auto& sample) {
-                         for (uint64_t i = 4242; i < 5353; ++i)
+                         for (uint64_t i = 4095; i < BIG_PAYLOAD_SIZE; i += 4096)
                          {
-                             EXPECT_THAT(sample->complexType.bigPayload[i], Eq(static_cast<uint8_t>(i % 256U)));
+                             ASSERT_THAT(sample->complexType.bigPayload[i],
+                                         Eq(static_cast<uint8_t>((i / 4096) % 256U)));
                          }
                      })
                      .has_error());

@@ -482,15 +482,16 @@ TEST_F(ClientServer_test, ClientTakesResponseUnblocksServerSendingResponse)
     EXPECT_THAT(wasResponseSent.load(), Eq(true));
 }
 
-#ifdef RUN_BIG_PAYLOAD_TESTS
+#ifdef TEST_WITH_HUGE_PAYLOAD
 
 TEST_F(BigPayloadClientServer_test, TypedApiWithBigPayloadWithMatchingOptionsWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9838d2dc-bd87-42aa-b581-a9526e35e46a");
 
     constexpr int64_t SEQUENCE_ID{73};
-    constexpr uint64_t START{1337};
-    constexpr uint64_t END{2137};
+    constexpr uint64_t FIRST{4095};
+    constexpr uint64_t LAST{BIG_PAYLOAD_SIZE - 1};
+    constexpr uint64_t STEP{4096};
     constexpr uint8_t SHIFT{13U};
 
     Client<BigPayloadStruct, BigPayloadStruct> client{sd};
@@ -502,9 +503,9 @@ TEST_F(BigPayloadClientServer_test, TypedApiWithBigPayloadWithMatchingOptionsWor
         ASSERT_FALSE(loanResult.has_error());
         auto& request = loanResult.value();
         request.getRequestHeader().setSequenceId(SEQUENCE_ID);
-        for (uint64_t i = START; i < END; ++i)
+        for (uint64_t i = FIRST; i <= LAST; i += STEP)
         {
-            request->bigPayload[i] = static_cast<uint8_t>(i % 256U);
+            request->bigPayload[i] = static_cast<uint8_t>((i / STEP) % 256U);
         }
         ASSERT_FALSE(client.send(std::move(request)).has_error());
     }
@@ -518,7 +519,7 @@ TEST_F(BigPayloadClientServer_test, TypedApiWithBigPayloadWithMatchingOptionsWor
         auto loanResult = server.loan(request);
         ASSERT_FALSE(loanResult.has_error());
         auto& response = loanResult.value();
-        for (uint64_t i = START; i < END; ++i)
+        for (uint64_t i = FIRST; i <= LAST; i += STEP)
         {
             response->bigPayload[i] = request->bigPayload[i] + SHIFT;
         }
@@ -531,13 +532,9 @@ TEST_F(BigPayloadClientServer_test, TypedApiWithBigPayloadWithMatchingOptionsWor
         ASSERT_FALSE(takeResult.has_error());
         auto& response = takeResult.value();
         EXPECT_THAT(response.getResponseHeader().getSequenceId(), Eq(SEQUENCE_ID));
-        for (uint64_t i = START; i < END; ++i)
+        for (uint64_t i = FIRST; i <= LAST; i += STEP)
         {
-            if (response->bigPayload[i] != static_cast<uint8_t>((i % 256U) + SHIFT))
-            {
-                EXPECT_THAT(response->bigPayload[i], Eq(static_cast<uint8_t>((i % 256U) + SHIFT)));
-                break;
-            }
+            ASSERT_THAT(response->bigPayload[i], Eq(static_cast<uint8_t>(((i / STEP) % 256U) + SHIFT)));
         }
     }
 }
@@ -547,8 +544,9 @@ TEST_F(BigPayloadClientServer_test, UntypedApiWithBigPayloadWithMatchingOptionsW
     ::testing::Test::RecordProperty("TEST_ID", "3c784d7f-6fe8-2137-b267-7f3e70a307f3");
 
     constexpr int64_t SEQUENCE_ID{37};
-    constexpr uint64_t START{1337};
-    constexpr uint64_t END{2137};
+    constexpr uint64_t FIRST{4095};
+    constexpr uint64_t LAST{BIG_PAYLOAD_SIZE - 1};
+    constexpr uint64_t STEP{4096};
     constexpr uint8_t SHIFT{13U};
 
     UntypedClient client{sd};
@@ -560,9 +558,9 @@ TEST_F(BigPayloadClientServer_test, UntypedApiWithBigPayloadWithMatchingOptionsW
         ASSERT_FALSE(loanResult.has_error());
         auto request = static_cast<BigPayloadStruct*>(loanResult.value());
         RequestHeader::fromPayload(request)->setSequenceId(SEQUENCE_ID);
-        for (uint64_t i = START; i < END; ++i)
+        for (uint64_t i = FIRST; i <= LAST; i += STEP)
         {
-            request->bigPayload[i] = static_cast<uint8_t>(i % 256U);
+            request->bigPayload[i] = static_cast<uint8_t>((i / STEP) % 256U);
         }
         ASSERT_FALSE(client.send(request).has_error());
     }
@@ -577,7 +575,7 @@ TEST_F(BigPayloadClientServer_test, UntypedApiWithBigPayloadWithMatchingOptionsW
             server.loan(RequestHeader::fromPayload(request), sizeof(BigPayloadStruct), alignof(BigPayloadStruct));
         ASSERT_FALSE(loanResult.has_error());
         auto response = static_cast<BigPayloadStruct*>(loanResult.value());
-        for (uint64_t i = START; i < END; ++i)
+        for (uint64_t i = FIRST; i <= LAST; i += STEP)
         {
             response->bigPayload[i] = request->bigPayload[i] + SHIFT;
         }
@@ -591,13 +589,9 @@ TEST_F(BigPayloadClientServer_test, UntypedApiWithBigPayloadWithMatchingOptionsW
         ASSERT_FALSE(takeResult.has_error());
         auto response = static_cast<const BigPayloadStruct*>(takeResult.value());
         EXPECT_THAT(ResponseHeader::fromPayload(response)->getSequenceId(), Eq(SEQUENCE_ID));
-        for (uint64_t i = START; i < END; ++i)
+        for (uint64_t i = FIRST; i <= LAST; i += STEP)
         {
-            if (response->bigPayload[i] != static_cast<uint8_t>((i % 256U) + SHIFT))
-            {
-                EXPECT_THAT(response->bigPayload[i], Eq(static_cast<uint8_t>((i % 256U) + SHIFT)));
-                break;
-            }
+            ASSERT_THAT(response->bigPayload[i], Eq(static_cast<uint8_t>(((i / STEP) % 256U) + SHIFT)));
         }
         client.releaseResponse(response);
     }
