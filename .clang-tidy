@@ -21,7 +21,6 @@ concurrency-*,
 performance-*,
 hicpp-*,
 
--cppcoreguidelines-avoid-do-while
 -cppcoreguidelines-non-private-member-variables-in-classes,
 
 -hicpp-named-parameter,
@@ -42,9 +41,6 @@ hicpp-*,
 
 ### Temporarily disabled because massive API changes:
 # * rule: readability-identifier-naming
-# * rule: cppcoreguidelines-avoid-do-while -> the new error handling uses 'do{} while(false)' loops
-#                                             for the macros to enforce a semicolon at the end;
-#                                             can be activated again if we find a better solution
 
 ### Justifications for deactivated rules
 # * rule: readability-avoid-const-params-in-decls

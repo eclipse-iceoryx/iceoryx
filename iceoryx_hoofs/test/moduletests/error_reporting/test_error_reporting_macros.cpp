@@ -29,8 +29,6 @@
 
 namespace
 {
-
-// NOLINTBEGIN(cppcoreguidelines-avoid-do-while) bad rule, disable globally
 using namespace ::testing;
 using namespace iox::er;
 using namespace iox::testing;
@@ -247,6 +245,5 @@ TEST_F(ErrorReportingMacroApi_test, panicAtUnreachableCode)
 
     IOX_TESTING_EXPECT_PANIC();
 }
-// NOLINTEND(cppcoreguidelines-avoid-do-while)
 
 } // namespace
