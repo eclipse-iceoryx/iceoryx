@@ -56,46 +56,15 @@ inline bool SpscFifo<ValueType, Capacity>::push(const ValueType& value) noexcept
 template <class ValueType, uint64_t Capacity>
 inline bool SpscFifo<ValueType, Capacity>::is_full() const noexcept
 {
-    auto [readPos, writePos] = get_read_write_positions();
-    return writePos == readPos + Capacity;
+    return m_writePos.load(std::memory_order_relaxed) == m_readPos.load(std::memory_order_relaxed) + Capacity;
 }
+
 
 template <class ValueType, uint64_t Capacity>
 inline uint64_t SpscFifo<ValueType, Capacity>::size() const noexcept
 {
-    auto [readPos, writePos] = get_read_write_positions();
-    return writePos - readPos;
+    return m_writePos.load(std::memory_order_relaxed) - m_readPos.load(std::memory_order_relaxed);
 }
-
-template <class ValueType, uint64_t Capacity>
-inline std::pair<uint64_t, uint64_t> SpscFifo<ValueType, Capacity>::get_read_write_positions() const noexcept
-{
-    uint64_t readPos{0};
-    uint64_t writePos{0};
-    do
-    {
-        readPos = m_readPos.load(std::memory_order_relaxed);
-        writePos = m_writePos.load(std::memory_order_relaxed);
-
-        // These checks are needed to make sure the result is consistent (but not necessarily
-        // up-to-date), otherwise the following scenario could happen (e.g. with the size() method):
-        // 1. We read m_writePos = 5
-        // 2. The OS puts the thread A to sleep
-        // 3. Other threads continue to call push and pop
-        // 4. New state m_writePos == 8, m_readPos == 6
-        // 5. The OS schedules again thread A and we read m_readPos = 6
-        // 6. We calculate 5 - 6 == -1  => overflow in uint64_t and size() returns
-        // 18446744073709551615
-        // 7. Another algorithm may depend on the reasonable argument that the size is always less or
-        // equal capacity it may lead to weird bugs.
-        // Note: it is still possible to return a size that is not up-to-date anymore but at least
-        // this size is logically valid
-    } while (m_writePos.load(std::memory_order_relaxed) != writePos
-             || m_readPos.load(std::memory_order_relaxed) != readPos);
-
-    return {readPos, writePos};
-}
-
 template <class ValueType, uint64_t Capacity>
 inline constexpr uint64_t SpscFifo<ValueType, Capacity>::capacity() noexcept
 {
@@ -105,31 +74,31 @@ inline constexpr uint64_t SpscFifo<ValueType, Capacity>::capacity() noexcept
 template <class ValueType, uint64_t Capacity>
 inline bool SpscFifo<ValueType, Capacity>::empty() const noexcept
 {
-    auto [readPos, writePos] = get_read_write_positions();
-    return readPos == writePos;
+    return m_readPos.load(std::memory_order_relaxed) == m_writePos.load(std::memory_order_relaxed);
 }
+
 
 template <class ValueType, uint64_t Capacity>
 inline optional<ValueType> SpscFifo<ValueType, Capacity>::pop() noexcept
 {
     // Memory order relaxed is enough since:
     // - there is no concurrent access to this method
-    // - the load statement cannot be reordered with the is_empty check otherwise it would not
+    // - the load statement cannot be reordered with the isEmpty check otherwise it would not
     // compile
-    auto current_readPos = m_readPos.load(std::memory_order_relaxed);
+    auto currentReadPos = m_readPos.load(std::memory_order_relaxed);
 
-    bool is_empty = (current_readPos ==
+    bool isEmpty = (currentReadPos ==
                      // SYNC POINT READ: m_data
                      // See explanation of the corresponding sync point.
                      // As a consequence, we are not allowed to use the empty method
                      // since we have to sync with m_writePos in the push method
                      m_writePos.load(std::memory_order_acquire));
-    if (is_empty)
+    if (isEmpty)
     {
         return nullopt_t();
     }
 
-    ValueType out = m_data[current_readPos % Capacity];
+    ValueType out = m_data[currentReadPos % Capacity];
 
     // We need to make sure that reading the value happens before incrementing the m_readPos
     // otherwise the following can happen:
@@ -148,7 +117,7 @@ inline optional<ValueType> SpscFifo<ValueType, Capacity>::pop() noexcept
     // - reading m_data to happen after the fence (rel)
     // - incrementing m_readPos before the fence (acq)
     std::atomic_thread_fence(std::memory_order::memory_order_acq_rel);
-    m_readPos.store(current_readPos + 1, std::memory_order_relaxed);
+    m_readPos.store(currentReadPos + 1, std::memory_order_relaxed);
     return out;
 }
 } // namespace concurrent

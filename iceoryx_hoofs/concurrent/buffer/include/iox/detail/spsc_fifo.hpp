@@ -28,41 +28,40 @@ namespace iox
 namespace concurrent
 {
 /// @brief single producer single consumer thread safe fifo
-/// @note there are at most one push and one pop threads that can work concurrently on the fifo
+/// @note there is only one push and one pop thread that can work on the FIFO without additional synchronization
+/// mechanisms like transferring the authorization to push to a third thread
 template <typename ValueType, uint64_t Capacity>
 class SpscFifo
 {
   public:
     /// @brief pushes a value into the fifo
-    /// @note restricted thread-safe: can be called from different threads but not concurrently (i.e.
-    /// simultaneously)
+    /// @note restricted thread-safe: can only be accessed from one thread. The authorization to push into the FIFO can
+    /// be transferred to another thread if appropriate synchronization mechanisms are used.
     /// @return if the value was pushed successfully into the fifo, returns
     ///         true, otherwise false
     bool push(const ValueType& value) noexcept;
 
     /// @brief returns the oldest value from the fifo and removes it
-    /// @note restricted thread-safe: can be called from different threads but not concurrently (i.e.
-    /// simultaneously)
+    /// @note restricted thread-safe: can only be accessed from one thread. The authorization to pop into the FIFO can
+    /// be transferred to another thread if appropriate synchronization mechanisms are used.
     /// @return if the fifo was not empty, the optional contains the value,
     ///         otherwise it contains a nullopt
     optional<ValueType> pop() noexcept;
 
     /// @brief returns true when the fifo is empty, otherwise false
-    /// @note thread safe (the result might already be outdated when used)
+    /// @note thread safe (the result might already be outdated when used). Expected to be called from either the push or the pop thread but not from a third thread
     bool empty() const noexcept;
 
     /// @brief returns the size of the fifo
-    /// @note thread safe (the result might already be outdated when used)
+    /// @note thread safe (the result might already be outdated when used). Expected to be called from either the push or the pop thread but not from a third thread
     uint64_t size() const noexcept;
 
     /// @brief returns the capacity of the fifo
     static constexpr uint64_t capacity() noexcept;
 
   private:
-    // thread safe (the result might already be outdated when used)
+    // thread safe (the result might already be outdated when used). Expected to be called from either the push or the pop thread but not from a third thread
     bool is_full() const noexcept;
-    std::pair<uint64_t, uint64_t> get_read_write_positions() const noexcept;
-
 
   private:
     UninitializedArray<ValueType, Capacity> m_data;
