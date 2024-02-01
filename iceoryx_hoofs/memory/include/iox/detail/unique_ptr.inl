@@ -28,7 +28,7 @@ inline unique_ptr<T>::unique_ptr(T* const object, const function<DeleterType>& d
     : m_ptr(object)
     , m_deleter(deleter)
 {
-    IOX_ENSURES(object != nullptr);
+    IOX_ENFORCE(object != nullptr, "parameter must not be a 'nullptr'");
 }
 
 template <typename T>
@@ -61,7 +61,7 @@ inline unique_ptr<T>::~unique_ptr() noexcept
 template <typename T>
 inline T* unique_ptr<T>::operator->() noexcept
 {
-    IOX_EXPECTS(m_ptr != nullptr);
+    IOX_ENFORCE(m_ptr != nullptr, "should not happen unless src is incorrectly used after move");
     return get();
 }
 
@@ -98,10 +98,18 @@ inline T* unique_ptr<T>::release(unique_ptr&& ptrToBeReleased) noexcept
 template <typename T>
 inline void unique_ptr<T>::destroy() noexcept
 {
+#if (defined(__GNUC__) && __GNUC__ >= 11 && __GNUC__ <= 12 && !defined(__clang__))
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
     if (m_ptr != nullptr)
     {
         m_deleter(m_ptr);
     }
+#if (defined(__GNUC__) && __GNUC__ >= 11 && __GNUC__ <= 12 && !defined(__clang__))
+#pragma GCC diagnostic pop
+#endif
+
     m_ptr = nullptr;
 }
 
