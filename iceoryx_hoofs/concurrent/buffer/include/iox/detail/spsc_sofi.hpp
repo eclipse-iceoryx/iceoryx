@@ -25,28 +25,36 @@
 #include <atomic>
 #include <cstdint>
 #include <cstring>
+#include <utility>
 
 namespace iox
 {
 namespace concurrent
 {
-/// @brief
-/// Thread safe producer and consumer queue with a safe overflowing behavior.
-/// SpscSofi is designed in a FIFO Manner but prevents data loss when pushing into
-/// a full SpscSofi. When SpscSofi is full and a Sender tries to push, the data at the
-/// current read position will be returned. SpscSofi is threadsafe without using
-/// locks. When the buffer is filled, new data is written starting at the
-/// beginning of the buffer and overwriting the old.The SpscSofi is especially
-/// designed to provide fixed capacity storage. When its capacity is exhausted,
-/// newly inserted elements will cause elements either at the beginning
-/// to be overwritten.The SpscSofi only allocates memory when
-/// created , capacity can be is adjusted explicitly.
-///
+/// @brief Thread safe (without locks) single producer and single consumer queue with a safe
+/// overflowing behavior
+/// @note When SoFi is full and a sender tries to push, the data at the current read pos will be
+/// returned. This behavior mimics a FiFo queue but prevents data loss when pushing into
+/// a full SoFi.
+/// SoFi is especially designed to provide fixed capacity storage.
+/// SoFi only allocates memory when created, capacity can be adjusted explicitly.
+/// @example
+/// It's an expected behavior that when push/pop are called concurrently and SoFi is full, 2
+/// elements can be removed
+/// 0: Initial situation:
+///    |--1--|--2--|
+/// 1. Thread 1 pushes a new element. Since it is an overflowing situation, the overwritten value is
+/// removed and returned to the caller
+///    |--3--|--2--|
+/// 2. Right before push() returns, pop() detects that an element is about to be removed, and remove
+/// the next element
+///    |--3--|----|
 /// @param[in] ValueType        DataType to be stored, must be trivially copyable
 /// @param[in] CapacityValue    Capacity of the SpscSofi
 template <class ValueType, uint64_t CapacityValue>
 class SpscSofi
 {
+    // We need to make sure that the copy operation doesn't have any logic
     static_assert(std::is_trivially_copyable<ValueType>::value,
                   "SpscSofi can handle only trivially copyable data types");
     /// @brief Check if Atomic integer is lockfree on platform
@@ -55,87 +63,68 @@ class SpscSofi
     /// ATOMIC_INT_LOCK_FREE = 0 - is never lockfree
     static_assert(2 <= ATOMIC_INT_LOCK_FREE, "SpscSofi is not able to run lock free on this data type");
 
-    /// @brief Internal size needs to be bigger than the size desirred by the user
-    /// This is because of buffer empty detection and overflow handling
-    static constexpr uint32_t INTERNAL_SIZE_ADD_ON = 1;
+    // A limitation of the current implementation (first write and then read in the push() method) is
+    // that the internal capacity needs to be larger than the capacity desired by the user to fulfill
+    // the contract that the SoFi should always be able to store at least CapacityValue elements.
+    // ========================================================================
+    // Consider the following scenario when there is no "capacity add-on":
+    // 1. CapacityValue = 2
+    //    |--1--|--2--|
+    //    ^
+    //    w=2, r=0
+    // 2. We want to push a new element:
+    //     - we first write at index 2 % size
+    //     - we detect that the queue if full so we want to read at r=0
+    //     - we cannot read anymore the value since we've just overwritten it
+    // ========================================================================
+    // With "capacity add-on"
+    // 1. CapacityValue = 2, InternalCapacity = 3
+    //    |--1--|--2--|----|
+    //    ^           ^
+    //    r=0        w=2
+    // 2. We want to push a new element:
+    //     - we first write at index 2 % size
+    //     - we detect that the queue if full so we want to read at r=0
+    //     - we set value_out to the value read
+    //   |--1--|--2--|--3--|
+    //   ^     ^
+    //   w=3  r=1
+    // ========================================================================
+    static constexpr uint32_t INTERNAL_CAPACITY_ADDON = 1;
 
-    /// @brief This is the resulting internal size on creation
-    static constexpr uint32_t INTERNAL_SPSC_SOFI_SIZE = CapacityValue + INTERNAL_SIZE_ADD_ON;
+    /// @brief Internal capacity of the queue at creation
+    static constexpr uint32_t INTERNAL_SPSC_SOFI_CAPACITY = CapacityValue + INTERNAL_CAPACITY_ADDON;
 
   public:
     /// @brief default constructor which constructs an empty sofi
     SpscSofi() noexcept = default;
 
-    /// @brief pushs an element into SpscSofi. if SpscSofi is full the oldest data will be
+    /// @brief push an element into sofi. if sofi is full the oldest data will be
     ///         returned and the pushed element is stored in its place instead.
-    /// @param[in] valueIn value which should be stored
-    /// @param[out] valueOut if SpscSofi is overflowing  the value of the overridden value
+    /// @param[in] value_in value which should be stored
+    /// @param[out] value_out if sofi is overflowing  the value of the overridden value
     ///                      is stored here
-    /// @concurrent restricted thread safe: single pop, single push no
-    ///             push calls from multiple contexts
-    /// @return return true if push was sucessfull else false.
+    /// @note restricted thread safe: can only be called from one thread
+    /// @return return true if push was successful else false.
     /// @code
-    /// (initial situation, SpscSofi is FULL)
-    ///     Start|-----A-------|
-    ///                        |-----B-------|
-    ///                                      |-----C-------|
-    ///                                                    |-----D-------|
-    ///
-    ///
-    /// (calling push with data ’E’)
-    ///     Start|-----E-------|
-    ///                        |-----A-------|
-    ///                                      |-----B-------|
-    ///                                                    |-----C-------|
-    ///                                     (’D’ is returned as valueOut)
-    ///
-    /// ###################################################################
-    ///
-    /// (if SpscSofi is not FULL , calling push() add new data)
-    ///     Start|-------------|
-    ///                        |-------------|  ( Initial SpscSofi )
-    ///  (push() Called two times)
-    ///
-    ///                                      |-------------|
-    ///                                      (New Data)
-    ///                                                     |-------------|
-    ///                                                      (New Data)
-    /// @endcode
+    /// 1. sofi is empty    |-----|-----|
+    /// 2. push an element  |--A--|-----|
+    /// 3. push an element  |--A--|--B--|
+    /// 5. sofi is full
+    /// 6. push an element  |--C--|--B--| -> value_out is set to 'A'
     bool push(const ValueType& valueIn, ValueType& valueOut) noexcept;
 
     /// @brief pop the oldest element
     /// @param[out] valueOut storage of the pop'ed value
-    /// @concurrent restricted thread safe: single pop, single push no
-    ///             pop or popIf calls from multiple contexts
+    /// @concurrent restricted thread safe: can only be called from one thread
     /// @return false if SpscSofi is empty, otherwise true
     bool pop(ValueType& valueOut) noexcept;
-
-    /// @brief conditional pop call to provide an alternative for a peek
-    ///         and pop approach. If the verificator returns true the
-    ///         peeked element is returned.
-    /// @param[out] valueOut storage of the pop'ed value
-    /// @param[in] verificator callable of type bool(const ValueType& peekValue)
-    ///             which takes the value which would be pop'ed as argument and returns
-    ///             true if it should be pop'ed, otherwise false
-    /// @code
-    ///     int limit = 7128;
-    ///     mysofi.popIf(value, [=](const ValueType & peek)
-    ///         {
-    ///             return peek < limit; // pop only when peek is smaller than limit
-    ///         }
-    ///     ); // pop's a value only if it is smaller than 9012
-    /// @endcode
-    /// @concurrent restricted thread safe: single pop, single push no
-    ///             pop or popIf calls from multiple contexts
-    /// @return false if SpscSofi is empty or when verificator returns false, otherwise true
-    template <typename Verificator_T>
-    bool popIf(ValueType& valueOut, const Verificator_T& verificator) noexcept;
 
     /// @brief returns true if SpscSofi is empty, otherwise false
     /// @note the use of this function is limited in the concurrency case. if you
     ///         call this and in another thread pop is called the result can be out
     ///         of date as soon as you require it
-    /// @concurrent unrestricted thread safe
+    /// @concurrent unrestricted thread safe (the result might already be outdated when used)
     bool empty() const noexcept;
 
     /// @brief resizes SpscSofi
@@ -150,15 +139,15 @@ class SpscSofi
     uint64_t capacity() const noexcept;
 
     /// @brief returns the current size of SpscSofi
-    /// @concurrent unrestricted thread safe
+    /// @concurrent unrestricted thread safe (the result might already be outdated when used)
     uint64_t size() const noexcept;
 
   private:
-    UninitializedArray<ValueType, INTERNAL_SPSC_SOFI_SIZE> m_data;
-    uint64_t m_size = INTERNAL_SPSC_SOFI_SIZE;
+    std::pair<uint64_t, uint64_t> getReadWritePositions() const noexcept;
 
-    /// @brief the write/read pointers are "atomic pointers" so that they are not
-    /// reordered (read or written too late)
+    UninitializedArray<ValueType, INTERNAL_SPSC_SOFI_CAPACITY> m_data;
+    uint64_t m_size = INTERNAL_SPSC_SOFI_CAPACITY;
+
     std::atomic<uint64_t> m_readPosition{0};
     std::atomic<uint64_t> m_writePosition{0};
 };
