@@ -1,6 +1,7 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 // Copyright (c) 2023 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
+// Copyright (c) 2024 by Bartlomiej Kozaryna <kozarynabartlomiej@gmail.com>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -49,7 +50,8 @@ MemPool::MemPool(const greater_or_equal<uint64_t, CHUNK_MEMORY_ALIGNMENT> chunkS
 {
     if (isMultipleOfAlignment(chunkSize))
     {
-        IOX_EXPECTS(m_chunkSize <= std::numeric_limits<uint64_t>::max() / m_numberOfChunks);
+        IOX_EXPECTS_WITH_MSG(m_chunkSize <= std::numeric_limits<uint64_t>::max() / m_numberOfChunks,
+                             "Chunk size * number of chunks must not exceed the maximum value of uint64_t!");
         auto allocationResult = chunkMemoryAllocator.allocate(static_cast<uint64_t>(m_numberOfChunks) * m_chunkSize,
                                                               CHUNK_MEMORY_ALIGNMENT);
         IOX_EXPECTS(allocationResult.has_value());

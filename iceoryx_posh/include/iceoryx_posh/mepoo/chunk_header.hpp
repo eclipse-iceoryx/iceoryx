@@ -1,5 +1,6 @@
 // Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2024 by Bartlomiej Kozaryna <kozarynabartlomiej@gmail.com>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -152,7 +153,8 @@ struct ChunkHeader
   private:
     // the order of these members must be changed carefully and if this happens, the m_chunkHeaderVersion
     // needs to be adapted in order to be able to detect incompatibilities between publisher/subscriber
-    // or record&replay, m_chunkHeaderVersion should therefore neither changed the type, nor the position
+    // or record&replay, m_chunkHeaderVersion should therefore neither changed the type,
+    // nor the position (offset from the beginning)
 
     uint32_t m_userHeaderSize{0U};
     uint8_t m_chunkHeaderVersion{CHUNK_HEADER_VERSION};
