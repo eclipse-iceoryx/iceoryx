@@ -28,6 +28,7 @@
 #include "iceoryx_posh/popo/trigger_handle.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iox/algorithm.hpp"
+#include "iox/assertions.hpp"
 #include "iox/function.hpp"
 #include "iox/function_ref.hpp"
 #include "iox/stack.hpp"

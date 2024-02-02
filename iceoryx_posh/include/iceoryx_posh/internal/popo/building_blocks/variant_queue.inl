@@ -204,8 +204,7 @@ inline bool VariantQueue<ValueType, Capacity>::setCapacity(const uint64_t newCap
     case VariantQueueTypes::FiFo_SingleProducerSingleConsumer:
     {
         /// @todo iox-#1147 must be implemented for FiFo
-        IOX_EXPECTS(false);
-        return false;
+        IOX_PANIC("'setCapacity' for 'SpscFifo' is not yet implemented");
     }
     case VariantQueueTypes::SoFi_SingleProducerSingleConsumer:
     {

@@ -18,6 +18,8 @@
 #define IOX_POSH_MOCKS_POSH_RUNTIME_MOCK_HPP
 
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iox/assertions.hpp"
+
 #include <gmock/gmock.h>
 
 using namespace ::testing;
@@ -28,10 +30,10 @@ class PoshRuntimeMock : public iox::runtime::PoshRuntime
     static std::unique_ptr<PoshRuntimeMock> create(const iox::RuntimeName_t& name)
     {
         auto& runtime = mockRuntime();
-        IOX_EXPECTS_WITH_MSG(!runtime.has_value(), "Using multiple PoshRuntimeMock in parallel is not supported!");
-        IOX_EXPECTS_WITH_MSG(PoshRuntime::getRuntimeFactory() == PoshRuntime::defaultRuntimeFactory,
-                             "The PoshRuntimeMock can only be used in combination with the "
-                             "PoshRuntime::defaultRuntimeFactory! Someone else already switched the factory!");
+        IOX_ENFORCE(!runtime.has_value(), "Using multiple PoshRuntimeMock in parallel is not supported!");
+        IOX_ENFORCE(PoshRuntime::getRuntimeFactory() == PoshRuntime::defaultRuntimeFactory,
+                    "The PoshRuntimeMock can only be used in combination with the "
+                    "PoshRuntime::defaultRuntimeFactory! Someone else already switched the factory!");
 
         runtime = new PoshRuntimeMock(name);
         PoshRuntime::setRuntimeFactory(mockRuntimeFactory);
@@ -88,9 +90,8 @@ class PoshRuntimeMock : public iox::runtime::PoshRuntime
     static PoshRuntime& mockRuntimeFactory(iox::optional<const iox::RuntimeName_t*> name) noexcept
     {
         auto& runtime = mockRuntime();
-        IOX_EXPECTS_WITH_MSG(!name.has_value(), "PoshRuntime::initRuntime must not be used with a PoshRuntimeMock!");
-        IOX_EXPECTS_WITH_MSG(runtime.has_value(),
-                             "This should never happen! If you see this, something went horribly wrong!");
+        IOX_ENFORCE(!name.has_value(), "PoshRuntime::initRuntime must not be used with a PoshRuntimeMock!");
+        IOX_ENFORCE(runtime.has_value(), "This should never happen! If you see this, something went horribly wrong!");
         return *runtime.value();
     }
 

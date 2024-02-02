@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/popo/listener.hpp"
+#include "iox/assertions.hpp"
 
 namespace iox
 {
@@ -92,7 +93,7 @@ bool Listener::IndexManager_t::pop(uint32_t& value) noexcept
 
 void Listener::IndexManager_t::push(const uint32_t index) noexcept
 {
-    IOX_EXPECTS(m_loffli.push(index));
+    IOX_ENFORCE(m_loffli.push(index), "Releasing used index back to free list");
     --m_indicesInUse;
 }
 

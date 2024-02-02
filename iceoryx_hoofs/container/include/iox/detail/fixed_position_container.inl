@@ -286,7 +286,7 @@ FixedPositionContainer<T, CAPACITY>::emplace(Targs&&... args) noexcept
     }
     else
     {
-        IOX_ENSURES_WITH_MSG(index != 0, "Corruption detected!");
+        IOX_ENFORCE(index != 0, "Corruption detected!");
         for (auto i = static_cast<IndexType>(index - 1U);; --i)
         {
             if (m_status[i] == SlotStatus::USED)
@@ -295,7 +295,7 @@ FixedPositionContainer<T, CAPACITY>::emplace(Targs&&... args) noexcept
                 m_next[i] = index;
                 break;
             }
-            IOX_ENSURES_WITH_MSG(i != 0, "Corruption detected!");
+            IOX_ENFORCE(i != 0, "Corruption detected!");
         }
     }
 
@@ -307,9 +307,9 @@ inline typename FixedPositionContainer<T, CAPACITY>::Iterator
 // NOLINTNEXTLINE(readability-function-size) The branch-threshold is only violated due to hidden branches in the error handler macros which do not decrease readability
 FixedPositionContainer<T, CAPACITY>::erase(const IndexType index) noexcept
 {
-    IOX_EXPECTS_WITH_MSG(index <= Index::LAST, "Index out of range");
+    IOX_ENFORCE(index <= Index::LAST, "Index out of range");
 
-    IOX_ENSURES_WITH_MSG(m_status[index] == SlotStatus::USED, "Trying to erase from index pointing to an empty slot!");
+    IOX_ENFORCE(m_status[index] == SlotStatus::USED, "Trying to erase from index pointing to an empty slot!");
 
     const auto it = Iterator{m_next[index], *this};
 
@@ -442,7 +442,7 @@ FixedPositionContainer<T, CAPACITY>::erase(const IndexType index) noexcept
         return it;
     }
 
-    IOX_ENSURES_WITH_MSG(index != 0, "Corruption detected! Index cannot be 0 at this location!");
+    IOX_ENFORCE(index != 0, "Corruption detected! Index cannot be 0 at this location!");
     for (auto i = static_cast<IndexType>(index - 1U); !is_removed_from_used_list || !is_added_to_free_list; --i)
     {
         if (!is_removed_from_used_list && m_status[i] == SlotStatus::USED)
@@ -463,8 +463,8 @@ FixedPositionContainer<T, CAPACITY>::erase(const IndexType index) noexcept
             break;
         }
     }
-    IOX_ENSURES_WITH_MSG(is_removed_from_used_list && is_added_to_free_list,
-                         "Corruption detected! The container is in a corrupt state!");
+    IOX_ENFORCE(is_removed_from_used_list && is_added_to_free_list,
+                "Corruption detected! The container is in a corrupt state!");
 
     return it;
 }
@@ -473,15 +473,15 @@ template <typename T, uint64_t CAPACITY>
 inline typename FixedPositionContainer<T, CAPACITY>::Iterator
 FixedPositionContainer<T, CAPACITY>::erase(const T* ptr) noexcept
 {
-    IOX_EXPECTS_WITH_MSG(ptr != nullptr, "Pointer is a nullptr!");
+    IOX_ENFORCE(ptr != nullptr, "Pointer is a nullptr!");
 
     const T* const firstElement = &m_data[0];
-    IOX_EXPECTS_WITH_MSG(ptr >= firstElement, "Pointer pointing out of the container!");
+    IOX_ENFORCE(ptr >= firstElement, "Pointer pointing out of the container!");
 
     const auto index = static_cast<IndexType>(ptr - firstElement);
-    IOX_EXPECTS_WITH_MSG(index <= Index::LAST, "Pointer pointing out of the container!");
+    IOX_ENFORCE(index <= Index::LAST, "Pointer pointing out of the container!");
 
-    IOX_EXPECTS_WITH_MSG(ptr == &m_data[index], "Pointer is not aligned to an element in the container!");
+    IOX_ENFORCE(ptr == &m_data[index], "Pointer is not aligned to an element in the container!");
 
     // NOTE: if the implementation changes from simply forwarding to 'erase(IndexType)' tests need to be written
     return erase(index);
@@ -491,7 +491,7 @@ template <typename T, uint64_t CAPACITY>
 inline typename FixedPositionContainer<T, CAPACITY>::Iterator
 FixedPositionContainer<T, CAPACITY>::erase(Iterator it) noexcept
 {
-    IOX_EXPECTS_WITH_MSG(it.origins_from(*this), "Iterator belongs to a different container!");
+    IOX_ENFORCE(it.origins_from(*this), "Iterator belongs to a different container!");
 
     // NOTE: if the implementation changes from simply forwarding to 'erase(IndexType)' tests need to be written
     return erase(it.to_index());
@@ -501,7 +501,7 @@ template <typename T, uint64_t CAPACITY>
 inline typename FixedPositionContainer<T, CAPACITY>::ConstIterator
 FixedPositionContainer<T, CAPACITY>::erase(ConstIterator it) noexcept
 {
-    IOX_EXPECTS_WITH_MSG(it.origins_from(*this), "Iterator belongs to a different container!");
+    IOX_ENFORCE(it.origins_from(*this), "Iterator belongs to a different container!");
 
     // NOTE: if the implementation changes from simply forwarding to 'erase(IndexType)' tests need to be written
     return erase(it.to_index());

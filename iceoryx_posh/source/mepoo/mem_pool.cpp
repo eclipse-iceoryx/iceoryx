@@ -18,8 +18,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
-
 #include "iceoryx_posh/internal/posh_error_reporting.hpp"
+#include "iox/assertions.hpp"
 
 #include <algorithm>
 
@@ -50,17 +50,16 @@ MemPool::MemPool(const greater_or_equal<uint64_t, CHUNK_MEMORY_ALIGNMENT> chunkS
 {
     if (isMultipleOfAlignment(chunkSize))
     {
-        IOX_EXPECTS_WITH_MSG(m_chunkSize <= std::numeric_limits<uint64_t>::max() / m_numberOfChunks,
-                             "Chunk size * number of chunks must not exceed the maximum value of uint64_t!");
-        auto allocationResult = chunkMemoryAllocator.allocate(static_cast<uint64_t>(m_numberOfChunks) * m_chunkSize,
-                                                              CHUNK_MEMORY_ALIGNMENT);
-        IOX_EXPECTS(allocationResult.has_value());
-        m_rawMemory = static_cast<uint8_t*>(allocationResult.value());
+        IOX_ENFORCE(m_chunkSize <= std::numeric_limits<uint64_t>::max() / m_numberOfChunks,
+                    "Chunk size * number of chunks must not exceed the maximum value of uint64_t!");
 
-        allocationResult =
-            managementAllocator.allocate(freeList_t::requiredIndexMemorySize(m_numberOfChunks), CHUNK_MEMORY_ALIGNMENT);
-        IOX_EXPECTS(allocationResult.has_value());
-        auto* memoryFreeList = allocationResult.value();
+        m_rawMemory = static_cast<uint8_t*>(
+            chunkMemoryAllocator.allocate(static_cast<uint64_t>(m_numberOfChunks) * m_chunkSize, CHUNK_MEMORY_ALIGNMENT)
+                .expect("Allocating raw memory for 'MemPool'"));
+
+        auto* memoryFreeList =
+            managementAllocator.allocate(freeList_t::requiredIndexMemorySize(m_numberOfChunks), CHUNK_MEMORY_ALIGNMENT)
+                .expect("Allocating free list memory for 'MemPool'");
         m_freeIndices.init(static_cast<freeList_t::Index_t*>(memoryFreeList), m_numberOfChunks);
     }
     else
@@ -114,7 +113,14 @@ MemPool::pointerToIndex(const void* const chunk, const uint64_t chunkSize, const
 {
     const auto offset =
         static_cast<uint64_t>(static_cast<const uint8_t*>(chunk) - static_cast<const uint8_t*>(rawMemoryBase));
-    IOX_EXPECTS(offset % chunkSize == 0);
+    if (offset % chunkSize != 0)
+    {
+        IOX_LOG(FATAL,
+                "Trying to convert a pointer to an index which is not aligned to the array! Base address: "
+                    << iox::log::hex(rawMemoryBase) << "; item size: " << chunkSize
+                    << "; pointer address: " << iox::log::hex(chunk));
+        IOX_PANIC("Invalid access");
+    }
 
     const auto index = static_cast<uint32_t>(offset / chunkSize);
     return index;
@@ -122,10 +128,26 @@ MemPool::pointerToIndex(const void* const chunk, const uint64_t chunkSize, const
 
 void MemPool::freeChunk(const void* chunk) noexcept
 {
+    const auto memPoolStartAddress = m_rawMemory.get();
     const auto offsetToLastChunk = m_chunkSize * (m_numberOfChunks - 1U);
-    IOX_EXPECTS(m_rawMemory.get() <= chunk && chunk <= static_cast<uint8_t*>(m_rawMemory.get()) + offsetToLastChunk);
+    if (chunk < memPoolStartAddress)
+    {
+        IOX_LOG(FATAL,
+                "Try to free chunk with address " << iox::log::hex(chunk) << " while the memory pool starts at address "
+                                                  << iox::log::hex(memPoolStartAddress));
+        IOX_PANIC("Invalid chunk to free");
+    }
 
-    const auto index = pointerToIndex(chunk, m_chunkSize, m_rawMemory.get());
+    if (chunk > static_cast<uint8_t*>(memPoolStartAddress) + offsetToLastChunk)
+    {
+        IOX_LOG(FATAL,
+                "Try to free chunk with address " << iox::log::hex(chunk)
+                                                  << " while the last valid memory pool address is "
+                                                  << iox::log::hex(memPoolStartAddress));
+        IOX_PANIC("Invalid chunk to free");
+    }
+
+    const auto index = pointerToIndex(chunk, m_chunkSize, memPoolStartAddress);
 
     if (!m_freeIndices.push(index))
     {

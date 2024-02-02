@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iox/thread.hpp"
+#include "iox/assertions.hpp"
 #include "iox/logging.hpp"
 #include "iox/posix_call.hpp"
 
@@ -47,8 +48,8 @@ ThreadName_t getThreadName() noexcept
     (threadHandle, &tempName[0], MAX_THREAD_NAME_LENGTH + 1U).successReturnValue(0).evaluate().or_else([](auto& r) {
         // String length limit is ensured through MAX_THREAD_NAME_LENGTH
         // ERANGE (string too small) intentionally not handled to avoid untestable and dead code
-        IOX_LOG(ERROR, "This should never happen! " << r.getHumanReadableErrnum());
-        IOX_ENSURES(false && "internal logic error");
+        IOX_LOG(FATAL, "This should never happen! " << r.getHumanReadableErrnum());
+        IOX_PANIC("Internal logic error");
     });
 
     return ThreadName_t(TruncateToCapacity, &tempName[0]);

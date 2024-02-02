@@ -18,8 +18,10 @@
 #ifndef IOX_HOOFS_VOCABULARY_STRING_INL
 #define IOX_HOOFS_VOCABULARY_STRING_INL
 
-#include "iox/logging.hpp"
 #include "iox/string.hpp"
+
+#include "iox/assertions.hpp"
+#include "iox/logging.hpp"
 
 namespace iox
 {
@@ -600,7 +602,7 @@ inline constexpr char& string<Capacity>::at(const uint64_t pos) noexcept
 template <uint64_t Capacity>
 inline constexpr const char& string<Capacity>::at(const uint64_t pos) const noexcept
 {
-    IOX_EXPECTS_WITH_MSG((pos < size()), "Out of bounds access!");
+    IOX_ENFORCE((pos < size()), "Out of bounds access!");
     return m_rawstring[pos];
 }
 

@@ -24,6 +24,7 @@
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
+#include "iox/assertions.hpp"
 
 #include "test.hpp"
 
@@ -103,16 +104,13 @@ class ServerPort_test : public Test
 
     SharedChunk getChunkFromMemoryManager(uint64_t userPayloadSize, uint32_t userHeaderSize)
     {
-        auto chunkSettingsResult = ChunkSettings::create(userPayloadSize,
-                                                         iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT,
-                                                         userHeaderSize,
-                                                         iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
-        IOX_ENSURES(chunkSettingsResult.has_value());
-        auto& chunkSettings = chunkSettingsResult.value();
+        auto chunkSettings = ChunkSettings::create(userPayloadSize,
+                                                   iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT,
+                                                   userHeaderSize,
+                                                   iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT)
+                                 .expect("Valid 'ChunkSettings'");
 
-        auto getChunkResult = m_memoryManager.getChunk(chunkSettings);
-        IOX_ENSURES(getChunkResult.has_value());
-        return getChunkResult.value();
+        return m_memoryManager.getChunk(chunkSettings).expect("Obtaining chunk");
     }
 
     static constexpr uint64_t DUMMY_DATA{0U};
@@ -129,9 +127,9 @@ class ServerPort_test : public Test
 
     uint64_t getRequestData(const RequestHeader* requestHeader)
     {
-        IOX_ENSURES(requestHeader != nullptr && "requestHeader must not be a nullptr");
+        IOX_ENFORCE(requestHeader != nullptr, "requestHeader must not be a nullptr");
         auto userPayload = ChunkHeader::fromUserHeader(requestHeader)->userPayload();
-        IOX_ENSURES(userPayload != nullptr && "userPayload must not be a nullptr");
+        IOX_ENFORCE(userPayload != nullptr, "userPayload must not be a nullptr");
 
         return *static_cast<const uint64_t*>(userPayload);
     }

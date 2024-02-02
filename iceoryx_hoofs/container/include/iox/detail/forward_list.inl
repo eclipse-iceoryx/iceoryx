@@ -19,6 +19,7 @@
 #define IOX_HOOFS_CONTAINER_FORWARD_LIST_INL
 
 
+#include "iox/assertions.hpp"
 #include "iox/forward_list.hpp"
 #include "iox/logging.hpp"
 
@@ -329,7 +330,7 @@ template <typename T, uint64_t Capacity>
 inline T& forward_list<T, Capacity>::front() noexcept
 {
     auto iter = begin();
-    IOX_EXPECTS_WITH_MSG(isValidElementIdx(iter.m_iterListNodeIdx), "Invalid list element");
+    IOX_ENFORCE(isValidElementIdx(iter.m_iterListNodeIdx), "Invalid list element");
     return *iter;
 }
 
@@ -337,7 +338,7 @@ template <typename T, uint64_t Capacity>
 inline const T& forward_list<T, Capacity>::front() const noexcept
 {
     auto citer = cbegin();
-    IOX_EXPECTS_WITH_MSG(isValidElementIdx(citer.m_iterListNodeIdx), "Invalid list element");
+    IOX_ENFORCE(isValidElementIdx(citer.m_iterListNodeIdx), "Invalid list element");
     return *citer;
 }
 
@@ -556,7 +557,7 @@ inline void forward_list<T, Capacity>::setNextIdx(const size_type idx, const siz
 template <typename T, uint64_t Capacity>
 inline const T* forward_list<T, Capacity>::getDataPtrFromIdx(const size_type idx) const noexcept
 {
-    IOX_EXPECTS_WITH_MSG(isValidElementIdx(idx), "Invalid list element");
+    IOX_ENFORCE(isValidElementIdx(idx), "Invalid list element");
 
     // safe since m_data entries are aligned to T
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
@@ -597,14 +598,14 @@ inline bool forward_list<T, Capacity>::isInvalidIterator(const const_iterator& i
 {
     // iterator's member m_iterListNodeIdx and nextIndex are not checked here to be <= END_INDEX as this
     // should (can) never happen though normal list operations.
-    IOX_EXPECTS_WITH_MSG(!isInvalidElement(iter.m_iterListNodeIdx), "invalidated iterator");
+    IOX_ENFORCE(!isInvalidElement(iter.m_iterListNodeIdx), "invalidated iterator");
     return false;
 }
 
 template <typename T, uint64_t Capacity>
 inline bool forward_list<T, Capacity>::isInvalidIterOrDifferentLists(const const_iterator& iter) const noexcept
 {
-    IOX_EXPECTS_WITH_MSG((this == iter.m_list), "iterator of other list can't be used");
+    IOX_ENFORCE((this == iter.m_list), "iterator of other list can't be used");
     return isInvalidIterator(iter);
 }
 

@@ -25,6 +25,7 @@
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/popo/notification_info.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
+#include "iox/assertions.hpp"
 #include "iox/detail/hoofs_error_reporting.hpp"
 
 #include "iceoryx_hoofs/testing/fatal_failure.hpp"
@@ -87,13 +88,9 @@ class iox_notification_info_test : public Test
     {
         constexpr uint64_t USER_PAYLOAD_SIZE{100U};
 
-        auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
-        IOX_ENSURES(chunkSettingsResult.has_value());
-        auto& chunkSettings = chunkSettingsResult.value();
-
-        auto getChunkResult = m_memoryManager.getChunk(chunkSettings);
-        IOX_ENSURES(getChunkResult.has_value());
-        return getChunkResult.value();
+        auto chunkSettings = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT)
+                                 .expect("Valid 'ChunkSettings'");
+        return m_memoryManager.getChunk(chunkSettings).expect("Obtaining chunk");
     }
 
     static void triggerCallback(iox_sub_t sub [[maybe_unused]])

@@ -18,6 +18,7 @@
 #include "iceoryx_posh/internal/runtime/ipc_runtime_interface.hpp"
 #include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iceoryx_posh/version/version_info.hpp"
+#include "iox/assertions.hpp"
 #include "iox/detail/convert.hpp"
 #include "iox/into.hpp"
 #include "iox/posix_user.hpp"
@@ -89,7 +90,7 @@ IpcRuntimeInterface::IpcRuntimeInterface(const RuntimeName_t& roudiName,
 
             IpcMessage sendBuffer;
             int pid = getpid();
-            IOX_EXPECTS(pid >= 0);
+            IOX_ENFORCE(pid >= 0, "'getpid' must always return a positive number");
             sendBuffer << IpcMessageTypeToString(IpcMessageType::REG) << m_runtimeName << convert::toString(pid)
                        << convert::toString(PosixUser::getUserOfCurrentProcess().getID())
                        << convert::toString(transmissionTimestamp)
@@ -147,8 +148,8 @@ IpcRuntimeInterface::IpcRuntimeInterface(const RuntimeName_t& roudiName,
 
 UntypedRelativePointer::offset_t IpcRuntimeInterface::getSegmentManagerAddressOffset() const noexcept
 {
-    IOX_ENSURES(m_segmentManagerAddressOffset.has_value()
-                && "No segment manager available! Should have been fetched in the c'tor");
+    IOX_ENFORCE(m_segmentManagerAddressOffset.has_value(),
+                "No segment manager available! Should have been fetched in the c'tor");
     return m_segmentManagerAddressOffset.value();
 }
 

@@ -17,6 +17,7 @@
 
 #include "iceoryx_posh/internal/popo/ports/client_port_roudi.hpp"
 #include "iceoryx_posh/internal/posh_error_reporting.hpp"
+#include "iox/assertions.hpp"
 
 namespace iox
 {
@@ -151,11 +152,11 @@ ClientPortRouDi::handleCaProMessageForStateConnectRequested(const capro::CaproMe
     switch (caProMessage.m_type)
     {
     case capro::CaproMessageType::ACK:
-        IOX_EXPECTS_WITH_MSG(caProMessage.m_chunkQueueData != nullptr, "Invalid request queue passed to client");
-        IOX_EXPECTS(!m_chunkSender
-                         .tryAddQueue(static_cast<ServerChunkQueueData_t*>(caProMessage.m_chunkQueueData),
-                                      caProMessage.m_historyCapacity)
-                         .has_error());
+        IOX_ENFORCE(caProMessage.m_chunkQueueData != nullptr, "Invalid request queue passed to client");
+        m_chunkSender
+            .tryAddQueue(static_cast<ServerChunkQueueData_t*>(caProMessage.m_chunkQueueData),
+                         caProMessage.m_historyCapacity)
+            .expect("Adding server request queue to client");
 
         getMembers()->m_connectionState.store(ConnectionState::CONNECTED, std::memory_order_relaxed);
         return nullopt;

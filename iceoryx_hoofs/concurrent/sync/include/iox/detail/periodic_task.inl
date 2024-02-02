@@ -69,7 +69,7 @@ inline void PeriodicTask<T>::stop() noexcept
 {
     if (m_taskExecutor.joinable())
     {
-        IOX_EXPECTS(!m_stop->post().has_error());
+        m_stop->post().expect("'post' on a semaphore should always be successful");
         m_taskExecutor.join();
     }
 }
@@ -98,10 +98,7 @@ inline void PeriodicTask<T>::run() noexcept
 
         /// @todo iox-#337 use a refactored posix::Timer::wait method returning TIMER_TICK and TIMER_STOPPED once
         /// available
-        auto waitResult = m_stop->timedWait(m_interval);
-        IOX_EXPECTS(!waitResult.has_error());
-
-        waitState = waitResult.value();
+        waitState = m_stop->timedWait(m_interval).expect("'timedWait' on a semaphore should always be successful");
     } while (waitState == SemaphoreWaitState::TIMEOUT);
 }
 

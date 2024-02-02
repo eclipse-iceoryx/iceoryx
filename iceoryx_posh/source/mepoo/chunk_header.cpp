@@ -17,6 +17,7 @@
 
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
+#include "iox/assertions.hpp"
 
 namespace iox
 {
@@ -103,7 +104,7 @@ ChunkHeader::ChunkHeader(const uint64_t chunkSize, const ChunkSettings& chunkSet
         *backOffset = m_userPayloadOffset;
     }
 
-    IOX_ENSURES(overflowSafeUsedSizeOfChunk() <= chunkSize && "Used size of chunk would exceed the actual chunk size!");
+    IOX_ENFORCE(overflowSafeUsedSizeOfChunk() <= chunkSize, "Used size of chunk would exceed the actual chunk size!");
 }
 
 uint8_t ChunkHeader::chunkHeaderVersion() const noexcept

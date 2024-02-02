@@ -20,6 +20,7 @@
 #include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iceoryx_posh/popo/publisher_options.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
+#include "iox/assertions.hpp"
 #include "iox/logging.hpp"
 #include "iox/vector.hpp"
 
@@ -218,9 +219,10 @@ void PortManager::doDiscoveryForSubscriberPort(SubscriberPortType& subscriberPor
                             << caproMessage.m_serviceDescription << "'!");
                 capro::CaproMessage nackMessage(capro::CaproMessageType::NACK,
                                                 subscriberPort.getCaProServiceDescription());
-                auto returnMessage = subscriberPort.dispatchCaProMessageAndGetPossibleResponse(nackMessage);
-                // No response on NACK messages
-                IOX_ENSURES(!returnMessage.has_value());
+                subscriberPort.dispatchCaProMessageAndGetPossibleResponse(nackMessage).and_then([](auto& response) {
+                    IOX_LOG(FATAL, "Got response '" << response.m_type << "'");
+                    IOX_PANIC("Expected no response on NACK messages");
+                });
             }
         }
         else
@@ -238,7 +240,7 @@ void PortManager::doDiscoveryForSubscriberPort(SubscriberPortType& subscriberPor
 
 void PortManager::destroyClientPort(popo::ClientPortData* const clientPortData) noexcept
 {
-    IOX_ENSURES(clientPortData != nullptr && "clientPortData must not be a nullptr");
+    IOX_ENFORCE(clientPortData != nullptr, "clientPortData must not be a nullptr");
 
     // create temporary client ports to orderly shut this client down
     popo::ClientPortRouDi clientPortRoudi(*clientPortData);
@@ -248,7 +250,7 @@ void PortManager::destroyClientPort(popo::ClientPortData* const clientPortData) 
 
     // process DISCONNECT for this client in RouDi and distribute it
     clientPortRoudi.tryGetCaProMessage().and_then([this, &clientPortRoudi](auto caproMessage) {
-        IOX_ENSURES(caproMessage.m_type == capro::CaproMessageType::DISCONNECT);
+        IOX_ENFORCE(caproMessage.m_type == capro::CaproMessageType::DISCONNECT, "Received wrong 'CaproMessageType'!");
 
         /// @todo iox-#1128 report to port introspection
         this->sendToAllMatchingServerPorts(caproMessage, clientPortRoudi);
@@ -300,9 +302,10 @@ void PortManager::doDiscoveryForClientPort(popo::ClientPortRouDi& clientPort) no
                             << clientPort.getRuntimeName() << "' and with service description '"
                             << caproMessage.m_serviceDescription << "'!");
                 capro::CaproMessage nackMessage(capro::CaproMessageType::NACK, clientPort.getCaProServiceDescription());
-                auto returnMessage = clientPort.dispatchCaProMessageAndGetPossibleResponse(nackMessage);
-                // No response on NACK messages
-                IOX_ENSURES(!returnMessage.has_value());
+                clientPort.dispatchCaProMessageAndGetPossibleResponse(nackMessage).and_then([](auto& response) {
+                    IOX_LOG(FATAL, "Got response '" << response.m_type << "'");
+                    IOX_PANIC("Expected no response on NACK messages");
+                });
             }
         }
         else
@@ -331,7 +334,7 @@ void PortManager::makeAllServerPortsToStopOffer() noexcept
 
 void PortManager::destroyServerPort(popo::ServerPortData* const serverPortData) noexcept
 {
-    IOX_ENSURES(serverPortData != nullptr && "serverPortData must not be a nullptr");
+    IOX_ENFORCE(serverPortData != nullptr, "serverPortData must not be a nullptr");
 
     // create temporary server ports to orderly shut this server down
     popo::ServerPortRouDi serverPortRoudi{*serverPortData};
@@ -341,8 +344,9 @@ void PortManager::destroyServerPort(popo::ServerPortData* const serverPortData) 
 
     // process STOP_OFFER for this server in RouDi and distribute it
     serverPortRoudi.tryGetCaProMessage().and_then([this, &serverPortRoudi](auto caproMessage) {
-        IOX_ENSURES(caproMessage.m_type == capro::CaproMessageType::STOP_OFFER);
-        IOX_ENSURES(caproMessage.m_serviceType == capro::CaproServiceType::SERVER);
+        IOX_ENFORCE(caproMessage.m_type == capro::CaproMessageType::STOP_OFFER, "Received wrong 'CaproMessageType'!");
+        IOX_ENFORCE(caproMessage.m_serviceType == capro::CaproServiceType::SERVER,
+                    "Received wrong 'CaproServiceType'!");
 
         /// @todo iox-#1128 report to port introspection
         this->removeServerFromServiceRegistry(caproMessage.m_serviceDescription);
@@ -568,13 +572,12 @@ bool PortManager::sendToAllMatchingPublisherPorts(const capro::CaproMessage& mes
             if (publisherResponse.has_value())
             {
                 // send response to subscriber port
-                auto returnMessage =
-                    subscriberSource.dispatchCaProMessageAndGetPossibleResponse(publisherResponse.value());
+                subscriberSource.dispatchCaProMessageAndGetPossibleResponse(publisherResponse.value())
+                    .and_then([](auto& response) {
+                        IOX_LOG(FATAL, "Got response '" << response.m_type << "'");
+                        IOX_PANIC("Expected no response on ACK or NACK messages");
+                    });
 
-                // ACK or NACK are sent back to the subscriber port, no further response from this one expected
-                IOX_ENSURES(!returnMessage.has_value());
-
-                // inform introspection
                 m_portIntrospection.reportMessage(publisherResponse.value(), subscriberSource.getUniqueID());
             }
             publisherFound = true;
@@ -609,7 +612,7 @@ void PortManager::sendToAllMatchingSubscriberPorts(const capro::CaproMessage& me
             if (subscriberResponse.has_value())
             {
                 // we only expect reaction on OFFER
-                IOX_EXPECTS(capro::CaproMessageType::OFFER == message.m_type);
+                IOX_ENFORCE(capro::CaproMessageType::OFFER == message.m_type, "Received wrong 'CaproMessageType'!");
 
                 // inform introspection
                 m_portIntrospection.reportMessage(subscriberResponse.value());
@@ -619,13 +622,12 @@ void PortManager::sendToAllMatchingSubscriberPorts(const capro::CaproMessage& me
                 if (publisherResponse.has_value())
                 {
                     // sende responsee to subscriber port
-                    auto returnMessage =
-                        subscriberPort.dispatchCaProMessageAndGetPossibleResponse(publisherResponse.value());
+                    subscriberPort.dispatchCaProMessageAndGetPossibleResponse(publisherResponse.value())
+                        .and_then([](auto& response) {
+                            IOX_LOG(FATAL, "Got response '" << response.m_type << "'");
+                            IOX_PANIC("Expected no response on ACK or NACK messages");
+                        });
 
-                    // ACK or NACK are sent back to the subscriber port, no further response from this one expected
-                    IOX_ENSURES(!returnMessage.has_value());
-
-                    // inform introspection
                     m_portIntrospection.reportMessage(publisherResponse.value());
                 }
             }
@@ -665,7 +667,8 @@ void PortManager::sendToAllMatchingClientPorts(const capro::CaproMessage& messag
             if (clientResponse.has_value())
             {
                 // we only expect reaction on CONNECT
-                IOX_EXPECTS(capro::CaproMessageType::CONNECT == clientResponse.value().m_type);
+                IOX_ENFORCE(capro::CaproMessageType::CONNECT == clientResponse.value().m_type,
+                            "Received wrong 'CaproMessageType'!");
 
                 /// @todo iox-#518 inform port introspection about client
 
@@ -674,10 +677,11 @@ void PortManager::sendToAllMatchingClientPorts(const capro::CaproMessage& messag
                 if (serverResponse.has_value())
                 {
                     // sende responsee to client port
-                    auto returnMessage = clientPort.dispatchCaProMessageAndGetPossibleResponse(serverResponse.value());
-
-                    // ACK or NACK are sent back to the client port, no further response from this one expected
-                    IOX_ENSURES(!returnMessage.has_value());
+                    clientPort.dispatchCaProMessageAndGetPossibleResponse(serverResponse.value())
+                        .and_then([](auto& response) {
+                            IOX_LOG(FATAL, "Got response '" << response.m_type << "'");
+                            IOX_PANIC("Expected no response on ACK or NACK messages");
+                        });
 
                     /// @todo iox-#1128 inform port introspection about server
                 }
@@ -702,10 +706,11 @@ bool PortManager::sendToAllMatchingServerPorts(const capro::CaproMessage& messag
             if (serverResponse.has_value())
             {
                 // send response to client port
-                auto returnMessage = clientSource.dispatchCaProMessageAndGetPossibleResponse(serverResponse.value());
-
-                // ACK or NACK are sent back to the client port, no further response from this one expected
-                IOX_ENSURES(!returnMessage.has_value());
+                clientSource.dispatchCaProMessageAndGetPossibleResponse(serverResponse.value())
+                    .and_then([](auto& response) {
+                        IOX_LOG(FATAL, "Got response '" << response.m_type << "'");
+                        IOX_PANIC("Expected no response on ACK or NACK messages");
+                    });
 
                 /// @todo iox-#1128 inform port introspection about client
             }
@@ -872,7 +877,7 @@ void PortManager::destroyPublisherPort(PublisherPortRouDiType::MemberType_t* con
 
     // process STOP_OFFER for this publisher in RouDi and distribute it
     publisherPortRoudi.tryGetCaProMessage().and_then([this, &publisherPortRoudi](auto caproMessage) {
-        IOX_ENSURES(caproMessage.m_type == capro::CaproMessageType::STOP_OFFER);
+        IOX_ENFORCE(caproMessage.m_type == capro::CaproMessageType::STOP_OFFER, "Received wrong 'CaproMessageType'!");
 
         m_portIntrospection.reportMessage(caproMessage);
         this->removePublisherFromServiceRegistry(caproMessage.m_serviceDescription);
@@ -902,7 +907,7 @@ void PortManager::destroySubscriberPort(SubscriberPortType::MemberType_t* const 
 
     // process UNSUB for this subscriber in RouDi and distribute it
     subscriberPortRoudi.tryGetCaProMessage().and_then([this, &subscriberPortRoudi](auto caproMessage) {
-        IOX_ENSURES(caproMessage.m_type == capro::CaproMessageType::UNSUB);
+        IOX_ENFORCE(caproMessage.m_type == capro::CaproMessageType::UNSUB, "Received wrong 'CaproMessageType'!");
 
         m_portIntrospection.reportMessage(caproMessage);
         this->sendToAllMatchingPublisherPorts(caproMessage, subscriberPortRoudi);

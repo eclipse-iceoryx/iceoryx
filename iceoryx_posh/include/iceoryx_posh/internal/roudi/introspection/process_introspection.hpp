@@ -20,6 +20,7 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
+#include "iox/assertions.hpp"
 #include "iox/detail/periodic_task.hpp"
 #include "iox/function.hpp"
 #include "iox/list.hpp"

@@ -17,6 +17,7 @@
 
 #include "iox/duration.hpp"
 #include "iceoryx_platform/platform_correction.hpp"
+#include "iox/assertions.hpp"
 #include "iox/logging.hpp"
 
 #include "iox/posix_call.hpp"
@@ -52,7 +53,7 @@ struct timespec Duration::timespec(const TimeSpecReference reference) const noex
     // AXIVION Next Construct AutosarC++19_03-M0.1.2, AutosarC++19_03-M0.1.9, FaultDetection-DeadBranches : False positive! Branching depends on input parameter
     // AXIVION Next Construct AutosarC++19_03-M5.0.3: False positive! CLOCK_REALTIME and CLOCK_MONOTONIC are of type clockid_t
     const iox_clockid_t clockId{(reference == TimeSpecReference::Epoch) ? CLOCK_REALTIME : CLOCK_MONOTONIC};
-    IOX_ENSURES_WITH_MSG(
+    IOX_ENFORCE(
         !IOX_POSIX_CALL(iox_clock_gettime)(clockId, &referenceTime).failureReturnValue(-1).evaluate().has_error(),
         "An error which should never happen occured during 'iox_clock_gettime'!");
 

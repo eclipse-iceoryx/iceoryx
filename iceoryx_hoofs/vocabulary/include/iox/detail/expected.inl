@@ -17,6 +17,7 @@
 #ifndef IOX_HOOFS_VOCABULARY_EXPECTED_INL
 #define IOX_HOOFS_VOCABULARY_EXPECTED_INL
 
+#include "iox/assertions.hpp"
 #include "iox/expected.hpp"
 
 namespace iox
@@ -148,7 +149,7 @@ inline ErrorType& expected<ValueType, ErrorType>::error_checked() & noexcept
 template <typename ValueType, typename ErrorType>
 inline const ErrorType& expected<ValueType, ErrorType>::error_checked() const& noexcept
 {
-    IOX_EXPECTS_WITH_MSG(has_error(), "Trying to access an error but a value is stored!");
+    IOX_ENFORCE(has_error(), "Trying to access an error but a value is stored!");
     return m_store.error_unchecked();
 }
 
@@ -198,7 +199,7 @@ template <typename ValueType, typename ErrorType>
 template <typename U>
 inline const enable_if_non_void_t<U>& expected<ValueType, ErrorType>::value_checked() const& noexcept
 {
-    IOX_EXPECTS_WITH_MSG(has_value(), "Trying to access a value but an error is stored!");
+    IOX_ENFORCE(has_value(), "Trying to access a value but an error is stored!");
     return m_store.value_unchecked();
 }
 

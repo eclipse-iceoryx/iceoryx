@@ -20,6 +20,7 @@
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 
 #include "iox/algorithm.hpp"
+#include "iox/assertions.hpp"
 #include "iox/bump_allocator.hpp"
 #include "iox/memory.hpp"
 
@@ -53,9 +54,8 @@ uint64_t MemPoolCollectionMemoryBlock::alignment() const noexcept
 void MemPoolCollectionMemoryBlock::onMemoryAvailable(not_null<void*> memory) noexcept
 {
     BumpAllocator allocator(memory, size());
-    auto allocationResult = allocator.allocate(sizeof(mepoo::MemoryManager), alignof(mepoo::MemoryManager));
-    IOX_EXPECTS(allocationResult.has_value());
-    auto* memoryManager = allocationResult.value();
+    auto* memoryManager = allocator.allocate(sizeof(mepoo::MemoryManager), alignof(mepoo::MemoryManager))
+                              .expect("There should be enough memory for the 'MemoryManager'");
     m_memoryManager = new (memoryManager) mepoo::MemoryManager;
 
     m_memoryManager->configureMemoryManager(m_memPoolConfig, allocator, allocator);

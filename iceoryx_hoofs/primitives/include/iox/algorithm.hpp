@@ -179,7 +179,11 @@ struct greater_or_equal
     greater_or_equal(T t) noexcept
         : m_value(t)
     {
-        IOX_EXPECTS(t >= Minimum);
+        if (t < Minimum)
+        {
+            IOX_LOG(FATAL, "The value '" << t << "' is below '" << Minimum << "'");
+            IOX_PANIC("Violating invariant of 'greater_or_equal'");
+        }
     }
 
     // AXIVION Next Construct AutosarC++19_03-A13.5.2,AutosarC++19_03-A13.5.3:this class should behave like a T but
@@ -204,8 +208,11 @@ struct range
     range(T t) noexcept
         : m_value(t)
     {
-        // AXIVION Next Construct AutosarC++19_03-A1.4.3 : False positive! 't >= Minimum' depends on input parameter
-        IOX_EXPECTS((t >= Minimum) && (t <= Maximum));
+        if (t < Minimum || t > Maximum)
+        {
+            IOX_LOG(FATAL, "The value '" << t << "' is out of the range [" << Minimum << ", " << Maximum << "]");
+            IOX_PANIC("Violating invariant of 'range'");
+        }
     }
 
     // AXIVION Next Construct AutosarC++19_03-A13.5.2, AutosarC++19_03-A13.5.3: this class should behave like a T but

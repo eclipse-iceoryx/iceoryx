@@ -156,7 +156,7 @@ template <typename PublisherPort>
 inline void ProcessIntrospection<PublisherPort>::run() noexcept
 {
     // @todo iox-#518 error handling for non debug builds
-    IOX_EXPECTS(m_publisherPort.has_value());
+    IOX_ENFORCE(m_publisherPort.has_value(), "Port must be initialized");
 
     // this is a field, there needs to be a sample before activate is called
     send();

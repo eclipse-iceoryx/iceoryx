@@ -92,13 +92,10 @@ class iox_sub_test : public Test
     {
         constexpr uint64_t USER_PAYLOAD_SIZE{100U};
 
-        auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
-        IOX_ENSURES(chunkSettingsResult.has_value());
-        auto& chunkSettings = chunkSettingsResult.value();
-
-        auto getChunkResult = m_memoryManager.getChunk(chunkSettings);
-        IOX_ENSURES(getChunkResult.has_value());
-        return getChunkResult.value();
+        auto chunkSettings = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT)
+                                 .expect("Valid 'ChunkSettings'");
+        ;
+        return m_memoryManager.getChunk(chunkSettings).expect("Obtaining chunk");
     }
 
     static iox_sub_t m_triggerCallbackLatestArgument;

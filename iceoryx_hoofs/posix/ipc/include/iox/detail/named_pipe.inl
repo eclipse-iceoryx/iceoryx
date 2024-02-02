@@ -27,13 +27,11 @@ expected<void, PosixIpcChannelError> NamedPipe::trySend(const iox::string<N>& me
 {
     static_assert(N <= MAX_MESSAGE_SIZE, "Size exceeds transmission limit!");
 
-    auto result = m_data->sendSemaphore().tryWait();
-    IOX_EXPECTS(!result.has_error());
-
-    if (*result)
+    auto hasData = m_data->sendSemaphore().tryWait().expect("'tryWait' on a semaphore should always be successful");
+    if (hasData)
     {
         IOX_DISCARD_RESULT(m_data->messages.push(message));
-        IOX_EXPECTS(!m_data->receiveSemaphore().post().has_error());
+        m_data->receiveSemaphore().post().expect("'post' on a semaphore should always be successful");
         return ok();
     }
     return err(PosixIpcChannelError::TIMEOUT);
@@ -44,9 +42,9 @@ expected<void, PosixIpcChannelError> NamedPipe::send(const iox::string<N>& messa
 {
     static_assert(N <= MAX_MESSAGE_SIZE, "Size exceeds transmission limit!");
 
-    IOX_EXPECTS(!m_data->sendSemaphore().wait().has_error());
+    m_data->sendSemaphore().wait().expect("'wait' on a semaphore should always be successful");
     IOX_DISCARD_RESULT(m_data->messages.push(message));
-    IOX_EXPECTS(!m_data->receiveSemaphore().post().has_error());
+    m_data->receiveSemaphore().post().expect("'post' on a semaphore should always be successful");
 
     return ok();
 }
@@ -57,13 +55,13 @@ expected<void, PosixIpcChannelError> NamedPipe::timedSend(const iox::string<N>& 
 {
     static_assert(N <= MAX_MESSAGE_SIZE, "Size exceeds transmission limit!");
 
-    auto result = m_data->sendSemaphore().timedWait(timeout);
-    IOX_EXPECTS(!result.has_error());
+    auto waitState =
+        m_data->sendSemaphore().timedWait(timeout).expect("'timedWait' on a semaphore should always be successful");
 
-    if (*result == SemaphoreWaitState::NO_TIMEOUT)
+    if (waitState == SemaphoreWaitState::NO_TIMEOUT)
     {
         IOX_DISCARD_RESULT(m_data->messages.push(message));
-        IOX_EXPECTS(!m_data->receiveSemaphore().post().has_error());
+        m_data->receiveSemaphore().post().expect("'post' on a semaphore should always be successful");
         return ok();
     }
     return err(PosixIpcChannelError::TIMEOUT);
@@ -72,11 +70,11 @@ expected<void, PosixIpcChannelError> NamedPipe::timedSend(const iox::string<N>& 
 template <uint64_t N>
 expected<void, PosixIpcChannelError> NamedPipe::receive(iox::string<N>& message) const noexcept
 {
-    IOX_EXPECTS(!m_data->receiveSemaphore().wait().has_error());
+    m_data->receiveSemaphore().wait().expect("'tryWait' on a semaphore should always be successful");
     auto msg = m_data->messages.pop();
     if (msg.has_value())
     {
-        IOX_EXPECTS(!m_data->sendSemaphore().post().has_error());
+        m_data->sendSemaphore().post().expect("'post' on a semaphore should always be successful");
         message = *msg;
         return ok();
     }
@@ -86,15 +84,13 @@ expected<void, PosixIpcChannelError> NamedPipe::receive(iox::string<N>& message)
 template <uint64_t N>
 expected<void, PosixIpcChannelError> NamedPipe::tryReceive(iox::string<N>& message) const noexcept
 {
-    auto result = m_data->receiveSemaphore().tryWait();
-    IOX_EXPECTS(!result.has_error());
-
-    if (*result)
+    auto hasData = m_data->receiveSemaphore().tryWait().expect("'tryWait' on a semaphore should always be successful");
+    if (hasData)
     {
         auto msg = m_data->messages.pop();
         if (msg.has_value())
         {
-            IOX_EXPECTS(!m_data->sendSemaphore().post().has_error());
+            m_data->sendSemaphore().post().expect("'post' on a semaphore should always be successful");
             message = *msg;
         }
         return err(PosixIpcChannelError::INTERNAL_LOGIC_ERROR);
@@ -107,15 +103,15 @@ template <uint64_t N>
 expected<void, PosixIpcChannelError> NamedPipe::timedReceive(iox::string<N>& message,
                                                              const units::Duration& timeout) const noexcept
 {
-    auto result = m_data->receiveSemaphore().timedWait(timeout);
-    IOX_EXPECTS(!result.has_error());
+    auto waitState =
+        m_data->receiveSemaphore().timedWait(timeout).expect("'timedWait' on a semaphore should always be successful");
 
-    if (*result == SemaphoreWaitState::NO_TIMEOUT)
+    if (waitState == SemaphoreWaitState::NO_TIMEOUT)
     {
         auto msg = m_data->messages.pop();
         if (msg.has_value())
         {
-            IOX_EXPECTS(!m_data->sendSemaphore().post().has_error());
+            m_data->sendSemaphore().post().expect("'post' on a semaphore should always be successful");
             message = *msg;
             return ok();
         }

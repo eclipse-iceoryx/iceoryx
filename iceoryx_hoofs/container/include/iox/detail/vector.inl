@@ -17,6 +17,7 @@
 #ifndef IOX_HOOFS_CONTAINER_VECTOR_INL
 #define IOX_HOOFS_CONTAINER_VECTOR_INL
 
+#include "iox/assertions.hpp"
 #include "iox/vector.hpp"
 
 #include <cstring> // std::memcpy, std::memmove
@@ -323,7 +324,7 @@ inline T& vector<T, Capacity>::at(const uint64_t index) noexcept
 template <typename T, uint64_t Capacity>
 inline const T& vector<T, Capacity>::at(const uint64_t index) const noexcept
 {
-    IOX_EXPECTS_WITH_MSG(index < m_size, "Out of bounds access");
+    IOX_ENFORCE(index < m_size, "Out of bounds access");
     return at_unchecked(index);
 }
 
@@ -342,7 +343,7 @@ inline const T& vector<T, Capacity>::operator[](const uint64_t index) const noex
 template <typename T, uint64_t Capacity>
 inline T& vector<T, Capacity>::front() noexcept
 {
-    IOX_EXPECTS_WITH_MSG(!empty(), "Attempting to access the front of an empty vector");
+    IOX_ENFORCE(!empty(), "Attempting to access the front of an empty vector");
     return at(0);
 }
 
@@ -357,7 +358,7 @@ inline const T& vector<T, Capacity>::front() const noexcept
 template <typename T, uint64_t Capacity>
 inline T& vector<T, Capacity>::back() noexcept
 {
-    IOX_EXPECTS_WITH_MSG(!empty(), "Attempting to access the back of an empty vector");
+    IOX_ENFORCE(!empty(), "Attempting to access the back of an empty vector");
     return at(size() - 1U);
 }
 

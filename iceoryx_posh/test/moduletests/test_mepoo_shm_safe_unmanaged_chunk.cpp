@@ -20,6 +20,7 @@
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
+#include "iox/assertions.hpp"
 #include "iox/bump_allocator.hpp"
 
 #include "test.hpp"
@@ -42,13 +43,10 @@ class ShmSafeUnmanagedChunk_test : public Test
 
     SharedChunk getChunkFromMemoryManager()
     {
-        auto chunkSettingsResult = iox::mepoo::ChunkSettings::create(sizeof(bool), alignof(bool));
-        IOX_ENSURES(chunkSettingsResult.has_value());
-        auto& chunkSettings = chunkSettingsResult.value();
+        auto chunkSettings =
+            iox::mepoo::ChunkSettings::create(sizeof(bool), alignof(bool)).expect("Valid 'ChunkSettings'");
 
-        auto getChunkResult = memoryManager.getChunk(chunkSettings);
-        IOX_ENSURES(getChunkResult.has_value());
-        return getChunkResult.value();
+        return memoryManager.getChunk(chunkSettings).expect("Obtaining chunk");
     }
 
     iox::mepoo::MemoryManager memoryManager;

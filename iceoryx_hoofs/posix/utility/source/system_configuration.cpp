@@ -17,6 +17,7 @@
 
 #include "iox/detail/system_configuration.hpp"
 
+#include "iox/assertions.hpp"
 #include "iox/logging.hpp"
 #include "iox/posix_call.hpp"
 
@@ -32,8 +33,8 @@ uint64_t pageSize() noexcept
                                      .failureReturnValue(-1)
                                      .evaluate()
                                      .or_else([](auto& r) {
-                                         IOX_LOG(ERROR, "This should never happen: " << r.getHumanReadableErrnum());
-                                         IOX_ENSURES(false && "Internal logic error");
+                                         IOX_LOG(FATAL, "This should never happen: " << r.getHumanReadableErrnum());
+                                         IOX_PANIC("Internal logic error");
                                      })
                                      .value()
                                      .value);

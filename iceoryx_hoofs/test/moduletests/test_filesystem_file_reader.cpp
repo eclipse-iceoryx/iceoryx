@@ -170,7 +170,7 @@ TEST_F(FileReader_test, errorTerminateMode)
         [&] { iox::FileReader reader(fileName, filePath, iox::FileReader::ErrorMode::Terminate); },
         iox::HoofsError::EXPECTS_ENSURES_FAILED);
 
-    const std::string expectedOutput = "Could not open file 'ISaidNo!' from path 'InTheMiddleOfNowhere'. Exiting!";
+    const std::string expectedOutput = "Could not open file 'ISaidNo!' from path 'InTheMiddleOfNowhere'!";
     iox::testing::TestingLogger::checkLogMessageIfLogLevelIsSupported(
         iox::log::LogLevel::FATAL, [&](const auto& logMessages) {
             ASSERT_THAT(logMessages.size(), Gt(1U));
