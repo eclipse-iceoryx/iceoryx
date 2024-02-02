@@ -37,3 +37,7 @@ iox_add_library(
     FILES
         source/roudi_gtest.cpp
 )
+
+if(TEST_WITH_HUGE_PAYLOAD)
+    target_compile_definitions(iceoryx_posh_testing PUBLIC -DTEST_WITH_HUGE_PAYLOAD)
+endif(TEST_WITH_HUGE_PAYLOAD)

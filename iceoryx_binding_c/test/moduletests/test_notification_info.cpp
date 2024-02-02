@@ -84,7 +84,7 @@ class iox_notification_info_test : public Test
 
     iox::mepoo::SharedChunk getChunkFromMemoryManager()
     {
-        constexpr uint32_t USER_PAYLOAD_SIZE{100U};
+        constexpr uint64_t USER_PAYLOAD_SIZE{100U};
 
         auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
         IOX_ENSURES(chunkSettingsResult.has_value());
@@ -105,7 +105,7 @@ class iox_notification_info_test : public Test
     UserTrigger m_userTrigger;
 
     static constexpr uint32_t NUM_CHUNKS_IN_POOL = MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY + 2;
-    static constexpr uint32_t CHUNK_SIZE = 128U;
+    static constexpr uint64_t CHUNK_SIZE = 128U;
     static constexpr size_t MEMORY_SIZE = 1024 * 1024 * 100;
     uint8_t m_memory[MEMORY_SIZE];
     BumpAllocator m_memoryAllocator{m_memory, MEMORY_SIZE};

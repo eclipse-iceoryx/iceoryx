@@ -199,7 +199,7 @@ class iox_listener_test : public Test
     vector<iox_user_trigger_t, MAX_NUMBER_OF_EVENTS_PER_LISTENER + 1U> m_userTrigger;
 
     static constexpr uint32_t NUM_CHUNKS_IN_POOL = MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY + 2U;
-    static constexpr uint32_t CHUNK_SIZE = 128U;
+    static constexpr uint64_t CHUNK_SIZE = 128U;
     static constexpr uint64_t MEMORY_SIZE = 1024U * 1024U * 100U;
     uint8_t m_memory[MEMORY_SIZE];
     BumpAllocator m_memoryAllocator{m_memory, MEMORY_SIZE};
@@ -511,7 +511,7 @@ TIMING_TEST_F(iox_listener_test, SubscriberCallbackIsCalledSampleIsReceived, Rep
                 Eq(iox_ListenerResult::ListenerResult_SUCCESS));
 
     Subscribe(m_subscriber[0U]);
-    constexpr uint32_t USER_PAYLOAD_SIZE{100U};
+    constexpr uint64_t USER_PAYLOAD_SIZE{100U};
 
     auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
     ASSERT_FALSE(chunkSettingsResult.has_error());
@@ -537,7 +537,7 @@ TIMING_TEST_F(iox_listener_test, SubscriberCallbackWithContextDataIsCalledSample
         Eq(iox_ListenerResult::ListenerResult_SUCCESS));
 
     Subscribe(m_subscriber[0U]);
-    constexpr uint32_t USER_PAYLOAD_SIZE{100U};
+    constexpr uint64_t USER_PAYLOAD_SIZE{100U};
 
     auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
     ASSERT_FALSE(chunkSettingsResult.has_error());

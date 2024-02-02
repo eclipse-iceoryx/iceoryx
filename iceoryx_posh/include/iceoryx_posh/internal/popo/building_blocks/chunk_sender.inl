@@ -96,7 +96,7 @@ inline typename ChunkSender<ChunkSenderDataType>::MemberType_t* ChunkSender<Chun
 template <typename ChunkSenderDataType>
 inline expected<mepoo::ChunkHeader*, AllocationError>
 ChunkSender<ChunkSenderDataType>::tryAllocate(const UniquePortId originId,
-                                              const uint32_t userPayloadSize,
+                                              const uint64_t userPayloadSize,
                                               const uint32_t userPayloadAlignment,
                                               const uint32_t userHeaderSize,
                                               const uint32_t userHeaderAlignment) noexcept
@@ -113,7 +113,7 @@ ChunkSender<ChunkSenderDataType>::tryAllocate(const UniquePortId originId,
     }
 
     const auto& chunkSettings = chunkSettingsResult.value();
-    const uint32_t requiredChunkSize = chunkSettings.requiredChunkSize();
+    const uint64_t requiredChunkSize = chunkSettings.requiredChunkSize();
 
     auto& lastChunkUnmanaged = getMembers()->m_lastChunkUnmanaged;
     mepoo::ChunkHeader* lastChunkChunkHeader =

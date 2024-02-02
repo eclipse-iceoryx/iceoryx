@@ -48,7 +48,7 @@ class MockClientPortUser : public MockBasePort
 
     MOCK_METHOD((iox::expected<iox::popo::RequestHeader*, iox::popo::AllocationError>),
                 allocateRequest,
-                (const uint32_t, const uint32_t),
+                (const uint64_t, const uint32_t),
                 (noexcept));
     MOCK_METHOD(void, releaseRequest, (const iox::popo::RequestHeader* const), (noexcept));
     MOCK_METHOD((iox::expected<void, iox::popo::ClientSendError>),

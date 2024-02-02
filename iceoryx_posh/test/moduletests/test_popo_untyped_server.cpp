@@ -109,7 +109,7 @@ TEST_F(UntypedServer_test, LoanCallsUnderlyingPortWithSuccessResult)
     ::testing::Test::RecordProperty("TEST_ID", "f39d58f3-b25e-4515-852d-c3afa5519e5a");
 
     constexpr uint64_t PAYLOAD_SIZE{8U};
-    constexpr uint64_t PAYLOAD_ALIGNMENT{32U};
+    constexpr uint32_t PAYLOAD_ALIGNMENT{32U};
     const iox::expected<ResponseHeader*, AllocationError> allocateResponseResult =
         iox::ok<ResponseHeader*>(responseMock.userHeader());
 
@@ -126,7 +126,7 @@ TEST_F(UntypedServer_test, LoanCallsUnderlyingPortWithErrorResult)
     ::testing::Test::RecordProperty("TEST_ID", "d813b550-64b2-490f-a9f4-bafc9ddc7696");
 
     constexpr uint64_t PAYLOAD_SIZE{8U};
-    constexpr uint64_t PAYLOAD_ALIGNMENT{32U};
+    constexpr uint32_t PAYLOAD_ALIGNMENT{32U};
     constexpr AllocationError ALLOCATION_ERROR{AllocationError::RUNNING_OUT_OF_CHUNKS};
     const iox::expected<ResponseHeader*, AllocationError> allocateResponseResult = iox::err(ALLOCATION_ERROR);
 

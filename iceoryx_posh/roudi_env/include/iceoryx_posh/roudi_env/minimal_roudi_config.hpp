@@ -29,7 +29,7 @@ namespace roudi_env
 class MinimalRouDiConfigBuilder
 {
     /// @brief Set the payload chunk size. Default = 128
-    IOX_BUILDER_PARAMETER(uint32_t, payloadChunkSize, 128)
+    IOX_BUILDER_PARAMETER(uint64_t, payloadChunkSize, 128)
 
     /// @brief Set the payload chunk count. Default = 10
     IOX_BUILDER_PARAMETER(uint32_t, payloadChunkCount, 10)

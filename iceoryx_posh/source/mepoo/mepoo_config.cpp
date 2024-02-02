@@ -28,11 +28,11 @@ const MePooConfig::MePooConfigContainerType* MePooConfig::getMemPoolConfig() con
     return &m_mempoolConfig;
 }
 
-void MePooConfig::addMemPool(MePooConfig::Entry f_entry) noexcept
+void MePooConfig::addMemPool(MePooConfig::Entry entry) noexcept
 {
     if (m_mempoolConfig.size() < m_mempoolConfig.capacity())
     {
-        m_mempoolConfig.push_back(f_entry);
+        m_mempoolConfig.push_back(entry);
     }
     else
     {

@@ -206,7 +206,7 @@ TEST_F(MePooSegment_test, GetMemoryManager)
     auto config = sut->getMemoryManager().getMemPoolInfo(0);
     ASSERT_THAT(config.m_numChunks, Eq(100U));
 
-    constexpr uint32_t USER_PAYLOAD_SIZE{128U};
+    constexpr uint64_t USER_PAYLOAD_SIZE{128U};
     auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
     ASSERT_FALSE(chunkSettingsResult.has_error());
     auto& chunkSettings = chunkSettingsResult.value();

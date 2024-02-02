@@ -113,7 +113,7 @@ void iox_pub_deinit(iox_pub_t const self)
     delete self;
 }
 
-iox_AllocationResult iox_pub_loan_chunk(iox_pub_t const self, void** const userPayload, const uint32_t userPayloadSize)
+iox_AllocationResult iox_pub_loan_chunk(iox_pub_t const self, void** const userPayload, const uint64_t userPayloadSize)
 {
     return iox_pub_loan_aligned_chunk_with_user_header(self,
                                                        userPayload,
@@ -125,7 +125,7 @@ iox_AllocationResult iox_pub_loan_chunk(iox_pub_t const self, void** const userP
 
 iox_AllocationResult iox_pub_loan_aligned_chunk(iox_pub_t const self,
                                                 void** const userPayload,
-                                                const uint32_t userPayloadSize,
+                                                const uint64_t userPayloadSize,
                                                 const uint32_t userPayloadAlignment)
 {
     return iox_pub_loan_aligned_chunk_with_user_header(self,
@@ -138,7 +138,7 @@ iox_AllocationResult iox_pub_loan_aligned_chunk(iox_pub_t const self,
 
 iox_AllocationResult iox_pub_loan_aligned_chunk_with_user_header(iox_pub_t const self,
                                                                  void** const userPayload,
-                                                                 const uint32_t userPayloadSize,
+                                                                 const uint64_t userPayloadSize,
                                                                  const uint32_t userPayloadAlignment,
                                                                  const uint32_t userHeaderSize,
                                                                  const uint32_t userHeaderAlignment)

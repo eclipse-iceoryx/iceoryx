@@ -81,7 +81,7 @@ class ClientPortUser : public BasePort
     /// @param[in] userPayloadAlignment, alignment of the user-paylaod without additional headers
     /// @return on success pointer to a RequestHeader which can be used to access the chunk-header, user-header and
     /// user-payload fields, error if not
-    expected<RequestHeader*, AllocationError> allocateRequest(const uint32_t userPayloadSize,
+    expected<RequestHeader*, AllocationError> allocateRequest(const uint64_t userPayloadSize,
                                                               const uint32_t userPayloadAlignment) noexcept;
 
     /// @brief Releases an allocated request without sending it

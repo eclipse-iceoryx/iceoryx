@@ -1,5 +1,6 @@
 // Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 // Copyright (c) 2022 by NXP. All rights reserved.
+// Copyright (c) 2024 by Bartlomiej Kozaryna <kozarynabartlomiej@gmail.com>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -41,6 +42,8 @@ using namespace iox::popo;
 using namespace iox::roudi_env;
 using namespace iox::testing;
 
+constexpr uint64_t SIZE_LARGER_THAN_4GB = std::numeric_limits<uint32_t>::max() + 41065UL;
+
 template <typename T>
 struct ComplexDataType
 {
@@ -48,8 +51,19 @@ struct ComplexDataType
     T complexType;
 };
 
+struct BigPayloadStruct
+{
+    uint8_t bigPayload[SIZE_LARGER_THAN_4GB];
+};
+
 class PublisherSubscriberCommunication_test : public RouDi_GTest
 {
+  protected:
+    PublisherSubscriberCommunication_test(iox::RouDiConfig_t&& roudiConfig)
+        : RouDi_GTest(std::move(roudiConfig))
+    {
+    }
+
   public:
     PublisherSubscriberCommunication_test()
         : RouDi_GTest(MinimalRouDiConfigBuilder().payloadChunkSize(512).create())
@@ -132,6 +146,29 @@ class PublisherSubscriberCommunication_test : public RouDi_GTest
     Watchdog m_watchdog{units::Duration::fromSeconds(5)};
     capro::ServiceDescription m_serviceDescription{
         "PublisherSubscriberCommunication", "IntegrationTest", "AllHailHypnotoad"};
+};
+
+class PublisherSubscriberCommunicationWithBigPayload_test : public PublisherSubscriberCommunication_test
+{
+    static constexpr uint64_t additionalSizeForUserHeader =
+        2 * std::max(sizeof(iox::popo::RequestHeader), sizeof(iox::popo::ResponseHeader));
+
+  public:
+    PublisherSubscriberCommunicationWithBigPayload_test()
+        : PublisherSubscriberCommunication_test(
+            MinimalRouDiConfigBuilder()
+                .payloadChunkSize(SIZE_LARGER_THAN_4GB + additionalSizeForUserHeader)
+                .payloadChunkCount(2)
+                .create())
+    {
+    }
+
+    void SetUp()
+    {
+        runtime::PoshRuntime::initRuntime("PublisherSubscriberCommunication_test");
+        m_watchdog.watchAndActOnFailure([] { std::terminate(); });
+    };
+    Watchdog m_watchdog{units::Duration::fromSeconds(10)};
 };
 
 // intentional reference to unique pointer, we do not want to pass ownership in this helper function
@@ -712,5 +749,39 @@ TEST_F(PublisherSubscriberCommunication_test, PublisherUniqueIdMatchesReceivedSa
                          .has_error());
     }
 }
+
+#ifdef TEST_WITH_HUGE_PAYLOAD
+
+TEST_F(PublisherSubscriberCommunicationWithBigPayload_test, SendingComplexDataType_BigPayloadStruct)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "f612a4ef-5f3a-4951-8f2e-bbc28f6b1a66");
+
+    using Type_t = ComplexDataType<BigPayloadStruct>;
+    auto publisher = createPublisher<Type_t>();
+    auto subscriber = createSubscriber<Type_t>();
+
+    constexpr uint64_t PAGE_SIZE = 4096;
+
+    ASSERT_FALSE(publisher->loan()
+                     .and_then([](auto& sample) {
+                         for (uint64_t i = PAGE_SIZE - 1; i < SIZE_LARGER_THAN_4GB; i += PAGE_SIZE)
+                         {
+                             sample->complexType.bigPayload[i] = static_cast<uint8_t>(i / PAGE_SIZE);
+                         }
+                         sample.publish();
+                     })
+                     .has_error());
+
+    EXPECT_FALSE(subscriber->take()
+                     .and_then([](auto& sample) {
+                         for (uint64_t i = PAGE_SIZE - 1; i < SIZE_LARGER_THAN_4GB; i += PAGE_SIZE)
+                         {
+                             ASSERT_THAT(sample->complexType.bigPayload[i], Eq(static_cast<uint8_t>(i / PAGE_SIZE)));
+                         }
+                     })
+                     .has_error());
+}
+
+#endif
 
 } // namespace

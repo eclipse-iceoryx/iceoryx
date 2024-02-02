@@ -89,7 +89,7 @@ void iox_client_deinit(iox_client_t const self);
 ///       for a custom user-payload alignment please use 'iox_client_loan_aligned_request'
 ENUM iox_AllocationResult iox_client_loan_request(iox_client_t const self,
                                                   void** const payload,
-                                                  const uint32_t payloadSize);
+                                                  const uint64_t payloadSize);
 
 /// @brief allocates a request in the shared memory with a custom alignment for the user-payload
 /// @param[in] self handle of the client
@@ -100,7 +100,7 @@ ENUM iox_AllocationResult iox_client_loan_request(iox_client_t const self,
 ///         describes the error
 ENUM iox_AllocationResult iox_client_loan_aligned_request(iox_client_t const self,
                                                           void** const payload,
-                                                          const uint32_t payloadSize,
+                                                          const uint64_t payloadSize,
                                                           const uint32_t payloadAlignment);
 
 

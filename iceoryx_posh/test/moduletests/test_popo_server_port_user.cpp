@@ -568,7 +568,7 @@ TEST_F(ServerPort_test, AllocateResponseWithNullptrAsRequestHeaderCallsErrorHand
     auto& sut = serverPortWithOfferOnCreate;
 
     constexpr uint64_t USER_PAYLOAD_SIZE{8U};
-    constexpr uint64_t USER_PAYLOAD_ALIGNMENT{8U};
+    constexpr uint32_t USER_PAYLOAD_ALIGNMENT{8U};
     constexpr RequestHeader* REQUEST_HEADER_NULLPTR{nullptr};
 
     sut.portUser.allocateResponse(REQUEST_HEADER_NULLPTR, USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT)
@@ -586,7 +586,7 @@ TEST_F(ServerPort_test,
     auto& sut = serverPortWithOfferOnCreate;
 
     constexpr uint64_t INVALID_USER_PAYLOAD_SIZE{23U};
-    constexpr uint64_t INVALID_USER_PAYLOAD_ALIGNMENT{15U};
+    constexpr uint32_t INVALID_USER_PAYLOAD_ALIGNMENT{15U};
 
     constexpr uint64_t NUMBER_OF_REQUESTS{1U};
     pushRequests(sut.requestQueuePusher, NUMBER_OF_REQUESTS);

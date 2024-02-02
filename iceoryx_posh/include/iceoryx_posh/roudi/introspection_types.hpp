@@ -39,8 +39,8 @@ struct MemPoolInfo
     uint32_t m_usedChunks{0};
     uint32_t m_minFreeChunks{0};
     uint32_t m_numChunks{0};
-    uint32_t m_chunkSize{0};
-    uint32_t m_chunkPayloadSize{0};
+    uint64_t m_chunkSize{0};
+    uint64_t m_chunkPayloadSize{0};
 };
 
 /// @brief container for MemPoolInfo structs of all available mempools.
@@ -95,8 +95,8 @@ const capro::ServiceDescription
 struct PortThroughputData
 {
     uint64_t m_publisherPortID{0};
-    uint32_t m_sampleSize{0};
-    uint32_t m_chunkSize{0};
+    uint64_t m_sampleSize{0};
+    uint64_t m_chunkSize{0};
     double m_chunksPerMinute{0};
     uint64_t m_lastSendIntervalInNanoseconds{0};
     bool m_isField{false};

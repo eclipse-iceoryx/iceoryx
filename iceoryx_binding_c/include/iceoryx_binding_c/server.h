@@ -103,7 +103,7 @@ void iox_server_release_request(iox_server_t const self, const void* const paylo
 ENUM iox_AllocationResult iox_server_loan_response(iox_server_t const self,
                                                    const void* const requestPayload,
                                                    void** const payload,
-                                                   const uint32_t payloadSize);
+                                                   const uint64_t payloadSize);
 
 /// @brief allocates a response in the shared memory
 /// @param[in] self handle of the server
@@ -116,7 +116,7 @@ ENUM iox_AllocationResult iox_server_loan_response(iox_server_t const self,
 ENUM iox_AllocationResult iox_server_loan_aligned_response(iox_server_t const self,
                                                            const void* const requestPayload,
                                                            void** const payload,
-                                                           const uint32_t payloadSize,
+                                                           const uint64_t payloadSize,
                                                            const uint32_t payloadAlignment);
 
 /// @brief sends a previously loaned response

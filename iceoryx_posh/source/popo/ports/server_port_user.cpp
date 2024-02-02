@@ -85,7 +85,7 @@ bool ServerPortUser::hasLostRequestsSinceLastCall() noexcept
 
 expected<ResponseHeader*, AllocationError>
 ServerPortUser::allocateResponse(const RequestHeader* const requestHeader,
-                                 const uint32_t userPayloadSize,
+                                 const uint64_t userPayloadSize,
                                  const uint32_t userPayloadAlignment) noexcept
 {
     if (requestHeader == nullptr)

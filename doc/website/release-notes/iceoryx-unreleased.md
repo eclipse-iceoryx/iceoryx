@@ -1293,3 +1293,9 @@
     #include "iox/mpmc_lockfree_queue.hpp"
     iox::concurrent::MpmcLockFreeQueue q;
     ```
+
+59. Payload Size for Memory Chunks is now `uin64_t`.
+    Hence the `ChunkHeader` (iceoryx_posh/mepoo/chunk_header.hpp) layout changes
+    and `m_chunkHeaderVersion` is getting increased.
+    Moreover many functions' signatures are also affected by this change.
+

@@ -64,10 +64,10 @@ class MemoryManager_test : public Test
         return chunkStore;
     }
 
-    static constexpr uint32_t CHUNK_SIZE_32{32U};
-    static constexpr uint32_t CHUNK_SIZE_64{64U};
-    static constexpr uint32_t CHUNK_SIZE_128{128};
-    static constexpr uint32_t CHUNK_SIZE_256{256U};
+    static constexpr uint64_t CHUNK_SIZE_32{32U};
+    static constexpr uint64_t CHUNK_SIZE_64{64U};
+    static constexpr uint64_t CHUNK_SIZE_128{128};
+    static constexpr uint64_t CHUNK_SIZE_256{256U};
 
     iox::BumpAllocator* allocator;
     void* rawMemory;
@@ -167,7 +167,7 @@ TEST_F(MemoryManager_test, GetChunkMethodWithNoMemPoolInMemConfigReturnsError)
             EXPECT_EQ(errorLevel, iox::ErrorLevel::SEVERE);
         });
 
-    constexpr uint32_t USER_PAYLOAD_SIZE{15U};
+    constexpr uint64_t USER_PAYLOAD_SIZE{15U};
     auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
     ASSERT_FALSE(chunkSettingsResult.has_error());
     auto& chunkSettings = chunkSettingsResult.value();
@@ -199,7 +199,7 @@ TEST_F(MemoryManager_test, GetChunkMethodWithChunkSizeGreaterThanAvailableChunkS
             EXPECT_EQ(errorLevel, iox::ErrorLevel::SEVERE);
         });
 
-    constexpr uint32_t USER_PAYLOAD_SIZE{200U};
+    constexpr uint64_t USER_PAYLOAD_SIZE{200U};
     auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
     ASSERT_FALSE(chunkSettingsResult.has_error());
     auto& chunkSettings = chunkSettingsResult.value();
@@ -218,7 +218,7 @@ TEST_F(MemoryManager_test, GetChunkMethodWhenNoFreeChunksInMemPoolConfigReturnsE
 {
     ::testing::Test::RecordProperty("TEST_ID", "0f201458-040e-43b1-a51b-698c2957ca7c");
     constexpr uint32_t CHUNK_COUNT{1U};
-    constexpr uint32_t PAYLOAD_SIZE{100U};
+    constexpr uint64_t PAYLOAD_SIZE{100U};
     mempoolconf.addMemPool({CHUNK_SIZE_128, CHUNK_COUNT});
     sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
     auto chunkSettingsResult = ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
@@ -250,7 +250,7 @@ TEST_F(MemoryManager_test, VerifyGetChunkMethodWhenTheRequestedChunkIsAvailableI
     mempoolconf.addMemPool({CHUNK_SIZE_128, CHUNK_COUNT});
     sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
 
-    constexpr uint32_t USER_PAYLOAD_SIZE{50U};
+    constexpr uint64_t USER_PAYLOAD_SIZE{50U};
     auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
     ASSERT_FALSE(chunkSettingsResult.has_error());
     auto& chunkSettings = chunkSettingsResult.value();
@@ -268,7 +268,7 @@ TEST_F(MemoryManager_test, getChunkSingleMemPoolAllChunks)
     mempoolconf.addMemPool({128, CHUNK_COUNT});
     sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
 
-    constexpr uint32_t USER_PAYLOAD_SIZE{50U};
+    constexpr uint64_t USER_PAYLOAD_SIZE{50U};
     auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
     ASSERT_FALSE(chunkSettingsResult.has_error());
     auto& chunkSettings = chunkSettingsResult.value();
@@ -458,7 +458,7 @@ TEST_F(MemoryManager_test, freeChunkMultiMemPoolFullToEmptyToFull)
 TEST_F(MemoryManager_test, getChunkWithUserPayloadSizeZeroShouldNotFail)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9fbfe1ff-9d59-449b-b164-433bbb031125");
-    constexpr uint32_t USER_PAYLOAD_SIZE{0U};
+    constexpr uint64_t USER_PAYLOAD_SIZE{0U};
     auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
     ASSERT_FALSE(chunkSettingsResult.has_error());
     auto& chunkSettings = chunkSettingsResult.value();

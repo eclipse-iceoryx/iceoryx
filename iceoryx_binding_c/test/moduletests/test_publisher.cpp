@@ -98,7 +98,7 @@ class iox_pub_test : public Test
     static constexpr size_t MEMORY_SIZE = 1024 * 1024;
     uint8_t m_memory[MEMORY_SIZE];
     static constexpr uint32_t NUM_CHUNKS_IN_POOL = 20;
-    static constexpr uint32_t CHUNK_SIZE = 256;
+    static constexpr uint64_t CHUNK_SIZE = 256;
 
     using ChunkQueueData_t = popo::ChunkQueueData<DefaultChunkQueueConfig, popo::ThreadSafePolicy>;
     ChunkQueueData_t m_chunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
@@ -284,7 +284,7 @@ TEST_F(iox_pub_test, allocate_chunkFailsWhenHoldingToManyChunksInParallel)
 TEST_F(iox_pub_test, allocate_chunkFailsWhenOutOfChunks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7563ed4c-a6d5-487d-9c6c-937d8e8c3d1d");
-    constexpr uint32_t USER_PAYLOAD_SIZE{100U};
+    constexpr uint64_t USER_PAYLOAD_SIZE{100U};
 
     auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
     ASSERT_FALSE(chunkSettingsResult.has_error());

@@ -58,7 +58,7 @@ class UntypedPublisherTest : public Test
 TEST_F(UntypedPublisherTest, LoansChunkWithRequestedSizeWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ddf997c8-ef8e-4f89-802e-66f1c4bf4980");
-    constexpr uint32_t USER_PAYLOAD_SIZE = 7U;
+    constexpr uint64_t USER_PAYLOAD_SIZE = 7U;
     constexpr uint32_t USER_PAYLOAD_ALIGNMENT = 128U;
     EXPECT_CALL(portMock,
                 tryAllocateChunk(USER_PAYLOAD_SIZE,
@@ -79,7 +79,7 @@ TEST_F(UntypedPublisherTest, LoansChunkWithRequestedSizeAndUserHeaderWorks)
     TestUntypedPublisher sutWithUserHeader{{"", "", ""}};
     MockPublisherPortUser& portMockWithUserHeader{sutWithUserHeader.mockPort()};
 
-    constexpr uint32_t USER_PAYLOAD_SIZE = 42U;
+    constexpr uint64_t USER_PAYLOAD_SIZE = 42U;
     constexpr uint32_t USER_PAYLOAD_ALIGNMENT = 512U;
     constexpr uint32_t USER_HEADER_SIZE = sizeof(TestUserHeader);
     constexpr uint32_t USER_HEADER_ALIGNMENT = alignof(TestUserHeader);
@@ -97,7 +97,7 @@ TEST_F(UntypedPublisherTest, LoansChunkWithRequestedSizeAndUserHeaderWorks)
 TEST_F(UntypedPublisherTest, LoanFailsIfPortCannotSatisfyAllocationRequest)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b609f96e-ea08-46b2-9b72-d162a8273cb5");
-    constexpr uint32_t ALLOCATION_SIZE = 17U;
+    constexpr uint64_t ALLOCATION_SIZE = 17U;
     EXPECT_CALL(portMock, tryAllocateChunk(ALLOCATION_SIZE, _, _, _))
         .WillOnce(Return(ByMove(iox::err(iox::popo::AllocationError::RUNNING_OUT_OF_CHUNKS))));
     // ===== Test ===== //
@@ -111,7 +111,7 @@ TEST_F(UntypedPublisherTest, LoanFailsIfPortCannotSatisfyAllocationRequest)
 TEST_F(UntypedPublisherTest, ReleaseDelegatesCallToPort)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e114b083-10c7-403e-a841-a04487a5f1e0");
-    constexpr uint32_t ALLOCATION_SIZE = 7U;
+    constexpr uint64_t ALLOCATION_SIZE = 7U;
     EXPECT_CALL(portMock, tryAllocateChunk(ALLOCATION_SIZE, _, _, _))
         .WillOnce(Return(ByMove(iox::ok(chunkMock.chunkHeader()))));
 

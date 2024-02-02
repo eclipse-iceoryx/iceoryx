@@ -47,6 +47,7 @@ ADDRESS_SANITIZER_FLAG="OFF"
 THREAD_SANITIZER_FLAG="OFF"
 ROUDI_ENV_FLAG="OFF"
 TEST_ADD_USER="OFF"
+TEST_HUGE_PAYLOAD="OFF"
 OUT_OF_TREE_FLAG="OFF"
 EXAMPLE_FLAG="OFF"
 BUILD_ALL_FLAG="OFF"
@@ -122,6 +123,10 @@ while (( "$#" )); do
     "test-add-user")
         TEST_ADD_USER="ON"
         "$WORKSPACE"/tools/scripts/add_test_users.sh check
+        shift 1
+        ;;
+    "test-huge-payload")
+        TEST_HUGE_PAYLOAD="ON"
         shift 1
         ;;
     "binding-c")
@@ -311,6 +316,7 @@ if [ "$NO_BUILD" == false ]; then
           -DADDRESS_SANITIZER=$ADDRESS_SANITIZER_FLAG \
           -DTHREAD_SANITIZER=$THREAD_SANITIZER_FLAG \
           -DTEST_WITH_ADDITIONAL_USER=$TEST_ADD_USER $TOOLCHAIN_FILE \
+          -DTEST_WITH_HUGE_PAYLOAD=$TEST_HUGE_PAYLOAD \
           -DCMAKE_CXX_FLAGS=$CMAKE_CXX_FLAGS \
           "$WORKSPACE"/iceoryx_meta
 

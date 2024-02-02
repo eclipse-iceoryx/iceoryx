@@ -34,6 +34,7 @@ option(ROUDI_ENVIRONMENT "Build RouDi Environment for testing, is enabled when b
 option(ADDRESS_SANITIZER "Build with address sanitizer" OFF)
 option(THREAD_SANITIZER "Build with thread sanitizer" OFF)
 option(TEST_WITH_ADDITIONAL_USER "Build Test with additional user accounts for testing access control" OFF)
+option(TEST_WITH_HUGE_PAYLOAD "Build Tests which use payload bigger than 2GB" OFF)
 option(TOML_CONFIG "TOML support for RouDi with dynamic configuration" ON)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # "Create compile_commands.json file"
@@ -90,5 +91,6 @@ function(show_config_options)
   message("          ADDRESS_SANITIZER....................: " ${ADDRESS_SANITIZER})
   message("          THREAD_SANITIZER.....................: " ${THREAD_SANITIZER})
   message("          TEST_WITH_ADDITIONAL_USER ...........: " ${TEST_WITH_ADDITIONAL_USER})
+  message("          TEST_WITH_HUGE_PAYLOAD ..............: " ${TEST_WITH_HUGE_PAYLOAD})
   message("          TOML_CONFIG..........................: " ${TOML_CONFIG})
 endfunction()

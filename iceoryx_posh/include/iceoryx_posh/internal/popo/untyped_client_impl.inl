@@ -37,7 +37,7 @@ UntypedClientImpl<BaseClientT>::~UntypedClientImpl() noexcept
 }
 
 template <typename BaseClientT>
-expected<void*, AllocationError> UntypedClientImpl<BaseClientT>::loan(const uint32_t payloadSize,
+expected<void*, AllocationError> UntypedClientImpl<BaseClientT>::loan(const uint64_t payloadSize,
                                                                       const uint32_t payloadAlignment) noexcept
 {
     auto allocationResult = port().allocateRequest(payloadSize, payloadAlignment);

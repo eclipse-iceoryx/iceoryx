@@ -1,5 +1,6 @@
 // Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2024 by Bartlomiej Kozaryna <kozarynabartlomiej@gmail.com>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -46,7 +47,7 @@ struct ChunkHeader
     /// @brief constructs and initializes a ChunkHeader
     /// @param[in] chunkSize is the size of the chunk the ChunkHeader is constructed
     /// @param[in] chunkSettings are the settings like user-payload size and user-header alignment
-    ChunkHeader(const uint32_t chunkSize, const ChunkSettings& chunkSettings) noexcept;
+    ChunkHeader(const uint64_t chunkSize, const ChunkSettings& chunkSettings) noexcept;
 
     // copy/move ctors/assignment operators are deleted since the calculations for the user-header and user-payload
     // alignment are dependent on the address of the this pointer
@@ -60,7 +61,7 @@ struct ChunkHeader
     ///            - data width of members changes
     ///            - members are rearranged
     ///            - semantic meaning of a member changes
-    static constexpr uint8_t CHUNK_HEADER_VERSION{1U};
+    static constexpr uint8_t CHUNK_HEADER_VERSION{2U};
 
     /// @brief User-Header id for no user-header
     static constexpr uint16_t NO_USER_HEADER{0x0000};
@@ -113,11 +114,11 @@ struct ChunkHeader
 
     /// @brief Calculates the used size of the chunk with the ChunkHeader, user-heander and user-payload
     /// @return the used size of the chunk
-    uint32_t usedSizeOfChunk() const noexcept;
+    uint64_t usedSizeOfChunk() const noexcept;
 
     /// @brief The size of the whole chunk, including the header
     /// @return the chunk size
-    uint32_t chunkSize() const noexcept;
+    uint64_t chunkSize() const noexcept;
 
     /// @brief The size of the chunk occupied by the user-header
     /// @return the user-header size
@@ -125,7 +126,7 @@ struct ChunkHeader
 
     /// @brief The size of the chunk occupied by the user-payload
     /// @return the user-payload size
-    uint32_t userPayloadSize() const noexcept;
+    uint64_t userPayloadSize() const noexcept;
 
     /// @brief The alignment of the chunk occupied by the user-payload
     /// @return the user-payload alignment
@@ -152,11 +153,10 @@ struct ChunkHeader
   private:
     // the order of these members must be changed carefully and if this happens, the m_chunkHeaderVersion
     // needs to be adapted in order to be able to detect incompatibilities between publisher/subscriber
-    // or record&replay, m_chunkSize and m_chunkHeaderVersion should therefore neither changed the type,
-    // nor the position
+    // or record&replay, m_chunkHeaderVersion should therefore neither changed the type,
+    // nor the position (offset from the beginning)
 
-    // size of the whole chunk, including the header
-    uint32_t m_chunkSize{0U};
+    uint32_t m_userHeaderSize{0U};
     uint8_t m_chunkHeaderVersion{CHUNK_HEADER_VERSION};
     // reserved for future functionality and used to indicate the padding bytes; currently not used and set to '0'
     uint8_t m_reserved{0};
@@ -164,8 +164,9 @@ struct ChunkHeader
     uint16_t m_userHeaderId{NO_USER_HEADER};
     popo::UniquePortId m_originId{popo::InvalidPortId};
     uint64_t m_sequenceNumber{0U};
-    uint32_t m_userHeaderSize{0U};
-    uint32_t m_userPayloadSize{0U};
+    // size of the whole chunk, including the header
+    uint64_t m_chunkSize{0U};
+    uint64_t m_userPayloadSize{0U};
     uint32_t m_userPayloadAlignment{1U};
     UserPayloadOffset_t m_userPayloadOffset{sizeof(ChunkHeader)};
 };

@@ -60,7 +60,7 @@ void UntypedServerImpl<BaseServerT>::releaseRequest(const void* const requestPay
 
 template <typename BaseServerT>
 expected<void*, AllocationError> UntypedServerImpl<BaseServerT>::loan(const RequestHeader* const requestHeader,
-                                                                      const uint32_t payloadSize,
+                                                                      const uint64_t payloadSize,
                                                                       const uint32_t payloadAlignment) noexcept
 {
     auto allocationResult = port().allocateResponse(requestHeader, payloadSize, payloadAlignment);

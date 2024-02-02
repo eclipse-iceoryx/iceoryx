@@ -41,7 +41,7 @@ struct DummySample
 };
 
 static constexpr uint32_t NUM_CHUNKS_IN_POOL = 9 * iox::MAX_SUBSCRIBER_QUEUE_CAPACITY;
-static constexpr uint32_t SMALL_CHUNK = 128;
+static constexpr uint64_t SMALL_CHUNK = 128;
 static constexpr uint32_t CHUNK_META_INFO_SIZE = 256;
 static constexpr size_t MEMORY_SIZE = NUM_CHUNKS_IN_POOL * (SMALL_CHUNK + CHUNK_META_INFO_SIZE);
 alignas(64) static uint8_t g_memory[MEMORY_SIZE];

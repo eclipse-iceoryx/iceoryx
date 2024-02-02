@@ -62,7 +62,7 @@ class UntypedServerImpl : public BaseServerT
     ///         an AllocationError if no chunk could be loaned.
     /// @note An AllocationError occurs if no chunk is available in the shared memory.
     expected<void*, AllocationError> loan(const RequestHeader* const requestHeader,
-                                          const uint32_t payloadSize,
+                                          const uint64_t payloadSize,
                                           const uint32_t payloadAlignment) noexcept;
 
     /// @brief Sends the provided memory chunk as response to the client.

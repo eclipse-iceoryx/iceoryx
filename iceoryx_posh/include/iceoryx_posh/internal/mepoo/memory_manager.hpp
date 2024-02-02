@@ -46,7 +46,7 @@ struct MePooConfig;
 
 class MemoryManager
 {
-    using MaxChunkPayloadSize_t = range<uint32_t, 1, std::numeric_limits<uint32_t>::max() - sizeof(ChunkHeader)>;
+    using MaxChunkPayloadSize_t = range<uint64_t, 1, std::numeric_limits<uint64_t>::max() - sizeof(ChunkHeader)>;
 
   public:
     enum class Error
@@ -81,12 +81,12 @@ class MemoryManager
     static uint64_t requiredFullMemorySize(const MePooConfig& mePooConfig) noexcept;
 
   private:
-    static uint32_t sizeWithChunkHeaderStruct(const MaxChunkPayloadSize_t size) noexcept;
+    static uint64_t sizeWithChunkHeaderStruct(const MaxChunkPayloadSize_t size) noexcept;
 
     void printMemPoolVector(log::LogStream& log) const noexcept;
     void addMemPool(BumpAllocator& managementAllocator,
                     BumpAllocator& chunkMemoryAllocator,
-                    const greater_or_equal<uint32_t, MemPool::CHUNK_MEMORY_ALIGNMENT> chunkPayloadSize,
+                    const greater_or_equal<uint64_t, MemPool::CHUNK_MEMORY_ALIGNMENT> chunkPayloadSize,
                     const greater_or_equal<uint32_t, 1> numberOfChunks) noexcept;
     void generateChunkManagementPool(BumpAllocator& managementAllocator) noexcept;
 

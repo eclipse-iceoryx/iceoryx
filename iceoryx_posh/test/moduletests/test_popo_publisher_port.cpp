@@ -63,8 +63,8 @@ class PublisherPort_test : public Test
     static constexpr size_t MEMORY_SIZE = 1024 * 1024;
     uint8_t m_memory[MEMORY_SIZE];
     static constexpr uint32_t NUM_CHUNKS_IN_POOL = 20;
-    static constexpr uint32_t SMALL_CHUNK = 128;
-    static constexpr uint32_t BIG_CHUNK = 256;
+    static constexpr uint64_t SMALL_CHUNK = 128;
+    static constexpr uint64_t BIG_CHUNK = 256;
 
     static constexpr uint32_t USER_PAYLOAD_ALIGNMENT = iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT;
     static constexpr uint32_t USER_HEADER_SIZE = iox::CHUNK_NO_USER_HEADER_SIZE;
@@ -238,7 +238,7 @@ TEST_F(PublisherPort_test,
 TEST_F(PublisherPort_test, allocatingAChunkWithoutUserHeaderAndSmallUserPayloadAlignmentResultsInSmallChunk)
 {
     ::testing::Test::RecordProperty("TEST_ID", "467e0f06-3450-4cc9-ab84-5ccd5efab69d");
-    constexpr uint32_t USER_PAYLOAD_SIZE{SMALL_CHUNK / 2};
+    constexpr uint64_t USER_PAYLOAD_SIZE{SMALL_CHUNK / 2};
     auto maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(
         USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
 
@@ -249,7 +249,7 @@ TEST_F(PublisherPort_test, allocatingAChunkWithoutUserHeaderAndSmallUserPayloadA
 TEST_F(PublisherPort_test, allocatingAChunkWithoutUserHeaderAndLargeUserPayloadAlignmentResultsInLargeChunk)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3bdf0578-93b3-470d-84af-9139919665db");
-    constexpr uint32_t USER_PAYLOAD_SIZE{SMALL_CHUNK / 2};
+    constexpr uint64_t USER_PAYLOAD_SIZE{SMALL_CHUNK / 2};
     constexpr uint32_t LARGE_USER_PAYLOAD_ALIGNMENT{SMALL_CHUNK};
     auto maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(
         USER_PAYLOAD_SIZE, LARGE_USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
@@ -261,7 +261,7 @@ TEST_F(PublisherPort_test, allocatingAChunkWithoutUserHeaderAndLargeUserPayloadA
 TEST_F(PublisherPort_test, allocatingAChunkWithLargeUserHeaderResultsInLargeChunk)
 {
     ::testing::Test::RecordProperty("TEST_ID", "598e04d8-8a37-43ef-b686-64e7b2723ffe");
-    constexpr uint32_t USER_PAYLOAD_SIZE{SMALL_CHUNK / 2};
+    constexpr uint64_t USER_PAYLOAD_SIZE{SMALL_CHUNK / 2};
     constexpr uint32_t LARGE_USER_HEADER_SIZE{SMALL_CHUNK};
     auto maybeChunkHeader = m_sutNoOfferOnCreateUserSide.tryAllocateChunk(
         USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT, LARGE_USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);

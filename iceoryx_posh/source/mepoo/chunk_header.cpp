@@ -24,9 +24,9 @@ namespace mepoo
 {
 constexpr uint8_t ChunkHeader::CHUNK_HEADER_VERSION;
 
-ChunkHeader::ChunkHeader(const uint32_t chunkSize, const ChunkSettings& chunkSettings) noexcept
-    : m_chunkSize(chunkSize)
-    , m_userHeaderSize(chunkSettings.userHeaderSize())
+ChunkHeader::ChunkHeader(const uint64_t chunkSize, const ChunkSettings& chunkSettings) noexcept
+    : m_userHeaderSize(chunkSettings.userHeaderSize())
+    , m_chunkSize(chunkSize)
     , m_userPayloadSize(chunkSettings.userPayloadSize())
     , m_userPayloadAlignment(chunkSettings.userPayloadAlignment())
 {
@@ -175,12 +175,12 @@ const ChunkHeader* ChunkHeader::fromUserHeader(const void* const userHeader) noe
     return ChunkHeader::fromUserHeader(const_cast<void*>(userHeader));
 }
 
-uint32_t ChunkHeader::usedSizeOfChunk() const noexcept
+uint64_t ChunkHeader::usedSizeOfChunk() const noexcept
 {
-    return static_cast<uint32_t>(overflowSafeUsedSizeOfChunk());
+    return overflowSafeUsedSizeOfChunk();
 }
 
-uint32_t ChunkHeader::chunkSize() const noexcept
+uint64_t ChunkHeader::chunkSize() const noexcept
 {
     return m_chunkSize;
 }
@@ -190,7 +190,7 @@ uint32_t ChunkHeader::userHeaderSize() const noexcept
     return m_userHeaderSize;
 }
 
-uint32_t ChunkHeader::userPayloadSize() const noexcept
+uint64_t ChunkHeader::userPayloadSize() const noexcept
 {
     return m_userPayloadSize;
 }

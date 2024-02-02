@@ -40,7 +40,7 @@ inline void UntypedPublisherImpl<BasePublisherType>::publish(void* const userPay
 
 template <typename BasePublisherType>
 inline expected<void*, AllocationError>
-UntypedPublisherImpl<BasePublisherType>::loan(const uint32_t userPayloadSize,
+UntypedPublisherImpl<BasePublisherType>::loan(const uint64_t userPayloadSize,
                                               const uint32_t userPayloadAlignment,
                                               const uint32_t userHeaderSize,
                                               const uint32_t userHeaderAlignment) noexcept

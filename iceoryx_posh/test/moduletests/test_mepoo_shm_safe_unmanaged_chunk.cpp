@@ -58,7 +58,7 @@ class ShmSafeUnmanagedChunk_test : public Test
     static constexpr size_t MEMORY_SIZE = 100 * KILOBYTE;
     std::unique_ptr<char[]> m_memory{new char[MEMORY_SIZE]};
     static constexpr uint32_t NUM_CHUNKS_IN_POOL = 100;
-    static constexpr uint32_t CHUNK_SIZE = 128;
+    static constexpr uint64_t CHUNK_SIZE = 128;
 
     iox::BumpAllocator m_memoryAllocator{m_memory.get(), MEMORY_SIZE};
 };

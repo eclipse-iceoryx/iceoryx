@@ -133,7 +133,7 @@ class ClientPort_test : public Test
         return m_memoryManager.getMemPoolInfo(0U).m_usedChunks;
     }
 
-    iox::mepoo::SharedChunk getChunkFromMemoryManager(uint32_t userPayloadSize, uint32_t userHeaderSize)
+    iox::mepoo::SharedChunk getChunkFromMemoryManager(uint64_t userPayloadSize, uint32_t userHeaderSize)
     {
         auto chunkSettingsResult = iox::mepoo::ChunkSettings::create(userPayloadSize,
                                                                      iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT,
@@ -152,7 +152,7 @@ class ClientPort_test : public Test
     {
         for (auto i = 0U; i < numberOfPushes; ++i)
         {
-            constexpr uint32_t USER_PAYLOAD_SIZE{10};
+            constexpr uint64_t USER_PAYLOAD_SIZE{10};
             auto sharedChunk = getChunkFromMemoryManager(USER_PAYLOAD_SIZE, sizeof(ResponseHeader));
             if (!chunkQueuePusher.push(sharedChunk))
             {
@@ -167,7 +167,7 @@ class ClientPort_test : public Test
 
   private:
     static constexpr uint32_t NUM_CHUNKS = 1024U;
-    static constexpr uint32_t CHUNK_SIZE = 128U;
+    static constexpr uint64_t CHUNK_SIZE = 128U;
     static constexpr size_t MEMORY_SIZE = 1024U * 1024U;
     uint8_t m_memory[MEMORY_SIZE];
     iox::BumpAllocator m_memoryAllocator{m_memory, MEMORY_SIZE};
@@ -206,7 +206,7 @@ class ClientPort_test : public Test
     iox::optional<SutClientPort> clientPortForStateTransitionTests;
 
   public:
-    static constexpr uint32_t USER_PAYLOAD_SIZE{32U};
+    static constexpr uint64_t USER_PAYLOAD_SIZE{32U};
     static constexpr uint32_t USER_PAYLOAD_ALIGNMENT{8U};
 
     ServerChunkQueueData_t serverChunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
@@ -398,7 +398,7 @@ TEST_F(ClientPort_test, GetResponseOnConnectedClientPortWithNonEmptyResponseQueu
     constexpr int64_t SEQUENCE_ID{13U};
     auto& sut = clientPortWithConnectOnCreate;
 
-    constexpr uint32_t USER_PAYLOAD_SIZE{10};
+    constexpr uint64_t USER_PAYLOAD_SIZE{10};
     auto sharedChunk = getChunkFromMemoryManager(USER_PAYLOAD_SIZE, sizeof(ResponseHeader));
     new (sharedChunk.getChunkHeader()->userHeader())
         ResponseHeader(iox::UniqueId(), RpcBaseHeader::UNKNOWN_CLIENT_QUEUE_INDEX, SEQUENCE_ID);
@@ -435,7 +435,7 @@ TEST_F(ClientPort_test, ReleaseResponseWithValidResponseReleasesChunkToTheMempoo
     ::testing::Test::RecordProperty("TEST_ID", "3f625d3e-9ef3-4329-9c80-95af0327cbc0");
     auto& sut = clientPortWithConnectOnCreate;
 
-    constexpr uint32_t USER_PAYLOAD_SIZE{10};
+    constexpr uint64_t USER_PAYLOAD_SIZE{10};
 
     iox::optional<iox::mepoo::SharedChunk> sharedChunk{
         getChunkFromMemoryManager(USER_PAYLOAD_SIZE, sizeof(ResponseHeader))};
@@ -459,7 +459,7 @@ TEST_F(ClientPort_test, ReleaseQueuedResponsesReleasesAllChunksToTheMempool)
     ::testing::Test::RecordProperty("TEST_ID", "d51674b7-ad92-47cc-85d9-06169e8a813b");
     auto& sut = clientPortWithConnectOnCreate;
 
-    constexpr uint32_t USER_PAYLOAD_SIZE{10};
+    constexpr uint64_t USER_PAYLOAD_SIZE{10};
     constexpr uint32_t NUMBER_OF_QUEUED_RESPONSES{3};
 
     for (uint32_t i = 0; i < NUMBER_OF_QUEUED_RESPONSES; ++i)
@@ -487,7 +487,7 @@ TEST_F(ClientPort_test, HasNewResponseOnNonEmptyResponseQueueReturnsTrue)
     ::testing::Test::RecordProperty("TEST_ID", "2b0dbb32-2d5b-4eac-96d3-6cf7a8cbac15");
     auto& sut = clientPortWithConnectOnCreate;
 
-    constexpr uint32_t USER_PAYLOAD_SIZE{10};
+    constexpr uint64_t USER_PAYLOAD_SIZE{10};
     auto sharedChunk = getChunkFromMemoryManager(USER_PAYLOAD_SIZE, sizeof(ResponseHeader));
     sut.responseQueuePusher.push(sharedChunk);
 
@@ -499,7 +499,7 @@ TEST_F(ClientPort_test, HasNewResponseOnEmptyResponseQueueAfterPreviouslyNotEmpt
     ::testing::Test::RecordProperty("TEST_ID", "9cd91de8-9687-436a-9d7d-95d2754eee30");
     auto& sut = clientPortWithConnectOnCreate;
 
-    constexpr uint32_t USER_PAYLOAD_SIZE{10};
+    constexpr uint64_t USER_PAYLOAD_SIZE{10};
     auto sharedChunk = getChunkFromMemoryManager(USER_PAYLOAD_SIZE, sizeof(ResponseHeader));
     sut.responseQueuePusher.push(sharedChunk);
 
