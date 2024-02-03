@@ -19,7 +19,7 @@
 
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
 
-#include "iceoryx_posh/error_handling/error_handling.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 
 #include <algorithm>
 
@@ -68,7 +68,7 @@ MemPool::MemPool(const greater_or_equal<uint64_t, CHUNK_MEMORY_ALIGNMENT> chunkS
         IOX_LOG(FATAL,
                 "Chunk size must be multiple of '" << CHUNK_MEMORY_ALIGNMENT << "'! Requested size is " << chunkSize
                                                    << " for " << numberOfChunks << " chunks!");
-        errorHandler(PoshError::MEPOO__MEMPOOL_CHUNKSIZE_MUST_BE_MULTIPLE_OF_CHUNK_MEMORY_ALIGNMENT);
+        IOX_REPORT_FATAL(PoshError::MEPOO__MEMPOOL_CHUNKSIZE_MUST_BE_MULTIPLE_OF_CHUNK_MEMORY_ALIGNMENT);
     }
 }
 
@@ -129,7 +129,7 @@ void MemPool::freeChunk(const void* chunk) noexcept
 
     if (!m_freeIndices.push(index))
     {
-        errorHandler(PoshError::POSH__MEMPOOL_POSSIBLE_DOUBLE_FREE);
+        IOX_REPORT_FATAL(PoshError::POSH__MEMPOOL_POSSIBLE_DOUBLE_FREE);
     }
 
     m_usedChunks.fetch_sub(1U, std::memory_order_relaxed);

@@ -15,14 +15,17 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_binding_c/enums.h"
-#include "iceoryx_binding_c/error_handling/error_handling.hpp"
+#include "iceoryx_binding_c/internal/binding_c_error_reporting.hpp"
 #include "iceoryx_binding_c/internal/c2cpp_enum_translation.hpp"
 
+#include "iceoryx_hoofs/testing/error_reporting/testing_support.hpp"
+#include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "test.hpp"
 
 namespace
 {
 using namespace ::testing;
+using namespace ::iox::testing;
 
 template <typename CPP, typename C>
 struct EnumMapping
@@ -55,12 +58,9 @@ TEST(c2cpp_enum_translation_test, SubscriberState)
 // return the default value DISCARD_OLDEST_DATA always in the undefined behavior case
 // the clang sanitizer detects this successfully and this leads to termination, and with this the test fails
 #if !defined(__clang__)
-    iox::CBindingError errorValue = iox::CBindingError::NO_ERROR;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::CBindingError>(
-        [&](const auto e, const iox::ErrorLevel) { errorValue = e; });
-    EXPECT_EQ(c2cpp::subscriberState(iox_test_binding_c::maxUnderlyingCEnumValue<iox_SubscriberState>()),
-              iox::popo::SubscriberState::HAS_DATA);
-    EXPECT_THAT(errorValue, Eq(iox::CBindingError::BINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_SUBSCRIBER_STATE_VALUE));
+    IOX_EXPECT_FATAL_FAILURE(
+        [&] { c2cpp::subscriberState(iox_test_binding_c::maxUnderlyingCEnumValue<iox_SubscriberState>()); },
+        iox::CBindingError::BINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_SUBSCRIBER_STATE_VALUE);
 #endif
 }
 
@@ -88,12 +88,9 @@ TEST(c2cpp_enum_translation_test, SubscriberEvent)
 // return the default value DATA_RECEIVED always in the undefined behavior case
 // the clang sanitizer detects this successfully and this leads to termination, and with this the test fails
 #if !defined(__clang__)
-    iox::CBindingError errorValue = iox::CBindingError::NO_ERROR;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::CBindingError>(
-        [&](const auto e, const iox::ErrorLevel) { errorValue = e; });
-    EXPECT_EQ(c2cpp::subscriberEvent(iox_test_binding_c::maxUnderlyingCEnumValue<iox_SubscriberEvent>()),
-              iox::popo::SubscriberEvent::DATA_RECEIVED);
-    EXPECT_THAT(errorValue, Eq(iox::CBindingError::BINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_SUBSCRIBER_EVENT_VALUE));
+    IOX_EXPECT_FATAL_FAILURE(
+        [&] { c2cpp::subscriberEvent(iox_test_binding_c::maxUnderlyingCEnumValue<iox_SubscriberEvent>()); },
+        iox::CBindingError::BINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_SUBSCRIBER_EVENT_VALUE);
 #endif
 }
 
@@ -125,12 +122,10 @@ TEST(c2cpp_enum_translation_test, ConsumerTooSlowPolicy)
 // return the default value DISCARD_OLDEST_DATA always in the undefined behavior case
 // the clang sanitizer detects this successfully and this leads to termination, and with this the test fails
 #if !defined(__clang__)
-    iox::CBindingError errorValue = iox::CBindingError::NO_ERROR;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::CBindingError>(
-        [&](const auto e, const iox::ErrorLevel) { errorValue = e; });
     EXPECT_EQ(c2cpp::consumerTooSlowPolicy(iox_test_binding_c::maxUnderlyingCEnumValue<iox_ConsumerTooSlowPolicy>()),
               iox::popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA);
-    EXPECT_THAT(errorValue, Eq(iox::CBindingError::BINDING_C__UNDEFINED_STATE_IN_IOX_CONSUMER_TOO_SLOW_POLICY));
+
+    IOX_TESTING_EXPECT_ERROR(iox::CBindingError::BINDING_C__UNDEFINED_STATE_IN_IOX_CONSUMER_TOO_SLOW_POLICY);
 #endif
 }
 
@@ -162,12 +157,10 @@ TEST(c2cpp_enum_translation_test, QueueFullPolicy)
 // return the default value DISCARD_OLDEST_DATA always in the undefined behavior case
 // the clang sanitizer detects this successfully and this leads to termination, and with this the test fails
 #if !defined(__clang__)
-    iox::CBindingError errorValue = iox::CBindingError::NO_ERROR;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::CBindingError>(
-        [&](const auto e, const iox::ErrorLevel) { errorValue = e; });
     EXPECT_EQ(c2cpp::queueFullPolicy(iox_test_binding_c::maxUnderlyingCEnumValue<iox_QueueFullPolicy>()),
               iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA);
-    EXPECT_THAT(errorValue, Eq(iox::CBindingError::BINDING_C__UNDEFINED_STATE_IN_IOX_QUEUE_FULL_POLICY));
+
+    IOX_TESTING_EXPECT_ERROR(iox::CBindingError::BINDING_C__UNDEFINED_STATE_IN_IOX_QUEUE_FULL_POLICY);
 #endif
 }
 
@@ -195,12 +188,9 @@ TEST(c2cpp_enum_translation_test, ClientState)
 // return the default value HAS_RESPONSE always in the undefined behavior case
 // the clang sanitizer detects this successfully and this leads to termination, and with this the test fails
 #if !defined(__clang__)
-    iox::CBindingError errorValue = iox::CBindingError::NO_ERROR;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::CBindingError>(
-        [&](const auto e, const iox::ErrorLevel) { errorValue = e; });
-    EXPECT_EQ(c2cpp::clientState(iox_test_binding_c::maxUnderlyingCEnumValue<iox_ClientState>()),
-              iox::popo::ClientState::HAS_RESPONSE);
-    EXPECT_THAT(errorValue, Eq(iox::CBindingError::BINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_CLIENT_STATE_VALUE));
+    IOX_EXPECT_FATAL_FAILURE(
+        [&] { c2cpp::clientState(iox_test_binding_c::maxUnderlyingCEnumValue<iox_ClientState>()); },
+        iox::CBindingError::BINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_CLIENT_STATE_VALUE);
 #endif
 }
 
@@ -228,12 +218,9 @@ TEST(c2cpp_enum_translation_test, ClientEvent)
 // return the default value RESPONSE_RECEIVED always in the undefined behavior case
 // the clang sanitizer detects this successfully and this leads to termination, and with this the test fails
 #if !defined(__clang__)
-    iox::CBindingError errorValue = iox::CBindingError::NO_ERROR;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::CBindingError>(
-        [&](const auto e, const iox::ErrorLevel) { errorValue = e; });
-    EXPECT_EQ(c2cpp::clientEvent(iox_test_binding_c::maxUnderlyingCEnumValue<iox_ClientEvent>()),
-              iox::popo::ClientEvent::RESPONSE_RECEIVED);
-    EXPECT_THAT(errorValue, Eq(iox::CBindingError::BINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_CLIENT_EVENT_VALUE));
+    IOX_EXPECT_FATAL_FAILURE(
+        [&] { c2cpp::clientEvent(iox_test_binding_c::maxUnderlyingCEnumValue<iox_ClientEvent>()); },
+        iox::CBindingError::BINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_CLIENT_EVENT_VALUE);
 #endif
 }
 
@@ -261,12 +248,9 @@ TEST(c2cpp_enum_translation_test, ServerState)
 // return the default value HAS_REQUEST always in the undefined behavior case
 // the clang sanitizer detects this successfully and this leads to termination, and with this the test fails
 #if !defined(__clang__)
-    iox::CBindingError errorValue = iox::CBindingError::NO_ERROR;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::CBindingError>(
-        [&](const auto e, const iox::ErrorLevel) { errorValue = e; });
-    EXPECT_EQ(c2cpp::serverState(iox_test_binding_c::maxUnderlyingCEnumValue<iox_ServerState>()),
-              iox::popo::ServerState::HAS_REQUEST);
-    EXPECT_THAT(errorValue, Eq(iox::CBindingError::BINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_SERVER_STATE_VALUE));
+    IOX_EXPECT_FATAL_FAILURE(
+        [&] { c2cpp::serverState(iox_test_binding_c::maxUnderlyingCEnumValue<iox_ServerState>()); },
+        iox::CBindingError::BINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_SERVER_STATE_VALUE);
 #endif
 }
 
@@ -294,12 +278,9 @@ TEST(c2cpp_enum_translation_test, ServerEvent)
 // return the default value REQUEST_RECEIVED always in the undefined behavior case
 // the clang sanitizer detects this successfully and this leads to termination, and with this the test fails
 #if !defined(__clang__)
-    iox::CBindingError errorValue = iox::CBindingError::NO_ERROR;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::CBindingError>(
-        [&](const auto e, const iox::ErrorLevel) { errorValue = e; });
-    EXPECT_EQ(c2cpp::serverEvent(iox_test_binding_c::maxUnderlyingCEnumValue<iox_ServerEvent>()),
-              iox::popo::ServerEvent::REQUEST_RECEIVED);
-    EXPECT_THAT(errorValue, Eq(iox::CBindingError::BINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_SERVER_EVENT_VALUE));
+    IOX_EXPECT_FATAL_FAILURE(
+        [&] { c2cpp::serverEvent(iox_test_binding_c::maxUnderlyingCEnumValue<iox_ServerEvent>()); },
+        iox::CBindingError::BINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_SERVER_EVENT_VALUE);
 #endif
 }
 
@@ -328,13 +309,9 @@ TEST(c2cpp_enum_translation_test, ServiceDiscoveryEvent)
 // return the default value SERVICE_REGISTRY_CHANGED always in the undefined behavior case
 // the clang sanitizer detects this successfully and this leads to termination, and with this the test fails
 #if !defined(__clang__)
-    iox::CBindingError errorValue = iox::CBindingError::NO_ERROR;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::CBindingError>(
-        [&](const auto e, const iox::ErrorLevel) { errorValue = e; });
-    EXPECT_EQ(c2cpp::serviceDiscoveryEvent(iox_test_binding_c::maxUnderlyingCEnumValue<iox_ServiceDiscoveryEvent>()),
-              iox::runtime::ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED);
-    EXPECT_THAT(errorValue,
-                Eq(iox::CBindingError::BINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_SERVICE_DISCOVERY_EVENT_VALUE));
+    IOX_EXPECT_FATAL_FAILURE(
+        [&] { c2cpp::serviceDiscoveryEvent(iox_test_binding_c::maxUnderlyingCEnumValue<iox_ServiceDiscoveryEvent>()); },
+        iox::CBindingError::BINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_SERVICE_DISCOVERY_EVENT_VALUE);
 #endif
 }
 
@@ -367,12 +344,9 @@ TEST(c2cpp_enum_translation_test, MessagingPattern)
 // return the default value PUB_SUB always in the undefined behavior case
 // the clang sanitizer detects this successfully and this leads to termination, and with this the test fails
 #if !defined(__clang__)
-    iox::CBindingError errorValue = iox::CBindingError::NO_ERROR;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::CBindingError>(
-        [&](const auto e, const iox::ErrorLevel) { errorValue = e; });
-    EXPECT_EQ(c2cpp::messagingPattern(iox_test_binding_c::maxUnderlyingCEnumValue<iox_MessagingPattern>()),
-              iox::popo::MessagingPattern::PUB_SUB);
-    EXPECT_THAT(errorValue, Eq(iox::CBindingError::BINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_MESSAGING_PATTERN_VALUE));
+    IOX_EXPECT_FATAL_FAILURE(
+        [&] { c2cpp::messagingPattern(iox_test_binding_c::maxUnderlyingCEnumValue<iox_MessagingPattern>()); },
+        iox::CBindingError::BINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_MESSAGING_PATTERN_VALUE);
 #endif
 }
 

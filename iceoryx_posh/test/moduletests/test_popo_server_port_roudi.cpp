@@ -14,10 +14,16 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "test_popo_server_port_common.hpp"
+
+#include "iceoryx_hoofs/testing/error_reporting/testing_support.hpp"
+#include "iceoryx_hoofs/testing/fatal_failure.hpp"
 
 namespace iox_test_popo_server_port
 {
+using namespace iox::testing;
+
 constexpr iox::units::Duration ServerPort_test::DEADLOCK_TIMEOUT;
 
 TEST_F(ServerPort_test, GetRequestQueueFullPolicyReturnsCorrectValues)
@@ -198,14 +204,6 @@ TEST_F(ServerPort_test, StateOfferedWithCaProMessageTypeConnectAndNoResponseQueu
     auto caproMessage = CaproMessage{CaproMessageType::CONNECT, sut.portData.m_serviceDescription};
     caproMessage.m_chunkQueueData = nullptr;
 
-    iox::optional<iox::PoshError> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-        [&](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
-            EXPECT_THAT(error, Eq(iox::PoshError::POPO__SERVER_PORT_NO_CLIENT_RESPONSE_QUEUE_TO_CONNECT));
-            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
-            detectedError.emplace(error);
-        });
-
     sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage)
         .and_then([&](const auto& responseCaproMessage) {
             EXPECT_THAT(responseCaproMessage.m_serviceDescription, Eq(sut.portData.m_serviceDescription));
@@ -213,7 +211,7 @@ TEST_F(ServerPort_test, StateOfferedWithCaProMessageTypeConnectAndNoResponseQueu
         })
         .or_else([&]() { GTEST_FAIL() << "Expected CaPro message but got none"; });
 
-    EXPECT_TRUE(detectedError.has_value());
+    IOX_TESTING_EXPECT_ERROR(iox::PoshError::POPO__SERVER_PORT_NO_CLIENT_RESPONSE_QUEUE_TO_CONNECT);
 }
 
 TEST_F(ServerPort_test, StateOfferedWithCaProMessageTypeDisconnectReactsWithNackWhenResponseQueueNotPresent)
@@ -260,19 +258,14 @@ TEST_F(ServerPort_test, StateNotOfferedWithInvalidCaProMessageTypeCallsErrorHand
 
     auto caproMessage = CaproMessage{CaproMessageType::PUB, sut.portData.m_serviceDescription};
 
-    iox::optional<iox::PoshError> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-        [&](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
-            EXPECT_THAT(error, Eq(iox::PoshError::POPO__CAPRO_PROTOCOL_ERROR));
-            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
-            detectedError.emplace(error);
-        });
-
-    sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage)
-        .and_then([&](const auto& responseCaproMessage) {
-            GTEST_FAIL() << "Expected no CaPro message but got: " << responseCaproMessage.m_type;
-        })
-        .or_else([&]() { GTEST_SUCCEED(); });
+    IOX_EXPECT_FATAL_FAILURE(
+        [&] {
+            sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage)
+                .and_then([&](const auto& responseCaproMessage) {
+                    GTEST_FAIL() << "Expected no CaPro message but got: " << responseCaproMessage.m_type;
+                });
+        },
+        iox::PoshError::POPO__CAPRO_PROTOCOL_ERROR);
 }
 
 TEST_F(ServerPort_test, StateOfferedWithInvalidCaProMessageTypeCallsErrorHandler)
@@ -282,19 +275,14 @@ TEST_F(ServerPort_test, StateOfferedWithInvalidCaProMessageTypeCallsErrorHandler
 
     auto caproMessage = CaproMessage{CaproMessageType::SUB, sut.portData.m_serviceDescription};
 
-    iox::optional<iox::PoshError> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-        [&](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
-            EXPECT_THAT(error, Eq(iox::PoshError::POPO__CAPRO_PROTOCOL_ERROR));
-            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
-            detectedError.emplace(error);
-        });
-
-    sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage)
-        .and_then([&](const auto& responseCaproMessage) {
-            GTEST_FAIL() << "Expected no CaPro message but got: " << responseCaproMessage.m_type;
-        })
-        .or_else([&]() { GTEST_SUCCEED(); });
+    IOX_EXPECT_FATAL_FAILURE(
+        [&] {
+            sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage)
+                .and_then([&](const auto& responseCaproMessage) {
+                    GTEST_FAIL() << "Expected no CaPro message but got: " << responseCaproMessage.m_type;
+                });
+        },
+        iox::PoshError::POPO__CAPRO_PROTOCOL_ERROR);
 }
 
 // END test CaPro transitions

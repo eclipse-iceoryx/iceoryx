@@ -15,8 +15,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iox/cli/command_line_parser.hpp"
-#include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iox/algorithm.hpp"
+#include "iox/detail/hoofs_error_reporting.hpp"
 #include "iox/std_string_support.hpp"
 
 #include <algorithm>

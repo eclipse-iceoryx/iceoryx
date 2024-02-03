@@ -14,9 +14,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
 #include "iox/unique_ptr.hpp"
 
+#include "iceoryx_hoofs/testing/error_reporting/testing_support.hpp"
 #include "test.hpp"
 #include "test_popo_smart_chunk_common.hpp"
 
@@ -76,20 +78,12 @@ TEST_F(Response_test, SendingAlreadySentResponseCallsErrorHandler)
 
     EXPECT_FALSE(sutProducer.send().has_error());
 
-    iox::optional<iox::PoshError> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-        [&detectedError](const iox::PoshError error, const auto errorLevel) {
-            detectedError.emplace(error);
-            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
-        });
-
     auto sendResult = sutProducer.send();
 
     ASSERT_TRUE(sendResult.has_error());
     EXPECT_THAT(sendResult.error(), Eq(SERVER_SEND_ERROR));
 
-    ASSERT_TRUE(detectedError.has_value());
-    EXPECT_THAT(detectedError.value(), Eq(iox::PoshError::POSH__SENDING_EMPTY_RESPONSE));
+    IOX_TESTING_EXPECT_ERROR(iox::PoshError::POSH__SENDING_EMPTY_RESPONSE);
 }
 
 TEST_F(Response_test, SendingMovedResponseCallsErrorHandler)
@@ -97,21 +91,13 @@ TEST_F(Response_test, SendingMovedResponseCallsErrorHandler)
     ::testing::Test::RecordProperty("TEST_ID", "4e8d7aa2-58d6-421f-9df8-f0fff3f1b9ee");
     constexpr ServerSendError SERVER_SEND_ERROR{ServerSendError::INVALID_RESPONSE};
 
-    iox::optional<iox::PoshError> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-        [&detectedError](const iox::PoshError error, const auto errorLevel) {
-            detectedError.emplace(error);
-            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
-        });
-
     auto movedSut = std::move(sutProducer);
     auto sendResult = sutProducer.send();
 
     ASSERT_TRUE(sendResult.has_error());
     EXPECT_THAT(sendResult.error(), Eq(SERVER_SEND_ERROR));
 
-    ASSERT_TRUE(detectedError.has_value());
-    EXPECT_THAT(detectedError.value(), Eq(iox::PoshError::POSH__SENDING_EMPTY_RESPONSE));
+    IOX_TESTING_EXPECT_ERROR(iox::PoshError::POSH__SENDING_EMPTY_RESPONSE);
 }
 
 TEST_F(Response_test, GetResponseHeaderWorks)

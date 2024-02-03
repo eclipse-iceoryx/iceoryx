@@ -16,7 +16,6 @@
 
 load("@rules_cc//cc:defs.bzl", "cc_library")
 load("//bazel:configure_file.bzl", "configure_file")
-load("//bazel:configure_version.bzl", "configure_version")
 
 configure_file(
     name = "iceoryx_hoofs_deployment_hpp",
@@ -28,13 +27,6 @@ configure_file(
         # FIXME: for values see "iceoryx_hoofs/cmake/IceoryxHoofsDeployment.cmake" ... for now some nice defaults
         "IOX_MINIMAL_LOG_LEVEL": "TRACE",
     },
-)
-
-configure_version(
-    name = "iceoryx_versions_h",
-    src = "cmake/iceoryx_versions.h.in",
-    out = "generated/include/iceoryx_versions.h",
-    version_from = "//:VERSION",
 )
 
 cc_library(
@@ -55,14 +47,12 @@ cc_library(
         "posix/vocabulary/source/*.cpp",
         "primitives/source/*.cpp",
         "reporting/source/*.cpp",
-        "source/**/*.cpp",
         "time/source/*.cpp",
         "utility/source/*.cpp",
         "vocabulary/source/**/*.cpp",
     ]),
-    hdrs = glob(["buffer/**"]) + glob(["cli/**"]) + glob(["concurrent/**"]) + glob(["container/**"]) + glob(["design/**"]) + glob(["filesystem/**"]) + glob(["functional/**"]) + glob(["include/**"]) + glob(["legacy/**"]) + glob(["memory/**"]) + glob(["posix/**"]) + glob(["primitives/**"]) + glob(["reporting/**"]) + glob(["time/**"]) + glob(["utility/**"]) + glob(["vocabulary/**"]) + [
+    hdrs = glob(["buffer/**"]) + glob(["cli/**"]) + glob(["concurrent/**"]) + glob(["container/**"]) + glob(["design/**"]) + glob(["filesystem/**"]) + glob(["functional/**"]) + glob(["legacy/**"]) + glob(["memory/**"]) + glob(["posix/**"]) + glob(["primitives/**"]) + glob(["reporting/**"]) + glob(["time/**"]) + glob(["utility/**"]) + glob(["vocabulary/**"]) + [
         ":iceoryx_hoofs_deployment_hpp",
-        ":iceoryx_versions_h",
     ],
     includes = [
         "buffer/include/",
@@ -74,7 +64,6 @@ cc_library(
         "filesystem/include",
         "functional/include",
         "generated/include",
-        "include/",
         "legacy/include/",
         "memory/include/",
         "posix/auth/include/",

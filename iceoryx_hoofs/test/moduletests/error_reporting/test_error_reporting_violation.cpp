@@ -220,15 +220,6 @@ TEST(Violation_test, createAssertViolationWorks)
     EXPECT_EQ(sut, exp);
 }
 
-TEST(ErrorNameTranslation_test, unknownErrorTranslatesToUnknownErrorString)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "5abfe6d6-67ca-4373-9779-9c76a13f2718");
-
-    Unknown error;
-    const char* result = toErrorName(error);
-    EXPECT_EQ(result, iox::er::UNKNOWN_ERROR_NAME);
-}
-
 TEST(ErrorNameTranslation_test, knownErrorTranslatesToCorrectErrorString)
 {
     ::testing::Test::RecordProperty("TEST_ID", "26f3e6bb-2d85-47f6-995b-6ca48425e710");
@@ -246,15 +237,6 @@ TEST(ErrorNameTranslation_test, knownErrorTranslatesToCorrectErrorString)
     ErrorB errorB(CodeB::OutOfMemory);
     const char* resultB = toErrorName(errorB);
     EXPECT_EQ(resultB, errorB.name());
-}
-
-TEST(ErrorNameTranslation_test, unknownModuleTranslatesToUnknownModuleString)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "4769cdc6-dc6f-4f8a-8771-bc74d3a499c9");
-
-    Unknown module;
-    const char* result = toModuleName(module);
-    EXPECT_EQ(result, iox::er::UNKNOWN_MODULE_NAME);
 }
 
 TEST(ErrorNameTranslation_test, knownModuleTranslatesToCorrectModuleString)

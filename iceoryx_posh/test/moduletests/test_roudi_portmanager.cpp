@@ -16,8 +16,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/testing/barrier.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iox/std_string_support.hpp"
 #include "test_roudi_portmanager_fixture.hpp"
+
+#include "iceoryx_hoofs/testing/error_reporting/testing_support.hpp"
 
 namespace iox_test_roudi_portmanager
 {
@@ -247,14 +250,11 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfPublishersFails)
     }
 
     { // test if overflow errors get hit
-
-        bool errorHandlerCalled = false;
-        auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-            [&errorHandlerCalled](const iox::PoshError, const iox::ErrorLevel) { errorHandlerCalled = true; });
+        IOX_TESTING_EXPECT_OK();
 
         auto publisherPortDataResult = m_portManager->acquirePublisherPortData(
             getUniqueSD(), publisherOptions, runtimeName, m_payloadDataSegmentMemoryManager, PortConfigInfo());
-        EXPECT_TRUE(errorHandlerCalled);
+        IOX_TESTING_EXPECT_ERROR(iox::PoshError::PORT_POOL__PUBLISHERLIST_OVERFLOW);
         ASSERT_TRUE(publisherPortDataResult.has_error());
         EXPECT_THAT(publisherPortDataResult.error(), Eq(PortPoolError::PUBLISHER_PORT_LIST_FULL));
     }
@@ -306,14 +306,6 @@ TEST_F(PortManager_test, AcquirePublisherPortDataWithSameServiceDescriptionTwice
             GTEST_FAIL() << "Expected ClientPortData but got PortPoolError: " << static_cast<uint8_t>(error);
         });
 
-    iox::optional<iox::PoshError> detectedError;
-    auto errorHandlerGuard =
-        iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>([&](const auto error, const auto errorLevel) {
-            EXPECT_THAT(error, Eq(iox::PoshError::POSH__PORT_MANAGER_PUBLISHERPORT_NOT_UNIQUE));
-            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
-            detectedError.emplace(error);
-        });
-
     // second call
     auto acquirePublisherPortResult = m_portManager->acquirePublisherPortData(
         sd, publisherOptions, runtimeName, m_payloadDataSegmentMemoryManager, {});
@@ -322,11 +314,11 @@ TEST_F(PortManager_test, AcquirePublisherPortDataWithSameServiceDescriptionTwice
     {
         ASSERT_TRUE(acquirePublisherPortResult.has_error());
         EXPECT_THAT(acquirePublisherPortResult.error(), Eq(PortPoolError::UNIQUE_PUBLISHER_PORT_ALREADY_EXISTS));
-        EXPECT_TRUE(detectedError.has_value());
+        IOX_TESTING_EXPECT_ERROR(iox::PoshError::POSH__PORT_MANAGER_PUBLISHERPORT_NOT_UNIQUE);
     }
     else
     {
-        EXPECT_FALSE(detectedError.has_value());
+        IOX_TESTING_EXPECT_OK();
     }
 }
 
@@ -346,20 +338,13 @@ TEST_F(PortManager_test,
 
     publisherPortDataResult.value()->m_toBeDestroyed = true;
 
-    iox::optional<iox::PoshError> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-        [&](const auto error, const auto) { detectedError.emplace(error); });
-
     // second call must now also succeed
     m_portManager->acquirePublisherPortData(sd, publisherOptions, runtimeName, m_payloadDataSegmentMemoryManager, {})
         .or_else([&](const auto& error) {
             GTEST_FAIL() << "Expected ClientPortData but got PortPoolError: " << static_cast<uint8_t>(error);
         });
 
-    detectedError.and_then([&](const auto& error) {
-        GTEST_FAIL() << "Expected error handler to not be called but got: "
-                     << static_cast<std::underlying_type<iox::PoshError>::type>(error);
-    });
+    IOX_TESTING_EXPECT_OK();
 }
 
 TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfSubscribersFails)
@@ -376,14 +361,14 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfSubscribersFails)
     }
 
     { // test if overflow errors get hit
+        IOX_TESTING_EXPECT_OK();
 
-        bool errorHandlerCalled = false;
-        auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-            [&errorHandlerCalled](const iox::PoshError, const iox::ErrorLevel) { errorHandlerCalled = true; });
         auto subscriberPortDataResult =
             m_portManager->acquireSubscriberPortData(getUniqueSD(), subscriberOptions, runtimeName1, PortConfigInfo());
-        EXPECT_TRUE(errorHandlerCalled);
+        ASSERT_TRUE(subscriberPortDataResult.has_error());
         EXPECT_THAT(subscriberPortDataResult.error(), Eq(PortPoolError::SUBSCRIBER_PORT_LIST_FULL));
+
+        IOX_TESTING_EXPECT_ERROR(iox::PoshError::PORT_POOL__SUBSCRIBERLIST_OVERFLOW);
     }
 }
 
@@ -397,13 +382,12 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfInterfacesFails)
 
     // test if overflow errors get hit
     {
-        auto errorHandlerCalled{false};
-        auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-            [&errorHandlerCalled](const iox::PoshError, const iox::ErrorLevel) { errorHandlerCalled = true; });
+        IOX_TESTING_EXPECT_OK();
 
         auto interfacePort = m_portManager->acquireInterfacePortData(iox::capro::Interfaces::INTERNAL, "itfPenguin");
         EXPECT_EQ(interfacePort, nullptr);
-        EXPECT_TRUE(errorHandlerCalled);
+
+        IOX_TESTING_EXPECT_ERROR(iox::PoshError::PORT_POOL__INTERFACELIST_OVERFLOW);
     }
 }
 
@@ -634,14 +618,13 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfConditionVariablesFa
 
     // test if overflow errors get hit
     {
-        auto errorHandlerCalled{false};
-        auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-            [&errorHandlerCalled](const iox::PoshError, const iox::ErrorLevel) { errorHandlerCalled = true; });
+        IOX_TESTING_EXPECT_OK();
 
         auto conditionVariableResult = m_portManager->acquireConditionVariableData("AnotherToad");
-        EXPECT_TRUE(conditionVariableResult.has_error());
-        EXPECT_TRUE(errorHandlerCalled);
+        ASSERT_TRUE(conditionVariableResult.has_error());
         EXPECT_THAT(conditionVariableResult.error(), Eq(PortPoolError::CONDITION_VARIABLE_LIST_FULL));
+
+        IOX_TESTING_EXPECT_ERROR(iox::PoshError::PORT_POOL__CONDITION_VARIABLE_LIST_OVERFLOW);
     }
 }
 
@@ -707,15 +690,13 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfNodesFails)
     // first acquire all possible NodeData
     acquireMaxNumberOfNodes(nodeName, runtimeName);
 
-    // test if overflow errors get hit
-    auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-        [&errorHandlerCalled](const iox::PoshError, const iox::ErrorLevel) { errorHandlerCalled = true; });
+    IOX_TESTING_EXPECT_OK();
 
     auto nodeResult = m_portManager->acquireNodeData("AnotherProcess", "AnotherNode");
-    EXPECT_THAT(nodeResult.has_error(), Eq(true));
-    EXPECT_THAT(errorHandlerCalled, Eq(true));
+    ASSERT_THAT(nodeResult.has_error(), Eq(true));
     EXPECT_THAT(nodeResult.error(), Eq(PortPoolError::NODE_DATA_LIST_FULL));
+
+    IOX_TESTING_EXPECT_ERROR(iox::PoshError::PORT_POOL__NODELIST_OVERFLOW);
 }
 
 TEST_F(PortManager_test, DeleteNodePortfromMaximumNumberandAddOneIsSuccessful)

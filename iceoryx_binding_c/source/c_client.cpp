@@ -17,8 +17,8 @@
 #include "iceoryx_binding_c/internal/c2cpp_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_service_description_translation.hpp"
-#include "iceoryx_hoofs/cxx/requires.hpp"
 #include "iceoryx_posh/popo/untyped_client.hpp"
+#include "iox/assertions.hpp"
 
 using namespace iox;
 using namespace iox::popo;

@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/popo/ports/server_port_roudi.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 
 namespace iox
 {
@@ -94,7 +95,7 @@ void ServerPortRouDi::handleCaProProtocolViolation(const capro::CaproMessageType
     IOX_LOG(FATAL,
             "CaPro Protocol Violation! Got '" << messageType << "' with offer state '"
                                               << (getMembers()->m_offered ? "OFFERED" : "NOT OFFERED") << "'!");
-    errorHandler(PoshError::POPO__CAPRO_PROTOCOL_ERROR, ErrorLevel::SEVERE);
+    IOX_REPORT_FATAL(PoshError::POPO__CAPRO_PROTOCOL_ERROR);
 }
 
 optional<capro::CaproMessage>
@@ -114,7 +115,7 @@ ServerPortRouDi::handleCaProMessageForStateOffered(const capro::CaproMessage& ca
         if (caProMessage.m_chunkQueueData == nullptr)
         {
             IOX_LOG(WARN, "No client response queue passed to server");
-            errorHandler(PoshError::POPO__SERVER_PORT_NO_CLIENT_RESPONSE_QUEUE_TO_CONNECT, ErrorLevel::MODERATE);
+            IOX_REPORT(PoshError::POPO__SERVER_PORT_NO_CLIENT_RESPONSE_QUEUE_TO_CONNECT, iox::er::RUNTIME_ERROR);
         }
         else
         {

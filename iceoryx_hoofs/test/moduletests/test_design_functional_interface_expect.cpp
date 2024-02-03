@@ -14,9 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/error_handling/error_handling.hpp"
-#include "iceoryx_hoofs/testing/fatal_failure.hpp"
+#include "iox/detail/hoofs_error_reporting.hpp"
 #include "test_design_functional_interface_types.hpp"
+
+#include "iceoryx_hoofs/testing/fatal_failure.hpp"
 
 namespace
 {
@@ -41,7 +42,7 @@ void ExpectDoesNotCallTerminateWhenObjectIsValid(const ExpectCall& callExpect)
 {
     SutType sut = FactoryType::createValidObject();
 
-    IOX_EXPECT_NO_FATAL_FAILURE<iox::HoofsError>([&] { callExpect(sut); });
+    IOX_EXPECT_NO_FATAL_FAILURE([&] { callExpect(sut); });
 }
 
 TYPED_TEST(FunctionalInterface_test, ExpectDoesNotCallTerminateWhenObjectIsValid_LValueCase)
@@ -78,7 +79,7 @@ void ExpectDoesCallTerminateWhenObjectIsInvalid(const ExpectCall& callExpect)
 {
     SutType sut = FactoryType::createInvalidObject();
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { callExpect(sut); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { callExpect(sut); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TYPED_TEST(FunctionalInterface_test, ExpectDoesCallTerminateWhenObjectIsInvalid_LValueCase)

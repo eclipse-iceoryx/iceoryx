@@ -62,25 +62,24 @@ class IceOryxRouDiMemoryManager : public RouDiMemoryInterface
   private:
     // in order to prevent a second RouDi to cleanup the memory resources of a running RouDi, this resources are
     // protected by a file lock
-    FileLock fileLock = std::move(
-        FileLockBuilder()
-            .name(ROUDI_LOCK_NAME)
-            .permission(iox::perms::owner_read | iox::perms::owner_write)
-            .create()
-            .or_else([](auto& error) {
-                if (error == FileLockError::LOCKED_BY_OTHER_PROCESS)
-                {
-                    IOX_LOG(FATAL, "Could not acquire lock, is RouDi still running?");
-                    errorHandler(PoshError::ICEORYX_ROUDI_MEMORY_MANAGER__ROUDI_STILL_RUNNING, iox::ErrorLevel::FATAL);
-                }
-                else
-                {
-                    IOX_LOG(FATAL, "Error occurred while acquiring file lock named " << ROUDI_LOCK_NAME);
-                    errorHandler(PoshError::ICEORYX_ROUDI_MEMORY_MANAGER__COULD_NOT_ACQUIRE_FILE_LOCK,
-                                 iox::ErrorLevel::FATAL);
-                }
-            })
-            .value());
+    FileLock fileLock =
+        std::move(FileLockBuilder()
+                      .name(ROUDI_LOCK_NAME)
+                      .permission(iox::perms::owner_read | iox::perms::owner_write)
+                      .create()
+                      .or_else([](auto& error) {
+                          if (error == FileLockError::LOCKED_BY_OTHER_PROCESS)
+                          {
+                              IOX_LOG(FATAL, "Could not acquire lock, is RouDi still running?");
+                              IOX_REPORT_FATAL(PoshError::ICEORYX_ROUDI_MEMORY_MANAGER__ROUDI_STILL_RUNNING);
+                          }
+                          else
+                          {
+                              IOX_LOG(FATAL, "Error occurred while acquiring file lock named " << ROUDI_LOCK_NAME);
+                              IOX_REPORT_FATAL(PoshError::ICEORYX_ROUDI_MEMORY_MANAGER__COULD_NOT_ACQUIRE_FILE_LOCK);
+                          }
+                      })
+                      .value());
 
     PortPoolMemoryBlock m_portPoolBlock;
     optional<PortPool> m_portPool;

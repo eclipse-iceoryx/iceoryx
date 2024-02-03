@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/roudi/port_pool.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iceoryx_posh/internal/roudi/port_pool_data.hpp"
 
 namespace iox
@@ -49,7 +50,7 @@ expected<popo::InterfacePortData*, PortPoolError> PortPool::addInterfacePort(con
     if (interfacePortData == getInterfacePortDataList().end())
     {
         IOX_LOG(WARN, "Out of interface ports! Requested by runtime '" << runtimeName << "'");
-        errorHandler(PoshError::PORT_POOL__INTERFACELIST_OVERFLOW, ErrorLevel::MODERATE);
+        IOX_REPORT(PoshError::PORT_POOL__INTERFACELIST_OVERFLOW, iox::er::RUNTIME_ERROR);
         return err(PortPoolError::INTERFACE_PORT_LIST_FULL);
     }
     return ok(interfacePortData.to_ptr());
@@ -64,7 +65,7 @@ expected<runtime::NodeData*, PortPoolError> PortPool::addNodeData(const RuntimeN
     {
         IOX_LOG(WARN,
                 "Out of node data! Requested by runtime '" << runtimeName << "' and node name '" << nodeName << "'");
-        errorHandler(PoshError::PORT_POOL__NODELIST_OVERFLOW, ErrorLevel::MODERATE);
+        IOX_REPORT(PoshError::PORT_POOL__NODELIST_OVERFLOW, iox::er::RUNTIME_ERROR);
         return err(PortPoolError::NODE_DATA_LIST_FULL);
     }
     return ok(nodeData.to_ptr());
@@ -77,7 +78,7 @@ PortPool::addConditionVariableData(const RuntimeName_t& runtimeName) noexcept
     if (conditionVariableData == getConditionVariableDataList().end())
     {
         IOX_LOG(WARN, "Out of condition variables! Requested by runtime '" << runtimeName << "'");
-        errorHandler(PoshError::PORT_POOL__CONDITION_VARIABLE_LIST_OVERFLOW, ErrorLevel::MODERATE);
+        IOX_REPORT(PoshError::PORT_POOL__CONDITION_VARIABLE_LIST_OVERFLOW, iox::er::RUNTIME_ERROR);
         return err(PortPoolError::CONDITION_VARIABLE_LIST_FULL);
     }
     return ok(conditionVariableData.to_ptr());
@@ -122,7 +123,7 @@ PortPool::addPublisherPort(const capro::ServiceDescription& serviceDescription,
         IOX_LOG(WARN,
                 "Out of publisher ports! Requested by runtime '" << runtimeName << "' and with service description '"
                                                                  << serviceDescription << "'");
-        errorHandler(PoshError::PORT_POOL__PUBLISHERLIST_OVERFLOW, ErrorLevel::MODERATE);
+        IOX_REPORT(PoshError::PORT_POOL__PUBLISHERLIST_OVERFLOW, iox::er::RUNTIME_ERROR);
         return err(PortPoolError::PUBLISHER_PORT_LIST_FULL);
     }
     return ok(publisherPortData.to_ptr());
@@ -141,7 +142,7 @@ PortPool::addSubscriberPort(const capro::ServiceDescription& serviceDescription,
         IOX_LOG(WARN,
                 "Out of subscriber ports! Requested by runtime '" << runtimeName << "' and with service description '"
                                                                   << serviceDescription << "'");
-        errorHandler(PoshError::PORT_POOL__SUBSCRIBERLIST_OVERFLOW, ErrorLevel::MODERATE);
+        IOX_REPORT(PoshError::PORT_POOL__SUBSCRIBERLIST_OVERFLOW, iox::er::RUNTIME_ERROR);
         return err(PortPoolError::SUBSCRIBER_PORT_LIST_FULL);
     }
     return ok(subscriberPortData);
@@ -171,7 +172,7 @@ PortPool::addClientPort(const capro::ServiceDescription& serviceDescription,
         IOX_LOG(WARN,
                 "Out of client ports! Requested by runtime '" << runtimeName << "' and with service description '"
                                                               << serviceDescription << "'");
-        errorHandler(PoshError::PORT_POOL__CLIENTLIST_OVERFLOW, ErrorLevel::MODERATE);
+        IOX_REPORT(PoshError::PORT_POOL__CLIENTLIST_OVERFLOW, iox::er::RUNTIME_ERROR);
         return err(PortPoolError::CLIENT_PORT_LIST_FULL);
     }
     return ok(clientPortData.to_ptr());
@@ -191,7 +192,7 @@ PortPool::addServerPort(const capro::ServiceDescription& serviceDescription,
         IOX_LOG(WARN,
                 "Out of server ports! Requested by runtime '" << runtimeName << "' and with service description '"
                                                               << serviceDescription << "'");
-        errorHandler(PoshError::PORT_POOL__SERVERLIST_OVERFLOW, ErrorLevel::MODERATE);
+        IOX_REPORT(PoshError::PORT_POOL__SERVERLIST_OVERFLOW, iox::er::RUNTIME_ERROR);
         return err(PortPoolError::SERVER_PORT_LIST_FULL);
     }
     return ok(serverPortData.to_ptr());

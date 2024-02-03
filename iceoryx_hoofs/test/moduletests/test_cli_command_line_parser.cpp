@@ -14,14 +14,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/error_handling/error_handling.hpp"
-#include "iceoryx_hoofs/testing/mocks/error_handler_mock.hpp"
 #include "iox/cli/command_line_parser.hpp"
+#include "iox/detail/hoofs_error_reporting.hpp"
 #include "iox/function.hpp"
 #include "iox/optional.hpp"
 #include "iox/std_string_support.hpp"
-#include "test.hpp"
 #include "test_cli_command_line_common.hpp"
+
+#include "iceoryx_hoofs/testing/error_reporting/testing_support.hpp"
+#include "test.hpp"
 
 #include <cstdlib>
 #include <iostream>
@@ -891,7 +892,6 @@ Arguments SuccessTest(const std::vector<std::string>& options,
     CmdArgs args(optionVector);
     Arguments retVal;
 
-    bool wasErrorHandlerCalled = false;
     {
         OptionDefinition optionSet("");
         for (const auto& o : optionsToRegister)
@@ -909,12 +909,12 @@ Arguments SuccessTest(const std::vector<std::string>& options,
         }
 
         {
-            auto handle = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::HoofsError>(
-                [&](const iox::HoofsError, const iox::ErrorLevel) { wasErrorHandlerCalled = true; });
             retVal = parseCommandLineArguments(optionSet, args.argc, args.argv, argcOffset);
         }
     }
-    EXPECT_FALSE(wasErrorHandlerCalled);
+
+    IOX_TESTING_EXPECT_OK();
+
     return retVal;
 }
 

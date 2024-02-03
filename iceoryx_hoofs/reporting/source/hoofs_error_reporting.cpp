@@ -1,5 +1,6 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2024 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,14 +17,25 @@
 // SPDX-License-Identifier: Apache-2.0
 
 
-#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iox/detail/hoofs_error_reporting.hpp"
 
 namespace iox
 {
-const char* HOOFS_ERROR_NAMES[] = {HOOFS_ERRORS(CREATE_ICEORYX_ERROR_STRING)};
+// NOLINTJUSTIFICATION Use to map enum tag names to strings
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays)
+const char* const HOOFS_ERROR_NAMES[] = {IOX_HOOFS_ERRORS(IOX_CREATE_ERROR_STRING)};
 
 const char* asStringLiteral(const HoofsError error) noexcept
 {
-    return HOOFS_ERROR_NAMES[errorToStringIndex(error)];
+    auto end =
+        static_cast<std::underlying_type<HoofsError>::type>(HoofsError::DO_NOT_USE_AS_ERROR_THIS_IS_AN_INTERNAL_MARKER);
+    auto index = static_cast<std::underlying_type<HoofsError>::type>(error);
+    if (index >= end)
+    {
+        return "Unknown Error Code!";
+    }
+    // NOLINTJUSTIFICATION Bounds are checked and access is safe
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
+    return HOOFS_ERROR_NAMES[index];
 }
 } // namespace iox

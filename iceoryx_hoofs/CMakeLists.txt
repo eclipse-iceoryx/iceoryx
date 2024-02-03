@@ -35,7 +35,6 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux OR CMAKE_SYSTEM_NAME MATCHES Darwin)
 endif()
 
 set(PREFIX iceoryx/v${CMAKE_PROJECT_VERSION})
-include(cmake/iceoryxversions.cmake)
 
 #
 ########## build iceoryx hoofs lib ##########
@@ -47,10 +46,7 @@ iox_add_library(
     PUBLIC_LIBS                 iceoryx_platform::iceoryx_platform
     PRIVATE_LIBS                ${ICEORYX_SANITIZER_FLAGS}
     PRIVATE_LIBS_LINUX          acl atomic ${CODE_COVERAGE_LIBS}
-    BUILD_INTERFACE             ${PROJECT_SOURCE_DIR}/include
-                                ${PROJECT_SOURCE_DIR}/legacy/include
-
-                                ${PROJECT_SOURCE_DIR}/buffer/include
+    BUILD_INTERFACE             ${PROJECT_SOURCE_DIR}/buffer/include
                                 ${PROJECT_SOURCE_DIR}/cli/include
                                 ${PROJECT_SOURCE_DIR}/concurrent/buffer/include
                                 ${PROJECT_SOURCE_DIR}/concurrent/sync/include
@@ -75,11 +71,10 @@ iox_add_library(
                                 ${PROJECT_SOURCE_DIR}/posix/vocabulary/include
 
                                 ${CMAKE_BINARY_DIR}/generated/iceoryx_hoofs/include
-    INSTALL_INTERFACE           include/${PREFIX}
-    EXPORT_INCLUDE_DIRS         include/
-                                legacy/include/
 
-                                buffer/include/
+                                ${PROJECT_SOURCE_DIR}/legacy/include
+    INSTALL_INTERFACE           include/${PREFIX}
+    EXPORT_INCLUDE_DIRS         buffer/include/
                                 cli/include/
                                 concurrent/buffer/include/
                                 concurrent/sync/include/
@@ -102,6 +97,8 @@ iox_add_library(
                                 posix/time/include/
                                 posix/utility/include/
                                 posix/vocabulary/include/
+
+                                legacy/include/
     FILES
         cli/source/arguments.cpp
         cli/source/command_line_parser.cpp
@@ -109,7 +106,6 @@ iox_add_library(
         cli/source/option_definition.cpp
         cli/source/option_manager.cpp
         concurrent/buffer/source/mpmc_loffli.cpp
-        design/source/functional_interface.cpp
         filesystem/source/file_reader.cpp
         filesystem/source/filesystem.cpp
         memory/source/bump_allocator.cpp
@@ -117,11 +113,9 @@ iox_add_library(
         memory/source/relative_pointer_data.cpp
         primitives/source/type_traits.cpp
         reporting/source/default_error_handler.cpp
+        reporting/source/hoofs_error_reporting.cpp
         reporting/source/console_logger.cpp
         reporting/source/logger.cpp
-        source/cxx/requires.cpp
-        source/error_handling/error_handler.cpp
-        source/error_handling/error_handling.cpp
         time/source/duration.cpp
         utility/source/unique_id.cpp
 
@@ -185,6 +179,5 @@ endif()
 install(
     FILES
         cmake/IceoryxPlatform.cmake
-        cmake/IceoryxVersion.cmake
     DESTINATION ${DESTINATION_CONFIGDIR}
 )

@@ -60,8 +60,7 @@ class NotificationInfo
 
     /// @brief returns the pointer to the notificationOrigin.
     /// @return If T equals the Triggerable type it returns the notificationOrigin.
-    /// Otherwise it calls the errorHandler with a moderate error of
-    /// kPOPO__EVENT_INFO_TYPE_INCONSISTENCY_IN_GET_ORIGIN and returns nullptr.
+    /// Otherwise it reports a 'POPO__NOTIFICATION_INFO_TYPE_INCONSISTENCY_IN_GET_ORIGIN' and returns nullptr.
     template <typename T>
     T* getOrigin() const noexcept;
 

@@ -14,10 +14,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/testing/fatal_failure.hpp"
-#include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
+
+#include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "test.hpp"
 
 using namespace ::testing;
@@ -61,7 +62,7 @@ TEST_F(MePooConfig_Test, AddingMempoolWhenTheMemPoolConfigContainerIsFullReturns
     {
         sut.addMemPool({SIZE, CHUNK_COUNT});
     }
-    IOX_EXPECT_FATAL_FAILURE<iox::PoshError>(
+    IOX_EXPECT_FATAL_FAILURE(
         [&] {
             sut.addMemPool({SIZE, CHUNK_COUNT});
         },

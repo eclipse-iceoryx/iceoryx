@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/roudi/iceoryx_roudi_components.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_interface_base.hpp"
 
 namespace iox
@@ -32,7 +33,7 @@ IceOryxRouDiComponents::IceOryxRouDiComponents(const RouDiConfig_t& roudiConfig)
 
         rouDiMemoryManager.createAndAnnounceMemory().or_else([](RouDiMemoryManagerError error) {
             IOX_LOG(FATAL, "Could not create SharedMemory! Error: " << error);
-            errorHandler(PoshError::ROUDI_COMPONENTS__SHARED_MEMORY_UNAVAILABLE, iox::ErrorLevel::FATAL);
+            IOX_REPORT_FATAL(PoshError::ROUDI_COMPONENTS__SHARED_MEMORY_UNAVAILABLE);
         });
         return &rouDiMemoryManager;
     }())

@@ -18,11 +18,16 @@
 #include "iceoryx_hoofs/testing/testing_logger.hpp"
 #include "iceoryx_platform/getopt.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/unique_port_id.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iceoryx_posh/roudi/iceoryx_roudi_app.hpp"
 #include "iceoryx_posh/roudi/roudi_cmd_line_parser_config_file_option.hpp"
 #include "iceoryx_posh/roudi/roudi_config_toml_file_provider.hpp"
+#include "iox/detail/convert.hpp"
 #include "iox/logging.hpp"
 
+#include "iceoryx_hoofs/testing/fatal_failure.hpp"
+#include "iceoryx_posh/roudi_env/minimal_roudi_config.hpp"
+#include "iceoryx_posh/roudi_env/roudi_env.hpp"
 #include "test.hpp"
 
 #include <regex>
@@ -32,6 +37,7 @@ namespace
 using namespace ::testing;
 
 using iox::roudi::IceOryxRouDiApp;
+using namespace iox::testing;
 using namespace iox::config;
 using namespace iox;
 
@@ -146,43 +152,36 @@ TEST_F(IceoryxRoudiApp_test, VerifyRunMethodWithFalseConditionReturnExitSuccess)
 TEST_F(IceoryxRoudiApp_test, ConstructorCalledWithArgUniqueIdTwoTimesReturnError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "72ec1d9e-7e29-4a9b-a8dd-cb4de82683cb");
+    constexpr uint16_t UNIQUE_ROUDI_ID{4242};
     constexpr uint8_t NUMBER_OF_ARGS{3U};
     char* args[NUMBER_OF_ARGS];
     char appName[] = "./foo";
     char option[] = "--unique-roudi-id";
-    char value[] = "4242";
+    auto value = iox::convert::toString(UNIQUE_ROUDI_ID);
     args[0] = &appName[0];
     args[1] = &option[0];
-    args[2] = &value[0];
+    args[2] = value.data();
 
     auto cmdLineArgs = cmdLineParser.parse(NUMBER_OF_ARGS, args);
 
     ASSERT_FALSE(cmdLineArgs.has_error());
 
-    iox::optional<iox::PoshError> detectedError;
-    iox::optional<iox::ErrorLevel> detectedErrorLevel;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-        [&](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
-            detectedError.emplace(error);
-            detectedErrorLevel.emplace(errorLevel);
-        });
+    {
+        // use the RouDiEnv to reset the UniquePortId finalization from previous tests
+        roudi_env::RouDiEnv(roudi_env::MinimalRouDiConfigBuilder().create());
+    }
 
-    IceoryxRoudiApp_Child roudi(cmdLineArgs.value(), iox::RouDiConfig_t().setDefaults());
-    // we don't know if setUniqueRouDiId was called before, therefore ignore any error
-    detectedError.reset();
-    detectedErrorLevel.reset();
+    EXPECT_THAT(iox::popo::UniquePortId::getUniqueRouDiId(), Eq(iox::roudi::DEFAULT_UNIQUE_ROUDI_ID));
 
-    IceoryxRoudiApp_Child roudiTest(cmdLineArgs.value(), iox::RouDiConfig_t().setDefaults());
+    IOX_EXPECT_NO_FATAL_FAILURE(
+        [&] { IceoryxRoudiApp_Child roudi(cmdLineArgs.value(), iox::RouDiConfig_t().setDefaults()); });
+    EXPECT_THAT(iox::popo::UniquePortId::getUniqueRouDiId(), Eq(UNIQUE_ROUDI_ID));
 
-    // now we know that setUniqueRouDiId was called and therefore the error handler must also be called
-    ASSERT_TRUE(detectedError.has_value());
-    ASSERT_TRUE(detectedErrorLevel.has_value());
-    EXPECT_THAT(detectedError.value(),
-                Eq(iox::PoshError::POPO__TYPED_UNIQUE_ID_ROUDI_HAS_ALREADY_DEFINED_CUSTOM_UNIQUE_ID));
-    EXPECT_THAT(detectedErrorLevel.value(), Eq(iox::ErrorLevel::SEVERE));
+    EXPECT_THAT(iox::popo::UniquePortId::getUniqueRouDiId(), Eq(UNIQUE_ROUDI_ID));
 
-    // reset unique RouDi ID
-    iox::popo::UniquePortId::setUniqueRouDiId(iox::roudi::DEFAULT_UNIQUE_ROUDI_ID);
+    IOX_EXPECT_FATAL_FAILURE(
+        [&] { IceoryxRoudiApp_Child roudi(cmdLineArgs.value(), iox::RouDiConfig_t().setDefaults()); },
+        iox::PoshError::POPO__TYPED_UNIQUE_ID_ROUDI_HAS_ALREADY_DEFINED_CUSTOM_UNIQUE_ID);
 }
 
 TEST_F(IceoryxRoudiApp_test, ConstructorCalledWithArgVersionSetRunVariableToFalse)

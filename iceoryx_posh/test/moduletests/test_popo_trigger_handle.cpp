@@ -121,20 +121,22 @@ TEST_F(TriggerHandle_test, getUniqueIdReturnsCorrectId)
 TEST_F(TriggerHandle_test, triggerNotifiesConditionVariable)
 {
     ::testing::Test::RecordProperty("TEST_ID", "11e752c8-d473-4bfd-b973-869c3b2d9fbc");
-    std::atomic_int stage{0};
 
-    iox::deadline_timer timeout{100_ms};
+    std::atomic_int stage{0};
 
     std::thread t([&] {
         stage.store(1);
         ConditionListener(m_condVar).wait();
+        stage.store(2);
     });
 
-    while (!timeout.hasExpired() && stage.load() < 1)
+    // the watchdog prevents an infinite loop in case 'stage' is never set to '1'
+    while (stage.load() < 1)
     {
         std::this_thread::yield();
     }
-    ASSERT_FALSE(timeout.hasExpired());
+
+    iox::deadline_timer timeout{100_ms};
     EXPECT_THAT(stage.load(), Eq(1));
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     EXPECT_THAT(stage.load(), Eq(1));

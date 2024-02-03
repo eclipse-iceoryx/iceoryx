@@ -17,7 +17,7 @@
 #ifndef IOX_HOOFS_VOCABULARY_VARIANT_INTERNAL_HPP
 #define IOX_HOOFS_VOCABULARY_VARIANT_INTERNAL_HPP
 
-#include "iceoryx_hoofs/cxx/requires.hpp"
+#include "iox/assertions.hpp"
 
 #include <cstdint>
 #include <type_traits>

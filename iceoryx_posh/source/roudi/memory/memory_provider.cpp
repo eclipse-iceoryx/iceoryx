@@ -16,7 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/roudi/memory/memory_provider.hpp"
-#include "iceoryx_posh/error_handling/error_handling.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iceoryx_posh/roudi/memory/memory_block.hpp"
 #include "iox/bump_allocator.hpp"
 #include "iox/logging.hpp"
@@ -87,7 +87,7 @@ expected<void, MemoryProviderError> MemoryProvider::create() noexcept
 
     if (!maybeSegmentId.has_value())
     {
-        errorHandler(PoshError::MEMORY_PROVIDER__INSUFFICIENT_SEGMENT_IDS);
+        IOX_REPORT_FATAL(PoshError::MEMORY_PROVIDER__INSUFFICIENT_SEGMENT_IDS);
     }
     m_segmentId = maybeSegmentId.value();
 

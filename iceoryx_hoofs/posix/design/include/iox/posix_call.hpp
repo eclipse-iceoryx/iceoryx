@@ -108,6 +108,8 @@ class [[nodiscard]] PosixCallEvaluator
     explicit PosixCallEvaluator(detail::PosixCallDetails<ReturnType>& details) noexcept;
 
   private:
+    // NOLINTJUSTIFICATION refences are intentionally used since the class does not need to be assignable
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
     detail::PosixCallDetails<ReturnType>& m_details;
 };
 
@@ -139,6 +141,8 @@ class [[nodiscard]] PosixCallVerificator
     explicit PosixCallVerificator(detail::PosixCallDetails<ReturnType>& details) noexcept;
 
   private:
+    // NOLINTJUSTIFICATION refences are intentionally used since the class does not need to be assignable
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
     detail::PosixCallDetails<ReturnType>& m_details;
 };
 

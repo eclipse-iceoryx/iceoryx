@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/popo/ports/publisher_port_roudi.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 
 namespace iox
 {
@@ -109,7 +110,7 @@ PublisherPortRouDi::dispatchCaProMessageAndGetPossibleResponse(const capro::Capr
         }
         else
         {
-            errorHandler(PoshError::POPO__CAPRO_PROTOCOL_ERROR, ErrorLevel::SEVERE);
+            IOX_REPORT_FATAL(PoshError::POPO__CAPRO_PROTOCOL_ERROR);
         }
     }
 

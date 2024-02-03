@@ -16,7 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
-#include "iceoryx_posh/error_handling/error_handling.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iox/logging.hpp"
 
 namespace iox
@@ -37,7 +37,7 @@ void MePooConfig::addMemPool(MePooConfig::Entry entry) noexcept
     else
     {
         IOX_LOG(FATAL, "Maxmimum number of mempools reached, no more mempools available");
-        errorHandler(PoshError::MEPOO__MAXIMUM_NUMBER_OF_MEMPOOLS_REACHED, ErrorLevel::FATAL);
+        IOX_REPORT_FATAL(PoshError::MEPOO__MAXIMUM_NUMBER_OF_MEMPOOLS_REACHED);
     }
 }
 

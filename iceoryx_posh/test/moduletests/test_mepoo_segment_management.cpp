@@ -16,23 +16,26 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/testing/test_definitions.hpp"
-#include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/mepoo/segment_manager.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/mepoo/segment_config.hpp"
 #include "iox/bump_allocator.hpp"
 #include "iox/posix_group.hpp"
 #include "iox/posix_shared_memory_object.hpp"
 #include "iox/posix_user.hpp"
-#include "test.hpp"
 
+#include "iceoryx_hoofs/testing/error_reporting/testing_support.hpp"
+#include "iceoryx_hoofs/testing/fatal_failure.hpp"
+#include "test.hpp"
 
 namespace
 {
 using namespace ::testing;
 using namespace iox;
 using namespace iox::mepoo;
+using namespace iox::testing;
 
 class MePooSegmentMock
 {
@@ -189,17 +192,9 @@ TEST_F(SegmentManager_test, addingMoreThanOneWriterGroupFails)
     SegmentConfig segmentConfig = getInvalidSegmentConfig();
     SUT sut{segmentConfig, &allocator};
 
-    iox::optional<iox::PoshError> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-        [&](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
-            detectedError.emplace(error);
-            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::FATAL));
-        });
 
-    sut.getSegmentMappings(PosixUser("iox_roudi_test1"));
-
-    ASSERT_TRUE(detectedError.has_value());
-    EXPECT_THAT(detectedError.value(), Eq(iox::PoshError::MEPOO__USER_WITH_MORE_THAN_ONE_WRITE_SEGMENT));
+    IOX_EXPECT_FATAL_FAILURE([&] { sut.getSegmentMappings(PosixUser("iox_roudi_test1")); },
+                             iox::PoshError::MEPOO__USER_WITH_MORE_THAN_ONE_WRITE_SEGMENT);
 }
 
 TEST_F(SegmentManager_test, addingMaximumNumberOfSegmentsWorks)

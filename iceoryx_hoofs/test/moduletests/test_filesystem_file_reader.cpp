@@ -15,10 +15,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iox/detail/hoofs_error_reporting.hpp"
+#include "iox/file_reader.hpp"
+
 #include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "iceoryx_hoofs/testing/testing_logger.hpp"
-#include "iox/file_reader.hpp"
 #include "test.hpp"
 
 

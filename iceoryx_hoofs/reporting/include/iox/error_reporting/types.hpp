@@ -60,6 +60,9 @@ struct ModuleId
     type value;
 
     static constexpr type ANY{0};
+    static constexpr type HOOFS{1};
+    static constexpr type POSH{2};
+    static constexpr type BINDING_C{3};
 
     // User module ids should be larger or equal than this to avoid conflicts
     // with internal modules.
@@ -109,18 +112,24 @@ inline ModuleId toModule(const Error& error)
 }
 
 template <class Error>
-inline const char* toModuleName(const Error&)
+inline const char* toModuleName(const Error& error)
 {
-    return UNKNOWN_MODULE_NAME;
+    return toError(error).moduleName();
 }
 
 template <class Error>
-inline const char* toErrorName(const Error&)
+inline const char* toErrorName(const Error& error)
 {
-    return UNKNOWN_ERROR_NAME;
+    return toError(error).name();
 }
 
 } // namespace er
 } // namespace iox
+
+// NOLINTJUSTIFICATION These macros are used to create enums and corresponding string arrays with the names of the enum tags
+// NOLINTBEGIN(cppcoreguidelines-macro-usage)
+#define IOX_CREATE_ERROR_ENUM(name) name,
+#define IOX_CREATE_ERROR_STRING(name) #name,
+// NOLINTEND(cppcoreguidelines-macro-usage)
 
 #endif // IOX_HOOFS_REPORTING_ERROR_REPORTING_TYPES_HPP

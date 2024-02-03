@@ -18,7 +18,7 @@
 #ifndef IOX_HOOFS_MEMORY_UNIQUE_PTR_HPP
 #define IOX_HOOFS_MEMORY_UNIQUE_PTR_HPP
 
-#include "iceoryx_hoofs/cxx/requires.hpp"
+#include "iox/assertions.hpp"
 #include "iox/function.hpp"
 #include <memory>
 
@@ -90,14 +90,14 @@ class unique_ptr final
     ///
     /// @brief get Retrieve the underlying raw pointer.
     /// @details The unique_ptr retains ownership, therefore the "borrowed" pointer must not be deleted.
-    /// @return Pointer to managed object or errorHandler call if none owned.
+    /// @return Pointer to managed object
     ///
     T* get() noexcept;
 
     ///
     /// @brief get Retrieve the underlying raw pointer.
     /// @details The unique_ptr retains ownership, therefore the "borrowed" pointer must not be deleted.
-    /// @return Const pointer to managed object or errorHandler call if none owned.
+    /// @return Const pointer to managed object
     ///
     const T* get() const noexcept;
 

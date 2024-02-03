@@ -16,7 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iox/file_reader.hpp"
-#include "iceoryx_hoofs/cxx/requires.hpp"
+#include "iox/assertions.hpp"
 #include "iox/logging.hpp"
 
 #include "iceoryx_platform/platform_correction.hpp"

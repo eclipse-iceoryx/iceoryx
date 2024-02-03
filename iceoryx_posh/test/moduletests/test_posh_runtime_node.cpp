@@ -57,7 +57,7 @@ TEST_F(PoshRuntimeNode_test, ConstructorNodeIsSuccess)
     ::testing::Test::RecordProperty("TEST_ID", "3bba69cc-43ea-47d3-9207-08afdd7eed9b");
     const NodeName_t nodeName{"Node"};
 
-    Node node("Node");
+    Node node(nodeName);
 
     EXPECT_THAT(node.getNodeName(), Eq(nodeName));
 }
@@ -78,7 +78,7 @@ TEST_F(PoshRuntimeNode_test, ConstructorNodeWithMaximalSizeNodeNameIsSuccess)
     const NodeName_t nodeName{
         "aaaaabbbbbcccccdddddaaaaabbbbbcccccdddddaaaaabbbbbcccccdddddaaaaabbbbbcccccdddddaaaaabbbbbcccccddddd"};
 
-    Node node("aaaaabbbbbcccccdddddaaaaabbbbbcccccdddddaaaaabbbbbcccccdddddaaaaabbbbbcccccdddddaaaaabbbbbcccccddddd");
+    Node node(nodeName);
 
     EXPECT_THAT(node.getNodeName(), Eq(nodeName));
 }

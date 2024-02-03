@@ -1,4 +1,5 @@
 // Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2024 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,14 +15,23 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_posh/error_handling/error_handling.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 
 namespace iox
 {
-const char* POSH_ERROR_NAMES[] = {POSH_ERRORS(CREATE_ICEORYX_ERROR_STRING)};
+const char* POSH_ERROR_NAMES[] = {IOX_POSH_ERRORS(IOX_CREATE_ERROR_STRING)};
 
 const char* asStringLiteral(const PoshError error) noexcept
 {
-    return POSH_ERROR_NAMES[errorToStringIndex(error)];
+    auto end =
+        static_cast<std::underlying_type<PoshError>::type>(PoshError::DO_NOT_USE_AS_ERROR_THIS_IS_AN_INTERNAL_MARKER);
+    auto index = static_cast<std::underlying_type<PoshError>::type>(error);
+    if (index >= end)
+    {
+        return "Unknown Error Code!";
+    }
+    // NOLINTJUSTIFICATION Bounds are checked and access is safe
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
+    return POSH_ERROR_NAMES[index];
 }
 } // namespace iox

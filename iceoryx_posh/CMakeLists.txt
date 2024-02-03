@@ -94,7 +94,6 @@ iox_add_library(
     FILES
         source/capro/capro_message.cpp
         source/capro/service_description.cpp
-        source/error_handling/error_handling.cpp
         source/mepoo/chunk_header.cpp
         source/mepoo/chunk_management.cpp
         source/mepoo/chunk_settings.cpp
@@ -140,6 +139,7 @@ iox_add_library(
         source/popo/trigger.cpp
         source/popo/trigger_handle.cpp
         source/popo/user_trigger.cpp
+        source/posh_error_reporting.cpp
         source/version/version_info.cpp
         source/runtime/heartbeat.cpp
         source/runtime/ipc_interface_base.cpp

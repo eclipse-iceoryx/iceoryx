@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/popo/ports/client_port_user.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 
 namespace iox
 {
@@ -63,7 +64,7 @@ void ClientPortUser::releaseRequest(const RequestHeader* const requestHeader) no
     }
     else
     {
-        errorHandler(PoshError::POPO__CLIENT_PORT_INVALID_REQUEST_TO_FREE_FROM_USER, ErrorLevel::SEVERE);
+        IOX_REPORT(PoshError::POPO__CLIENT_PORT_INVALID_REQUEST_TO_FREE_FROM_USER, iox::er::RUNTIME_ERROR);
     }
 }
 
@@ -72,7 +73,7 @@ expected<void, ClientSendError> ClientPortUser::sendRequest(RequestHeader* const
     if (requestHeader == nullptr)
     {
         IOX_LOG(ERROR, "Attempted to send a nullptr request!");
-        errorHandler(PoshError::POPO__CLIENT_PORT_INVALID_REQUEST_TO_SEND_FROM_USER, ErrorLevel::SEVERE);
+        IOX_REPORT(PoshError::POPO__CLIENT_PORT_INVALID_REQUEST_TO_SEND_FROM_USER, iox::er::RUNTIME_ERROR);
         return err(ClientSendError::INVALID_REQUEST);
     }
 
@@ -135,7 +136,7 @@ void ClientPortUser::releaseResponse(const ResponseHeader* const responseHeader)
     }
     else
     {
-        errorHandler(PoshError::POPO__CLIENT_PORT_INVALID_RESPONSE_TO_RELEASE_FROM_USER, ErrorLevel::SEVERE);
+        IOX_REPORT(PoshError::POPO__CLIENT_PORT_INVALID_RESPONSE_TO_RELEASE_FROM_USER, iox::er::RUNTIME_ERROR);
     }
 }
 

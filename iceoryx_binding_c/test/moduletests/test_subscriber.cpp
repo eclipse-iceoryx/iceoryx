@@ -15,17 +15,18 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_binding_c/error_handling/error_handling.hpp"
+#include "iceoryx_binding_c/internal/binding_c_error_reporting.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
-#include "iceoryx_hoofs/error_handling/error_handling.hpp"
-#include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_popper.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_single_producer.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
+#include "iox/detail/hoofs_error_reporting.hpp"
+
+#include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "iceoryx_posh/roudi_env/minimal_roudi_config.hpp"
 #include "iceoryx_posh/roudi_env/roudi_env.hpp"
 #include "mocks/wait_set_mock.hpp"
@@ -558,7 +559,7 @@ TEST(iox_sub_options_test, subscriberOptionInitializationWithNullptrDoesNotCrash
 {
     ::testing::Test::RecordProperty("TEST_ID", "4c8eeb6e-5681-4551-865b-11b6a599edf5");
 
-    IOX_EXPECT_NO_FATAL_FAILURE<iox::HoofsError>([&] { iox_sub_options_init(nullptr); });
+    IOX_EXPECT_NO_FATAL_FAILURE([&] { iox_sub_options_init(nullptr); });
 }
 
 } // namespace

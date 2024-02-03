@@ -67,8 +67,8 @@ class smart_lock
 
         Proxy(const Proxy&) noexcept = default;
         Proxy(Proxy&&) noexcept = default;
-        Proxy& operator=(const Proxy&) noexcept = default;
-        Proxy& operator=(Proxy&&) noexcept = default;
+        Proxy& operator=(const Proxy&) noexcept = delete;
+        Proxy& operator=(Proxy&&) noexcept = delete;
 
         T* operator->() noexcept;
         const T* operator->() const noexcept;
@@ -77,8 +77,11 @@ class smart_lock
         const T& operator*() const noexcept;
 
       private:
+        // NOLINTJUSTIFICATION refences are intentionally used since the proxy object does not need to be assignable
+        // NOLINTBEGIN(cppcoreguidelines-avoid-const-or-ref-data-members)
         T& base;
         MutexType& lock;
+        // NOLINTEND(cppcoreguidelines-avoid-const-or-ref-data-members)
     };
 
   public:

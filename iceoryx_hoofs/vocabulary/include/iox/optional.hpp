@@ -17,7 +17,7 @@
 #ifndef IOX_HOOFS_VOCABULARY_OPTIONAL_HPP
 #define IOX_HOOFS_VOCABULARY_OPTIONAL_HPP
 
-#include "iceoryx_hoofs/cxx/requires.hpp"
+#include "iox/assertions.hpp"
 #include "iox/functional_interface.hpp"
 #include "iox/iceoryx_hoofs_types.hpp"
 

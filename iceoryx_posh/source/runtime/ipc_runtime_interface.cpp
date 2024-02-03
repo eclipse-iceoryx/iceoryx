@@ -16,7 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/runtime/ipc_runtime_interface.hpp"
-#include "iceoryx_posh/error_handling/error_handling.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iceoryx_posh/version/version_info.hpp"
 #include "iox/detail/convert.hpp"
 #include "iox/into.hpp"
@@ -38,7 +38,7 @@ IpcRuntimeInterface::IpcRuntimeInterface(const RuntimeName_t& roudiName,
     m_AppIpcInterface.emplace(runtimeName);
     if (!m_AppIpcInterface->isInitialized())
     {
-        errorHandler(PoshError::IPC_INTERFACE__UNABLE_TO_CREATE_APPLICATION_CHANNEL);
+        IOX_REPORT_FATAL(PoshError::IPC_INTERFACE__UNABLE_TO_CREATE_APPLICATION_CHANNEL);
         return;
     }
 
@@ -131,13 +131,13 @@ IpcRuntimeInterface::IpcRuntimeInterface(const RuntimeName_t& roudiName,
     {
     case RegState::WAIT_FOR_ROUDI:
         IOX_LOG(FATAL, "Timeout registering at RouDi. Is RouDi running?");
-        errorHandler(PoshError::IPC_INTERFACE__REG_ROUDI_NOT_AVAILABLE);
+        IOX_REPORT_FATAL(PoshError::IPC_INTERFACE__REG_ROUDI_NOT_AVAILABLE);
         break;
     case RegState::SEND_REGISTER_REQUEST:
-        errorHandler(PoshError::IPC_INTERFACE__REG_UNABLE_TO_WRITE_TO_ROUDI_CHANNEL);
+        IOX_REPORT_FATAL(PoshError::IPC_INTERFACE__REG_UNABLE_TO_WRITE_TO_ROUDI_CHANNEL);
         break;
     case RegState::WAIT_FOR_REGISTER_ACK:
-        errorHandler(PoshError::IPC_INTERFACE__REG_ACK_NO_RESPONSE);
+        IOX_REPORT_FATAL(PoshError::IPC_INTERFACE__REG_ACK_NO_RESPONSE);
         break;
     case RegState::FINISHED:
         // nothing to do, move along
@@ -231,7 +231,7 @@ IpcRuntimeInterface::RegAckResult IpcRuntimeInterface::waitForRegAck(int64_t tra
                 constexpr uint32_t REGISTER_ACK_PARAMETERS = 6U;
                 if (receiveBuffer.getNumberOfElements() != REGISTER_ACK_PARAMETERS)
                 {
-                    errorHandler(PoshError::IPC_INTERFACE__REG_ACK_INVALIG_NUMBER_OF_PARAMS);
+                    IOX_REPORT_FATAL(PoshError::IPC_INTERFACE__REG_ACK_INVALIG_NUMBER_OF_PARAMS);
                 }
 
                 // read out the shared memory base address and save it

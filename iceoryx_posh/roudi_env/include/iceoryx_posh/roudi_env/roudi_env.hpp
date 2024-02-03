@@ -40,7 +40,7 @@ class RouDiEnv
   public:
     RouDiEnv(const RouDiConfig_t& roudiConfig = RouDiConfig_t().setDefaults(),
              roudi::MonitoringMode monitoringMode = roudi::MonitoringMode::OFF,
-             const uint16_t uniqueRouDiId = 0u) noexcept;
+             const uint16_t uniqueRouDiId = roudi::DEFAULT_UNIQUE_ROUDI_ID) noexcept;
     virtual ~RouDiEnv() noexcept;
 
     RouDiEnv(RouDiEnv&& rhs) noexcept = default;
@@ -60,7 +60,7 @@ class RouDiEnv
     {
     };
     /// @brief for implementations on top of RouDiEnv
-    RouDiEnv(MainCTor, const uint16_t uniqueRouDiId = 0u) noexcept;
+    RouDiEnv(MainCTor, const uint16_t uniqueRouDiId = roudi::DEFAULT_UNIQUE_ROUDI_ID) noexcept;
 
     void cleanupRuntimes() noexcept;
 

@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/popo/ports/server_port_user.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 
 namespace iox
 {
@@ -63,8 +64,8 @@ void ServerPortUser::releaseRequest(const RequestHeader* const requestHeader) no
     }
     else
     {
-        IOX_LOG(FATAL, "Provided RequestHeader is a nullptr");
-        errorHandler(PoshError::POPO__SERVER_PORT_INVALID_REQUEST_TO_RELEASE_FROM_USER, ErrorLevel::SEVERE);
+        IOX_LOG(ERROR, "Provided RequestHeader is a nullptr");
+        IOX_REPORT(PoshError::POPO__SERVER_PORT_INVALID_REQUEST_TO_RELEASE_FROM_USER, iox::er::RUNTIME_ERROR);
     }
 }
 
@@ -117,8 +118,8 @@ void ServerPortUser::releaseResponse(const ResponseHeader* const responseHeader)
     }
     else
     {
-        IOX_LOG(FATAL, "Provided ResponseHeader is a nullptr");
-        errorHandler(PoshError::POPO__SERVER_PORT_INVALID_RESPONSE_TO_FREE_FROM_USER, ErrorLevel::SEVERE);
+        IOX_LOG(ERROR, "Provided ResponseHeader is a nullptr");
+        IOX_REPORT(PoshError::POPO__SERVER_PORT_INVALID_RESPONSE_TO_FREE_FROM_USER, iox::er::RUNTIME_ERROR);
     }
 }
 
@@ -126,8 +127,8 @@ expected<void, ServerSendError> ServerPortUser::sendResponse(ResponseHeader* con
 {
     if (responseHeader == nullptr)
     {
-        IOX_LOG(FATAL, "Provided ResponseHeader is a nullptr");
-        errorHandler(PoshError::POPO__SERVER_PORT_INVALID_RESPONSE_TO_SEND_FROM_USER, ErrorLevel::SEVERE);
+        IOX_LOG(ERROR, "Provided ResponseHeader is a nullptr");
+        IOX_REPORT(PoshError::POPO__SERVER_PORT_INVALID_RESPONSE_TO_SEND_FROM_USER, iox::er::RUNTIME_ERROR);
         return err(ServerSendError::INVALID_RESPONSE);
     }
 

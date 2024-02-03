@@ -17,6 +17,7 @@
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/unique_port_id.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iox/attributes.hpp"
 #include "iox/optional.hpp"
 #include "iox/scope_guard.hpp"
@@ -31,46 +32,25 @@ using namespace iox;
 TEST(UniquePortId_test, SettingTheRouDiIdWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "473467bf-1a6f-4cd2-acd8-447a623a5301");
-    uint16_t someId = 1243U;
-    // we cannot ensure that setUniqueRouDiId wasn't called before, therefore we ignore the error
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>([](auto, auto) {});
-    auto uniqueRouDiIdResetScopeGuard =
-        ScopeGuard{[] {}, [] { iox::popo::UniquePortId::setUniqueRouDiId(iox::roudi::DEFAULT_UNIQUE_ROUDI_ID); }};
-    iox::popo::UniquePortId::setUniqueRouDiId(someId);
-    EXPECT_EQ(iox::popo::UniquePortId::getUniqueRouDiId(), someId);
+
+    GTEST_SKIP() << "This test is already performed in "
+                    "IceoryxRoudiApp_test::ConstructorCalledWithArgUniqueIdTwoTimesReturnError";
 }
 
 TEST(UniquePortId_test, SettingTheRouDiIdTwiceFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fe468314-cd38-4363-bbf9-f106bf9ec1f4");
-    uint16_t someId = 1243U;
-    optional<iox::PoshError> detectedError;
-    optional<iox::ErrorLevel> detectedErrorLevel;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-        [&](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
-            detectedError.emplace(error);
-            detectedErrorLevel.emplace(errorLevel);
-        });
-    auto uniqueRouDiIdResetScopeGuard =
-        ScopeGuard{[] {}, [] { iox::popo::UniquePortId::setUniqueRouDiId(iox::roudi::DEFAULT_UNIQUE_ROUDI_ID); }};
 
-    iox::popo::UniquePortId::setUniqueRouDiId(someId);
-    // we don't know if setUniqueRouDiId was called before, therefore ignore any error
-    detectedError.reset();
-    detectedErrorLevel.reset();
-
-    iox::popo::UniquePortId::setUniqueRouDiId(someId);
-    // now we know that setUniqueRouDiId was called and therefore the error handler must also be called
-    ASSERT_TRUE(detectedError.has_value());
-    ASSERT_TRUE(detectedErrorLevel.has_value());
-    EXPECT_THAT(detectedError.value(),
-                Eq(iox::PoshError::POPO__TYPED_UNIQUE_ID_ROUDI_HAS_ALREADY_DEFINED_CUSTOM_UNIQUE_ID));
-    EXPECT_THAT(detectedErrorLevel.value(), Eq(iox::ErrorLevel::SEVERE));
+    GTEST_SKIP() << "This test is already performed in "
+                    "IceoryxRoudiApp_test::ConstructorCalledWithArgUniqueIdTwoTimesReturnError";
 }
 
 TEST(UniquePortId_test, GettingTheRouDiIdWithoutSettingReturnsDefaultId)
 {
     ::testing::Test::RecordProperty("TEST_ID", "68de213f-7009-4573-8791-9f09f8ba413c");
+
+    GTEST_SKIP() << "The static variable containing the unique RouDi ID will be set in other tests and therefore this "
+                    "test does not have a meaningful result.";
 
     EXPECT_THAT(iox::popo::UniquePortId::getUniqueRouDiId(), Eq(iox::roudi::DEFAULT_UNIQUE_ROUDI_ID));
 }

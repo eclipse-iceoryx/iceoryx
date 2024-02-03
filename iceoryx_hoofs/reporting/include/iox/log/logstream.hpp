@@ -53,6 +53,8 @@ class LogHex
 
     LogHex(LogHex&&) noexcept = default;
 
+    // NOLINTJUSTIFICATION intentionally used since the class does not need to be assignable and the data is not supposed to be changed
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
     T m_value;
 };
 
@@ -159,6 +161,8 @@ class LogRaw
 
     LogRaw(LogRaw&&) noexcept = default;
 
+    // NOLINTJUSTIFICATION intentionally used since the class does not need to be assignable and the data is not supposed to be changed
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
     const void* const m_data;
     uint64_t m_size;
 };

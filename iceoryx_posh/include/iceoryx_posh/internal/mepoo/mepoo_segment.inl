@@ -18,8 +18,8 @@
 #ifndef IOX_POSH_MEPOO_MEPOO_SEGMENT_INL
 #define IOX_POSH_MEPOO_MEPOO_SEGMENT_INL
 
-#include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/internal/mepoo/mepoo_segment.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iceoryx_posh/mepoo/memory_info.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iox/bump_allocator.hpp"
@@ -58,7 +58,7 @@ inline MePooSegment<SharedMemoryObjectType, MemoryManagerType>::MePooSegment(
 
     if (!acl.writePermissionsToFile(m_sharedMemoryObject.getFileHandle()))
     {
-        errorHandler(PoshError::MEPOO__SEGMENT_COULD_NOT_APPLY_POSIX_RIGHTS_TO_SHARED_MEMORY);
+        IOX_REPORT_FATAL(PoshError::MEPOO__SEGMENT_COULD_NOT_APPLY_POSIX_RIGHTS_TO_SHARED_MEMORY);
     }
 
     BumpAllocator allocator(m_sharedMemoryObject.getBaseAddress(),
@@ -84,7 +84,7 @@ inline SharedMemoryObjectType MePooSegment<SharedMemoryObjectType, MemoryManager
                     sharedMemoryObject.get_size().expect("Failed to get SHM size"));
                 if (!maybeSegmentId.has_value())
                 {
-                    errorHandler(PoshError::MEPOO__SEGMENT_INSUFFICIENT_SEGMENT_IDS);
+                    IOX_REPORT_FATAL(PoshError::MEPOO__SEGMENT_INSUFFICIENT_SEGMENT_IDS);
                 }
                 this->m_segmentId = static_cast<uint64_t>(maybeSegmentId.value());
                 this->m_segmentSize = sharedMemoryObject.get_size().expect("Failed to get SHM size.");
@@ -94,7 +94,7 @@ inline SharedMemoryObjectType MePooSegment<SharedMemoryObjectType, MemoryManager
                                                                  << " with size " << m_segmentSize << " to id "
                                                                  << m_segmentId);
             })
-            .or_else([](auto&) { errorHandler(PoshError::MEPOO__SEGMENT_UNABLE_TO_CREATE_SHARED_MEMORY_OBJECT); })
+            .or_else([](auto&) { IOX_REPORT_FATAL(PoshError::MEPOO__SEGMENT_UNABLE_TO_CREATE_SHARED_MEMORY_OBJECT); })
             .value());
 }
 

@@ -17,6 +17,7 @@
 #ifndef IOX_POSH_ROUDI_INTROSPECTION_MEMPOOL_INTROSPECTION_INL
 #define IOX_POSH_ROUDI_INTROSPECTION_MEMPOOL_INTROSPECTION_INL
 
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iox/thread.hpp"
 #include "mempool_introspection.hpp"
 
@@ -93,7 +94,7 @@ inline void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::
         if (maybeChunkHeader.has_error())
         {
             IOX_LOG(WARN, "Cannot allocate chunk for mempool introspection!");
-            errorHandler(PoshError::MEPOO__CANNOT_ALLOCATE_CHUNK, ErrorLevel::MODERATE);
+            IOX_REPORT(PoshError::MEPOO__CANNOT_ALLOCATE_CHUNK, iox::er::RUNTIME_ERROR);
             return;
         }
 
@@ -127,7 +128,7 @@ inline void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::
                             "Mempool Introspection Container full, Mempool Introspection Data not fully updated! "
                                 << (id + 1U) << " of " << m_segmentManager->m_segmentContainer.size()
                                 << " memory segments sent.");
-                    errorHandler(PoshError::MEPOO__INTROSPECTION_CONTAINER_FULL, ErrorLevel::MODERATE);
+                    IOX_REPORT(PoshError::MEPOO__INTROSPECTION_CONTAINER_FULL, iox::er::RUNTIME_ERROR);
                     break;
                 }
                 ++id;
@@ -139,7 +140,7 @@ inline void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::
                     "Mempool Introspection Container full, Mempool Introspection Data not fully updated! "
                         << (id + 1U) << " of " << m_segmentManager->m_segmentContainer.size()
                         << " memory segments sent.");
-            errorHandler(PoshError::MEPOO__INTROSPECTION_CONTAINER_FULL, ErrorLevel::MODERATE);
+            IOX_REPORT(PoshError::MEPOO__INTROSPECTION_CONTAINER_FULL, iox::er::RUNTIME_ERROR);
         }
 
         m_publisherPort.sendChunk(maybeChunkHeader.value());

@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iox/detail/posix_acl.hpp"
+#include "iox/assertions.hpp"
 #include "iox/function.hpp"
 #include "iox/logging.hpp"
 #include "iox/posix_call.hpp"
@@ -81,7 +82,6 @@ bool PosixAcl::writePermissionsToFile(const int32_t fileDescriptor) const noexce
 
     return true;
 }
-// NOLINTEND(readability-function-size,readability-function-cognitive-complexity)
 
 expected<PosixAcl::smartAclPointer_t, PosixAcl::Error> PosixAcl::createACL(const int32_t numEntries) noexcept
 {
@@ -99,7 +99,7 @@ expected<PosixAcl::smartAclPointer_t, PosixAcl::Error> PosixAcl::createACL(const
         // We ensure here instead of returning as this lambda will be called by unique_ptr
         /// NOLINTJUSTIFICATION @todo iox-#1032 will be replaced with refactored error handling
         /// NOLINTNEXTLINE(hicpp-no-array-decay,cppcoreguidelines-pro-bounds-array-to-pointer-decay)
-        IOX_ENSURES(!aclFreeCall.has_error() && "Could not free ACL memory");
+        IOX_ENFORCE(!aclFreeCall.has_error(), "Could not free ACL memory");
     };
 
     return ok<smartAclPointer_t>(aclInitCall->value, freeACL);

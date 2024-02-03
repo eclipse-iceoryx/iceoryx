@@ -17,6 +17,7 @@
 #define IOX_HOOFS_DESIGN_FUNCTIONAL_INTERFACE_HPP
 
 #include "iceoryx_platform/unistd.hpp"
+#include "iox/assertions.hpp"
 #include "iox/function_ref.hpp"
 #include "iox/type_traits.hpp"
 
@@ -45,12 +46,6 @@ template <typename Derived>
 struct HasGetErrorMethod<Derived, void_t<decltype(std::declval<Derived>().error())>> : std::true_type
 {
 };
-
-// @todo iox-#1723 use string_view as argument
-// AXIVION Next Construct AutosarC++19_03-A3.9.1 : Requires char base type to print strings originating
-// from string literals, iox::string::c_str(), std::string::c_str() or other sources. Only with char we
-// can achieve the task.
-void print_expect_message(const char* message) noexcept;
 
 template <typename Derived>
 // AXIVION Next Construct AutosarC++19_03-A12.0.1 : not required since a default'ed destructor does not define

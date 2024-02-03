@@ -17,7 +17,7 @@
 #ifndef IOX_POSH_POPO_NOTIFICATION_INFO_INL
 #define IOX_POSH_POPO_NOTIFICATION_INFO_INL
 
-#include "iceoryx_posh/error_handling/error_handling.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iceoryx_posh/popo/notification_info.hpp"
 
 namespace iox
@@ -52,7 +52,7 @@ inline T* NotificationInfo::getOrigin() const noexcept
 {
     if (m_notificationOriginTypeHash != typeid(T).hash_code())
     {
-        errorHandler(PoshError::POPO__NOTIFICATION_INFO_TYPE_INCONSISTENCY_IN_GET_ORIGIN, iox::ErrorLevel::MODERATE);
+        IOX_REPORT(PoshError::POPO__NOTIFICATION_INFO_TYPE_INCONSISTENCY_IN_GET_ORIGIN, iox::er::RUNTIME_ERROR);
         return nullptr;
     }
 

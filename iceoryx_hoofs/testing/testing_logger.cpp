@@ -1,4 +1,5 @@
 // Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2024 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/testing/testing_logger.hpp"
+#include "iox/log/building_blocks/logformat.hpp"
 #include "iox/log/logger.hpp"
 
 #include <iostream>
@@ -125,19 +127,35 @@ jmp_buf exitJmpBuffer;
 
 static void sigHandler(int sig, siginfo_t*, void*)
 {
+    constexpr const char* COLOR_RESET{"\033[m"};
+
+    std::cout << iox::log::logLevelDisplayColor(iox::log::LogLevel::WARN)
+              << "Catched signal: " << iox::log::logLevelDisplayColor(iox::log::LogLevel::FATAL);
     switch (sig)
     {
     case SIGSEGV:
-        std::cout << "SIGSEGV\n" << std::flush;
+        std::cout << "SIGSEGV" << std::flush;
         break;
     case SIGFPE:
-        std::cout << "SIGFPE\n" << std::flush;
+        std::cout << "SIGFPE" << std::flush;
+        break;
+    case SIGABRT:
+        std::cout << "SIGABRT" << std::flush;
         break;
     default:
-        std::cout << "signal: " << sig << "\n" << std::flush;
+        std::cout << sig;
         break;
     }
+
+    std::cout << COLOR_RESET << "\n\n" << std::flush;
+
     dynamic_cast<TestingLogger&>(log::Logger::get()).printLogBuffer();
+
+    std::cout << "\n"
+              << iox::log::logLevelDisplayColor(iox::log::LogLevel::WARN)
+              << "Aborting execution by causing a SIGSEV with 'longjmp' to prevent triggering the signal handler again!"
+              << COLOR_RESET << "\n"
+              << std::flush;
 
     constexpr int JMP_VALUE{1};
     // NOLINTNEXTLINE(cert-err52-cpp) exception cannot be used and longjmp/setjmp is a working fallback
@@ -166,6 +184,7 @@ void LogPrinter::OnTestStart(const ::testing::TestInfo&)
 
     sigaction(SIGSEGV, &action, nullptr);
     sigaction(SIGFPE, &action, nullptr);
+    sigaction(SIGABRT, &action, nullptr);
 #endif
 }
 

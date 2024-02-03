@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 
 namespace iox
 {
@@ -30,7 +31,7 @@ ConditionVariableData::ConditionVariableData(const RuntimeName_t& runtimeName) n
     : m_runtimeName(runtimeName)
 {
     UnnamedSemaphoreBuilder().initialValue(0U).isInterProcessCapable(true).create(m_semaphore).or_else([](auto) {
-        errorHandler(PoshError::POPO__CONDITION_VARIABLE_DATA_FAILED_TO_CREATE_SEMAPHORE, ErrorLevel::FATAL);
+        IOX_REPORT_FATAL(PoshError::POPO__CONDITION_VARIABLE_DATA_FAILED_TO_CREATE_SEMAPHORE);
     });
 
     for (auto& id : m_activeNotifications)

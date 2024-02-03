@@ -17,6 +17,7 @@
 #ifndef IOX_POSH_POPO_RESPONSE_INL
 #define IOX_POSH_POPO_RESPONSE_INL
 
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iceoryx_posh/popo/response.hpp"
 
 namespace iox
@@ -34,7 +35,7 @@ inline expected<void, ServerSendError> Response<T>::send() noexcept
     else
     {
         IOX_LOG(ERROR, "Tried to send empty Response! Might be an already sent or moved Response!");
-        errorHandler(PoshError::POSH__SENDING_EMPTY_RESPONSE, ErrorLevel::MODERATE);
+        IOX_REPORT(PoshError::POSH__SENDING_EMPTY_RESPONSE, iox::er::RUNTIME_ERROR);
         return err(ServerSendError::INVALID_RESPONSE);
     }
 }

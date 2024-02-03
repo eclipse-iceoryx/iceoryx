@@ -1,4 +1,5 @@
 // Copyright (c) 2023 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2024 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -40,46 +41,36 @@
 /// @param error error object (or code)
 /// @param kind kind of error, must be non-fatal
 #define IOX_REPORT(error, kind)                                                                                        \
-    do                                                                                                                 \
-    {                                                                                                                  \
-        iox::er::forwardNonFatalError(iox::er::toError(error), kind, CURRENT_SOURCE_LOCATION);                         \
-    } while (false)
+    iox::er::forwardNonFatalError(iox::er::toError(error), kind, IOX_CURRENT_SOURCE_LOCATION)
 
 /// @brief report fatal error
 /// @param error error object (or code)
 #define IOX_REPORT_FATAL(error)                                                                                        \
-    do                                                                                                                 \
-    {                                                                                                                  \
-        iox::er::forwardFatalError(iox::er::toError(error), FATAL, CURRENT_SOURCE_LOCATION);                           \
-    } while (false)
+    iox::er::forwardFatalError(iox::er::toError(error), iox::er::FATAL, IOX_CURRENT_SOURCE_LOCATION)
 
 /// @brief report error of some non-fatal kind if expr evaluates to true
 /// @param expr boolean expression
 /// @param error error object (or code)
 /// @param kind kind of error, must be non-fatal
 #define IOX_REPORT_IF(expr, error, kind)                                                                               \
-    do                                                                                                                 \
+    if (expr)                                                                                                          \
     {                                                                                                                  \
-        if (expr)                                                                                                      \
-        {                                                                                                              \
-            iox::er::forwardNonFatalError(                                                                             \
-                iox::er::toError(error),                                                                               \
-                kind,                                                                                                  \
-                CURRENT_SOURCE_LOCATION); /* @todo iox-#1032 add strigified 'expr' as '#expr' */                       \
-        }                                                                                                              \
-    } while (false)
+        iox::er::forwardNonFatalError(                                                                                 \
+            iox::er::toError(error),                                                                                   \
+            kind,                                                                                                      \
+            IOX_CURRENT_SOURCE_LOCATION); /* @todo iox-#1032 add strigified 'expr' as '#expr' */                       \
+    }                                                                                                                  \
+    [] {}() // the empty lambda forces a semicolon on the caller side
 
 /// @brief report fatal error if expr evaluates to true
 /// @param expr boolean expression
 /// @param error error object (or code)
 #define IOX_REPORT_FATAL_IF(expr, error)                                                                               \
-    do                                                                                                                 \
+    if (expr)                                                                                                          \
     {                                                                                                                  \
-        if (expr)                                                                                                      \
-        {                                                                                                              \
-            iox::er::forwardFatalError(iox::er::toError(error), FATAL, CURRENT_SOURCE_LOCATION);                       \
-        }                                                                                                              \
-    } while (false)
+        iox::er::forwardFatalError(iox::er::toError(error), iox::er::FATAL, IOX_CURRENT_SOURCE_LOCATION);              \
+    }                                                                                                                  \
+    [] {}() // the empty lambda forces a semicolon on the caller side
 
 // NOLINTEND(cppcoreguidelines-macro-usage)
 

@@ -15,9 +15,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iceoryx_posh/popo/trigger.hpp"
 
+#include "iceoryx_hoofs/testing/error_reporting/testing_support.hpp"
 #include "test.hpp"
+
 #include <thread>
 
 namespace
@@ -233,9 +236,6 @@ TEST_F(Trigger_test, TriggerWithEmptyResetInvalidatesTriggerWhenBeingResetted)
     constexpr uint64_t type = 0U;
     constexpr uint64_t typeHash = 0U;
 
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-        [&](const iox::PoshError, const iox::ErrorLevel) {});
-
     Trigger sut(
         StateBasedTrigger,
         &m_triggerClass,
@@ -251,6 +251,8 @@ TEST_F(Trigger_test, TriggerWithEmptyResetInvalidatesTriggerWhenBeingResetted)
 
     EXPECT_FALSE(sut.isValid());
     EXPECT_FALSE(static_cast<bool>(sut));
+
+    IOX_TESTING_EXPECT_OK();
 }
 
 TEST_F(Trigger_test, TriggerCallsHasTriggeredCallback)

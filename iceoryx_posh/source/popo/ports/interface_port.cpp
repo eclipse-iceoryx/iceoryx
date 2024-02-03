@@ -16,7 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/popo/ports/interface_port.hpp"
-#include "iceoryx_posh/error_handling/error_handling.hpp"
+#include "iceoryx_posh/internal/posh_error_reporting.hpp"
 
 namespace iox
 {
@@ -48,7 +48,7 @@ void InterfacePort::dispatchCaProMessage(const capro::CaproMessage& caProMessage
     if (!getMembers()->m_caproMessageFiFo.push(caProMessage))
     {
         // information loss for this interface port
-        errorHandler(PoshError::POSH__INTERFACEPORT_CAPRO_MESSAGE_DISMISSED, ErrorLevel::SEVERE);
+        IOX_REPORT(PoshError::POSH__INTERFACEPORT_CAPRO_MESSAGE_DISMISSED, iox::er::RUNTIME_ERROR);
     }
 }
 

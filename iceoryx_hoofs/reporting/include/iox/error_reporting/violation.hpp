@@ -1,4 +1,5 @@
 // Copyright (c) 2023 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2024 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -66,6 +67,23 @@ class Violation
     ModuleId module() const
     {
         return m_module;
+    }
+
+    const char* name() const
+    {
+        switch (static_cast<ViolationErrorCode>(m_code.value))
+        {
+        case ViolationErrorCode::ASSERT_VIOLATION:
+            return "ASSERT_VIOLATION";
+        case ViolationErrorCode::ENFORCE_VIOLATION:
+            return "ENFORCE_VIOLATION";
+        }
+        return "unknown error";
+    }
+
+    static const char* moduleName()
+    {
+        return "ANY";
     }
 
     bool operator==(const Violation& rhs) const
