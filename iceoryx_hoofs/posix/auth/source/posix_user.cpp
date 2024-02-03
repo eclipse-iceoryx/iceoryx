@@ -90,7 +90,7 @@ PosixUser::groupVector_t PosixUser::getGroups() const noexcept
     groupVector_t vec;
     for (int32_t i = 0; i < numGroups; ++i)
     {
-        vec.emplace_back(PosixGroup(groups[static_cast<uint64_t>(i)]));
+        vec.emplace_back(groups[static_cast<uint64_t>(i)]);
     }
 
     return vec;

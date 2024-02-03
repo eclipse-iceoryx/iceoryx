@@ -304,6 +304,7 @@ FixedPositionContainer<T, CAPACITY>::emplace(Targs&&... args) noexcept
 
 template <typename T, uint64_t CAPACITY>
 inline typename FixedPositionContainer<T, CAPACITY>::Iterator
+// NOLINTNEXTLINE(readability-function-size) The branch-threshold is only violated due to hidden branches in the error handler macros which do not decrease readability
 FixedPositionContainer<T, CAPACITY>::erase(const IndexType index) noexcept
 {
     IOX_EXPECTS_WITH_MSG(index <= Index::LAST, "Index out of range");

@@ -21,6 +21,7 @@ concurrency-*,
 performance-*,
 hicpp-*,
 
+-cppcoreguidelines-avoid-do-while
 -cppcoreguidelines-non-private-member-variables-in-classes,
 
 -hicpp-named-parameter,
@@ -99,6 +100,9 @@ hicpp-*,
 #
 # * rule: readability-use-anyofallof
 #   justification: requires C++20 and std::ranges but we only use C++17
+#
+# * rule: cppcoreguidelines-avoid-do-while
+#   justification: there is nothing inherently wrong with do-while loops and there are valid use cases for them
 #
 # * rule: cppcoreguidelines-non-private-member-variables-in-classes
 #   justification: Sometimes it makes sense to have protected members to extend the base class.
