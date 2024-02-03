@@ -112,6 +112,9 @@ class Violation
 };
 
 } // namespace er
+
+const char* asStringLiteral(const er::ViolationErrorCode error) noexcept;
+
 } // namespace iox
 
 #endif // IOX_HOOFS_ERROR_REPORTING_VIOLATION_HPP

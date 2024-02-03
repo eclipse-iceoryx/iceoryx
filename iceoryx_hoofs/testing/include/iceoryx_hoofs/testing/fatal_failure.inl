@@ -31,11 +31,25 @@ inline bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction,
 {
     iox::testing::ErrorHandler::instance().reset();
     runInTestThread([&] { testFunction(); });
-    IOX_TESTING_EXPECT_PANIC();
 
-    /// @todo iox-#1032 'hasViolation' should not be necessary
-    auto hasExpectedError =
-        iox::testing::hasError(expectedError) || iox::testing::hasViolation() || iox::testing::hasPanicked();
+    auto hasExpectedError{false};
+    if constexpr (std::is_same_v<ErrorType, iox::er::FatalKind>)
+    {
+        hasExpectedError = iox::testing::hasPanicked();
+    }
+    else if constexpr (std::is_same_v<ErrorType, iox::er::EnforceViolationKind>)
+    {
+        hasExpectedError = iox::testing::hasEnforceViolation() && iox::testing::hasPanicked();
+    }
+    else if constexpr (std::is_same_v<ErrorType, iox::er::AssertViolationKind>)
+    {
+        hasExpectedError = iox::testing::hasAssertViolation() && iox::testing::hasPanicked();
+    }
+    else
+    {
+        hasExpectedError = iox::testing::hasError(expectedError) && iox::testing::hasPanicked();
+    }
+
     EXPECT_TRUE(hasExpectedError);
     return hasExpectedError;
 }
