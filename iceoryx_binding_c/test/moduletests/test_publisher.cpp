@@ -136,8 +136,8 @@ TEST(iox_pub_test_DeathTest, initPublisherWithNotInitializedPublisherOptionsTerm
     iox_pub_options_t options;
     iox_pub_storage_t storage;
 
-    IOX_EXPECT_FATAL_FAILURE<iox::CBindingError>([&] { iox_pub_init(&storage, "a", "b", "c", &options); },
-                                                 iox::CBindingError::BINDING_C__PUBLISHER_OPTIONS_NOT_INITIALIZED);
+    IOX_EXPECT_FATAL_FAILURE([&] { iox_pub_init(&storage, "a", "b", "c", &options); },
+                             iox::CBindingError::BINDING_C__PUBLISHER_OPTIONS_NOT_INITIALIZED);
 }
 
 TEST_F(iox_pub_test, initPublisherWithDefaultOptionsWorks)
@@ -352,11 +352,9 @@ TEST_F(iox_pub_test, pubReleaseChunkWithNullptr)
     ::testing::Test::RecordProperty("TEST_ID", "002fa1a4-e364-41a5-be59-6dbfa6543b98");
     void* chunk = nullptr;
     iox_pub_loan_chunk(&m_sut, &chunk, 100);
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_pub_release_chunk(nullptr, chunk); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { iox_pub_release_chunk(nullptr, chunk); }, iox::er::ENFORCE_VIOLATION);
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_pub_release_chunk(&m_sut, nullptr); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { iox_pub_release_chunk(&m_sut, nullptr); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(iox_pub_test, pubPublishChunckWithNullptr)
@@ -367,24 +365,21 @@ TEST_F(iox_pub_test, pubPublishChunckWithNullptr)
     this->Subscribe(&m_publisherPortData);
     iox_pub_loan_chunk(&m_sut, &chunk, 100);
     static_cast<DummySample*>(chunk)->dummy = 4711;
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_pub_publish_chunk(nullptr, chunk); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_pub_publish_chunk(&m_sut, nullptr); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { iox_pub_publish_chunk(nullptr, chunk); }, iox::er::ENFORCE_VIOLATION);
+    IOX_EXPECT_FATAL_FAILURE([&] { iox_pub_publish_chunk(&m_sut, nullptr); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(iox_pub_test, pubOfferWithNullptr)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5588dacf-6e6c-44c6-835d-1dfeb03ff2c1");
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_pub_offer(nullptr); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { iox_pub_offer(nullptr); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(iox_pub_test, pubStopOfferWithNullptr)
 {
     ::testing::Test::RecordProperty("TEST_ID", "db267aa8-071e-402d-887e-1a81fd5b40ca");
     iox_pub_offer(&m_sut);
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_pub_stop_offer(nullptr); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { iox_pub_stop_offer(nullptr); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(iox_pub_test, isPubOfferedWithNullptr)
@@ -392,31 +387,27 @@ TEST_F(iox_pub_test, isPubOfferedWithNullptr)
     ::testing::Test::RecordProperty("TEST_ID", "9b637e0c-c544-45e8-9723-9c54e78df0b0");
     iox_pub_offer(&m_sut);
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_pub_is_offered(nullptr); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { iox_pub_is_offered(nullptr); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(iox_pub_test, pubHasSubscribersWithNullptr)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5f9c319e-0fa5-454d-b416-62c5f7125562");
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_pub_has_subscribers(nullptr); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { iox_pub_has_subscribers(nullptr); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(iox_pub_test, pubGetServiceDescriptionWithNullptr)
 {
     ::testing::Test::RecordProperty("TEST_ID", "82113c0b-910b-41c3-b22a-f93e756eecd9");
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_pub_get_service_description(nullptr); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { iox_pub_get_service_description(nullptr); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(iox_pub_test, pubDeinitWithNullptr)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6a2ef759-4b29-40d1-bef1-9e2cd4c8ad75");
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_pub_deinit(nullptr); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { iox_pub_deinit(nullptr); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST(iox_pub_options_test, publisherOptionsAreInitializedCorrectly)

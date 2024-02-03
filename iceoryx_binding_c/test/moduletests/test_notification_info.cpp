@@ -257,8 +257,7 @@ TEST_F(iox_notification_info_test, callbackCanBeCalledMultipleTimes)
 TEST_F(iox_notification_info_test, getNotificationInfoIdWithNullptrFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d1c2e777-8166-426e-8a33-2193ca438d5f");
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_notification_info_get_notification_id(nullptr); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { iox_notification_info_get_notification_id(nullptr); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(iox_notification_info_test, doesInfoOriginateFromSubscriberWithNullptrFails)
@@ -271,12 +270,11 @@ TEST_F(iox_notification_info_test, doesInfoOriginateFromSubscriberWithNullptrFai
     auto notificationInfoVector = m_waitSet.wait();
 
     EXPECT_TRUE(iox_notification_info_does_originate_from_user_trigger(notificationInfoVector[0U], &m_userTrigger));
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
-        [&] { iox_notification_info_does_originate_from_subscriber(nullptr, &m_subscriber); },
-        iox::HoofsError::EXPECTS_ENSURES_FAILED);
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+    IOX_EXPECT_FATAL_FAILURE([&] { iox_notification_info_does_originate_from_subscriber(nullptr, &m_subscriber); },
+                             iox::er::ENFORCE_VIOLATION);
+    IOX_EXPECT_FATAL_FAILURE(
         [&] { iox_notification_info_does_originate_from_subscriber(notificationInfoVector[0U], nullptr); },
-        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+        iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(iox_notification_info_test, doesInfoOriginateFromUserTriggerWithNullptrFails)
@@ -289,12 +287,11 @@ TEST_F(iox_notification_info_test, doesInfoOriginateFromUserTriggerWithNullptrFa
     auto notificationInfoVector = m_waitSet.wait();
 
     EXPECT_TRUE(iox_notification_info_does_originate_from_user_trigger(notificationInfoVector[0U], &m_userTrigger));
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
-        [&] { iox_notification_info_does_originate_from_user_trigger(nullptr, &m_userTrigger); },
-        iox::HoofsError::EXPECTS_ENSURES_FAILED);
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+    IOX_EXPECT_FATAL_FAILURE([&] { iox_notification_info_does_originate_from_user_trigger(nullptr, &m_userTrigger); },
+                             iox::er::ENFORCE_VIOLATION);
+    IOX_EXPECT_FATAL_FAILURE(
         [&] { iox_notification_info_does_originate_from_user_trigger(notificationInfoVector[0U], nullptr); },
-        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+        iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(iox_notification_info_test, doesOriginateFromClientWithNullptrFails)
@@ -302,11 +299,11 @@ TEST_F(iox_notification_info_test, doesOriginateFromClientWithNullptrFails)
     ::testing::Test::RecordProperty("TEST_ID", "953b661d-d1f6-47bf-a113-96559f1492aa");
     iox_client_t sut = iox_client_t();
     iox_notification_info_t notificationInfoVector[2]{};
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_notification_info_does_originate_from_client(nullptr, sut); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+    IOX_EXPECT_FATAL_FAILURE([&] { iox_notification_info_does_originate_from_client(nullptr, sut); },
+                             iox::er::ENFORCE_VIOLATION);
+    IOX_EXPECT_FATAL_FAILURE(
         [&] { iox_notification_info_does_originate_from_client(notificationInfoVector[0U], nullptr); },
-        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+        iox::er::ENFORCE_VIOLATION);
     // iox_client_deinit(sut);
 }
 
@@ -316,11 +313,11 @@ TEST_F(iox_notification_info_test, doesOriginateFromServertWithNullptrFails)
     iox_server_t sut = iox_server_t();
 
     iox_notification_info_t notificationInfoVector[2]{};
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_notification_info_does_originate_from_server(nullptr, sut); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+    IOX_EXPECT_FATAL_FAILURE([&] { iox_notification_info_does_originate_from_server(nullptr, sut); },
+                             iox::er::ENFORCE_VIOLATION);
+    IOX_EXPECT_FATAL_FAILURE(
         [&] { iox_notification_info_does_originate_from_server(notificationInfoVector[0U], nullptr); },
-        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+        iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(iox_notification_info_test, doesOriginateFromServiceDiscoveryWithNullptrFails)
@@ -328,54 +325,49 @@ TEST_F(iox_notification_info_test, doesOriginateFromServiceDiscoveryWithNullptrF
     ::testing::Test::RecordProperty("TEST_ID", "6ac25036-34e7-41e3-bce2-d29736b25800");
     iox_service_discovery_t sut = iox_service_discovery_t();
     iox_notification_info_t notificationInfoVector[2]{};
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
-        [&] { iox_notification_info_does_originate_from_service_discovery(nullptr, sut); },
-        iox::HoofsError::EXPECTS_ENSURES_FAILED);
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+    IOX_EXPECT_FATAL_FAILURE([&] { iox_notification_info_does_originate_from_service_discovery(nullptr, sut); },
+                             iox::er::ENFORCE_VIOLATION);
+    IOX_EXPECT_FATAL_FAILURE(
         [&] { iox_notification_info_does_originate_from_service_discovery(notificationInfoVector[0U], nullptr); },
-        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+        iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(iox_notification_info_test, getSubscriberOriginWithNullptrFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8b417bb4-3c3a-4a18-ab35-747e59889554");
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_notification_info_get_subscriber_origin(nullptr); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { iox_notification_info_get_subscriber_origin(nullptr); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(iox_notification_info_test, getUserTriggerOriginWithNullptrFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c5daa8c5-5eb9-4fa0-9671-7b12c761ca94");
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_notification_info_get_user_trigger_origin(nullptr); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { iox_notification_info_get_user_trigger_origin(nullptr); },
+                             iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(iox_notification_info_test, getClientOriginWithNullptrFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9283fb37-4188-4943-86b9-57381b05f423");
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_notification_info_get_client_origin(nullptr); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { iox_notification_info_get_client_origin(nullptr); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(iox_notification_info_test, getServiceOriginWithNullptrFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9c7108cb-17c6-421a-a8a3-baa9d9a91325");
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_notification_info_get_server_origin(nullptr); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { iox_notification_info_get_server_origin(nullptr); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(iox_notification_info_test, getServiceDiscoveryOriginWithNullptrFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "15bfd2a4-b01a-4fd6-ba39-aca3f5892f78");
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_notification_info_get_service_discovery_origin(nullptr); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { iox_notification_info_get_service_discovery_origin(nullptr); },
+                             iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(iox_notification_info_test, notificationInofCallWithNullptrFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "11eb8c97-7274-4fa4-b1d0-eee97619c54b");
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_notification_info_call(nullptr); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { iox_notification_info_call(nullptr); }, iox::er::ENFORCE_VIOLATION);
 }
 
 } // namespace

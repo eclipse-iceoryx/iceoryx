@@ -883,7 +883,7 @@ TEST_F(vector_test, AccessOfNonExistingElementOnEmptyVectorLeadTermination)
     ASSERT_THAT(sut.empty(), Eq(true));
 
     const uint64_t accessOffset{sut.size() + 1U};
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.at(accessOffset); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { sut.at(accessOffset); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(vector_test, AccessOfNonExistingElementOnPartiallyFilledVectorLeadTermination)
@@ -897,7 +897,7 @@ TEST_F(vector_test, AccessOfNonExistingElementOnPartiallyFilledVectorLeadTermina
     }
 
     const uint64_t accessOffset{sut.size() + 1U};
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.at(accessOffset); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { sut.at(accessOffset); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(vector_test, AccessOfNonExistingElementOnFullVectorLeadTermination)
@@ -913,7 +913,7 @@ TEST_F(vector_test, AccessOfNonExistingElementOnFullVectorLeadTermination)
     ASSERT_THAT(sut.size(), Eq(VECTOR_CAPACITY));
 
     const uint64_t accessOffset{sut.size() + 1U};
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.at(accessOffset); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { sut.at(accessOffset); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(vector_test, OutOfBoundsAccessOnEmptyVectorLeadsToTermination)
@@ -923,7 +923,7 @@ TEST_F(vector_test, OutOfBoundsAccessOnEmptyVectorLeadsToTermination)
     ASSERT_THAT(sut.empty(), Eq(true));
 
     const uint64_t accessOffset{sut.size() + 1U};
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut[accessOffset]; }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { sut[accessOffset]; }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(vector_test, OutOfBoundsAccessOnPartiallyFilledVectorLeadsToTermination)
@@ -937,7 +937,7 @@ TEST_F(vector_test, OutOfBoundsAccessOnPartiallyFilledVectorLeadsToTermination)
     }
 
     const uint64_t accessOffset{sut.size() + 1U};
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut[accessOffset]; }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { sut[accessOffset]; }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(vector_test, OutOfBoundsAccessOnFullVectorLeadsToTermination)
@@ -951,7 +951,7 @@ TEST_F(vector_test, OutOfBoundsAccessOnFullVectorLeadsToTermination)
     }
 
     const uint64_t accessOffset{sut.size() + 1U};
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut[accessOffset]; }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { sut[accessOffset]; }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(vector_test, EraseOfFrontElementCallsDTorAndMove)

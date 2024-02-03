@@ -440,8 +440,7 @@ TEST_F(MemoryManager_test, addMemPoolWithChunkCountZeroShouldFail)
     ::testing::Test::RecordProperty("TEST_ID", "be653b65-a2d1-42eb-98b5-d161c6ba7c08");
     mempoolconf.addMemPool({32, 0});
 
-    IOX_EXPECT_FATAL_FAILURE([&] { sut->configureMemoryManager(mempoolconf, *allocator, *allocator); },
-                             iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { sut->configureMemoryManager(mempoolconf, *allocator, *allocator); }, iox::er::FATAL);
 }
 
 TEST(MemoryManagerEnumString_test, asStringLiteralConvertsEnumValuesToStrings)

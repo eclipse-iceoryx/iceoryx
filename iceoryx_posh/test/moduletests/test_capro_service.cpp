@@ -134,7 +134,7 @@ TEST_F(ServiceDescription_test, ClassHashSubsriptOperatorOutOfBoundsFails)
     testHash[3] = 4U;
 
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { testHash[4] = 5U; }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { testHash[4] = 5U; }, iox::er::FATAL);
 }
 
 /// END CLASSHASH TESTS

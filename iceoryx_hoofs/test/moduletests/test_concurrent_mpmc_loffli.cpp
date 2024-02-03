@@ -56,8 +56,7 @@ TEST_F(MpmcLoFFLi_test, Misuse_NullptrMemory)
 
     MpmcLoFFLi loFFLi;
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { loFFLi.init(nullptr, 1); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { loFFLi.init(nullptr, 1); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(MpmcLoFFLi_test, Misuse_ZeroSize)
@@ -68,8 +67,7 @@ TEST_F(MpmcLoFFLi_test, Misuse_ZeroSize)
     uint32_t memoryLoFFLi[4];
     MpmcLoFFLi loFFLi;
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { loFFLi.init(&memoryLoFFLi[0], 0); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { loFFLi.init(&memoryLoFFLi[0], 0); }, iox::er::ENFORCE_VIOLATION);
     // NOLINTEND(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
 }
 
@@ -81,8 +79,7 @@ TEST_F(MpmcLoFFLi_test, Misuse_SizeToLarge)
     uint32_t memoryLoFFLi[4];
     MpmcLoFFLi loFFLi;
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { loFFLi.init(&memoryLoFFLi[0], UINT32_MAX - 1); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { loFFLi.init(&memoryLoFFLi[0], UINT32_MAX - 1); }, iox::er::ENFORCE_VIOLATION);
     // NOLINTEND(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
 }
 

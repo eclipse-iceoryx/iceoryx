@@ -38,10 +38,7 @@ namespace iox
 // NOLINTJUSTIFICATION This macro is usee to define an enum and an array with corresponding enum tag names
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define IOX_HOOFS_ERRORS(error) \
-    error(EXPECTS_ENSURES_FAILED) \
     error(DO_NOT_USE_AS_ERROR_THIS_IS_AN_INTERNAL_MARKER) // keep this always at the end of the error list
-
-    // EXPECTS_ENSURES_FAILED is used as a temporary solution to make IOX_EXPECTS/IOX_ENSURES testable
 
 // clang-format on
 

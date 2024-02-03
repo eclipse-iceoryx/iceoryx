@@ -37,8 +37,7 @@ namespace testing
 /// @code
 /// TEST(MyTest, valueOnNulloptIsFatal) {
 ///     iox::optional<bool> sut;
-///     IOX_EXPECT_FATAL_FAILURE<iox::er::ErrorCode::type>(
-///         [&] { sut.value(); }, iox::er::ErrorCode::REQUIRED_CONDITION_VIOLATION));
+///     IOX_EXPECT_FATAL_FAILURE([&] { sut.value(); }, iox::er::ENFORCE_VIOLATION));
 /// }
 /// @endcode
 /// @tparam[in] ErrorType The error type which is expected, e.g. 'iox::HoofsError'
@@ -62,7 +61,6 @@ bool IOX_EXPECT_NO_FATAL_FAILURE(const function_ref<void()> testFunction);
 
 } // namespace testing
 } // namespace iox
-
 
 #include "iceoryx_hoofs/testing/fatal_failure.inl"
 
