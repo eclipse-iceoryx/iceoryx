@@ -203,17 +203,7 @@ expected<void, PosixIpcChannelError> NamedPipe::trySend(const std::string& messa
     {
         return err(PosixIpcChannelError::MESSAGE_TOO_LONG);
     }
-
-    auto result = m_data->sendSemaphore().tryWait();
-    IOX_EXPECTS(!result.has_error());
-
-    if (*result)
-    {
-        IOX_DISCARD_RESULT(m_data->messages.push(into<lossy<Message_t>>(message)));
-        IOX_EXPECTS(!m_data->receiveSemaphore().post().has_error());
-        return ok();
-    }
-    return err(PosixIpcChannelError::TIMEOUT);
+    return trySend(into<lossy<Message_t>>(message));
 }
 
 expected<void, PosixIpcChannelError> NamedPipe::send(const std::string& message) const noexcept
@@ -223,11 +213,7 @@ expected<void, PosixIpcChannelError> NamedPipe::send(const std::string& message)
         return err(PosixIpcChannelError::MESSAGE_TOO_LONG);
     }
 
-    IOX_EXPECTS(!m_data->sendSemaphore().wait().has_error());
-    IOX_DISCARD_RESULT(m_data->messages.push(into<lossy<Message_t>>(message)));
-    IOX_EXPECTS(!m_data->receiveSemaphore().post().has_error());
-
-    return ok();
+    return send(into<lossy<Message_t>>(message));
 }
 
 expected<void, PosixIpcChannelError> NamedPipe::timedSend(const std::string& message,
@@ -238,65 +224,40 @@ expected<void, PosixIpcChannelError> NamedPipe::timedSend(const std::string& mes
         return err(PosixIpcChannelError::MESSAGE_TOO_LONG);
     }
 
-    auto result = m_data->sendSemaphore().timedWait(timeout);
-    IOX_EXPECTS(!result.has_error());
-
-    if (*result == SemaphoreWaitState::NO_TIMEOUT)
-    {
-        IOX_DISCARD_RESULT(m_data->messages.push(into<lossy<Message_t>>(message)));
-        IOX_EXPECTS(!m_data->receiveSemaphore().post().has_error());
-        return ok();
-    }
-    return err(PosixIpcChannelError::TIMEOUT);
+    return timedSend(into<lossy<Message_t>>(message), timeout);
 }
 
 expected<std::string, PosixIpcChannelError> NamedPipe::receive() const noexcept
 {
-    IOX_EXPECTS(!m_data->receiveSemaphore().wait().has_error());
-    auto message = m_data->messages.pop();
-    if (message.has_value())
+    Message_t message;
+    auto result = receive(message);
+    if (result.has_error())
     {
-        IOX_EXPECTS(!m_data->sendSemaphore().post().has_error());
-        return ok<std::string>(message->c_str());
+        return err(result.error());
     }
-    return err(PosixIpcChannelError::INTERNAL_LOGIC_ERROR);
+    return ok<std::string>(message.c_str());
 }
 
 expected<std::string, PosixIpcChannelError> NamedPipe::tryReceive() const noexcept
 {
-    auto result = m_data->receiveSemaphore().tryWait();
-    IOX_EXPECTS(!result.has_error());
-
-    if (*result)
+    Message_t message;
+    auto result = tryReceive(message);
+    if (result.has_error())
     {
-        auto message = m_data->messages.pop();
-        if (message.has_value())
-        {
-            IOX_EXPECTS(!m_data->sendSemaphore().post().has_error());
-            return ok<std::string>(message->c_str());
-        }
-        return err(PosixIpcChannelError::INTERNAL_LOGIC_ERROR);
+        return err(result.error());
     }
-
-    return err(PosixIpcChannelError::TIMEOUT);
+    return ok<std::string>(message.c_str());
 }
 
 expected<std::string, PosixIpcChannelError> NamedPipe::timedReceive(const units::Duration& timeout) const noexcept
 {
-    auto result = m_data->receiveSemaphore().timedWait(timeout);
-    IOX_EXPECTS(!result.has_error());
-
-    if (*result == SemaphoreWaitState::NO_TIMEOUT)
+    Message_t message;
+    auto result = timedReceive(message, timeout);
+    if (result.has_error())
     {
-        auto message = m_data->messages.pop();
-        if (message.has_value())
-        {
-            IOX_EXPECTS(!m_data->sendSemaphore().post().has_error());
-            return ok<std::string>(message->c_str());
-        }
-        return err(PosixIpcChannelError::INTERNAL_LOGIC_ERROR);
+        return err(result.error());
     }
-    return err(PosixIpcChannelError::TIMEOUT);
+    return ok<std::string>(message.c_str());
 }
 
 expected<void, PosixIpcChannelError> NamedPipe::NamedPipeData::initialize(const uint32_t maxMsgNumber) noexcept

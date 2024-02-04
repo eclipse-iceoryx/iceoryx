@@ -104,6 +104,55 @@ class NamedPipe
     /// @return on success a string containing the message, otherwise an error which describes the failure
     expected<std::string, PosixIpcChannelError> timedReceive(const units::Duration& timeout) const noexcept;
 
+    /// @brief tries to send a message via the named pipe. if the pipe is full PosixIpcChannelError::TIMEOUT is returned
+    /// @tparam N capacity of the iox::string
+    /// @param[in] message the message to send
+    /// @return on failure an error which describes the failure
+    template <uint64_t N>
+    expected<void, PosixIpcChannelError> trySend(const iox::string<N>& message) const noexcept;
+
+    /// @brief sends a message via the named pipe. if the pipe is full this call is blocking until the message could be
+    ///        delivered
+    /// @tparam N capacity of the iox::string, is not allowed to be longer then MAX_MESSAGE_SIZE
+    /// @param[in] message the message which should be sent
+    /// @return success when message was sent otherwise an error which describes the failure
+    template <uint64_t N>
+    expected<void, PosixIpcChannelError> send(const iox::string<N>& message) const noexcept;
+
+    /// @brief sends a message via the named pipe.
+    /// @tparam N capacity of the iox::string, is not allowed to be longer then MAX_MESSAGE_SIZE
+    /// @param[in] message the message which should be sent
+    /// @param[in] timeout the timeout on how long this method should retry to send the message
+    /// @return success when message was sent otherwise an error which describes the failure
+    template <uint64_t N>
+    expected<void, PosixIpcChannelError> timedSend(const iox::string<N>& message,
+                                                   const units::Duration& timeout) const noexcept;
+
+    /// @brief tries to receive a message via the named pipe. if the pipe is empty PosixIpcChannelError::TIMEOUT is
+    /// returned
+    /// @tparam N capacity of the iox::string
+    /// @param[in] message the message to receive
+    /// @return on success a string containing the message, otherwise an error which describes the failure
+    template <uint64_t N>
+    expected<void, PosixIpcChannelError> tryReceive(iox::string<N>& message) const noexcept;
+
+    /// @brief receives a message via the named pipe. if the pipe is empty this call is blocking until a message was
+    ///        received
+    /// @tparam N capacity of the iox::string
+    /// @param[in] message the message to receive
+    /// @return on success a string containing the message, otherwise an error which describes the failure
+    template <uint64_t N>
+    expected<void, PosixIpcChannelError> receive(iox::string<N>& message) const noexcept;
+
+    /// @brief receives a message via the named pipe.
+    /// @tparam N capacity of the iox::string
+    /// @param[in] message the message to receive
+    /// @param[in] timeout the timeout on how long this method should retry to receive a message
+    /// @return on success a string containing the message, otherwise an error which describes the failure
+    template <uint64_t N>
+    expected<void, PosixIpcChannelError> timedReceive(iox::string<N>& message,
+                                                      const units::Duration& timeout) const noexcept;
+
   private:
     friend class NamedPipeBuilder;
 
@@ -175,5 +224,8 @@ class NamedPipeBuilder
 };
 
 } // namespace iox
+
+#include "detail/named_pipe.inl"
+
 
 #endif // IOX_HOOFS_POSIX_IPC_NAMED_PIPE_HPP
