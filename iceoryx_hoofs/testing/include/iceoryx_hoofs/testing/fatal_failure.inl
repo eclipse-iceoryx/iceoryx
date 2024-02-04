@@ -18,7 +18,6 @@
 #ifndef IOX_HOOFS_TESTING_FATAL_FAILURE_INL
 #define IOX_HOOFS_TESTING_FATAL_FAILURE_INL
 
-#include "iceoryx_hoofs/testing/error_reporting/testing_support.hpp"
 #include "iceoryx_hoofs/testing/fatal_failure.hpp"
 
 namespace iox
@@ -26,28 +25,47 @@ namespace iox
 namespace testing
 {
 template <typename ErrorType>
+// NOLINTJUSTIFICATION The complexity comes from the expanded macros; without the expansions the functions is quite readable
+// NOLINTNEXTLINE(readability-function-size, readability-function-cognitive-complexity)
 inline bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction,
                                      const ErrorType expectedError [[maybe_unused]])
 {
     iox::testing::ErrorHandler::instance().reset();
     runInTestThread([&] { testFunction(); });
+    IOX_TESTING_EXPECT_PANIC();
 
     auto hasExpectedError{false};
     if constexpr (std::is_same_v<ErrorType, iox::er::FatalKind>)
     {
         hasExpectedError = iox::testing::hasPanicked();
+        if (!hasExpectedError)
+        {
+            IOX_LOG(ERROR, "Expected '" << iox::er::FatalKind::name << "' but it did not happen!");
+        }
     }
     else if constexpr (std::is_same_v<ErrorType, iox::er::EnforceViolationKind>)
     {
         hasExpectedError = iox::testing::hasEnforceViolation() && iox::testing::hasPanicked();
+        if (!hasExpectedError)
+        {
+            IOX_LOG(ERROR, "Expected '" << iox::er::EnforceViolationKind::name << "' but it did not happen!");
+        }
     }
     else if constexpr (std::is_same_v<ErrorType, iox::er::AssertViolationKind>)
     {
         hasExpectedError = iox::testing::hasAssertViolation() && iox::testing::hasPanicked();
+        if (!hasExpectedError)
+        {
+            IOX_LOG(ERROR, "Expected '" << iox::er::AssertViolationKind::name << "' but it did not happen!");
+        }
     }
     else
     {
         hasExpectedError = iox::testing::hasError(expectedError) && iox::testing::hasPanicked();
+        if (!hasExpectedError)
+        {
+            IOX_LOG(ERROR, "Expected an '" << expectedError << "' error but it did not happen!");
+        }
     }
 
     EXPECT_TRUE(hasExpectedError);

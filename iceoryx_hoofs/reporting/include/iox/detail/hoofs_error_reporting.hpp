@@ -30,6 +30,7 @@
 
 // additional includes
 #include "iox/error_reporting/types.hpp"
+#include "iox/log/logstream.hpp"
 
 namespace iox
 {
@@ -50,6 +51,12 @@ enum class HoofsError : iox::er::ErrorCode::type
 };
 
 const char* asStringLiteral(const HoofsError error) noexcept;
+
+inline log::LogStream& operator<<(log::LogStream& stream, HoofsError value) noexcept
+{
+    stream << asStringLiteral(value);
+    return stream;
+}
 
 class HoofsErrorType
 {

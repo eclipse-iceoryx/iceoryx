@@ -54,7 +54,7 @@ namespace er
 // Custom panic with location
 [[noreturn]] inline void panic(const SourceLocation& location)
 {
-    IOX_ERROR_INTERNAL_LOG_PANIC(location, "Panic");
+    IOX_ERROR_INTERNAL_LOG_PANIC(location, "[PANIC]");
     panic();
 }
 
@@ -64,7 +64,7 @@ namespace er
 template <class Message>
 [[noreturn]] inline void panic(const SourceLocation& location, Message&& msg)
 {
-    IOX_ERROR_INTERNAL_LOG_PANIC(location, "Panic " << msg);
+    IOX_ERROR_INTERNAL_LOG_PANIC(location, "[PANIC] " << msg);
     panic();
 }
 
@@ -80,8 +80,8 @@ inline void report(const SourceLocation& location, Kind, const Error& error)
     auto errorName = toErrorName(error);
 
     IOX_ERROR_INTERNAL_LOG(location,
-                           "'" << errorName << "' (code " << code.value << ") in module '" << moduleName << "' (id "
-                               << module.value << ")");
+                           "[" << errorName << " (code = " << code.value << ")] in module [" << moduleName
+                               << " (id = " << module.value << ")]");
     auto& h = ErrorHandler::get();
     h.onReportError(ErrorDescriptor(location, code, module));
 }
@@ -100,8 +100,8 @@ inline void report(const SourceLocation& location, iox::er::FatalKind kind, cons
     auto errorName = toErrorName(error);
 
     IOX_ERROR_INTERNAL_LOG_FATAL(location,
-                                 "'" << kind.name << "' '" << errorName << "' (code " << code.value << ") in module '"
-                                     << moduleName << "' (id " << module.value << ")");
+                                 "[" << kind.name << "] [" << errorName << " (code = " << code.value << ")] in module ["
+                                     << moduleName << " (id = " << module.value << ")]");
     auto& h = ErrorHandler::get();
     h.onReportError(ErrorDescriptor(location, code, module));
 }
@@ -119,11 +119,11 @@ inline void report(const SourceLocation& location, Kind kind, const Error& error
     auto module = toModule(error);
     if constexpr (std::is_same<NoMessage, Message>::value)
     {
-        IOX_ERROR_INTERNAL_LOG_FATAL(location, kind.name);
+        IOX_ERROR_INTERNAL_LOG_FATAL(location, "[" << kind.name << "]");
     }
     else
     {
-        IOX_ERROR_INTERNAL_LOG_FATAL(location, kind.name << " " << std::forward<Message>(msg));
+        IOX_ERROR_INTERNAL_LOG_FATAL(location, "[" << kind.name << "] " << std::forward<Message>(msg));
     }
     auto& h = ErrorHandler::get();
     h.onReportViolation(ErrorDescriptor(location, code, module));

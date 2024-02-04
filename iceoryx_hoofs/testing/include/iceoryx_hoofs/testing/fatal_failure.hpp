@@ -17,9 +17,12 @@
 #ifndef IOX_HOOFS_TESTING_FATAL_FAILURE_HPP
 #define IOX_HOOFS_TESTING_FATAL_FAILURE_HPP
 
+#include "iox/error_reporting/error_kind.hpp"
+#include "iox/error_reporting/types.hpp"
 #include "iox/function_ref.hpp"
-#include "iox/optional.hpp"
+#include "iox/logging.hpp"
 
+#include "iceoryx_hoofs/testing/error_reporting/testing_support.hpp"
 #include "test.hpp"
 
 #include <atomic>

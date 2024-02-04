@@ -31,7 +31,7 @@
                      location.line,                                                                                    \
                      location.function,                                                                                \
                      iox::log::LogLevel::ERROR,                                                                        \
-                     location.file << " line " << location.line << ": " << msg_stream)
+                     location.file << ":" << location.line << " " << msg_stream)
 
 /// @brief Log the location of a fatal error.
 /// @param location the location of the error
@@ -41,7 +41,7 @@
                      location.line,                                                                                    \
                      location.function,                                                                                \
                      iox::log::LogLevel::FATAL,                                                                        \
-                     location.file << " line " << location.line << ": " << msg_stream)
+                     location.file << ":" << location.line << " " << msg_stream)
 
 /// @brief Log a panic invocation.
 /// @param location the location of the panic invocation.
