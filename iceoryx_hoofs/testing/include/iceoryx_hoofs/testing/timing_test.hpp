@@ -22,6 +22,8 @@
 #include <functional>
 #include <string>
 
+//NOLINTBEGIN(cppcoreguidelines-macro-usage) The functionality of these macros cannot be implemented with constexpr templates
+
 /// @brief This header provides TIMING_TEST unit test infrastructure. The idea
 ///        is that a timing test is running multiple times and if in one of the
 ///        repetitions all results of the test are successful then the timing
@@ -65,12 +67,13 @@
 ///     approach:
 ///      # ./myUnitTest --gtest_filter="*TimingTest*"
 
-#define TIMING_TEST_CONSTRUCT(Name, Case, Repetitions, Test, GTestType)                                                \
-    GTestType(Name, TimingTest_##Case)                                                                                 \
+#define TIMING_TEST_CONSTRUCT(name, testcase, repetition, test, GTestType)                                             \
+    GTestType(name, TimingTest_##testcase)                                                                             \
     {                                                                                                                  \
         std::atomic_bool timingTestResult{true};                                                                       \
         std::string errorMessages;                                                                                     \
-        bool testResult = iox::utils::testing::performingTimingTest(Test, Repetitions, timingTestResult);              \
+        bool testResult =                                                                                              \
+            iox::utils::testing::performingTimingTest(test, iox::utils::testing::repetition, timingTestResult);        \
         EXPECT_TRUE(testResult);                                                                                       \
         if (!testResult)                                                                                               \
         {                                                                                                              \
@@ -78,8 +81,10 @@
         }                                                                                                              \
     }
 
-#define TIMING_TEST_F(Name, Case, Repetitions, Test) TIMING_TEST_CONSTRUCT(Name, Case, Repetitions, Test, TEST_F)
-#define TIMING_TEST_P(Name, Case, Repetitions, Test) TIMING_TEST_CONSTRUCT(Name, Case, Repetitions, Test, TEST_P)
+#define TIMING_TEST_F(name, testcase, repetitions, test)                                                               \
+    TIMING_TEST_CONSTRUCT(name, testcase, repetitions, test, TEST_F)
+#define TIMING_TEST_P(name, testcase, repetitions, test)                                                               \
+    TIMING_TEST_CONSTRUCT(name, testcase, repetitions, test, TEST_P)
 
 #define TIMING_TEST_EXPECT_ALWAYS_TRUE(value) EXPECT_TRUE(value)
 #define TIMING_TEST_EXPECT_ALWAYS_FALSE(value) EXPECT_FALSE(value)
@@ -102,7 +107,8 @@
         return;                                                                                                        \
     }
 
-#define Repeat(n) n
+//NOLINTEND(cppcoreguidelines-macro-usage)
+
 
 namespace iox
 {
@@ -110,8 +116,19 @@ namespace utils
 {
 namespace testing
 {
+class Repeat
+{
+  public:
+    explicit Repeat(const uint64_t n) noexcept;
+
+    uint64_t repetitions() const noexcept;
+
+  private:
+    uint64_t m_repetitions{0};
+};
+
 bool performingTimingTest(const std::function<void()>& testCallback,
-                          const uint64_t repetitions,
+                          const Repeat repeat,
                           std::atomic_bool& testResult) noexcept;
 
 

@@ -230,6 +230,7 @@ class MoveOnlyLifetimeAndAssignmentTracker
     T value = DEFAULT_VALUE;
 };
 
+//NOLINTBEGIN(cppcoreguidelines-avoid-non-const-global-variables) only used for tests
 template <typename T, T DEFAULT_VALUE>
 typename LifetimeAndAssignmentTracker<T, DEFAULT_VALUE>::Statistics
     LifetimeAndAssignmentTracker<T, DEFAULT_VALUE>::stats{};
@@ -237,6 +238,8 @@ typename LifetimeAndAssignmentTracker<T, DEFAULT_VALUE>::Statistics
 template <typename T, T DEFAULT_VALUE>
 typename MoveOnlyLifetimeAndAssignmentTracker<T, DEFAULT_VALUE>::Statistics
     MoveOnlyLifetimeAndAssignmentTracker<T, DEFAULT_VALUE>::move_only_stats{};
+//NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)
+
 } // namespace testing
 } // namespace iox
 

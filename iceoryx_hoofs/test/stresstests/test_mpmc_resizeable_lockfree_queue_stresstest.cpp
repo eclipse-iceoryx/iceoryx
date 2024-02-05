@@ -38,7 +38,8 @@ namespace
 {
 struct Data
 {
-    Data(uint32_t id = 0, uint64_t count = 0)
+    //NOLINTNEXTLINE(bugprone-easily-swappable-parameters) This is okay since it is limited to the stress test
+    explicit Data(uint32_t id = 0, uint64_t count = 0)
         : id(id)
         , count(count)
     {
@@ -104,6 +105,7 @@ void produceMonotonic(Queue& queue, const uint32_t id, std::atomic_bool& run)
 }
 
 template <typename Queue>
+//NOLINTNEXTLINE(bugprone-easily-swappable-parameters) This is okay since it is limited to the stress test
 void consumeAndCheckOrder(Queue& queue, const uint32_t maxId, std::atomic_bool& run, std::atomic_bool& orderOk)
 {
     g_barrier.notify();
@@ -190,6 +192,7 @@ void work(Queue& queue, uint32_t id, std::atomic<bool>& run)
 // randomly chooses between push and pop
 // popProbability essentially controls whether the queue tends to be full or empty on average
 template <typename Queue>
+//NOLINTNEXTLINE(readability-function-size) This is okay since it is limited to the stress test
 void randomWork(Queue& queue,
                 uint32_t id,
                 std::atomic<bool>& run,
@@ -247,11 +250,12 @@ void randomWork(Queue& queue,
         }
 
         // choose next action: push or pop?
-        doPop = (dist(rng) <= popProbability) ? true : false;
+        doPop = dist(rng) <= popProbability;
     }
 }
 
 template <typename Queue>
+//NOLINTNEXTLINE(readability-function-size) This is okay since it is limited to the stress test
 void changeCapacity(Queue& queue,
                     std::atomic<bool>& run,
                     std::list<Data>& items,
@@ -261,7 +265,7 @@ void changeCapacity(Queue& queue,
     g_barrier.notify();
 
     const uint64_t n = capacities.size(); // number of different capacities
-    int64_t k = static_cast<int64_t>(n);  // index of current capacity to be used
+    auto k = static_cast<int64_t>(n);     // index of current capacity to be used
     bool incrementK = false;              // states if k is incremented or decremented by 1
     numChanges = 0;                       // number of capacity changes performed
 
@@ -324,11 +328,7 @@ class MpmcResizeableLockFreeQueueStressTest : public ::testing::Test
   protected:
     MpmcResizeableLockFreeQueueStressTest() = default;
 
-    ~MpmcResizeableLockFreeQueueStressTest()
-    {
-    }
-
-    void SetUp()
+    void SetUp() override
     {
         // reduce capacity if desired before running the tests
         if (Config::DynamicCapacity < Config::Capacity)
@@ -339,7 +339,7 @@ class MpmcResizeableLockFreeQueueStressTest : public ::testing::Test
         m_watchdog.watchAndActOnFailure([] { std::terminate(); });
     }
 
-    void TearDown()
+    void TearDown() override
     {
     }
 
@@ -433,11 +433,13 @@ TYPED_TEST(MpmcResizeableLockFreeQueueStressTest, MultiProducerMultiConsumerComp
     std::vector<std::thread> producers;
     std::vector<std::thread> consumers;
 
+    producers.reserve(numProducers);
     for (int id = 0; id < numProducers; ++id)
     {
         producers.emplace_back(producePeriodic<Queue>, std::ref(queue), id, std::ref(producedCount), std::ref(run));
     }
 
+    consumers.reserve(numConsumers);
     for (int id = 0; id < numConsumers; ++id)
     {
         consumers.emplace_back(consume<Queue>, std::ref(queue), std::ref(consumedCount), std::ref(run));
@@ -493,11 +495,13 @@ TYPED_TEST(MpmcResizeableLockFreeQueueStressTest, MultiProducerMultiConsumerOrde
     std::vector<std::thread> producers;
     std::vector<std::thread> consumers;
 
+    producers.reserve(numProducers);
     for (int id = 0; id < numProducers; ++id)
     {
         producers.emplace_back(produceMonotonic<Queue>, std::ref(queue), id, std::ref(run));
     }
 
+    consumers.reserve(numConsumers);
     for (int id = 0; id < numConsumers; ++id)
     {
         consumers.emplace_back(
@@ -552,6 +556,7 @@ TYPED_TEST(MpmcResizeableLockFreeQueueStressTest, HybridMultiProducerMultiConsum
 
     std::vector<std::thread> threads;
 
+    threads.reserve(numThreads);
     for (uint32_t id = 1; id <= numThreads; ++id)
     {
         threads.emplace_back(work<Queue>, std::ref(q), id, std::ref(run));
@@ -627,6 +632,7 @@ TYPED_TEST(MpmcResizeableLockFreeQueueStressTest, HybridMultiProducerMultiConsum
         }
     }
 
+    threads.reserve(numThreads);
     for (uint32_t id = 1; id <= numThreads; ++id)
     {
         threads.emplace_back(randomWork<Queue>,
@@ -736,6 +742,7 @@ TYPED_TEST(MpmcResizeableLockFreeQueueStressTest, HybridMultiProducerMultiConsum
         }
     }
 
+    threads.reserve(numThreads);
     for (uint32_t id = 1; id <= numThreads; ++id)
     {
         threads.emplace_back(randomWork<Queue>,

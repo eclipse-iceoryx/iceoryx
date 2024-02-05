@@ -69,21 +69,29 @@ class Watchdog
                 .and_then([&](auto& result) {
                     if (result == iox::SemaphoreWaitState::TIMEOUT)
                     {
-                        std::cerr << "Watchdog observed no reaction after " << m_timeToWait.toSeconds()
-                                  << "s. Taking measures!" << std::endl;
-                        if (actionOnFailure)
-                        {
-                            actionOnFailure();
-                        }
-                        else
-                        {
-                            std::terminate();
-                        }
-                        EXPECT_TRUE(false);
+                        handleTimeout(actionOnFailure);
+                        GTEST_FAIL() << "WatchDog triggered!";
                     }
                 })
-                .or_else([](auto&) { EXPECT_TRUE(false); });
+                .or_else([](auto&) {
+                    GTEST_FAIL() << "The 'timedWait' in the 'WatchDog' failed. This should never happen!";
+                });
         });
+    }
+
+  private:
+    void handleTimeout(const std::function<void()>& actionOnFailure) noexcept
+    {
+        std::cerr << "Watchdog observed no reaction after " << m_timeToWait.toSeconds() << "s. Taking measures!"
+                  << std::endl;
+        if (actionOnFailure)
+        {
+            actionOnFailure();
+        }
+        else
+        {
+            std::terminate();
+        }
     }
 
   private:

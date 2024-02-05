@@ -31,6 +31,7 @@ std::string compiler = "gcc-" + std::to_string(__GNUC__) + "." + std::to_string(
 std::string compiler = "msvc-" + std::to_string(_MSC_VER);
 #endif
 
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage) Not all of the functionality of this macro can be achieved by a constexpr template
 #define BENCHMARK(f, duration) PerformBenchmark(f, #f, duration)
 
 template <typename Return>
@@ -38,12 +39,17 @@ void PerformBenchmark(Return (&f)(), const char* functionName, const iox::units:
 {
     std::atomic_bool keepRunning{true};
     uint64_t numberOfCalls{0U};
+    uint64_t actualDurationNanoSeconds{0};
     std::thread t([&] {
+        auto start = std::chrono::system_clock::now();
         while (keepRunning)
         {
             f();
             ++numberOfCalls;
         }
+        auto end = std::chrono::system_clock::now();
+        auto actualDuration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
+        actualDurationNanoSeconds = static_cast<uint64_t>(actualDuration.count());
     });
 
     std::this_thread::sleep_for(std::chrono::milliseconds(duration.toMilliseconds()));
@@ -51,6 +57,9 @@ void PerformBenchmark(Return (&f)(), const char* functionName, const iox::units:
     t.join();
 
     // Not using iceoryx logger due to width requirements
-    std::cout << std::setw(16) << compiler << " [ " << duration << " ] " << std::setw(15) << numberOfCalls << " : "
-              << functionName << std::endl;
+    auto seconds = actualDurationNanoSeconds / iox::units::Duration::NANOSECS_PER_SEC;
+    auto nanosecs = actualDurationNanoSeconds % iox::units::Duration::NANOSECS_PER_SEC;
+    std::cout << std::setw(16) << compiler << " [ " << std::setw(1) << seconds << "s " << std::setw(9) << nanosecs
+              << "ns ] " << std::setw(15) << numberOfCalls << " (iters) : " << std::setw(6)
+              << actualDurationNanoSeconds / numberOfCalls << " (nanosecs/iters) : " << functionName << std::endl;
 }
