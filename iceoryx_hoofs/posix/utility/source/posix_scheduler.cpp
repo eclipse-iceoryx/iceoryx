@@ -39,7 +39,7 @@ int32_t getSchedulerPriorityMaximum(const Scheduler scheduler) noexcept
     auto result = IOX_POSIX_CALL(sched_get_priority_max)(static_cast<int>(scheduler)).failureReturnValue(-1).evaluate();
     if (result.has_error())
     {
-        IOX_PANIC("The \"sched_get_priority_min\" should never fail! Either the system is not POSIX compliant or an "
+        IOX_PANIC("The \"sched_get_priority_max\" should never fail! Either the system is not POSIX compliant or an "
                   "invalid integer was casted to the \"Scheduler\" enum class.");
     }
     return result.value().value;
