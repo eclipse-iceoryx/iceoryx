@@ -191,26 +191,26 @@ inline bool SpscSofi<ValueType, CapacityValue>::push(const ValueType& valueIn, V
         // overflow). This is an inherent behavior with concurrent queues. Scenario example
         // (CapacityValue = 2):
         // 0. Initial situation (before the call to push)
-        // |--1--|--2--|----|
+        // |--A--|--B--|----|
         // ^           ^
         // r=0        w=2
         // 1. Thread 1, pushes a new value and increases m_readPosition (overflow situation)
-        // |--1--|--2--|--3--|
+        // |--A--|--B--|--C--|
         // ^     ^
         // w=3, r=1
         // 2. Now, thread 1 is interrupted and another thread pops as many elements as possible
-        // 3. pop() -> returns 2 (First value returned by pop)
-        // |--1--|-(2)-|--3--|
+        // 3. pop() -> returns B (First value returned by pop)
+        // |--A--|-(B)-|--C--|
         // ^           ^
         // w=3        r=2
-        // 4. pop() -> returns 3 (Second value returned by pop)
-        // |--1--|-(2)-|-(3)-|
+        // 4. pop() -> returns C (Second value returned by pop)
+        // |--A--|-(B)-|-(C)-|
         // ^
         // w=3, r=3
         // 5. pop() -> nothing to return
-        // 6. Finally, thread 1 resumes and returns 1 (Third value [additional value] returned by
+        // 6. Finally, thread 1 resumes and returns A (Third value [additional value] returned by
         // push)
-        // |-(1)-|-(2)-|-(3)-|
+        // |-(A)-|-(B)-|-(C)-|
         // ^
         // w=3, r=3
         std::memcpy(&valueOut, &m_data[currentReadPos % m_size], sizeof(ValueType));
