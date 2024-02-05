@@ -676,7 +676,7 @@ void PortManager::sendToAllMatchingClientPorts(const capro::CaproMessage& messag
                 auto serverResponse = serverSource.dispatchCaProMessageAndGetPossibleResponse(clientResponse.value());
                 if (serverResponse.has_value())
                 {
-                    // sende responsee to client port
+                    // send response to client port
                     clientPort.dispatchCaProMessageAndGetPossibleResponse(serverResponse.value())
                         .and_then([](auto& response) {
                             IOX_LOG(FATAL, "Got response '" << response.m_type << "'");

@@ -70,7 +70,7 @@ expected<void, PosixIpcChannelError> NamedPipe::timedSend(const iox::string<N>& 
 template <uint64_t N>
 expected<void, PosixIpcChannelError> NamedPipe::receive(iox::string<N>& message) const noexcept
 {
-    m_data->receiveSemaphore().wait().expect("'tryWait' on a semaphore should always be successful");
+    m_data->receiveSemaphore().wait().expect("'wait' on a semaphore should always be successful");
     auto msg = m_data->messages.pop();
     if (msg.has_value())
     {

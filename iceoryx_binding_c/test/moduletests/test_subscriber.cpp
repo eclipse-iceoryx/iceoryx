@@ -94,7 +94,6 @@ class iox_sub_test : public Test
 
         auto chunkSettings = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT)
                                  .expect("Valid 'ChunkSettings'");
-        ;
         return m_memoryManager.getChunk(chunkSettings).expect("Obtaining chunk");
     }
 

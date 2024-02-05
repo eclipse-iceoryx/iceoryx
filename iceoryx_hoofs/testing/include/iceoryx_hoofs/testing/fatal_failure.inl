@@ -25,7 +25,7 @@ namespace iox
 namespace testing
 {
 template <typename ErrorType>
-// NOLINTJUSTIFICATION The complexity comes from the expanded macros; without the expansions the functions is quite readable
+// NOLINTJUSTIFICATION The complexity comes from the expanded macros; without the expansions the function is quite readable
 // NOLINTNEXTLINE(readability-function-size, readability-function-cognitive-complexity)
 inline bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction,
                                      const ErrorType expectedError [[maybe_unused]])
