@@ -15,7 +15,7 @@ jobs:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install iceoryx dependencies and clang-tidy
         uses: ./.github/actions/install-iceoryx-deps-and-clang
       - run: ./tools/scripts/clang_format.sh check
@@ -54,7 +54,7 @@ jobs:
     runs-on: ubuntu-20.04
     needs: pre-flight-check
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: egor-tensin/setup-gcc@v1.3
         with:
           # gcc 8.3 is compiler used in QNX 7.1
@@ -71,7 +71,7 @@ jobs:
     runs-on: windows-latest
     needs: pre-flight-check
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: ./tools/ci/build-test-windows.ps1 -toolchain MSVC
         shell: powershell
 
@@ -81,7 +81,7 @@ jobs:
     runs-on: windows-latest
     needs: pre-flight-check
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: egor-tensin/setup-mingw@v2
         with:
           version: 10.3
@@ -99,7 +99,7 @@ jobs:
         uses: ros-tooling/setup-ros@v0.7
         with:
           required-ros-distributions: humble
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: ./tools/ci/run-integration-test.sh
 
   build-test-ubuntu-with-address-sanitizer-gcc-latest:
@@ -112,7 +112,7 @@ jobs:
         with:
           version: 13
           platform: x64
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Run Address Sanitizer
         run: ./tools/ci/build-test-ubuntu-with-sanitizers.sh gcc asan
 
@@ -123,7 +123,7 @@ jobs:
     needs: pre-flight-check
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install iceoryx dependencies and clang-tidy
         uses: ./.github/actions/install-iceoryx-deps-and-clang
       - name: Run Address Sanitizer
@@ -135,7 +135,7 @@ jobs:
     runs-on: macos-latest
     needs: pre-flight-check
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Run Address Sanitizer
         run: ./tools/ci/build-test-macos-with-sanitizers.sh asan
 
@@ -146,7 +146,7 @@ jobs:
     needs: pre-flight-check
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install iceoryx dependencies and clang-tidy
         uses: ./.github/actions/install-iceoryx-deps-and-clang
       - name: Run Thread Sanitizer
@@ -160,7 +160,7 @@ jobs:
     needs: pre-flight-check
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install iceoryx dependencies and clang-tidy
         uses: ./.github/actions/install-iceoryx-deps-and-clang
       - run: ./tools/ci/build-test-ubuntu-bazel.sh
@@ -171,7 +171,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: pre-flight-check
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: ./tools/ci/coverage-and-docs.sh
 
       - name: Archive generated doxygen

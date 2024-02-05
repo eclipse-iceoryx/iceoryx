@@ -27,7 +27,7 @@ jobs:
           sudo apt-get install -y plantuml texlive-latex-base texlive-latex-extra texlive-latex-recommended texlive-fonts-recommended
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.ReleaseTag }}
         env:
