@@ -33,11 +33,12 @@ inline bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction,
     iox::testing::ErrorHandler::instance().reset();
     runInTestThread([&] { testFunction(); });
     IOX_TESTING_EXPECT_PANIC();
+    auto hasPanicked = iox::testing::hasPanicked();
 
     auto hasExpectedError{false};
     if constexpr (std::is_same_v<ErrorType, iox::er::FatalKind>)
     {
-        hasExpectedError = iox::testing::hasPanicked();
+        hasExpectedError = hasPanicked;
         if (!hasExpectedError)
         {
             IOX_LOG(ERROR, "Expected '" << iox::er::FatalKind::name << "' but it did not happen!");
@@ -45,7 +46,7 @@ inline bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction,
     }
     else if constexpr (std::is_same_v<ErrorType, iox::er::EnforceViolationKind>)
     {
-        hasExpectedError = iox::testing::hasEnforceViolation() && iox::testing::hasPanicked();
+        hasExpectedError = iox::testing::hasEnforceViolation();
         if (!hasExpectedError)
         {
             IOX_LOG(ERROR, "Expected '" << iox::er::EnforceViolationKind::name << "' but it did not happen!");
@@ -53,7 +54,7 @@ inline bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction,
     }
     else if constexpr (std::is_same_v<ErrorType, iox::er::AssertViolationKind>)
     {
-        hasExpectedError = iox::testing::hasAssertViolation() && iox::testing::hasPanicked();
+        hasExpectedError = iox::testing::hasAssertViolation();
         if (!hasExpectedError)
         {
             IOX_LOG(ERROR, "Expected '" << iox::er::AssertViolationKind::name << "' but it did not happen!");
@@ -61,7 +62,7 @@ inline bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction,
     }
     else
     {
-        hasExpectedError = iox::testing::hasError(expectedError) && iox::testing::hasPanicked();
+        hasExpectedError = iox::testing::hasError(expectedError);
         if (!hasExpectedError)
         {
             IOX_LOG(ERROR, "Expected an '" << expectedError << "' error but it did not happen!");
@@ -69,7 +70,7 @@ inline bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction,
     }
 
     EXPECT_TRUE(hasExpectedError);
-    return hasExpectedError;
+    return hasExpectedError && hasPanicked;
 }
 
 inline bool IOX_EXPECT_NO_FATAL_FAILURE(const function_ref<void()> testFunction)
