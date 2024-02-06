@@ -27,14 +27,17 @@ namespace concurrent
 template <class ValueType, uint64_t Capacity>
 inline bool SpscFifo<ValueType, Capacity>::push(const ValueType& value) noexcept
 {
-    if (is_full())
-    {
-        return false;
-    }
     // Memory order relaxed is enough since:
     // - there is no concurrent access to this method
     // - the load statement cannot be reordered with writing m_data otherwise it would not compile
     auto currentWritePos = m_writePos.load(std::memory_order_relaxed);
+    bool isFull = (currentWritePos ==
+                   // Memory order acquire is needed to ensure happens-before relationship
+                   m_readPos.load(std::memory_order_acquire) + Capacity);
+    if (isFull)
+    {
+        return false;
+    }
     m_data[currentWritePos % Capacity] = value;
 
     // SYNC POINT WRITE: m_data
@@ -88,11 +91,11 @@ inline optional<ValueType> SpscFifo<ValueType, Capacity>::pop() noexcept
     auto currentReadPos = m_readPos.load(std::memory_order_relaxed);
 
     bool isEmpty = (currentReadPos ==
-                     // SYNC POINT READ: m_data
-                     // See explanation of the corresponding sync point.
-                     // As a consequence, we are not allowed to use the empty method
-                     // since we have to sync with m_writePos in the push method
-                     m_writePos.load(std::memory_order_acquire));
+                    // SYNC POINT READ: m_data
+                    // See explanation of the corresponding sync point.
+                    // As a consequence, we are not allowed to use the empty method
+                    // since we have to sync with m_writePos in the push method
+                    m_writePos.load(std::memory_order_acquire));
     if (isEmpty)
     {
         return nullopt_t();
@@ -100,24 +103,16 @@ inline optional<ValueType> SpscFifo<ValueType, Capacity>::pop() noexcept
 
     ValueType out = m_data[currentReadPos % Capacity];
 
-    // We need to make sure that reading the value happens before incrementing the m_readPos
-    // otherwise the following can happen:
+    // We need to make sure that reading the value happens before incrementing the m_readPos (hence release memory
+    // order) otherwise the following can happen:
     // 1. We increment m_readPos (but the value hasn't been read yet)
     // 2. Another thread calls push(): we check if the queue is full => no
     // 3. In push(), a data race can occur
-    // With memory_order_acq_rel,
-    // m_readPos must be increased after reading the popped value otherwise
-    // it is possible that the popped value is overwritten by push while being read
-    // (e.g. when the queue is full, i.e. m_readPos == m_writePos)
     // Note that the following situation can still happen but is not a problem:
     // 1. We read the value
     // 2. Another thread calls push(): we check if the queue is full => yes
     // 3. The queue was not really full as the value was already read
-    // Memory order acq_rel to avoid:
-    // - reading m_data to happen after the fence (rel)
-    // - incrementing m_readPos before the fence (acq)
-    std::atomic_thread_fence(std::memory_order::memory_order_acq_rel);
-    m_readPos.store(currentReadPos + 1, std::memory_order_relaxed);
+    m_readPos.store(currentReadPos + 1, std::memory_order_release);
     return out;
 }
 } // namespace concurrent

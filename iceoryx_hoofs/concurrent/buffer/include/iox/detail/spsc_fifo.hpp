@@ -42,25 +42,28 @@ class SpscFifo
     bool push(const ValueType& value) noexcept;
 
     /// @brief returns the oldest value from the fifo and removes it
-    /// @note restricted thread-safe: can only be accessed from one thread. The authorization to pop into the FIFO can
+    /// @note restricted thread-safe: can only be accessed from one thread. The authorization to pop from the FIFO can
     /// be transferred to another thread if appropriate synchronization mechanisms are used.
     /// @return if the fifo was not empty, the optional contains the value,
     ///         otherwise it contains a nullopt
     optional<ValueType> pop() noexcept;
 
     /// @brief returns true when the fifo is empty, otherwise false
-    /// @note thread safe (the result might already be outdated when used). Expected to be called from either the push or the pop thread but not from a third thread
+    /// @note thread safe (the result might already be outdated when used). Expected to be called from either the push
+    /// or the pop thread but not from a third thread
     bool empty() const noexcept;
 
     /// @brief returns the size of the fifo
-    /// @note thread safe (the result might already be outdated when used). Expected to be called from either the push or the pop thread but not from a third thread
+    /// @note thread safe (the result might already be outdated when used). Expected to be called from either the push
+    /// or the pop thread but not from a third thread
     uint64_t size() const noexcept;
 
     /// @brief returns the capacity of the fifo
     static constexpr uint64_t capacity() noexcept;
 
   private:
-    // thread safe (the result might already be outdated when used). Expected to be called from either the push or the pop thread but not from a third thread
+    // thread safe (the result might already be outdated when used). Expected to be called from either the push or the
+    // pop thread but not from a third thread
     bool is_full() const noexcept;
 
   private:
