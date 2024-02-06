@@ -144,22 +144,19 @@ TEST_F(iox_user_trigger_test, disable_trigger_eventingItFromWaitsetCleansup)
 TEST_F(iox_user_trigger_test, userTriggerDeinitWithNullptrFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0f418a98-c3d5-4dc7-a550-21e0d2f6adee");
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_user_trigger_deinit(nullptr); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { iox_user_trigger_deinit(nullptr); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(iox_user_trigger_test, userTriggerTriggerWithNullptrFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "da67d02e-b801-40be-b640-c3aaabc4b3a5");
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_user_trigger_trigger(nullptr); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { iox_user_trigger_trigger(nullptr); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(iox_user_trigger_test, userTriggerHasTriggeredWithNullptrFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7b79eb0f-6102-402e-b55c-f339e2eb9b77");
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_user_trigger_has_triggered(nullptr); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { iox_user_trigger_has_triggered(nullptr); }, iox::er::ENFORCE_VIOLATION);
 }
 
 } // namespace

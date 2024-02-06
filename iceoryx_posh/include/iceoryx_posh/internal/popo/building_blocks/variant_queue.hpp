@@ -18,6 +18,7 @@
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_VARIANT_QUEUE_HPP
 #define IOX_POSH_POPO_BUILDING_BLOCKS_VARIANT_QUEUE_HPP
 
+#include "iox/assertions.hpp"
 #include "iox/detail/mpmc_resizeable_lockfree_queue.hpp"
 #include "iox/detail/spsc_fifo.hpp"
 #include "iox/detail/spsc_sofi.hpp"

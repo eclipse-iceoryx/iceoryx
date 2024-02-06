@@ -11,7 +11,7 @@ jobs:
     # prevent stuck jobs consuming macos runners for 6 hours
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: ./tools/ci/build-test-macos.sh
 
   clang-tidy-full-scan:
@@ -19,7 +19,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install iceoryx dependencies and clang-tidy
         uses: ./.github/actions/install-iceoryx-deps-and-clang
       - name: clang-tidy full scan of all entries in .clang-tidy-diff-scans.txt

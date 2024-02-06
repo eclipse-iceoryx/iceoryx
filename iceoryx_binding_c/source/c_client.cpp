@@ -35,7 +35,7 @@ constexpr uint64_t CLIENT_OPTIONS_INIT_CHECK_CONSTANT = 47113130815;
 
 void iox_client_options_init(iox_client_options_t* options)
 {
-    IOX_EXPECTS(options != nullptr);
+    IOX_ENFORCE(options != nullptr, "'options' must not be a 'nullptr'");
 
     ClientOptions clientOptions;
     options->responseQueueCapacity = clientOptions.responseQueueCapacity;
@@ -49,7 +49,7 @@ void iox_client_options_init(iox_client_options_t* options)
 
 bool iox_client_options_is_initialized(const iox_client_options_t* const options)
 {
-    IOX_EXPECTS(options != nullptr);
+    IOX_ENFORCE(options != nullptr, "'options' must not be a 'nullptr'");
 
     return options->initCheck == CLIENT_OPTIONS_INIT_CHECK_CONSTANT;
 }
@@ -60,11 +60,12 @@ iox_client_t iox_client_init(iox_client_storage_t* self,
                              const char* const event,
                              const iox_client_options_t* const options)
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(service != nullptr);
-    IOX_EXPECTS(instance != nullptr);
-    IOX_EXPECTS(event != nullptr);
-    IOX_EXPECTS(options == nullptr || (options != nullptr && iox_client_options_is_initialized(options)));
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(service != nullptr, "'service' must not be a 'nullptr'");
+    IOX_ENFORCE(instance != nullptr, "'instance' must not be a 'nullptr'");
+    IOX_ENFORCE(event != nullptr, "'event' must not be a 'nullptr'");
+    IOX_ENFORCE(options == nullptr || (options != nullptr && iox_client_options_is_initialized(options)),
+                "'options' must be either a 'nullptr' or the data behind the pointer must be initialized");
 
     ClientOptions clientOptions;
     if (options != nullptr)
@@ -87,7 +88,7 @@ iox_client_t iox_client_init(iox_client_storage_t* self,
 
 void iox_client_deinit(iox_client_t const self)
 {
-    IOX_EXPECTS(self != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
 
     delete self;
 }
@@ -102,8 +103,8 @@ iox_AllocationResult iox_client_loan_aligned_request(iox_client_t const self,
                                                      const uint64_t payloadSize,
                                                      const uint32_t payloadAlignment)
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(payload != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(payload != nullptr, "'payload' must not be a 'nullptr'");
 
     auto result = self->loan(payloadSize, payloadAlignment);
     if (result.has_error())
@@ -117,15 +118,15 @@ iox_AllocationResult iox_client_loan_aligned_request(iox_client_t const self,
 
 void iox_client_release_request(iox_client_t const self, void* const payload)
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(payload != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(payload != nullptr, "'payload' must not be a 'nullptr'");
 
     self->releaseRequest(payload);
 }
 
 iox_ClientSendResult iox_client_send(iox_client_t const self, void* const payload)
 {
-    IOX_EXPECTS(self != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
 
     auto result = self->send(payload);
     if (result.has_error())
@@ -138,26 +139,26 @@ iox_ClientSendResult iox_client_send(iox_client_t const self, void* const payloa
 
 void iox_client_connect(iox_client_t const self)
 {
-    IOX_EXPECTS(self != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
     self->connect();
 }
 
 void iox_client_disconnect(iox_client_t const self)
 {
-    IOX_EXPECTS(self != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
     self->disconnect();
 }
 
 iox_ConnectionState iox_client_get_connection_state(iox_client_t const self)
 {
-    IOX_EXPECTS(self != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
     return cpp2c::connectionState(self->getConnectionState());
 }
 
 iox_ChunkReceiveResult iox_client_take_response(iox_client_t const self, const void** const payload)
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(payload != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(payload != nullptr, "'payload' must not be a 'nullptr'");
 
     auto result = self->take();
     if (result.has_error())
@@ -171,27 +172,27 @@ iox_ChunkReceiveResult iox_client_take_response(iox_client_t const self, const v
 
 void iox_client_release_response(iox_client_t const self, const void* const payload)
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(payload != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(payload != nullptr, "'payload' must not be a 'nullptr'");
 
     self->releaseResponse(payload);
 }
 
 void iox_client_release_queued_responses(iox_client_t const self)
 {
-    IOX_EXPECTS(self != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
     self->releaseQueuedResponses();
 }
 
 bool iox_client_has_responses(iox_client_t const self)
 {
-    IOX_EXPECTS(self != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
     return self->hasResponses();
 }
 
 bool iox_client_has_missed_responses(iox_client_t const self)
 {
-    IOX_EXPECTS(self != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
     return self->hasMissedResponses();
 }
 

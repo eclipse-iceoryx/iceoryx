@@ -31,6 +31,7 @@
 
 // additional includes
 #include "iox/error_reporting/types.hpp"
+#include "iox/log/logstream.hpp"
 
 namespace iox
 {
@@ -181,6 +182,12 @@ enum class PoshError : iox::er::ErrorCode::type
 };
 
 const char* asStringLiteral(const PoshError error) noexcept;
+
+inline log::LogStream& operator<<(log::LogStream& stream, PoshError value) noexcept
+{
+    stream << asStringLiteral(value);
+    return stream;
+}
 
 class PoshErrorType
 {

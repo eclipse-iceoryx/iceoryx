@@ -31,6 +31,7 @@
 
 // additional includes
 #include "iox/error_reporting/types.hpp"
+#include "iox/log/logstream.hpp"
 
 namespace iox
 {
@@ -61,6 +62,12 @@ enum class CBindingError : iox::er::ErrorCode::type
 };
 
 const char* asStringLiteral(const CBindingError error) noexcept;
+
+inline log::LogStream& operator<<(log::LogStream& stream, CBindingError value) noexcept
+{
+    stream << asStringLiteral(value);
+    return stream;
+}
 
 class CBindingErrorType
 {

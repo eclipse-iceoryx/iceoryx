@@ -21,6 +21,7 @@
 #include "iceoryx_posh/popo/untyped_client.hpp"
 #include "iceoryx_posh/popo/untyped_server.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
+#include "iox/assertions.hpp"
 
 #include <type_traits>
 
@@ -34,7 +35,7 @@ extern "C" {
 
 iox_listener_t iox_listener_init(iox_listener_storage_t* self)
 {
-    IOX_EXPECTS(self != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
 
     auto* me = new Listener();
     self->do_not_touch_me[0] = reinterpret_cast<uint64_t>(me);
@@ -43,7 +44,7 @@ iox_listener_t iox_listener_init(iox_listener_storage_t* self)
 
 void iox_listener_deinit(iox_listener_t const self)
 {
-    IOX_EXPECTS(self != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
 
     delete self;
 }
@@ -53,9 +54,9 @@ ENUM iox_ListenerResult iox_listener_attach_subscriber_event(iox_listener_t cons
                                                              const ENUM iox_SubscriberEvent subscriberEvent,
                                                              void (*callback)(iox_sub_t))
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(subscriber != nullptr);
-    IOX_EXPECTS(callback != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(subscriber != nullptr, "'subscriver' must not be a 'nullptr'");
+    IOX_ENFORCE(callback != nullptr, "'callback' must not be a 'nullptr'");
 
     auto result =
         self->attachEvent(*subscriber,
@@ -75,10 +76,10 @@ iox_listener_attach_subscriber_event_with_context_data(iox_listener_t const self
                                                        void (*callback)(iox_sub_t, void*),
                                                        void* const contextData)
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(subscriber != nullptr);
-    IOX_EXPECTS(callback != nullptr);
-    IOX_EXPECTS(contextData != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(subscriber != nullptr, "'subscriver' must not be a 'nullptr'");
+    IOX_ENFORCE(callback != nullptr, "'callback' must not be a 'nullptr'");
+    IOX_ENFORCE(contextData != nullptr, "'contextData' must not be a 'nullptr'");
 
     auto result = self->attachEvent(*subscriber,
                                     c2cpp::subscriberEvent(subscriberEvent),
@@ -94,9 +95,9 @@ ENUM iox_ListenerResult iox_listener_attach_user_trigger_event(iox_listener_t co
                                                                iox_user_trigger_t const userTrigger,
                                                                void (*callback)(iox_user_trigger_t))
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(userTrigger != nullptr);
-    IOX_EXPECTS(callback != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(userTrigger != nullptr, "'userTrigger' must not be a 'nullptr'");
+    IOX_ENFORCE(callback != nullptr, "'callback' must not be a 'nullptr'");
 
     auto result =
         self->attachEvent(*userTrigger, NotificationCallback<UserTrigger, popo::internal::NoType_t>{callback, nullptr});
@@ -113,10 +114,10 @@ ENUM iox_ListenerResult iox_listener_attach_user_trigger_event_with_context_data
                                                                                                   void*),
                                                                                  void* const contextData)
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(userTrigger != nullptr);
-    IOX_EXPECTS(callback != nullptr);
-    IOX_EXPECTS(contextData != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(userTrigger != nullptr, "'userTrigger' must not be a 'nullptr'");
+    IOX_ENFORCE(callback != nullptr, "'callback' must not be a 'nullptr'");
+    IOX_ENFORCE(contextData != nullptr, "'contextData' must not be a 'nullptr'");
 
     NotificationCallback<UserTrigger, void> notificationCallback;
     notificationCallback.m_callback = callback;
@@ -134,30 +135,30 @@ void iox_listener_detach_subscriber_event(iox_listener_t const self,
                                           iox_sub_t const subscriber,
                                           const ENUM iox_SubscriberEvent subscriberEvent)
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(subscriber != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(subscriber != nullptr, "'subscriver' must not be a 'nullptr'");
 
     self->detachEvent(*subscriber, c2cpp::subscriberEvent(subscriberEvent));
 }
 
 void iox_listener_detach_user_trigger_event(iox_listener_t const self, iox_user_trigger_t const userTrigger)
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(userTrigger != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(userTrigger != nullptr, "'userTrigger' must not be a 'nullptr'");
 
     self->detachEvent(*userTrigger);
 }
 
 uint64_t iox_listener_size(iox_listener_t const self)
 {
-    IOX_EXPECTS(self != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
 
     return self->size();
 }
 
 uint64_t iox_listener_capacity(iox_listener_t const self)
 {
-    IOX_EXPECTS(self != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
 
     return self->capacity();
 }
@@ -167,9 +168,9 @@ iox_ListenerResult iox_listener_attach_client_event(iox_listener_t const self,
                                                     const ENUM iox_ClientEvent clientEvent,
                                                     void (*callback)(iox_client_t))
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(client != nullptr);
-    IOX_EXPECTS(callback != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(client != nullptr, "'client' must not be a 'nullptr'");
+    IOX_ENFORCE(callback != nullptr, "'callback' must not be a 'nullptr'");
 
     auto result = self->attachEvent(
         *client,
@@ -184,10 +185,10 @@ iox_ListenerResult iox_listener_attach_client_event_with_context_data(iox_listen
                                                                       void (*callback)(iox_client_t, void*),
                                                                       void* const contextData)
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(client != nullptr);
-    IOX_EXPECTS(callback != nullptr);
-    IOX_EXPECTS(contextData != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(client != nullptr, "'client' must not be a 'nullptr'");
+    IOX_ENFORCE(callback != nullptr, "'callback' must not be a 'nullptr'");
+    IOX_ENFORCE(contextData != nullptr, "'contextData' must not be a 'nullptr'");
 
     auto result =
         self->attachEvent(*client,
@@ -200,8 +201,8 @@ void iox_listener_detach_client_event(iox_listener_t const self,
                                       iox_client_t const client,
                                       const ENUM iox_ClientEvent clientEvent)
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(client != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(client != nullptr, "'client' must not be a 'nullptr'");
 
     self->detachEvent(*client, c2cpp::clientEvent(clientEvent));
 }
@@ -212,9 +213,9 @@ iox_ListenerResult iox_listener_attach_server_event(iox_listener_t const self,
                                                     const ENUM iox_ServerEvent serverEvent,
                                                     void (*callback)(iox_server_t))
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(server != nullptr);
-    IOX_EXPECTS(callback != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(server != nullptr, "'server' must not be a 'nullptr'");
+    IOX_ENFORCE(callback != nullptr, "'callback' must not be a 'nullptr'");
 
     auto result = self->attachEvent(
         *server,
@@ -229,10 +230,10 @@ iox_ListenerResult iox_listener_attach_server_event_with_context_data(iox_listen
                                                                       void (*callback)(iox_server_t, void*),
                                                                       void* const contextData)
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(server != nullptr);
-    IOX_EXPECTS(callback != nullptr);
-    IOX_EXPECTS(contextData != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(server != nullptr, "'server' must not be a 'nullptr'");
+    IOX_ENFORCE(callback != nullptr, "'callback' must not be a 'nullptr'");
+    IOX_ENFORCE(contextData != nullptr, "'contextData' must not be a 'nullptr'");
 
     auto result =
         self->attachEvent(*server,
@@ -245,8 +246,8 @@ void iox_listener_detach_server_event(iox_listener_t const self,
                                       iox_server_t const server,
                                       const ENUM iox_ServerEvent serverEvent)
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(server != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(server != nullptr, "'server' must not be a 'nullptr'");
 
     self->detachEvent(*server, c2cpp::serverEvent(serverEvent));
 }
@@ -257,9 +258,9 @@ iox_listener_attach_service_discovery_event(iox_listener_t const self,
                                             const ENUM iox_ServiceDiscoveryEvent serviceDiscoveryEvent,
                                             void (*callback)(iox_service_discovery_t))
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(serviceDiscovery != nullptr);
-    IOX_EXPECTS(callback != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(serviceDiscovery != nullptr, "'serviceDiscovery' must not be a 'nullptr'");
+    IOX_ENFORCE(callback != nullptr, "'callback' must not be a 'nullptr'");
 
     auto result =
         self->attachEvent(*serviceDiscovery,
@@ -276,10 +277,10 @@ iox_ListenerResult iox_listener_attach_service_discovery_event_with_context_data
     void (*callback)(iox_service_discovery_t, void*),
     void* const contextData)
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(serviceDiscovery != nullptr);
-    IOX_EXPECTS(callback != nullptr);
-    IOX_EXPECTS(contextData != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(serviceDiscovery != nullptr, "'serviceDiscovery' must not be a 'nullptr'");
+    IOX_ENFORCE(callback != nullptr, "'callback' must not be a 'nullptr'");
+    IOX_ENFORCE(contextData != nullptr, "'contextData' must not be a 'nullptr'");
 
     auto result = self->attachEvent(*serviceDiscovery,
                                     c2cpp::serviceDiscoveryEvent(serviceDiscoveryEvent),
@@ -292,8 +293,8 @@ void iox_listener_detach_service_discovery_event(iox_listener_t const self,
                                                  iox_service_discovery_t const serviceDiscovery,
                                                  const ENUM iox_ServiceDiscoveryEvent serviceDiscoveryEvent)
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(serviceDiscovery != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(serviceDiscovery != nullptr, "'serviceDiscovery' must not be a 'nullptr'");
 
     self->detachEvent(*serviceDiscovery, c2cpp::serviceDiscoveryEvent(serviceDiscoveryEvent));
 }

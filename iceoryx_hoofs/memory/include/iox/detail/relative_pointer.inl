@@ -18,6 +18,7 @@
 #ifndef IOX_HOOFS_MEMORY_RELATIVE_POINTER_INL
 #define IOX_HOOFS_MEMORY_RELATIVE_POINTER_INL
 
+#include "iox/assertions.hpp"
 #include "iox/relative_pointer.hpp"
 
 namespace iox
@@ -103,7 +104,7 @@ template <typename T>
 inline T* RelativePointer<T>::operator->() const noexcept
 {
     auto* const ptr{get()};
-    IOX_ENSURES(ptr != nullptr);
+    IOX_ENFORCE(ptr != nullptr, "should not happen unless src is incorrectly used after move");
     return ptr;
 }
 

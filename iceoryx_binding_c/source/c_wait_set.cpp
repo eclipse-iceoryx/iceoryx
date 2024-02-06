@@ -24,6 +24,7 @@
 #include "iceoryx_posh/popo/untyped_server.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
+#include "iox/assertions.hpp"
 
 #include <type_traits>
 
@@ -63,7 +64,7 @@ static uint64_t notification_info_vector_to_c_array(const WaitSet<>::Notificatio
 
 iox_ws_t iox_ws_init(iox_ws_storage_t* self)
 {
-    IOX_EXPECTS(self != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
 
     auto* me = new cpp2c_WaitSet();
     self->do_not_touch_me[0] = reinterpret_cast<uint64_t>(me);
@@ -72,7 +73,7 @@ iox_ws_t iox_ws_init(iox_ws_storage_t* self)
 
 void iox_ws_deinit(iox_ws_t const self)
 {
-    IOX_EXPECTS(self != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
 
     delete self;
 }
@@ -83,8 +84,8 @@ uint64_t iox_ws_timed_wait(iox_ws_t const self,
                            const uint64_t notificationInfoArrayCapacity,
                            uint64_t* missedElements)
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(missedElements != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(missedElements != nullptr, "'missedElements' must not be a 'nullptr'");
 
     return notification_info_vector_to_c_array(self->timedWait(units::Duration(timeout)),
                                                notificationInfoArray,
@@ -97,8 +98,8 @@ uint64_t iox_ws_wait(iox_ws_t const self,
                      const uint64_t notificationInfoArrayCapacity,
                      uint64_t* missedElements)
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(missedElements != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(missedElements != nullptr, "'missedElements' must not be a 'nullptr'");
 
     return notification_info_vector_to_c_array(
         self->wait(), notificationInfoArray, notificationInfoArrayCapacity, missedElements);
@@ -106,19 +107,19 @@ uint64_t iox_ws_wait(iox_ws_t const self,
 
 uint64_t iox_ws_size(iox_ws_t const self)
 {
-    IOX_EXPECTS(self != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
     return self->size();
 }
 
 uint64_t iox_ws_capacity(iox_ws_t const self)
 {
-    IOX_EXPECTS(self != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
     return self->capacity();
 }
 
 void iox_ws_mark_for_destruction(iox_ws_t const self)
 {
-    IOX_EXPECTS(self != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
     self->markForDestruction();
 }
 
@@ -128,8 +129,8 @@ iox_WaitSetResult iox_ws_attach_subscriber_state(iox_ws_t const self,
                                                  const uint64_t eventId,
                                                  void (*callback)(iox_sub_t))
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(subscriber != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(subscriber != nullptr, "'subscriver' must not be a 'nullptr'");
 
     auto result = self->attachState(*subscriber, c2cpp::subscriberState(subscriberState), eventId, {callback, nullptr});
     return (result.has_error()) ? cpp2c::waitSetResult(result.error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
@@ -142,8 +143,8 @@ iox_WaitSetResult iox_ws_attach_subscriber_state_with_context_data(iox_ws_t cons
                                                                    void (*callback)(iox_sub_t, void*),
                                                                    void* const contextData)
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(subscriber != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(subscriber != nullptr, "'subscriver' must not be a 'nullptr'");
 
     NotificationCallback<cpp2c_Subscriber, void> notificationCallback;
     notificationCallback.m_callback = callback;
@@ -160,8 +161,8 @@ iox_WaitSetResult iox_ws_attach_subscriber_event(iox_ws_t const self,
                                                  const uint64_t eventId,
                                                  void (*callback)(iox_sub_t))
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(subscriber != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(subscriber != nullptr, "'subscriver' must not be a 'nullptr'");
 
     auto result = self->attachEvent(*subscriber, c2cpp::subscriberEvent(subscriberEvent), eventId, {callback, nullptr});
     return (result.has_error()) ? cpp2c::waitSetResult(result.error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
@@ -174,8 +175,8 @@ iox_WaitSetResult iox_ws_attach_subscriber_event_with_context_data(iox_ws_t cons
                                                                    void (*callback)(iox_sub_t, void*),
                                                                    void* const contextData)
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(subscriber != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(subscriber != nullptr, "'subscriver' must not be a 'nullptr'");
 
     NotificationCallback<cpp2c_Subscriber, void> notificationCallback;
     notificationCallback.m_callback = callback;
@@ -191,8 +192,8 @@ iox_WaitSetResult iox_ws_attach_user_trigger_event(iox_ws_t const self,
                                                    const uint64_t eventId,
                                                    void (*callback)(iox_user_trigger_t))
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(userTrigger != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(userTrigger != nullptr, "'userTrigger' must not be a 'nullptr'");
 
     auto result = self->attachEvent(*userTrigger, eventId, {callback, nullptr});
     return (result.has_error()) ? cpp2c::waitSetResult(result.error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
@@ -204,8 +205,8 @@ iox_WaitSetResult iox_ws_attach_user_trigger_event_with_context_data(iox_ws_t co
                                                                      void (*callback)(iox_user_trigger_t, void*),
                                                                      void* const contextData)
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(userTrigger != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(userTrigger != nullptr, "'userTrigger' must not be a 'nullptr'");
 
     NotificationCallback<UserTrigger, void> notificationCallback;
     notificationCallback.m_callback = callback;
@@ -219,8 +220,8 @@ void iox_ws_detach_subscriber_event(iox_ws_t const self,
                                     iox_sub_t const subscriber,
                                     const iox_SubscriberEvent subscriberEvent)
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(subscriber != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(subscriber != nullptr, "'subscriver' must not be a 'nullptr'");
 
     self->detachEvent(*subscriber, c2cpp::subscriberEvent(subscriberEvent));
 }
@@ -229,16 +230,16 @@ void iox_ws_detach_subscriber_state(iox_ws_t const self,
                                     iox_sub_t const subscriber,
                                     const iox_SubscriberState subscriberState)
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(subscriber != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(subscriber != nullptr, "'subscriver' must not be a 'nullptr'");
 
     self->detachState(*subscriber, c2cpp::subscriberState(subscriberState));
 }
 
 void iox_ws_detach_user_trigger_event(iox_ws_t const self, iox_user_trigger_t const userTrigger)
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(userTrigger != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(userTrigger != nullptr, "'userTrigger' must not be a 'nullptr'");
 
     self->detachEvent(*userTrigger);
 }
@@ -249,8 +250,8 @@ iox_WaitSetResult iox_ws_attach_client_event(const iox_ws_t self,
                                              const uint64_t eventId,
                                              void (*callback)(iox_client_t))
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(client != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(client != nullptr, "'client' must not be a 'nullptr'");
 
     auto result = self->attachEvent(*client, c2cpp::clientEvent(clientEvent), eventId, {callback, nullptr});
     return (result.has_error()) ? cpp2c::waitSetResult(result.error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
@@ -263,8 +264,8 @@ iox_WaitSetResult iox_ws_attach_client_event_with_context_data(iox_ws_t const se
                                                                void (*callback)(iox_client_t, void*),
                                                                void* const contextData)
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(client != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(client != nullptr, "'client' must not be a 'nullptr'");
 
     NotificationCallback<std::remove_pointer_t<iox_client_t>, void> notificationCallback;
     notificationCallback.m_callback = callback;
@@ -280,8 +281,8 @@ iox_WaitSetResult iox_ws_attach_client_state(const iox_ws_t self,
                                              const uint64_t eventId,
                                              void (*callback)(iox_client_t))
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(client != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(client != nullptr, "'client' must not be a 'nullptr'");
 
     auto result = self->attachState(*client, c2cpp::clientState(clientState), eventId, {callback, nullptr});
     return (result.has_error()) ? cpp2c::waitSetResult(result.error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
@@ -294,8 +295,8 @@ iox_WaitSetResult iox_ws_attach_client_state_with_context_data(iox_ws_t const se
                                                                void (*callback)(iox_client_t, void*),
                                                                void* const contextData)
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(client != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(client != nullptr, "'client' must not be a 'nullptr'");
 
     NotificationCallback<std::remove_pointer_t<iox_client_t>, void> notificationCallback;
     notificationCallback.m_callback = callback;
@@ -307,16 +308,16 @@ iox_WaitSetResult iox_ws_attach_client_state_with_context_data(iox_ws_t const se
 
 void iox_ws_detach_client_event(iox_ws_t const self, iox_client_t const client, const ENUM iox_ClientEvent clientEvent)
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(client != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(client != nullptr, "'client' must not be a 'nullptr'");
 
     self->detachEvent(*client, c2cpp::clientEvent(clientEvent));
 }
 
 void iox_ws_detach_client_state(iox_ws_t const self, iox_client_t const client, const ENUM iox_ClientState clientState)
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(client != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(client != nullptr, "'client' must not be a 'nullptr'");
 
     self->detachState(*client, c2cpp::clientState(clientState));
 }
@@ -327,8 +328,8 @@ iox_WaitSetResult iox_ws_attach_server_event(const iox_ws_t self,
                                              const uint64_t eventId,
                                              void (*callback)(iox_server_t))
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(server != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(server != nullptr, "'server' must not be a 'nullptr'");
 
     auto result = self->attachEvent(*server, c2cpp::serverEvent(serverEvent), eventId, {callback, nullptr});
     return (result.has_error()) ? cpp2c::waitSetResult(result.error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
@@ -341,8 +342,8 @@ iox_WaitSetResult iox_ws_attach_server_event_with_context_data(iox_ws_t const se
                                                                void (*callback)(iox_server_t, void*),
                                                                void* const contextData)
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(server != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(server != nullptr, "'server' must not be a 'nullptr'");
 
     NotificationCallback<std::remove_pointer_t<iox_server_t>, void> notificationCallback;
     notificationCallback.m_callback = callback;
@@ -358,8 +359,8 @@ iox_WaitSetResult iox_ws_attach_server_state(const iox_ws_t self,
                                              const uint64_t eventId,
                                              void (*callback)(iox_server_t))
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(server != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(server != nullptr, "'server' must not be a 'nullptr'");
 
     auto result = self->attachState(*server, c2cpp::serverState(serverState), eventId, {callback, nullptr});
     return (result.has_error()) ? cpp2c::waitSetResult(result.error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
@@ -372,8 +373,8 @@ iox_WaitSetResult iox_ws_attach_server_state_with_context_data(iox_ws_t const se
                                                                void (*callback)(iox_server_t, void*),
                                                                void* const contextData)
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(server != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(server != nullptr, "'server' must not be a 'nullptr'");
 
     NotificationCallback<std::remove_pointer_t<iox_server_t>, void> notificationCallback;
     notificationCallback.m_callback = callback;
@@ -385,16 +386,16 @@ iox_WaitSetResult iox_ws_attach_server_state_with_context_data(iox_ws_t const se
 
 void iox_ws_detach_server_event(iox_ws_t const self, iox_server_t const server, const ENUM iox_ServerEvent serverEvent)
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(server != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(server != nullptr, "'server' must not be a 'nullptr'");
 
     self->detachEvent(*server, c2cpp::serverEvent(serverEvent));
 }
 
 void iox_ws_detach_server_state(iox_ws_t const self, iox_server_t const server, const ENUM iox_ServerState serverState)
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(server != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(server != nullptr, "'server' must not be a 'nullptr'");
 
     self->detachState(*server, c2cpp::serverState(serverState));
 }
@@ -405,8 +406,8 @@ iox_WaitSetResult iox_ws_attach_service_discovery_event(const iox_ws_t self,
                                                         const uint64_t eventId,
                                                         void (*callback)(iox_service_discovery_t))
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(serviceDiscovery != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(serviceDiscovery != nullptr, "'serviceDiscovery' must not be a 'nullptr'");
 
     auto result = self->attachEvent(
         *serviceDiscovery, c2cpp::serviceDiscoveryEvent(serviceDiscoveryEvent), eventId, {callback, nullptr});
@@ -421,8 +422,8 @@ iox_ws_attach_service_discovery_event_with_context_data(iox_ws_t const self,
                                                         void (*callback)(iox_service_discovery_t, void*),
                                                         void* const contextData)
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(serviceDiscovery != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(serviceDiscovery != nullptr, "'serviceDiscovery' must not be a 'nullptr'");
 
     NotificationCallback<std::remove_pointer_t<iox_service_discovery_t>, void> notificationCallback;
     notificationCallback.m_callback = callback;
@@ -437,8 +438,8 @@ void iox_ws_detach_service_discovery_event(iox_ws_t const self,
                                            iox_service_discovery_t const serviceDiscovery,
                                            const ENUM iox_ServiceDiscoveryEvent serviceDiscoveryEvent)
 {
-    IOX_EXPECTS(self != nullptr);
-    IOX_EXPECTS(serviceDiscovery != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
+    IOX_ENFORCE(serviceDiscovery != nullptr, "'serviceDiscovery' must not be a 'nullptr'");
 
     self->detachEvent(*serviceDiscovery, c2cpp::serviceDiscoveryEvent(serviceDiscoveryEvent));
 }

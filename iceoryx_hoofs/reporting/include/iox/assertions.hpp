@@ -80,35 +80,6 @@
 #define IOX_UNREACHABLE()                                                                                              \
     iox::er::forwardPanic(IOX_CURRENT_SOURCE_LOCATION, "Reached code that was supposed to be unreachable.")
 
-
-/// @todo iox-#1032 replace IOX_EXPECTS and IOX_ENSURES with IOX_ENFORCE
-// implementing C++ Core Guideline, I.6. Prefer Expects
-// see:
-// https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md#Ri-expects
-// NOLINTJUSTIFICATION array decay: needed for source code location, safely wrapped in macro
-// NOLINTBEGIN(hicpp-no-array-decay, cppcoreguidelines-pro-bounds-array-to-pointer-decay)
-#define IOX_EXPECTS(condition) IOX_ENFORCE(condition, "")
-// NOLINTEND(hicpp-no-array-decay, cppcoreguidelines-pro-bounds-array-to-pointer-decay)
-
-// NOLINTJUSTIFICATION array decay: needed for source code location, safely wrapped in macro
-// NOLINTBEGIN(hicpp-no-array-decay, cppcoreguidelines-pro-bounds-array-to-pointer-decay)
-#define IOX_EXPECTS_WITH_MSG(condition, msg) IOX_ENFORCE(condition, msg)
-// NOLINTEND(hicpp-no-array-decay, cppcoreguidelines-pro-bounds-array-to-pointer-decay)
-
-// implementing C++ Core Guideline, I.8. Prefer Ensures
-// see:
-// https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md#Ri-ensures
-// NOLINTJUSTIFICATION array decay: needed for source code location, safely wrapped in macro
-// NOLINTBEGIN(hicpp-no-array-decay, cppcoreguidelines-pro-bounds-array-to-pointer-decay)
-#define IOX_ENSURES(condition) IOX_ENFORCE(condition, "")
-// NOLINTEND(hicpp-no-array-decay, cppcoreguidelines-pro-bounds-array-to-pointer-decay)
-
-// NOLINTJUSTIFICATION array decay: needed for source code location, safely wrapped in macro
-// NOLINTBEGIN(hicpp-no-array-decay, cppcoreguidelines-pro-bounds-array-to-pointer-decay)
-#define IOX_ENSURES_WITH_MSG(condition, msg) IOX_ENFORCE(condition, msg)
-// NOLINTEND(hicpp-no-array-decay, cppcoreguidelines-pro-bounds-array-to-pointer-decay)
-
-
 // NOLINTEND(cppcoreguidelines-macro-usage)
 
 #endif // IOX_HOOFS_REPORTING_ASSERTIONS_HPP

@@ -19,6 +19,7 @@
 #include "iceoryx_posh/internal/runtime/node_data.hpp"
 #include "iceoryx_posh/runtime/node.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iox/assertions.hpp"
 
 using namespace iox;
 using namespace iox::runtime;
@@ -53,7 +54,7 @@ iox_node_t iox_node_create(const char* const nodeName)
 
 void iox_node_destroy(iox_node_t const self)
 {
-    IOX_EXPECTS(self != nullptr);
+    IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
     NodeBindingExtension(self).destroy();
 }
 

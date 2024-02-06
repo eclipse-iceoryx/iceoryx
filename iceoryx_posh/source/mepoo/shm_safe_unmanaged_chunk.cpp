@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/mepoo/shm_safe_unmanaged_chunk.hpp"
+#include "iox/assertions.hpp"
 
 namespace iox
 {
@@ -44,8 +45,8 @@ ShmSafeUnmanagedChunk::ShmSafeUnmanagedChunk(mepoo::SharedChunk chunk) noexcept
         RelativePointer<mepoo::ChunkManagement> ptr{chunk.release()};
         auto id = ptr.getId();
         auto offset = ptr.getOffset();
-        IOX_ENSURES(id <= RelativePointerData::ID_RANGE && "RelativePointer id must fit into id type!");
-        IOX_ENSURES(offset <= RelativePointerData::OFFSET_RANGE && "RelativePointer offset must fit into offset type!");
+        IOX_ENFORCE(id <= RelativePointerData::ID_RANGE, "RelativePointer id must fit into id type!");
+        IOX_ENFORCE(offset <= RelativePointerData::OFFSET_RANGE, "RelativePointer offset must fit into offset type!");
         /// @todo iox-#1196 Unify types to uint64_t
         m_chunkManagement = RelativePointerData(static_cast<RelativePointerData::identifier_t>(id), offset);
     }

@@ -32,7 +32,7 @@ struct not_null
     not_null(T t) noexcept
         : m_value(t)
     {
-        IOX_EXPECTS(t != nullptr);
+        IOX_ENFORCE(t != nullptr, "Parameter must not be a 'nullptr'");
     }
 
     // AXIVION Next Construct AutosarC++19_03-A13.5.2,AutosarC++19_03-A13.5.3:this should behave like a pointer which never can be nullptr,

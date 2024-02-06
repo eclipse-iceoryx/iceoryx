@@ -2263,8 +2263,7 @@ TEST_F(FixedPositionContainer_test, EraseOnEmptyContainerCallsErrorHandler)
 {
     ::testing::Test::RecordProperty("TEST_ID", "943c9f2d-0ebd-4593-a721-884c952fef0d");
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.erase(Sut::Index::FIRST); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { sut.erase(Sut::Index::FIRST); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(FixedPositionContainer_test, EraseOnEmptySlotCallsErrorHandler)
@@ -2276,8 +2275,7 @@ TEST_F(FixedPositionContainer_test, EraseOnEmptySlotCallsErrorHandler)
     constexpr SutComplex::IndexType INDEX_TO_ERASE{Sut::Index::LAST / 2U};
     sut.erase(INDEX_TO_ERASE);
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.erase(INDEX_TO_ERASE); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { sut.erase(INDEX_TO_ERASE); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(FixedPositionContainer_test, EraseWithOutOfBoundsIndexCallsErrorHandler)
@@ -2288,8 +2286,7 @@ TEST_F(FixedPositionContainer_test, EraseWithOutOfBoundsIndexCallsErrorHandler)
 
     constexpr SutComplex::IndexType INDEX_TO_ERASE{Sut::Index::LAST + 1U};
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.erase(INDEX_TO_ERASE); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { sut.erase(INDEX_TO_ERASE); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(FixedPositionContainer_test, EraseWithNullptrCallsErrorHandler)
@@ -2298,7 +2295,7 @@ TEST_F(FixedPositionContainer_test, EraseWithNullptrCallsErrorHandler)
 
     fillSut();
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.erase(nullptr); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { sut.erase(nullptr); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(FixedPositionContainer_test, EraseWithPointerPointingOutOfContainerCallsErrorHandler)
@@ -2311,11 +2308,9 @@ TEST_F(FixedPositionContainer_test, EraseWithPointerPointingOutOfContainerCallsE
 
     // NOLINTJUSTIFICATION required for test
     // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.erase(ptr_first - 1U); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { sut.erase(ptr_first - 1U); }, iox::er::ENFORCE_VIOLATION);
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.erase(ptr_first + CAPACITY); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { sut.erase(ptr_first + CAPACITY); }, iox::er::ENFORCE_VIOLATION);
     // NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 }
 
@@ -2330,8 +2325,7 @@ TEST_F(FixedPositionContainer_test, EraseWithUnalignedPointerCallsErrorHandler)
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast, performance-no-int-to-ptr)
     auto* ptr_unaligned = reinterpret_cast<DataType*>(reinterpret_cast<uintptr_t>(ptr_first) + 1U);
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.erase(ptr_unaligned); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { sut.erase(ptr_unaligned); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(FixedPositionContainer_test, EraseWithEndIteratorCallsErrorHandler)
@@ -2341,7 +2335,7 @@ TEST_F(FixedPositionContainer_test, EraseWithEndIteratorCallsErrorHandler)
     fillSut();
 
     Sut::Iterator it = sut.end();
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.erase(it); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { sut.erase(it); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(FixedPositionContainer_test, EraseWithIteratorNotOriginatingFromContainerCallsErrorHandler)
@@ -2354,7 +2348,7 @@ TEST_F(FixedPositionContainer_test, EraseWithIteratorNotOriginatingFromContainer
     sut2.emplace(666U);
 
     Sut::Iterator it = sut2.begin();
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.erase(it); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { sut.erase(it); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(FixedPositionContainer_test, EraseWithEndConstIteratorCallsErrorHandler)
@@ -2364,7 +2358,7 @@ TEST_F(FixedPositionContainer_test, EraseWithEndConstIteratorCallsErrorHandler)
     fillSut();
 
     Sut::ConstIterator it = sut.end();
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.erase(it); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { sut.erase(it); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(FixedPositionContainer_test, EraseWithConstIteratorNotOriginatingFromContainerCallsErrorHandler)
@@ -2377,7 +2371,7 @@ TEST_F(FixedPositionContainer_test, EraseWithConstIteratorNotOriginatingFromCont
     sut2.emplace(666U);
 
     Sut::ConstIterator it = sut2.begin();
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.erase(it); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { sut.erase(it); }, iox::er::ENFORCE_VIOLATION);
 }
 
 // END test erase
@@ -2992,11 +2986,9 @@ TEST_F(FixedPositionContainer_test, DereferencingEndIteratorCallsErrorHandler)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f2ccf248-97f8-4265-9bb4-9c8e7cb79e67");
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { auto _ [[maybe_unused]] = *sut.end(); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { auto _ [[maybe_unused]] = *sut.end(); }, iox::er::ENFORCE_VIOLATION);
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { auto _ [[maybe_unused]] = *sut.cend(); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { auto _ [[maybe_unused]] = *sut.cend(); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(FixedPositionContainer_test, DereferencingInvalidIteratorCallsErrorHandler)
@@ -3006,8 +2998,7 @@ TEST_F(FixedPositionContainer_test, DereferencingInvalidIteratorCallsErrorHandle
     auto it = sut.emplace(135U);
     sut.erase(it);
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { auto _ [[maybe_unused]] = *it; },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { auto _ [[maybe_unused]] = *it; }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(FixedPositionContainer_test, ArrowOperatorOnNonConstItertorLeadsToNonConstPointer)
@@ -3060,11 +3051,9 @@ TEST_F(FixedPositionContainer_test, ArrowOperatorOnEndIteratorCallsErrorHandler)
 {
     ::testing::Test::RecordProperty("TEST_ID", "74e20989-69dd-451c-9d6d-f65044a7d7b6");
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut_complex.end()->ref(); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { sut_complex.end()->ref(); }, iox::er::ENFORCE_VIOLATION);
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut_complex.cend()->ref(); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { sut_complex.cend()->ref(); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(FixedPositionContainer_test, ArrowOperatorOnInvalidIteratorCallsErrorHandler)
@@ -3074,7 +3063,7 @@ TEST_F(FixedPositionContainer_test, ArrowOperatorOnInvalidIteratorCallsErrorHand
     auto it = sut_complex.emplace(135U);
     sut_complex.erase(it);
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { it->ref(); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { it->ref(); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(FixedPositionContainer_test, ToPtrOnNonConstItertorLeadsToNonConstPointer)
@@ -3126,11 +3115,9 @@ TEST_F(FixedPositionContainer_test, ToPtrOnEndIteratorCallsErrorHandler)
 {
     ::testing::Test::RecordProperty("TEST_ID", "51b76d04-6c8c-486e-88c9-8b6b760c41d4");
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { auto* _ [[maybe_unused]] = sut.end().to_ptr(); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { auto* _ [[maybe_unused]] = sut.end().to_ptr(); }, iox::er::ENFORCE_VIOLATION);
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { const auto* _ [[maybe_unused]] = sut.cend().to_ptr(); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { const auto* _ [[maybe_unused]] = sut.cend().to_ptr(); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(FixedPositionContainer_test, ToPtrOnInvalidIteratorCallsErrorHandler)
@@ -3140,8 +3127,7 @@ TEST_F(FixedPositionContainer_test, ToPtrOnInvalidIteratorCallsErrorHandler)
     auto it = sut.emplace(135U);
     sut.erase(it);
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { auto* _ [[maybe_unused]] = it.to_ptr(); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { auto* _ [[maybe_unused]] = it.to_ptr(); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(FixedPositionContainer_test, ToIndexOnIteratorReturnsCorrespondingIndex)

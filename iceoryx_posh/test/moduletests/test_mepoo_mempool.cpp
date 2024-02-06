@@ -177,11 +177,11 @@ TEST_F(MemPool_test, MempoolCtorWhenChunkSizeIsSmallerThanChunkMemoryAlignmentGe
     ::testing::Test::RecordProperty("TEST_ID", "52df897a-0847-476c-9d2f-99cb16432199");
     constexpr uint32_t CHUNK_SIZE_SMALLER_THAN_MEMORY_ALIGNMENT = iox::mepoo::MemPool::CHUNK_MEMORY_ALIGNMENT - 1U;
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+    IOX_EXPECT_FATAL_FAILURE(
         [&] {
             iox::mepoo::MemPool sut(CHUNK_SIZE_SMALLER_THAN_MEMORY_ALIGNMENT, NUMBER_OF_CHUNKS, allocator, allocator);
         },
-        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+        iox::er::FATAL);
 }
 
 TEST_F(MemPool_test, MempoolCtorWhenNumberOfChunksIsZeroGetsTerminated)
@@ -189,9 +189,8 @@ TEST_F(MemPool_test, MempoolCtorWhenNumberOfChunksIsZeroGetsTerminated)
     ::testing::Test::RecordProperty("TEST_ID", "a5c43e1b-e5b5-4a69-8c4c-8b95752ade8e");
     constexpr uint32_t INVALID_NUMBER_OF_CHUNKS = 0U;
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
-        [&] { iox::mepoo::MemPool sut(CHUNK_SIZE, INVALID_NUMBER_OF_CHUNKS, allocator, allocator); },
-        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE(
+        [&] { iox::mepoo::MemPool sut(CHUNK_SIZE, INVALID_NUMBER_OF_CHUNKS, allocator, allocator); }, iox::er::FATAL);
 }
 TEST_F(MemPool_test, GetChunkMethodWhenAllTheChunksAreUsedReturnsNullPointer)
 {
@@ -278,8 +277,7 @@ TEST_F(MemPool_test, FreeChunkMethodWhenTheChunkIndexIsInvalidReturnsError)
     constexpr uint32_t INVALID_INDEX{1U};
     chunks.push_back(reinterpret_cast<uint8_t*>(sut.getChunk()));
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.freeChunk(chunks[INVALID_INDEX]); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { sut.freeChunk(chunks[INVALID_INDEX]); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(MemPool_test, GetMinFreeMethodReturnsTheNumberOfFreeChunks)

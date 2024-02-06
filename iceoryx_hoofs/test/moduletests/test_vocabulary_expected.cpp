@@ -669,8 +669,7 @@ TEST_F(expected_test, AccessingValueOfLValueExpectedWhichContainsErrorWithArrowO
 
     expected<TestClass, TestError> sut = err(TestError::ERROR1);
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT(sut->m_a); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { IOX_DISCARD_RESULT(sut->m_a); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(expected_test, AccessingValueOfConstLValueExpectedWhichContainsErrorWithArrowOpLeadsToErrorHandlerCall)
@@ -679,8 +678,7 @@ TEST_F(expected_test, AccessingValueOfConstLValueExpectedWhichContainsErrorWithA
 
     const expected<TestClass, TestError> sut = err(TestError::ERROR1);
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT(sut->m_a); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { IOX_DISCARD_RESULT(sut->m_a); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(expected_test, AccessingValueOfLValueExpectedWhichContainsErrorWithDerefOpLeadsToErrorHandlerCall)
@@ -689,7 +687,7 @@ TEST_F(expected_test, AccessingValueOfLValueExpectedWhichContainsErrorWithDerefO
 
     expected<TestClass, TestError> sut = err(TestError::ERROR1);
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { *sut; }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { *sut; }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(expected_test, AccessingValueOfConstLValueExpectedWhichContainsErrorWithDerefOpLeadsToErrorHandlerCall)
@@ -698,7 +696,7 @@ TEST_F(expected_test, AccessingValueOfConstLValueExpectedWhichContainsErrorWithD
 
     const expected<TestClass, TestError> sut = err(TestError::ERROR1);
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { *sut; }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { *sut; }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(expected_test, AccessingValueOfLValueExpectedWhichContainsErrorLeadsToErrorHandlerCall)
@@ -707,7 +705,7 @@ TEST_F(expected_test, AccessingValueOfLValueExpectedWhichContainsErrorLeadsToErr
 
     expected<TestClass, TestError> sut = err(TestError::ERROR1);
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.value(); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { sut.value(); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(expected_test, AccessingValueOfConstLValueExpectedWhichContainsErrorLeadsToErrorHandlerCall)
@@ -716,7 +714,7 @@ TEST_F(expected_test, AccessingValueOfConstLValueExpectedWhichContainsErrorLeads
 
     const expected<TestClass, TestError> sut = err(TestError::ERROR1);
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.value(); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { sut.value(); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(expected_test, AccessingValueOfRValueExpectedWhichContainsErrorLeadsToErrorHandlerCall)
@@ -725,7 +723,7 @@ TEST_F(expected_test, AccessingValueOfRValueExpectedWhichContainsErrorLeadsToErr
 
     expected<TestClass, TestError> sut = err(TestError::ERROR1);
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { std::move(sut).value(); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { std::move(sut).value(); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(expected_test, AccessingErrorOfLValueExpectedWhichContainsValueLeadsToErrorHandlerCall)
@@ -735,7 +733,7 @@ TEST_F(expected_test, AccessingErrorOfLValueExpectedWhichContainsValueLeadsToErr
     constexpr int VALID_VALUE{42};
     expected<TestClass, TestError> sut = ok<TestClass>(VALID_VALUE, VALID_VALUE);
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.error(); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { sut.error(); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(expected_test, AccessingErrorOfConstLValueExpectedWhichContainsValueLeadsToErrorHandlerCall)
@@ -745,7 +743,7 @@ TEST_F(expected_test, AccessingErrorOfConstLValueExpectedWhichContainsValueLeads
     constexpr int VALID_VALUE{42};
     const expected<TestClass, TestError> sut = ok<TestClass>(VALID_VALUE, VALID_VALUE);
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.error(); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { sut.error(); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(expected_test, AccessingErrorOfRValueExpectedWhichContainsValueLeadsToErrorHandlerCall)
@@ -755,7 +753,7 @@ TEST_F(expected_test, AccessingErrorOfRValueExpectedWhichContainsValueLeadsToErr
     constexpr int VALID_VALUE{42};
     expected<TestClass, TestError> sut = ok<TestClass>(VALID_VALUE, VALID_VALUE);
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { std::move(sut).error(); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { std::move(sut).error(); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(expected_test, TwoVoidValueTypeExpectedWithEqualErrorAreEqual)

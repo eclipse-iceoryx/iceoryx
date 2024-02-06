@@ -18,6 +18,7 @@
 
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
+#include "iox/assertions.hpp"
 #include "iox/bump_allocator.hpp"
 
 #include "test.hpp"
@@ -47,14 +48,11 @@ class UsedChunkList_test : public Test
     SharedChunk getChunkFromMemoryManager()
     {
         constexpr uint64_t USER_PAYLOAD_SIZE{32U};
-        auto chunkSettingsResult =
-            iox::mepoo::ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
-        IOX_ENSURES(chunkSettingsResult.has_value());
-        auto& chunkSettings = chunkSettingsResult.value();
+        auto chunkSettings =
+            iox::mepoo::ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT)
+                .expect("Valid 'ChunkSettings'");
 
-        auto getChunkResult = memoryManager.getChunk(chunkSettings);
-        IOX_ENSURES(getChunkResult.has_value());
-        return getChunkResult.value();
+        return memoryManager.getChunk(chunkSettings).expect("Obtaining chunk");
     }
 
     void createMultipleChunks(uint32_t numberOfChunks, std::function<void(SharedChunk&&)> testHook)

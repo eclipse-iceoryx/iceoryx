@@ -17,6 +17,7 @@
 
 #include "iceoryx_posh/roudi_env/runtime_test_interface.hpp"
 #include "iceoryx_posh/internal/runtime/posh_runtime_impl.hpp"
+#include "iox/assertions.hpp"
 
 namespace iox
 {
@@ -36,9 +37,9 @@ RuntimeTestInterface::RuntimeTestInterface()
 {
     std::lock_guard<std::mutex> lock(RuntimeTestInterface::s_runtimeAccessMutex);
 
-    IOX_EXPECTS_WITH_MSG(PoshRuntime::getRuntimeFactory() == PoshRuntime::defaultRuntimeFactory,
-                         "The RuntimeTestInterface can only be used in combination with the "
-                         "PoshRuntime::defaultRuntimeFactory! Someone else already switched the factory!");
+    IOX_ENFORCE(PoshRuntime::getRuntimeFactory() == PoshRuntime::defaultRuntimeFactory,
+                "The RuntimeTestInterface can only be used in combination with the "
+                "PoshRuntime::defaultRuntimeFactory! Someone else already switched the factory!");
 
     PoshRuntime::setRuntimeFactory(RuntimeTestInterface::runtimeFactoryGetInstance);
 }
@@ -100,8 +101,10 @@ PoshRuntime& RuntimeTestInterface::runtimeFactoryGetInstance(optional<const Runt
     }
 
     bool nameIsNullopt{!name.has_value()};
-    bool invalidGetRuntimeAccess{RuntimeTestInterface::t_activeRuntime == nullptr && nameIsNullopt};
-    IOX_EXPECTS(!invalidGetRuntimeAccess);
+    if (RuntimeTestInterface::t_activeRuntime == nullptr && nameIsNullopt)
+    {
+        IOX_PANIC("Invalid runtime access");
+    }
 
     if (RuntimeTestInterface::t_activeRuntime != nullptr && nameIsNullopt)
     {

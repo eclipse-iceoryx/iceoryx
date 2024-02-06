@@ -26,6 +26,7 @@
 
 #include "iceoryx_hoofs/testing/error_reporting/testing_support.hpp"
 #include "iceoryx_hoofs/testing/fatal_failure.hpp"
+#include "iox/assertions.hpp"
 #include "test.hpp"
 
 namespace
@@ -139,16 +140,13 @@ class ClientPort_test : public Test
 
     iox::mepoo::SharedChunk getChunkFromMemoryManager(uint64_t userPayloadSize, uint32_t userHeaderSize)
     {
-        auto chunkSettingsResult = iox::mepoo::ChunkSettings::create(userPayloadSize,
-                                                                     iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT,
-                                                                     userHeaderSize,
-                                                                     iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
-        IOX_ENSURES(chunkSettingsResult.has_value());
-        auto& chunkSettings = chunkSettingsResult.value();
+        auto chunkSettings = iox::mepoo::ChunkSettings::create(userPayloadSize,
+                                                               iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT,
+                                                               userHeaderSize,
+                                                               iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT)
+                                 .expect("Valid 'ChunkSettings'");
 
-        auto getChunkResult = m_memoryManager.getChunk(chunkSettings);
-        IOX_ENSURES(getChunkResult.has_value());
-        return getChunkResult.value();
+        return m_memoryManager.getChunk(chunkSettings).expect("Obtaining chunk");
     }
 
     /// @return true if all pushes succeed, false if a push failed and a chunk was lost

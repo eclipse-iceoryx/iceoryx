@@ -44,7 +44,7 @@ struct AssertViolationKind
 
 struct EnforceViolationKind
 {
-    static constexpr char const* name = "EnforceViolation";
+    static constexpr char const* name = "Enforce Violation";
 };
 
 template <class T>

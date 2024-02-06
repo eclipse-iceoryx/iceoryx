@@ -17,9 +17,12 @@
 #ifndef IOX_HOOFS_TESTING_FATAL_FAILURE_HPP
 #define IOX_HOOFS_TESTING_FATAL_FAILURE_HPP
 
+#include "iox/error_reporting/error_kind.hpp"
+#include "iox/error_reporting/types.hpp"
 #include "iox/function_ref.hpp"
-#include "iox/optional.hpp"
+#include "iox/logging.hpp"
 
+#include "iceoryx_hoofs/testing/error_reporting/testing_support.hpp"
 #include "test.hpp"
 
 #include <atomic>
@@ -37,8 +40,7 @@ namespace testing
 /// @code
 /// TEST(MyTest, valueOnNulloptIsFatal) {
 ///     iox::optional<bool> sut;
-///     IOX_EXPECT_FATAL_FAILURE<iox::er::ErrorCode::type>(
-///         [&] { sut.value(); }, iox::er::ErrorCode::REQUIRED_CONDITION_VIOLATION));
+///     IOX_EXPECT_FATAL_FAILURE([&] { sut.value(); }, iox::er::ENFORCE_VIOLATION));
 /// }
 /// @endcode
 /// @tparam[in] ErrorType The error type which is expected, e.g. 'iox::HoofsError'
@@ -62,7 +64,6 @@ bool IOX_EXPECT_NO_FATAL_FAILURE(const function_ref<void()> testFunction);
 
 } // namespace testing
 } // namespace iox
-
 
 #include "iceoryx_hoofs/testing/fatal_failure.inl"
 

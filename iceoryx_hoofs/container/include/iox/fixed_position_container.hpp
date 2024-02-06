@@ -239,9 +239,8 @@ class FixedPositionContainer final
         ///              - the slot the iterator point to is not in use
         [[nodiscard]] Value& operator*() const
         {
-            IOX_ENSURES_WITH_MSG(m_index <= Index::LAST, "Access with invalid index!");
-            IOX_ENSURES_WITH_MSG(m_container.get().m_status[m_index] == SlotStatus::USED,
-                                 "Invalid access! Slot not in use!");
+            IOX_ENFORCE(m_index <= Index::LAST, "Access with invalid index!");
+            IOX_ENFORCE(m_container.get().m_status[m_index] == SlotStatus::USED, "Invalid access! Slot not in use!");
             return m_container.get().m_data[m_index];
         }
 
@@ -252,9 +251,8 @@ class FixedPositionContainer final
         ///              - the slot the iterator point to is not in use
         [[nodiscard]] Value* operator->() const
         {
-            IOX_ENSURES_WITH_MSG(m_index <= Index::LAST, "Access with invalid index!");
-            IOX_ENSURES_WITH_MSG(m_container.get().m_status[m_index] == SlotStatus::USED,
-                                 "Invalid access! Slot not in use!");
+            IOX_ENFORCE(m_index <= Index::LAST, "Access with invalid index!");
+            IOX_ENFORCE(m_container.get().m_status[m_index] == SlotStatus::USED, "Invalid access! Slot not in use!");
             return &m_container.get().m_data[m_index];
         }
 
@@ -265,9 +263,8 @@ class FixedPositionContainer final
         ///              - the slot the iterator point to is not in use
         [[nodiscard]] Value* to_ptr() const
         {
-            IOX_ENSURES_WITH_MSG(m_index <= Index::LAST, "Access with invalid index!");
-            IOX_ENSURES_WITH_MSG(m_container.get().m_status[m_index] == SlotStatus::USED,
-                                 "Invalid access! Slot not in use!");
+            IOX_ENFORCE(m_index <= Index::LAST, "Access with invalid index!");
+            IOX_ENFORCE(m_container.get().m_status[m_index] == SlotStatus::USED, "Invalid access! Slot not in use!");
             return &m_container.get().m_data[m_index];
         }
 

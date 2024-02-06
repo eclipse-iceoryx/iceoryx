@@ -130,8 +130,7 @@ TEST_F(iox_node_test, getNodeRuntimeNameBufferIsLessThanNodeProcessNameLength)
 TEST_F(iox_node_test, destroyNodeWithNullptrFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c5665aef-0710-4300-a99f-f968739e5222");
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_node_destroy(nullptr); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { iox_node_destroy(nullptr); }, iox::er::ENFORCE_VIOLATION);
 }
 
 } // namespace

@@ -17,6 +17,7 @@
 
 #include "iceoryx_posh/internal/roudi/memory/mempool_segment_manager_memory_block.hpp"
 
+#include "iox/assertions.hpp"
 #include "iox/bump_allocator.hpp"
 #include "iox/memory.hpp"
 
@@ -50,9 +51,8 @@ uint64_t MemPoolSegmentManagerMemoryBlock::alignment() const noexcept
 void MemPoolSegmentManagerMemoryBlock::onMemoryAvailable(not_null<void*> memory) noexcept
 {
     BumpAllocator allocator(memory, size());
-    auto allocationResult = allocator.allocate(sizeof(mepoo::SegmentManager<>), alignof(mepoo::SegmentManager<>));
-    IOX_EXPECTS(allocationResult.has_value());
-    auto* segmentManager = allocationResult.value();
+    auto* segmentManager = allocator.allocate(sizeof(mepoo::SegmentManager<>), alignof(mepoo::SegmentManager<>))
+                               .expect("There should be enough memory for the 'SegmentManager'");
     m_segmentManager = new (segmentManager) mepoo::SegmentManager<>(m_segmentConfig, &allocator);
 }
 

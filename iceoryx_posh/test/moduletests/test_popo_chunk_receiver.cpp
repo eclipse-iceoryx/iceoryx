@@ -25,6 +25,7 @@
 #include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
+#include "iox/assertions.hpp"
 #include "iox/bump_allocator.hpp"
 
 #include "iceoryx_hoofs/testing/error_reporting/testing_support.hpp"
@@ -65,13 +66,10 @@ class ChunkReceiver_test : public Test
 
     iox::mepoo::SharedChunk getChunkFromMemoryManager()
     {
-        auto chunkSettingsResult = iox::mepoo::ChunkSettings::create(sizeof(DummySample), alignof(DummySample));
-        IOX_ENSURES(chunkSettingsResult.has_value());
-        auto& chunkSettings = chunkSettingsResult.value();
+        auto chunkSettings = iox::mepoo::ChunkSettings::create(sizeof(DummySample), alignof(DummySample))
+                                 .expect("Valid 'ChunkSettings'");
 
-        auto getChunkResult = m_memoryManager.getChunk(chunkSettings);
-        IOX_ENSURES(getChunkResult.has_value());
-        return getChunkResult.value();
+        return m_memoryManager.getChunk(chunkSettings).expect("Obtaining chunk");
     }
 
     static constexpr size_t MEGABYTE = 1 << 20;

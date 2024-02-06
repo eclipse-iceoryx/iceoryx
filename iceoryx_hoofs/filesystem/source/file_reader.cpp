@@ -52,8 +52,8 @@ FileReader::FileReader(const std::string& fileName, const std::string& filePath,
         case ErrorMode::Terminate:
         {
             m_fileStream.close();
-            IOX_LOG(FATAL, "Could not open file '" << fileName << "' from path '" << filePath << "'. Exiting!");
-            IOX_ENSURES(false);
+            IOX_LOG(FATAL, "Could not open file '" << fileName << "' from path '" << filePath << "'!");
+            IOX_PANIC("Exiting due to file open failure!");
             return;
         }
         }

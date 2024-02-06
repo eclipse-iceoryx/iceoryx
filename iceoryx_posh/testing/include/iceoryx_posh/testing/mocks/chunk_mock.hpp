@@ -19,6 +19,7 @@
 
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iox/assertions.hpp"
 #include "iox/memory.hpp"
 
 #include <cstdlib>
@@ -43,7 +44,7 @@ class ChunkMock
         auto chunkSettingsResult = iox::mepoo::ChunkSettings::create(
             userPayloadSize, userPayloadAlignment, userHeaderSize, userHeaderAlignment);
 
-        IOX_ENSURES_WITH_MSG(chunkSettingsResult.has_value(), "Invalid parameter for ChunkMock");
+        IOX_ENFORCE(chunkSettingsResult.has_value(), "Invalid parameter for ChunkMock");
         auto& chunkSettings = chunkSettingsResult.value();
         auto chunkSize = chunkSettings.requiredChunkSize();
 

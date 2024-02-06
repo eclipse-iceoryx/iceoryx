@@ -73,8 +73,7 @@ description_vector iox_service_discovery_test::searchResult;
 TEST(iox_service_discovery_DeathTest, InitServiceDiscoveryWithNullptrForStorageTerminates)
 {
     ::testing::Test::RecordProperty("TEST_ID", "be551a9e-7dcf-406a-a74c-7dcb1ee16c30");
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_service_discovery_init(nullptr); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { iox_service_discovery_init(nullptr); }, iox::er::ENFORCE_VIOLATION);
 }
 
 /// @note We test only if the arguments of iox_service_discovery_find_service are correctly passed to
@@ -239,8 +238,7 @@ TEST_F(iox_service_discovery_test, FindServiceReturnsCorrectNumberOfServicesWhen
 TEST_F(iox_service_discovery_test, DeinitServiceDiscoveryWithNullptrFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "cf09c7b3-fb20-44e3-8552-9877d0facacd");
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_service_discovery_deinit(nullptr); },
-                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE([&] { iox_service_discovery_deinit(nullptr); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(iox_service_discovery_test, FindServiceServiceDiscoveryWithNullptrFails)
@@ -249,7 +247,7 @@ TEST_F(iox_service_discovery_test, FindServiceServiceDiscoveryWithNullptrFails)
     const uint64_t SERVICE_CONTAINER_CAPACITY = 10U;
     iox_service_description_t serviceContainer[SERVICE_CONTAINER_CAPACITY];
     uint64_t missedServices = 0U;
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+    IOX_EXPECT_FATAL_FAILURE(
         [&] {
             iox_service_discovery_find_service(nullptr,
                                                nullptr,
@@ -260,8 +258,8 @@ TEST_F(iox_service_discovery_test, FindServiceServiceDiscoveryWithNullptrFails)
                                                &missedServices,
                                                MessagingPattern_PUB_SUB);
         },
-        iox::HoofsError::EXPECTS_ENSURES_FAILED);
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        iox::er::ENFORCE_VIOLATION);
+    IOX_EXPECT_FATAL_FAILURE(
         [&] {
             iox_service_discovery_find_service(sut,
                                                nullptr,
@@ -272,8 +270,8 @@ TEST_F(iox_service_discovery_test, FindServiceServiceDiscoveryWithNullptrFails)
                                                &missedServices,
                                                MessagingPattern_PUB_SUB);
         },
-        iox::HoofsError::EXPECTS_ENSURES_FAILED);
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        iox::er::ENFORCE_VIOLATION);
+    IOX_EXPECT_FATAL_FAILURE(
         [&] {
             iox_service_discovery_find_service(sut,
                                                nullptr,
@@ -284,25 +282,25 @@ TEST_F(iox_service_discovery_test, FindServiceServiceDiscoveryWithNullptrFails)
                                                nullptr,
                                                MessagingPattern_PUB_SUB);
         },
-        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+        iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(iox_service_discovery_test, FindServiceApplyCallablekServiceDiscoveryWithNullptrFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b44b1ffc-f466-49f7-a7d5-2bf25bfb22a5");
     auto findHandler = [](const iox_service_description_t s) { EXPECT_THAT(s.instanceString, StrEq("RouDi_ID")); };
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+    IOX_EXPECT_FATAL_FAILURE(
         [&] {
             iox_service_discovery_find_service_apply_callable(
                 nullptr, nullptr, nullptr, nullptr, findHandler, MessagingPattern_PUB_SUB);
         },
-        iox::HoofsError::EXPECTS_ENSURES_FAILED);
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        iox::er::ENFORCE_VIOLATION);
+    IOX_EXPECT_FATAL_FAILURE(
         [&] {
             iox_service_discovery_find_service_apply_callable(
                 sut, nullptr, nullptr, nullptr, nullptr, MessagingPattern_PUB_SUB);
         },
-        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+        iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(iox_service_discovery_test, FindServiceApplyCallableWithContextDataServiceDiscoveryWithNullptrFails)
@@ -311,18 +309,18 @@ TEST_F(iox_service_discovery_test, FindServiceApplyCallableWithContextDataServic
     auto findHandler = [](const iox_service_description_t s, void*) {
         EXPECT_THAT(s.instanceString, StrEq("RouDi_ID"));
     };
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+    IOX_EXPECT_FATAL_FAILURE(
         [&] {
             iox_service_discovery_find_service_apply_callable_with_context_data(
                 nullptr, nullptr, nullptr, nullptr, findHandler, &searchResult, MessagingPattern_PUB_SUB);
         },
-        iox::HoofsError::EXPECTS_ENSURES_FAILED);
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        iox::er::ENFORCE_VIOLATION);
+    IOX_EXPECT_FATAL_FAILURE(
         [&] {
             iox_service_discovery_find_service_apply_callable_with_context_data(
                 sut, nullptr, nullptr, nullptr, nullptr, &searchResult, MessagingPattern_PUB_SUB);
         },
-        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+        iox::er::ENFORCE_VIOLATION);
 }
 
 } // namespace

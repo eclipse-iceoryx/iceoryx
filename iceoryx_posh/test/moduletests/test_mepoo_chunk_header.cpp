@@ -370,12 +370,12 @@ TEST(ChunkHeader_test, ConstructorTerminatesWhenUserPayloadSizeExceedsChunkSize)
     ASSERT_FALSE(chunkSettingsResult.has_error());
     auto& chunkSettings = chunkSettingsResult.value();
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+    IOX_EXPECT_FATAL_FAILURE(
         [&] {
             ChunkHeader sut(CHUNK_SIZE, chunkSettings);
             ;
         },
-        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+        iox::er::ENFORCE_VIOLATION);
 }
 
 // BEGIN PARAMETERIZED TESTS FOR CHUNK HEADER
