@@ -40,17 +40,22 @@ inline std::pair<uint64_t, uint64_t> SpscSofi<ValueType, CapacityValue>::getRead
         readPosition = m_readPosition.load(std::memory_order_relaxed);
         writePosition = m_writePosition.load(std::memory_order_relaxed);
 
-        // These checks are needed to make sure the result is consistent (but not necessarily
-        // up-to-date), otherwise the following scenario could happen (e.g. with the size() method):
-        // 1. We read m_writePosition = 5
-        // 2. The OS puts the thread A to sleep
-        // 3. Other threads continue to call push and pop
-        // 4. New state m_writePosition == 8, m_readPosition == 6
-        // 5. The OS schedules again thread A and we read m_readPosition = 6
-        // 6. We calculate 5 - 6 == -1  => overflow in uint64_t and size() returns
-        // 18446744073709551615
-        // 7. Another algorithm may depend on the reasonable argument that the size is always less or
-        // equal capacity it may lead to weird bugs.
+        // The while loop is needed to avoid the following scenarios:
+        // ===========================================
+        // Implementation to get the size: Size = WritePos - ReadPos;
+        // - consumer reads WritePos
+        // - consumer thread gets suspended
+        // - producer pushes 100 times
+        // - consumer reads ReadPos
+        // => ReadPos will be past WritePos and one would get a negative size (or the positive unsigned equivalent)
+        // ===========================================
+        // Implementation to get the size: CurrentReadPos = ReadPos; Size = WritePos - CurrentReadPos;
+        // - consumer stores ReadPos in CurrentReadPos
+        // - consumer thread gets suspended
+        // - producer pushes 100 times
+        // - consumer reads WritePosition
+        // => WritePos will be past CurrentReadPos + Capacity and one would get a size which is much larger than the
+        // capacity
         // ===========================================
         // Note: it is still possible to return a size that is not up-to-date anymore but at least
         // this size is logically valid
