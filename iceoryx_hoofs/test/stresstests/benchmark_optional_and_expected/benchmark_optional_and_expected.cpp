@@ -20,6 +20,7 @@
 
 #include "benchmark.hpp"
 
+#include <array>
 #include <limits>
 
 uint64_t globalCounter{0U};
@@ -28,7 +29,7 @@ template <uint64_t Size>
 struct LargeObject
 {
     uint64_t value;
-    char dataBlob[Size];
+    std::array<char, Size> dataBlob;
 };
 
 template <uint64_t Size>
@@ -36,13 +37,13 @@ struct LargeObjectComplexCTor
 {
     LargeObjectComplexCTor()
     {
-        for (uint64_t i = 0u; i < Size; ++i)
+        for (auto& element : dataBlob)
         {
-            dataBlob[i] = static_cast<char>((++globalCounter) % 256);
+            element = static_cast<char>((++globalCounter) % 256);
         }
     };
-    uint64_t value;
-    char dataBlob[Size];
+    uint64_t value{0};
+    std::array<char, Size> dataBlob;
 };
 
 uint64_t simpleReturn()
@@ -160,7 +161,7 @@ bool largeObjectPopPlainImpl(T& value)
         return false;
     }
 
-    T returnValue;
+    T returnValue{};
     returnValue.value = globalCounter;
     value = returnValue;
 
@@ -177,7 +178,7 @@ iox::optional<T> largeObjectPopOptionalImpl()
         return iox::nullopt;
     }
 
-    T returnValue;
+    T returnValue{};
     returnValue.value = globalCounter;
 
     return returnValue;
@@ -193,16 +194,31 @@ iox::expected<T, uint64_t> largeObjectPopExpectedImpl()
         return iox::err(globalCounter);
     }
 
-    T returnValue;
+    T returnValue{};
     returnValue.value = globalCounter;
 
     return iox::ok(returnValue);
 }
 
 template <typename T>
+void largeObjectPopPlainUninitialized()
+{
+    //NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init) Intended to be uninitialized for this test
+    T value;
+    if (largeObjectPopPlainImpl(value))
+    {
+        globalCounter += value.value;
+    }
+    else
+    {
+        --globalCounter;
+    }
+}
+
+template <typename T>
 void largeObjectPopPlain()
 {
-    T value;
+    T value{};
     if (largeObjectPopPlainImpl(value))
     {
         globalCounter += value.value;
@@ -242,6 +258,7 @@ int main()
     BENCHMARK(complexErrorValueExpected, timeout);
 
     constexpr uint64_t LargeObjectSize = 1024;
+    BENCHMARK(largeObjectPopPlainUninitialized<LargeObject<LargeObjectSize>>, timeout);
     BENCHMARK(largeObjectPopPlain<LargeObject<LargeObjectSize>>, timeout);
     BENCHMARK(largeObjectPopOptional<LargeObject<LargeObjectSize>>, timeout);
     BENCHMARK(largeObjectPopExpected<LargeObject<LargeObjectSize>>, timeout);

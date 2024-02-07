@@ -33,14 +33,19 @@ template <typename T>
 T assignSymbol(const std::string& functionName);
 } // namespace mocks
 
+
+// NOLINTBEGIN(cppcoreguidelines-macro-usage) The intended functionality cannot be achieved with templates
 #define STATIC_FUNCTION_LOADER_MANUAL_DEDUCE(type, functionName)                                                       \
     []() {                                                                                                             \
         static auto returnValue = mocks::assignSymbol<type>(#functionName);                                            \
         return returnValue;                                                                                            \
     }()
 
+// NOLINTBEGIN(bugprone-macro-parentheses) The parameter is a function name and the reference to that function cannot be enclosed in parentheses
 #define STATIC_FUNCTION_LOADER_AUTO_DEDUCE(functionName)                                                               \
     STATIC_FUNCTION_LOADER_MANUAL_DEDUCE(decltype(&functionName), functionName)
+// NOLINTEND(bugprone-macro-parentheses)
+// NOLINTEND(cppcoreguidelines-macro-usage)
 
 #include "mocks.inl"
 

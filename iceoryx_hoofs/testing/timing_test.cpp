@@ -23,11 +23,21 @@ namespace utils
 {
 namespace testing
 {
+Repeat::Repeat(const uint64_t n) noexcept
+    : m_repetitions(n)
+{
+}
+
+uint64_t Repeat::repetitions() const noexcept
+{
+    return m_repetitions;
+}
+
 bool performingTimingTest(const std::function<void()>& testCallback,
-                          const uint64_t repetitions,
+                          const Repeat repeat,
                           std::atomic_bool& testResult) noexcept
 {
-    for (uint64_t i = 0u; i < repetitions; ++i)
+    for (uint64_t i = 0; i < repeat.repetitions(); ++i)
     {
         // new test run therefore we have to reset the testResult
         testResult.store(true);
@@ -42,6 +52,7 @@ bool performingTimingTest(const std::function<void()>& testCallback,
     return false;
 }
 
+//NOLINTNEXTLINE(readability-function-size) The function is hidden behind a macro therefore the number of parameters is not an issue
 std::string verifyTimingTestResult(const char* file,
                                    const int line,
                                    const char* valueStr,

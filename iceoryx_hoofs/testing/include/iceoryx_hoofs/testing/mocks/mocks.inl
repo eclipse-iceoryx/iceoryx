@@ -16,6 +16,8 @@
 #ifndef IOX_HOOFS_MOCKS_MOCKS_INL
 #define IOX_HOOFS_MOCKS_MOCKS_INL
 
+#include "iceoryx_hoofs/testing/mocks/mocks.hpp"
+
 namespace mocks
 {
 template <typename T>

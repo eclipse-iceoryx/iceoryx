@@ -19,13 +19,13 @@
 #include "iceoryx_hoofs/testing/mocks/time_mock.hpp"
 #include "iceoryx_hoofs/testing/mocks/mocks.hpp"
 
+// NOLINTBEGIN(cppcoreguidelines-avoid-non-const-global-variables) Global variables are required for the mock handling
 std::unique_ptr<time_MOCK> time_MOCK::mock;
 bool time_MOCK::doUseMock = false;
+// NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)
 
-time_MOCK::time_MOCK()
-{
-}
-
+// NOLINTBEGIN(readability-inconsistent-declaration-parameter-name) Using __clk_id and __res would result in a warning for reserved identifier
+// NOLINTBEGIN(bugprone-exception-escape) Intentional behavior for the mocks
 #if defined(__linux__)
 int clock_getres(clockid_t clk_id, struct timespec* res) noexcept
 #else
@@ -55,4 +55,7 @@ int clock_settime(clockid_t clk_id, const struct timespec* res)
     return (time_MOCK::doUseMock) ? time_MOCK::mock->clock_settime(clk_id, res)
                                   : STATIC_FUNCTION_LOADER_AUTO_DEDUCE(clock_settime)(clk_id, res);
 }
+// NOLINTEND(bugprone-exception-escape)
+// NOLINTEND(readability-inconsistent-declaration-parameter-name)
+
 #endif

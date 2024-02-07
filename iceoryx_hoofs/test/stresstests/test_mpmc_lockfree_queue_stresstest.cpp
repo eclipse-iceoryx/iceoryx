@@ -36,7 +36,8 @@ namespace
 {
 struct Data
 {
-    Data(uint64_t id = 0U, uint64_t count = 0)
+    //NOLINTNEXTLINE(bugprone-easily-swappable-parameters) This is okay since it is limited to the stress test
+    explicit Data(uint64_t id = 0U, uint64_t count = 0)
         : id(id)
         , count(count)
     {
@@ -54,6 +55,7 @@ struct Data
 Barrier g_barrier;
 
 template <typename Queue>
+//NOLINTNEXTLINE(bugprone-easily-swappable-parameters) This is okay since it is limited to the stress test
 void produce(Queue& queue, uint64_t id, uint64_t iterations)
 {
     g_barrier.notify();
@@ -69,6 +71,7 @@ void produce(Queue& queue, uint64_t id, uint64_t iterations)
 }
 
 template <typename Queue>
+//NOLINTNEXTLINE(bugprone-easily-swappable-parameters, readability-function-size) This is okay since it is limited to the stress test
 void consume(Queue& queue, std::atomic<bool>& run, uint64_t expectedFinalCount, uint64_t maxId, bool& testResult)
 {
     g_barrier.notify();
@@ -185,6 +188,7 @@ bool isComplete(std::list<Data>& list1, std::list<Data>& list2, size_t finalCoun
     return true;
 }
 
+//NOLINTBEGIN(bugprone-easily-swappable-parameters) This is okay since it is limited to the stress test
 bool checkTwoConsumerResult(std::list<Data>& consumed1,
                             std::list<Data>& consumed2,
                             uint64_t expectedFinalCount,
@@ -212,7 +216,7 @@ bool checkTwoConsumerResult(std::list<Data>& consumed1,
 
     return true;
 }
-
+//NOLINTEND(bugprone-easily-swappable-parameters)
 
 // alternates between push and pop
 template <typename Queue>
@@ -262,6 +266,7 @@ void work(Queue& queue, uint64_t id, std::atomic<bool>& run)
 // randomly chooses between push and pop
 // popProbability essentially controls whether the queue tends to be full or empty on average
 template <typename Queue>
+//NOLINTNEXTLINE(readability-function-size) This is okay since it is limited to the stress test
 void randomWork(Queue& queue,
                 uint64_t id,
                 std::atomic<bool>& run,
@@ -320,7 +325,7 @@ void randomWork(Queue& queue,
         }
 
         // choose next action: push or pop?
-        doPop = (dist(rng) <= popProbability) ? true : false;
+        doPop = dist(rng) <= popProbability;
     }
 }
 
@@ -331,15 +336,11 @@ class MpmcLockFreeQueueStressTest : public ::testing::Test
   protected:
     MpmcLockFreeQueueStressTest() = default;
 
-    ~MpmcLockFreeQueueStressTest()
+    void SetUp() override
     {
     }
 
-    void SetUp()
-    {
-    }
-
-    void TearDown()
+    void TearDown() override
     {
     }
 
@@ -371,7 +372,7 @@ TYPED_TEST(MpmcLockFreeQueueStressTest, SingleProducerSingleConsumer)
 
     auto& queue = this->sut;
     std::atomic<bool> run{true};
-    bool testResult;
+    bool testResult{false};
     int iterations = 10000000;
 
     std::thread consumer(consume<Queue>, std::ref(queue), std::ref(run), iterations, 1U, std::ref(testResult));
@@ -395,7 +396,7 @@ TYPED_TEST(MpmcLockFreeQueueStressTest, MultiProducerSingleConsumer)
 
     auto& queue = this->sut;
     std::atomic<bool> run{true};
-    bool testResult;
+    bool testResult{false};
     uint64_t iterations = 1000000U;
     uint64_t numProducers = 8U;
 
@@ -490,7 +491,8 @@ TYPED_TEST(MpmcLockFreeQueueStressTest, TimedMultiProducerMultiConsumer)
     {
         d.count = i;
         while (!q.tryPush(d))
-            ;
+        {
+        }
     }
 
     std::atomic<bool> run{true};
@@ -618,7 +620,7 @@ TYPED_TEST(MpmcLockFreeQueueStressTest, TimedMultiProducerMultiConsumer0verflow)
 
     // we expect at least one overflow in the test (since the queue is full in the beginning)
     // we cannot expect one overflow in each thread due to thread scheduling
-    auto numOverflows = std::accumulate(overflowCount.begin(), overflowCount.end(), 0LL);
+    auto numOverflows = std::accumulate(overflowCount.begin(), overflowCount.end(), 0ULL);
     EXPECT_GT(numOverflows, 0LL);
 
     bool testResult = true;
