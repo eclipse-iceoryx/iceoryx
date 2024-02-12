@@ -77,11 +77,34 @@ std::string IpcMessageErrorTypeToString(const IpcMessageErrorType msg) noexcept
     return convert::toString(static_cast<UnderlyingType>(msg));
 }
 
+iox::optional<RuntimeName_t> ipcChannelNameToInterfaceName(RuntimeName_t channelName)
+{
+    iox::string<1> uniqueRoudiIdString{TruncateToCapacity,
+                                       iox::convert::toString(roudi::DEFAULT_UNIQUE_ROUDI_ID).c_str()};
+    RuntimeName_t interfaceName = concatenate(ICEORYX_RESOURCE_PREFIX, "_", uniqueRoudiIdString, "_");
+    if (interfaceName.size() + channelName.size() > RuntimeName_t::capacity())
+    {
+        return nullopt;
+    }
+    interfaceName.append(TruncateToCapacity, channelName);
+    return interfaceName;
+}
+
 template <typename IpcChannelType>
 IpcInterface<IpcChannelType>::IpcInterface(const RuntimeName_t& runtimeName,
                                            const uint64_t maxMessages,
                                            const uint64_t messageSize) noexcept
-    : m_runtimeName(runtimeName)
+    : m_interfaceName(
+        ipcChannelNameToInterfaceName(runtimeName)
+            .or_else([&runtimeName] {
+                IOX_LOG(FATAL,
+                        "The runtime with the name '"
+                            << runtimeName.size()
+                            << "' would exceed the maximum allowed size when used with the 'iox1_#_' prefix!");
+                IOX_PANIC("The runtime name exceeds the max size");
+            })
+            .value())
+    , m_runtimeName(runtimeName)
 {
     m_maxMessages = maxMessages;
     m_maxMessageSize = messageSize;
@@ -99,7 +122,8 @@ bool IpcInterface<IpcChannelType>::receive(IpcMessage& answer) const noexcept
 {
     if (!m_ipcChannel.has_value())
     {
-        IOX_LOG(WARN, "Trying to receive data on an non-initialized IPC interface! Interface name: " << m_runtimeName);
+        IOX_LOG(WARN,
+                "Trying to receive data on an non-initialized IPC interface! Interface name: " << m_interfaceName);
         return false;
     }
 
@@ -117,7 +141,8 @@ bool IpcInterface<IpcChannelType>::timedReceive(const units::Duration timeout, I
 {
     if (!m_ipcChannel.has_value())
     {
-        IOX_LOG(WARN, "Trying to receive data on an non-initialized IPC interface! Interface name: " << m_runtimeName);
+        IOX_LOG(WARN,
+                "Trying to receive data on an non-initialized IPC interface! Interface name: " << m_interfaceName);
         return false;
     }
 
@@ -146,7 +171,7 @@ bool IpcInterface<IpcChannelType>::send(const IpcMessage& msg) const noexcept
 {
     if (!m_ipcChannel.has_value())
     {
-        IOX_LOG(WARN, "Trying to send data on an non-initialized IPC interface! Interface name: " << m_runtimeName);
+        IOX_LOG(WARN, "Trying to send data on an non-initialized IPC interface! Interface name: " << m_interfaceName);
         return false;
     }
 
@@ -173,7 +198,7 @@ bool IpcInterface<IpcChannelType>::timedSend(const IpcMessage& msg, units::Durat
 {
     if (!m_ipcChannel.has_value())
     {
-        IOX_LOG(WARN, "Trying to send data on an non-initialized IPC interface! Interface name: " << m_runtimeName);
+        IOX_LOG(WARN, "Trying to send data on an non-initialized IPC interface! Interface name: " << m_interfaceName);
         return false;
     }
 
@@ -214,7 +239,7 @@ bool IpcInterface<IpcChannelType>::openIpcChannel(const PosixIpcChannelSide chan
 
     using IpcChannelBuilder_t = typename IpcChannelType::Builder_t;
     IpcChannelBuilder_t()
-        .name(m_runtimeName)
+        .name(m_interfaceName)
         .channelSide(m_channelSide)
         .maxMsgSize(m_maxMessageSize)
         .maxMsgNumber(m_maxMessages)
@@ -224,7 +249,7 @@ bool IpcInterface<IpcChannelType>::openIpcChannel(const PosixIpcChannelSide chan
             if (this->m_channelSide == PosixIpcChannelSide::SERVER)
             {
                 IOX_LOG(ERROR,
-                        "Unable to create ipc channel '" << this->m_runtimeName
+                        "Unable to create ipc channel '" << this->m_interfaceName
                                                          << "'. Error code: " << static_cast<uint8_t>(err));
             }
             else
@@ -233,7 +258,7 @@ bool IpcInterface<IpcChannelType>::openIpcChannel(const PosixIpcChannelSide chan
                 // therefore resulting in a wall of error messages on the console which leads to missing the important
                 // one that roudi is not running if this would be LogLevel::ERROR instead of LogLevel::TRACE
                 IOX_LOG(TRACE,
-                        "Unable to open ipc channel '" << this->m_runtimeName
+                        "Unable to open ipc channel '" << this->m_interfaceName
                                                        << "'. Error code: " << static_cast<uint8_t>(err));
             }
         });
