@@ -196,6 +196,8 @@ struct DefaultChunkQueueConfig
     static constexpr uint64_t MAX_QUEUE_CAPACITY = MAX_SUBSCRIBER_QUEUE_CAPACITY;
 };
 
+constexpr const char ICEORYX_RESOURCE_PREFIX[] = "iox1";
+
 // alias for string
 using RuntimeName_t = string<MAX_RUNTIME_NAME_LENGTH>;
 using NodeName_t = string<build::IOX_MAX_NODE_NAME_LENGTH>;
@@ -214,7 +216,7 @@ namespace roudi
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
 using ConfigFilePathString_t = string<1024>;
 
-constexpr const char ROUDI_LOCK_NAME[] = "iox-unique-roudi";
+constexpr const char ROUDI_LOCK_NAME[] = "unique_roudi";
 constexpr const char IPC_CHANNEL_ROUDI_NAME[] = "roudi";
 
 /// shared memory segment for the iceoryx management data
