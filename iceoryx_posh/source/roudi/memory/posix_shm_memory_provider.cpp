@@ -17,6 +17,8 @@
 
 #include "iceoryx_posh/roudi/memory/posix_shm_memory_provider.hpp"
 
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iox/detail/convert.hpp"
 #include "iox/detail/system_configuration.hpp"
 #include "iox/logging.hpp"
 
@@ -55,7 +57,12 @@ expected<void*, MemoryProviderError> PosixShmMemoryProvider::createMemory(const 
     }
 
     if (!PosixSharedMemoryObjectBuilder()
-             .name(m_shmName)
+             .name([this] {
+                 iox::string<1> uniqueRoudiIdString{TruncateToCapacity,
+                                                    iox::convert::toString(DEFAULT_UNIQUE_ROUDI_ID).c_str()};
+                 auto shmName = concatenate(ICEORYX_RESOURCE_PREFIX, "_", uniqueRoudiIdString, "_", m_shmName);
+                 return shmName;
+             }())
              .memorySizeInBytes(size)
              .accessMode(m_accessMode)
              .openMode(m_openMode)

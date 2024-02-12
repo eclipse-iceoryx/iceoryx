@@ -18,6 +18,7 @@
 #include "iceoryx_posh/internal/runtime/shared_memory_user.hpp"
 #include "iceoryx_posh/internal/mepoo/segment_manager.hpp"
 #include "iceoryx_posh/internal/posh_error_reporting.hpp"
+#include "iox/detail/convert.hpp"
 #include "iox/logging.hpp"
 #include "iox/posix_user.hpp"
 
@@ -32,7 +33,12 @@ SharedMemoryUser::SharedMemoryUser(const size_t topicSize,
                                    const UntypedRelativePointer::offset_t segmentManagerAddressOffset) noexcept
 {
     PosixSharedMemoryObjectBuilder()
-        .name(roudi::SHM_NAME)
+        .name([] {
+            iox::string<1> uniqueRoudiIdString{TruncateToCapacity,
+                                               iox::convert::toString(roudi::DEFAULT_UNIQUE_ROUDI_ID).c_str()};
+            auto shmName = concatenate(ICEORYX_RESOURCE_PREFIX, "_", uniqueRoudiIdString, "_", roudi::SHM_NAME);
+            return shmName;
+        }())
         .memorySizeInBytes(topicSize)
         .accessMode(AccessMode::READ_WRITE)
         .openMode(OpenMode::OPEN_EXISTING)
