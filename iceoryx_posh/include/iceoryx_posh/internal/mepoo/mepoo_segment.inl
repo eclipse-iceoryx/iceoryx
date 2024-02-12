@@ -23,6 +23,7 @@
 #include "iceoryx_posh/mepoo/memory_info.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iox/bump_allocator.hpp"
+#include "iox/detail/convert.hpp"
 #include "iox/logging.hpp"
 #include "iox/relative_pointer.hpp"
 
@@ -72,7 +73,27 @@ inline SharedMemoryObjectType MePooSegment<SharedMemoryObjectType, MemoryManager
 {
     return std::move(
         typename SharedMemoryObjectType::Builder()
-            .name(writerGroup.getName())
+            .name([&writerGroup] {
+                iox::string<1> uniqueRoudiIdString{TruncateToCapacity,
+                                                   iox::convert::toString(roudi::DEFAULT_UNIQUE_ROUDI_ID).c_str()};
+                using ShmName_t = detail::PosixSharedMemory::Name_t;
+                ShmName_t shmName = concatenate(ICEORYX_RESOURCE_PREFIX,
+                                                "_",
+                                                uniqueRoudiIdString,
+                                                "_p_"); // add a '_p_' to prevent creating a payload segment with
+                                                        // the same name as the management segment
+                if (shmName.size() + writerGroup.getName().size() > ShmName_t::capacity())
+                {
+                    IOX_LOG(FATAL,
+                            "The payload segment with the name '"
+                                << writerGroup.getName().size()
+                                << "' would exceed the maximum allowed size when used with the '" << shmName
+                                << "' prefix!");
+                    IOX_PANIC("The shm name exceeds the max size with the 'iox1_#_p_' prefix");
+                }
+                shmName.append(TruncateToCapacity, writerGroup.getName());
+                return shmName;
+            }())
             .memorySizeInBytes(MemoryManager::requiredChunkMemorySize(mempoolConfig))
             .accessMode(AccessMode::READ_WRITE)
             .openMode(OpenMode::PURGE_AND_CREATE)
