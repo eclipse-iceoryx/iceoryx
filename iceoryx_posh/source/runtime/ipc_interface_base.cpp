@@ -79,9 +79,7 @@ std::string IpcMessageErrorTypeToString(const IpcMessageErrorType msg) noexcept
 
 iox::optional<RuntimeName_t> ipcChannelNameToInterfaceName(RuntimeName_t channelName)
 {
-    iox::string<1> uniqueRoudiIdString{TruncateToCapacity,
-                                       iox::convert::toString(roudi::DEFAULT_UNIQUE_ROUDI_ID).c_str()};
-    RuntimeName_t interfaceName = concatenate(ICEORYX_RESOURCE_PREFIX, "_", uniqueRoudiIdString, "_");
+    RuntimeName_t interfaceName = iceoryxResourcePrefix(roudi::DEFAULT_UNIQUE_ROUDI_ID);
     if (interfaceName.size() + channelName.size() > RuntimeName_t::capacity())
     {
         return nullopt;
@@ -99,10 +97,14 @@ IpcInterface<IpcChannelType>::IpcInterface(const RuntimeName_t& runtimeName,
     {
         IOX_PANIC("Then runtime name must not be empty");
     }
-    else if (runtimeName.find(iox::platform::IOX_PATH_SEPARATORS).has_value())
+    for (const auto s : platform::IOX_PATH_SEPARATORS)
     {
-        IOX_LOG(FATAL, "The runtime name '" << runtimeName << "' contains path separators");
-        IOX_PANIC("Invalid characters for runtime name");
+        const char separator[2]{s};
+        if (runtimeName.find(separator).has_value())
+        {
+            IOX_LOG(FATAL, "The runtime name '" << runtimeName << "' contains path separators");
+            IOX_PANIC("Invalid characters for runtime name");
+        }
     }
 
     m_interfaceName =

@@ -49,6 +49,16 @@ log::LogStream& operator<<(log::LogStream& stream, ConnectionState value) noexce
     return stream;
 }
 
+ResourcePrefix_t iceoryxResourcePrefix(uint16_t uniqueRouDiID, iox::string<1> customizer)
+{
+    static_assert(std::is_same_v<uint16_t, std::remove_const_t<decltype(uniqueRouDiID)>>);
+    constexpr auto MAX_UINT16_WIDTH{5};
+    iox::string<MAX_UINT16_WIDTH> uniqueRoudiIdString{TruncateToCapacity,
+                                                      iox::convert::toString(uniqueRouDiID).c_str()};
+    auto end = customizer.empty() ? "_" : concatenate("_", customizer, "_");
+    return concatenate(ICEORYX_RESOURCE_PREFIX, "_", uniqueRoudiIdString, end);
+}
+
 namespace roudi
 {
 inline iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const MonitoringMode& mode) noexcept

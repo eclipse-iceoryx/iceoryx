@@ -74,14 +74,10 @@ inline SharedMemoryObjectType MePooSegment<SharedMemoryObjectType, MemoryManager
     return std::move(
         typename SharedMemoryObjectType::Builder()
             .name([&writerGroup] {
-                iox::string<1> uniqueRoudiIdString{TruncateToCapacity,
-                                                   iox::convert::toString(roudi::DEFAULT_UNIQUE_ROUDI_ID).c_str()};
                 using ShmName_t = detail::PosixSharedMemory::Name_t;
-                ShmName_t shmName = concatenate(ICEORYX_RESOURCE_PREFIX,
-                                                "_",
-                                                uniqueRoudiIdString,
-                                                "_p_"); // add a '_p_' to prevent creating a payload segment with
-                                                        // the same name as the management segment
+                ShmName_t shmName = iceoryxResourcePrefix(roudi::DEFAULT_UNIQUE_ROUDI_ID,
+                                                          "p"); // use an additional 'p' to prevent creating a payload
+                                                                // segment with the same name as the management segment
                 if (shmName.size() + writerGroup.getName().size() > ShmName_t::capacity())
                 {
                     IOX_LOG(FATAL,

@@ -23,29 +23,24 @@ namespace iox
 namespace roudi
 {
 IceOryxRouDiMemoryManager::IceOryxRouDiMemoryManager(const RouDiConfig_t& roudiConfig) noexcept
-    : m_fileLock(std::move(
-        FileLockBuilder()
-            .name([] {
-                iox::string<1> uniqueRoudiIdString{TruncateToCapacity,
-                                                   iox::convert::toString(DEFAULT_UNIQUE_ROUDI_ID).c_str()};
-                auto lockName = concatenate(ICEORYX_RESOURCE_PREFIX, "_", uniqueRoudiIdString, "_", ROUDI_LOCK_NAME);
-                return lockName;
-            }())
-            .permission(iox::perms::owner_read | iox::perms::owner_write)
-            .create()
-            .or_else([](auto& error) {
-                if (error == FileLockError::LOCKED_BY_OTHER_PROCESS)
-                {
-                    IOX_LOG(FATAL, "Could not acquire lock, is RouDi still running?");
-                    IOX_REPORT_FATAL(PoshError::ICEORYX_ROUDI_MEMORY_MANAGER__ROUDI_STILL_RUNNING);
-                }
-                else
-                {
-                    IOX_LOG(FATAL, "Error occurred while acquiring file lock named " << ROUDI_LOCK_NAME);
-                    IOX_REPORT_FATAL(PoshError::ICEORYX_ROUDI_MEMORY_MANAGER__COULD_NOT_ACQUIRE_FILE_LOCK);
-                }
-            })
-            .value()))
+    : m_fileLock(
+        std::move(FileLockBuilder()
+                      .name(concatenate(iceoryxResourcePrefix(DEFAULT_UNIQUE_ROUDI_ID), ROUDI_LOCK_NAME))
+                      .permission(iox::perms::owner_read | iox::perms::owner_write)
+                      .create()
+                      .or_else([](auto& error) {
+                          if (error == FileLockError::LOCKED_BY_OTHER_PROCESS)
+                          {
+                              IOX_LOG(FATAL, "Could not acquire lock, is RouDi still running?");
+                              IOX_REPORT_FATAL(PoshError::ICEORYX_ROUDI_MEMORY_MANAGER__ROUDI_STILL_RUNNING);
+                          }
+                          else
+                          {
+                              IOX_LOG(FATAL, "Error occurred while acquiring file lock named " << ROUDI_LOCK_NAME);
+                              IOX_REPORT_FATAL(PoshError::ICEORYX_ROUDI_MEMORY_MANAGER__COULD_NOT_ACQUIRE_FILE_LOCK);
+                          }
+                      })
+                      .value()))
     , m_defaultMemory(roudiConfig)
 {
     m_defaultMemory.m_managementShm.addMemoryBlock(&m_portPoolBlock).or_else([](auto) {

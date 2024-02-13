@@ -33,12 +33,7 @@ SharedMemoryUser::SharedMemoryUser(const size_t topicSize,
                                    const UntypedRelativePointer::offset_t segmentManagerAddressOffset) noexcept
 {
     PosixSharedMemoryObjectBuilder()
-        .name([] {
-            iox::string<1> uniqueRoudiIdString{TruncateToCapacity,
-                                               iox::convert::toString(roudi::DEFAULT_UNIQUE_ROUDI_ID).c_str()};
-            auto shmName = concatenate(ICEORYX_RESOURCE_PREFIX, "_", uniqueRoudiIdString, "_", roudi::SHM_NAME);
-            return shmName;
-        }())
+        .name(concatenate(iceoryxResourcePrefix(roudi::DEFAULT_UNIQUE_ROUDI_ID), roudi::SHM_NAME))
         .memorySizeInBytes(topicSize)
         .accessMode(AccessMode::READ_WRITE)
         .openMode(OpenMode::OPEN_EXISTING)
@@ -80,14 +75,10 @@ void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
         auto accessMode = segment.m_isWritable ? AccessMode::READ_WRITE : AccessMode::READ_ONLY;
         PosixSharedMemoryObjectBuilder()
             .name([&segment] {
-                iox::string<1> uniqueRoudiIdString{TruncateToCapacity,
-                                                   iox::convert::toString(roudi::DEFAULT_UNIQUE_ROUDI_ID).c_str()};
                 using ShmName_t = detail::PosixSharedMemory::Name_t;
-                ShmName_t shmName = concatenate(ICEORYX_RESOURCE_PREFIX,
-                                                "_",
-                                                uniqueRoudiIdString,
-                                                "_p_"); // add a '_p_' to prevent creating a payload segment with the
-                                                        // same name as the management segment
+                ShmName_t shmName = iceoryxResourcePrefix(roudi::DEFAULT_UNIQUE_ROUDI_ID,
+                                                          "p"); // use an additional 'p' to prevent creating a payload
+                                                                // segment with the same name as the management segment
                 if (shmName.size() + segment.m_sharedMemoryName.size() > ShmName_t::capacity())
                 {
                     IOX_LOG(FATAL,

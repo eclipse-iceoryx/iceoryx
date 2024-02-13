@@ -20,6 +20,7 @@
 
 #include "iceoryx_platform/platform_settings.hpp"
 #include "iceoryx_posh/iceoryx_posh_deployment.hpp"
+#include "iox/detail/convert.hpp"
 #include "iox/duration.hpp"
 #include "iox/function.hpp"
 #include "iox/log/logstream.hpp"
@@ -197,6 +198,11 @@ struct DefaultChunkQueueConfig
 };
 
 constexpr const char ICEORYX_RESOURCE_PREFIX[] = "iox1";
+
+using ResourcePrefix_t = string<13>; // 'iox1_' + MAX_UINT16_SIZE + '_' + optional 'x_'
+/// @brief Returns the prefix string used for resources
+/// @param[in] uniqueRouDiID to use for the prefix string
+inline ResourcePrefix_t iceoryxResourcePrefix(uint16_t uniqueRouDiID, iox::string<1> customizer = "");
 
 // alias for string
 using RuntimeName_t = string<MAX_RUNTIME_NAME_LENGTH>;
