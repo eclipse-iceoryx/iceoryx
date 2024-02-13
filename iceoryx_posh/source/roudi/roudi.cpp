@@ -293,7 +293,15 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
     {
     case runtime::IpcMessageType::REG:
     {
-        if (message.getNumberOfElements() != 6)
+        if (runtimeName.empty())
+        {
+            IOX_LOG(ERROR, "Got message with empty runtime name!");
+        }
+        else if (runtimeName.find(platform::IOX_PATH_SEPARATORS).has_value())
+        {
+            IOX_LOG(ERROR, "Got message with a runtime name with invalid characters: \"" << runtimeName << "\"!");
+        }
+        else if (message.getNumberOfElements() != 6)
         {
             IOX_LOG(ERROR,
                     "Wrong number of parameters for \"IpcMessageType::REG\" from \"" << runtimeName << "\"received!");

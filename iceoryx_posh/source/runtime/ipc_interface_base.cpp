@@ -94,7 +94,18 @@ template <typename IpcChannelType>
 IpcInterface<IpcChannelType>::IpcInterface(const RuntimeName_t& runtimeName,
                                            const uint64_t maxMessages,
                                            const uint64_t messageSize) noexcept
-    : m_interfaceName(
+{
+    if (runtimeName.empty())
+    {
+        IOX_PANIC("Then runtime name must not be empty");
+    }
+    else if (runtimeName.find(iox::platform::IOX_PATH_SEPARATORS).has_value())
+    {
+        IOX_LOG(FATAL, "The runtime name '" << runtimeName << "' contains path separators");
+        IOX_PANIC("Invalid characters for runtime name");
+    }
+
+    m_interfaceName =
         ipcChannelNameToInterfaceName(runtimeName)
             .or_else([&runtimeName] {
                 IOX_LOG(FATAL,
@@ -103,9 +114,8 @@ IpcInterface<IpcChannelType>::IpcInterface(const RuntimeName_t& runtimeName,
                             << "' would exceed the maximum allowed size when used with the 'iox1_#_' prefix!");
                 IOX_PANIC("The runtime name exceeds the max size");
             })
-            .value())
-    , m_runtimeName(runtimeName)
-{
+            .value();
+    m_runtimeName = runtimeName;
     m_maxMessages = maxMessages;
     m_maxMessageSize = messageSize;
     if (m_maxMessageSize > platform::IoxIpcChannelType::MAX_MESSAGE_SIZE)
