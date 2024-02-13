@@ -60,7 +60,7 @@
 - Add support for `iox::string` in `UnixDomainSocket` and created `unix_domain_socket.inl` [#2040](https://github.com/eclipse-iceoryx/iceoryx/issues/2040)
 - Add support for `iox::string` in `MessageQueue` and created `message_queue.inl` [#1963](https://github.com/eclipse-iceoryx/iceoryx/issues/1963)
 - Add support for `iox::string` in `NamedPipe` and created `named_pipe.inl` [#1693](https://github.com/eclipse-iceoryx/iceoryx/issues/1693)
-
+- Add an `iox1` prefix to all resources created by `iceoryx_posh` and `RouD` [#2185](https://github.com/eclipse-iceoryx/iceoryx/issues/2185)
 
 **Bugfixes:**
 
@@ -201,6 +201,7 @@
 - Setting IOX_NO_DISCARD in QNX [#638](https://github.com/eclipse-iceoryx/iceoryx/issues/638)
 - Replace `iox::byte_t` with std::byte [#1900](https://github.com/eclipse-iceoryx/iceoryx/issues/1900)
 - Merge `iceoryx_dust` back to `iceoryx_hoofs` [#2130](https://github.com/eclipse-iceoryx/iceoryx/issues/2130)
+- Activate clang-tidy for all the code in iceoryx_hoofs [#2184](https://github.com/eclipse-iceoryx/iceoryx/issues/2184)
 
 **Workflow:**
 
