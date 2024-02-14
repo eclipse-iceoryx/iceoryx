@@ -33,14 +33,12 @@ namespace runtime
 expected<IpcRuntimeInterface, IpcRuntimeInterface::Error>
 IpcRuntimeInterface::create(const RuntimeName_t& runtimeName, const units::Duration roudiWaitingTimeout) noexcept
 {
-    return ok(IpcRuntimeInterface(roudi::IPC_CHANNEL_ROUDI_NAME, runtimeName, roudiWaitingTimeout));
+    return ok(IpcRuntimeInterface(runtimeName, roudiWaitingTimeout));
 }
 
-IpcRuntimeInterface::IpcRuntimeInterface(const RuntimeName_t& roudiName,
-                                         const RuntimeName_t& runtimeName,
+IpcRuntimeInterface::IpcRuntimeInterface(const RuntimeName_t& runtimeName,
                                          const units::Duration roudiWaitingTimeout) noexcept
-    : m_runtimeName(runtimeName)
-    , m_RoudiIpcInterface(roudiName, ResourceType::ICEORYX_DEFINED)
+    : m_RoudiIpcInterface(roudi::IPC_CHANNEL_ROUDI_NAME, ResourceType::ICEORYX_DEFINED)
 {
     m_AppIpcInterface.emplace(runtimeName, ResourceType::USER_DEFINED);
     if (!m_AppIpcInterface->isInitialized())
@@ -100,7 +98,7 @@ IpcRuntimeInterface::IpcRuntimeInterface(const RuntimeName_t& roudiName,
             IpcMessage sendBuffer;
             int pid = getpid();
             IOX_ENFORCE(pid >= 0, "'getpid' must always return a positive number");
-            sendBuffer << IpcMessageTypeToString(IpcMessageType::REG) << m_runtimeName << convert::toString(pid)
+            sendBuffer << IpcMessageTypeToString(IpcMessageType::REG) << runtimeName << convert::toString(pid)
                        << convert::toString(PosixUser::getUserOfCurrentProcess().getID())
                        << convert::toString(transmissionTimestamp)
                        << static_cast<Serialization>(version::VersionInfo::getCurrentVersion()).toString();

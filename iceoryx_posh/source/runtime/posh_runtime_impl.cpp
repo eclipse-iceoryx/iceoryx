@@ -66,10 +66,7 @@ PoshRuntimeImpl::PoshRuntimeImpl(optional<const RuntimeName_t*> name,
 }
 
 PoshRuntimeImpl::PoshRuntimeImpl(optional<const RuntimeName_t*> name, const RuntimeLocation location) noexcept
-    : PoshRuntimeImpl(
-        name,
-        location,
-        IpcRuntimeInterface(roudi::IPC_CHANNEL_ROUDI_NAME, *name.value(), runtime::PROCESS_WAITING_FOR_ROUDI_TIMEOUT))
+    : PoshRuntimeImpl(name, location, IpcRuntimeInterface(*name.value(), runtime::PROCESS_WAITING_FOR_ROUDI_TIMEOUT))
 {
 }
 

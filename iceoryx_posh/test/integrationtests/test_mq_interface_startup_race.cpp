@@ -172,7 +172,7 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMq)
         }
     });
 
-    IpcRuntimeInterface dut(roudi::IPC_CHANNEL_ROUDI_NAME, MqAppName, 35_s);
+    IpcRuntimeInterface dut(MqAppName, 35_s);
 
     shutdown = true;
     roudi.join();
@@ -231,7 +231,7 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMqWithFullMq)
         }
     });
 
-    IpcRuntimeInterface dut(roudi::IPC_CHANNEL_ROUDI_NAME, MqAppName, 35_s);
+    IpcRuntimeInterface dut(MqAppName, 35_s);
 
     shutdown = true;
     roudi.join();
@@ -272,7 +272,7 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRegAck)
         }
     });
 
-    IpcRuntimeInterface dut(roudi::IPC_CHANNEL_ROUDI_NAME, MqAppName, 35_s);
+    IpcRuntimeInterface dut(MqAppName, 35_s);
 
     shutdown = true;
     roudi.join();
