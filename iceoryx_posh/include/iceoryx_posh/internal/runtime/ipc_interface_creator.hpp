@@ -19,6 +19,7 @@
 #define IOX_POSH_RUNTIME_IPC_INTERFACE_CREATOR_HPP
 
 #include "iceoryx_posh/internal/runtime/ipc_interface_base.hpp"
+#include "iox/expected.hpp"
 #include "iox/file_lock.hpp"
 
 namespace iox
@@ -30,17 +31,24 @@ namespace runtime
 class IpcInterfaceCreator : public IpcInterfaceBase
 {
   public:
-    /// @brief Constructs a IpcInterfaceCreator and opens a new IPC channel.
-    ///        If it fails isInitialized will return false. Therefore, isInitialized
-    ///        should always be called before using this class.
+    enum class Error
+    {
+        INTERFACE_IN_USE,
+        OBTAINING_LOCK_FAILED,
+    };
+
+    /// @brief Constructs a 'IpcInterfaceCreator' and opens a new IPC channel.
     /// @param[in] name Unique identifier of the IPC channel
     /// @param[in] resourceType to be used for the resource prefix
     /// @param[in] maxMessages maximum number of queued messages
     /// @param[in] message size maximum message size
-    IpcInterfaceCreator(const RuntimeName_t& name,
-                        const ResourceType resourceType,
-                        const uint64_t maxMessages = ROUDI_MAX_MESSAGES,
-                        const uint64_t messageSize = ROUDI_MESSAGE_SIZE) noexcept;
+    /// @return The 'IpcInterfaceCreator' or an error if the file lock for the IPC channel could not be obtained
+    /// @note The IPC channel might not be initialized. Therefore, 'isInitialized' should always be called before using
+    /// this class.
+    static expected<IpcInterfaceCreator, Error> create(const RuntimeName_t& runtimeName,
+                                                       const ResourceType resourceType,
+                                                       const uint64_t maxMessages = ROUDI_MAX_MESSAGES,
+                                                       const uint64_t messageSize = ROUDI_MESSAGE_SIZE) noexcept;
 
     IpcInterfaceCreator(IpcInterfaceCreator&&) = default;
 
@@ -52,6 +60,13 @@ class IpcInterfaceCreator : public IpcInterfaceBase
 
     /// @brief Not needed therefore deleted
     IpcInterfaceCreator& operator=(IpcInterfaceCreator&&) = delete;
+
+  private:
+    IpcInterfaceCreator(FileLock&& fileLock,
+                        const RuntimeName_t& runtimeName,
+                        const ResourceType resourceType,
+                        const uint64_t maxMessages,
+                        const uint64_t messageSize) noexcept;
 
   private:
     friend class IpcRuntimeInterface;

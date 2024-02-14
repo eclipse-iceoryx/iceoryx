@@ -37,8 +37,8 @@ IpcRuntimeInterface::create(const RuntimeName_t& runtimeName, const units::Durat
 
     auto roudiIpcInterface = IpcInterfaceUser(roudi::IPC_CHANNEL_ROUDI_NAME, ResourceType::ICEORYX_DEFINED);
 
-    auto appIpcInterface = IpcInterfaceCreator(runtimeName, ResourceType::USER_DEFINED);
-    if (!appIpcInterface.isInitialized())
+    auto appIpcInterface = IpcInterfaceCreator::create(runtimeName, ResourceType::USER_DEFINED);
+    if (appIpcInterface.has_error() || !appIpcInterface->isInitialized())
     {
         return err(Error::CANNOT_CREATE_APPLICATION_CHANNEL);
     }
@@ -112,7 +112,7 @@ IpcRuntimeInterface::create(const RuntimeName_t& runtimeName, const units::Durat
             break;
         }
         case RegState::WAIT_FOR_REGISTER_ACK:
-            if (waitForRegAck(transmissionTimestamp, appIpcInterface, mgmtShmCharacteristics) == RegAckResult::SUCCESS)
+            if (waitForRegAck(transmissionTimestamp, *appIpcInterface, mgmtShmCharacteristics) == RegAckResult::SUCCESS)
             {
                 regState = RegState::FINISHED;
             }
@@ -145,7 +145,7 @@ IpcRuntimeInterface::create(const RuntimeName_t& runtimeName, const units::Durat
     }
 
     return ok(IpcRuntimeInterface{
-        std::move(appIpcInterface), std::move(roudiIpcInterface), std::move(mgmtShmCharacteristics)});
+        std::move(appIpcInterface.value()), std::move(roudiIpcInterface), std::move(mgmtShmCharacteristics)});
 }
 
 IpcRuntimeInterface::IpcRuntimeInterface(IpcInterfaceCreator&& appIpcInterface,

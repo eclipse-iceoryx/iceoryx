@@ -92,7 +92,8 @@ void RouDi::startProcessRuntimeMessagesThread() noexcept
     m_handleRuntimeMessageThread =
         std::thread(&RouDi::processRuntimeMessages,
                     this,
-                    runtime::IpcInterfaceCreator(IPC_CHANNEL_ROUDI_NAME, ResourceType::ICEORYX_DEFINED));
+                    runtime::IpcInterfaceCreator::create(IPC_CHANNEL_ROUDI_NAME, ResourceType::ICEORYX_DEFINED)
+                        .expect("Creating IPC channel for request to RouDi"));
 }
 
 void RouDi::shutdown() noexcept

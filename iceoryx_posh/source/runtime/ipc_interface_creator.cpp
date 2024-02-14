@@ -23,37 +23,51 @@ namespace iox
 {
 namespace runtime
 {
-IpcInterfaceCreator::IpcInterfaceCreator(const RuntimeName_t& runtimeName,
+expected<IpcInterfaceCreator, IpcInterfaceCreator::Error>
+IpcInterfaceCreator::create(const RuntimeName_t& runtimeName,
+                            const ResourceType resourceType,
+                            const uint64_t maxMessages,
+                            const uint64_t messageSize) noexcept
+{
+    auto interfaceName =
+        ipcChannelNameToInterfaceName(runtimeName, resourceType)
+            .or_else([&runtimeName] {
+                IOX_LOG(FATAL,
+                        "The runtime with the name '"
+                            << runtimeName.size()
+                            << "' would exceed the maximum allowed size when used with the 'iox1_#_' prefix!");
+                IOX_PANIC("The runtime name exceeds the max size");
+            })
+            .value();
+
+    auto fileLock =
+        FileLockBuilder().name(interfaceName).permission(iox::perms::owner_read | iox::perms::owner_write).create();
+
+    if (fileLock.has_error())
+    {
+        switch (fileLock.error())
+        {
+        case FileLockError::LOCKED_BY_OTHER_PROCESS:
+            return err(Error::INTERFACE_IN_USE);
+        default:
+            return err(Error::OBTAINING_LOCK_FAILED);
+        }
+    }
+
+    // remove outdated IPC channel, e.g. because of no proper termination of the process
+    cleanupOutdatedIpcChannel(interfaceName);
+
+    return ok(IpcInterfaceCreator{std::move(fileLock.value()), runtimeName, resourceType, maxMessages, messageSize});
+}
+
+IpcInterfaceCreator::IpcInterfaceCreator(FileLock&& fileLock,
+                                         const RuntimeName_t& runtimeName,
                                          const ResourceType resourceType,
                                          const uint64_t maxMessages,
                                          const uint64_t messageSize) noexcept
     : IpcInterfaceBase(runtimeName, resourceType, maxMessages, messageSize)
-    , m_fileLock(std::move(FileLockBuilder()
-                               .name(m_interfaceName)
-                               .permission(iox::perms::owner_read | iox::perms::owner_write)
-                               .create()
-                               .or_else([this](auto& error) {
-                                   if (error == FileLockError::LOCKED_BY_OTHER_PROCESS)
-                                   {
-                                       IOX_LOG(FATAL,
-                                               "An application with the name " << m_runtimeName
-                                                                               << " is still running. Using the "
-                                                                                  "same name twice is not supported.");
-                                       IOX_REPORT_FATAL(PoshError::IPC_INTERFACE__APP_WITH_SAME_NAME_STILL_RUNNING);
-                                   }
-                                   else
-                                   {
-                                       IOX_LOG(FATAL,
-                                               "Error occurred while acquiring file lock named " << m_interfaceName);
-                                       IOX_REPORT_FATAL(PoshError::IPC_INTERFACE__COULD_NOT_ACQUIRE_FILE_LOCK);
-                                   }
-                               })
-                               .value()))
+    , m_fileLock(std::move(fileLock))
 {
-    // check if the IPC channel is still there (e.g. because of no proper termination
-    // of the process)
-    cleanupOutdatedIpcChannel(m_interfaceName);
-
     openIpcChannel(PosixIpcChannelSide::SERVER);
 }
 } // namespace runtime

@@ -61,7 +61,8 @@ class ProcessManager_test : public Test
     const bool m_isMonitored{true};
     VersionInfo m_versionInfo{42U, 42U, 42U, 42U, "Foo", "Bar"};
 
-    IpcInterfaceCreator m_processIpcInterface{m_processname, ResourceType::USER_DEFINED};
+    IpcInterfaceCreator m_processIpcInterface{
+        IpcInterfaceCreator::create(m_processname, ResourceType::USER_DEFINED).expect("This should never fail")};
     ProcessIntrospectionType m_processIntrospection;
 
     std::unique_ptr<IceOryxRouDiMemoryManager> m_roudiMemoryManager{nullptr};
