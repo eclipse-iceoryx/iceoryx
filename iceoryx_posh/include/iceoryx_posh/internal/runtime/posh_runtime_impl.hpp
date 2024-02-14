@@ -27,6 +27,10 @@
 
 namespace iox
 {
+namespace posh::experimental
+{
+class Runtime;
+}
 namespace runtime
 {
 enum class RuntimeLocation
@@ -85,6 +89,7 @@ class PoshRuntimeImpl : public PoshRuntime
   protected:
     friend class PoshRuntime;
     friend class roudi_env::RuntimeTestInterface;
+    friend class posh::experimental::Runtime;
 
     // Protected constructor for IPC setup
     PoshRuntimeImpl(optional<const RuntimeName_t*> name,

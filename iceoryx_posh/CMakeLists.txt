@@ -157,6 +157,8 @@ iox_add_library(
         source/runtime/node_property.cpp
         source/runtime/shared_memory_user.cpp
         source/roudi/service_registry.cpp              # @todo iox-#415 Move the service registry into runtime namespace?
+
+        source/posh/experimental/runtime.cpp
 )
 
 #

@@ -1,5 +1,6 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2024 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,6 +26,7 @@
 #include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
 #include "iceoryx_posh/roudi_env/runtime_test_interface.hpp"
 #include "iox/duration.hpp"
+#include "iox/posh/experimental/runtime.hpp"
 
 namespace iox
 {
@@ -35,6 +37,15 @@ class RouDi;
 namespace roudi_env
 {
 
+/// @brief 'RouDiEnvRuntimeBuilder' can be used for integration tests in combination with the 'RouDiEnv' to use the
+/// 'Runtime' in the same process as 'RouDi'
+class RouDiEnvRuntimeBuilder : public iox::posh::experimental::RuntimeBuilder
+{
+  public:
+    explicit RouDiEnvRuntimeBuilder(const RuntimeName_t& name) noexcept;
+};
+
+/// @brief A convenient way to create a 'RouDi' for integration tests
 class RouDiEnv
 {
   public:

@@ -1,5 +1,6 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2024 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,6 +27,12 @@ namespace iox
 {
 namespace roudi_env
 {
+RouDiEnvRuntimeBuilder::RouDiEnvRuntimeBuilder(const RuntimeName_t& name) noexcept
+    : RuntimeBuilder(name)
+{
+    std::move(*this).shares_process_with_roudi(true);
+}
+
 RouDiEnv::RouDiEnv(MainCTor, const uint16_t uniqueRouDiId) noexcept
 {
     popo::UniquePortId::rouDiEnvResetFinalizeUniqueRouDiId();
