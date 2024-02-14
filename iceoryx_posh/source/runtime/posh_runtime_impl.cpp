@@ -34,28 +34,27 @@ namespace runtime
 {
 PoshRuntimeImpl::PoshRuntimeImpl(optional<const RuntimeName_t*> name, const RuntimeLocation location) noexcept
     : PoshRuntime(name)
-    , m_ipcChannelInterface(roudi::IPC_CHANNEL_ROUDI_NAME, *name.value(), runtime::PROCESS_WAITING_FOR_ROUDI_TIMEOUT)
+    , m_ipcChannelInterface(concurrent::ForwardArgsToCTor,
+                            roudi::IPC_CHANNEL_ROUDI_NAME,
+                            *name.value(),
+                            runtime::PROCESS_WAITING_FOR_ROUDI_TIMEOUT)
     , m_ShmInterface([&] {
         // in case the runtime is located in the same process like RouDi the shm is already opened;
         // also in case of the RouDiEnvironment this would close the shm on destruction of the runstime which is also
         // not desired
+        auto ipcInterface = m_ipcChannelInterface.get_scope_guard();
         return location == RuntimeLocation::SAME_PROCESS_LIKE_ROUDI
                    ? nullopt
-                   : optional<SharedMemoryUser>({m_ipcChannelInterface.getShmTopicSize(),
-                                                 m_ipcChannelInterface.getSegmentId(),
-                                                 m_ipcChannelInterface.getSegmentManagerAddressOffset()});
+                   : optional<SharedMemoryUser>({ipcInterface->getShmTopicSize(),
+                                                 ipcInterface->getSegmentId(),
+                                                 ipcInterface->getSegmentManagerAddressOffset()});
     }())
 {
-    MutexBuilder()
-        .isInterProcessCapable(false)
-        .mutexType(MutexType::NORMAL)
-        .create(m_appIpcRequestMutex)
-        .expect("Failed to create Mutex");
-
-    auto heartbeatAddressOffset = m_ipcChannelInterface.getHeartbeatAddressOffset();
+    auto ipcInterface = m_ipcChannelInterface.get_scope_guard();
+    auto heartbeatAddressOffset = ipcInterface->getHeartbeatAddressOffset();
     if (heartbeatAddressOffset.has_value())
     {
-        m_heartbeat = RelativePointer<Heartbeat>::getPtr(segment_id_t{m_ipcChannelInterface.getSegmentId()},
+        m_heartbeat = RelativePointer<Heartbeat>::getPtr(segment_id_t{ipcInterface->getSegmentId()},
                                                          heartbeatAddressOffset.value());
     }
 
@@ -74,7 +73,7 @@ PoshRuntimeImpl::~PoshRuntimeImpl() noexcept
     sendBuffer << IpcMessageTypeToString(IpcMessageType::TERMINATION) << m_appName;
     IpcMessage receiveBuffer;
 
-    if (m_ipcChannelInterface.sendRequestToRouDi(sendBuffer, receiveBuffer)
+    if (m_ipcChannelInterface->sendRequestToRouDi(sendBuffer, receiveBuffer)
         && (1U == receiveBuffer.getNumberOfElements()))
     {
         std::string IpcMessage = receiveBuffer.getElementAtIndex(0U);
@@ -718,9 +717,7 @@ popo::ConditionVariableData* PoshRuntimeImpl::getMiddlewareConditionVariable() n
 
 bool PoshRuntimeImpl::sendRequestToRouDi(const IpcMessage& msg, IpcMessage& answer) noexcept
 {
-    // runtime must be thread safe
-    std::lock_guard<mutex> g(m_appIpcRequestMutex.value());
-    return m_ipcChannelInterface.sendRequestToRouDi(msg, answer);
+    return m_ipcChannelInterface->sendRequestToRouDi(msg, answer);
 }
 
 // this is the callback for the m_keepAliveTimer
@@ -739,7 +736,7 @@ void PoshRuntimeImpl::sendKeepAliveAndHandleShutdownPreparation() noexcept
         sendBuffer << IpcMessageTypeToString(IpcMessageType::PREPARE_APP_TERMINATION) << m_appName;
         IpcMessage receiveBuffer;
 
-        if (m_ipcChannelInterface.sendRequestToRouDi(sendBuffer, receiveBuffer)
+        if (m_ipcChannelInterface->sendRequestToRouDi(sendBuffer, receiveBuffer)
             && (1U == receiveBuffer.getNumberOfElements()))
         {
             std::string IpcMessage = receiveBuffer.getElementAtIndex(0U);

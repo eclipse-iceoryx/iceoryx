@@ -119,6 +119,7 @@
 - Unable to acquire file status due to an unknown failure [#2023](https://github.com/eclipse-iceoryx/iceoryx/issues/2023)
 - Bug in `ListenerImpl` [#2137](https://github.com/eclipse-iceoryx/iceoryx/issues/2137)
 - Wrong memory order in `MpmcLoFFLi` fence synchronization [#2196](https://github.com/eclipse-iceoryx/iceoryx/issues/2196)
+- Race condition in `PoshRuntime` during shutdown [#2192](https://github.com/eclipse-iceoryx/iceoryx/issues/2192)
 
 **Refactoring:**
 
