@@ -20,6 +20,7 @@
 
 #include "iceoryx_posh/internal/runtime/ipc_interface_creator.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_interface_user.hpp"
+#include "iox/expected.hpp"
 #include "iox/optional.hpp"
 
 namespace iox
@@ -29,6 +30,19 @@ namespace runtime
 class IpcRuntimeInterface
 {
   public:
+    enum class Error
+    {
+        TIMEOUT,
+        MALFORMED_RESPONSE
+    };
+
+    /// @brief Creates an 'IpcRuntimeInterface' which tries to register at RouDi and delegates any error up in the stack
+    /// @param[in] runtimeName is the name of the runtime to register at RouDi
+    /// @param[in] roudiWaitingTimeout is the time to wait for RouDi to start if it is nor running
+    /// @return an IPC interface to communicate with RouDi or a IpcRuntimeInterface::Error
+    static expected<IpcRuntimeInterface, Error> create(const RuntimeName_t& runtimeName,
+                                                       const units::Duration roudiWaitingTimeout) noexcept;
+
     /// @brief Runtime Interface for the own IPC channel and the one to the RouDi daemon
     /// @param[in] roudiName name of the RouDi IPC channel
     /// @param[in] runtimeName name of the application's runtime and its IPC channel

@@ -27,12 +27,19 @@ expected<void, RuntimeBuilder::Error> RuntimeBuilder::create(optional<Runtime>& 
 {
     auto location = m_shares_process_with_roudi ? runtime::RuntimeLocation::SAME_PROCESS_LIKE_ROUDI
                                                 : runtime::RuntimeLocation::SEPARATE_PROCESS_FROM_ROUDI;
-    runtimeContainer.emplace(m_name, location);
+    auto ipcRuntimeIterface = runtime::IpcRuntimeInterface::create(m_name, m_roudi_registration_timeout);
+    if (ipcRuntimeIterface.has_error())
+    {
+        return err(into<Error>(ipcRuntimeIterface.error()));
+    }
+    runtimeContainer.emplace(m_name, location, std::move(ipcRuntimeIterface.value()));
     return ok();
 }
 
-Runtime::Runtime(const RuntimeName_t& name, runtime::RuntimeLocation location) noexcept
-    : m_runtime(make_optional<const RuntimeName_t*>(&name), location)
+Runtime::Runtime(const RuntimeName_t& name,
+                 runtime::RuntimeLocation location,
+                 runtime::IpcRuntimeInterface&& runtimeInterface) noexcept
+    : m_runtime(make_optional<const RuntimeName_t*>(&name), location, std::move(runtimeInterface))
 {
 }
 } // namespace iox::posh::experimental

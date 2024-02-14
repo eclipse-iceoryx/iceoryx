@@ -18,6 +18,7 @@
 #define IOX_POSH_EXPERIMENTAL_RUNTIME_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/internal/runtime/ipc_runtime_interface.hpp"
 #include "iceoryx_posh/internal/runtime/posh_runtime_impl.hpp"
 #include "iox/builder.hpp"
 #include "iox/expected.hpp"
@@ -36,6 +37,7 @@ class RuntimeBuilder
     enum class Error
     {
         TIMEOUT,
+        REGISTRATION_FAILED,
     };
 
     IOX_BUILDER_PARAMETER(uint16_t, roudi_id, roudi::DEFAULT_UNIQUE_ROUDI_ID)
@@ -57,12 +59,33 @@ class Runtime
   private:
     friend class RuntimeBuilder;
     friend class optional<Runtime>;
-    Runtime(const RuntimeName_t& name, runtime::RuntimeLocation location) noexcept;
+    Runtime(const RuntimeName_t& name,
+            runtime::RuntimeLocation location,
+            runtime::IpcRuntimeInterface&& runtimeInterface) noexcept;
 
   private:
     runtime::PoshRuntimeImpl m_runtime;
 };
 
 } // namespace iox::posh::experimental
+
+namespace iox
+{
+template <>
+constexpr posh::experimental::RuntimeBuilder::Error
+from<runtime::IpcRuntimeInterface::Error, posh::experimental::RuntimeBuilder::Error>(
+    runtime::IpcRuntimeInterface::Error e) noexcept
+{
+    using namespace posh::experimental;
+    using namespace runtime;
+    switch (e)
+    {
+    case IpcRuntimeInterface::Error::TIMEOUT:
+        return RuntimeBuilder::Error::TIMEOUT;
+    case IpcRuntimeInterface::Error::MALFORMED_RESPONSE:
+        return RuntimeBuilder::Error::REGISTRATION_FAILED;
+    }
+}
+} // namespace iox
 
 #endif // IOX_HOOFS_REPORTING_LOGGING_HPP

@@ -30,6 +30,12 @@ namespace iox
 {
 namespace runtime
 {
+expected<IpcRuntimeInterface, IpcRuntimeInterface::Error>
+IpcRuntimeInterface::create(const RuntimeName_t& runtimeName, const units::Duration roudiWaitingTimeout) noexcept
+{
+    return ok(IpcRuntimeInterface(roudi::IPC_CHANNEL_ROUDI_NAME, runtimeName, roudiWaitingTimeout));
+}
+
 IpcRuntimeInterface::IpcRuntimeInterface(const RuntimeName_t& roudiName,
                                          const RuntimeName_t& runtimeName,
                                          const units::Duration roudiWaitingTimeout) noexcept
