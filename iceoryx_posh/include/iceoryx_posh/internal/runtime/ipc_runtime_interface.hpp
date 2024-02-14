@@ -32,8 +32,10 @@ class IpcRuntimeInterface
   public:
     enum class Error
     {
-        TIMEOUT,
-        MALFORMED_RESPONSE
+        CANNOT_CREATE_APPLICATION_CHANNEL,
+        TIMEOUT_WAITING_FOR_ROUDI,
+        SENDING_REQUEST_TO_ROUDI_FAILED,
+        NO_RESPONSE_FROM_ROUDI,
     };
 
     /// @brief Creates an 'IpcRuntimeInterface' which tries to register at RouDi and delegates any error up in the stack
@@ -43,10 +45,6 @@ class IpcRuntimeInterface
     static expected<IpcRuntimeInterface, Error> create(const RuntimeName_t& runtimeName,
                                                        const units::Duration roudiWaitingTimeout) noexcept;
 
-    /// @brief Runtime Interface for the own IPC channel and the one to the RouDi daemon
-    /// @param[in] runtimeName name of the application's runtime and its IPC channel
-    /// @param[in] roudiWaitingTimeout timeout for searching the RouDi IPC channel
-    IpcRuntimeInterface(const RuntimeName_t& runtimeName, const units::Duration roudiWaitingTimeout) noexcept;
     ~IpcRuntimeInterface() noexcept = default;
 
     IpcRuntimeInterface(IpcRuntimeInterface&&) = default;
@@ -79,6 +77,14 @@ class IpcRuntimeInterface
     optional<UntypedRelativePointer::offset_t> getHeartbeatAddressOffset() const noexcept;
 
   private:
+    struct MgmtShmCharacteristics
+    {
+        uint64_t shmTopicSize{0U};
+        uint64_t segmentId{0U};
+        UntypedRelativePointer::offset_t segmentManagerAddressOffset{UntypedRelativePointer::NULL_POINTER_OFFSET};
+        optional<UntypedRelativePointer::offset_t> heartbeatAddressOffset;
+    };
+
     enum class RegAckResult
     {
         SUCCESS,
@@ -86,17 +92,20 @@ class IpcRuntimeInterface
         MALFORMED_RESPONSE
     };
 
-    void waitForRoudi(deadline_timer& timer) noexcept;
+    IpcRuntimeInterface(IpcInterfaceCreator&& appIpcInterface,
+                        IpcInterfaceUser&& roudiIpcInterface,
+                        MgmtShmCharacteristics&& mgmtShmCharacteristics) noexcept;
 
-    RegAckResult waitForRegAck(const int64_t transmissionTimestamp) noexcept;
+    static void waitForRoudi(IpcInterfaceUser& roudiIpcInterface, deadline_timer& timer) noexcept;
+
+    static RegAckResult waitForRegAck(const int64_t transmissionTimestamp,
+                                      IpcInterfaceCreator& appIpcInterface,
+                                      MgmtShmCharacteristics& mgmtShmCharacteristics) noexcept;
 
   private:
-    optional<UntypedRelativePointer::offset_t> m_segmentManagerAddressOffset;
-    optional<IpcInterfaceCreator> m_AppIpcInterface;
+    IpcInterfaceCreator m_AppIpcInterface;
     IpcInterfaceUser m_RoudiIpcInterface;
-    uint64_t m_shmTopicSize{0U};
-    uint64_t m_segmentId{0U};
-    optional<UntypedRelativePointer::offset_t> m_heartbeatAddressOffset;
+    MgmtShmCharacteristics m_mgmtShmCharacteristics;
 };
 
 } // namespace runtime

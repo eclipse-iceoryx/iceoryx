@@ -16,6 +16,9 @@
 
 #include "iox/posh/experimental/runtime.hpp"
 
+#include "iox/deadline_timer.hpp"
+#include "iox/duration.hpp"
+
 #include "iceoryx_posh/roudi_env/roudi_env.hpp"
 #include "test.hpp"
 
@@ -26,6 +29,7 @@ using namespace ::testing;
 using namespace iox;
 using namespace iox::posh::experimental;
 using namespace iox::roudi_env;
+using namespace iox::units::duration_literals;
 
 TEST(Runtime_test, CreatingRuntimeWithRunningRouDiWorks)
 {
@@ -34,9 +38,9 @@ TEST(Runtime_test, CreatingRuntimeWithRunningRouDiWorks)
     RouDiEnv roudi;
 
     optional<Runtime> runtime;
-    auto runtimeResult = RouDiEnvRuntimeBuilder("foo").create(runtime);
+    auto runtime_result = RouDiEnvRuntimeBuilder("foo").create(runtime);
 
-    EXPECT_FALSE(runtimeResult.has_error());
+    EXPECT_FALSE(runtime_result.has_error());
 }
 
 TEST(Runtime_test, CreatingMultipleRuntimesWithRunningRouDiWorks)
@@ -61,13 +65,63 @@ TEST(Runtime_test, ReRegisteringRuntimeWithRunningRouDiWorks)
 
     RouDiEnv roudi;
 
-    optional<Runtime> runtime1;
-    auto runtime1_result = RouDiEnvRuntimeBuilder("foo").create(runtime1);
-    EXPECT_FALSE(runtime1_result.has_error());
-    runtime1.reset();
+    optional<Runtime> runtime;
+    auto runtime_result = RouDiEnvRuntimeBuilder("foo").create(runtime);
+    EXPECT_FALSE(runtime_result.has_error());
+    runtime.reset();
 
-    runtime1_result = RouDiEnvRuntimeBuilder("foo").create(runtime1);
-    EXPECT_FALSE(runtime1_result.has_error());
+    runtime_result = RouDiEnvRuntimeBuilder("foo").create(runtime);
+    EXPECT_FALSE(runtime_result.has_error());
+}
+
+TEST(Runtime_test, RegisteringRuntimeWithoutRunningRouDiWithZeroWaitTimeResultsInImmediateTimeout)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "f2041773-84d9-4c9b-9309-996af83d6ff0");
+
+    deadline_timer timer{20_ms};
+
+    optional<Runtime> runtime;
+    auto runtime_result = RouDiEnvRuntimeBuilder("foo").create(runtime);
+
+    EXPECT_FALSE(timer.hasExpired());
+
+    ASSERT_TRUE(runtime_result.has_error());
+    EXPECT_THAT(runtime_result.error(), Eq(RuntimeBuilder::Error::TIMEOUT));
+}
+
+TEST(Runtime_test, RegisteringRuntimeWithoutRunningRouDiWithSomeWaitTimeResultsInTimeout)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "ac069a39-6cdc-4f2e-8b88-984a7d1a5487");
+
+    units::Duration wait_for_roudi_test_timeout{100_ms};
+    units::Duration wait_for_roudi_timeout{2 * wait_for_roudi_test_timeout};
+    deadline_timer timer{wait_for_roudi_test_timeout};
+
+    optional<Runtime> runtime;
+    auto runtime_result =
+        RouDiEnvRuntimeBuilder("foo").roudi_registration_timeout(wait_for_roudi_timeout).create(runtime);
+
+    EXPECT_TRUE(timer.hasExpired());
+
+    ASSERT_TRUE(runtime_result.has_error());
+    EXPECT_THAT(runtime_result.error(), Eq(RuntimeBuilder::Error::TIMEOUT));
+}
+
+TEST(Runtime_test, RegisteringRuntimeWithDelayedRouDiStartWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "63ef9a1a-deee-40b5-bc17-37ee67ad8d76");
+
+    optional<Runtime> runtime;
+    auto runtime_result = RouDiEnvRuntimeBuilder("foo").create(runtime);
+
+    ASSERT_TRUE(runtime_result.has_error());
+    EXPECT_THAT(runtime_result.error(), Eq(RuntimeBuilder::Error::TIMEOUT));
+
+    RouDiEnv roudi;
+
+    runtime_result = RouDiEnvRuntimeBuilder("foo").create(runtime);
+
+    EXPECT_FALSE(runtime_result.has_error());
 }
 
 } // namespace

@@ -36,6 +36,8 @@ class RuntimeBuilder
 
     enum class Error
     {
+        RUNTIME_STILL_ACTIVE,
+        IPC_CHANNEL_CREATION_FAILED,
         TIMEOUT,
         REGISTRATION_FAILED,
     };
@@ -80,9 +82,13 @@ from<runtime::IpcRuntimeInterface::Error, posh::experimental::RuntimeBuilder::Er
     using namespace runtime;
     switch (e)
     {
-    case IpcRuntimeInterface::Error::TIMEOUT:
+    case IpcRuntimeInterface::Error::CANNOT_CREATE_APPLICATION_CHANNEL:
+        return RuntimeBuilder::Error::IPC_CHANNEL_CREATION_FAILED;
+    case IpcRuntimeInterface::Error::TIMEOUT_WAITING_FOR_ROUDI:
         return RuntimeBuilder::Error::TIMEOUT;
-    case IpcRuntimeInterface::Error::MALFORMED_RESPONSE:
+    case IpcRuntimeInterface::Error::SENDING_REQUEST_TO_ROUDI_FAILED:
+        return RuntimeBuilder::Error::REGISTRATION_FAILED;
+    case IpcRuntimeInterface::Error::NO_RESPONSE_FROM_ROUDI:
         return RuntimeBuilder::Error::REGISTRATION_FAILED;
     }
 }
