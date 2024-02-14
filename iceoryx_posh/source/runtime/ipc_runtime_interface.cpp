@@ -61,8 +61,11 @@ IpcRuntimeInterface::IpcRuntimeInterface(const RuntimeName_t& roudiName,
 
     int64_t transmissionTimestamp{0};
     auto regState = RegState::WAIT_FOR_ROUDI;
-    while (!timer.hasExpired() && regState != RegState::FINISHED)
+    auto oldRegState = RegState::WAIT_FOR_ROUDI;
+    do
     {
+        oldRegState = regState;
+
         if (!m_RoudiIpcInterface.isInitialized() || !m_RoudiIpcInterface.ipcChannelMapsToFile())
         {
             IOX_LOG(DEBUG, "reopen RouDi's IPC channel!");
@@ -128,7 +131,7 @@ IpcRuntimeInterface::IpcRuntimeInterface(const RuntimeName_t& roudiName,
             // nothing to do, move along
             break;
         }
-    }
+    } while ((!timer.hasExpired() || regState != oldRegState) && regState != RegState::FINISHED);
 
     if (regState != RegState::FINISHED)
     {

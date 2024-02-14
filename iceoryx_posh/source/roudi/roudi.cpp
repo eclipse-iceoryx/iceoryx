@@ -89,7 +89,10 @@ RouDi::~RouDi() noexcept
 
 void RouDi::startProcessRuntimeMessagesThread() noexcept
 {
-    m_handleRuntimeMessageThread = std::thread(&RouDi::processRuntimeMessages, this);
+    m_handleRuntimeMessageThread =
+        std::thread(&RouDi::processRuntimeMessages,
+                    this,
+                    runtime::IpcInterfaceCreator(IPC_CHANNEL_ROUDI_NAME, ResourceType::ICEORYX_DEFINED));
 }
 
 void RouDi::shutdown() noexcept
@@ -244,11 +247,11 @@ void RouDi::monitorAndDiscoveryUpdate() noexcept
     }
 }
 
-void RouDi::processRuntimeMessages() noexcept
+void RouDi::processRuntimeMessages(runtime::IpcInterfaceCreator&& roudiIpcInterface) noexcept
 {
-    setThreadName("IPC-msg-process");
+    auto roudiIpc = std::move(roudiIpcInterface);
 
-    runtime::IpcInterfaceCreator roudiIpcInterface{IPC_CHANNEL_ROUDI_NAME, ResourceType::ICEORYX_DEFINED};
+    setThreadName("IPC-msg-process");
 
     IOX_LOG(INFO, "RouDi is ready for clients");
     fflush(stdout); // explicitly flush 'stdout' for 'launch_testing'
@@ -257,7 +260,7 @@ void RouDi::processRuntimeMessages() noexcept
     {
         // read RouDi's IPC channel
         runtime::IpcMessage message;
-        if (roudiIpcInterface.timedReceive(m_runtimeMessagesThreadTimeout, message))
+        if (roudiIpc.timedReceive(m_runtimeMessagesThreadTimeout, message))
         {
             auto cmd = runtime::stringToIpcMessageType(message.getElementAtIndex(0).c_str());
             RuntimeName_t runtimeName{into<lossy<RuntimeName_t>>(message.getElementAtIndex(1))};
