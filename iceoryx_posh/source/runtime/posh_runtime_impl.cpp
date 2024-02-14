@@ -32,12 +32,11 @@ namespace iox
 {
 namespace runtime
 {
-PoshRuntimeImpl::PoshRuntimeImpl(optional<const RuntimeName_t*> name, const RuntimeLocation location) noexcept
+PoshRuntimeImpl::PoshRuntimeImpl(optional<const RuntimeName_t*> name,
+                                 const RuntimeLocation location,
+                                 IpcRuntimeInterface&& ipcRuntimeInterface) noexcept
     : PoshRuntime(name)
-    , m_ipcChannelInterface(concurrent::ForwardArgsToCTor,
-                            roudi::IPC_CHANNEL_ROUDI_NAME,
-                            *name.value(),
-                            runtime::PROCESS_WAITING_FOR_ROUDI_TIMEOUT)
+    , m_ipcChannelInterface(concurrent::ForwardArgsToCTor, std::move(ipcRuntimeInterface))
     , m_ShmInterface([&] {
         // in case the runtime is located in the same process like RouDi the shm is already opened;
         // also in case of the RouDiEnvironment this would close the shm on destruction of the runstime which is also
@@ -64,6 +63,14 @@ PoshRuntimeImpl::PoshRuntimeImpl(optional<const RuntimeName_t*> name, const Runt
                             "KeepAlive",
                             *this,
                             &PoshRuntimeImpl::sendKeepAliveAndHandleShutdownPreparation);
+}
+
+PoshRuntimeImpl::PoshRuntimeImpl(optional<const RuntimeName_t*> name, const RuntimeLocation location) noexcept
+    : PoshRuntimeImpl(
+        name,
+        location,
+        IpcRuntimeInterface(roudi::IPC_CHANNEL_ROUDI_NAME, *name.value(), runtime::PROCESS_WAITING_FOR_ROUDI_TIMEOUT))
+{
 }
 
 PoshRuntimeImpl::~PoshRuntimeImpl() noexcept

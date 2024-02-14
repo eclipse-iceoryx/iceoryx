@@ -242,9 +242,10 @@ class IpcInterface
                  const uint64_t maxMessages,
                  const uint64_t messageSize) noexcept;
 
-    /// @brief delete copy and move ctor and assignment since they are not needed
+    IpcInterface(IpcInterface&&) = default;
+
+    /// @brief delete unneeded ctors and assignment operators
     IpcInterface(const IpcInterface&) = delete;
-    IpcInterface(IpcInterface&&) = delete;
     IpcInterface& operator=(const IpcInterface&) = delete;
     IpcInterface& operator=(IpcInterface&&) = delete;
 

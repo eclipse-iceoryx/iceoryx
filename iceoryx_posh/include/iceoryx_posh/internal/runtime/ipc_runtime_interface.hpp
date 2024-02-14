@@ -38,10 +38,11 @@ class IpcRuntimeInterface
                         const units::Duration roudiWaitingTimeout) noexcept;
     ~IpcRuntimeInterface() noexcept = default;
 
+    IpcRuntimeInterface(IpcRuntimeInterface&&) = default;
+
     /// @brief Not needed therefore deleted
     IpcRuntimeInterface(const IpcRuntimeInterface&) = delete;
     IpcRuntimeInterface& operator=(const IpcRuntimeInterface&) = delete;
-    IpcRuntimeInterface(IpcRuntimeInterface&&) = delete;
     IpcRuntimeInterface& operator=(IpcRuntimeInterface&&) = delete;
 
     /// @brief send a request to the RouDi daemon

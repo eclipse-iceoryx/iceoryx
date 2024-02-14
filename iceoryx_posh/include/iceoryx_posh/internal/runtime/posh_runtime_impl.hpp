@@ -95,6 +95,10 @@ class PoshRuntimeImpl : public PoshRuntime
     PoshRuntimeImpl(optional<const RuntimeName_t*> name,
                     const RuntimeLocation location = RuntimeLocation::SEPARATE_PROCESS_FROM_ROUDI) noexcept;
 
+    PoshRuntimeImpl(optional<const RuntimeName_t*> name,
+                    const RuntimeLocation location,
+                    IpcRuntimeInterface&& ipcRuntimeInterface) noexcept;
+
   private:
     expected<PublisherPortUserType::MemberType_t*, IpcMessageErrorType>
     requestPublisherFromRoudi(const IpcMessage& sendBuffer) noexcept;
@@ -114,6 +118,7 @@ class PoshRuntimeImpl : public PoshRuntime
     expected<std::tuple<segment_id_underlying_t, UntypedRelativePointer::offset_t>, IpcMessageErrorType>
     convert_id_and_offset(IpcMessage& msg);
 
+  private:
     concurrent::smart_lock<IpcRuntimeInterface> m_ipcChannelInterface;
     optional<SharedMemoryUser> m_ShmInterface;
 

@@ -42,6 +42,8 @@ class IpcInterfaceCreator : public IpcInterfaceBase
                         const uint64_t maxMessages = ROUDI_MAX_MESSAGES,
                         const uint64_t messageSize = ROUDI_MESSAGE_SIZE) noexcept;
 
+    IpcInterfaceCreator(IpcInterfaceCreator&&) = default;
+
     /// @brief The copy constructor and assignment operator is deleted since
     ///         this class manages a resource (IPC channel) which cannot
     ///         be copied. Move is also not needed, it is also deleted.
@@ -49,7 +51,6 @@ class IpcInterfaceCreator : public IpcInterfaceBase
     IpcInterfaceCreator& operator=(const IpcInterfaceCreator&) = delete;
 
     /// @brief Not needed therefore deleted
-    IpcInterfaceCreator(IpcInterfaceCreator&&) = delete;
     IpcInterfaceCreator& operator=(IpcInterfaceCreator&&) = delete;
 
   private:

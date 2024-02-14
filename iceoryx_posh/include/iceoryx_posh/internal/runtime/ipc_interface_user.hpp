@@ -40,6 +40,8 @@ class IpcInterfaceUser : public IpcInterfaceBase
                      const uint64_t maxMessages = APP_MAX_MESSAGES,
                      const uint64_t messageSize = APP_MESSAGE_SIZE) noexcept;
 
+    IpcInterfaceUser(IpcInterfaceUser&&) = default;
+
     /// @brief The copy constructor and assignment operator are deleted since
     ///         this class manages a resource (IPC channel) which cannot
     ///         be copied. Since move is not needed it is also deleted.
@@ -47,7 +49,6 @@ class IpcInterfaceUser : public IpcInterfaceBase
     IpcInterfaceUser& operator=(const IpcInterfaceUser&) = delete;
 
     /// @brief Not needed therefore deleted
-    IpcInterfaceUser(IpcInterfaceUser&&) = delete;
     IpcInterfaceUser& operator=(IpcInterfaceUser&&) = delete;
 };
 
