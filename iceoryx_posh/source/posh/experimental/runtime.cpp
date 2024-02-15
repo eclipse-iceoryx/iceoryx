@@ -48,4 +48,9 @@ PublisherBuilder Runtime::publisher(const capro::ServiceDescription& service_des
     return PublisherBuilder{m_runtime, service_description};
 }
 
+SubscriberBuilder Runtime::subscriber(const capro::ServiceDescription& service_description) noexcept
+{
+    return SubscriberBuilder{m_runtime, service_description};
+}
+
 } // namespace iox::posh::experimental

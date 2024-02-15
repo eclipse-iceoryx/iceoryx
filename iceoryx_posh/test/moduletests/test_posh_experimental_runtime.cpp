@@ -144,4 +144,23 @@ TEST(Runtime_test, CreatingPublisherWorks)
     IOX_TESTING_ASSERT_NO_PANIC();
 }
 
+TEST(Runtime_test, CreatingSubscriberWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "e14f3c82-d758-43cc-bd89-dfdf0ed71480");
+
+    RouDiEnv roudi;
+
+    optional<Runtime> runtime;
+    RouDiEnvRuntimeBuilder("hypnotoad").create(runtime).expect("Creating a runtime should not fail!");
+
+    auto maybe_subscriber = runtime->subscriber({"all", "glory", "hypnotoad"}).create<uint8_t>();
+    ASSERT_FALSE(maybe_subscriber.has_error());
+
+    IOX_LOG(INFO, "Move it!");
+
+    auto subscriber = std::move(maybe_subscriber.value());
+
+    IOX_TESTING_ASSERT_NO_PANIC();
+}
+
 } // namespace

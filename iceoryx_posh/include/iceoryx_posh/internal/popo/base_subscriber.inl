@@ -32,16 +32,34 @@ inline BaseSubscriber<port_t>::BaseSubscriber() noexcept
 }
 
 template <typename port_t>
+inline BaseSubscriber<port_t>::BaseSubscriber(port_t&& port) noexcept
+    : m_port(std::move(port))
+{
+}
+
+template <typename port_t>
 inline BaseSubscriber<port_t>::BaseSubscriber(const capro::ServiceDescription& service,
                                               const SubscriberOptions& subscriberOptions) noexcept
-    : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewareSubscriber(service, subscriberOptions))
+    : BaseSubscriber(
+        port_t{iox::runtime::PoshRuntime::getInstance().getMiddlewareSubscriber(service, subscriberOptions)})
 {
+}
+
+template <typename port_t>
+inline BaseSubscriber<port_t>::BaseSubscriber(BaseSubscriber&& other) noexcept
+    : m_port(std::move(other.m_port))
+    , m_trigger(std::move(other.m_trigger))
+{
+    other.m_moved = true;
 }
 
 template <typename port_t>
 inline BaseSubscriber<port_t>::~BaseSubscriber() noexcept
 {
-    m_port.destroy();
+    if (!m_moved)
+    {
+        m_port.destroy();
+    }
 }
 
 template <typename port_t>

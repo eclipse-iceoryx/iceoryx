@@ -22,6 +22,10 @@
 
 namespace iox
 {
+namespace posh::experimental
+{
+class SubscriberBuilder;
+}
 namespace popo
 {
 /// @brief The Subscriber class for the publish-subscribe messaging pattern in iceoryx.
@@ -33,11 +37,31 @@ class Subscriber : public SubscriberImpl<T, H>
     using Impl = SubscriberImpl<T, H>;
 
   public:
-    using SubscriberImpl<T, H>::SubscriberImpl;
+    explicit Subscriber(const capro::ServiceDescription& service,
+                        const SubscriberOptions& subscriberOptions = SubscriberOptions()) noexcept
+        : SubscriberImpl<T, H>(service, subscriberOptions)
+    {
+    }
+    Subscriber(Subscriber&& rhs) = default;
+
+    Subscriber(const Subscriber& other) = delete;
+    Subscriber& operator=(const Subscriber&) = delete;
+    Subscriber& operator=(Subscriber&& rhs) = delete;
 
     virtual ~Subscriber() noexcept
     {
-        Impl::m_trigger.reset();
+        if (!Impl::m_moved)
+        {
+            Impl::m_trigger.reset();
+        }
+    }
+
+  private:
+    friend class iox::posh::experimental::SubscriberBuilder;
+
+    explicit Subscriber(typename SubscriberImpl<T, H>::PortType&& port) noexcept
+        : SubscriberImpl<T, H>(std::move(port))
+    {
     }
 };
 

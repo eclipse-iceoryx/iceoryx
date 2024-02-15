@@ -55,6 +55,7 @@ template <typename port_t = iox::SubscriberPortUserType>
 class BaseSubscriber
 {
   public:
+    BaseSubscriber(BaseSubscriber&& rhs) noexcept;
     virtual ~BaseSubscriber() noexcept;
 
     ///
@@ -114,11 +115,11 @@ class BaseSubscriber
 
     BaseSubscriber() noexcept; // Required for testing.
     BaseSubscriber(const capro::ServiceDescription& service, const SubscriberOptions& subscriberOptions) noexcept;
+    BaseSubscriber(port_t&& port) noexcept;
 
     BaseSubscriber(const BaseSubscriber& other) = delete;
     BaseSubscriber& operator=(const BaseSubscriber&) = delete;
-    BaseSubscriber(BaseSubscriber&& rhs) = delete;
-    BaseSubscriber& operator=(BaseSubscriber&& rhs) = delete;
+    BaseSubscriber& operator=(BaseSubscriber&& rhs) noexcept = delete;
 
     /// @brief small helper method to unwrap the 'expected<optional<ChunkHeader*>>' from the 'tryGetChunk' method of the
     /// port
@@ -163,6 +164,7 @@ class BaseSubscriber
   protected:
     port_t m_port{nullptr};
     TriggerHandle m_trigger;
+    bool m_moved{false};
 };
 
 } // namespace popo

@@ -25,6 +25,12 @@ namespace iox
 namespace popo
 {
 template <typename T, typename H, typename BaseSubscriberType>
+inline SubscriberImpl<T, H, BaseSubscriberType>::SubscriberImpl(PortType&& port) noexcept
+    : BaseSubscriberType(std::move(port))
+{
+}
+
+template <typename T, typename H, typename BaseSubscriberType>
 inline SubscriberImpl<T, H, BaseSubscriberType>::SubscriberImpl(const capro::ServiceDescription& service,
                                                                 const SubscriberOptions& subscriberOptions) noexcept
     : BaseSubscriberType(service, subscriberOptions)
