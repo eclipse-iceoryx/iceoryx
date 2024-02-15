@@ -17,12 +17,14 @@
 #ifndef IOX_POSH_EXPERIMENTAL_RUNTIME_HPP
 #define IOX_POSH_EXPERIMENTAL_RUNTIME_HPP
 
+#include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_runtime_interface.hpp"
 #include "iceoryx_posh/internal/runtime/posh_runtime_impl.hpp"
 #include "iox/builder.hpp"
 #include "iox/expected.hpp"
 #include "iox/optional.hpp"
+#include "iox/posh/experimental/publisher.hpp"
 
 namespace iox::posh::experimental
 {
@@ -49,7 +51,7 @@ class RuntimeBuilder
     IOX_BUILDER_PARAMETER(bool, shares_process_with_roudi, false)
 
   public:
-    expected<void, Error> create(optional<Runtime>& runtimeContainer) noexcept;
+    expected<void, Error> create(optional<Runtime>& runtime_container) noexcept;
 
   private:
     RuntimeName_t m_name;
@@ -58,12 +60,14 @@ class RuntimeBuilder
 class Runtime
 {
   public:
+    PublisherBuilder publisher(const capro::ServiceDescription& service_description) noexcept;
+
   private:
     friend class RuntimeBuilder;
     friend class optional<Runtime>;
     Runtime(const RuntimeName_t& name,
             runtime::RuntimeLocation location,
-            runtime::IpcRuntimeInterface&& runtimeInterface) noexcept;
+            runtime::IpcRuntimeInterface&& runtime_interface) noexcept;
 
   private:
     runtime::PoshRuntimeImpl m_runtime;
@@ -87,7 +91,7 @@ from<runtime::IpcRuntimeInterface::Error, posh::experimental::RuntimeBuilder::Er
     case IpcRuntimeInterface::Error::TIMEOUT_WAITING_FOR_ROUDI:
         return RuntimeBuilder::Error::TIMEOUT;
     case IpcRuntimeInterface::Error::SENDING_REQUEST_TO_ROUDI_FAILED:
-        return RuntimeBuilder::Error::REGISTRATION_FAILED;
+        [[fallthrough]];
     case IpcRuntimeInterface::Error::NO_RESPONSE_FROM_ROUDI:
         return RuntimeBuilder::Error::REGISTRATION_FAILED;
     }

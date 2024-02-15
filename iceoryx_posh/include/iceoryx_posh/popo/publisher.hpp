@@ -22,6 +22,10 @@
 
 namespace iox
 {
+namespace posh::experimental
+{
+class PublisherBuilder;
+}
 namespace popo
 {
 /// @brief The Publisher class for the publish-subscribe messaging pattern in iceoryx.
@@ -31,7 +35,24 @@ template <typename T, typename H = mepoo::NoUserHeader>
 class Publisher : public PublisherImpl<T, H>
 {
   public:
-    using PublisherImpl<T, H>::PublisherImpl;
+    explicit Publisher(const capro::ServiceDescription& service,
+                       const PublisherOptions& publisherOptions = PublisherOptions()) noexcept
+        : PublisherImpl<T, H>(service, publisherOptions)
+    {
+    }
+    Publisher(Publisher&& rhs) = default;
+
+    Publisher(const Publisher& other) = delete;
+    Publisher& operator=(const Publisher&) = delete;
+    Publisher& operator=(Publisher&& rhs) = delete;
+
+  private:
+    friend class iox::posh::experimental::PublisherBuilder;
+
+    explicit Publisher(typename PublisherImpl<T, H>::PortType&& port) noexcept
+        : PublisherImpl<T, H>(std::move(port))
+    {
+    }
 };
 
 } // namespace popo

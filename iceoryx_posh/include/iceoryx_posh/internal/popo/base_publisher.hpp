@@ -40,11 +40,12 @@ class BasePublisher
   public:
     using PortType = port_t;
 
+    BasePublisher(BasePublisher&& rhs) noexcept;
+    virtual ~BasePublisher() noexcept;
+
     BasePublisher(const BasePublisher& other) = delete;
     BasePublisher& operator=(const BasePublisher&) = delete;
-    BasePublisher(BasePublisher&& rhs) = delete;
-    BasePublisher& operator=(BasePublisher&& rhs) = delete;
-    virtual ~BasePublisher() noexcept;
+    BasePublisher& operator=(BasePublisher&& rhs) noexcept = delete;
 
     ///
     /// @brief uid Get the UID of the publisher.
@@ -83,6 +84,7 @@ class BasePublisher
   protected:
     BasePublisher() = default; // Required for testing.
     BasePublisher(const capro::ServiceDescription& service, const PublisherOptions& publisherOptions);
+    BasePublisher(port_t&& port) noexcept;
 
     ///
     /// @brief port
@@ -96,7 +98,9 @@ class BasePublisher
     ///
     port_t& port() noexcept;
 
+  private:
     port_t m_port{nullptr};
+    bool m_moved{false};
 };
 
 } // namespace popo

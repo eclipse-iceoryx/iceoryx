@@ -25,16 +25,31 @@ namespace iox
 namespace popo
 {
 template <typename port_t>
+inline BasePublisher<port_t>::BasePublisher(port_t&& port) noexcept
+    : m_port(std::move(port))
+{
+}
+
+template <typename port_t>
 inline BasePublisher<port_t>::BasePublisher(const capro::ServiceDescription& service,
                                             const PublisherOptions& publisherOptions)
-    : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewarePublisher(service, publisherOptions))
+    : BasePublisher(port_t{iox::runtime::PoshRuntime::getInstance().getMiddlewarePublisher(service, publisherOptions)})
 {
+}
+template <typename port_t>
+inline BasePublisher<port_t>::BasePublisher(BasePublisher&& other) noexcept
+    : m_port(std::move(other.m_port))
+{
+    other.m_moved = true;
 }
 
 template <typename port_t>
 inline BasePublisher<port_t>::~BasePublisher() noexcept
 {
-    m_port.destroy();
+    if (!m_moved)
+    {
+        m_port.destroy();
+    }
 }
 
 template <typename port_t>

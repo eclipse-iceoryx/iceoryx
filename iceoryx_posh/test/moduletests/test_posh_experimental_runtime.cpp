@@ -19,6 +19,7 @@
 #include "iox/deadline_timer.hpp"
 #include "iox/duration.hpp"
 
+#include "iceoryx_hoofs/testing/error_reporting/testing_support.hpp"
 #include "iceoryx_posh/roudi_env/roudi_env.hpp"
 #include "test.hpp"
 
@@ -122,6 +123,25 @@ TEST(Runtime_test, RegisteringRuntimeWithDelayedRouDiStartWorks)
     runtime_result = RouDiEnvRuntimeBuilder("foo").create(runtime);
 
     EXPECT_FALSE(runtime_result.has_error());
+}
+
+TEST(Runtime_test, CreatingPublisherWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "c98d1cb6-8990-4f91-a24b-d845d2dc37e1");
+
+    RouDiEnv roudi;
+
+    optional<Runtime> runtime;
+    RouDiEnvRuntimeBuilder("hypnotoad").create(runtime).expect("Creating a runtime should not fail!");
+
+    auto maybe_publisher = runtime->publisher({"all", "glory", "hypnotoad"}).create<uint8_t>();
+    ASSERT_FALSE(maybe_publisher.has_error());
+
+    IOX_LOG(INFO, "Move it!");
+
+    auto publisher = std::move(maybe_publisher.value());
+
+    IOX_TESTING_ASSERT_NO_PANIC();
 }
 
 } // namespace

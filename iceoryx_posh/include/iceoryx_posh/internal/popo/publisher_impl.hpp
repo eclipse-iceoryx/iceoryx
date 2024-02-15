@@ -39,11 +39,12 @@ class PublisherImpl : public BasePublisherType, private PublisherInterface<T, H>
   public:
     explicit PublisherImpl(const capro::ServiceDescription& service,
                            const PublisherOptions& publisherOptions = PublisherOptions());
+    PublisherImpl(PublisherImpl&& rhs) noexcept = default;
+    virtual ~PublisherImpl() = default;
+
     PublisherImpl(const PublisherImpl& other) = delete;
     PublisherImpl& operator=(const PublisherImpl&) = delete;
-    PublisherImpl(PublisherImpl&& rhs) = delete;
-    PublisherImpl& operator=(PublisherImpl&& rhs) = delete;
-    virtual ~PublisherImpl() = default;
+    PublisherImpl& operator=(PublisherImpl&& rhs) noexcept = delete;
 
     ///
     /// @brief loan Get a sample from loaned shared memory and consctruct the data with the given arguments.
@@ -77,7 +78,10 @@ class PublisherImpl : public BasePublisherType, private PublisherInterface<T, H>
     expected<void, AllocationError> publishResultOf(Callable c, ArgTypes... args) noexcept;
 
   protected:
+    using PortType = typename BasePublisherType::PortType;
     using BasePublisherType::port;
+
+    PublisherImpl(PortType&& port) noexcept;
 
   private:
     Sample<T, H> convertChunkHeaderToSample(mepoo::ChunkHeader* const header) noexcept;
