@@ -24,9 +24,10 @@ namespace iox
 namespace runtime
 {
 IpcInterfaceCreator::IpcInterfaceCreator(const RuntimeName_t& runtimeName,
+                                         const ResourceType resourceType,
                                          const uint64_t maxMessages,
                                          const uint64_t messageSize) noexcept
-    : IpcInterfaceBase(runtimeName, maxMessages, messageSize)
+    : IpcInterfaceBase(runtimeName, resourceType, maxMessages, messageSize)
     , m_fileLock(std::move(FileLockBuilder()
                                .name(m_interfaceName)
                                .permission(iox::perms::owner_read | iox::perms::owner_write)

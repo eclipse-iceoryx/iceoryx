@@ -75,9 +75,7 @@ inline SharedMemoryObjectType MePooSegment<SharedMemoryObjectType, MemoryManager
         typename SharedMemoryObjectType::Builder()
             .name([&writerGroup] {
                 using ShmName_t = detail::PosixSharedMemory::Name_t;
-                ShmName_t shmName = iceoryxResourcePrefix(roudi::DEFAULT_UNIQUE_ROUDI_ID,
-                                                          "p"); // use an additional 'p' to prevent creating a payload
-                                                                // segment with the same name as the management segment
+                ShmName_t shmName = iceoryxResourcePrefix(roudi::DEFAULT_UNIQUE_ROUDI_ID, ResourceType::USER_DEFINED);
                 if (shmName.size() + writerGroup.getName().size() > ShmName_t::capacity())
                 {
                     IOX_LOG(FATAL,
@@ -85,7 +83,7 @@ inline SharedMemoryObjectType MePooSegment<SharedMemoryObjectType, MemoryManager
                                 << writerGroup.getName().size()
                                 << "' would exceed the maximum allowed size when used with the '" << shmName
                                 << "' prefix!");
-                    IOX_PANIC("The shm name exceeds the max size with the 'iox1_#_p_' prefix");
+                    IOX_PANIC("");
                 }
                 shmName.append(TruncateToCapacity, writerGroup.getName());
                 return shmName;

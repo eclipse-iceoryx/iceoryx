@@ -25,19 +25,22 @@ TEST(PoshTypes_test, IceoryxResourcePrefixWithDefaultRouDiIdWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "35f1d638-8efa-41dd-859b-bcc23450844f");
 
-    EXPECT_THAT(iceoryxResourcePrefix(roudi::DEFAULT_UNIQUE_ROUDI_ID).c_str(), StrEq("iox1_0_"));
+    EXPECT_THAT(iceoryxResourcePrefix(roudi::DEFAULT_UNIQUE_ROUDI_ID, ResourceType::ICEORYX_DEFINED).c_str(),
+                StrEq("iox1_0_i_"));
 }
 
 TEST(PoshTypes_test, IceoryxResourcePrefixWithMaxRouDiIdWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "049e79d7-d0ca-4951-8d44-c80aebab7a88");
 
-    EXPECT_THAT(iceoryxResourcePrefix(std::numeric_limits<uint16_t>::max()).c_str(), StrEq("iox1_65535_"));
+    EXPECT_THAT(iceoryxResourcePrefix(std::numeric_limits<uint16_t>::max(), ResourceType::ICEORYX_DEFINED).c_str(),
+                StrEq("iox1_65535_i_"));
 }
 
-TEST(PoshTypes_test, IceoryxResourcePrefixWithMaxRouDiIdAndCustomizerWorks)
+TEST(PoshTypes_test, IceoryxResourcePrefixWithMaxRouDiIdAndUserDefinedResourceTypeWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b63bbdca-ff19-41bc-9f8a-c657b0ee8009");
 
-    EXPECT_THAT(iceoryxResourcePrefix(std::numeric_limits<uint16_t>::max(), "a").c_str(), StrEq("iox1_65535_a_"));
+    EXPECT_THAT(iceoryxResourcePrefix(std::numeric_limits<uint16_t>::max(), ResourceType::USER_DEFINED).c_str(),
+                StrEq("iox1_65535_u_"));
 }

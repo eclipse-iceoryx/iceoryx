@@ -68,7 +68,8 @@ TEST_F(BindingC_Runtime_test, RuntimeNameLengthIsMax)
     ::testing::Test::RecordProperty("TEST_ID", "854a471d-936e-4c98-b56e-ba8a7d83460e");
 
     RuntimeName_t dummy{"a"};
-    auto prefixLength = runtime::ipcChannelNameToInterfaceName(dummy).value().size() - dummy.size();
+    auto prefixLength =
+        runtime::ipcChannelNameToInterfaceName(dummy, ResourceType::USER_DEFINED).value().size() - dummy.size();
     std::string maxName(iox::MAX_RUNTIME_NAME_LENGTH - prefixLength, 's');
 
     iox_runtime_init(maxName.c_str());

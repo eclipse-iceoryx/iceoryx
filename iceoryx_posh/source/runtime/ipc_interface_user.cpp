@@ -22,9 +22,10 @@ namespace iox
 namespace runtime
 {
 IpcInterfaceUser::IpcInterfaceUser(const RuntimeName_t& name,
+                                   const ResourceType resourceType,
                                    const uint64_t maxMessages,
                                    const uint64_t messageSize) noexcept
-    : IpcInterfaceBase(name, maxMessages, messageSize)
+    : IpcInterfaceBase(name, resourceType, maxMessages, messageSize)
 {
     openIpcChannel(PosixIpcChannelSide::CLIENT);
 }

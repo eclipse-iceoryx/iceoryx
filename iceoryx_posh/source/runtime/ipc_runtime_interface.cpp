@@ -34,9 +34,9 @@ IpcRuntimeInterface::IpcRuntimeInterface(const RuntimeName_t& roudiName,
                                          const RuntimeName_t& runtimeName,
                                          const units::Duration roudiWaitingTimeout) noexcept
     : m_runtimeName(runtimeName)
-    , m_RoudiIpcInterface(roudiName)
+    , m_RoudiIpcInterface(roudiName, ResourceType::ICEORYX_DEFINED)
 {
-    m_AppIpcInterface.emplace(runtimeName);
+    m_AppIpcInterface.emplace(runtimeName, ResourceType::USER_DEFINED);
     if (!m_AppIpcInterface->isInitialized())
     {
         IOX_REPORT_FATAL(PoshError::IPC_INTERFACE__UNABLE_TO_CREATE_APPLICATION_CHANNEL);

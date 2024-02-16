@@ -105,7 +105,8 @@ class CMqInterfaceStartupRace_test : public Test
         if (!m_appQueue.has_value())
         {
             platform::IoxIpcChannelType::Builder_t()
-                .name(runtime::ipcChannelNameToInterfaceName(MqAppName).expect("valid interface name"))
+                .name(runtime::ipcChannelNameToInterfaceName(MqAppName, ResourceType::USER_DEFINED)
+                          .expect("valid interface name"))
                 .channelSide(PosixIpcChannelSide::CLIENT)
                 .create()
                 .and_then([this](auto& channel) { this->m_appQueue.emplace(std::move(channel)); });
@@ -121,7 +122,8 @@ class CMqInterfaceStartupRace_test : public Test
     std::mutex m_appQueueMutex;
     optional<platform::IoxIpcChannelType> m_appQueue;
     RuntimeName_t m_roudiIpcChannelName{
-        runtime::ipcChannelNameToInterfaceName(roudi::IPC_CHANNEL_ROUDI_NAME).expect("valid interface name")};
+        runtime::ipcChannelNameToInterfaceName(roudi::IPC_CHANNEL_ROUDI_NAME, ResourceType::ICEORYX_DEFINED)
+            .expect("valid interface name")};
 };
 
 #if !defined(__APPLE__)

@@ -162,7 +162,8 @@ TEST_F(MePooSegment_test, SharedMemoryCreationParameter)
                                                                        const iox::access_rights) {
         EXPECT_THAT(name,
                     Eq(detail::PosixSharedMemory::Name_t(
-                        concatenate(iceoryxResourcePrefix(roudi::DEFAULT_UNIQUE_ROUDI_ID, "p"), "iox_roudi_test2"))));
+                        concatenate(iceoryxResourcePrefix(roudi::DEFAULT_UNIQUE_ROUDI_ID, ResourceType::USER_DEFINED),
+                                    "iox_roudi_test2"))));
         EXPECT_THAT(accessMode, Eq(iox::AccessMode::READ_WRITE));
         EXPECT_THAT(openMode, Eq(iox::OpenMode::PURGE_AND_CREATE));
     };

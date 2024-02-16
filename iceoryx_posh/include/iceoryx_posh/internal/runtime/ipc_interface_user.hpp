@@ -32,9 +32,11 @@ class IpcInterfaceUser : public IpcInterfaceBase
     ///        Therefore, isInitialized should always be called
     ///        before using this class.
     /// @param[in] name Unique identifier of the IPC channel
+    /// @param[in] resourceType to be used for the resource prefix
     /// @param[in] maxMessages maximum number of queued messages
     /// @param[in] message size maximum message size
     IpcInterfaceUser(const RuntimeName_t& name,
+                     const ResourceType resourceType,
                      const uint64_t maxMessages = APP_MAX_MESSAGES,
                      const uint64_t messageSize = APP_MESSAGE_SIZE) noexcept;
 

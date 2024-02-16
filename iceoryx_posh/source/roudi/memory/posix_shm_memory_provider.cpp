@@ -57,7 +57,8 @@ expected<void*, MemoryProviderError> PosixShmMemoryProvider::createMemory(const 
     }
 
     if (!PosixSharedMemoryObjectBuilder()
-             .name(concatenate(iceoryxResourcePrefix(DEFAULT_UNIQUE_ROUDI_ID), m_shmName))
+             .name(
+                 concatenate(iceoryxResourcePrefix(DEFAULT_UNIQUE_ROUDI_ID, ResourceType::ICEORYX_DEFINED), m_shmName))
              .memorySizeInBytes(size)
              .accessMode(m_accessMode)
              .openMode(m_openMode)

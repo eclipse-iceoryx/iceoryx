@@ -34,9 +34,11 @@ class IpcInterfaceCreator : public IpcInterfaceBase
     ///        If it fails isInitialized will return false. Therefore, isInitialized
     ///        should always be called before using this class.
     /// @param[in] name Unique identifier of the IPC channel
+    /// @param[in] resourceType to be used for the resource prefix
     /// @param[in] maxMessages maximum number of queued messages
     /// @param[in] message size maximum message size
     IpcInterfaceCreator(const RuntimeName_t& name,
+                        const ResourceType resourceType,
                         const uint64_t maxMessages = ROUDI_MAX_MESSAGES,
                         const uint64_t messageSize = ROUDI_MESSAGE_SIZE) noexcept;
 

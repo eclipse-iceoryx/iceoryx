@@ -34,7 +34,8 @@ SharedMemoryUser::SharedMemoryUser(const size_t topicSize,
                                    const UntypedRelativePointer::offset_t segmentManagerAddressOffset) noexcept
 {
     PosixSharedMemoryObjectBuilder()
-        .name(concatenate(iceoryxResourcePrefix(roudi::DEFAULT_UNIQUE_ROUDI_ID), roudi::SHM_NAME))
+        .name(concatenate(iceoryxResourcePrefix(roudi::DEFAULT_UNIQUE_ROUDI_ID, ResourceType::ICEORYX_DEFINED),
+                          roudi::SHM_NAME))
         .memorySizeInBytes(topicSize)
         .accessMode(AccessMode::READ_WRITE)
         .openMode(OpenMode::OPEN_EXISTING)
@@ -77,9 +78,7 @@ void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
         PosixSharedMemoryObjectBuilder()
             .name([&segment] {
                 using ShmName_t = detail::PosixSharedMemory::Name_t;
-                ShmName_t shmName = iceoryxResourcePrefix(roudi::DEFAULT_UNIQUE_ROUDI_ID,
-                                                          "p"); // use an additional 'p' to prevent creating a payload
-                                                                // segment with the same name as the management segment
+                ShmName_t shmName = iceoryxResourcePrefix(roudi::DEFAULT_UNIQUE_ROUDI_ID, ResourceType::USER_DEFINED);
                 if (shmName.size() + segment.m_sharedMemoryName.size() > ShmName_t::capacity())
                 {
                     IOX_LOG(FATAL,
@@ -87,7 +86,7 @@ void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
                                 << segment.m_sharedMemoryName.size()
                                 << "' would exceed the maximum allowed size when used with the '" << shmName
                                 << "' prefix!");
-                    IOX_PANIC("The shm name exceeds the max size with the 'iox1_#_p_' prefix");
+                    IOX_PANIC("");
                 }
                 shmName.append(TruncateToCapacity, segment.m_sharedMemoryName);
                 return shmName;

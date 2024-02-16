@@ -200,10 +200,19 @@ struct DefaultChunkQueueConfig
 
 constexpr const char ICEORYX_RESOURCE_PREFIX[] = "iox1";
 
+/// @brief The resource type is used to customize the resource prefix by adding an 'i' or 'u' depending whether the
+/// resource is defined by iceoryx, e.g. the roudi IPC channel, or by the user, e.g. the runtime name. This shall
+/// prevent the system from being affected by users defining resource names which are intended to be used by iceoryx.
+enum class ResourceType
+{
+    ICEORYX_DEFINED,
+    USER_DEFINED,
+};
+
 using ResourcePrefix_t = string<13>; // 'iox1_' + MAX_UINT16_SIZE + '_' + optional 'x_'
 /// @brief Returns the prefix string used for resources
 /// @param[in] uniqueRouDiID to use for the prefix string
-inline ResourcePrefix_t iceoryxResourcePrefix(uint16_t uniqueRouDiID, iox::string<1> customizer = "");
+inline ResourcePrefix_t iceoryxResourcePrefix(uint16_t uniqueRouDiID, ResourceType resourceType);
 
 // alias for string
 using RuntimeName_t = string<MAX_RUNTIME_NAME_LENGTH>;

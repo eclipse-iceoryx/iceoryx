@@ -78,9 +78,9 @@ std::string IpcMessageErrorTypeToString(const IpcMessageErrorType msg) noexcept
     return convert::toString(static_cast<UnderlyingType>(msg));
 }
 
-iox::optional<RuntimeName_t> ipcChannelNameToInterfaceName(RuntimeName_t channelName)
+iox::optional<RuntimeName_t> ipcChannelNameToInterfaceName(RuntimeName_t channelName, ResourceType resourceType)
 {
-    RuntimeName_t interfaceName = iceoryxResourcePrefix(roudi::DEFAULT_UNIQUE_ROUDI_ID);
+    RuntimeName_t interfaceName = iceoryxResourcePrefix(roudi::DEFAULT_UNIQUE_ROUDI_ID, resourceType);
     if (interfaceName.size() + channelName.size() > RuntimeName_t::capacity())
     {
         return nullopt;
@@ -91,6 +91,7 @@ iox::optional<RuntimeName_t> ipcChannelNameToInterfaceName(RuntimeName_t channel
 
 template <typename IpcChannelType>
 IpcInterface<IpcChannelType>::IpcInterface(const RuntimeName_t& runtimeName,
+                                           const ResourceType resourceType,
                                            const uint64_t maxMessages,
                                            const uint64_t messageSize) noexcept
 {
@@ -109,7 +110,7 @@ IpcInterface<IpcChannelType>::IpcInterface(const RuntimeName_t& runtimeName,
     }
 
     m_interfaceName =
-        ipcChannelNameToInterfaceName(runtimeName)
+        ipcChannelNameToInterfaceName(runtimeName, resourceType)
             .or_else([&runtimeName] {
                 IOX_LOG(FATAL,
                         "The runtime with the name '"
