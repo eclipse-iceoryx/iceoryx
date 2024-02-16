@@ -77,6 +77,7 @@ if(EXAMPLES)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/request_response ${CMAKE_BINARY_DIR}/iceoryx_examples/request_response)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/user_header ${CMAKE_BINARY_DIR}/iceoryx_examples/user_header)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/icediscovery ${CMAKE_BINARY_DIR}/iceoryx_examples/icediscovery)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/experimental/non_static_runtime ${CMAKE_BINARY_DIR}/iceoryx_examples/experimental/non_static_runtime)
 endif()
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/package/package.cmake)
