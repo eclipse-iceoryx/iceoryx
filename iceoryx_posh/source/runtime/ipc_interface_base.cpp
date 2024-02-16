@@ -113,7 +113,7 @@ IpcInterface<IpcChannelType>::IpcInterface(const RuntimeName_t& runtimeName,
             .or_else([&runtimeName] {
                 IOX_LOG(FATAL,
                         "The runtime with the name '"
-                            << runtimeName.size()
+                            << runtimeName
                             << "' would exceed the maximum allowed size when used with the 'iox1_#_' prefix!");
                 IOX_PANIC("The runtime name exceeds the max size");
             })
