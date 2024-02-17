@@ -32,20 +32,18 @@ int main()
     while (!iox::hasTerminationRequested())
     {
         // open a new scope to destroy the runtime before the sleep
-        // the 'reset' method of the optional cannot be used since there would still be the publisher who needs to
-        // access the shared memory on destruction -> get rid of the optional and make the runtime movable
         {
-            iox::optional<iox::posh::experimental::Runtime> runtime;
-            if (iox::posh::experimental::RuntimeBuilder(APP_NAME).create(runtime).has_error())
+            auto runtime_result = iox::posh::experimental::RuntimeBuilder(APP_NAME).create();
+            if (runtime_result.has_error())
             {
                 std::cout << "Could not create the runtime!" << std::endl;
                 std::this_thread::sleep_for(std::chrono::seconds(1));
                 continue;
             }
 
-            auto publisher = runtime->publisher({"Radar", "FrontLeft", "Object"})
-                                 .create<RadarObject>()
-                                 .expect("Getting a publisher");
+            auto runtime = std::move(runtime_result.value());
+            auto publisher =
+                runtime.publisher({"Radar", "FrontLeft", "Object"}).create<RadarObject>().expect("Getting a publisher");
 
             publisher.loan()
                 .and_then([&](auto& sample) {

@@ -242,12 +242,12 @@ class IpcInterface
                  const uint64_t maxMessages,
                  const uint64_t messageSize) noexcept;
 
-    IpcInterface(IpcInterface&&) = default;
+    IpcInterface(IpcInterface&&) noexcept = default;
+    IpcInterface& operator=(IpcInterface&&) noexcept = default;
 
     /// @brief delete unneeded ctors and assignment operators
     IpcInterface(const IpcInterface&) = delete;
     IpcInterface& operator=(const IpcInterface&) = delete;
-    IpcInterface& operator=(IpcInterface&&) = delete;
 
     /// @brief Set the content of answer from buffer.
     /// @param[in] buffer Raw message as char pointer

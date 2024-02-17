@@ -23,7 +23,7 @@ RuntimeBuilder::RuntimeBuilder(const RuntimeName_t& name) noexcept
 {
 }
 
-expected<void, RuntimeBuilder::Error> RuntimeBuilder::create(optional<Runtime>& runtime_container) noexcept
+expected<Runtime, RuntimeBuilder::Error> RuntimeBuilder::create() noexcept
 {
     auto location = m_shares_process_with_roudi ? runtime::RuntimeLocation::SAME_PROCESS_LIKE_ROUDI
                                                 : runtime::RuntimeLocation::SEPARATE_PROCESS_FROM_ROUDI;
@@ -32,8 +32,7 @@ expected<void, RuntimeBuilder::Error> RuntimeBuilder::create(optional<Runtime>& 
     {
         return err(into<Error>(ipcRuntimeIterface.error()));
     }
-    runtime_container.emplace(m_name, location, std::move(ipcRuntimeIterface.value()));
-    return ok();
+    return ok(Runtime{m_name, location, std::move(ipcRuntimeIterface.value())});
 }
 
 Runtime::Runtime(const RuntimeName_t& name,

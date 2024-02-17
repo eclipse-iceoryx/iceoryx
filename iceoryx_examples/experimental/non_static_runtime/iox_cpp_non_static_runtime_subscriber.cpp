@@ -28,10 +28,9 @@ int main()
 {
     iox::log::Logger::init(iox::log::logLevelFromEnvOr(iox::log::LogLevel::INFO));
 
-    iox::optional<iox::posh::experimental::Runtime> runtime;
+    auto runtime_result = iox::posh::experimental::RuntimeBuilder(APP_NAME).create();
 
-    while (!iox::hasTerminationRequested()
-           && iox::posh::experimental::RuntimeBuilder(APP_NAME).create(runtime).has_error())
+    while (!iox::hasTerminationRequested() && runtime_result.has_error())
     {
         std::cout << "Could not create the runtime!" << std::endl;
         std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -42,9 +41,9 @@ int main()
         return EXIT_SUCCESS;
     }
 
-
+    auto runtime = std::move(runtime_result.value());
     auto subscriber =
-        runtime->subscriber({"Radar", "FrontLeft", "Object"}).create<RadarObject>().expect("Getting a subscriber");
+        runtime.subscriber({"Radar", "FrontLeft", "Object"}).create<RadarObject>().expect("Getting a subscriber");
 
     while (!iox::hasTerminationRequested())
     {

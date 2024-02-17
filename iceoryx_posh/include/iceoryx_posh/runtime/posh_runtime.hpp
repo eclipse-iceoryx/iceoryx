@@ -52,11 +52,10 @@ class NodeData;
 class PoshRuntime
 {
   public:
+    virtual ~PoshRuntime() noexcept = default;
+
     PoshRuntime(const PoshRuntime&) = delete;
     PoshRuntime& operator=(const PoshRuntime&) = delete;
-    PoshRuntime(PoshRuntime&&) = delete;
-    PoshRuntime& operator=(PoshRuntime&&) = delete;
-    virtual ~PoshRuntime() noexcept = default;
 
     /// @brief returns active runtime
     ///
@@ -165,6 +164,10 @@ class PoshRuntime
     // Protected constructor for derived classes
     PoshRuntime(optional<const RuntimeName_t*> name) noexcept;
 
+    // limit move operations to posh::experimental::Runtime
+    PoshRuntime(PoshRuntime&&) noexcept;
+    PoshRuntime& operator=(PoshRuntime&&) noexcept;
+
     static PoshRuntime& defaultRuntimeFactory(optional<const RuntimeName_t*> name) noexcept;
 
     /// @brief gets current runtime factory. If the runtime factory is not yet initialized it is set to
@@ -188,7 +191,7 @@ class PoshRuntime
     /// @brief checks the given application name for certain constraints like length or if is empty
     const RuntimeName_t& verifyInstanceName(optional<const RuntimeName_t*> name) noexcept;
 
-    const RuntimeName_t m_appName;
+    RuntimeName_t m_appName;
     std::atomic<bool> m_shutdownRequested{false};
 };
 

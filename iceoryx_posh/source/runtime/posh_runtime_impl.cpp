@@ -90,32 +90,77 @@ PoshRuntimeImpl::PoshRuntimeImpl(optional<const RuntimeName_t*> name, const Runt
 {
 }
 
+PoshRuntimeImpl&& PoshRuntimeImpl::moveCtorHelper(PoshRuntimeImpl&& other) noexcept
+{
+    other.m_moved = true;
+    other.m_keepAliveTask.reset();
+    return std::move(other);
+}
+
+PoshRuntimeImpl::PoshRuntimeImpl(PoshRuntimeImpl&& other) noexcept
+    : PoshRuntime(moveCtorHelper(std::move(other)))
+    , m_ipcChannelInterface(std::move(other.m_ipcChannelInterface))
+    , m_ShmInterface(std::move(other.m_ShmInterface))
+    , m_heartbeat(std::move(other.m_heartbeat))
+{
+    m_keepAliveTask.emplace(concurrent::detail::PeriodicTaskAutoStart,
+                            PROCESS_KEEP_ALIVE_INTERVAL,
+                            "KeepAlive",
+                            *this,
+                            &PoshRuntimeImpl::sendKeepAliveAndHandleShutdownPreparation);
+}
+
+PoshRuntimeImpl& PoshRuntimeImpl::operator=(PoshRuntimeImpl&& rhs) noexcept
+{
+    if (this != &rhs)
+    {
+        rhs.m_moved = true;
+        rhs.m_keepAliveTask.reset();
+
+        PoshRuntime::operator=(std::move(rhs));
+        m_ipcChannelInterface = std::move(rhs.m_ipcChannelInterface);
+        m_ShmInterface = std::move(rhs.m_ShmInterface);
+        m_heartbeat = std::move(rhs.m_heartbeat);
+
+        m_keepAliveTask.emplace(concurrent::detail::PeriodicTaskAutoStart,
+                                PROCESS_KEEP_ALIVE_INTERVAL,
+                                "KeepAlive",
+                                *this,
+                                &PoshRuntimeImpl::sendKeepAliveAndHandleShutdownPreparation);
+    }
+    return *this;
+}
+
 PoshRuntimeImpl::~PoshRuntimeImpl() noexcept
 {
-    // Inform RouDi that we're shutting down
-    IpcMessage sendBuffer;
-    sendBuffer << IpcMessageTypeToString(IpcMessageType::TERMINATION) << m_appName;
-    IpcMessage receiveBuffer;
-
-    if (m_ipcChannelInterface->sendRequestToRouDi(sendBuffer, receiveBuffer)
-        && (1U == receiveBuffer.getNumberOfElements()))
+    if (!m_moved)
     {
-        std::string IpcMessage = receiveBuffer.getElementAtIndex(0U);
+        // Inform RouDi that we're shutting down
+        IpcMessage sendBuffer;
+        sendBuffer << IpcMessageTypeToString(IpcMessageType::TERMINATION) << m_appName;
+        IpcMessage receiveBuffer;
 
-        if (stringToIpcMessageType(IpcMessage.c_str()) == IpcMessageType::TERMINATION_ACK)
+        if (m_ipcChannelInterface->sendRequestToRouDi(sendBuffer, receiveBuffer)
+            && (1U == receiveBuffer.getNumberOfElements()))
         {
-            IOX_LOG(TRACE, "RouDi cleaned up resources of " << m_appName << ". Shutting down gracefully.");
+            std::string IpcMessage = receiveBuffer.getElementAtIndex(0U);
+
+            if (stringToIpcMessageType(IpcMessage.c_str()) == IpcMessageType::TERMINATION_ACK)
+            {
+                IOX_LOG(TRACE, "RouDi cleaned up resources of " << m_appName << ". Shutting down gracefully.");
+            }
+            else
+            {
+                IOX_LOG(ERROR,
+                        "Got wrong response from IPC channel for IpcMessageType::TERMINATION:'"
+                            << receiveBuffer.getMessage() << "'");
+            }
         }
         else
         {
             IOX_LOG(ERROR,
-                    "Got wrong response from IPC channel for IpcMessageType::TERMINATION:'"
-                        << receiveBuffer.getMessage() << "'");
+                    "Sending IpcMessageType::TERMINATION to RouDi failed:'" << receiveBuffer.getMessage() << "'");
         }
-    }
-    else
-    {
-        IOX_LOG(ERROR, "Sending IpcMessageType::TERMINATION to RouDi failed:'" << receiveBuffer.getMessage() << "'");
     }
 }
 

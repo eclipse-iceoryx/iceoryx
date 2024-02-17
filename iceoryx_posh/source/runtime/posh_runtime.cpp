@@ -127,6 +127,21 @@ PoshRuntime::PoshRuntime(optional<const RuntimeName_t*> name) noexcept
     }
 }
 
+PoshRuntime::PoshRuntime(PoshRuntime&& other) noexcept
+{
+    *this = std::move(other);
+}
+
+PoshRuntime& PoshRuntime::operator=(PoshRuntime&& rhs) noexcept
+{
+    if (this != &rhs)
+    {
+        m_appName = std::move(rhs.m_appName);
+        m_shutdownRequested.store(rhs.m_shutdownRequested.load());
+    }
+    return *this;
+}
+
 const RuntimeName_t& PoshRuntime::verifyInstanceName(optional<const RuntimeName_t*> name) noexcept
 {
     if (!name.has_value())

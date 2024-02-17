@@ -38,10 +38,13 @@ TEST(Runtime_test, CreatingRuntimeWithRunningRouDiWorks)
 
     RouDiEnv roudi;
 
-    optional<Runtime> runtime;
-    auto runtime_result = RouDiEnvRuntimeBuilder("foo").create(runtime);
+    auto runtime_result = RouDiEnvRuntimeBuilder("foo").create();
 
-    EXPECT_FALSE(runtime_result.has_error());
+    ASSERT_FALSE(runtime_result.has_error());
+
+    auto runtime = std::move(runtime_result.value());
+
+    IOX_TESTING_ASSERT_NO_PANIC();
 }
 
 TEST(Runtime_test, CreatingMultipleRuntimesWithRunningRouDiWorks)
@@ -50,14 +53,16 @@ TEST(Runtime_test, CreatingMultipleRuntimesWithRunningRouDiWorks)
 
     RouDiEnv roudi;
 
-    optional<Runtime> runtime1;
-    auto runtime1_result = RouDiEnvRuntimeBuilder("foo").create(runtime1);
+    auto runtime1_result = RouDiEnvRuntimeBuilder("foo").create();
+    auto runtime2_result = RouDiEnvRuntimeBuilder("bar").create();
 
-    optional<Runtime> runtime2;
-    auto runtime2_result = RouDiEnvRuntimeBuilder("bar").create(runtime2);
+    ASSERT_FALSE(runtime1_result.has_error());
+    ASSERT_FALSE(runtime2_result.has_error());
 
-    EXPECT_FALSE(runtime1_result.has_error());
-    EXPECT_FALSE(runtime2_result.has_error());
+    auto runtime1 = std::move(runtime1_result.value());
+    auto runtime2 = std::move(runtime2_result.value());
+
+    IOX_TESTING_ASSERT_NO_PANIC();
 }
 
 TEST(Runtime_test, ReRegisteringRuntimeWithRunningRouDiWorks)
@@ -67,12 +72,19 @@ TEST(Runtime_test, ReRegisteringRuntimeWithRunningRouDiWorks)
     RouDiEnv roudi;
 
     optional<Runtime> runtime;
-    auto runtime_result = RouDiEnvRuntimeBuilder("foo").create(runtime);
-    EXPECT_FALSE(runtime_result.has_error());
+
+    auto runtime_result = RouDiEnvRuntimeBuilder("foo").create();
+    ASSERT_FALSE(runtime_result.has_error());
+
+    runtime.emplace(std::move(runtime_result.value()));
     runtime.reset();
 
-    runtime_result = RouDiEnvRuntimeBuilder("foo").create(runtime);
-    EXPECT_FALSE(runtime_result.has_error());
+    runtime_result = RouDiEnvRuntimeBuilder("foo").create();
+    ASSERT_FALSE(runtime_result.has_error());
+
+    runtime.emplace(std::move(runtime_result.value()));
+
+    IOX_TESTING_ASSERT_NO_PANIC();
 }
 
 TEST(Runtime_test, RegisteringRuntimeWithoutRunningRouDiWithZeroWaitTimeResultsInImmediateTimeout)
@@ -81,8 +93,7 @@ TEST(Runtime_test, RegisteringRuntimeWithoutRunningRouDiWithZeroWaitTimeResultsI
 
     deadline_timer timer{20_ms};
 
-    optional<Runtime> runtime;
-    auto runtime_result = RouDiEnvRuntimeBuilder("foo").create(runtime);
+    auto runtime_result = RouDiEnvRuntimeBuilder("foo").create();
 
     EXPECT_FALSE(timer.hasExpired());
 
@@ -98,9 +109,7 @@ TEST(Runtime_test, RegisteringRuntimeWithoutRunningRouDiWithSomeWaitTimeResultsI
     units::Duration wait_for_roudi_timeout{2 * wait_for_roudi_test_timeout};
     deadline_timer timer{wait_for_roudi_test_timeout};
 
-    optional<Runtime> runtime;
-    auto runtime_result =
-        RouDiEnvRuntimeBuilder("foo").roudi_registration_timeout(wait_for_roudi_timeout).create(runtime);
+    auto runtime_result = RouDiEnvRuntimeBuilder("foo").roudi_registration_timeout(wait_for_roudi_timeout).create();
 
     EXPECT_TRUE(timer.hasExpired());
 
@@ -112,15 +121,14 @@ TEST(Runtime_test, RegisteringRuntimeWithDelayedRouDiStartWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "63ef9a1a-deee-40b5-bc17-37ee67ad8d76");
 
-    optional<Runtime> runtime;
-    auto runtime_result = RouDiEnvRuntimeBuilder("foo").create(runtime);
+    auto runtime_result = RouDiEnvRuntimeBuilder("foo").create();
 
     ASSERT_TRUE(runtime_result.has_error());
     EXPECT_THAT(runtime_result.error(), Eq(RuntimeBuilder::Error::TIMEOUT));
 
     RouDiEnv roudi;
 
-    runtime_result = RouDiEnvRuntimeBuilder("foo").create(runtime);
+    runtime_result = RouDiEnvRuntimeBuilder("foo").create();
 
     EXPECT_FALSE(runtime_result.has_error());
 }
@@ -131,15 +139,12 @@ TEST(Runtime_test, CreatingPublisherWorks)
 
     RouDiEnv roudi;
 
-    optional<Runtime> runtime;
-    RouDiEnvRuntimeBuilder("hypnotoad").create(runtime).expect("Creating a runtime should not fail!");
+    auto runtime = RouDiEnvRuntimeBuilder("hypnotoad").create().expect("Creating a runtime should not fail!");
 
-    auto maybe_publisher = runtime->publisher({"all", "glory", "hypnotoad"}).create<uint8_t>();
-    ASSERT_FALSE(maybe_publisher.has_error());
+    auto publisher_result = runtime.publisher({"all", "glory", "hypnotoad"}).create<uint8_t>();
+    ASSERT_FALSE(publisher_result.has_error());
 
-    IOX_LOG(INFO, "Move it!");
-
-    auto publisher = std::move(maybe_publisher.value());
+    auto publisher = std::move(publisher_result.value());
 
     IOX_TESTING_ASSERT_NO_PANIC();
 }
@@ -150,15 +155,12 @@ TEST(Runtime_test, CreatingSubscriberWorks)
 
     RouDiEnv roudi;
 
-    optional<Runtime> runtime;
-    RouDiEnvRuntimeBuilder("hypnotoad").create(runtime).expect("Creating a runtime should not fail!");
+    auto runtime = RouDiEnvRuntimeBuilder("hypnotoad").create().expect("Creating a runtime should not fail!");
 
-    auto maybe_subscriber = runtime->subscriber({"all", "glory", "hypnotoad"}).create<uint8_t>();
-    ASSERT_FALSE(maybe_subscriber.has_error());
+    auto subscriber_result = runtime.subscriber({"all", "glory", "hypnotoad"}).create<uint8_t>();
+    ASSERT_FALSE(subscriber_result.has_error());
 
-    IOX_LOG(INFO, "Move it!");
-
-    auto subscriber = std::move(maybe_subscriber.value());
+    auto subscriber = std::move(subscriber_result.value());
 
     IOX_TESTING_ASSERT_NO_PANIC();
 }

@@ -47,12 +47,12 @@ class IpcRuntimeInterface
 
     ~IpcRuntimeInterface() noexcept = default;
 
-    IpcRuntimeInterface(IpcRuntimeInterface&&) = default;
+    IpcRuntimeInterface(IpcRuntimeInterface&&) noexcept = default;
+    IpcRuntimeInterface& operator=(IpcRuntimeInterface&&) noexcept = default;
 
     /// @brief Not needed therefore deleted
     IpcRuntimeInterface(const IpcRuntimeInterface&) = delete;
     IpcRuntimeInterface& operator=(const IpcRuntimeInterface&) = delete;
-    IpcRuntimeInterface& operator=(IpcRuntimeInterface&&) = delete;
 
     /// @brief send a request to the RouDi daemon
     /// @param[in] msg request to RouDi

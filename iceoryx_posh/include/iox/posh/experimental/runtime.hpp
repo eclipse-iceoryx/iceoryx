@@ -52,7 +52,7 @@ class RuntimeBuilder
     IOX_BUILDER_PARAMETER(bool, shares_process_with_roudi, false)
 
   public:
-    expected<void, Error> create(optional<Runtime>& runtime_container) noexcept;
+    expected<Runtime, Error> create() noexcept;
 
   private:
     RuntimeName_t m_name;

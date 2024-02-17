@@ -43,11 +43,10 @@ enum class RuntimeLocation
 class PoshRuntimeImpl : public PoshRuntime
 {
   public:
+    virtual ~PoshRuntimeImpl() noexcept;
+
     PoshRuntimeImpl(const PoshRuntimeImpl&) = delete;
     PoshRuntimeImpl& operator=(const PoshRuntimeImpl&) = delete;
-    PoshRuntimeImpl(PoshRuntimeImpl&&) = delete;
-    PoshRuntimeImpl& operator=(PoshRuntimeImpl&&) = delete;
-    virtual ~PoshRuntimeImpl() noexcept;
 
     /// @copydoc PoshRuntime::getMiddlewarePublisher
     PublisherPortUserType::MemberType_t*
@@ -99,7 +98,13 @@ class PoshRuntimeImpl : public PoshRuntime
                     const RuntimeLocation location,
                     IpcRuntimeInterface&& ipcRuntimeInterface) noexcept;
 
+    // limit move operations to posh::experimental::Runtime
+    PoshRuntimeImpl(PoshRuntimeImpl&&) noexcept;
+    PoshRuntimeImpl& operator=(PoshRuntimeImpl&&) noexcept;
+
   private:
+    static PoshRuntimeImpl&& moveCtorHelper(PoshRuntimeImpl&& other) noexcept;
+
     expected<PublisherPortUserType::MemberType_t*, IpcMessageErrorType>
     requestPublisherFromRoudi(const IpcMessage& sendBuffer) noexcept;
 
@@ -121,6 +126,7 @@ class PoshRuntimeImpl : public PoshRuntime
   private:
     concurrent::smart_lock<IpcRuntimeInterface> m_ipcChannelInterface;
     optional<SharedMemoryUser> m_ShmInterface;
+    bool m_moved{false};
 
     optional<Heartbeat*> m_heartbeat;
     void sendKeepAliveAndHandleShutdownPreparation() noexcept;
