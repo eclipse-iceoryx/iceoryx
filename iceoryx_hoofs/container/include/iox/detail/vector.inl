@@ -55,14 +55,10 @@ inline vector<T, Capacity>::vector(const uint64_t count) noexcept
     }
 
     m_size = std::min(count, Capacity);
-    // If the type is a trivial class without member initialization the constructor would not initialize the data
-    if constexpr (!(std::is_trivial<T>::value && std::is_class<T>::value))
+    for (uint64_t i{0U}; i < m_size; ++i)
     {
-        for (uint64_t i{0U}; i < m_size; ++i)
-        {
-            // AXIVION Next Line AutosarC++19_03-A18.5.2, FaultDetection-IndirectAssignmentOverflow : False positive, it is a placement new. Size guaranteed by T.
-            new (&at_unchecked(i)) T();
-        }
+        // AXIVION Next Line AutosarC++19_03-A18.5.2, FaultDetection-IndirectAssignmentOverflow : False positive, it is a placement new. Size guaranteed by T.
+        new (&at_unchecked(i)) T();
     }
 }
 
