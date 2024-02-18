@@ -74,7 +74,12 @@ bool MpmcLoFFLi::pop(Index_t& index) noexcept
     m_nextFreeIndex.get()[index] = m_invalidIndex;
 
     /// we need to synchronize m_nextFreeIndex with push so that we can perform a validation
-    /// check right before push to avoid double free's
+    /// check right before push to avoid double free's;
+    /// a simple fence without explicit atomic store should be sufficient since the index needs to be transferred to
+    /// another thread and the most simple method would be a relaxed store of the index in the 'pop' thread and a
+    /// relaxed load of the same atomic in the 'push' thread which would be the atomic in the fence to fence
+    /// synchronization; other mechanism would involve stronger synchronizations and implicitly also synchronize
+    /// m_nextFreeIndex
     std::atomic_thread_fence(std::memory_order_release);
 
     return true;
@@ -83,7 +88,7 @@ bool MpmcLoFFLi::pop(Index_t& index) noexcept
 bool MpmcLoFFLi::push(const Index_t index) noexcept
 {
     /// we synchronize with m_nextFreeIndex in pop to perform the validity check
-    std::atomic_thread_fence(std::memory_order_release);
+    std::atomic_thread_fence(std::memory_order_acquire);
 
     /// we want to avoid double free's therefore we check if the index was acquired
     /// in pop and the push argument "index" is valid
