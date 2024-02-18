@@ -45,45 +45,56 @@ template <typename Message>
 }
 
 /// @brief Forwards a fatal error and does not return.
-/// @param location the location of the error
 /// @param error the error
 /// @param kind the kind of error (category)
+/// @param location the location of the error
+/// @param stringifiedCondition the condition as string if a macro with a condition was used; an empty string otherwise
 template <typename Error, typename Kind>
-[[noreturn]] inline void forwardFatalError(Error&& error, Kind&& kind, const SourceLocation& location)
+[[noreturn]] inline void
+forwardFatalError(Error&& error, Kind&& kind, const SourceLocation& location, const char* stringifiedCondition)
 {
     using K = typename std::remove_const<typename std::remove_reference<Kind>::type>::type;
     static_assert(IsFatal<K>::value, "Must forward a fatal error!");
 
-    report(location, std::forward<Kind>(kind), std::forward<Error>(error));
+    report(location, std::forward<Kind>(kind), std::forward<Error>(error), stringifiedCondition);
     panic(location);
     abort();
 }
 
 /// @brief Forwards a non-fatal error.
-/// @param location the location of the error
 /// @param error the error
 /// @param kind the kind of error (category)
+/// @param location the location of the error
+/// @param stringifiedCondition the condition as string if a macro with a condition was used; an empty string otherwise
 template <typename Error, typename Kind>
-inline void forwardNonFatalError(Error&& error, Kind&& kind, const SourceLocation& location)
+inline void
+forwardNonFatalError(Error&& error, Kind&& kind, const SourceLocation& location, const char* stringifiedCondition)
 {
     using K = typename std::remove_const<typename std::remove_reference<Kind>::type>::type;
     static_assert(!IsFatal<K>::value, "Must forward a non-fatal error!");
 
-    report(location, std::forward<Kind>(kind), std::forward<Error>(error));
+    report(location, std::forward<Kind>(kind), std::forward<Error>(error), stringifiedCondition);
 }
 
 /// @brief Forwards a fatal error and a message and does not return.
-/// @param location the location of the error
 /// @param error the error
 /// @param kind the kind of error (category)
+/// @param location the location of the error
+/// @param stringifiedCondition the condition as string if a macro with a condition was used; an empty string otherwise
 /// @param msg the message to be forwarded
 template <typename Error, typename Kind, typename Message>
-[[noreturn]] inline void forwardFatalError(Error&& error, Kind&& kind, const SourceLocation& location, Message&& msg)
+// NOLINTNEXTLINE(readability-function-size) Not used directly but via a macro which hides the number of parameter away
+[[noreturn]] inline void forwardFatalError(
+    Error&& error, Kind&& kind, const SourceLocation& location, const char* stringifiedCondition, Message&& msg)
 {
     using K = typename std::remove_const<typename std::remove_reference<Kind>::type>::type;
     static_assert(IsFatal<K>::value, "Must forward a fatal error!");
 
-    report(location, std::forward<Kind>(kind), std::forward<Error>(error), std::forward<Message>(msg));
+    report(location,
+           std::forward<Kind>(kind),
+           std::forward<Error>(error),
+           stringifiedCondition,
+           std::forward<Message>(msg));
     panic(location);
     abort();
 }

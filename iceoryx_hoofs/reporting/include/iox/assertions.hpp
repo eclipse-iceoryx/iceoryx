@@ -48,31 +48,33 @@
 //* Instead a special internal error type is used.
 //************************************************************************************************
 
-/// @brief only for debug builds: report fatal assert violation if expr evaluates to false
+/// @brief only for debug builds: report fatal assert violation if expression evaluates to false
 /// @note for conditions that should not happen with correct use
-/// @param expr boolean expression that must hold
+/// @param condition boolean expression that must hold
 /// @param message message to be forwarded in case of violation
-#define IOX_ASSERT(expr, message)                                                                                      \
-    if (iox::er::Configuration::CHECK_ASSERT && !(expr))                                                               \
+#define IOX_ASSERT(condition, message)                                                                                 \
+    if (iox::er::Configuration::CHECK_ASSERT && !(condition))                                                          \
     {                                                                                                                  \
         iox::er::forwardFatalError(iox::er::Violation::createAssertViolation(),                                        \
                                    iox::er::ASSERT_VIOLATION,                                                          \
                                    IOX_CURRENT_SOURCE_LOCATION,                                                        \
+                                   #condition,                                                                         \
                                    message);                                                                           \
     }                                                                                                                  \
     [] {}() // the empty lambda forces a semicolon on the caller side
 
-/// @brief report fatal enforce violation if expr evaluates to false
+/// @brief report fatal enforce violation if expression evaluates to false
 /// @note for conditions that may actually happen during correct use
-/// @param expr boolean expression that must hold
+/// @param condition boolean expression that must hold
 /// @param message message to be forwarded in case of violation
-#define IOX_ENFORCE(expr, message)                                                                                     \
-    if (!(expr))                                                                                                       \
+#define IOX_ENFORCE(condition, message)                                                                                \
+    if (!(condition))                                                                                                  \
     {                                                                                                                  \
         iox::er::forwardFatalError(iox::er::Violation::createEnforceViolation(),                                       \
                                    iox::er::ENFORCE_VIOLATION,                                                         \
                                    IOX_CURRENT_SOURCE_LOCATION,                                                        \
-                                   message); /* @todo iox-#1032 add strigified 'expr' as '#expr' */                    \
+                                   #condition,                                                                         \
+                                   message);                                                                           \
     }                                                                                                                  \
     [] {}() // the empty lambda forces a semicolon on the caller side
 

@@ -41,34 +41,31 @@
 /// @param error error object (or code)
 /// @param kind kind of error, must be non-fatal
 #define IOX_REPORT(error, kind)                                                                                        \
-    iox::er::forwardNonFatalError(iox::er::toError(error), kind, IOX_CURRENT_SOURCE_LOCATION)
+    iox::er::forwardNonFatalError(iox::er::toError(error), kind, IOX_CURRENT_SOURCE_LOCATION, "")
 
 /// @brief report fatal error
 /// @param error error object (or code)
 #define IOX_REPORT_FATAL(error)                                                                                        \
-    iox::er::forwardFatalError(iox::er::toError(error), iox::er::FATAL, IOX_CURRENT_SOURCE_LOCATION)
+    iox::er::forwardFatalError(iox::er::toError(error), iox::er::FATAL, IOX_CURRENT_SOURCE_LOCATION, "")
 
 /// @brief report error of some non-fatal kind if expr evaluates to true
-/// @param expr boolean expression
+/// @param condition boolean expression
 /// @param error error object (or code)
 /// @param kind kind of error, must be non-fatal
-#define IOX_REPORT_IF(expr, error, kind)                                                                               \
-    if (expr)                                                                                                          \
+#define IOX_REPORT_IF(condition, error, kind)                                                                          \
+    if (condition)                                                                                                     \
     {                                                                                                                  \
-        iox::er::forwardNonFatalError(                                                                                 \
-            iox::er::toError(error),                                                                                   \
-            kind,                                                                                                      \
-            IOX_CURRENT_SOURCE_LOCATION); /* @todo iox-#1032 add strigified 'expr' as '#expr' */                       \
+        iox::er::forwardNonFatalError(iox::er::toError(error), kind, IOX_CURRENT_SOURCE_LOCATION, #condition);         \
     }                                                                                                                  \
     [] {}() // the empty lambda forces a semicolon on the caller side
 
 /// @brief report fatal error if expr evaluates to true
-/// @param expr boolean expression
+/// @param condition boolean expression
 /// @param error error object (or code)
-#define IOX_REPORT_FATAL_IF(expr, error)                                                                               \
-    if (expr)                                                                                                          \
+#define IOX_REPORT_FATAL_IF(condition, error)                                                                          \
+    if (condition)                                                                                                     \
     {                                                                                                                  \
-        iox::er::forwardFatalError(iox::er::toError(error), iox::er::FATAL, IOX_CURRENT_SOURCE_LOCATION);              \
+        iox::er::forwardFatalError(iox::er::toError(error), iox::er::FATAL, IOX_CURRENT_SOURCE_LOCATION, #condition);  \
     }                                                                                                                  \
     [] {}() // the empty lambda forces a semicolon on the caller side
 
