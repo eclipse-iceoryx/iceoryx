@@ -110,15 +110,19 @@ cc_library(
             "source/popo/**",
             "source/version/**",
             "source/runtime/**",
+            "experimental/source/**",
         ],
         exclude = iceory_posh_config_files,
     ) + [
         "source/posh_error_reporting.cpp",
     ] + iceory_posh_extra_roudi_files,
-    hdrs = glob(["include/**"]) + [
+    hdrs = glob(["include/**"]) + glob(["experimental/include/**"]) + [
         ":iceoryx_posh_deployment_hpp",
     ],
-    strip_include_prefix = "include",
+    includes = [
+        "experimental/include/",
+        "include/",
+    ],
     visibility = ["//visibility:public"],
     deps = [
         "//iceoryx_hoofs",

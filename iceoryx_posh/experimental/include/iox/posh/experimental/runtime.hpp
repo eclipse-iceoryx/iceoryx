@@ -101,6 +101,9 @@ from<runtime::IpcRuntimeInterface::Error, posh::experimental::RuntimeBuilder::Er
     case IpcRuntimeInterface::Error::NO_RESPONSE_FROM_ROUDI:
         return RuntimeBuilder::Error::REGISTRATION_FAILED;
     }
+
+    // just to prevent a warning regarding not returning from a non-void function
+    return RuntimeBuilder::Error::REGISTRATION_FAILED;
 }
 } // namespace iox
 
