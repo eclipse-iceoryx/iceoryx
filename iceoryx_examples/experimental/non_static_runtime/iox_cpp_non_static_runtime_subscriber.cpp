@@ -18,46 +18,82 @@
 
 #include "iox/optional.hpp"
 #include "iox/posh/experimental/runtime.hpp"
-#include "iox/signal_watcher.hpp"
+#include "iox/signal_handler.hpp"
 
 #include <iostream>
 
-constexpr char APP_NAME[] = "iox-cpp-non-static-runtime-subscriber";
+std::atomic_bool keep_running{true};
+
+using WaitSet = iox::popo::WaitSet<>;
+volatile WaitSet* waitsetSigHandlerAccess{nullptr};
+
+static void sigHandler(int sig [[maybe_unused]])
+{
+    keep_running = false;
+    if (waitsetSigHandlerAccess)
+    {
+        waitsetSigHandlerAccess->markForDestruction();
+    }
+}
 
 int main()
 {
     iox::log::Logger::init(iox::log::logLevelFromEnvOr(iox::log::LogLevel::INFO));
 
+    auto signalIntGuard =
+        iox::registerSignalHandler(iox::PosixSignal::INT, sigHandler).expect("failed to register SIGINT");
+    auto signalTermGuard =
+        iox::registerSignalHandler(iox::PosixSignal::TERM, sigHandler).expect("failed to register SIGTERM");
+
+    constexpr char APP_NAME[] = "iox-cpp-non-static-runtime-subscriber";
     auto runtime_result = iox::posh::experimental::RuntimeBuilder(APP_NAME).create();
 
-    while (!iox::hasTerminationRequested() && runtime_result.has_error())
+    while (keep_running && runtime_result.has_error())
     {
         std::cout << "Could not create the runtime!" << std::endl;
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
-    if (iox::hasTerminationRequested())
+    if (!keep_running)
     {
         return EXIT_SUCCESS;
     }
 
     auto runtime = std::move(runtime_result.value());
+
+    iox::optional<iox::posh::experimental::WaitSet<>> ws;
+    runtime.wait_set().create(ws).expect("Getting a wait set");
+    waitsetSigHandlerAccess = &*ws;
+
     auto subscriber =
         runtime.subscriber({"Radar", "FrontLeft", "Object"}).create<RadarObject>().expect("Getting a subscriber");
 
-    while (!iox::hasTerminationRequested())
-    {
-        subscriber.take()
-            .and_then([](const auto& sample) { std::cout << "Receive value: " << sample->x << std::endl; })
-            .or_else([](auto& result) {
-                if (result != iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
-                {
-                    std::cout << "Error receiving chunk." << std::endl;
-                }
-            });
+    ws->attachState(subscriber, iox::popo::SubscriberState::HAS_DATA).or_else([](auto) {
+        std::cout << "Failed to attach subscriber" << std::endl;
+        std::exit(EXIT_FAILURE);
+    });
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    while (keep_running)
+    {
+        auto notification_vector = ws->wait();
+
+        for (auto& notification : notification_vector)
+        {
+            if (notification->doesOriginateFrom(&subscriber))
+            {
+                subscriber.take()
+                    .and_then([](const auto& sample) { std::cout << "Receive value: " << sample->x << std::endl; })
+                    .or_else([](auto& result) {
+                        if (result != iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
+                        {
+                            std::cout << "Error receiving chunk." << std::endl;
+                        }
+                    });
+            }
+        }
     }
+
+    waitsetSigHandlerAccess = nullptr; // invalidate for signal handler
 
     return (EXIT_SUCCESS);
 }

@@ -26,6 +26,7 @@
 #include "iox/optional.hpp"
 #include "iox/posh/experimental/publisher.hpp"
 #include "iox/posh/experimental/subscriber.hpp"
+#include "iox/posh/experimental/wait_set.hpp"
 
 namespace iox::posh::experimental
 {
@@ -64,6 +65,8 @@ class Runtime
     PublisherBuilder publisher(const capro::ServiceDescription& service_description) noexcept;
 
     SubscriberBuilder subscriber(const capro::ServiceDescription& service_description) noexcept;
+
+    WaitSetBuilder wait_set() noexcept;
 
   private:
     friend class RuntimeBuilder;

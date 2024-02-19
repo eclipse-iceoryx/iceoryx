@@ -52,4 +52,9 @@ SubscriberBuilder Runtime::subscriber(const capro::ServiceDescription& service_d
     return SubscriberBuilder{m_runtime, service_description};
 }
 
+WaitSetBuilder Runtime::wait_set() noexcept
+{
+    return WaitSetBuilder{m_runtime};
+}
+
 } // namespace iox::posh::experimental

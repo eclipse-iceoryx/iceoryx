@@ -165,4 +165,18 @@ TEST(Runtime_test, CreatingSubscriberWorks)
     IOX_TESTING_ASSERT_NO_PANIC();
 }
 
+TEST(Runtime_test, CreatingWaitSetWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "ccbef3ca-87b5-4d76-955e-171c5f1b5abd");
+
+    RouDiEnv roudi;
+
+    auto runtime = RouDiEnvRuntimeBuilder("hypnotoad").create().expect("Creating a runtime should not fail!");
+
+    iox::optional<WaitSet<>> ws;
+    auto ws_result = runtime.wait_set().create(ws);
+    EXPECT_FALSE(ws_result.has_error());
+    EXPECT_TRUE(ws.has_value());
+}
+
 } // namespace
