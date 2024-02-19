@@ -88,7 +88,10 @@ TEST_F(ErrorReporting_test, reportNonFatalErrorWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1a1cec1b-5297-487a-bb95-e80af99886b6");
 
-    auto f = []() { report(IOX_CURRENT_SOURCE_LOCATION, RUNTIME_ERROR, ERROR); };
+    auto f = []() {
+        constexpr const char* STRINGIFIED_CONDITION{""};
+        report(IOX_CURRENT_SOURCE_LOCATION, RUNTIME_ERROR, ERROR, STRINGIFIED_CONDITION);
+    };
 
     iox::testing::runInTestThread(f);
 
@@ -100,7 +103,10 @@ TEST_F(ErrorReporting_test, reportFatalErrorWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "");
 
-    auto f = []() { report(IOX_CURRENT_SOURCE_LOCATION, FATAL, ERROR); };
+    auto f = []() {
+        constexpr const char* STRINGIFIED_CONDITION{""};
+        report(IOX_CURRENT_SOURCE_LOCATION, FATAL, ERROR, STRINGIFIED_CONDITION);
+    };
 
     iox::testing::runInTestThread(f);
 
@@ -116,7 +122,8 @@ TEST_F(ErrorReporting_test, reportAssertViolatonWorks)
 
     auto f = []() {
         auto v = Violation::createAssertViolation();
-        report(IOX_CURRENT_SOURCE_LOCATION, ASSERT_VIOLATION, v);
+        constexpr const char* STRINGIFIED_CONDITION{""};
+        report(IOX_CURRENT_SOURCE_LOCATION, ASSERT_VIOLATION, v, STRINGIFIED_CONDITION);
     };
 
     iox::testing::runInTestThread(f);
@@ -131,7 +138,8 @@ TEST_F(ErrorReporting_test, reportAssertViolatonWithMessageWorks)
 
     auto f = []() {
         auto v = Violation::createAssertViolation();
-        report(IOX_CURRENT_SOURCE_LOCATION, ASSERT_VIOLATION, v, "message");
+        constexpr const char* STRINGIFIED_CONDITION{""};
+        report(IOX_CURRENT_SOURCE_LOCATION, ASSERT_VIOLATION, v, STRINGIFIED_CONDITION, "message");
     };
 
     iox::testing::runInTestThread(f);
@@ -145,7 +153,8 @@ TEST_F(ErrorReporting_test, reportEnforceViolatonWorks)
 
     auto f = []() {
         auto v = Violation::createEnforceViolation();
-        report(IOX_CURRENT_SOURCE_LOCATION, ENFORCE_VIOLATION, v);
+        constexpr const char* STRINGIFIED_CONDITION{""};
+        report(IOX_CURRENT_SOURCE_LOCATION, ENFORCE_VIOLATION, v, STRINGIFIED_CONDITION);
     };
 
     iox::testing::runInTestThread(f);
@@ -160,7 +169,8 @@ TEST_F(ErrorReporting_test, reportEnforceViolatonWithMessageWorks)
 
     auto f = []() {
         auto v = Violation::createEnforceViolation();
-        report(IOX_CURRENT_SOURCE_LOCATION, ENFORCE_VIOLATION, v, "message");
+        constexpr const char* STRINGIFIED_CONDITION{""};
+        report(IOX_CURRENT_SOURCE_LOCATION, ENFORCE_VIOLATION, v, STRINGIFIED_CONDITION, "message");
     };
 
     iox::testing::runInTestThread(f);

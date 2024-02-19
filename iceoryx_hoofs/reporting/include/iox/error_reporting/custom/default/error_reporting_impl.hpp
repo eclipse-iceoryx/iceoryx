@@ -68,20 +68,34 @@ template <class Message>
     panic();
 }
 
-/// @todo iox-#1032 add a 'StringifiedCondition' template parameter
+namespace detail
+{
+inline log::LogStream& logStringifiedCondition(log::LogStream& stream, const char* stringifiedCondition)
+{
+    if (stringifiedCondition != nullptr && strnlen(stringifiedCondition, 1) != 0)
+    {
+        stream << "Conditiopn: \"" << stringifiedCondition << "\" ";
+    }
+    return stream;
+}
+} // namespace detail
 
 // Report any error, general version.
 template <class Kind, class Error>
-inline void report(const SourceLocation& location, Kind, const Error& error)
+inline void report(const SourceLocation& location, Kind, const Error& error, const char* stringifiedCondition)
 {
     auto code = toCode(error);
     auto module = toModule(error);
     auto moduleName = toModuleName(error);
     auto errorName = toErrorName(error);
 
-    IOX_ERROR_INTERNAL_LOG(location,
-                           "[" << errorName << " (code = " << code.value << ")] in module [" << moduleName
-                               << " (id = " << module.value << ")]");
+    IOX_ERROR_INTERNAL_LOG(
+        location,
+        [stringifiedCondition](auto& stream) -> auto& {
+            return detail::logStringifiedCondition(stream, stringifiedCondition);
+        } << "["
+          << errorName << " (code = " << code.value << ")] in module [" << moduleName << " (id = " << module.value
+          << ")]");
     auto& h = ErrorHandler::get();
     h.onReportError(ErrorDescriptor(location, code, module));
 }
@@ -92,16 +106,21 @@ inline void report(const SourceLocation& location, Kind, const Error& error)
 // Here the logging is subtly different and does not easily allow to factor out common parts.
 
 template <class Error>
-inline void report(const SourceLocation& location, iox::er::FatalKind kind, const Error& error)
+inline void
+report(const SourceLocation& location, iox::er::FatalKind kind, const Error& error, const char* stringifiedCondition)
 {
     auto code = toCode(error);
     auto module = toModule(error);
     auto moduleName = toModuleName(error);
     auto errorName = toErrorName(error);
 
-    IOX_ERROR_INTERNAL_LOG_FATAL(location,
-                                 "[" << kind.name << "] [" << errorName << " (code = " << code.value << ")] in module ["
-                                     << moduleName << " (id = " << module.value << ")]");
+    IOX_ERROR_INTERNAL_LOG_FATAL(
+        location,
+        [stringifiedCondition](auto& stream) -> auto& {
+            return detail::logStringifiedCondition(stream, stringifiedCondition);
+        } << "["
+          << kind.name << "] [" << errorName << " (code = " << code.value << ")] in module [" << moduleName
+          << " (id = " << module.value << ")]");
     auto& h = ErrorHandler::get();
     h.onReportError(ErrorDescriptor(location, code, module));
 }
@@ -113,17 +132,29 @@ enum class NoMessage
 };
 
 template <class Kind, class Error, class Message>
-inline void report(const SourceLocation& location, Kind kind, const Error& error, Message&& msg)
+inline void
+// NOLINTNEXTLINE(readability-function-size) Not used directly but via a macro which hides the number of parameter away
+report(const SourceLocation& location, Kind kind, const Error& error, const char* stringifiedCondition, Message&& msg)
 {
     auto code = toCode(error);
     auto module = toModule(error);
     if constexpr (std::is_same<NoMessage, Message>::value)
     {
-        IOX_ERROR_INTERNAL_LOG_FATAL(location, "[" << kind.name << "]");
+        IOX_ERROR_INTERNAL_LOG_FATAL(
+            location,
+            [stringifiedCondition](auto& stream) -> auto& {
+                return detail::logStringifiedCondition(stream, stringifiedCondition);
+            } << "["
+              << kind.name << "]");
     }
     else
     {
-        IOX_ERROR_INTERNAL_LOG_FATAL(location, "[" << kind.name << "] " << std::forward<Message>(msg));
+        IOX_ERROR_INTERNAL_LOG_FATAL(
+            location,
+            [stringifiedCondition](auto& stream) -> auto& {
+                return detail::logStringifiedCondition(stream, stringifiedCondition);
+            } << "["
+              << kind.name << "] " << std::forward<Message>(msg));
     }
     auto& h = ErrorHandler::get();
     h.onReportViolation(ErrorDescriptor(location, code, module));
@@ -131,28 +162,43 @@ inline void report(const SourceLocation& location, Kind kind, const Error& error
 } // namespace detail
 
 template <class Error>
-inline void report(const SourceLocation& location, iox::er::AssertViolationKind kind, const Error& error)
+inline void report(const SourceLocation& location,
+                   iox::er::AssertViolationKind kind,
+                   const Error& error,
+                   const char* stringifiedCondition)
 {
-    detail::report(location, kind, error, detail::NoMessage{});
+    detail::report(location, kind, error, stringifiedCondition, detail::NoMessage{});
 }
 
 template <class Error>
-inline void report(const SourceLocation& location, iox::er::EnforceViolationKind kind, const Error& error)
+inline void report(const SourceLocation& location,
+                   iox::er::EnforceViolationKind kind,
+                   const Error& error,
+                   const char* stringifiedCondition)
 {
-    detail::report(location, kind, error, detail::NoMessage{});
+    detail::report(location, kind, error, stringifiedCondition, detail::NoMessage{});
 }
 
 template <class Error, class Message>
-inline void report(const SourceLocation& location, iox::er::AssertViolationKind kind, const Error& error, Message&& msg)
+// NOLINTNEXTLINE(readability-function-size) Not used directly but via a macro which hides the number of parameter away
+inline void report(const SourceLocation& location,
+                   iox::er::AssertViolationKind kind,
+                   const Error& error,
+                   const char* stringifiedCondition,
+                   Message&& msg)
 {
-    detail::report(location, kind, error, std::forward<Message>(msg));
+    detail::report(location, kind, error, stringifiedCondition, std::forward<Message>(msg));
 }
 
 template <class Error, class Message>
-inline void
-report(const SourceLocation& location, iox::er::EnforceViolationKind kind, const Error& error, Message&& msg)
+// NOLINTNEXTLINE(readability-function-size) Not used directly but via a macro which hides the number of parameter away
+inline void report(const SourceLocation& location,
+                   iox::er::EnforceViolationKind kind,
+                   const Error& error,
+                   const char* stringifiedCondition,
+                   Message&& msg)
 {
-    detail::report(location, kind, error, std::forward<Message>(msg));
+    detail::report(location, kind, error, stringifiedCondition, std::forward<Message>(msg));
 }
 
 } // namespace er
