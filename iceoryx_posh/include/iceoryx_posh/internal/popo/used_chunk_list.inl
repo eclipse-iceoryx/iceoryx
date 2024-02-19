@@ -53,7 +53,6 @@ bool UsedChunkList<Capacity>::insert(mepoo::SharedChunk chunk) noexcept
         // set freeListHead to the next free entry
         m_freeListHead = nextFree;
 
-        /// @todo iox-#623 can we do this cheaper with a global fence in cleanup?
         m_synchronizer.clear(std::memory_order_release);
         return true;
     }
@@ -92,7 +91,6 @@ bool UsedChunkList<Capacity>::remove(const mepoo::ChunkHeader* chunkHeader, mepo
                 m_listIndices[current] = m_freeListHead;
                 m_freeListHead = current;
 
-                /// @todo iox-#623 can we do this cheaper with a global fence in cleanup?
                 m_synchronizer.clear(std::memory_order_release);
                 return true;
             }
