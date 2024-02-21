@@ -50,6 +50,7 @@ TEST_ADD_USER="OFF"
 TEST_HUGE_PAYLOAD="OFF"
 OUT_OF_TREE_FLAG="OFF"
 EXAMPLE_FLAG="OFF"
+EXPERIMENTAL_FLAG="OFF"
 BUILD_ALL_FLAG="OFF"
 BUILD_SHARED="OFF"
 TOML_FLAG="ON"
@@ -161,6 +162,11 @@ while (( "$#" )); do
     "examples")
         echo " [i] Build iceoryx with all examples"
         EXAMPLE_FLAG="ON"
+        shift 1
+        ;;
+    "experimental")
+        echo " [i] Build experimental features"
+        EXPERIMENTAL_FLAG="ON"
         shift 1
         ;;
     "out-of-tree")
@@ -308,6 +314,7 @@ if [ "$NO_BUILD" == false ]; then
           -DCOVERAGE=$COV_FLAG \
           -DROUDI_ENVIRONMENT=$ROUDI_ENV_FLAG \
           -DEXAMPLES=$EXAMPLE_FLAG \
+          -DIOX_EXPERIMENTAL=$EXPERIMENTAL_FLAG \
           -DTOML_CONFIG=$TOML_FLAG \
           -DBUILD_DOC=$BUILD_DOC \
           -DBINDING_C=$BINDING_C_FLAG \
@@ -348,6 +355,7 @@ if [ "$OUT_OF_TREE_FLAG" == "ON" ]; then
     EXAMPLES=${EXAMPLES/iceensemble/""}
     EXAMPLES=${EXAMPLES/icecrystal/""}
     EXAMPLES=${EXAMPLES/icedocker/""}
+    EXAMPLES=${EXAMPLES/experimental/""}
     EXAMPLES=${EXAMPLES/small_memory/""}
     echo ">>>>>> Start Out-of-tree build <<<<<<"
     echo "${EXAMPLES}"
