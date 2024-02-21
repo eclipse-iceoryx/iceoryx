@@ -61,7 +61,7 @@ class CMqInterfaceStartupRace_test : public Test
     virtual void SetUp()
     {
         platform::IoxIpcChannelType::Builder_t()
-            .name(roudi::IPC_CHANNEL_ROUDI_NAME)
+            .name(m_roudiIpcChannelName)
             .channelSide(PosixIpcChannelSide::SERVER)
             .create()
             .and_then([this](auto& channel) { this->m_roudiQueue.emplace(std::move(channel)); });
@@ -105,7 +105,8 @@ class CMqInterfaceStartupRace_test : public Test
         if (!m_appQueue.has_value())
         {
             platform::IoxIpcChannelType::Builder_t()
-                .name(MqAppName)
+                .name(runtime::ipcChannelNameToInterfaceName(MqAppName, ResourceType::USER_DEFINED)
+                          .expect("valid interface name"))
                 .channelSide(PosixIpcChannelSide::CLIENT)
                 .create()
                 .and_then([this](auto& channel) { this->m_appQueue.emplace(std::move(channel)); });
@@ -120,6 +121,9 @@ class CMqInterfaceStartupRace_test : public Test
     optional<platform::IoxIpcChannelType> m_roudiQueue;
     std::mutex m_appQueueMutex;
     optional<platform::IoxIpcChannelType> m_appQueue;
+    RuntimeName_t m_roudiIpcChannelName{
+        runtime::ipcChannelNameToInterfaceName(roudi::IPC_CHANNEL_ROUDI_NAME, ResourceType::ICEORYX_DEFINED)
+            .expect("valid interface name")};
 };
 
 #if !defined(__APPLE__)
@@ -150,7 +154,7 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMq)
         });
 
         auto m_roudiQueue2 = platform::IoxIpcChannelType::Builder_t()
-                                 .name(roudi::IPC_CHANNEL_ROUDI_NAME)
+                                 .name(m_roudiIpcChannelName)
                                  .channelSide(PosixIpcChannelSide::SERVER)
                                  .create();
 
@@ -202,7 +206,7 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMqWithFullMq)
         });
 
         auto newRoudi = platform::IoxIpcChannelType::Builder_t()
-                            .name(roudi::IPC_CHANNEL_ROUDI_NAME)
+                            .name(m_roudiIpcChannelName)
                             .channelSide(PosixIpcChannelSide::SERVER)
                             .create();
 

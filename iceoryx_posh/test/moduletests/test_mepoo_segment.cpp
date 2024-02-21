@@ -154,14 +154,17 @@ TEST_F(MePooSegment_test, SharedMemoryCreationParameter)
     ::testing::Test::RecordProperty("TEST_ID", "0fcfefd4-3a84-43a5-9805-057a60239184");
     GTEST_SKIP_FOR_ADDITIONAL_USER() << "This test requires the -DTEST_WITH_ADDITIONAL_USER=ON cmake argument";
 
-    MePooSegment_test::SharedMemoryObject_MOCK::createVerificator = [](const detail::PosixSharedMemory::Name_t f_name,
+    MePooSegment_test::SharedMemoryObject_MOCK::createVerificator = [](const detail::PosixSharedMemory::Name_t name,
                                                                        const uint64_t,
-                                                                       const iox::AccessMode f_accessMode,
+                                                                       const iox::AccessMode accessMode,
                                                                        const iox::OpenMode openMode,
                                                                        const void*,
                                                                        const iox::access_rights) {
-        EXPECT_THAT(f_name, Eq(detail::PosixSharedMemory::Name_t("iox_roudi_test2")));
-        EXPECT_THAT(f_accessMode, Eq(iox::AccessMode::READ_WRITE));
+        EXPECT_THAT(name,
+                    Eq(detail::PosixSharedMemory::Name_t(
+                        concatenate(iceoryxResourcePrefix(roudi::DEFAULT_UNIQUE_ROUDI_ID, ResourceType::USER_DEFINED),
+                                    "iox_roudi_test2"))));
+        EXPECT_THAT(accessMode, Eq(iox::AccessMode::READ_WRITE));
         EXPECT_THAT(openMode, Eq(iox::OpenMode::PURGE_AND_CREATE));
     };
     SUT sut{mepooConfig, m_managementAllocator, PosixGroup{"iox_roudi_test1"}, PosixGroup{"iox_roudi_test2"}};

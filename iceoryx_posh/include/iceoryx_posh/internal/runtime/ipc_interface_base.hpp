@@ -141,6 +141,12 @@ IpcMessageErrorType stringToIpcMessageErrorType(const char* str) noexcept;
 /// @param[in] msg enum value to convert
 std::string IpcMessageErrorTypeToString(const IpcMessageErrorType msg) noexcept;
 
+/// @brief Transforms an IPC channel name to a prefixed interface name
+/// @param[in] channelName the name of the channel without the 'iox1_#_' prefix
+/// @param[in] resourceType to be used for the resource prefix
+/// @return the interface name with the 'iox1_#_' prefix or a 'nullopt' if the resulting name would be too long
+iox::optional<RuntimeName_t> ipcChannelNameToInterfaceName(RuntimeName_t channelName, ResourceType resourceType);
+
 class IpcInterfaceUser;
 class IpcInterfaceCreator;
 
@@ -231,7 +237,10 @@ class IpcInterface
     ///         IPC channel needs a unique string to be identified with.
     IpcInterface() = delete;
 
-    IpcInterface(const RuntimeName_t& runtimeName, const uint64_t maxMessages, const uint64_t messageSize) noexcept;
+    IpcInterface(const RuntimeName_t& runtimeName,
+                 const ResourceType resourceType,
+                 const uint64_t maxMessages,
+                 const uint64_t messageSize) noexcept;
 
     /// @brief delete copy and move ctor and assignment since they are not needed
     IpcInterface(const IpcInterface&) = delete;
@@ -263,6 +272,7 @@ class IpcInterface
     bool hasClosableIpcChannel() const noexcept;
 
   protected:
+    RuntimeName_t m_interfaceName;
     RuntimeName_t m_runtimeName;
     uint64_t m_maxMessageSize{0U};
     uint64_t m_maxMessages{0U};

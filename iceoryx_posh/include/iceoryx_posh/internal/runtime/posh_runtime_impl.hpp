@@ -22,8 +22,8 @@
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iox/detail/periodic_task.hpp"
 #include "iox/function.hpp"
-#include "iox/mutex.hpp"
 #include "iox/optional.hpp"
+#include "iox/smart_lock.hpp"
 
 namespace iox
 {
@@ -109,9 +109,7 @@ class PoshRuntimeImpl : public PoshRuntime
     expected<std::tuple<segment_id_underlying_t, UntypedRelativePointer::offset_t>, IpcMessageErrorType>
     convert_id_and_offset(IpcMessage& msg);
 
-    mutable optional<mutex> m_appIpcRequestMutex;
-
-    IpcRuntimeInterface m_ipcChannelInterface;
+    concurrent::smart_lock<IpcRuntimeInterface> m_ipcChannelInterface;
     optional<SharedMemoryUser> m_ShmInterface;
 
     optional<Heartbeat*> m_heartbeat;

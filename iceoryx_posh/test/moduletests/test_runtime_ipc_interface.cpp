@@ -20,8 +20,10 @@
 #include "iox/message_queue.hpp"
 #include "iox/named_pipe.hpp"
 #include "iox/std_chrono_support.hpp"
+#include "iox/std_string_support.hpp"
 #include "iox/unix_domain_socket.hpp"
 
+#include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "test.hpp"
 
 #include <chrono>
@@ -30,6 +32,7 @@ namespace
 {
 using namespace ::testing;
 using namespace iox;
+using namespace iox::testing;
 using namespace iox::units::duration_literals;
 
 #if defined(__APPLE__)
@@ -66,7 +69,7 @@ class IpcInterface_test : public Test
         SutType(const RuntimeName_t& runtimeName,
                 const uint64_t maxMessages = MaxMsgNumber,
                 const uint64_t messageSize = MaxMsgSize) noexcept
-            : IpcChannelType(runtimeName, maxMessages, messageSize)
+            : IpcChannelType(runtimeName, ResourceType::USER_DEFINED, maxMessages, messageSize)
         {
         }
         using IpcChannelType::ipcChannelMapsToFile;
@@ -113,21 +116,27 @@ TYPED_TEST(IpcInterface_test, CreateWithTooLargeMessageSizeWillBeClampedToMaxMes
     EXPECT_TRUE(sut.isInitialized());
 }
 
-TYPED_TEST(IpcInterface_test, CreateNoNameLeadsToError)
+TYPED_TEST(IpcInterface_test, CreateWithNoNameFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3ffe2cf2-26f4-4b93-8baf-d997dc71e610");
-    typename TestFixture::SutType sut("");
-    EXPECT_FALSE(sut.openIpcChannel(PosixIpcChannelSide::SERVER));
-    EXPECT_FALSE(sut.isInitialized());
+
+    IOX_EXPECT_FATAL_FAILURE([] { typename TestFixture::SutType sut(""); }, iox::er::FATAL);
 }
 
-TYPED_TEST(IpcInterface_test, CreateWithLeadingSlashWorks)
+TYPED_TEST(IpcInterface_test, CreateWithTooLargeNameFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "1463137c-ce3c-4a09-a568-f71ad10b558a");
+
+    auto tooLargeName = into<lossy<RuntimeName_t>>(std::string(iox::MAX_RUNTIME_NAME_LENGTH, 's'));
+
+    IOX_EXPECT_FATAL_FAILURE([&] { typename TestFixture::SutType sut(tooLargeName); }, iox::er::FATAL);
+}
+
+TYPED_TEST(IpcInterface_test, CreateWithLeadingSlashFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "89340ebd-f80d-480b-833f-da37dff06cef");
 
-    typename TestFixture::SutType sut(slashName);
-    EXPECT_TRUE(sut.openIpcChannel(PosixIpcChannelSide::SERVER));
-    EXPECT_TRUE(sut.isInitialized());
+    IOX_EXPECT_FATAL_FAILURE([] { typename TestFixture::SutType sut(slashName); }, iox::er::FATAL);
 }
 
 TYPED_TEST(IpcInterface_test, CreateAgainWorks)

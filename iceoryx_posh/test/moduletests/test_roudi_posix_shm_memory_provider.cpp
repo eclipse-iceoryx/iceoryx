@@ -27,6 +27,7 @@ namespace
 {
 using namespace ::testing;
 
+using namespace iox;
 using namespace iox::roudi;
 
 using iox::ShmName_t;
@@ -48,7 +49,8 @@ class PosixShmMemoryProvider_Test : public Test
     bool shmExists()
     {
         return !iox::PosixSharedMemoryObjectBuilder()
-                    .name(TEST_SHM_NAME)
+                    .name(concatenate(iceoryxResourcePrefix(DEFAULT_UNIQUE_ROUDI_ID, ResourceType::ICEORYX_DEFINED),
+                                      TEST_SHM_NAME))
                     .memorySizeInBytes(8)
                     .accessMode(iox::AccessMode::READ_ONLY)
                     .openMode(iox::OpenMode::OPEN_EXISTING)

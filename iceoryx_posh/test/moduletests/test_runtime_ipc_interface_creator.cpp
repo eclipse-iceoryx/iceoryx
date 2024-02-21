@@ -59,8 +59,8 @@ class IpcInterfaceCreator_test : public Test
 TEST_F(IpcInterfaceCreator_test, CreateWithDifferentNameWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4fc22f1f-1333-41a1-8709-4b1ca791a2e1");
-    IpcInterfaceCreator m_sut{goodName};
-    IpcInterfaceCreator m_sut2{anotherGoodName};
+    IpcInterfaceCreator m_sut{goodName, ResourceType::USER_DEFINED};
+    IpcInterfaceCreator m_sut2{anotherGoodName, ResourceType::USER_DEFINED};
     EXPECT_TRUE(m_sut.isInitialized());
     EXPECT_TRUE(m_sut2.isInitialized());
 }
@@ -68,10 +68,13 @@ TEST_F(IpcInterfaceCreator_test, CreateWithDifferentNameWorks)
 TEST_F(IpcInterfaceCreator_test, CreateWithSameNameLeadsToError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2e8c15c8-1b7b-465b-aae5-6db24fc3c34a");
-    IpcInterfaceCreator m_sut{goodName};
+    IpcInterfaceCreator m_sut{goodName, ResourceType::USER_DEFINED};
 
-    IOX_EXPECT_FATAL_FAILURE([&] { IpcInterfaceCreator m_sut2{goodName}; },
-                             iox::PoshError::IPC_INTERFACE__APP_WITH_SAME_NAME_STILL_RUNNING);
+    IOX_EXPECT_FATAL_FAILURE(
+        [&] {
+            IpcInterfaceCreator m_sut2{goodName, ResourceType::USER_DEFINED};
+        },
+        iox::PoshError::IPC_INTERFACE__APP_WITH_SAME_NAME_STILL_RUNNING);
 }
 
 } // namespace

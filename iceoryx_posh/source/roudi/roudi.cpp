@@ -1,6 +1,6 @@
 // Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
-// Copyright (c) 2023 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
+// Copyright (c) 2023 - 2024 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -248,7 +248,7 @@ void RouDi::processRuntimeMessages() noexcept
 {
     setThreadName("IPC-msg-process");
 
-    runtime::IpcInterfaceCreator roudiIpcInterface{IPC_CHANNEL_ROUDI_NAME};
+    runtime::IpcInterfaceCreator roudiIpcInterface{IPC_CHANNEL_ROUDI_NAME, ResourceType::ICEORYX_DEFINED};
 
     IOX_LOG(INFO, "RouDi is ready for clients");
     fflush(stdout); // explicitly flush 'stdout' for 'launch_testing'
@@ -289,6 +289,23 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
                            const iox::runtime::IpcMessageType& cmd,
                            const RuntimeName_t& runtimeName) noexcept
 {
+    if (runtimeName.empty())
+    {
+        IOX_LOG(ERROR, "Got message with empty runtime name!");
+        return;
+    }
+
+
+    for (const auto s : platform::IOX_PATH_SEPARATORS)
+    {
+        const char separator[2]{s};
+        if (runtimeName.find(separator).has_value())
+        {
+            IOX_LOG(ERROR, "Got message with a runtime name with invalid characters: \"" << runtimeName << "\"!");
+            return;
+        }
+    }
+
     switch (cmd)
     {
     case runtime::IpcMessageType::REG:

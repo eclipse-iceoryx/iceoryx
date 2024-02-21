@@ -24,25 +24,27 @@ namespace iox
 namespace runtime
 {
 IpcInterfaceCreator::IpcInterfaceCreator(const RuntimeName_t& runtimeName,
+                                         const ResourceType resourceType,
                                          const uint64_t maxMessages,
                                          const uint64_t messageSize) noexcept
-    : IpcInterfaceBase(runtimeName, maxMessages, messageSize)
+    : IpcInterfaceBase(runtimeName, resourceType, maxMessages, messageSize)
     , m_fileLock(std::move(FileLockBuilder()
-                               .name(runtimeName)
+                               .name(m_interfaceName)
                                .permission(iox::perms::owner_read | iox::perms::owner_write)
                                .create()
-                               .or_else([&runtimeName](auto& error) {
+                               .or_else([this](auto& error) {
                                    if (error == FileLockError::LOCKED_BY_OTHER_PROCESS)
                                    {
                                        IOX_LOG(FATAL,
-                                               "An application with the name " << runtimeName
+                                               "An application with the name " << m_runtimeName
                                                                                << " is still running. Using the "
                                                                                   "same name twice is not supported.");
                                        IOX_REPORT_FATAL(PoshError::IPC_INTERFACE__APP_WITH_SAME_NAME_STILL_RUNNING);
                                    }
                                    else
                                    {
-                                       IOX_LOG(FATAL, "Error occurred while acquiring file lock named " << runtimeName);
+                                       IOX_LOG(FATAL,
+                                               "Error occurred while acquiring file lock named " << m_interfaceName);
                                        IOX_REPORT_FATAL(PoshError::IPC_INTERFACE__COULD_NOT_ACQUIRE_FILE_LOCK);
                                    }
                                })
@@ -50,7 +52,7 @@ IpcInterfaceCreator::IpcInterfaceCreator(const RuntimeName_t& runtimeName,
 {
     // check if the IPC channel is still there (e.g. because of no proper termination
     // of the process)
-    cleanupOutdatedIpcChannel(runtimeName);
+    cleanupOutdatedIpcChannel(m_interfaceName);
 
     openIpcChannel(PosixIpcChannelSide::SERVER);
 }

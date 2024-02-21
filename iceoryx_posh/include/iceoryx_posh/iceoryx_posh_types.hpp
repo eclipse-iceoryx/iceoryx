@@ -1,6 +1,7 @@
 // Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 // Copyright (c) 2022 by NXP. All rights reserved.
+// Copyright (c) 2024 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,6 +21,7 @@
 
 #include "iceoryx_platform/platform_settings.hpp"
 #include "iceoryx_posh/iceoryx_posh_deployment.hpp"
+#include "iox/detail/convert.hpp"
 #include "iox/duration.hpp"
 #include "iox/function.hpp"
 #include "iox/log/logstream.hpp"
@@ -196,6 +198,22 @@ struct DefaultChunkQueueConfig
     static constexpr uint64_t MAX_QUEUE_CAPACITY = MAX_SUBSCRIBER_QUEUE_CAPACITY;
 };
 
+constexpr const char ICEORYX_RESOURCE_PREFIX[] = "iox1";
+
+/// @brief The resource type is used to customize the resource prefix by adding an 'i' or 'u' depending whether the
+/// resource is defined by iceoryx, e.g. the roudi IPC channel, or by the user, e.g. the runtime name. This shall
+/// prevent the system from being affected by users defining resource names which are intended to be used by iceoryx.
+enum class ResourceType
+{
+    ICEORYX_DEFINED,
+    USER_DEFINED,
+};
+
+using ResourcePrefix_t = string<13>; // 'iox1_' + MAX_UINT16_SIZE + '_' + optional 'x_'
+/// @brief Returns the prefix string used for resources
+/// @param[in] uniqueRouDiID to use for the prefix string
+inline ResourcePrefix_t iceoryxResourcePrefix(uint16_t uniqueRouDiID, ResourceType resourceType);
+
 // alias for string
 using RuntimeName_t = string<MAX_RUNTIME_NAME_LENGTH>;
 using NodeName_t = string<build::IOX_MAX_NODE_NAME_LENGTH>;
@@ -214,11 +232,11 @@ namespace roudi
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
 using ConfigFilePathString_t = string<1024>;
 
-constexpr const char ROUDI_LOCK_NAME[] = "iox-unique-roudi";
+constexpr const char ROUDI_LOCK_NAME[] = "unique_roudi";
 constexpr const char IPC_CHANNEL_ROUDI_NAME[] = "roudi";
 
 /// shared memory segment for the iceoryx management data
-constexpr const char SHM_NAME[] = "iceoryx_mgmt";
+constexpr const char SHM_NAME[] = "management";
 
 // this is used by the UniquePortId
 constexpr uint16_t DEFAULT_UNIQUE_ROUDI_ID{0U};
