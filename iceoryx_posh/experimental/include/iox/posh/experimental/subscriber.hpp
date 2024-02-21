@@ -23,14 +23,21 @@
 #include "iceoryx_posh/popo/untyped_subscriber.hpp"
 #include "iox/builder.hpp"
 #include "iox/expected.hpp"
+#include "iox/unique_ptr.hpp"
 
 namespace iox::posh::experimental
 {
 
 using iox::mepoo::NoUserHeader;
 using iox::popo::QueueFullPolicy;
+using iox::popo::Subscriber;
 
 class Runtime;
+
+enum class SubscriberBuilderError
+{
+    OUT_OF_RESOURCES,
+};
 
 class SubscriberBuilder
 {
@@ -42,10 +49,6 @@ class SubscriberBuilder
     SubscriberBuilder(SubscriberBuilder&& rhs) noexcept = delete;
     SubscriberBuilder& operator=(SubscriberBuilder&& rhs) noexcept = delete;
 
-    enum class Error
-    {
-        OUT_OF_RESOURCES,
-    };
 
     IOX_BUILDER_PARAMETER(uint64_t, queue_capacity, popo::SubscriberChunkQueueData_t::MAX_CAPACITY)
     IOX_BUILDER_PARAMETER(uint64_t, history_request, 0)
@@ -55,16 +58,16 @@ class SubscriberBuilder
 
   public:
     template <typename T, typename H = NoUserHeader>
-    expected<popo::Subscriber<T, H>, Error> create() noexcept;
+    expected<unique_ptr<Subscriber<T, H>>, SubscriberBuilderError> create() noexcept;
 
   private:
     friend class Runtime;
-    explicit SubscriberBuilder(runtime::PoshRuntimeImpl& runtime,
+    explicit SubscriberBuilder(runtime::PoshRuntime& runtime,
                                const capro::ServiceDescription& service_description) noexcept;
 
   private:
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members) Intentionally used since the SubscriberBuilder is not intended to be moved
-    runtime::PoshRuntimeImpl& m_runtime;
+    runtime::PoshRuntime& m_runtime;
     capro::ServiceDescription m_service_description;
 };
 

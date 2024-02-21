@@ -21,13 +21,13 @@
 
 namespace iox::posh::experimental
 {
-inline WaitSetBuilder::WaitSetBuilder(runtime::PoshRuntimeImpl& runtime) noexcept
+inline WaitSetBuilder::WaitSetBuilder(runtime::PoshRuntime& runtime) noexcept
     : m_runtime(runtime)
 {
 }
 
 template <uint64_t Capacity>
-inline expected<void, WaitSetBuilderError> WaitSetBuilder::create(optional<WaitSet<Capacity>>& ws) noexcept
+inline expected<unique_ptr<WaitSet<Capacity>>, WaitSetBuilderError> WaitSetBuilder::create() noexcept
 {
     auto* condition_variable_data = m_runtime.getMiddlewareConditionVariable();
 
@@ -35,8 +35,8 @@ inline expected<void, WaitSetBuilderError> WaitSetBuilder::create(optional<WaitS
     {
         return err(WaitSetBuilderError::OUT_OF_RESOURCES);
     }
-    ws.emplace(*condition_variable_data);
-    return ok();
+    return ok(unique_ptr<WaitSet<Capacity>>{new WaitSet<Capacity>{*condition_variable_data},
+                                            [&](auto* const ws) { delete ws; }});
 }
 
 } // namespace iox::posh::experimental

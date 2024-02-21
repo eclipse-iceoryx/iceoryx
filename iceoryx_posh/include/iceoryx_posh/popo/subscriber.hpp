@@ -37,23 +37,10 @@ class Subscriber : public SubscriberImpl<T, H>
     using Impl = SubscriberImpl<T, H>;
 
   public:
-    explicit Subscriber(const capro::ServiceDescription& service,
-                        const SubscriberOptions& subscriberOptions = SubscriberOptions()) noexcept
-        : SubscriberImpl<T, H>(service, subscriberOptions)
-    {
-    }
-    Subscriber(Subscriber&& rhs) = default;
-
-    Subscriber(const Subscriber& other) = delete;
-    Subscriber& operator=(const Subscriber&) = delete;
-    Subscriber& operator=(Subscriber&& rhs) = delete;
-
+    using SubscriberImpl<T, H>::SubscriberImpl;
     virtual ~Subscriber() noexcept
     {
-        if (!Impl::m_moved)
-        {
-            Impl::m_trigger.reset();
-        }
+        Impl::m_trigger.reset();
     }
 
   private:

@@ -98,7 +98,7 @@ TEST(Runtime_test, RegisteringRuntimeWithoutRunningRouDiWithZeroWaitTimeResultsI
     EXPECT_FALSE(timer.hasExpired());
 
     ASSERT_TRUE(runtime_result.has_error());
-    EXPECT_THAT(runtime_result.error(), Eq(RuntimeBuilder::Error::TIMEOUT));
+    EXPECT_THAT(runtime_result.error(), Eq(RuntimeBuilderError::TIMEOUT));
 }
 
 TEST(Runtime_test, RegisteringRuntimeWithoutRunningRouDiWithSomeWaitTimeResultsInTimeout)
@@ -114,7 +114,7 @@ TEST(Runtime_test, RegisteringRuntimeWithoutRunningRouDiWithSomeWaitTimeResultsI
     EXPECT_TRUE(timer.hasExpired());
 
     ASSERT_TRUE(runtime_result.has_error());
-    EXPECT_THAT(runtime_result.error(), Eq(RuntimeBuilder::Error::TIMEOUT));
+    EXPECT_THAT(runtime_result.error(), Eq(RuntimeBuilderError::TIMEOUT));
 }
 
 TEST(Runtime_test, RegisteringRuntimeWithDelayedRouDiStartWorks)
@@ -124,7 +124,7 @@ TEST(Runtime_test, RegisteringRuntimeWithDelayedRouDiStartWorks)
     auto runtime_result = RouDiEnvRuntimeBuilder("foo").create();
 
     ASSERT_TRUE(runtime_result.has_error());
-    EXPECT_THAT(runtime_result.error(), Eq(RuntimeBuilder::Error::TIMEOUT));
+    EXPECT_THAT(runtime_result.error(), Eq(RuntimeBuilderError::TIMEOUT));
 
     RouDiEnv roudi;
 
@@ -173,10 +173,12 @@ TEST(Runtime_test, CreatingWaitSetWorks)
 
     auto runtime = RouDiEnvRuntimeBuilder("hypnotoad").create().expect("Creating a runtime should not fail!");
 
-    iox::optional<WaitSet<>> ws;
-    auto ws_result = runtime.wait_set().create(ws);
-    EXPECT_FALSE(ws_result.has_error());
-    EXPECT_TRUE(ws.has_value());
+    auto ws_result = runtime.wait_set().create();
+    ASSERT_FALSE(ws_result.has_error());
+
+    auto ws = std::move(ws_result.value());
+
+    IOX_TESTING_ASSERT_NO_PANIC();
 }
 
 } // namespace

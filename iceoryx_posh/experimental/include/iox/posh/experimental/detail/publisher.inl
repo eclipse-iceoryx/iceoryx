@@ -21,7 +21,7 @@
 
 namespace iox::posh::experimental
 {
-inline PublisherBuilder::PublisherBuilder(runtime::PoshRuntimeImpl& runtime,
+inline PublisherBuilder::PublisherBuilder(runtime::PoshRuntime& runtime,
                                           const capro::ServiceDescription& service_description) noexcept
     : m_runtime(runtime)
     , m_service_description(service_description)
@@ -29,15 +29,16 @@ inline PublisherBuilder::PublisherBuilder(runtime::PoshRuntimeImpl& runtime,
 }
 
 template <typename T, typename H>
-inline expected<popo::Publisher<T, H>, PublisherBuilder::Error> PublisherBuilder::create() noexcept
+inline expected<unique_ptr<Publisher<T, H>>, PublisherBuilderError> PublisherBuilder::create() noexcept
 {
     auto* publisher_port_data = m_runtime.getMiddlewarePublisher(
         m_service_description, {m_history_capacity, "", m_offer_on_create, m_subscriber_too_slow_policy});
     if (publisher_port_data == nullptr)
     {
-        return err(Error::OUT_OF_RESOURCES);
+        return err(PublisherBuilderError::OUT_OF_RESOURCES);
     }
-    return ok(popo::Publisher<T, H>{std::move(iox::PublisherPortUserType{publisher_port_data})});
+    return ok(unique_ptr<Publisher<T, H>>{new Publisher<T, H>{iox::PublisherPortUserType{publisher_port_data}},
+                                          [&](auto* const pub) { delete pub; }});
 }
 
 } // namespace iox::posh::experimental

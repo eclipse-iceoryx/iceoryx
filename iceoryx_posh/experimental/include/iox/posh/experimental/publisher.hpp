@@ -23,6 +23,7 @@
 #include "iceoryx_posh/popo/untyped_publisher.hpp"
 #include "iox/builder.hpp"
 #include "iox/expected.hpp"
+#include "iox/unique_ptr.hpp"
 
 namespace iox::posh::experimental
 {
@@ -30,11 +31,18 @@ namespace iox::posh::experimental
 using iox::mepoo::NoUserHeader;
 using iox::popo::ConsumerTooSlowPolicy;
 
+using iox::popo::Publisher;
+
 struct Untyped
 {
 };
 
 class Runtime;
+
+enum class PublisherBuilderError
+{
+    OUT_OF_RESOURCES,
+};
 
 class PublisherBuilder
 {
@@ -46,27 +54,22 @@ class PublisherBuilder
     PublisherBuilder(PublisherBuilder&& rhs) noexcept = delete;
     PublisherBuilder& operator=(PublisherBuilder&& rhs) noexcept = delete;
 
-    enum class Error
-    {
-        OUT_OF_RESOURCES,
-    };
-
     IOX_BUILDER_PARAMETER(uint64_t, history_capacity, 0)
     IOX_BUILDER_PARAMETER(bool, offer_on_create, true)
     IOX_BUILDER_PARAMETER(ConsumerTooSlowPolicy, subscriber_too_slow_policy, ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA)
 
   public:
     template <typename T, typename H = NoUserHeader>
-    expected<popo::Publisher<T, H>, Error> create() noexcept;
+    expected<unique_ptr<Publisher<T, H>>, PublisherBuilderError> create() noexcept;
 
   private:
     friend class Runtime;
-    explicit PublisherBuilder(runtime::PoshRuntimeImpl& runtime,
+    explicit PublisherBuilder(runtime::PoshRuntime& runtime,
                               const capro::ServiceDescription& service_description) noexcept;
 
   private:
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members) Intentionally used since the PublisherBuilder is not intended to be moved
-    runtime::PoshRuntimeImpl& m_runtime;
+    runtime::PoshRuntime& m_runtime;
     capro::ServiceDescription m_service_description;
 };
 

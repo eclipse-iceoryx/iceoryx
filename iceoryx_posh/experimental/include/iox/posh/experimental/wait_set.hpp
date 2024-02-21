@@ -23,6 +23,7 @@
 #include "iox/builder.hpp"
 #include "iox/expected.hpp"
 #include "iox/optional.hpp"
+#include "iox/unique_ptr.hpp"
 
 namespace iox::posh::experimental
 {
@@ -38,15 +39,15 @@ class WaitSetBuilder
 {
   public:
     template <uint64_t Capacity = MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET>
-    expected<void, WaitSetBuilderError> create(iox::optional<WaitSet<Capacity>>& ws) noexcept;
+    expected<unique_ptr<WaitSet<Capacity>>, WaitSetBuilderError> create() noexcept;
 
   private:
     friend class Runtime;
-    explicit WaitSetBuilder(runtime::PoshRuntimeImpl& runtime) noexcept;
+    explicit WaitSetBuilder(runtime::PoshRuntime& runtime) noexcept;
 
   private:
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members) Intentionally used since the WaitSetBuilder is not intended to be moved
-    runtime::PoshRuntimeImpl& m_runtime;
+    runtime::PoshRuntime& m_runtime;
 };
 } // namespace iox::posh::experimental
 

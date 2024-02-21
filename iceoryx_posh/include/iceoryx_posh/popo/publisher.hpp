@@ -35,16 +35,7 @@ template <typename T, typename H = mepoo::NoUserHeader>
 class Publisher : public PublisherImpl<T, H>
 {
   public:
-    explicit Publisher(const capro::ServiceDescription& service,
-                       const PublisherOptions& publisherOptions = PublisherOptions()) noexcept
-        : PublisherImpl<T, H>(service, publisherOptions)
-    {
-    }
-    Publisher(Publisher&& rhs) = default;
-
-    Publisher(const Publisher& other) = delete;
-    Publisher& operator=(const Publisher&) = delete;
-    Publisher& operator=(Publisher&& rhs) = delete;
+    using PublisherImpl<T, H>::PublisherImpl;
 
   private:
     friend class iox::posh::experimental::PublisherBuilder;

@@ -23,14 +23,14 @@ RuntimeBuilder::RuntimeBuilder(const RuntimeName_t& name) noexcept
 {
 }
 
-expected<Runtime, RuntimeBuilder::Error> RuntimeBuilder::create() noexcept
+expected<Runtime, RuntimeBuilderError> RuntimeBuilder::create() noexcept
 {
     auto location = m_shares_process_with_roudi ? runtime::RuntimeLocation::SAME_PROCESS_LIKE_ROUDI
                                                 : runtime::RuntimeLocation::SEPARATE_PROCESS_FROM_ROUDI;
     auto ipcRuntimeIterface = runtime::IpcRuntimeInterface::create(m_name, m_roudi_registration_timeout);
     if (ipcRuntimeIterface.has_error())
     {
-        return err(into<Error>(ipcRuntimeIterface.error()));
+        return err(into<RuntimeBuilderError>(ipcRuntimeIterface.error()));
     }
     return ok(Runtime{m_name, location, std::move(ipcRuntimeIterface.value())});
 }

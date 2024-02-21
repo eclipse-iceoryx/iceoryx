@@ -38,11 +38,12 @@ class SubscriberImpl : public BaseSubscriberType
   public:
     explicit SubscriberImpl(const capro::ServiceDescription& service,
                             const SubscriberOptions& subscriberOptions = SubscriberOptions()) noexcept;
-    SubscriberImpl(SubscriberImpl&& rhs) noexcept = default;
+
     virtual ~SubscriberImpl() noexcept;
 
     SubscriberImpl(const SubscriberImpl& other) = delete;
     SubscriberImpl& operator=(const SubscriberImpl&) = delete;
+    SubscriberImpl(SubscriberImpl&& rhs) noexcept = delete;
     SubscriberImpl& operator=(SubscriberImpl&& rhs) noexcept = delete;
 
     ///

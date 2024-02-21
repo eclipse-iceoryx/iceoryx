@@ -40,11 +40,11 @@ class BasePublisher
   public:
     using PortType = port_t;
 
-    BasePublisher(BasePublisher&& rhs) noexcept;
     virtual ~BasePublisher() noexcept;
 
     BasePublisher(const BasePublisher& other) = delete;
     BasePublisher& operator=(const BasePublisher&) = delete;
+    BasePublisher(BasePublisher&& rhs) noexcept = delete;
     BasePublisher& operator=(BasePublisher&& rhs) noexcept = delete;
 
     ///
@@ -100,7 +100,6 @@ class BasePublisher
 
   private:
     port_t m_port{nullptr};
-    bool m_moved{false};
 };
 
 } // namespace popo

@@ -64,14 +64,13 @@ int main()
 
     auto runtime = std::move(runtime_result.value());
 
-    iox::optional<iox::posh::experimental::WaitSet<>> ws;
-    runtime.wait_set().create(ws).expect("Getting a wait set");
-    waitsetSigHandlerAccess = &*ws;
+    auto ws = runtime.wait_set().create().expect("Getting a wait set");
+    waitsetSigHandlerAccess = ws.get();
 
     auto subscriber =
         runtime.subscriber({"Radar", "FrontLeft", "Object"}).create<RadarObject>().expect("Getting a subscriber");
 
-    ws->attachState(subscriber, iox::popo::SubscriberState::HAS_DATA).or_else([](auto) {
+    ws->attachState(*subscriber.get(), iox::popo::SubscriberState::HAS_DATA).or_else([](auto) {
         std::cout << "Failed to attach subscriber" << std::endl;
         std::exit(EXIT_FAILURE);
     });
@@ -82,9 +81,9 @@ int main()
 
         for (auto& notification : notification_vector)
         {
-            if (notification->doesOriginateFrom(&subscriber))
+            if (notification->doesOriginateFrom(subscriber.get()))
             {
-                subscriber.take()
+                subscriber->take()
                     .and_then([](const auto& sample) { std::cout << "Receive value: " << sample->x << std::endl; })
                     .or_else([](auto& result) {
                         if (result != iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)

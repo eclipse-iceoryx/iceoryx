@@ -55,7 +55,6 @@ template <typename port_t = iox::SubscriberPortUserType>
 class BaseSubscriber
 {
   public:
-    BaseSubscriber(BaseSubscriber&& rhs) noexcept;
     virtual ~BaseSubscriber() noexcept;
 
     ///
@@ -119,6 +118,9 @@ class BaseSubscriber
 
     BaseSubscriber(const BaseSubscriber& other) = delete;
     BaseSubscriber& operator=(const BaseSubscriber&) = delete;
+    // NOTE: non-movable due to the 'TriggerHandle' member and a 'WaitSet' or 'Listener' could hold a pointer to the
+    // 'Subscriber'
+    BaseSubscriber(BaseSubscriber&& rhs) noexcept = delete;
     BaseSubscriber& operator=(BaseSubscriber&& rhs) noexcept = delete;
 
     /// @brief small helper method to unwrap the 'expected<optional<ChunkHeader*>>' from the 'tryGetChunk' method of the
@@ -164,7 +166,6 @@ class BaseSubscriber
   protected:
     port_t m_port{nullptr};
     TriggerHandle m_trigger;
-    bool m_moved{false};
 };
 
 } // namespace popo

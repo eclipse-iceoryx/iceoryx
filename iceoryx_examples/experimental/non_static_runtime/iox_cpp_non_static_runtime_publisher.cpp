@@ -46,7 +46,7 @@ int main()
             auto publisher =
                 runtime.publisher({"Radar", "FrontLeft", "Object"}).create<RadarObject>().expect("Getting a publisher");
 
-            publisher.loan()
+            publisher->loan()
                 .and_then([&](auto& sample) {
                     sample->x = value;
                     sample->y = value;

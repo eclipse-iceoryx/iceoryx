@@ -214,7 +214,6 @@ class WaitSet
 
   protected:
     friend class iox::posh::experimental::WaitSetBuilder;
-    friend class optional<WaitSet>;
     explicit WaitSet(ConditionVariableData& condVarData) noexcept;
 
   private:

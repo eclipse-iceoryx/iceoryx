@@ -46,20 +46,9 @@ inline BaseSubscriber<port_t>::BaseSubscriber(const capro::ServiceDescription& s
 }
 
 template <typename port_t>
-inline BaseSubscriber<port_t>::BaseSubscriber(BaseSubscriber&& other) noexcept
-    : m_port(std::move(other.m_port))
-    , m_trigger(std::move(other.m_trigger))
-{
-    other.m_moved = true;
-}
-
-template <typename port_t>
 inline BaseSubscriber<port_t>::~BaseSubscriber() noexcept
 {
-    if (!m_moved)
-    {
-        m_port.destroy();
-    }
+    m_port.destroy();
 }
 
 template <typename port_t>

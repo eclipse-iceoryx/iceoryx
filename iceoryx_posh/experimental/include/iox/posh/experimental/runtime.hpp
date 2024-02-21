@@ -33,18 +33,18 @@ namespace iox::posh::experimental
 
 class Runtime;
 
+enum class RuntimeBuilderError
+{
+    RUNTIME_STILL_ACTIVE,
+    IPC_CHANNEL_CREATION_FAILED,
+    TIMEOUT,
+    REGISTRATION_FAILED,
+};
+
 class RuntimeBuilder
 {
   public:
     explicit RuntimeBuilder(const RuntimeName_t& name) noexcept;
-
-    enum class Error
-    {
-        RUNTIME_STILL_ACTIVE,
-        IPC_CHANNEL_CREATION_FAILED,
-        TIMEOUT,
-        REGISTRATION_FAILED,
-    };
 
     IOX_BUILDER_PARAMETER(uint16_t, roudi_id, roudi::DEFAULT_UNIQUE_ROUDI_ID)
 
@@ -53,7 +53,7 @@ class RuntimeBuilder
     IOX_BUILDER_PARAMETER(bool, shares_process_with_roudi, false)
 
   public:
-    expected<Runtime, Error> create() noexcept;
+    expected<Runtime, RuntimeBuilderError> create() noexcept;
 
   private:
     RuntimeName_t m_name;
@@ -84,8 +84,8 @@ class Runtime
 namespace iox
 {
 template <>
-constexpr posh::experimental::RuntimeBuilder::Error
-from<runtime::IpcRuntimeInterface::Error, posh::experimental::RuntimeBuilder::Error>(
+constexpr posh::experimental::RuntimeBuilderError
+from<runtime::IpcRuntimeInterface::Error, posh::experimental::RuntimeBuilderError>(
     runtime::IpcRuntimeInterface::Error e) noexcept
 {
     using namespace posh::experimental;
@@ -93,17 +93,17 @@ from<runtime::IpcRuntimeInterface::Error, posh::experimental::RuntimeBuilder::Er
     switch (e)
     {
     case IpcRuntimeInterface::Error::CANNOT_CREATE_APPLICATION_CHANNEL:
-        return RuntimeBuilder::Error::IPC_CHANNEL_CREATION_FAILED;
+        return RuntimeBuilderError::IPC_CHANNEL_CREATION_FAILED;
     case IpcRuntimeInterface::Error::TIMEOUT_WAITING_FOR_ROUDI:
-        return RuntimeBuilder::Error::TIMEOUT;
+        return RuntimeBuilderError::TIMEOUT;
     case IpcRuntimeInterface::Error::SENDING_REQUEST_TO_ROUDI_FAILED:
         [[fallthrough]];
     case IpcRuntimeInterface::Error::NO_RESPONSE_FROM_ROUDI:
-        return RuntimeBuilder::Error::REGISTRATION_FAILED;
+        return RuntimeBuilderError::REGISTRATION_FAILED;
     }
 
     // just to prevent a warning regarding not returning from a non-void function
-    return RuntimeBuilder::Error::REGISTRATION_FAILED;
+    return RuntimeBuilderError::REGISTRATION_FAILED;
 }
 } // namespace iox
 

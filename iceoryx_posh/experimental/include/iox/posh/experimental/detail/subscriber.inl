@@ -21,7 +21,7 @@
 
 namespace iox::posh::experimental
 {
-inline SubscriberBuilder::SubscriberBuilder(runtime::PoshRuntimeImpl& runtime,
+inline SubscriberBuilder::SubscriberBuilder(runtime::PoshRuntime& runtime,
                                             const capro::ServiceDescription& service_description) noexcept
     : m_runtime(runtime)
     , m_service_description(service_description)
@@ -29,7 +29,7 @@ inline SubscriberBuilder::SubscriberBuilder(runtime::PoshRuntimeImpl& runtime,
 }
 
 template <typename T, typename H>
-inline expected<popo::Subscriber<T, H>, SubscriberBuilder::Error> SubscriberBuilder::create() noexcept
+inline expected<unique_ptr<Subscriber<T, H>>, SubscriberBuilderError> SubscriberBuilder::create() noexcept
 {
     auto* subscriber_port_data = m_runtime.getMiddlewareSubscriber(m_service_description,
                                                                    {m_queue_capacity,
@@ -40,9 +40,10 @@ inline expected<popo::Subscriber<T, H>, SubscriberBuilder::Error> SubscriberBuil
                                                                     m_requires_publisher_history_support});
     if (subscriber_port_data == nullptr)
     {
-        return err(Error::OUT_OF_RESOURCES);
+        return err(SubscriberBuilderError::OUT_OF_RESOURCES);
     }
-    return ok(popo::Subscriber<T, H>{std::move(iox::SubscriberPortUserType{subscriber_port_data})});
+    return ok(unique_ptr<Subscriber<T, H>>{new Subscriber<T, H>{iox::SubscriberPortUserType{subscriber_port_data}},
+                                           [&](auto* const sub) { delete sub; }});
 }
 
 } // namespace iox::posh::experimental

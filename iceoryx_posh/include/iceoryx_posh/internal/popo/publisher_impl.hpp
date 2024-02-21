@@ -39,11 +39,12 @@ class PublisherImpl : public BasePublisherType, private PublisherInterface<T, H>
   public:
     explicit PublisherImpl(const capro::ServiceDescription& service,
                            const PublisherOptions& publisherOptions = PublisherOptions());
-    PublisherImpl(PublisherImpl&& rhs) noexcept = default;
+
     virtual ~PublisherImpl() = default;
 
     PublisherImpl(const PublisherImpl& other) = delete;
     PublisherImpl& operator=(const PublisherImpl&) = delete;
+    PublisherImpl(PublisherImpl&& rhs) noexcept = delete;
     PublisherImpl& operator=(PublisherImpl&& rhs) noexcept = delete;
 
     ///
