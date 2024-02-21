@@ -51,7 +51,10 @@ int main()
     while (keep_running && runtime_result.has_error())
     {
         std::cout << "Could not create the runtime!" << std::endl;
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+
+        runtime_result = iox::posh::experimental::RuntimeBuilder(APP_NAME)
+                             .roudi_registration_timeout(iox::units::Duration::fromSeconds(1))
+                             .create();
     }
 
     if (!keep_running)
