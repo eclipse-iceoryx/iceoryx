@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iox/posh/experimental/runtime.hpp"
+#include "iceoryx_posh/internal/runtime/posh_runtime_impl.hpp"
 
 namespace iox::posh::experimental
 {
@@ -38,23 +39,26 @@ expected<Runtime, RuntimeBuilderError> RuntimeBuilder::create() noexcept
 Runtime::Runtime(const RuntimeName_t& name,
                  runtime::RuntimeLocation location,
                  runtime::IpcRuntimeInterface&& runtime_interface) noexcept
-    : m_runtime(make_optional<const RuntimeName_t*>(&name), location, std::move(runtime_interface))
+    : m_runtime(unique_ptr<runtime::PoshRuntime>{
+        new runtime::PoshRuntimeImpl{
+            make_optional<const RuntimeName_t*>(&name), location, std::move(runtime_interface)},
+        [&](auto* const rt) { delete rt; }})
 {
 }
 
 PublisherBuilder Runtime::publisher(const capro::ServiceDescription& service_description) noexcept
 {
-    return PublisherBuilder{m_runtime, service_description};
+    return PublisherBuilder{*m_runtime.get(), service_description};
 }
 
 SubscriberBuilder Runtime::subscriber(const capro::ServiceDescription& service_description) noexcept
 {
-    return SubscriberBuilder{m_runtime, service_description};
+    return SubscriberBuilder{*m_runtime.get(), service_description};
 }
 
 WaitSetBuilder Runtime::wait_set() noexcept
 {
-    return WaitSetBuilder{m_runtime};
+    return WaitSetBuilder{*m_runtime.get()};
 }
 
 } // namespace iox::posh::experimental

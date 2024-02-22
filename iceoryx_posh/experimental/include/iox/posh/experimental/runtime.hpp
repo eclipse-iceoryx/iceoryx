@@ -20,13 +20,14 @@
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_runtime_interface.hpp"
-#include "iceoryx_posh/internal/runtime/posh_runtime_impl.hpp"
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iox/builder.hpp"
 #include "iox/expected.hpp"
 #include "iox/optional.hpp"
 #include "iox/posh/experimental/publisher.hpp"
 #include "iox/posh/experimental/subscriber.hpp"
 #include "iox/posh/experimental/wait_set.hpp"
+#include "iox/unique_ptr.hpp"
 
 namespace iox::posh::experimental
 {
@@ -76,7 +77,7 @@ class Runtime
             runtime::IpcRuntimeInterface&& runtime_interface) noexcept;
 
   private:
-    runtime::PoshRuntimeImpl m_runtime;
+    unique_ptr<runtime::PoshRuntime> m_runtime;
 };
 
 } // namespace iox::posh::experimental
