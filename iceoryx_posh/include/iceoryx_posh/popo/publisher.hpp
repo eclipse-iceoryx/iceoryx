@@ -20,12 +20,13 @@
 
 #include "iceoryx_posh/internal/popo/publisher_impl.hpp"
 
-namespace iox
-{
-namespace posh::experimental
+namespace iox::posh::experimental
 {
 class PublisherBuilder;
 }
+
+namespace iox
+{
 namespace popo
 {
 /// @brief The Publisher class for the publish-subscribe messaging pattern in iceoryx.

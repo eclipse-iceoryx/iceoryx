@@ -54,9 +54,8 @@ class SubscriberImpl : public BaseSubscriberType
     ///
     expected<Sample<const T, const H>, ChunkReceiveResult> take() noexcept;
 
-    using PortType = typename BaseSubscriberType::PortType;
-
   protected:
+    using PortType = typename BaseSubscriberType::PortType;
     using BaseSubscriberType::port;
 
     SubscriberImpl(PortType&& port) noexcept;

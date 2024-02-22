@@ -32,6 +32,12 @@ inline UntypedPublisherImpl<BasePublisherType>::UntypedPublisherImpl(const capro
 }
 
 template <typename BasePublisherType>
+inline UntypedPublisherImpl<BasePublisherType>::UntypedPublisherImpl(PortType&& port) noexcept
+    : BasePublisherType(std::move(port))
+{
+}
+
+template <typename BasePublisherType>
 inline void UntypedPublisherImpl<BasePublisherType>::publish(void* const userPayload) noexcept
 {
     auto chunkHeader = mepoo::ChunkHeader::fromUserPayload(userPayload);

@@ -41,6 +41,18 @@ inline expected<unique_ptr<Publisher<T, H>>, PublisherBuilderError> PublisherBui
                                           [&](auto* const pub) { delete pub; }});
 }
 
+inline expected<unique_ptr<UntypedPublisher>, PublisherBuilderError> PublisherBuilder::create() noexcept
+{
+    auto* publisher_port_data = m_runtime.getMiddlewarePublisher(
+        m_service_description, {m_history_capacity, "", m_offer_on_create, m_subscriber_too_slow_policy});
+    if (publisher_port_data == nullptr)
+    {
+        return err(PublisherBuilderError::OUT_OF_RESOURCES);
+    }
+    return ok(unique_ptr<UntypedPublisher>{new UntypedPublisher{iox::PublisherPortUserType{publisher_port_data}},
+                                           [&](auto* const pub) { delete pub; }});
+}
+
 } // namespace iox::posh::experimental
 
 #endif // IOX_POSH_EXPERIMENTAL_PUBLISHER_INL

@@ -33,11 +33,13 @@ class UntypedPublisherImpl : public BasePublisherType
   public:
     explicit UntypedPublisherImpl(const capro::ServiceDescription& service,
                                   const PublisherOptions& publisherOptions = PublisherOptions());
+
+    virtual ~UntypedPublisherImpl() = default;
+
     UntypedPublisherImpl(const UntypedPublisherImpl& other) = delete;
     UntypedPublisherImpl& operator=(const UntypedPublisherImpl&) = delete;
-    UntypedPublisherImpl(UntypedPublisherImpl&& rhs) = delete;
-    UntypedPublisherImpl& operator=(UntypedPublisherImpl&& rhs) = delete;
-    virtual ~UntypedPublisherImpl() = default;
+    UntypedPublisherImpl(UntypedPublisherImpl&& rhs) noexcept = delete;
+    UntypedPublisherImpl& operator=(UntypedPublisherImpl&& rhs) noexcept = delete;
 
     ///
     /// @brief Get a chunk from loaned shared memory.
@@ -70,7 +72,10 @@ class UntypedPublisherImpl : public BasePublisherType
     void release(void* const userPayload) noexcept;
 
   protected:
+    using PortType = typename BasePublisherType::PortType;
     using BasePublisherType::port;
+
+    UntypedPublisherImpl(PortType&& port) noexcept;
 };
 
 } // namespace popo

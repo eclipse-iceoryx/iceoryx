@@ -32,10 +32,7 @@ using iox::mepoo::NoUserHeader;
 using iox::popo::ConsumerTooSlowPolicy;
 
 using iox::popo::Publisher;
-
-struct Untyped
-{
-};
+using iox::popo::UntypedPublisher;
 
 class Runtime;
 
@@ -61,6 +58,8 @@ class PublisherBuilder
   public:
     template <typename T, typename H = NoUserHeader>
     expected<unique_ptr<Publisher<T, H>>, PublisherBuilderError> create() noexcept;
+
+    expected<unique_ptr<UntypedPublisher>, PublisherBuilderError> create() noexcept;
 
   private:
     friend class Runtime;

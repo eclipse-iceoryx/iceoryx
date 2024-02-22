@@ -46,6 +46,23 @@ inline expected<unique_ptr<Subscriber<T, H>>, SubscriberBuilderError> Subscriber
                                            [&](auto* const sub) { delete sub; }});
 }
 
+inline expected<unique_ptr<UntypedSubscriber>, SubscriberBuilderError> SubscriberBuilder::create() noexcept
+{
+    auto* subscriber_port_data = m_runtime.getMiddlewareSubscriber(m_service_description,
+                                                                   {m_queue_capacity,
+                                                                    m_history_request,
+                                                                    "",
+                                                                    m_subscribe_on_create,
+                                                                    m_queue_full_policy,
+                                                                    m_requires_publisher_history_support});
+    if (subscriber_port_data == nullptr)
+    {
+        return err(SubscriberBuilderError::OUT_OF_RESOURCES);
+    }
+    return ok(unique_ptr<UntypedSubscriber>{new UntypedSubscriber{iox::SubscriberPortUserType{subscriber_port_data}},
+                                            [&](auto* const sub) { delete sub; }});
+}
+
 } // namespace iox::posh::experimental
 
 #endif // IOX_POSH_EXPERIMENTAL_SUBSCRIBER_INL

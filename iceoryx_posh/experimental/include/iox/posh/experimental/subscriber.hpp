@@ -31,6 +31,7 @@ namespace iox::posh::experimental
 using iox::mepoo::NoUserHeader;
 using iox::popo::QueueFullPolicy;
 using iox::popo::Subscriber;
+using iox::popo::UntypedSubscriber;
 
 class Runtime;
 
@@ -59,6 +60,8 @@ class SubscriberBuilder
   public:
     template <typename T, typename H = NoUserHeader>
     expected<unique_ptr<Subscriber<T, H>>, SubscriberBuilderError> create() noexcept;
+
+    expected<unique_ptr<UntypedSubscriber>, SubscriberBuilderError> create() noexcept;
 
   private:
     friend class Runtime;
