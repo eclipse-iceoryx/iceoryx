@@ -121,12 +121,14 @@ TEST(Runtime_test, RegisteringRuntimeWithDelayedRouDiStartWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "63ef9a1a-deee-40b5-bc17-37ee67ad8d76");
 
+    iox::optional<RouDiEnv> roudi;
+
     auto runtime_result = RouDiEnvRuntimeBuilder("foo").create();
 
     ASSERT_TRUE(runtime_result.has_error());
     EXPECT_THAT(runtime_result.error(), Eq(RuntimeBuilderError::TIMEOUT));
 
-    RouDiEnv roudi;
+    roudi.emplace();
 
     runtime_result = RouDiEnvRuntimeBuilder("foo").create();
 
