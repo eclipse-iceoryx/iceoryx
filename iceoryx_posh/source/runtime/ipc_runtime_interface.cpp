@@ -33,6 +33,12 @@ namespace runtime
 expected<IpcRuntimeInterface, IpcRuntimeInterface::Error>
 IpcRuntimeInterface::create(const RuntimeName_t& runtimeName, const units::Duration roudiWaitingTimeout) noexcept
 {
+    if (runtimeName.empty())
+    {
+        IOX_LOG(DEBUG, "The runtime name must not be empty!");
+        return err(Error::CANNOT_CREATE_APPLICATION_CHANNEL);
+    }
+
     MgmtShmCharacteristics mgmtShmCharacteristics;
 
     auto roudiIpcInterface = IpcInterfaceUser(roudi::IPC_CHANNEL_ROUDI_NAME, ResourceType::ICEORYX_DEFINED);

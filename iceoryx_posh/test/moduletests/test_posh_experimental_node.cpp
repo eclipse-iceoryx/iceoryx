@@ -18,11 +18,14 @@
 
 #include "iox/deadline_timer.hpp"
 #include "iox/duration.hpp"
+#include "iox/vector.hpp"
 
 #include "iceoryx_hoofs/testing/error_reporting/testing_support.hpp"
 #include "iceoryx_posh/roudi_env/roudi_env.hpp"
 #include "iceoryx_posh/roudi_env/roudi_env_node_builder.hpp"
 #include "test.hpp"
+
+#include <optional>
 
 namespace
 {
@@ -71,6 +74,35 @@ TEST(Node_test, CreatingMultipleNodesWithRunningRouDiWorks)
     auto node2 = std::move(node2_result.value());
 
     IOX_TESTING_ASSERT_NO_PANIC();
+}
+
+TEST(Node_test, NodeDoesNotUseTheStaticRuntime)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "9408ea42-38ab-4547-b7b3-ec2dda2501ba");
+
+    RouDiEnv roudi;
+
+    auto node1 = RouDiEnvNodeBuilder("foo").create().expect("Creating a node should not fail!");
+    auto node2 = RouDiEnvNodeBuilder("bar").create().expect("Creating a node should not fail!");
+
+    EXPECT_THAT(roudi.numberOfActiveRuntimeTestInterfaces(), Eq(0));
+}
+
+TEST(Node_test, CreatingNodeWithInvalidNameLeadsToError)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "7a460f65-2970-489f-98e3-2c402fb05766");
+
+    RouDiEnv roudi;
+
+    RouDiEnvNodeBuilder("")
+        .create()
+        .and_then([](const auto&) { GTEST_FAIL() << "Creating a 'Node' with empty name should fail"; })
+        .or_else([](const auto error) { EXPECT_THAT(error, Eq(NodeBuilderError::IPC_CHANNEL_CREATION_FAILED)); });
+
+    RouDiEnvNodeBuilder("/foo")
+        .create()
+        .and_then([](const auto&) { GTEST_FAIL() << "Creating a 'Node' with '/' in name should fail"; })
+        .or_else([](const auto error) { EXPECT_THAT(error, Eq(NodeBuilderError::IPC_CHANNEL_CREATION_FAILED)); });
 }
 
 TEST(Node_test, ReRegisteringNodeWithRunningRouDiWorks)
@@ -192,6 +224,26 @@ TEST(Node_test, CreatingUntypedPublisherWithUserHeaderWorks)
     EXPECT_TRUE((std::is_same_v<decltype(publisher), iox::unique_ptr<iox::posh::experimental::UntypedPublisher>>));
 }
 
+TEST(Node_test, ExhaustingPublisherLeadsToError)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "d24c47b2-4ca7-40fd-9735-53e17ae9a870");
+
+    RouDiEnv roudi;
+
+    auto node = RouDiEnvNodeBuilder("hypnotoad").create().expect("Creating a node should not fail!");
+
+    iox::vector<iox::unique_ptr<UntypedPublisher>, iox::MAX_PUBLISHERS> pub;
+
+    for (uint64_t i = 0; i < iox::MAX_PUBLISHERS - iox::NUMBER_OF_INTERNAL_PUBLISHERS; ++i)
+    {
+        pub.emplace_back(node.publisher({"all", "glory", "hypnotoad"}).create().expect("Getting publisher"));
+    }
+
+    auto publisher_result = node.publisher({"all", "glory", "hypnotoad"}).create();
+    ASSERT_TRUE(publisher_result.has_error());
+    EXPECT_THAT(publisher_result.error(), Eq(PublisherBuilderError::OUT_OF_RESOURCES));
+}
+
 TEST(Node_test, CreatingTypedSubscriberWithoutUserHeaderWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e14f3c82-d758-43cc-bd89-dfdf0ed71480");
@@ -242,6 +294,26 @@ TEST(Node_test, CreatingUntypedSubscriberWorks)
     EXPECT_TRUE((std::is_same_v<decltype(subscriber), iox::unique_ptr<iox::posh::experimental::UntypedSubscriber>>));
 }
 
+TEST(Node_test, ExhaustingSubscriberLeadsToError)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "2caf6bb4-1c70-443a-be3a-706660f052f9");
+
+    RouDiEnv roudi;
+
+    auto node = RouDiEnvNodeBuilder("hypnotoad").create().expect("Creating a node should not fail!");
+
+    iox::vector<iox::unique_ptr<UntypedSubscriber>, iox::MAX_SUBSCRIBERS> sub;
+
+    for (uint64_t i = 0; i < iox::MAX_SUBSCRIBERS; ++i)
+    {
+        sub.emplace_back(node.subscriber({"all", "glory", "hypnotoad"}).create().expect("Getting subscriber"));
+    }
+
+    auto subscriber_result = node.subscriber({"all", "glory", "hypnotoad"}).create();
+    ASSERT_TRUE(subscriber_result.has_error());
+    EXPECT_THAT(subscriber_result.error(), Eq(SubscriberBuilderError::OUT_OF_RESOURCES));
+}
+
 TEST(Node_test, CreatingWaitSetWithDefaultCapacityWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ccbef3ca-87b5-4d76-955e-171c5f1b5abd");
@@ -273,6 +345,44 @@ TEST(Node_test, CreatingWaitSetWithCustomCapacityWorks)
     auto ws = std::move(ws_result.value());
 
     EXPECT_TRUE((std::is_same_v<decltype(ws), iox::unique_ptr<iox::posh::experimental::WaitSet<CAPACITY>>>));
+}
+
+TEST(Node_test, ExhaustingWaitSetLeadsToError)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "794e5db8-8d08-428b-af21-e3934a29ea8f");
+
+    RouDiEnv roudi;
+
+    auto node = RouDiEnvNodeBuilder("hypnotoad").create().expect("Creating a node should not fail!");
+
+    iox::vector<iox::unique_ptr<WaitSet<>>, iox::MAX_NUMBER_OF_CONDITION_VARIABLES> ws;
+
+    for (uint64_t i = 0; i < iox::MAX_SUBSCRIBERS; ++i)
+    {
+        ws.emplace_back(node.wait_set().create().expect("Getting waitset"));
+    }
+
+    auto ws_result = node.wait_set().create();
+    ASSERT_TRUE(ws_result.has_error());
+    EXPECT_THAT(ws_result.error(), Eq(WaitSetBuilderError::OUT_OF_RESOURCES));
+}
+
+TEST(Node_test, PublisherAndSubscriberAreConnected)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "bafbaebf-e111-4ff0-82e1-53cea1b770f4");
+
+    RouDiEnv roudi;
+
+    auto node = RouDiEnvNodeBuilder("hypnotoad").create().expect("Creating a node should not fail!");
+
+    auto publisher = node.publisher({"all", "glory", "hypnotoad"}).create<uint8_t>().expect("Getting publisher");
+    auto subscriber = node.subscriber({"all", "glory", "hypnotoad"}).create<uint8_t>().expect("Getting subscriber");
+
+    constexpr uint8_t DATA{42};
+    publisher->publishCopyOf(DATA).or_else([](const auto) { GTEST_FAIL() << "Expected to send data"; });
+    subscriber->take().and_then([&](const auto& sample) { EXPECT_THAT(*sample, Eq(DATA)); }).or_else([](const auto) {
+        GTEST_FAIL() << "Expected to receive data";
+    });
 }
 
 } // namespace
