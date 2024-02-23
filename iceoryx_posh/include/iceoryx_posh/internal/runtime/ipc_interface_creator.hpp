@@ -47,6 +47,7 @@ class IpcInterfaceCreator : public IpcInterfaceBase
     /// this class.
     static expected<IpcInterfaceCreator, IpcInterfaceCreatorError>
     create(const RuntimeName_t& runtimeName,
+           const uint16_t uniqueRouDiId,
            const ResourceType resourceType,
            const uint64_t maxMessages = ROUDI_MAX_MESSAGES,
            const uint64_t messageSize = ROUDI_MESSAGE_SIZE) noexcept;
@@ -63,6 +64,7 @@ class IpcInterfaceCreator : public IpcInterfaceBase
   private:
     IpcInterfaceCreator(FileLock&& fileLock,
                         const RuntimeName_t& runtimeName,
+                        const uint16_t uniqueRouDiId,
                         const ResourceType resourceType,
                         const uint64_t maxMessages,
                         const uint64_t messageSize) noexcept;

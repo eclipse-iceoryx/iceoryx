@@ -36,6 +36,7 @@ class IpcInterfaceUser : public IpcInterfaceBase
     /// @param[in] maxMessages maximum number of queued messages
     /// @param[in] message size maximum message size
     IpcInterfaceUser(const RuntimeName_t& name,
+                     const uint16_t uniqueRouDiId,
                      const ResourceType resourceType,
                      const uint64_t maxMessages = APP_MAX_MESSAGES,
                      const uint64_t messageSize = APP_MESSAGE_SIZE) noexcept;

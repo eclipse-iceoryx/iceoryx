@@ -25,8 +25,9 @@ namespace roudi
 IceOryxRouDiMemoryManager::IceOryxRouDiMemoryManager(const RouDiConfig_t& roudiConfig) noexcept
     : m_fileLock(
         std::move(FileLockBuilder()
-                      .name(concatenate(iceoryxResourcePrefix(DEFAULT_UNIQUE_ROUDI_ID, ResourceType::ICEORYX_DEFINED),
-                                        ROUDI_LOCK_NAME))
+                      .name(concatenate(
+                          iceoryxResourcePrefix(popo::UniquePortId::getUniqueRouDiId(), ResourceType::ICEORYX_DEFINED),
+                          ROUDI_LOCK_NAME))
                       .permission(iox::perms::owner_read | iox::perms::owner_write)
                       .create()
                       .or_else([](auto& error) {

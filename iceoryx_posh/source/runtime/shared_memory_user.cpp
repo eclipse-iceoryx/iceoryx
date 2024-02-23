@@ -31,11 +31,12 @@ constexpr access_rights SharedMemoryUser::SHM_SEGMENT_PERMISSIONS;
 
 SharedMemoryUser::SharedMemoryUser(const size_t topicSize,
                                    const uint64_t segmentId,
-                                   const UntypedRelativePointer::offset_t segmentManagerAddressOffset) noexcept
+                                   const UntypedRelativePointer::offset_t segmentManagerAddressOffset,
+                                   const uint16_t uniqueRouDiId) noexcept
+    : m_uniqueRouDiId(uniqueRouDiId)
 {
     PosixSharedMemoryObjectBuilder()
-        .name(concatenate(iceoryxResourcePrefix(roudi::DEFAULT_UNIQUE_ROUDI_ID, ResourceType::ICEORYX_DEFINED),
-                          roudi::SHM_NAME))
+        .name(concatenate(iceoryxResourcePrefix(m_uniqueRouDiId, ResourceType::ICEORYX_DEFINED), roudi::SHM_NAME))
         .memorySizeInBytes(topicSize)
         .accessMode(AccessMode::READ_WRITE)
         .openMode(OpenMode::OPEN_EXISTING)
@@ -91,9 +92,9 @@ void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
     {
         auto accessMode = segment.m_isWritable ? AccessMode::READ_WRITE : AccessMode::READ_ONLY;
         PosixSharedMemoryObjectBuilder()
-            .name([&segment] {
+            .name([this, &segment] {
                 using ShmName_t = detail::PosixSharedMemory::Name_t;
-                ShmName_t shmName = iceoryxResourcePrefix(roudi::DEFAULT_UNIQUE_ROUDI_ID, ResourceType::USER_DEFINED);
+                ShmName_t shmName = iceoryxResourcePrefix(m_uniqueRouDiId, ResourceType::USER_DEFINED);
                 if (shmName.size() + segment.m_sharedMemoryName.size() > ShmName_t::capacity())
                 {
                     IOX_LOG(FATAL,

@@ -43,7 +43,9 @@ class IpcRuntimeInterface
     /// @param[in] roudiWaitingTimeout is the time to wait for RouDi to start if it is nor running
     /// @return an IPC interface to communicate with RouDi or a IpcRuntimeInterfaceError
     static expected<IpcRuntimeInterface, IpcRuntimeInterfaceError>
-    create(const RuntimeName_t& runtimeName, const units::Duration roudiWaitingTimeout) noexcept;
+    create(const RuntimeName_t& runtimeName,
+           const uint16_t uniqueRouDiId,
+           const units::Duration roudiWaitingTimeout) noexcept;
 
     ~IpcRuntimeInterface() noexcept = default;
 

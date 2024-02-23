@@ -40,7 +40,8 @@ class SharedMemoryUser
     /// address space
     SharedMemoryUser(const size_t topicSize,
                      const uint64_t segmentId,
-                     const UntypedRelativePointer::offset_t segmentManagerAddressOffset) noexcept;
+                     const UntypedRelativePointer::offset_t segmentManagerAddressOffset,
+                     const uint16_t uniqueRouDiId = roudi::DEFAULT_UNIQUE_ROUDI_ID) noexcept;
 
     ~SharedMemoryUser() noexcept;
 
@@ -54,6 +55,7 @@ class SharedMemoryUser
                           const UntypedRelativePointer::offset_t segmentManagerAddressOffset) noexcept;
 
   private:
+    uint16_t m_uniqueRouDiId{roudi::DEFAULT_UNIQUE_ROUDI_ID};
     optional<PosixSharedMemoryObject> m_shmObject;
     vector<PosixSharedMemoryObject, MAX_SHM_SEGMENTS> m_dataShmObjects;
     static constexpr access_rights SHM_SEGMENT_PERMISSIONS =

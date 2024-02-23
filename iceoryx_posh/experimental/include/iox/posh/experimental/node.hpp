@@ -86,6 +86,7 @@ class Node
   private:
     friend class NodeBuilder;
     Node(const NodeName_t& name,
+         const uint16_t uniqueRouDiId,
          const runtime::RuntimeLocation location,
          runtime::IpcRuntimeInterface&& runtime_interface) noexcept;
 

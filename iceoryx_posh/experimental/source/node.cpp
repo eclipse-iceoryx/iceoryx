@@ -28,19 +28,21 @@ expected<Node, NodeBuilderError> NodeBuilder::create() noexcept
 {
     auto location = m_shares_address_space_with_roudi ? runtime::RuntimeLocation::SAME_PROCESS_LIKE_ROUDI
                                                       : runtime::RuntimeLocation::SEPARATE_PROCESS_FROM_ROUDI;
-    auto ipcRuntimeIterface = runtime::IpcRuntimeInterface::create(m_name, m_roudi_registration_timeout);
+    auto ipcRuntimeIterface = runtime::IpcRuntimeInterface::create(m_name, m_roudi_id, m_roudi_registration_timeout);
     if (ipcRuntimeIterface.has_error())
     {
         return err(into<NodeBuilderError>(ipcRuntimeIterface.error()));
     }
-    return ok(Node{m_name, location, std::move(ipcRuntimeIterface.value())});
+    return ok(Node{m_name, m_roudi_id, location, std::move(ipcRuntimeIterface.value())});
 }
 
 Node::Node(const NodeName_t& name,
+           const uint16_t uniqueRouDiId,
            const runtime::RuntimeLocation location,
            runtime::IpcRuntimeInterface&& runtime_interface) noexcept
     : m_runtime(unique_ptr<runtime::PoshRuntime>{
-        new runtime::PoshRuntimeImpl{make_optional<const NodeName_t*>(&name), location, std::move(runtime_interface)},
+        new runtime::PoshRuntimeImpl{
+            make_optional<const NodeName_t*>(&name), uniqueRouDiId, location, std::move(runtime_interface)},
         [&](auto* const rt) { delete rt; }})
 {
 }

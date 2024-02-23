@@ -19,6 +19,7 @@
 #define IOX_POSH_MEPOO_MEPOO_SEGMENT_INL
 
 #include "iceoryx_posh/internal/mepoo/mepoo_segment.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/unique_port_id.hpp"
 #include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iceoryx_posh/mepoo/memory_info.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
@@ -75,7 +76,8 @@ inline SharedMemoryObjectType MePooSegment<SharedMemoryObjectType, MemoryManager
         typename SharedMemoryObjectType::Builder()
             .name([&writerGroup] {
                 using ShmName_t = detail::PosixSharedMemory::Name_t;
-                ShmName_t shmName = iceoryxResourcePrefix(roudi::DEFAULT_UNIQUE_ROUDI_ID, ResourceType::USER_DEFINED);
+                ShmName_t shmName =
+                    iceoryxResourcePrefix(popo::UniquePortId::getUniqueRouDiId(), ResourceType::USER_DEFINED);
                 if (shmName.size() + writerGroup.getName().size() > ShmName_t::capacity())
                 {
                     IOX_LOG(FATAL,
