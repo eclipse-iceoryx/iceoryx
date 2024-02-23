@@ -22,6 +22,7 @@ namespace config
 {
 RouDiConfig& RouDiConfig::setDefaults() noexcept
 {
+    *this = RouDiConfig();
     return *this;
 }
 
