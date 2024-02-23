@@ -60,6 +60,20 @@ Please make sure you have:
 
 **NOTE:** For support while developing you can use little helper scripts, see [git-hooks](./tools/git-hooks/Readme.md).
 
+## Experimental features
+
+Large features or features where the API is not yet clear can be implemented with the `IOX_EXPERIMENTAL` feature flag. Those
+features shall not be available in the installed headers when the `IOX_EXPERIMENTAL` feature flag was not set during compilation.
+
+If possible, this should be achieved not installing the headers of the experimental feature instead of `ifdefs`. With this
+approach, the experimental features can still be build on all targets on the CI without specifying the `IOX_EXPERIMENTAL` feature
+flag and does not require new CI targets.
+
+The experimental feature must be in an `experimental` namespace and the header includes path must also contain the name `experimental`.
+
+The experimental features should not be mentioned in a prominent place so as not to encourage users to use them since there
+will be no community support and they might be removed at a later stage.
+
 ## Branching strategy
 
 `master`
