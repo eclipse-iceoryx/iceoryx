@@ -39,6 +39,7 @@ enum class PublisherBuilderError
     OUT_OF_RESOURCES,
 };
 
+/// @brief A builder for the publisher
 class PublisherBuilder
 {
   public:
@@ -49,14 +50,23 @@ class PublisherBuilder
     PublisherBuilder(PublisherBuilder&& rhs) noexcept = delete;
     PublisherBuilder& operator=(PublisherBuilder&& rhs) noexcept = delete;
 
+    /// @brief The size of the history chunk queue
     IOX_BUILDER_PARAMETER(uint64_t, history_capacity, 0)
+
+    /// @brief Indicates whether the publisher should already be offered when creating it
     IOX_BUILDER_PARAMETER(bool, offer_on_create, true)
+
+    /// @brief Indicates whether the publisher should block when the subscriber queue is full
     IOX_BUILDER_PARAMETER(ConsumerTooSlowPolicy, subscriber_too_slow_policy, ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA)
 
   public:
+    /// @brief Creates a typed publisher instance for the publish-subscribe messaging pattern
+    /// @tparam T user payload type
+    /// @tparam H user header type
     template <typename T, typename H = NoUserHeader>
     expected<unique_ptr<Publisher<T, H>>, PublisherBuilderError> create() noexcept;
 
+    /// @brief Creates an untyped publisher instance for the publish-subscribe messaging pattern
     expected<unique_ptr<UntypedPublisher>, PublisherBuilderError> create() noexcept;
 
   private:

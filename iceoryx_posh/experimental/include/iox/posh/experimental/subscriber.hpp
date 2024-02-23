@@ -38,6 +38,7 @@ enum class SubscriberBuilderError
     OUT_OF_RESOURCES,
 };
 
+/// @brief A builder for the subscriber
 class SubscriberBuilder
 {
   public:
@@ -48,17 +49,31 @@ class SubscriberBuilder
     SubscriberBuilder(SubscriberBuilder&& rhs) noexcept = delete;
     SubscriberBuilder& operator=(SubscriberBuilder&& rhs) noexcept = delete;
 
-
+    /// @brief The size of the receiver queue where chunks are stored before they are passed to the user
+    /// @attention Depending on the underlying queue there can be a different overflow behavior
     IOX_BUILDER_PARAMETER(uint64_t, queue_capacity, popo::SubscriberChunkQueueData_t::MAX_CAPACITY)
+
+    /// @brief The max number of chunks received after subscription if chunks are available
     IOX_BUILDER_PARAMETER(uint64_t, history_request, 0)
+
+    /// @brief Indicates whether to enforce history support of the publisher,
+    ///        i.e. require historyCapacity > 0 to be eligible to be connected
     IOX_BUILDER_PARAMETER(bool, requires_publisher_history_support, false)
+
+    /// @brief Indicates whether the subscriber shall try to subscribe when creating it
     IOX_BUILDER_PARAMETER(bool, subscribe_on_create, true)
+
+    /// @brief Indicates whether the publisher should block when the subscriber queue is full
     IOX_BUILDER_PARAMETER(QueueFullPolicy, queue_full_policy, QueueFullPolicy::DISCARD_OLDEST_DATA)
 
   public:
+    /// @brief Creates a typed subscriber instance for the publish-subscribe messaging pattern
+    /// @tparam T user payload type
+    /// @tparam H user header type
     template <typename T, typename H = NoUserHeader>
     expected<unique_ptr<Subscriber<T, H>>, SubscriberBuilderError> create() noexcept;
 
+    /// @brief Creates an untyped subscriber instance for the publish-subscribe messaging pattern
     expected<unique_ptr<UntypedSubscriber>, SubscriberBuilderError> create() noexcept;
 
   private:

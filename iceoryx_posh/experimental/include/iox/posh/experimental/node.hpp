@@ -31,6 +31,7 @@
 
 namespace iox::posh::experimental
 {
+using capro::ServiceDescription;
 
 class Node;
 
@@ -41,15 +42,23 @@ enum class NodeBuilderError
     REGISTRATION_FAILED,
 };
 
+/// @brief A builder for a 'Node' which is th entry point to create publisher, subscriber, wait sets, etc.
+/// @note For testing purposes there is also the 'RouDiEnvNodeBuilder'
 class NodeBuilder
 {
   public:
+    /// @brief Initiates the node builder
+    /// @param[in] name is the name the node is identified with; The name must be unique across processes
     explicit NodeBuilder(const NodeName_t& name) noexcept;
 
+    /// @brief Determines to which RouDi instance to register with
     IOX_BUILDER_PARAMETER(uint16_t, roudi_id, roudi::DEFAULT_UNIQUE_ROUDI_ID)
 
+    /// @brief Determines the time to wait for registration at RouDi
     IOX_BUILDER_PARAMETER(units::Duration, roudi_registration_timeout, units::Duration::zero())
 
+    /// @brief Indicates whether the node shares the address space with 'RouDi', e.g. in single process applications or
+    /// tests
     IOX_BUILDER_PARAMETER(bool, shares_address_space_with_roudi, false)
 
   public:
@@ -59,13 +68,19 @@ class NodeBuilder
     NodeName_t m_name;
 };
 
+/// @brief Entry point to create publisher, subscriber, wait sets, etc.
 class Node
 {
   public:
-    PublisherBuilder publisher(const capro::ServiceDescription& service_description) noexcept;
+    /// @brief Initiates a 'PublisherBuilder'
+    /// @param[in] service_description for the publisher
+    PublisherBuilder publisher(const ServiceDescription& service_description) noexcept;
 
-    SubscriberBuilder subscriber(const capro::ServiceDescription& service_description) noexcept;
+    /// @brief Initiates a 'SubscriberBuilder'
+    /// @param[in] service_description for the subscriber
+    SubscriberBuilder subscriber(const ServiceDescription& service_description) noexcept;
 
+    /// @brief Initiates a 'WaitSetBuilder'
     WaitSetBuilder wait_set() noexcept;
 
   private:

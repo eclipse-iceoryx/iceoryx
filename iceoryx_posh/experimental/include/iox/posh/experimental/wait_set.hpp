@@ -35,9 +35,13 @@ enum class WaitSetBuilderError
     OUT_OF_RESOURCES,
 };
 
+/// @brief A builder for the waitset
 class WaitSetBuilder
 {
   public:
+    /// @brief Creates a waitset
+    /// @tparam Capacity the amount of events/states which can be attached to the waitset
+    /// @return a 'WaitSet' on success and a 'WaitSetBuilderError' on failure
     template <uint64_t Capacity = MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET>
     expected<unique_ptr<WaitSet<Capacity>>, WaitSetBuilderError> create() noexcept;
 

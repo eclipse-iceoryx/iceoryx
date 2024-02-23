@@ -45,12 +45,12 @@ Node::Node(const NodeName_t& name,
 {
 }
 
-PublisherBuilder Node::publisher(const capro::ServiceDescription& service_description) noexcept
+PublisherBuilder Node::publisher(const ServiceDescription& service_description) noexcept
 {
     return PublisherBuilder{*m_runtime.get(), service_description};
 }
 
-SubscriberBuilder Node::subscriber(const capro::ServiceDescription& service_description) noexcept
+SubscriberBuilder Node::subscriber(const ServiceDescription& service_description) noexcept
 {
     return SubscriberBuilder{*m_runtime.get(), service_description};
 }
