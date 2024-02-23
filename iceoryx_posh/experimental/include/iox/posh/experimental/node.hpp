@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_POSH_EXPERIMENTAL_RUNTIME_HPP
-#define IOX_POSH_EXPERIMENTAL_RUNTIME_HPP
+#ifndef IOX_POSH_EXPERIMENTAL_NODE_HPP
+#define IOX_POSH_EXPERIMENTAL_NODE_HPP
 
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -32,35 +32,34 @@
 namespace iox::posh::experimental
 {
 
-class Runtime;
+class Node;
 
-enum class RuntimeBuilderError
+enum class NodeBuilderError
 {
-    RUNTIME_STILL_ACTIVE,
     IPC_CHANNEL_CREATION_FAILED,
     TIMEOUT,
     REGISTRATION_FAILED,
 };
 
-class RuntimeBuilder
+class NodeBuilder
 {
   public:
-    explicit RuntimeBuilder(const RuntimeName_t& name) noexcept;
+    explicit NodeBuilder(const NodeName_t& name) noexcept;
 
     IOX_BUILDER_PARAMETER(uint16_t, roudi_id, roudi::DEFAULT_UNIQUE_ROUDI_ID)
 
     IOX_BUILDER_PARAMETER(units::Duration, roudi_registration_timeout, units::Duration::zero())
 
-    IOX_BUILDER_PARAMETER(bool, shares_process_with_roudi, false)
+    IOX_BUILDER_PARAMETER(bool, shares_address_space_with_roudi, false)
 
   public:
-    expected<Runtime, RuntimeBuilderError> create() noexcept;
+    expected<Node, NodeBuilderError> create() noexcept;
 
   private:
-    RuntimeName_t m_name;
+    NodeName_t m_name;
 };
 
-class Runtime
+class Node
 {
   public:
     PublisherBuilder publisher(const capro::ServiceDescription& service_description) noexcept;
@@ -70,11 +69,10 @@ class Runtime
     WaitSetBuilder wait_set() noexcept;
 
   private:
-    friend class RuntimeBuilder;
-    friend class optional<Runtime>;
-    Runtime(const RuntimeName_t& name,
-            runtime::RuntimeLocation location,
-            runtime::IpcRuntimeInterface&& runtime_interface) noexcept;
+    friend class NodeBuilder;
+    Node(const NodeName_t& name,
+         runtime::RuntimeLocation location,
+         runtime::IpcRuntimeInterface&& runtime_interface) noexcept;
 
   private:
     unique_ptr<runtime::PoshRuntime> m_runtime;
@@ -85,8 +83,8 @@ class Runtime
 namespace iox
 {
 template <>
-constexpr posh::experimental::RuntimeBuilderError
-from<runtime::IpcRuntimeInterface::Error, posh::experimental::RuntimeBuilderError>(
+constexpr posh::experimental::NodeBuilderError
+from<runtime::IpcRuntimeInterface::Error, posh::experimental::NodeBuilderError>(
     runtime::IpcRuntimeInterface::Error e) noexcept
 {
     using namespace posh::experimental;
@@ -94,18 +92,18 @@ from<runtime::IpcRuntimeInterface::Error, posh::experimental::RuntimeBuilderErro
     switch (e)
     {
     case IpcRuntimeInterface::Error::CANNOT_CREATE_APPLICATION_CHANNEL:
-        return RuntimeBuilderError::IPC_CHANNEL_CREATION_FAILED;
+        return NodeBuilderError::IPC_CHANNEL_CREATION_FAILED;
     case IpcRuntimeInterface::Error::TIMEOUT_WAITING_FOR_ROUDI:
-        return RuntimeBuilderError::TIMEOUT;
+        return NodeBuilderError::TIMEOUT;
     case IpcRuntimeInterface::Error::SENDING_REQUEST_TO_ROUDI_FAILED:
         [[fallthrough]];
     case IpcRuntimeInterface::Error::NO_RESPONSE_FROM_ROUDI:
-        return RuntimeBuilderError::REGISTRATION_FAILED;
+        return NodeBuilderError::REGISTRATION_FAILED;
     }
 
     // just to prevent a warning regarding not returning from a non-void function
-    return RuntimeBuilderError::REGISTRATION_FAILED;
+    return NodeBuilderError::REGISTRATION_FAILED;
 }
 } // namespace iox
 
-#endif // IOX_HOOFS_REPORTING_LOGGING_HPP
+#endif // IOX_POSH_EXPERIMENTAL_NODE_HPP

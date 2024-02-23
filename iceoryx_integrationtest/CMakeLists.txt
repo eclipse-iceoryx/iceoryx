@@ -32,7 +32,7 @@ if(BUILD_TESTING)
   )
 
   if(IOX_EXPERIMENTAL)
-    list(APPEND IOX_INT_TESTS test_experimental_non_static_runtime)
+    list(APPEND IOX_INT_TESTS test_experimental_node)
   else()
     message(FATAL_ERROR "Please run colcon with '--meta=path/to/iceoryx_integrationtest/colcon.meta' to enable the experimental feature flag for the integration tests")
   endif()

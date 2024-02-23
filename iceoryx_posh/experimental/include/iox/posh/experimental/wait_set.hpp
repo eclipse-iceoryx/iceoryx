@@ -42,7 +42,7 @@ class WaitSetBuilder
     expected<unique_ptr<WaitSet<Capacity>>, WaitSetBuilderError> create() noexcept;
 
   private:
-    friend class Runtime;
+    friend class Node;
     explicit WaitSetBuilder(runtime::PoshRuntime& runtime) noexcept;
 
   private:

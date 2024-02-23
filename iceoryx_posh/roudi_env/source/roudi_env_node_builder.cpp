@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2024 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,25 +13,14 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_EXAMPLES_ICEDELIVERY_TOPIC_DATA_HPP
-#define IOX_EXAMPLES_ICEDELIVERY_TOPIC_DATA_HPP
 
-//! [topic data]
-struct RadarObject
+#include "iceoryx_posh/roudi_env/roudi_env_node_builder.hpp"
+
+namespace iox::roudi_env
 {
-    RadarObject() noexcept
-    {
-    }
-    RadarObject(double x, double y, double z) noexcept
-        : x(x)
-        , y(y)
-        , z(z)
-    {
-    }
-    double x = 0.0;
-    double y = 0.0;
-    double z = 0.0;
-};
-//! [topic data]
-
-#endif // IOX_EXAMPLES_ICEDELIVERY_TOPIC_DATA_HPP
+RouDiEnvNodeBuilder::RouDiEnvNodeBuilder(const NodeName_t& name) noexcept
+    : NodeBuilder(name)
+{
+    std::move(*this).shares_address_space_with_roudi(true);
+}
+} // namespace iox::roudi_env

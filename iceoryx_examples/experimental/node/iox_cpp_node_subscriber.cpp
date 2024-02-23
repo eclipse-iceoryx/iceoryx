@@ -1,4 +1,4 @@
-// Copyright (c) 2023 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
+// Copyright (c) 2024 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 #include "topic_data.hpp"
 
 #include "iox/optional.hpp"
-#include "iox/posh/experimental/runtime.hpp"
+#include "iox/posh/experimental/node.hpp"
 #include "iox/signal_handler.hpp"
 
 #include <iostream>
@@ -45,16 +45,16 @@ int main()
     auto signalTermGuard =
         iox::registerSignalHandler(iox::PosixSignal::TERM, sigHandler).expect("failed to register SIGTERM");
 
-    constexpr char APP_NAME[] = "iox-cpp-non-static-runtime-subscriber";
-    auto runtime_result = iox::posh::experimental::RuntimeBuilder(APP_NAME).create();
+    constexpr char APP_NAME[] = "iox-cpp-node-subscriber";
+    auto node_result = iox::posh::experimental::NodeBuilder(APP_NAME).create();
 
-    while (keep_running && runtime_result.has_error())
+    while (keep_running && node_result.has_error())
     {
-        std::cout << "Could not create the runtime!" << std::endl;
+        std::cout << "Could not create the node!" << std::endl;
 
-        runtime_result = iox::posh::experimental::RuntimeBuilder(APP_NAME)
-                             .roudi_registration_timeout(iox::units::Duration::fromSeconds(1))
-                             .create();
+        node_result = iox::posh::experimental::NodeBuilder(APP_NAME)
+                          .roudi_registration_timeout(iox::units::Duration::fromSeconds(1))
+                          .create();
     }
 
     if (!keep_running)
@@ -62,13 +62,13 @@ int main()
         return EXIT_SUCCESS;
     }
 
-    auto runtime = std::move(runtime_result.value());
+    auto node = std::move(node_result.value());
 
-    auto ws = runtime.wait_set().create().expect("Getting a wait set");
+    auto ws = node.wait_set().create().expect("Getting a wait set");
     waitsetSigHandlerAccess = ws.get();
 
     auto subscriber =
-        runtime.subscriber({"Radar", "FrontLeft", "Object"}).create<RadarObject>().expect("Getting a subscriber");
+        node.subscriber({"Radar", "FrontLeft", "Object"}).create<RadarObject>().expect("Getting a subscriber");
 
     ws->attachState(*subscriber.get(), iox::popo::SubscriberState::HAS_DATA).or_else([](auto) {
         std::cout << "Failed to attach subscriber" << std::endl;

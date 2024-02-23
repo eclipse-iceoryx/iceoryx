@@ -27,7 +27,7 @@ from launch_testing.asserts import assertSequentialStdout
 
 import pytest
 
-# @brief Test goal: "Integrationtest for the experimental non-static runtime example of iceoryx"
+# @brief Test goal: "Integrationtest for the experimental node example of iceoryx"
 # @pre setup ROS2 launch executable for RouDi (debug mode) the example processes
 # @post check if all applications return exitcode 0 (success) after test run
 @pytest.mark.launch_test
@@ -35,13 +35,13 @@ def generate_test_description():
 
     proc_env = os.environ.copy()
     colcon_prefix_path = os.environ.get('COLCON_PREFIX_PATH', '')
-    executable_list = ['iox-cpp-non-static-runtime-publisher', 'iox-cpp-non-static-runtime-subscriber']
+    executable_list = ['iox-cpp-node-publisher', 'iox-cpp-node-subscriber']
     process_list = []
 
     for exec in executable_list:
         tmp_exec = os.path.join(
             colcon_prefix_path,
-            'example_experimental_non_static_runtime/bin/',
+            'example_experimental_node/bin/',
             exec)
         tmp_process = launch.actions.ExecuteProcess(
             cmd=[tmp_exec],
@@ -65,8 +65,8 @@ def generate_test_description():
         process_list[0],
         process_list[1],
         launch_testing.actions.ReadyToTest()
-    ]), {'iox-cpp-non-static-runtime-publisher': process_list[0],
-         'iox-cpp-non-static-runtime-subscriber': process_list[1]}
+    ]), {'iox-cpp-node-publisher': process_list[0],
+         'iox-cpp-node-subscriber': process_list[1]}
 
 
 class TestWaitSetExample(unittest.TestCase):

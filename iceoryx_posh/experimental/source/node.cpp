@@ -14,49 +14,48 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iox/posh/experimental/runtime.hpp"
+#include "iox/posh/experimental/node.hpp"
 #include "iceoryx_posh/internal/runtime/posh_runtime_impl.hpp"
 
 namespace iox::posh::experimental
 {
-RuntimeBuilder::RuntimeBuilder(const RuntimeName_t& name) noexcept
+NodeBuilder::NodeBuilder(const NodeName_t& name) noexcept
     : m_name(name)
 {
 }
 
-expected<Runtime, RuntimeBuilderError> RuntimeBuilder::create() noexcept
+expected<Node, NodeBuilderError> NodeBuilder::create() noexcept
 {
-    auto location = m_shares_process_with_roudi ? runtime::RuntimeLocation::SAME_PROCESS_LIKE_ROUDI
-                                                : runtime::RuntimeLocation::SEPARATE_PROCESS_FROM_ROUDI;
+    auto location = m_shares_address_space_with_roudi ? runtime::RuntimeLocation::SAME_PROCESS_LIKE_ROUDI
+                                                      : runtime::RuntimeLocation::SEPARATE_PROCESS_FROM_ROUDI;
     auto ipcRuntimeIterface = runtime::IpcRuntimeInterface::create(m_name, m_roudi_registration_timeout);
     if (ipcRuntimeIterface.has_error())
     {
-        return err(into<RuntimeBuilderError>(ipcRuntimeIterface.error()));
+        return err(into<NodeBuilderError>(ipcRuntimeIterface.error()));
     }
-    return ok(Runtime{m_name, location, std::move(ipcRuntimeIterface.value())});
+    return ok(Node{m_name, location, std::move(ipcRuntimeIterface.value())});
 }
 
-Runtime::Runtime(const RuntimeName_t& name,
-                 runtime::RuntimeLocation location,
-                 runtime::IpcRuntimeInterface&& runtime_interface) noexcept
+Node::Node(const NodeName_t& name,
+           runtime::RuntimeLocation location,
+           runtime::IpcRuntimeInterface&& runtime_interface) noexcept
     : m_runtime(unique_ptr<runtime::PoshRuntime>{
-        new runtime::PoshRuntimeImpl{
-            make_optional<const RuntimeName_t*>(&name), location, std::move(runtime_interface)},
+        new runtime::PoshRuntimeImpl{make_optional<const NodeName_t*>(&name), location, std::move(runtime_interface)},
         [&](auto* const rt) { delete rt; }})
 {
 }
 
-PublisherBuilder Runtime::publisher(const capro::ServiceDescription& service_description) noexcept
+PublisherBuilder Node::publisher(const capro::ServiceDescription& service_description) noexcept
 {
     return PublisherBuilder{*m_runtime.get(), service_description};
 }
 
-SubscriberBuilder Runtime::subscriber(const capro::ServiceDescription& service_description) noexcept
+SubscriberBuilder Node::subscriber(const capro::ServiceDescription& service_description) noexcept
 {
     return SubscriberBuilder{*m_runtime.get(), service_description};
 }
 
-WaitSetBuilder Runtime::wait_set() noexcept
+WaitSetBuilder Node::wait_set() noexcept
 {
     return WaitSetBuilder{*m_runtime.get()};
 }

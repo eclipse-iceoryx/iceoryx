@@ -39,6 +39,7 @@ class Subscriber : public SubscriberImpl<T, H>
 
   public:
     using SubscriberImpl<T, H>::SubscriberImpl;
+
     virtual ~Subscriber() noexcept
     {
         Impl::m_trigger.reset();

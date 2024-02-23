@@ -33,8 +33,6 @@ using iox::popo::QueueFullPolicy;
 using iox::popo::Subscriber;
 using iox::popo::UntypedSubscriber;
 
-class Runtime;
-
 enum class SubscriberBuilderError
 {
     OUT_OF_RESOURCES,
@@ -64,7 +62,7 @@ class SubscriberBuilder
     expected<unique_ptr<UntypedSubscriber>, SubscriberBuilderError> create() noexcept;
 
   private:
-    friend class Runtime;
+    friend class Node;
     explicit SubscriberBuilder(runtime::PoshRuntime& runtime,
                                const capro::ServiceDescription& service_description) noexcept;
 

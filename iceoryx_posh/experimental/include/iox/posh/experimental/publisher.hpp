@@ -34,8 +34,6 @@ using iox::popo::ConsumerTooSlowPolicy;
 using iox::popo::Publisher;
 using iox::popo::UntypedPublisher;
 
-class Runtime;
-
 enum class PublisherBuilderError
 {
     OUT_OF_RESOURCES,
@@ -62,7 +60,7 @@ class PublisherBuilder
     expected<unique_ptr<UntypedPublisher>, PublisherBuilderError> create() noexcept;
 
   private:
-    friend class Runtime;
+    friend class Node;
     explicit PublisherBuilder(runtime::PoshRuntime& runtime,
                               const capro::ServiceDescription& service_description) noexcept;
 

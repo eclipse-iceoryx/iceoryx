@@ -141,13 +141,16 @@ constexpr const char SERVICE_DISCOVERY_INSTANCE_NAME[] = "RouDi_ID";
 constexpr const char SERVICE_DISCOVERY_EVENT_NAME[] = "ServiceRegistry";
 
 // Nodes
+constexpr uint32_t MAX_NODE_NAME_LENGTH = build::IOX_MAX_NODE_NAME_LENGTH;
+static_assert(MAX_NODE_NAME_LENGTH <= MAX_IPC_CHANNEL_NAME_LENGTH, "Invalid configuration of maximum node name length");
+
 constexpr uint32_t MAX_NODE_NUMBER = build::IOX_MAX_NODE_NUMBER;
 constexpr uint32_t MAX_NODE_PER_PROCESS = build::IOX_MAX_NODE_PER_PROCESS;
 
 constexpr uint32_t MAX_RUNTIME_NAME_LENGTH = build::IOX_MAX_RUNTIME_NAME_LENGTH;
-
 static_assert(MAX_RUNTIME_NAME_LENGTH <= MAX_IPC_CHANNEL_NAME_LENGTH,
               "Invalid configuration of maximum runtime name length");
+
 static_assert(MAX_PROCESS_NUMBER * MAX_NODE_PER_PROCESS > MAX_NODE_NUMBER, "Invalid configuration for nodes");
 
 enum class SubscribeState : uint32_t
@@ -216,7 +219,7 @@ inline ResourcePrefix_t iceoryxResourcePrefix(uint16_t uniqueRouDiID, ResourceTy
 
 // alias for string
 using RuntimeName_t = string<MAX_RUNTIME_NAME_LENGTH>;
-using NodeName_t = string<build::IOX_MAX_NODE_NAME_LENGTH>;
+using NodeName_t = string<MAX_NODE_NAME_LENGTH>;
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
 using ShmName_t = string<128>;
 

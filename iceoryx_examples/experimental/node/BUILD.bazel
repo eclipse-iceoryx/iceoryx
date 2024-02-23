@@ -1,5 +1,5 @@
 # Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
-# Copyright (c) 2023 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
+# Copyright (c) 2024 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,9 +23,9 @@ cc_library(
 )
 
 cc_binary(
-    name = "iox-cpp-non-static-runtime-publisher",
+    name = "iox-cpp-node-publisher",
     srcs = [
-        "iox_cpp_non_static_runtime_publisher.cpp",
+        "iox_cpp_node_publisher.cpp",
     ],
     deps = [
         ":topic_data",
@@ -34,9 +34,9 @@ cc_binary(
 )
 
 cc_binary(
-    name = "iox-cpp-non-static-runtime-subscriber",
+    name = "iox-cpp-node-subscriber",
     srcs = [
-        "iox_cpp_non_static_runtime_subscriber.cpp",
+        "iox_cpp_node_subscriber.cpp",
     ],
     deps = [
         ":topic_data",

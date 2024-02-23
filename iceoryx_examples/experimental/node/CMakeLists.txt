@@ -1,6 +1,6 @@
 # Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
 # Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
-# Copyright (c) 2023 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
+# Copyright (c) 2024 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 cmake_minimum_required(VERSION 3.16)
-project(example_experimental_non_static_runtime)
+project(example_experimental_node)
 
 include(GNUInstallDirs)
 
@@ -30,13 +30,13 @@ include(IceoryxPlatform)
 include(IceoryxPlatformSettings)
 
 iox_add_executable(
-    TARGET  iox-cpp-non-static-runtime-publisher
-    FILES   ./iox_cpp_non_static_runtime_publisher.cpp
+    TARGET  iox-cpp-node-publisher
+    FILES   ./iox_cpp_node_publisher.cpp
     LIBS    iceoryx_posh::iceoryx_posh
 )
 
 iox_add_executable(
-    TARGET  iox-cpp-non-static-runtime-subscriber
-    FILES   ./iox_cpp_non_static_runtime_subscriber.cpp
+    TARGET  iox-cpp-node-subscriber
+    FILES   ./iox_cpp_node_subscriber.cpp
     LIBS    iceoryx_posh::iceoryx_posh
 )

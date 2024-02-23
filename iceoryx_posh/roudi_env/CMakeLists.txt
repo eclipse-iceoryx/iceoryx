@@ -36,5 +36,6 @@ iox_add_library(
     FILES
         source/minimal_roudi_config.cpp
         source/roudi_env.cpp
+        source/roudi_env_node_builder.cpp
         source/runtime_test_interface.cpp
 )

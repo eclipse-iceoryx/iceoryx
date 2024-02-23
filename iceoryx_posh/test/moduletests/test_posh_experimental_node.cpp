@@ -14,13 +14,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iox/posh/experimental/runtime.hpp"
+#include "iox/posh/experimental/node.hpp"
 
 #include "iox/deadline_timer.hpp"
 #include "iox/duration.hpp"
 
 #include "iceoryx_hoofs/testing/error_reporting/testing_support.hpp"
 #include "iceoryx_posh/roudi_env/roudi_env.hpp"
+#include "iceoryx_posh/roudi_env/roudi_env_node_builder.hpp"
 #include "test.hpp"
 
 namespace
@@ -39,76 +40,76 @@ struct Header
 {
 };
 
-TEST(Runtime_test, CreatingRuntimeWithRunningRouDiWorks)
+TEST(Node_test, CreatingNodeWithRunningRouDiWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "547fb8bf-ff25-4f86-ab7d-27b4474e2cdc");
 
     RouDiEnv roudi;
 
-    auto runtime_result = RouDiEnvRuntimeBuilder("foo").create();
+    auto node_result = RouDiEnvNodeBuilder("foo").create();
 
-    ASSERT_FALSE(runtime_result.has_error());
+    ASSERT_FALSE(node_result.has_error());
 
-    auto runtime = std::move(runtime_result.value());
+    auto node = std::move(node_result.value());
 
     IOX_TESTING_ASSERT_NO_PANIC();
 }
 
-TEST(Runtime_test, CreatingMultipleRuntimesWithRunningRouDiWorks)
+TEST(Node_test, CreatingMultipleNodesWithRunningRouDiWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8fe6c62f-7aa0-4822-b5e3-974b4e91c7b7");
 
     RouDiEnv roudi;
 
-    auto runtime1_result = RouDiEnvRuntimeBuilder("foo").create();
-    auto runtime2_result = RouDiEnvRuntimeBuilder("bar").create();
+    auto node1_result = RouDiEnvNodeBuilder("foo").create();
+    auto node2_result = RouDiEnvNodeBuilder("bar").create();
 
-    ASSERT_FALSE(runtime1_result.has_error());
-    ASSERT_FALSE(runtime2_result.has_error());
+    ASSERT_FALSE(node1_result.has_error());
+    ASSERT_FALSE(node2_result.has_error());
 
-    auto runtime1 = std::move(runtime1_result.value());
-    auto runtime2 = std::move(runtime2_result.value());
+    auto node1 = std::move(node1_result.value());
+    auto node2 = std::move(node2_result.value());
 
     IOX_TESTING_ASSERT_NO_PANIC();
 }
 
-TEST(Runtime_test, ReRegisteringRuntimeWithRunningRouDiWorks)
+TEST(Node_test, ReRegisteringNodeWithRunningRouDiWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2ce9d5f0-6989-4302-92b7-458fe1412111");
 
     RouDiEnv roudi;
 
-    optional<Runtime> runtime;
+    optional<Node> node;
 
-    auto runtime_result = RouDiEnvRuntimeBuilder("foo").create();
-    ASSERT_FALSE(runtime_result.has_error());
+    auto node_result = RouDiEnvNodeBuilder("foo").create();
+    ASSERT_FALSE(node_result.has_error());
 
-    runtime.emplace(std::move(runtime_result.value()));
-    runtime.reset();
+    node.emplace(std::move(node_result.value()));
+    node.reset();
 
-    runtime_result = RouDiEnvRuntimeBuilder("foo").create();
-    ASSERT_FALSE(runtime_result.has_error());
+    node_result = RouDiEnvNodeBuilder("foo").create();
+    ASSERT_FALSE(node_result.has_error());
 
-    runtime.emplace(std::move(runtime_result.value()));
+    node.emplace(std::move(node_result.value()));
 
     IOX_TESTING_ASSERT_NO_PANIC();
 }
 
-TEST(Runtime_test, RegisteringRuntimeWithoutRunningRouDiWithZeroWaitTimeResultsInImmediateTimeout)
+TEST(Node_test, RegisteringNodeWithoutRunningRouDiWithZeroWaitTimeResultsInImmediateTimeout)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f2041773-84d9-4c9b-9309-996af83d6ff0");
 
     deadline_timer timer{20_ms};
 
-    auto runtime_result = RouDiEnvRuntimeBuilder("foo").create();
+    auto node_result = RouDiEnvNodeBuilder("foo").create();
 
     EXPECT_FALSE(timer.hasExpired());
 
-    ASSERT_TRUE(runtime_result.has_error());
-    EXPECT_THAT(runtime_result.error(), Eq(RuntimeBuilderError::TIMEOUT));
+    ASSERT_TRUE(node_result.has_error());
+    EXPECT_THAT(node_result.error(), Eq(NodeBuilderError::TIMEOUT));
 }
 
-TEST(Runtime_test, RegisteringRuntimeWithoutRunningRouDiWithSomeWaitTimeResultsInTimeout)
+TEST(Node_test, RegisteringNodeWithoutRunningRouDiWithSomeWaitTimeResultsInTimeout)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ac069a39-6cdc-4f2e-8b88-984a7d1a5487");
 
@@ -116,41 +117,41 @@ TEST(Runtime_test, RegisteringRuntimeWithoutRunningRouDiWithSomeWaitTimeResultsI
     units::Duration wait_for_roudi_timeout{2 * wait_for_roudi_test_timeout};
     deadline_timer timer{wait_for_roudi_test_timeout};
 
-    auto runtime_result = RouDiEnvRuntimeBuilder("foo").roudi_registration_timeout(wait_for_roudi_timeout).create();
+    auto node_result = RouDiEnvNodeBuilder("foo").roudi_registration_timeout(wait_for_roudi_timeout).create();
 
     EXPECT_TRUE(timer.hasExpired());
 
-    ASSERT_TRUE(runtime_result.has_error());
-    EXPECT_THAT(runtime_result.error(), Eq(RuntimeBuilderError::TIMEOUT));
+    ASSERT_TRUE(node_result.has_error());
+    EXPECT_THAT(node_result.error(), Eq(NodeBuilderError::TIMEOUT));
 }
 
-TEST(Runtime_test, RegisteringRuntimeWithDelayedRouDiStartWorks)
+TEST(Node_test, RegisteringNodeWithDelayedRouDiStartWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "63ef9a1a-deee-40b5-bc17-37ee67ad8d76");
 
     iox::optional<RouDiEnv> roudi;
 
-    auto runtime_result = RouDiEnvRuntimeBuilder("foo").create();
+    auto node_result = RouDiEnvNodeBuilder("foo").create();
 
-    ASSERT_TRUE(runtime_result.has_error());
-    EXPECT_THAT(runtime_result.error(), Eq(RuntimeBuilderError::TIMEOUT));
+    ASSERT_TRUE(node_result.has_error());
+    EXPECT_THAT(node_result.error(), Eq(NodeBuilderError::TIMEOUT));
 
     roudi.emplace();
 
-    runtime_result = RouDiEnvRuntimeBuilder("foo").create();
+    node_result = RouDiEnvNodeBuilder("foo").create();
 
-    EXPECT_FALSE(runtime_result.has_error());
+    EXPECT_FALSE(node_result.has_error());
 }
 
-TEST(Runtime_test, CreatingTypedPublisherWithoutUserHeaderWorks)
+TEST(Node_test, CreatingTypedPublisherWithoutUserHeaderWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c98d1cb6-8990-4f91-a24b-d845d2dc37e1");
 
     RouDiEnv roudi;
 
-    auto runtime = RouDiEnvRuntimeBuilder("hypnotoad").create().expect("Creating a runtime should not fail!");
+    auto node = RouDiEnvNodeBuilder("hypnotoad").create().expect("Creating a node should not fail!");
 
-    auto publisher_result = runtime.publisher({"all", "glory", "hypnotoad"}).create<Payload>();
+    auto publisher_result = node.publisher({"all", "glory", "hypnotoad"}).create<Payload>();
     ASSERT_FALSE(publisher_result.has_error());
 
     auto publisher = std::move(publisher_result.value());
@@ -158,15 +159,15 @@ TEST(Runtime_test, CreatingTypedPublisherWithoutUserHeaderWorks)
     EXPECT_TRUE((std::is_same_v<decltype(publisher), iox::unique_ptr<iox::posh::experimental::Publisher<Payload>>>));
 }
 
-TEST(Runtime_test, CreatingTypedPublisherWithUserHeaderWorks)
+TEST(Node_test, CreatingTypedPublisherWithUserHeaderWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6b3d2144-1048-4fc4-91c0-4e251c608bf0");
 
     RouDiEnv roudi;
 
-    auto runtime = RouDiEnvRuntimeBuilder("hypnotoad").create().expect("Creating a runtime should not fail!");
+    auto node = RouDiEnvNodeBuilder("hypnotoad").create().expect("Creating a node should not fail!");
 
-    auto publisher_result = runtime.publisher({"all", "glory", "hypnotoad"}).create<Payload, Header>();
+    auto publisher_result = node.publisher({"all", "glory", "hypnotoad"}).create<Payload, Header>();
     ASSERT_FALSE(publisher_result.has_error());
 
     auto publisher = std::move(publisher_result.value());
@@ -175,15 +176,15 @@ TEST(Runtime_test, CreatingTypedPublisherWithUserHeaderWorks)
         (std::is_same_v<decltype(publisher), iox::unique_ptr<iox::posh::experimental::Publisher<Payload, Header>>>));
 }
 
-TEST(Runtime_test, CreatingUntypedPublisherWithUserHeaderWorks)
+TEST(Node_test, CreatingUntypedPublisherWithUserHeaderWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b00fabef-71ee-42bc-bf7c-7c772de00008");
 
     RouDiEnv roudi;
 
-    auto runtime = RouDiEnvRuntimeBuilder("hypnotoad").create().expect("Creating a runtime should not fail!");
+    auto node = RouDiEnvNodeBuilder("hypnotoad").create().expect("Creating a node should not fail!");
 
-    auto publisher_result = runtime.publisher({"all", "glory", "hypnotoad"}).create();
+    auto publisher_result = node.publisher({"all", "glory", "hypnotoad"}).create();
     ASSERT_FALSE(publisher_result.has_error());
 
     auto publisher = std::move(publisher_result.value());
@@ -191,15 +192,15 @@ TEST(Runtime_test, CreatingUntypedPublisherWithUserHeaderWorks)
     EXPECT_TRUE((std::is_same_v<decltype(publisher), iox::unique_ptr<iox::posh::experimental::UntypedPublisher>>));
 }
 
-TEST(Runtime_test, CreatingTypedSubscriberWithoutUserHeaderWorks)
+TEST(Node_test, CreatingTypedSubscriberWithoutUserHeaderWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e14f3c82-d758-43cc-bd89-dfdf0ed71480");
 
     RouDiEnv roudi;
 
-    auto runtime = RouDiEnvRuntimeBuilder("hypnotoad").create().expect("Creating a runtime should not fail!");
+    auto node = RouDiEnvNodeBuilder("hypnotoad").create().expect("Creating a node should not fail!");
 
-    auto subscriber_result = runtime.subscriber({"all", "glory", "hypnotoad"}).create<Payload>();
+    auto subscriber_result = node.subscriber({"all", "glory", "hypnotoad"}).create<Payload>();
     ASSERT_FALSE(subscriber_result.has_error());
 
     auto subscriber = std::move(subscriber_result.value());
@@ -207,15 +208,15 @@ TEST(Runtime_test, CreatingTypedSubscriberWithoutUserHeaderWorks)
     EXPECT_TRUE((std::is_same_v<decltype(subscriber), iox::unique_ptr<iox::posh::experimental::Subscriber<Payload>>>));
 }
 
-TEST(Runtime_test, CreatingTypedSubscriberWithUserHeaderWorks)
+TEST(Node_test, CreatingTypedSubscriberWithUserHeaderWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6f3181e5-989d-4c61-8507-3f224027407c");
 
     RouDiEnv roudi;
 
-    auto runtime = RouDiEnvRuntimeBuilder("hypnotoad").create().expect("Creating a runtime should not fail!");
+    auto node = RouDiEnvNodeBuilder("hypnotoad").create().expect("Creating a node should not fail!");
 
-    auto subscriber_result = runtime.subscriber({"all", "glory", "hypnotoad"}).create<Payload, Header>();
+    auto subscriber_result = node.subscriber({"all", "glory", "hypnotoad"}).create<Payload, Header>();
     ASSERT_FALSE(subscriber_result.has_error());
 
 
@@ -225,15 +226,15 @@ TEST(Runtime_test, CreatingTypedSubscriberWithUserHeaderWorks)
         (std::is_same_v<decltype(subscriber), iox::unique_ptr<iox::posh::experimental::Subscriber<Payload, Header>>>));
 }
 
-TEST(Runtime_test, CreatingUntypedSubscriberWorks)
+TEST(Node_test, CreatingUntypedSubscriberWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1bb7dab1-fe5c-4a37-98b2-cad229fdbca0");
 
     RouDiEnv roudi;
 
-    auto runtime = RouDiEnvRuntimeBuilder("hypnotoad").create().expect("Creating a runtime should not fail!");
+    auto node = RouDiEnvNodeBuilder("hypnotoad").create().expect("Creating a node should not fail!");
 
-    auto subscriber_result = runtime.subscriber({"all", "glory", "hypnotoad"}).create();
+    auto subscriber_result = node.subscriber({"all", "glory", "hypnotoad"}).create();
     ASSERT_FALSE(subscriber_result.has_error());
 
     auto subscriber = std::move(subscriber_result.value());
@@ -241,15 +242,15 @@ TEST(Runtime_test, CreatingUntypedSubscriberWorks)
     EXPECT_TRUE((std::is_same_v<decltype(subscriber), iox::unique_ptr<iox::posh::experimental::UntypedSubscriber>>));
 }
 
-TEST(Runtime_test, CreatingWaitSetWithDefaultCapacityWorks)
+TEST(Node_test, CreatingWaitSetWithDefaultCapacityWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ccbef3ca-87b5-4d76-955e-171c5f1b5abd");
 
     RouDiEnv roudi;
 
-    auto runtime = RouDiEnvRuntimeBuilder("hypnotoad").create().expect("Creating a runtime should not fail!");
+    auto node = RouDiEnvNodeBuilder("hypnotoad").create().expect("Creating a node should not fail!");
 
-    auto ws_result = runtime.wait_set().create();
+    auto ws_result = node.wait_set().create();
     ASSERT_FALSE(ws_result.has_error());
 
     auto ws = std::move(ws_result.value());
@@ -257,16 +258,16 @@ TEST(Runtime_test, CreatingWaitSetWithDefaultCapacityWorks)
     EXPECT_TRUE((std::is_same_v<decltype(ws), iox::unique_ptr<iox::posh::experimental::WaitSet<>>>));
 }
 
-TEST(Runtime_test, CreatingWaitSetWithCustomCapacityWorks)
+TEST(Node_test, CreatingWaitSetWithCustomCapacityWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "248b8130-9d26-44a9-874f-a31a7b415ed6");
 
     RouDiEnv roudi;
 
-    auto runtime = RouDiEnvRuntimeBuilder("hypnotoad").create().expect("Creating a runtime should not fail!");
+    auto node = RouDiEnvNodeBuilder("hypnotoad").create().expect("Creating a node should not fail!");
 
     constexpr uint64_t CAPACITY{42};
-    auto ws_result = runtime.wait_set().create<CAPACITY>();
+    auto ws_result = node.wait_set().create<CAPACITY>();
     ASSERT_FALSE(ws_result.has_error());
 
     auto ws = std::move(ws_result.value());
