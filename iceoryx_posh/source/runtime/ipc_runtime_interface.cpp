@@ -30,13 +30,13 @@ namespace iox
 {
 namespace runtime
 {
-expected<IpcRuntimeInterface, IpcRuntimeInterface::Error>
+expected<IpcRuntimeInterface, IpcRuntimeInterfaceError>
 IpcRuntimeInterface::create(const RuntimeName_t& runtimeName, const units::Duration roudiWaitingTimeout) noexcept
 {
     if (runtimeName.empty())
     {
         IOX_LOG(DEBUG, "The runtime name must not be empty!");
-        return err(Error::CANNOT_CREATE_APPLICATION_CHANNEL);
+        return err(IpcRuntimeInterfaceError::CANNOT_CREATE_APPLICATION_CHANNEL);
     }
 
     MgmtShmCharacteristics mgmtShmCharacteristics;
@@ -46,7 +46,7 @@ IpcRuntimeInterface::create(const RuntimeName_t& runtimeName, const units::Durat
     auto appIpcInterface = IpcInterfaceCreator::create(runtimeName, ResourceType::USER_DEFINED);
     if (appIpcInterface.has_error() || !appIpcInterface->isInitialized())
     {
-        return err(Error::CANNOT_CREATE_APPLICATION_CHANNEL);
+        return err(IpcRuntimeInterfaceError::CANNOT_CREATE_APPLICATION_CHANNEL);
     }
 
     deadline_timer timer(roudiWaitingTimeout);
@@ -137,13 +137,13 @@ IpcRuntimeInterface::create(const RuntimeName_t& runtimeName, const units::Durat
     {
     case RegState::WAIT_FOR_ROUDI:
         IOX_LOG(DEBUG, "Timeout while waiting for RouDi");
-        return err(Error::TIMEOUT_WAITING_FOR_ROUDI);
+        return err(IpcRuntimeInterfaceError::TIMEOUT_WAITING_FOR_ROUDI);
     case RegState::SEND_REGISTER_REQUEST:
         IOX_LOG(DEBUG, "Sending registration request to RouDi failed");
-        return err(Error::SENDING_REQUEST_TO_ROUDI_FAILED);
+        return err(IpcRuntimeInterfaceError::SENDING_REQUEST_TO_ROUDI_FAILED);
     case RegState::WAIT_FOR_REGISTER_ACK:
         IOX_LOG(DEBUG, "RouDi did not respond to the registration request");
-        return err(Error::NO_RESPONSE_FROM_ROUDI);
+        return err(IpcRuntimeInterfaceError::NO_RESPONSE_FROM_ROUDI);
         break;
     case RegState::FINISHED:
         // nothing to do, move along

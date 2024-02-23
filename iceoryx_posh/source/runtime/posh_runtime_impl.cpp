@@ -72,14 +72,14 @@ PoshRuntimeImpl::PoshRuntimeImpl(optional<const RuntimeName_t*> name, const Runt
         {
             switch (runtimeInterface.error())
             {
-            case IpcRuntimeInterface::Error::CANNOT_CREATE_APPLICATION_CHANNEL:
+            case IpcRuntimeInterfaceError::CANNOT_CREATE_APPLICATION_CHANNEL:
                 IOX_REPORT_FATAL(PoshError::IPC_INTERFACE__UNABLE_TO_CREATE_APPLICATION_CHANNEL);
-            case IpcRuntimeInterface::Error::TIMEOUT_WAITING_FOR_ROUDI:
+            case IpcRuntimeInterfaceError::TIMEOUT_WAITING_FOR_ROUDI:
                 IOX_LOG(FATAL, "Timeout registering at RouDi. Is RouDi running?");
                 IOX_REPORT_FATAL(PoshError::IPC_INTERFACE__REG_ROUDI_NOT_AVAILABLE);
-            case IpcRuntimeInterface::Error::SENDING_REQUEST_TO_ROUDI_FAILED:
+            case IpcRuntimeInterfaceError::SENDING_REQUEST_TO_ROUDI_FAILED:
                 IOX_REPORT_FATAL(PoshError::IPC_INTERFACE__REG_UNABLE_TO_WRITE_TO_ROUDI_CHANNEL);
-            case IpcRuntimeInterface::Error::NO_RESPONSE_FROM_ROUDI:
+            case IpcRuntimeInterfaceError::NO_RESPONSE_FROM_ROUDI:
                 IOX_REPORT_FATAL(PoshError::IPC_INTERFACE__REG_ACK_NO_RESPONSE);
             }
 

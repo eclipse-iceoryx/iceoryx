@@ -99,20 +99,20 @@ namespace iox
 {
 template <>
 constexpr posh::experimental::NodeBuilderError
-from<runtime::IpcRuntimeInterface::Error, posh::experimental::NodeBuilderError>(
-    runtime::IpcRuntimeInterface::Error e) noexcept
+from<runtime::IpcRuntimeInterfaceError, posh::experimental::NodeBuilderError>(
+    runtime::IpcRuntimeInterfaceError e) noexcept
 {
     using namespace posh::experimental;
     using namespace runtime;
     switch (e)
     {
-    case IpcRuntimeInterface::Error::CANNOT_CREATE_APPLICATION_CHANNEL:
+    case IpcRuntimeInterfaceError::CANNOT_CREATE_APPLICATION_CHANNEL:
         return NodeBuilderError::IPC_CHANNEL_CREATION_FAILED;
-    case IpcRuntimeInterface::Error::TIMEOUT_WAITING_FOR_ROUDI:
+    case IpcRuntimeInterfaceError::TIMEOUT_WAITING_FOR_ROUDI:
         return NodeBuilderError::TIMEOUT;
-    case IpcRuntimeInterface::Error::SENDING_REQUEST_TO_ROUDI_FAILED:
+    case IpcRuntimeInterfaceError::SENDING_REQUEST_TO_ROUDI_FAILED:
         [[fallthrough]];
-    case IpcRuntimeInterface::Error::NO_RESPONSE_FROM_ROUDI:
+    case IpcRuntimeInterfaceError::NO_RESPONSE_FROM_ROUDI:
         return NodeBuilderError::REGISTRATION_FAILED;
     }
 

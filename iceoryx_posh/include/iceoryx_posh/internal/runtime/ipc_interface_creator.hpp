@@ -26,17 +26,17 @@ namespace iox
 {
 namespace runtime
 {
+enum class IpcInterfaceCreatorError
+{
+    INTERFACE_IN_USE,
+    OBTAINING_LOCK_FAILED,
+};
+
 /// @brief Class for creating and handling a IPC channel
 /// @note This class makes sures the IPC channel is created uniquely
 class IpcInterfaceCreator : public IpcInterfaceBase
 {
   public:
-    enum class Error
-    {
-        INTERFACE_IN_USE,
-        OBTAINING_LOCK_FAILED,
-    };
-
     /// @brief Constructs a 'IpcInterfaceCreator' and opens a new IPC channel.
     /// @param[in] name Unique identifier of the IPC channel
     /// @param[in] resourceType to be used for the resource prefix
@@ -45,10 +45,11 @@ class IpcInterfaceCreator : public IpcInterfaceBase
     /// @return The 'IpcInterfaceCreator' or an error if the file lock for the IPC channel could not be obtained
     /// @note The IPC channel might not be initialized. Therefore, 'isInitialized' should always be called before using
     /// this class.
-    static expected<IpcInterfaceCreator, Error> create(const RuntimeName_t& runtimeName,
-                                                       const ResourceType resourceType,
-                                                       const uint64_t maxMessages = ROUDI_MAX_MESSAGES,
-                                                       const uint64_t messageSize = ROUDI_MESSAGE_SIZE) noexcept;
+    static expected<IpcInterfaceCreator, IpcInterfaceCreatorError>
+    create(const RuntimeName_t& runtimeName,
+           const ResourceType resourceType,
+           const uint64_t maxMessages = ROUDI_MAX_MESSAGES,
+           const uint64_t messageSize = ROUDI_MESSAGE_SIZE) noexcept;
 
     IpcInterfaceCreator(IpcInterfaceCreator&&) noexcept = default;
     IpcInterfaceCreator& operator=(IpcInterfaceCreator&&) noexcept = default;

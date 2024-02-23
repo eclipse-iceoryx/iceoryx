@@ -27,23 +27,23 @@ namespace iox
 {
 namespace runtime
 {
+enum class IpcRuntimeInterfaceError
+{
+    CANNOT_CREATE_APPLICATION_CHANNEL,
+    TIMEOUT_WAITING_FOR_ROUDI,
+    SENDING_REQUEST_TO_ROUDI_FAILED,
+    NO_RESPONSE_FROM_ROUDI,
+};
+
 class IpcRuntimeInterface
 {
   public:
-    enum class Error
-    {
-        CANNOT_CREATE_APPLICATION_CHANNEL,
-        TIMEOUT_WAITING_FOR_ROUDI,
-        SENDING_REQUEST_TO_ROUDI_FAILED,
-        NO_RESPONSE_FROM_ROUDI,
-    };
-
     /// @brief Creates an 'IpcRuntimeInterface' which tries to register at RouDi and delegates any error up in the stack
     /// @param[in] runtimeName is the name of the runtime to register at RouDi
     /// @param[in] roudiWaitingTimeout is the time to wait for RouDi to start if it is nor running
-    /// @return an IPC interface to communicate with RouDi or a IpcRuntimeInterface::Error
-    static expected<IpcRuntimeInterface, Error> create(const RuntimeName_t& runtimeName,
-                                                       const units::Duration roudiWaitingTimeout) noexcept;
+    /// @return an IPC interface to communicate with RouDi or a IpcRuntimeInterfaceError
+    static expected<IpcRuntimeInterface, IpcRuntimeInterfaceError>
+    create(const RuntimeName_t& runtimeName, const units::Duration roudiWaitingTimeout) noexcept;
 
     ~IpcRuntimeInterface() noexcept = default;
 

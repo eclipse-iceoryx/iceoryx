@@ -73,7 +73,7 @@ TEST_F(IpcInterfaceCreator_test, CreateWithSameNameLeadsToError)
     auto sut2 = IpcInterfaceCreator::create(goodName, ResourceType::USER_DEFINED);
 
     ASSERT_TRUE(sut2.has_error());
-    ASSERT_THAT(sut2.error(), Eq(IpcInterfaceCreator::Error::INTERFACE_IN_USE));
+    ASSERT_THAT(sut2.error(), Eq(IpcInterfaceCreatorError::INTERFACE_IN_USE));
 }
 
 } // namespace
