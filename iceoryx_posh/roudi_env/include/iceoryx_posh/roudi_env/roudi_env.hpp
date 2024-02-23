@@ -55,6 +55,8 @@ class RouDiEnv
 
     void cleanupAppResources(const RuntimeName_t& name) noexcept;
 
+    uint64_t numberOfActiveRuntimeTestInterfaces() noexcept;
+
   protected:
     /// @note this is due to ambiguity of the cTor with the default parameter
     struct MainCTor
