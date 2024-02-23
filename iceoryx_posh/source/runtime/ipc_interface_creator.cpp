@@ -29,17 +29,8 @@ IpcInterfaceCreator::create(const RuntimeName_t& runtimeName,
                             const uint64_t maxMessages,
                             const uint64_t messageSize) noexcept
 {
-    auto interfaceName =
-        ipcChannelNameToInterfaceName(runtimeName, resourceType)
-            .or_else([&runtimeName] {
-                IOX_LOG(FATAL,
-                        "The runtime with the name '"
-                            << runtimeName.size()
-                            << "' would exceed the maximum allowed size when used with the 'iox1_#_' prefix!");
-                IOX_PANIC("The runtime name exceeds the max size");
-            })
-            .value();
-
+    auto interfaceName = ipcChannelNameToInterfaceName(runtimeName, resourceType);
+    ;
     auto fileLock =
         FileLockBuilder().name(interfaceName).permission(iox::perms::owner_read | iox::perms::owner_write).create();
 

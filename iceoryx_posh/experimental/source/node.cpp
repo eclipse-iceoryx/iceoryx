@@ -26,14 +26,6 @@ NodeBuilder::NodeBuilder(const NodeName_t& name) noexcept
 
 expected<Node, NodeBuilderError> NodeBuilder::create() noexcept
 {
-    if (!runtime::ipcChannelNameToInterfaceName(m_name, ResourceType::USER_DEFINED).has_value())
-    {
-        IOX_LOG(ERROR,
-                "The node name '" << m_name << "' would exceed the max length when the prefix '"
-                                  << iceoryxResourcePrefix(roudi::DEFAULT_UNIQUE_ROUDI_ID, ResourceType::USER_DEFINED)
-                                  << "' would be added!");
-        return err(NodeBuilderError::IPC_CHANNEL_CREATION_FAILED);
-    }
     auto location = m_shares_address_space_with_roudi ? runtime::RuntimeLocation::SAME_PROCESS_LIKE_ROUDI
                                                       : runtime::RuntimeLocation::SEPARATE_PROCESS_FROM_ROUDI;
     auto ipcRuntimeIterface = runtime::IpcRuntimeInterface::create(m_name, m_roudi_registration_timeout);

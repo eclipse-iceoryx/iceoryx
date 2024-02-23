@@ -45,7 +45,7 @@ class IpcInterfaceUser : public IpcInterfaceBase
 
     /// @brief The copy constructor and assignment operator are deleted since
     ///         this class manages a resource (IPC channel) which cannot
-    ///         be copied. Since move is not needed it is also deleted.
+    ///         be copied.
     IpcInterfaceUser(const IpcInterfaceUser&) = delete;
     IpcInterfaceUser& operator=(const IpcInterfaceUser&) = delete;
 };

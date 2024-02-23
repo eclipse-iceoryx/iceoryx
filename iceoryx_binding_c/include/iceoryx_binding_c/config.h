@@ -94,8 +94,13 @@ uint32_t iox_cfg_max_findservice_result_size(void);
 /// @brief returns the maximum runtime name length
 uint32_t iox_cfg_max_runtime_name_length(void);
 
+#if defined(__APPLE__)
 /// @brief the maximum size of a node name string + \0 terminator
-#define IOX_CONFIG_NODE_NAME_SIZE 101
+#define IOX_CONFIG_NODE_NAME_SIZE 86
+#else
+/// @brief the maximum size of a node name string + \0 terminator
+#define IOX_CONFIG_NODE_NAME_SIZE 88
+#endif
 
 /// @brief the maximum size of a service description string identifier + \0 terminator
 #define IOX_CONFIG_SERVICE_STRING_SIZE 101

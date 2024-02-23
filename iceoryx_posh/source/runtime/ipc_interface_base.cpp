@@ -78,15 +78,9 @@ std::string IpcMessageErrorTypeToString(const IpcMessageErrorType msg) noexcept
     return convert::toString(static_cast<UnderlyingType>(msg));
 }
 
-iox::optional<RuntimeName_t> ipcChannelNameToInterfaceName(RuntimeName_t channelName, ResourceType resourceType)
+InterfaceName_t ipcChannelNameToInterfaceName(RuntimeName_t channelName, ResourceType resourceType)
 {
-    RuntimeName_t interfaceName = iceoryxResourcePrefix(roudi::DEFAULT_UNIQUE_ROUDI_ID, resourceType);
-    if (interfaceName.size() + channelName.size() > RuntimeName_t::capacity())
-    {
-        return nullopt;
-    }
-    interfaceName.append(TruncateToCapacity, channelName);
-    return interfaceName;
+    return concatenate(iceoryxResourcePrefix(roudi::DEFAULT_UNIQUE_ROUDI_ID, resourceType), channelName);
 }
 
 template <typename IpcChannelType>
@@ -109,16 +103,7 @@ IpcInterface<IpcChannelType>::IpcInterface(const RuntimeName_t& runtimeName,
         }
     }
 
-    m_interfaceName =
-        ipcChannelNameToInterfaceName(runtimeName, resourceType)
-            .or_else([&runtimeName] {
-                IOX_LOG(FATAL,
-                        "The runtime with the name '"
-                            << runtimeName
-                            << "' would exceed the maximum allowed size when used with the 'iox1_#_' prefix!");
-                IOX_PANIC("The runtime name exceeds the max size");
-            })
-            .value();
+    m_interfaceName = ipcChannelNameToInterfaceName(runtimeName, resourceType);
     m_runtimeName = runtimeName;
     m_maxMessages = maxMessages;
     m_maxMessageSize = messageSize;
@@ -311,7 +296,7 @@ bool IpcInterface<IpcChannelType>::hasClosableIpcChannel() const noexcept
 }
 
 template <typename IpcChannelType>
-void IpcInterface<IpcChannelType>::cleanupOutdatedIpcChannel(const RuntimeName_t& name) noexcept
+void IpcInterface<IpcChannelType>::cleanupOutdatedIpcChannel(const InterfaceName_t& name) noexcept
 {
     if (platform::IoxIpcChannelType::unlinkIfExists(name).value_or(false))
     {
