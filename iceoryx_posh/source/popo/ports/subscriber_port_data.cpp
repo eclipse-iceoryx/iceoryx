@@ -24,10 +24,11 @@ namespace popo
 {
 SubscriberPortData::SubscriberPortData(const capro::ServiceDescription& serviceDescription,
                                        const RuntimeName_t& runtimeName,
+                                       const uint16_t uniqueRouDiId,
                                        const VariantQueueTypes queueType,
                                        const SubscriberOptions& subscriberOptions,
                                        const mepoo::MemoryInfo& memoryInfo) noexcept
-    : BasePortData(serviceDescription, runtimeName, subscriberOptions.nodeName)
+    : BasePortData(serviceDescription, runtimeName, subscriberOptions.nodeName, uniqueRouDiId)
     , m_chunkReceiverData(queueType, subscriberOptions.queueFullPolicy, memoryInfo)
     , m_options{subscriberOptions}
     , m_subscribeRequested(subscriberOptions.subscribeOnCreate)

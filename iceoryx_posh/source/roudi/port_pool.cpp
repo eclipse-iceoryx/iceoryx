@@ -46,7 +46,8 @@ PortPoolData::CondVarContainer& PortPool::getConditionVariableDataList() noexcep
 expected<popo::InterfacePortData*, PortPoolError> PortPool::addInterfacePort(const RuntimeName_t& runtimeName,
                                                                              const capro::Interfaces interface) noexcept
 {
-    auto interfacePortData = getInterfacePortDataList().emplace(runtimeName, interface);
+    auto interfacePortData =
+        getInterfacePortDataList().emplace(runtimeName, m_portPoolData->m_uniqueRouDiId, interface);
     if (interfacePortData == getInterfacePortDataList().end())
     {
         IOX_LOG(WARN, "Out of interface ports! Requested by runtime '" << runtimeName << "'");
@@ -117,7 +118,7 @@ PortPool::addPublisherPort(const capro::ServiceDescription& serviceDescription,
                            const mepoo::MemoryInfo& memoryInfo) noexcept
 {
     auto publisherPortData = getPublisherPortDataList().emplace(
-        serviceDescription, runtimeName, memoryManager, publisherOptions, memoryInfo);
+        serviceDescription, runtimeName, m_portPoolData->m_uniqueRouDiId, memoryManager, publisherOptions, memoryInfo);
     if (publisherPortData == getPublisherPortDataList().end())
     {
         IOX_LOG(WARN,
@@ -136,7 +137,7 @@ PortPool::addSubscriberPort(const capro::ServiceDescription& serviceDescription,
                             const mepoo::MemoryInfo& memoryInfo) noexcept
 {
     auto* subscriberPortData = constructSubscriber<iox::build::CommunicationPolicy>(
-        serviceDescription, runtimeName, subscriberOptions, memoryInfo);
+        serviceDescription, runtimeName, m_portPoolData->m_uniqueRouDiId, subscriberOptions, memoryInfo);
     if (subscriberPortData == nullptr)
     {
         IOX_LOG(WARN,
@@ -165,8 +166,8 @@ PortPool::addClientPort(const capro::ServiceDescription& serviceDescription,
                         const popo::ClientOptions& clientOptions,
                         const mepoo::MemoryInfo& memoryInfo) noexcept
 {
-    auto clientPortData =
-        getClientPortDataList().emplace(serviceDescription, runtimeName, clientOptions, memoryManager, memoryInfo);
+    auto clientPortData = getClientPortDataList().emplace(
+        serviceDescription, runtimeName, m_portPoolData->m_uniqueRouDiId, clientOptions, memoryManager, memoryInfo);
     if (clientPortData == getClientPortDataList().end())
     {
         IOX_LOG(WARN,
@@ -185,8 +186,8 @@ PortPool::addServerPort(const capro::ServiceDescription& serviceDescription,
                         const popo::ServerOptions& serverOptions,
                         const mepoo::MemoryInfo& memoryInfo) noexcept
 {
-    auto serverPortData =
-        getServerPortDataList().emplace(serviceDescription, runtimeName, serverOptions, memoryManager, memoryInfo);
+    auto serverPortData = getServerPortDataList().emplace(
+        serviceDescription, runtimeName, m_portPoolData->m_uniqueRouDiId, serverOptions, memoryManager, memoryInfo);
     if (serverPortData == getServerPortDataList().end())
     {
         IOX_LOG(WARN,

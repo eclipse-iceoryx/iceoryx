@@ -66,6 +66,7 @@ class iox_ws_test : public Test
         {
             m_portDataVector.emplace_back(TEST_SERVICE_DESCRIPTION,
                                           "someAppName",
+                                          roudi::DEFAULT_UNIQUE_ROUDI_ID,
                                           iox::popo::VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
                                           m_subscriberOptions);
             m_subscriberVector.emplace_back();
@@ -106,11 +107,18 @@ class iox_ws_test : public Test
     timespec m_timeout{0, 0};
 
     iox::mepoo::MemoryManager memoryManager;
-    ClientPortData clientPortData{{"ServiceA", "InstanceA", "EventA"}, "rudi_ruessel", ClientOptions(), &memoryManager};
+    ClientPortData clientPortData{{"ServiceA", "InstanceA", "EventA"},
+                                  "rudi_ruessel",
+                                  roudi::DEFAULT_UNIQUE_ROUDI_ID,
+                                  ClientOptions(),
+                                  &memoryManager};
     iox_client_storage_t clientStorage;
 
-    ServerPortData serverPortData{
-        {"ServiceA", "InstanceA", "EventA"}, "hypnotoad_loves_iceoryx", ServerOptions(), &memoryManager};
+    ServerPortData serverPortData{{"ServiceA", "InstanceA", "EventA"},
+                                  "hypnotoad_loves_iceoryx",
+                                  roudi::DEFAULT_UNIQUE_ROUDI_ID,
+                                  ServerOptions(),
+                                  &memoryManager};
     iox_server_storage_t serverStorage;
 
     static void* m_callbackOrigin;

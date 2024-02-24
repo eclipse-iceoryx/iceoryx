@@ -63,7 +63,7 @@ class RouDiEnv
     {
     };
     /// @brief for implementations on top of RouDiEnv
-    RouDiEnv(MainCTor, const uint16_t uniqueRouDiId = roudi::DEFAULT_UNIQUE_ROUDI_ID) noexcept;
+    RouDiEnv(MainCTor) noexcept;
 
     void cleanupRuntimes() noexcept;
 

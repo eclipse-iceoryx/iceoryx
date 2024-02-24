@@ -23,6 +23,11 @@ namespace iox
 {
 namespace roudi
 {
+PortPoolMemoryBlock::PortPoolMemoryBlock(const uint16_t uniqueRouDiId) noexcept
+    : m_uniqueRouDiId(uniqueRouDiId)
+{
+}
+
 PortPoolMemoryBlock::~PortPoolMemoryBlock() noexcept
 {
     destroy();
@@ -40,7 +45,7 @@ uint64_t PortPoolMemoryBlock::alignment() const noexcept
 
 void PortPoolMemoryBlock::onMemoryAvailable(not_null<void*> memory) noexcept
 {
-    m_portPoolData = new (memory) PortPoolData;
+    m_portPoolData = new (memory) PortPoolData{m_uniqueRouDiId};
 }
 
 void PortPoolMemoryBlock::destroy() noexcept

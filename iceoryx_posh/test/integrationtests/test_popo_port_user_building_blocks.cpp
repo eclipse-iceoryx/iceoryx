@@ -83,8 +83,11 @@ class PortUser_IntegrationTest : public Test
 
             iox::RuntimeName_t runtimeName(TruncateToCapacity, publisherRuntimeName.str().c_str());
 
-            m_publisherPortDataVector.emplace_back(
-                TEST_SERVICE_DESCRIPTION, runtimeName, &m_memoryManager, PublisherOptions());
+            m_publisherPortDataVector.emplace_back(TEST_SERVICE_DESCRIPTION,
+                                                   runtimeName,
+                                                   roudi::DEFAULT_UNIQUE_ROUDI_ID,
+                                                   &m_memoryManager,
+                                                   PublisherOptions());
             m_publisherPortUserVector.emplace_back(&m_publisherPortDataVector.back());
             m_publisherPortRouDiVector.emplace_back(&m_publisherPortDataVector.back());
         }
@@ -125,6 +128,7 @@ class PortUser_IntegrationTest : public Test
     // subscriber port for single producer
     SubscriberPortData m_subscriberPortDataSingleProducer{TEST_SERVICE_DESCRIPTION,
                                                           TEST_SUBSCRIBER_RUNTIME_NAME,
+                                                          roudi::DEFAULT_UNIQUE_ROUDI_ID,
                                                           VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
                                                           SubscriberOptions()};
     SubscriberPortUser m_subscriberPortUserSingleProducer{&m_subscriberPortDataSingleProducer};
@@ -133,6 +137,7 @@ class PortUser_IntegrationTest : public Test
     // subscriber port for multi producer
     SubscriberPortData m_subscriberPortDataMultiProducer{TEST_SERVICE_DESCRIPTION,
                                                          TEST_SUBSCRIBER_RUNTIME_NAME,
+                                                         roudi::DEFAULT_UNIQUE_ROUDI_ID,
                                                          VariantQueueTypes::SoFi_MultiProducerSingleConsumer,
                                                          SubscriberOptions()};
     SubscriberPortUser m_subscriberPortUserMultiProducer{&m_subscriberPortDataMultiProducer};

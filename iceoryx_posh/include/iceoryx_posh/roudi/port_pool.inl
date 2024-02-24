@@ -24,12 +24,14 @@ namespace roudi
 template <typename T, std::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>*>
 inline iox::popo::SubscriberPortData* PortPool::constructSubscriber(const capro::ServiceDescription& serviceDescription,
                                                                     const RuntimeName_t& runtimeName,
+                                                                    const uint16_t uniqueRouDiId,
                                                                     const popo::SubscriberOptions& subscriberOptions,
                                                                     const mepoo::MemoryInfo& memoryInfo) noexcept
 {
     auto port = getSubscriberPortDataList().emplace(
         serviceDescription,
         runtimeName,
+        uniqueRouDiId,
         (subscriberOptions.queueFullPolicy == popo::QueueFullPolicy::DISCARD_OLDEST_DATA)
             ? popo::VariantQueueTypes::SoFi_MultiProducerSingleConsumer
             : popo::VariantQueueTypes::FiFo_MultiProducerSingleConsumer,
@@ -46,12 +48,14 @@ inline iox::popo::SubscriberPortData* PortPool::constructSubscriber(const capro:
 template <typename T, std::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>*>
 inline iox::popo::SubscriberPortData* PortPool::constructSubscriber(const capro::ServiceDescription& serviceDescription,
                                                                     const RuntimeName_t& runtimeName,
+                                                                    const uint16_t uniqueRouDiId,
                                                                     const popo::SubscriberOptions& subscriberOptions,
                                                                     const mepoo::MemoryInfo& memoryInfo) noexcept
 {
     auto port = getSubscriberPortDataList().emplace(
         serviceDescription,
         runtimeName,
+        uniqueRouDiId,
         (subscriberOptions.queueFullPolicy == popo::QueueFullPolicy::DISCARD_OLDEST_DATA)
             ? popo::VariantQueueTypes::SoFi_SingleProducerSingleConsumer
             : popo::VariantQueueTypes::FiFo_SingleProducerSingleConsumer,

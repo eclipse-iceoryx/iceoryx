@@ -15,6 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_posh/internal/popo/building_blocks/unique_port_id.hpp"
 #include "iceoryx_posh/roudi/memory/posix_shm_memory_provider.hpp"
 
 #include "iox/detail/system_configuration.hpp"
@@ -33,24 +34,29 @@ using namespace iox::roudi;
 using iox::ShmName_t;
 static const ShmName_t TEST_SHM_NAME = ShmName_t("FuManchu");
 
+
 class PosixShmMemoryProvider_Test : public Test
 {
   public:
     void SetUp() override
     {
         /// @note just in the case a test left something behind we remove the shared memory if it exists
-        IOX_DISCARD_RESULT(iox::detail::PosixSharedMemory::unlinkIfExist(TEST_SHM_NAME));
+        IOX_DISCARD_RESULT(iox::detail::PosixSharedMemory::unlinkIfExist(resourceName(TEST_SHM_NAME)));
     }
 
     void TearDown() override
     {
     }
 
+    iox::detail::PosixSharedMemory::Name_t resourceName(ShmName_t name)
+    {
+        return concatenate(iceoryxResourcePrefix(DEFAULT_UNIQUE_ROUDI_ID, ResourceType::ICEORYX_DEFINED), name);
+    }
+
     bool shmExists()
     {
         return !iox::PosixSharedMemoryObjectBuilder()
-                    .name(concatenate(iceoryxResourcePrefix(DEFAULT_UNIQUE_ROUDI_ID, ResourceType::ICEORYX_DEFINED),
-                                      TEST_SHM_NAME))
+                    .name(resourceName(TEST_SHM_NAME))
                     .memorySizeInBytes(8)
                     .accessMode(iox::AccessMode::READ_ONLY)
                     .openMode(iox::OpenMode::OPEN_EXISTING)

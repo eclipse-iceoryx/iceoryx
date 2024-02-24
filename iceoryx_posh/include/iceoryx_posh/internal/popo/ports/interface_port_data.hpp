@@ -28,8 +28,9 @@ namespace popo
 {
 struct InterfacePortData : public BasePortData
 {
-    InterfacePortData() noexcept = default;
-    InterfacePortData(const RuntimeName_t& runtimeName, const capro::Interfaces interface) noexcept;
+    InterfacePortData(const RuntimeName_t& runtimeName,
+                      const uint16_t uniqueRoudiId,
+                      const capro::Interfaces interface) noexcept;
 
     concurrent::SpscFifo<capro::CaproMessage, MAX_INTERFACE_CAPRO_FIFO_SIZE> m_caproMessageFiFo;
     bool m_doInitialOfferForward{true};

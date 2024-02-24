@@ -110,6 +110,7 @@ class iox_sub_test : public Test
     iox::popo::SubscriberOptions subscriberOptions{MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY, 0U};
     iox::popo::SubscriberPortData m_portPtr{TEST_SERVICE_DESCRIPTION,
                                             "myApp",
+                                            roudi::DEFAULT_UNIQUE_ROUDI_ID,
                                             iox::popo::VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
                                             subscriberOptions};
     ChunkQueuePusher<SubscriberPortData::ChunkQueueData_t> m_chunkPusher{&m_portPtr.m_chunkReceiverData};

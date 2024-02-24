@@ -149,41 +149,6 @@ TEST_F(IceoryxRoudiApp_test, VerifyRunMethodWithFalseConditionReturnExitSuccess)
     EXPECT_EQ(result, EXIT_SUCCESS);
 }
 
-TEST_F(IceoryxRoudiApp_test, ConstructorCalledWithArgUniqueIdTwoTimesReturnError)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "72ec1d9e-7e29-4a9b-a8dd-cb4de82683cb");
-    constexpr uint16_t UNIQUE_ROUDI_ID{4242};
-    constexpr uint8_t NUMBER_OF_ARGS{3U};
-    char* args[NUMBER_OF_ARGS];
-    char appName[] = "./foo";
-    char option[] = "--unique-roudi-id";
-    auto value = iox::convert::toString(UNIQUE_ROUDI_ID);
-    args[0] = &appName[0];
-    args[1] = &option[0];
-    args[2] = value.data();
-
-    auto cmdLineArgs = cmdLineParser.parse(NUMBER_OF_ARGS, args);
-
-    ASSERT_FALSE(cmdLineArgs.has_error());
-
-    {
-        // use the RouDiEnv to reset the UniquePortId finalization from previous tests
-        roudi_env::RouDiEnv(roudi_env::MinimalRouDiConfigBuilder().create());
-    }
-
-    EXPECT_THAT(iox::popo::UniquePortId::getUniqueRouDiId(), Eq(iox::roudi::DEFAULT_UNIQUE_ROUDI_ID));
-
-    IOX_EXPECT_NO_FATAL_FAILURE(
-        [&] { IceoryxRoudiApp_Child roudi(cmdLineArgs.value(), iox::RouDiConfig_t().setDefaults()); });
-    EXPECT_THAT(iox::popo::UniquePortId::getUniqueRouDiId(), Eq(UNIQUE_ROUDI_ID));
-
-    EXPECT_THAT(iox::popo::UniquePortId::getUniqueRouDiId(), Eq(UNIQUE_ROUDI_ID));
-
-    IOX_EXPECT_FATAL_FAILURE(
-        [&] { IceoryxRoudiApp_Child roudi(cmdLineArgs.value(), iox::RouDiConfig_t().setDefaults()); },
-        iox::PoshError::POPO__TYPED_UNIQUE_ID_ROUDI_HAS_ALREADY_DEFINED_CUSTOM_UNIQUE_ID);
-}
-
 TEST_F(IceoryxRoudiApp_test, ConstructorCalledWithArgVersionSetRunVariableToFalse)
 {
     ::testing::Test::RecordProperty("TEST_ID", "207dd5ea-a00c-48f1-a8de-5ef5a0c5235b");

@@ -42,6 +42,7 @@ IceOryxRouDiMemoryManager::IceOryxRouDiMemoryManager(const RouDiConfig_t& roudiC
                 }
             })
             .value()))
+    , m_portPoolBlock(uniqueRouDiId)
     , m_defaultMemory(roudiConfig, uniqueRouDiId)
 {
     m_defaultMemory.m_managementShm.addMemoryBlock(&m_portPoolBlock).or_else([](auto) {

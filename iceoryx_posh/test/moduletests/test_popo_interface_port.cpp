@@ -46,7 +46,7 @@ class InterfacePort_test : public Test
 TEST_F(InterfacePort_test, EveryMessageCanBeDispatchedWhenInterfacePortIsInternal)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a9700e7f-20cb-4cbe-baeb-c38701ce9ec4");
-    InterfacePortData interfacePortData("", capro::Interfaces::INTERNAL);
+    InterfacePortData interfacePortData("", roudi::DEFAULT_UNIQUE_ROUDI_ID, capro::Interfaces::INTERNAL);
 
     for (uint16_t interface = 0; interface < static_cast<uint16_t>(capro::Interfaces::INTERFACE_END); ++interface)
     {
@@ -69,7 +69,8 @@ TEST_F(InterfacePort_test, MessageDispatchedIfInterfacesDifferWhenInterfacePortI
             continue;
         }
 
-        InterfacePortData interfacePortData("", static_cast<capro::Interfaces>(myInterface));
+        InterfacePortData interfacePortData(
+            "", roudi::DEFAULT_UNIQUE_ROUDI_ID, static_cast<capro::Interfaces>(myInterface));
 
         for (uint16_t interface = 0; interface < static_cast<uint16_t>(capro::Interfaces::INTERFACE_END); ++interface)
         {
@@ -96,7 +97,8 @@ TEST_F(InterfacePort_test, MessageDiscaredIfInterfacesAreEqualWhenInterfacePortI
             continue;
         }
 
-        InterfacePortData interfacePortData("", static_cast<capro::Interfaces>(myInterface));
+        InterfacePortData interfacePortData(
+            "", roudi::DEFAULT_UNIQUE_ROUDI_ID, static_cast<capro::Interfaces>(myInterface));
 
         auto message = generateMessage(static_cast<capro::Interfaces>(myInterface));
         InterfacePort(&interfacePortData).dispatchCaProMessage(message);

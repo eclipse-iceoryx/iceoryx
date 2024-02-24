@@ -110,13 +110,19 @@ class iox_pub_test : public Test
     MemoryManager m_memoryManager;
 
     // publisher port w/o history
-    PublisherPortData m_publisherPortData{
-        ServiceDescription("a", "b", "c"), "myApp", &m_memoryManager, PublisherOptions()};
+    PublisherPortData m_publisherPortData{ServiceDescription("a", "b", "c"),
+                                          "myApp",
+                                          roudi::DEFAULT_UNIQUE_ROUDI_ID,
+                                          &m_memoryManager,
+                                          PublisherOptions()};
 
     // publisher port w/ history
     PublisherOptions m_publisherOptions{MAX_PUBLISHER_HISTORY};
-    PublisherPortData m_publisherPortDataHistory{
-        capro::ServiceDescription("x", "y", "z"), "myApp", &m_memoryManager, m_publisherOptions};
+    PublisherPortData m_publisherPortDataHistory{capro::ServiceDescription("x", "y", "z"),
+                                                 "myApp",
+                                                 roudi::DEFAULT_UNIQUE_ROUDI_ID,
+                                                 &m_memoryManager,
+                                                 m_publisherOptions};
     cpp2c_Publisher m_sut;
 };
 

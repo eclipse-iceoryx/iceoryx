@@ -72,7 +72,7 @@ TEST_F(SubscriberTest, GetsUIDViaBaseSubscriber)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3b30966b-b50d-41f5-8be3-6f85ab14776d");
     // ===== Setup ===== //
-    EXPECT_CALL(sut, getUid).Times(1);
+    EXPECT_CALL(sut, getUid).WillOnce(Return(iox::popo::UniquePortId(iox::roudi::DEFAULT_UNIQUE_ROUDI_ID)));
     // ===== Test ===== //
     sut.getUid();
     // ===== Verify ===== //

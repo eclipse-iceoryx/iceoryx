@@ -23,10 +23,11 @@ namespace popo
 {
 PublisherPortData::PublisherPortData(const capro::ServiceDescription& serviceDescription,
                                      const RuntimeName_t& runtimeName,
+                                     const uint16_t uniqueRouDiId,
                                      mepoo::MemoryManager* const memoryManager,
                                      const PublisherOptions& publisherOptions,
                                      const mepoo::MemoryInfo& memoryInfo) noexcept
-    : BasePortData(serviceDescription, runtimeName, publisherOptions.nodeName)
+    : BasePortData(serviceDescription, runtimeName, publisherOptions.nodeName, uniqueRouDiId)
     , m_chunkSenderData(
           memoryManager, publisherOptions.subscriberTooSlowPolicy, publisherOptions.historyCapacity, memoryInfo)
     , m_options{publisherOptions}

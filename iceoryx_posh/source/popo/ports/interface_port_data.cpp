@@ -21,8 +21,10 @@ namespace iox
 {
 namespace popo
 {
-InterfacePortData::InterfacePortData(const RuntimeName_t& runtimeName, const capro::Interfaces interface) noexcept
-    : BasePortData(capro::ServiceDescription("", "", "", {0, 0, 0, 0}, interface), runtimeName, "")
+InterfacePortData::InterfacePortData(const RuntimeName_t& runtimeName,
+                                     const uint16_t uniqueRoudiId,
+                                     const capro::Interfaces interface) noexcept
+    : BasePortData(capro::ServiceDescription("", "", "", {0, 0, 0, 0}, interface), runtimeName, "", uniqueRoudiId)
 {
 }
 } // namespace popo

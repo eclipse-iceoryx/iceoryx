@@ -36,6 +36,7 @@ struct ClientPortData : public BasePortData
 {
     ClientPortData(const capro::ServiceDescription& serviceDescription,
                    const RuntimeName_t& runtimeName,
+                   const uint16_t uniqueRouDiId,
                    const ClientOptions& clientOptions,
                    mepoo::MemoryManager* const memoryManager,
                    const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;

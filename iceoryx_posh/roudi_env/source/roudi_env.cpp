@@ -26,16 +26,14 @@ namespace iox
 {
 namespace roudi_env
 {
-RouDiEnv::RouDiEnv(MainCTor, const uint16_t uniqueRouDiId) noexcept
+RouDiEnv::RouDiEnv(MainCTor) noexcept
 {
-    popo::UniquePortId::rouDiEnvResetFinalizeUniqueRouDiId();
-    popo::UniquePortId::setUniqueRouDiId(uniqueRouDiId);
 }
 
 RouDiEnv::RouDiEnv(const RouDiConfig_t& roudiConfig,
                    const roudi::MonitoringMode monitoringMode,
                    const uint16_t uniqueRouDiId) noexcept
-    : RouDiEnv(MainCTor{}, uniqueRouDiId)
+    : RouDiEnv(MainCTor{})
 {
     m_roudiComponents =
         std::unique_ptr<roudi::IceOryxRouDiComponents>(new roudi::IceOryxRouDiComponents(roudiConfig, uniqueRouDiId));
@@ -47,10 +45,6 @@ RouDiEnv::RouDiEnv(const RouDiConfig_t& roudiConfig,
 
 RouDiEnv::~RouDiEnv() noexcept
 {
-    if (m_runtimes.m_doCleanupOnDestruction)
-    {
-        popo::UniquePortId::rouDiEnvResetFinalizeUniqueRouDiId();
-    }
     cleanupRuntimes();
 }
 
