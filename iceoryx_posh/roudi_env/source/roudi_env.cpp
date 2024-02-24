@@ -37,7 +37,8 @@ RouDiEnv::RouDiEnv(const RouDiConfig_t& roudiConfig,
                    const uint16_t uniqueRouDiId) noexcept
     : RouDiEnv(MainCTor{}, uniqueRouDiId)
 {
-    m_roudiComponents = std::unique_ptr<roudi::IceOryxRouDiComponents>(new roudi::IceOryxRouDiComponents(roudiConfig));
+    m_roudiComponents =
+        std::unique_ptr<roudi::IceOryxRouDiComponents>(new roudi::IceOryxRouDiComponents(roudiConfig, uniqueRouDiId));
     m_roudiApp =
         std::unique_ptr<roudi::RouDi>(new roudi::RouDi(m_roudiComponents->rouDiMemoryManager,
                                                        m_roudiComponents->portManager,

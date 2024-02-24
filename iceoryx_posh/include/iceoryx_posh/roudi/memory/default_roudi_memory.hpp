@@ -29,7 +29,7 @@ namespace roudi
 struct DefaultRouDiMemory
 {
   public:
-    DefaultRouDiMemory(const RouDiConfig_t& roudiConfig) noexcept;
+    DefaultRouDiMemory(const RouDiConfig_t& roudiConfigconst, const uint16_t uniqueRouDiId) noexcept;
     virtual ~DefaultRouDiMemory() noexcept = default;
 
     DefaultRouDiMemory(DefaultRouDiMemory&&) = delete;

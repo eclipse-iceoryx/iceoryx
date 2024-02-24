@@ -37,7 +37,7 @@ class IceoryxRoudiMemoryManager_test : public Test
     void SetUp() override
     {
         m_roudiMemoryManagerTest = std::unique_ptr<IceOryxRouDiMemoryManager>(
-            new IceOryxRouDiMemoryManager(MinimalRouDiConfigBuilder().create()));
+            new IceOryxRouDiMemoryManager(MinimalRouDiConfigBuilder().create(), iox::roudi::DEFAULT_UNIQUE_ROUDI_ID));
     }
 
     void TearDown() override

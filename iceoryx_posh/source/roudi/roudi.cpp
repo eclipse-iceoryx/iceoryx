@@ -36,7 +36,9 @@ namespace roudi
 RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
              PortManager& portManager,
              RoudiStartupParameters roudiStartupParameters) noexcept
-    : m_killProcessesInDestructor(roudiStartupParameters.m_killProcessesInDestructor)
+    : m_uniqueRouDiId(roudiStartupParameters.m_uniqueRouDiId)
+    , m_enableExperimentalFeatures(roudiStartupParameters.m_enableExperimentalFeatures)
+    , m_killProcessesInDestructor(roudiStartupParameters.m_killProcessesInDestructor)
     , m_runMonitoringAndDiscoveryThread(true)
     , m_runHandleRuntimeMessageThread(true)
     , m_roudiMemoryInterface(&roudiMemoryInterface)
@@ -44,6 +46,7 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
     , m_prcMgr(concurrent::ForwardArgsToCTor,
                *m_roudiMemoryInterface,
                portManager,
+               m_uniqueRouDiId,
                roudiStartupParameters.m_compatibilityCheckLevel)
     , m_mempoolIntrospection(
           *m_roudiMemoryInterface->introspectionMemoryManager().value(),
@@ -89,12 +92,11 @@ RouDi::~RouDi() noexcept
 
 void RouDi::startProcessRuntimeMessagesThread() noexcept
 {
-    m_handleRuntimeMessageThread =
-        std::thread(&RouDi::processRuntimeMessages,
-                    this,
-                    runtime::IpcInterfaceCreator::create(
-                        IPC_CHANNEL_ROUDI_NAME, popo::UniquePortId::getUniqueRouDiId(), ResourceType::ICEORYX_DEFINED)
-                        .expect("Creating IPC channel for request to RouDi"));
+    m_handleRuntimeMessageThread = std::thread(
+        &RouDi::processRuntimeMessages,
+        this,
+        runtime::IpcInterfaceCreator::create(IPC_CHANNEL_ROUDI_NAME, m_uniqueRouDiId, ResourceType::ICEORYX_DEFINED)
+            .expect("Creating IPC channel for request to RouDi"));
 }
 
 void RouDi::shutdown() noexcept

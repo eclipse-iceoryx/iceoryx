@@ -59,6 +59,7 @@ class RouDiApp
     version::CompatibilityCheckLevel m_compatibilityCheckLevel{version::CompatibilityCheckLevel::PATCH};
     units::Duration m_processTeminationDelay{roudi::PROCESS_DEFAULT_TERMINATION_DELAY};
     units::Duration m_processKillDelay{roudi::PROCESS_DEFAULT_KILL_DELAY};
+    const uint16_t m_uniqueRouDiId{roudi::DEFAULT_UNIQUE_ROUDI_ID};
 
   private:
     bool checkAndOptimizeConfig(const RouDiConfig_t& config) noexcept;

@@ -36,6 +36,7 @@ class MePooSegment
 {
   public:
     MePooSegment(const MePooConfig& mempoolConfig,
+                 const uint16_t uniqueRouDiId,
                  BumpAllocator& managementAllocator,
                  const PosixGroup& readerGroup,
                  const PosixGroup& writerGroup,
@@ -52,6 +53,7 @@ class MePooSegment
 
   protected:
     SharedMemoryObjectType createSharedMemoryObject(const MePooConfig& mempoolConfig,
+                                                    const uint16_t uniqueRouDiId,
                                                     const PosixGroup& writerGroup) noexcept;
 
   protected:

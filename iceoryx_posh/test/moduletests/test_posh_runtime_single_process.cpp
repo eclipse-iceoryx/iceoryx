@@ -54,7 +54,7 @@ TEST_F(PoshRuntimeSingleProcess_test, ConstructorPoshRuntimeSingleProcessIsSucce
 {
     ::testing::Test::RecordProperty("TEST_ID", "9faf7053-86af-4d26-b3a7-fb3c6319ab86");
     std::unique_ptr<IceOryxRouDiComponents> roudiComponents{
-        new IceOryxRouDiComponents(MinimalRouDiConfigBuilder().create())};
+        new IceOryxRouDiComponents(MinimalRouDiConfigBuilder().create(), DEFAULT_UNIQUE_ROUDI_ID)};
 
     std::unique_ptr<RouDi> roudi{new RouDi(roudiComponents->rouDiMemoryManager,
                                            roudiComponents->portManager,

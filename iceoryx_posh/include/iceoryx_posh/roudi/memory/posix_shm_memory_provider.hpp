@@ -40,7 +40,10 @@ class PosixShmMemoryProvider : public MemoryProvider
     /// @param [in] shmName is the name of the posix share memory
     /// @param [in] accessMode defines the read and write access to the memory
     /// @param [in] openMode defines the creation/open mode of the shared memory.
-    PosixShmMemoryProvider(const ShmName_t& shmName, const AccessMode accessMode, const OpenMode openMode) noexcept;
+    PosixShmMemoryProvider(const ShmName_t& shmName,
+                           const uint16_t uniqueRouDiId,
+                           const AccessMode accessMode,
+                           const OpenMode openMode) noexcept;
     ~PosixShmMemoryProvider() noexcept;
 
     PosixShmMemoryProvider(PosixShmMemoryProvider&&) = delete;
@@ -60,6 +63,7 @@ class PosixShmMemoryProvider : public MemoryProvider
 
   private:
     ShmName_t m_shmName;
+    const uint16_t m_uniqueRouDiId;
     AccessMode m_accessMode{AccessMode::READ_ONLY};
     OpenMode m_openMode{OpenMode::OPEN_EXISTING};
     optional<PosixSharedMemoryObject> m_shmObject;

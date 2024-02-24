@@ -34,7 +34,7 @@ namespace roudi
 class MemPoolSegmentManagerMemoryBlock : public MemoryBlock
 {
   public:
-    MemPoolSegmentManagerMemoryBlock(const mepoo::SegmentConfig& segmentConfig) noexcept;
+    MemPoolSegmentManagerMemoryBlock(const mepoo::SegmentConfig& segmentConfig, const uint16_t uniqueRouDiId) noexcept;
     ~MemPoolSegmentManagerMemoryBlock() noexcept;
 
     MemPoolSegmentManagerMemoryBlock(const MemPoolSegmentManagerMemoryBlock&) = delete;
@@ -66,6 +66,7 @@ class MemPoolSegmentManagerMemoryBlock : public MemoryBlock
   private:
     mepoo::SegmentManager<>* m_segmentManager{nullptr};
     mepoo::SegmentConfig m_segmentConfig;
+    const uint16_t m_uniqueRouDiId;
 };
 
 } // namespace roudi

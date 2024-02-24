@@ -40,9 +40,11 @@ namespace roudi
 {
 ProcessManager::ProcessManager(RouDiMemoryInterface& roudiMemoryInterface,
                                PortManager& portManager,
+                               const uint16_t uniqueRouDiId,
                                const version::CompatibilityCheckLevel compatibilityCheckLevel) noexcept
     : m_roudiMemoryInterface(roudiMemoryInterface)
     , m_portManager(portManager)
+    , m_uniqueRouDiId(uniqueRouDiId)
     , m_compatibilityCheckLevel(compatibilityCheckLevel)
 {
     bool fatalError{false};
@@ -302,7 +304,7 @@ bool ProcessManager::addProcess(const RuntimeName_t& name,
         heartbeatPoolIndex = heartbeat.to_index();
         heartbeatOffset = UntypedRelativePointer::getOffset(segment_id_t{m_mgmtSegmentId}, heartbeat.to_ptr());
     }
-    m_processList.emplace_back(name, pid, user, heartbeatPoolIndex, sessionId);
+    m_processList.emplace_back(name, m_uniqueRouDiId, pid, user, heartbeatPoolIndex, sessionId);
 
     // send REG_ACK and BaseAddrString
     runtime::IpcMessage sendBuffer;

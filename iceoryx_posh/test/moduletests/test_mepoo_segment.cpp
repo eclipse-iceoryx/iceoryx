@@ -137,8 +137,11 @@ class MePooSegment_test : public Test
     using SUT = MePooSegment<SharedMemoryObject_MOCK, MemoryManager>;
     std::unique_ptr<SUT> createSut()
     {
-        return std::make_unique<SUT>(
-            mepooConfig, m_managementAllocator, PosixGroup{"iox_roudi_test1"}, PosixGroup{"iox_roudi_test2"});
+        return std::make_unique<SUT>(mepooConfig,
+                                     roudi::DEFAULT_UNIQUE_ROUDI_ID,
+                                     m_managementAllocator,
+                                     PosixGroup{"iox_roudi_test1"},
+                                     PosixGroup{"iox_roudi_test2"});
     }
 };
 MePooSegment_test::SharedMemoryObject_MOCK::createFct MePooSegment_test::SharedMemoryObject_MOCK::createVerificator;
@@ -167,7 +170,11 @@ TEST_F(MePooSegment_test, SharedMemoryCreationParameter)
         EXPECT_THAT(accessMode, Eq(iox::AccessMode::READ_WRITE));
         EXPECT_THAT(openMode, Eq(iox::OpenMode::PURGE_AND_CREATE));
     };
-    SUT sut{mepooConfig, m_managementAllocator, PosixGroup{"iox_roudi_test1"}, PosixGroup{"iox_roudi_test2"}};
+    SUT sut{mepooConfig,
+            roudi::DEFAULT_UNIQUE_ROUDI_ID,
+            m_managementAllocator,
+            PosixGroup{"iox_roudi_test1"},
+            PosixGroup{"iox_roudi_test2"}};
     MePooSegment_test::SharedMemoryObject_MOCK::createVerificator =
         MePooSegment_test::SharedMemoryObject_MOCK::createFct();
 }

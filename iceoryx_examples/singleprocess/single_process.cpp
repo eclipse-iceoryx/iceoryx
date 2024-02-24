@@ -117,7 +117,7 @@ int main()
 
     //! [roudi config]
     iox::RouDiConfig_t defaultRouDiConfig = iox::RouDiConfig_t().setDefaults();
-    iox::roudi::IceOryxRouDiComponents roudiComponents(defaultRouDiConfig);
+    iox::roudi::IceOryxRouDiComponents roudiComponents(defaultRouDiConfig, iox::roudi::DEFAULT_UNIQUE_ROUDI_ID);
     //! [roudi config]
 
     //! [roudi]

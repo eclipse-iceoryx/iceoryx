@@ -42,7 +42,9 @@ template <typename SegmentType = MePooSegment<>>
 class SegmentManager
 {
   public:
-    SegmentManager(const SegmentConfig& segmentConfig, BumpAllocator* managementAllocator) noexcept;
+    SegmentManager(const SegmentConfig& segmentConfig,
+                   const uint16_t uniqueRouDiId,
+                   BumpAllocator* managementAllocator) noexcept;
     ~SegmentManager() noexcept = default;
 
     SegmentManager(const SegmentManager& rhs) = delete;
@@ -91,7 +93,7 @@ class SegmentManager
     static uint64_t requiredFullMemorySize(const SegmentConfig& config) noexcept;
 
   private:
-    void createSegment(const SegmentConfig::SegmentEntry& segmentEntry) noexcept;
+    void createSegment(const SegmentConfig::SegmentEntry& segmentEntry, const uint16_t uniqueRouDiId) noexcept;
 
   private:
     template <typename MemoryManger, typename SegmentManager, typename PublisherPort>
