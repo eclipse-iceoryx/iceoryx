@@ -375,14 +375,36 @@ TEST(Node_test, PublisherAndSubscriberAreConnected)
 
     auto node = RouDiEnvNodeBuilder("hypnotoad").create().expect("Creating a node should not fail!");
 
-    auto publisher = node.publisher({"all", "glory", "hypnotoad"}).create<uint8_t>().expect("Getting publisher");
-    auto subscriber = node.subscriber({"all", "glory", "hypnotoad"}).create<uint8_t>().expect("Getting subscriber");
+    auto publisher = node.publisher({"all", "glory", "hypnotoad"}).create<uint64_t>().expect("Getting publisher");
+    auto subscriber = node.subscriber({"all", "glory", "hypnotoad"}).create<uint64_t>().expect("Getting subscriber");
 
-    constexpr uint8_t DATA{42};
+    constexpr uint64_t DATA{42};
     publisher->publishCopyOf(DATA).or_else([](const auto) { GTEST_FAIL() << "Expected to send data"; });
     subscriber->take().and_then([&](const auto& sample) { EXPECT_THAT(*sample, Eq(DATA)); }).or_else([](const auto) {
         GTEST_FAIL() << "Expected to receive data";
     });
+}
+
+TEST(Node_test, NodeAndEndpointsAreContinuouslyRecreated)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "24d93901-0bd5-4458-bb53-7d40e4fb2964");
+
+    RouDiEnv roudi;
+
+    for (uint64_t i = 0; i < 10; ++i)
+    {
+        auto node = RouDiEnvNodeBuilder("hypnotoad").create().expect("Creating a node should not fail!");
+
+        auto publisher = node.publisher({"all", "glory", "hypnotoad"}).create<uint64_t>().expect("Getting publisher");
+        auto subscriber =
+            node.subscriber({"all", "glory", "hypnotoad"}).create<uint64_t>().expect("Getting subscriber");
+
+        constexpr uint64_t DATA{42};
+        publisher->publishCopyOf(DATA + i).or_else([](const auto) { GTEST_FAIL() << "Expected to send data"; });
+        subscriber->take()
+            .and_then([&](const auto& sample) { EXPECT_THAT(*sample, Eq(DATA + i)); })
+            .or_else([](const auto) { GTEST_FAIL() << "Expected to receive data"; });
+    }
 }
 
 } // namespace
