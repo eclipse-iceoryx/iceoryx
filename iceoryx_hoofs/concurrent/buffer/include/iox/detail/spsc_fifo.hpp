@@ -54,17 +54,16 @@ class SpscFifo
     bool empty() const noexcept;
 
     /// @brief returns the size of the fifo
-    /// @note thread safe (the result might already be outdated when used). Expected to be called from either the push
-    /// or the pop thread but not from a third thread
+    /// @note calling 'size' from a third thread while the producer and consumer threads are still running might yield
+    /// an invalid result with values even outside of the capacity.
     uint64_t size() const noexcept;
 
     /// @brief returns the capacity of the fifo
     static constexpr uint64_t capacity() noexcept;
 
   private:
-    // thread safe (the result might already be outdated when used). Expected to be called from either the push or the
-    // pop thread but not from a third thread
-    bool is_full() const noexcept;
+    bool is_full(uint64_t currentReadPos, uint64_t currentWritePos) const noexcept;
+
 
   private:
     UninitializedArray<ValueType, Capacity> m_data;
