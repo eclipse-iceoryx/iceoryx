@@ -120,7 +120,7 @@
 - Bug in `ListenerImpl` [#2137](https://github.com/eclipse-iceoryx/iceoryx/issues/2137)
 - Wrong memory order in `MpmcLoFFLi` fence synchronization [#2196](https://github.com/eclipse-iceoryx/iceoryx/issues/2196)
 - Race condition in `PoshRuntime` during shutdown [#2192](https://github.com/eclipse-iceoryx/iceoryx/issues/2192)
-
+- Fix wrong memory orders in SpscFiFo [#2167](https://github.com/eclipse-iceoryx/iceoryx/issues/2167)
 **Refactoring:**
 
 - Separate module specific errors from `iceoryx_hoofs` [\#1099](https://github.com/eclipse-iceoryx/iceoryx/issues/1099)
@@ -1303,4 +1303,3 @@
     Hence the `ChunkHeader` (iceoryx_posh/mepoo/chunk_header.hpp) layout changes
     and `m_chunkHeaderVersion` is getting increased.
     Moreover many functions' signatures are also affected by this change.
-
