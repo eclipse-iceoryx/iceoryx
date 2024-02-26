@@ -388,4 +388,46 @@ TEST(Node_test, NodeAndEndpointsAreContinuouslyRecreated)
     }
 }
 
+TEST(Node_test, MultipleNodeAndEndpointsAreRegisteredWithSeparateRouDiRunningInParallel)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "1e527815-28d1-4a99-a9a3-cc4084018cf3");
+
+    NodeName_t node_name{"hypnotoad"};
+    ServiceDescription service_description{"all", "glory", "hypnotoad"};
+
+    constexpr uint16_t roudi_id_a{13};
+    constexpr uint16_t roudi_id_b{42};
+
+    RouDiEnv roudi_a{roudi_id_a};
+    RouDiEnv roudi_b{roudi_id_b};
+
+    auto node_a =
+        RouDiEnvNodeBuilder(node_name).roudi_id(roudi_id_a).create().expect("Creating a node should not fail!");
+    auto node_b =
+        RouDiEnvNodeBuilder(node_name).roudi_id(roudi_id_b).create().expect("Creating a node should not fail!");
+
+    auto publisher_a = node_a.publisher(service_description).create<uint16_t>().expect("Getting publisher");
+    auto publisher_b = node_b.publisher(service_description).create<uint16_t>().expect("Getting publisher");
+
+    auto subscriber_a = node_a.subscriber(service_description).create<uint16_t>().expect("Getting subscriber");
+    auto subscriber_b = node_b.subscriber(service_description).create<uint16_t>().expect("Getting subscriber");
+
+    publisher_a->publishCopyOf(roudi_id_a).or_else([](const auto) { GTEST_FAIL() << "Expected to send data"; });
+    publisher_b->publishCopyOf(roudi_id_b).or_else([](const auto) { GTEST_FAIL() << "Expected to send data"; });
+
+    subscriber_a->take()
+        .and_then([&](const auto& sample) { EXPECT_THAT(*sample, Eq(roudi_id_a)); })
+        .or_else([](const auto) { GTEST_FAIL() << "Expected to receive data"; });
+    subscriber_a->take()
+        .and_then([&](const auto& sample) { GTEST_FAIL() << "Expected to receive no data but got: " << *sample; })
+        .or_else([](const auto) { GTEST_SUCCEED() << "Successfully received no data"; });
+
+    subscriber_b->take()
+        .and_then([&](const auto& sample) { EXPECT_THAT(*sample, Eq(roudi_id_b)); })
+        .or_else([](const auto) { GTEST_FAIL() << "Expected to receive data"; });
+    subscriber_b->take()
+        .and_then([&](const auto& sample) { GTEST_FAIL() << "Expected to receive no data but got: " << *sample; })
+        .or_else([](const auto) { GTEST_SUCCEED() << "Successfully received no data"; });
+}
+
 } // namespace

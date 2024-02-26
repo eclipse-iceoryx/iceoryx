@@ -39,9 +39,12 @@ namespace roudi_env
 class RouDiEnv
 {
   public:
+    RouDiEnv(const uint16_t uniqueRouDiId,
+             const RouDiConfig_t& roudiConfig = RouDiConfig_t().setDefaults(),
+             roudi::MonitoringMode monitoringMode = roudi::MonitoringMode::OFF) noexcept;
+
     RouDiEnv(const RouDiConfig_t& roudiConfig = RouDiConfig_t().setDefaults(),
-             roudi::MonitoringMode monitoringMode = roudi::MonitoringMode::OFF,
-             const uint16_t uniqueRouDiId = roudi::DEFAULT_UNIQUE_ROUDI_ID) noexcept;
+             roudi::MonitoringMode monitoringMode = roudi::MonitoringMode::OFF) noexcept;
     virtual ~RouDiEnv() noexcept;
 
     RouDiEnv(RouDiEnv&& rhs) noexcept = default;
@@ -68,7 +71,7 @@ class RouDiEnv
     void cleanupRuntimes() noexcept;
 
   private:
-    RuntimeTestInterface m_runtimes;
+    optional<RuntimeTestInterface> m_runtimes;
 #if defined(__APPLE__)
     iox::units::Duration m_discoveryLoopWaitToFinishTimeout{iox::units::Duration::fromMilliseconds(1000)};
 #else

@@ -30,17 +30,32 @@ RouDiEnv::RouDiEnv(MainCTor) noexcept
 {
 }
 
-RouDiEnv::RouDiEnv(const RouDiConfig_t& roudiConfig,
-                   const roudi::MonitoringMode monitoringMode,
-                   const uint16_t uniqueRouDiId) noexcept
+RouDiEnv::RouDiEnv(const uint16_t uniqueRouDiId,
+                   const RouDiConfig_t& roudiConfig,
+                   const roudi::MonitoringMode monitoringMode) noexcept
     : RouDiEnv(MainCTor{})
 {
+    if (uniqueRouDiId == 0)
+    {
+        m_runtimes.emplace();
+    }
     m_roudiComponents =
         std::unique_ptr<roudi::IceOryxRouDiComponents>(new roudi::IceOryxRouDiComponents(roudiConfig, uniqueRouDiId));
-    m_roudiApp =
-        std::unique_ptr<roudi::RouDi>(new roudi::RouDi(m_roudiComponents->rouDiMemoryManager,
-                                                       m_roudiComponents->portManager,
-                                                       roudi::RouDi::RoudiStartupParameters{monitoringMode, false}));
+    m_roudiApp = std::unique_ptr<roudi::RouDi>(
+        new roudi::RouDi(m_roudiComponents->rouDiMemoryManager,
+                         m_roudiComponents->portManager,
+                         roudi::RouDi::RoudiStartupParameters{monitoringMode,
+                                                              false,
+                                                              roudi::RouDi::RuntimeMessagesThreadStart::IMMEDIATE,
+                                                              version::CompatibilityCheckLevel::PATCH,
+                                                              roudi::PROCESS_DEFAULT_KILL_DELAY,
+                                                              roudi::PROCESS_DEFAULT_TERMINATION_DELAY,
+                                                              uniqueRouDiId}));
+}
+
+RouDiEnv::RouDiEnv(const RouDiConfig_t& roudiConfig, const roudi::MonitoringMode monitoringMode) noexcept
+    : RouDiEnv(roudi::DEFAULT_UNIQUE_ROUDI_ID, roudiConfig, monitoringMode)
+{
 }
 
 RouDiEnv::~RouDiEnv() noexcept
@@ -60,17 +75,28 @@ void RouDiEnv::triggerDiscoveryLoopAndWaitToFinish() noexcept
 
 void RouDiEnv::cleanupAppResources(const RuntimeName_t& name) noexcept
 {
-    m_runtimes.eraseRuntime(name);
+    if (m_runtimes.has_value())
+    {
+        m_runtimes->eraseRuntime(name);
+    }
 }
 
 uint64_t RouDiEnv::numberOfActiveRuntimeTestInterfaces() noexcept
 {
-    return m_runtimes.activeRuntimeCount();
+    if (m_runtimes.has_value())
+    {
+        return m_runtimes->activeRuntimeCount();
+    }
+
+    return 0;
 }
 
 void RouDiEnv::cleanupRuntimes() noexcept
 {
-    m_runtimes.cleanupRuntimes();
+    if (m_runtimes.has_value())
+    {
+        m_runtimes->cleanupRuntimes();
+    }
 }
 
 } // namespace roudi_env

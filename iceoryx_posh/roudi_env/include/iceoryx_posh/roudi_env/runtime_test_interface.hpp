@@ -18,6 +18,7 @@
 #define IOX_POSH_ROUDI_ENVIRONMENT_RUNTIME_TEST_INTERFACE_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iox/optional.hpp"
 
 #include <atomic>
 #include <map>
@@ -31,8 +32,10 @@ class PoshRuntime;
 }
 namespace roudi_env
 {
+class RouDiEnv;
 class RuntimeTestInterface
 {
+    friend class optional<RuntimeTestInterface>;
     friend class RouDiEnv;
 
   private:
