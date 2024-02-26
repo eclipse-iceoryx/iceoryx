@@ -22,15 +22,17 @@
 
 IOX_DEPRECATED_HEADER_SINCE(3, "Please include 'iox/scoped_static.hpp' instead.")
 
+// clang-format off
+
 namespace iox
 {
-/// @todo iox-#1593 Deprecate namespace with
-/// namespace IOX_DEPRECATED_SINCE(3, "Please use the 'iox' namespace directly and the corresponding header.")
-namespace cxx
+namespace IOX_DEPRECATED_SINCE(3, "Please use the 'iox' namespace directly and the corresponding header.") cxx
 {
 /// @deprecated use 'iox::makeScopedStatic' instead of 'iox::cxx::makeScopedStatic'
 using iox::makeScopedStatic;
 } // namespace cxx
 } // namespace iox
+
+// clang-format on
 
 #endif // IOX_HOOFS_CXX_SCOPED_STATIC_HPP

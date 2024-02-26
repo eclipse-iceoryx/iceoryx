@@ -22,15 +22,17 @@
 
 IOX_DEPRECATED_HEADER_SINCE(3, "Please include 'iox/deadline_timer.hpp' instead.")
 
+// clang-format off
+
 namespace iox
 {
-/// @todo iox-#1593 Deprecate namespace with
-/// namespace IOX_DEPRECATED_SINCE(3, "Please use the 'iox' namespace directly and the corresponding header.")
-namespace cxx
+namespace IOX_DEPRECATED_SINCE(3, "Please use the 'iox' namespace directly and the corresponding header.") cxx
 {
 /// @deprecated use 'iox::deadline_timer' instead of 'iox::cxx::DeadlineTimer'
-using DeadlineTimer = iox::deadline_timer;
+using DeadlineTimer IOX_DEPRECATED_SINCE(3, "Please use 'iox::deadline_timer' instead.") = iox::deadline_timer;
 } // namespace cxx
 } // namespace iox
+
+// clang-format on
 
 #endif // IOX_HOOFS_CXX_DEADLINE_TIMER_HPP

@@ -21,11 +21,11 @@
 
 IOX_DEPRECATED_HEADER_SINCE(3, "Please include 'iox/newtype.hpp' instead.")
 
+// clang-format off
+
 namespace iox
 {
-/// @todo iox-#1593 Deprecate namespace with
-/// namespace IOX_DEPRECATED_SINCE(3, "Please use the 'iox' namespace directly and the corresponding header.")
-namespace cxx
+namespace IOX_DEPRECATED_SINCE(3, "Please use the 'iox' namespace directly and the corresponding header.") cxx
 {
 /// @deprecated use 'iox::NewType' instead of 'iox::cxx::NewType'
 using iox::NewType;
@@ -65,5 +65,7 @@ using iox::newtype::internal::ProtectedConstructor;
 } // namespace newtype
 } // namespace cxx
 } // namespace iox
+
+// clang-format on
 
 #endif

@@ -22,9 +22,11 @@
 
 IOX_DEPRECATED_HEADER_SINCE(3, "Please include 'iox/thread.hpp' instead.")
 
+// clang-format off
+
 namespace iox
 {
-namespace posix
+namespace IOX_DEPRECATED_SINCE(3, "Please use the 'iox' namespace directly and the corresponding header.") posix
 {
 IOX_DEPRECATED_SINCE(3, "Please use 'iox::MAX_THREAD_NAME_LENGTH' from 'iox/thread.hpp' instead.")
 constexpr uint64_t MAX_THREAD_NAME_LENGTH{iox::MAX_THREAD_NAME_LENGTH};
@@ -46,5 +48,7 @@ inline ThreadName_t getThreadName() noexcept
 
 } // namespace posix
 } // namespace iox
+
+// clang-format on
 
 #endif // IOX_HOOFS_POSIX_WRAPPER_PTHREAD_HPP

@@ -22,14 +22,18 @@
 
 IOX_DEPRECATED_HEADER_SINCE(3, "Please include 'iox/file_lock.hpp' instead.")
 
+// clang-format off
+
 namespace iox
 {
-namespace posix
+namespace IOX_DEPRECATED_SINCE(3, "Please use the 'iox' namespace directly and the corresponding header.") posix
 {
 using FileLockError
     IOX_DEPRECATED_SINCE(3, "Please use 'iox::FileLockError' from 'iox/file_lock.hpp' instead.") = FileLockError;
 using FileLock IOX_DEPRECATED_SINCE(3, "Please use 'iox::FileLock' from 'iox/file_lock.hpp' instead.") = FileLock;
 } // namespace posix
 } // namespace iox
+
+// clang-format on
 
 #endif // IOX_HOOFS_POSIX_WRAPPER_FILE_LOCK_HPP

@@ -22,17 +22,21 @@
 
 IOX_DEPRECATED_HEADER_SINCE(3, "Please include 'iox/attributes.hpp' instead.")
 
+// clang-format off
+
 namespace iox
 {
-/// @todo iox-#1593 Deprecate namespace with
-/// namespace IOX_DEPRECATED_SINCE(3, "Please use the 'iox' namespace directly and the corresponding header.")
-namespace cxx
+namespace IOX_DEPRECATED_SINCE(3, "Please use the 'iox' namespace directly and the corresponding header.") cxx
 {
 namespace internal
 {
 /// @deprecated use 'iox::internal::IOX_DISCARD_RESULT_IMPL' instead of 'iox::cxx::internal::IOX_DISCARD_RESULT_IMPL'
 using iox::internal::IOX_DISCARD_RESULT_IMPL;
 } // namespace internal
+} // namespace cxx
+} // namespace iox
+
+// clang-format on
 
 /// @deprecated use '[[nodiscard]]' instead of 'IOX_NO_DISCARD'
 #define IOX_NO_DISCARD [[nodiscard, IOX_NO_DISCARD_is_deprecated_use__nodiscard__attribute]]
@@ -42,8 +46,5 @@ using iox::internal::IOX_DISCARD_RESULT_IMPL;
 
 /// @deprecated use '[[maybe_unused]]' instead of 'IOX_MAYBE_UNUSED'
 #define IOX_MAYBE_UNUSED [[maybe_unused, IOX_MAYBE_UNUSED_is_deprecated_use__maybe_unused__attribute]]
-
-} // namespace cxx
-} // namespace iox
 
 #endif
