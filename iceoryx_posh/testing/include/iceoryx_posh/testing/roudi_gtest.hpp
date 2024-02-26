@@ -31,7 +31,7 @@ class RouDi_GTest : public iox::roudi_env::RouDiEnv, public ::testing::Test
 {
   public:
     RouDi_GTest() = default;
-    RouDi_GTest(const iox::RouDiConfig_t& roudiConfig) noexcept;
+    RouDi_GTest(const iox::IceoryxConfig& config) noexcept;
 
     /// @deprecated Deprecated in 3.0, removed in 4.0, please port to 'setDiscoveryLoopWaitToFinishTimeout'
     IOX_DEPRECATED_SINCE(3, "Please port to 'setDiscoveryLoopWaitToFinishTimeout'")

@@ -34,8 +34,8 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    iox::RouDiConfig_t roudiConfig;
-    // roudiConfig.setDefaults(); can be used if you want to use the default config only.
+    iox::IceoryxConfig config;
+    // config.setDefaults(); can be used if you want to use the default config only.
 
     /// @brief Create Mempool Config
     iox::mepoo::MePooConfig mepooConfig;
@@ -52,8 +52,8 @@ int main(int argc, char* argv[])
     /// We want to use the Shared Memory Segment for the current user
     auto currentGroup = iox::PosixGroup::getGroupOfCurrentProcess();
 
-    /// Create an Entry for a new Shared Memory Segment from the MempoolConfig and add it to the RouDiConfig
-    roudiConfig.m_sharedMemorySegments.push_back({currentGroup.getName(), currentGroup.getName(), mepooConfig});
+    /// Create an Entry for a new Shared Memory Segment from the MempoolConfig and add it to the IceoryxConfig
+    config.m_sharedMemorySegments.push_back({currentGroup.getName(), currentGroup.getName(), mepooConfig});
 
     /// For the case that you want to give accessrights to the shm segments, you need to set groupnames as fixed string.
     /// These names defines groups whose members are either to read/write from/to the respective shared memory segment.
@@ -62,19 +62,19 @@ int main(int argc, char* argv[])
     /// iox::PosixGroup::string_t readerGroup{iox::TruncateToCapacity, "readerGroup"};
     /// iox::PosixGroup::string_t writerGroup{iox::TruncateToCapacity, "writerGroup"};
     /// iox::mepoo::SegmentConfig::SegmentEntry segentry({readerGroup, writerGroup, mepooConfig});
-    /// roudiConfig.m_sharedMemorySegments.push_back(
+    /// config.m_sharedMemorySegments.push_back(
     /// {iox::PosixGroup::string_t(iox::TruncateToCapacity, reader),
     ///  iox::PosixGroup::string_t(iox::TruncateToCapacity, writer),
     ///  mempoolConfig})
     /// @endcode
 
     /// configure the chunk count for the introspection; each introspection topic gets this number of chunks
-    roudiConfig.introspectionChunkCount = 10;
+    config.introspectionChunkCount = 10;
 
     /// configure the chunk count for the service discovery
-    roudiConfig.discoveryChunkCount = 10;
+    config.discoveryChunkCount = 10;
 
-    IceOryxRouDiApp roudi(cmdLineArgs.value(), roudiConfig);
+    IceOryxRouDiApp roudi(cmdLineArgs.value(), config);
 
     return roudi.run();
 }

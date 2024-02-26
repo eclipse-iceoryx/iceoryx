@@ -23,6 +23,7 @@
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
 #include "iceoryx_posh/roudi/iceoryx_roudi_components.hpp"
 #include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
+#include "iceoryx_posh/roudi_env/minimal_iceoryx_config.hpp"
 #include "iceoryx_posh/roudi_env/runtime_test_interface.hpp"
 #include "iox/duration.hpp"
 
@@ -40,11 +41,9 @@ class RouDiEnv
 {
   public:
     RouDiEnv(const uint16_t uniqueRouDiId,
-             const RouDiConfig_t& roudiConfig = RouDiConfig_t().setDefaults(),
-             roudi::MonitoringMode monitoringMode = roudi::MonitoringMode::OFF) noexcept;
+             const IceoryxConfig& config = MinimalIceoryxConfigBuilder().create()) noexcept;
 
-    RouDiEnv(const RouDiConfig_t& roudiConfig = RouDiConfig_t().setDefaults(),
-             roudi::MonitoringMode monitoringMode = roudi::MonitoringMode::OFF) noexcept;
+    RouDiEnv(const IceoryxConfig& config = MinimalIceoryxConfigBuilder().create()) noexcept;
     virtual ~RouDiEnv() noexcept;
 
     RouDiEnv(RouDiEnv&& rhs) noexcept = default;

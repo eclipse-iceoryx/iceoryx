@@ -24,7 +24,7 @@
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/popo/untyped_client.hpp"
 #include "iceoryx_posh/popo/untyped_server.hpp"
-#include "iceoryx_posh/roudi_env/minimal_roudi_config.hpp"
+#include "iceoryx_posh/roudi_env/minimal_iceoryx_config.hpp"
 #include "iceoryx_posh/roudi_env/roudi_env.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_posh/testing/mocks/posh_runtime_mock.hpp"
@@ -109,7 +109,7 @@ class PoshRuntime_test : public Test
     }
 
     const iox::RuntimeName_t m_runtimeName{"publisher"};
-    RouDiEnv m_roudiEnv{MinimalRouDiConfigBuilder().create()};
+    RouDiEnv m_roudiEnv;
     PoshRuntime* m_runtime{&iox::runtime::PoshRuntime::initRuntime(m_runtimeName)};
     IpcMessage m_sendBuffer;
     IpcMessage m_receiveBuffer;

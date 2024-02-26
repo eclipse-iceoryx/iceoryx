@@ -21,7 +21,7 @@
 #include "iceoryx_posh/popo/server.hpp"
 #include "iceoryx_posh/popo/untyped_client.hpp"
 #include "iceoryx_posh/popo/untyped_server.hpp"
-#include "iceoryx_posh/roudi_env/minimal_roudi_config.hpp"
+#include "iceoryx_posh/roudi_env/minimal_iceoryx_config.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_posh/testing/roudi_gtest.hpp"
 
@@ -70,14 +70,14 @@ struct BigPayloadStruct
 class ClientServer_test : public RouDi_GTest
 {
   protected:
-    ClientServer_test(iox::RouDiConfig_t&& roudiConfig)
-        : RouDi_GTest(std::move(roudiConfig))
+    ClientServer_test(iox::IceoryxConfig&& config)
+        : RouDi_GTest(std::move(config))
     {
     }
 
   public:
     ClientServer_test()
-        : RouDi_GTest(MinimalRouDiConfigBuilder().create())
+        : RouDi_GTest(MinimalIceoryxConfigBuilder().create())
     {
     }
 
@@ -103,7 +103,7 @@ class BigPayloadClientServer_test : public ClientServer_test
 
   public:
     BigPayloadClientServer_test()
-        : ClientServer_test(MinimalRouDiConfigBuilder()
+        : ClientServer_test(MinimalIceoryxConfigBuilder()
                                 .payloadChunkSize(SIZE_LARGER_THAN_4GB + additionalSizeForUserHeader)
                                 .payloadChunkCount(2)
                                 .create())

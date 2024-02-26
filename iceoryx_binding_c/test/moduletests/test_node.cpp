@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_posh/roudi_env/minimal_roudi_config.hpp"
+#include "iceoryx_posh/roudi_env/minimal_iceoryx_config.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iox/detail/hoofs_error_reporting.hpp"
 
@@ -40,7 +40,7 @@ class iox_node_test : public RouDi_GTest
 {
   public:
     iox_node_test()
-        : RouDi_GTest(MinimalRouDiConfigBuilder().create())
+        : RouDi_GTest(MinimalIceoryxConfigBuilder().create())
     {
     }
 

@@ -28,7 +28,7 @@ namespace roudi
 struct IceOryxRouDiComponents
 {
   public:
-    IceOryxRouDiComponents(const RouDiConfig_t& roudiConfig, const uint16_t uniqueRouDiId) noexcept;
+    IceOryxRouDiComponents(const IceoryxConfig& config, const uint16_t uniqueRouDiId) noexcept;
 
     virtual ~IceOryxRouDiComponents() = default;
 

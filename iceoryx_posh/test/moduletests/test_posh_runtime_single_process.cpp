@@ -16,7 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/posh_error_reporting.hpp"
-#include "iceoryx_posh/roudi_env/minimal_roudi_config.hpp"
+#include "iceoryx_posh/roudi_env/minimal_iceoryx_config.hpp"
 #include "iceoryx_posh/roudi_env/roudi_env.hpp"
 #include "iceoryx_posh/runtime/posh_runtime_single_process.hpp"
 
@@ -54,7 +54,7 @@ TEST_F(PoshRuntimeSingleProcess_test, ConstructorPoshRuntimeSingleProcessIsSucce
 {
     ::testing::Test::RecordProperty("TEST_ID", "9faf7053-86af-4d26-b3a7-fb3c6319ab86");
     std::unique_ptr<IceOryxRouDiComponents> roudiComponents{
-        new IceOryxRouDiComponents(MinimalRouDiConfigBuilder().create(), DEFAULT_UNIQUE_ROUDI_ID)};
+        new IceOryxRouDiComponents(MinimalIceoryxConfigBuilder().create(), DEFAULT_UNIQUE_ROUDI_ID)};
 
     std::unique_ptr<RouDi> roudi{new RouDi(roudiComponents->rouDiMemoryManager,
                                            roudiComponents->portManager,
@@ -69,7 +69,7 @@ TEST_F(PoshRuntimeSingleProcess_test, ConstructorPoshRuntimeSingleProcessIsSucce
 TEST_F(PoshRuntimeSingleProcess_test, ConstructorPoshRuntimeSingleProcessMultipleProcessIsFound)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1cc7ad5d-5878-454a-94ba-5cf412c22682");
-    RouDiEnv roudiEnv{MinimalRouDiConfigBuilder().create()};
+    RouDiEnv roudiEnv;
 
     const RuntimeName_t runtimeName{"App"};
 

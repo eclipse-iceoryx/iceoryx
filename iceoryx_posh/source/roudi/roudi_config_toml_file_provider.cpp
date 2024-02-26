@@ -62,12 +62,12 @@ TomlRouDiConfigFileProvider::TomlRouDiConfigFileProvider(config::CmdLineArgs_t& 
     }
 }
 
-iox::expected<iox::RouDiConfig_t, iox::roudi::RouDiConfigFileParseError> TomlRouDiConfigFileProvider::parse() noexcept
+iox::expected<iox::IceoryxConfig, iox::roudi::RouDiConfigFileParseError> TomlRouDiConfigFileProvider::parse() noexcept
 {
     // Early exit in case no config file path was provided
     if (m_customConfigFilePath.empty())
     {
-        iox::RouDiConfig_t defaultConfig;
+        iox::IceoryxConfig defaultConfig;
         defaultConfig.setDefaults();
         return iox::ok(defaultConfig);
     }
@@ -83,7 +83,7 @@ iox::expected<iox::RouDiConfig_t, iox::roudi::RouDiConfigFileParseError> TomlRou
 }
 
 
-iox::expected<iox::RouDiConfig_t, iox::roudi::RouDiConfigFileParseError>
+iox::expected<iox::IceoryxConfig, iox::roudi::RouDiConfigFileParseError>
 TomlRouDiConfigFileProvider::parse(std::istream& stream) noexcept
 {
     std::shared_ptr<cpptoml::table> parsedFile{nullptr};
@@ -125,7 +125,7 @@ TomlRouDiConfigFileProvider::parse(std::istream& stream) noexcept
     }
 
     auto groupOfCurrentProcess = PosixGroup::getGroupOfCurrentProcess().getName();
-    iox::RouDiConfig_t parsedConfig;
+    iox::IceoryxConfig parsedConfig;
     for (auto segment : *segments)
     {
         auto writer = segment->get_as<std::string>("writer").value_or(into<std::string>(groupOfCurrentProcess));

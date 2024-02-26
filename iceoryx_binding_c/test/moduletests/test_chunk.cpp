@@ -20,7 +20,7 @@ extern "C" {
 #include "iceoryx_binding_c/runtime.h"
 }
 
-#include "iceoryx_posh/roudi_env/minimal_roudi_config.hpp"
+#include "iceoryx_posh/roudi_env/minimal_iceoryx_config.hpp"
 #include "iox/detail/hoofs_error_reporting.hpp"
 
 #include "iceoryx_hoofs/testing/fatal_failure.hpp"
@@ -38,7 +38,7 @@ class Chunk_test : public RouDi_GTest
 {
   public:
     Chunk_test()
-        : RouDi_GTest(MinimalRouDiConfigBuilder().create())
+        : RouDi_GTest(MinimalIceoryxConfigBuilder().create())
     {
     }
 

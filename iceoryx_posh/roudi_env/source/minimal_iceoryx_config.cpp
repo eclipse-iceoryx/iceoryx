@@ -14,24 +14,24 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_posh/roudi_env/minimal_roudi_config.hpp"
+#include "iceoryx_posh/roudi_env/minimal_iceoryx_config.hpp"
 
 namespace iox
 {
 namespace roudi_env
 {
-RouDiConfig_t MinimalRouDiConfigBuilder::create() const noexcept
+IceoryxConfig MinimalIceoryxConfigBuilder::create() const noexcept
 {
-    RouDiConfig_t roudiConfig;
+    IceoryxConfig config;
     mepoo::MePooConfig mepooConfig;
     mepooConfig.addMemPool({m_payloadChunkSize, m_payloadChunkCount});
     auto currentGroup = PosixGroup::getGroupOfCurrentProcess();
-    roudiConfig.m_sharedMemorySegments.push_back({currentGroup.getName(), currentGroup.getName(), mepooConfig});
+    config.m_sharedMemorySegments.push_back({currentGroup.getName(), currentGroup.getName(), mepooConfig});
 
-    roudiConfig.introspectionChunkCount = m_introspectionChunkCount;
-    roudiConfig.discoveryChunkCount = m_discoveryChunkCount;
+    config.introspectionChunkCount = m_introspectionChunkCount;
+    config.discoveryChunkCount = m_discoveryChunkCount;
 
-    return roudiConfig;
+    return config;
 }
 } // namespace roudi_env
 } // namespace iox

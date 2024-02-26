@@ -26,10 +26,10 @@ namespace iox
 {
 namespace roudi
 {
-DefaultRouDiMemory::DefaultRouDiMemory(const RouDiConfig_t& roudiConfig, const uint16_t uniqueRouDiId) noexcept
-    : m_introspectionMemPoolBlock(introspectionMemPoolConfig(roudiConfig.introspectionChunkCount))
-    , m_discoveryMemPoolBlock(discoveryMemPoolConfig(roudiConfig.discoveryChunkCount))
-    , m_segmentManagerBlock(roudiConfig, uniqueRouDiId)
+DefaultRouDiMemory::DefaultRouDiMemory(const IceoryxConfig& config, const uint16_t uniqueRouDiId) noexcept
+    : m_introspectionMemPoolBlock(introspectionMemPoolConfig(config.introspectionChunkCount))
+    , m_discoveryMemPoolBlock(discoveryMemPoolConfig(config.discoveryChunkCount))
+    , m_segmentManagerBlock(config, uniqueRouDiId)
     , m_managementShm(SHM_NAME, uniqueRouDiId, AccessMode::READ_WRITE, OpenMode::PURGE_AND_CREATE)
 {
     m_managementShm.addMemoryBlock(&m_introspectionMemPoolBlock).or_else([](auto) {

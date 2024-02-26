@@ -31,7 +31,7 @@ namespace iox
 {
 namespace roudi
 {
-RouDiApp::RouDiApp(const config::CmdLineArgs_t& cmdLineArgs, const RouDiConfig_t& config) noexcept
+RouDiApp::RouDiApp(const config::CmdLineArgs_t& cmdLineArgs, const IceoryxConfig& config) noexcept
     : m_logLevel(cmdLineArgs.logLevel)
     , m_monitoringMode(cmdLineArgs.monitoringMode)
     , m_run(checkAndOptimizeConfig(config))
@@ -41,7 +41,7 @@ RouDiApp::RouDiApp(const config::CmdLineArgs_t& cmdLineArgs, const RouDiConfig_t
     , m_processKillDelay(cmdLineArgs.processKillDelay)
     , m_uniqueRouDiId(cmdLineArgs.uniqueRouDiId.value_or(DEFAULT_UNIQUE_ROUDI_ID))
 {
-    // the "and" is intentional, just in case the the provided RouDiConfig_t is empty
+    // the "and" is intentional, just in case the the provided IceoryxConfig is empty
     m_run &= cmdLineArgs.run;
 
     // be silent if not running
@@ -53,11 +53,11 @@ RouDiApp::RouDiApp(const config::CmdLineArgs_t& cmdLineArgs, const RouDiConfig_t
     }
 }
 
-bool RouDiApp::checkAndOptimizeConfig(const RouDiConfig_t& config) noexcept
+bool RouDiApp::checkAndOptimizeConfig(const IceoryxConfig& config) noexcept
 {
     if (config.m_sharedMemorySegments.empty())
     {
-        IOX_LOG(ERROR, "A RouDiConfig without segments was specified! Please provide a valid config!");
+        IOX_LOG(ERROR, "A IceoryxConfig without segments was specified! Please provide a valid config!");
         return false;
     }
 
@@ -66,7 +66,7 @@ bool RouDiApp::checkAndOptimizeConfig(const RouDiConfig_t& config) noexcept
         if (segment.m_mempoolConfig.m_mempoolConfig.empty())
         {
             IOX_LOG(ERROR,
-                    "A RouDiConfig with segments without mempools was specified! Please provide a valid config!");
+                    "A IceoryxConfig with segments without mempools was specified! Please provide a valid config!");
             return false;
         }
     }

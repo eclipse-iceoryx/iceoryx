@@ -37,8 +37,8 @@ iox::log::Logger::init(iox::log::LogLevel::INFO);
 
 <!--[geoffrey][iceoryx_examples/singleprocess/single_process.cpp][roudi config]-->
 ```cpp
-iox::RouDiConfig_t defaultRouDiConfig = iox::RouDiConfig_t().setDefaults();
-iox::roudi::IceOryxRouDiComponents roudiComponents(defaultRouDiConfig);
+iox::IceoryxConfig defaultConfig = iox::IceoryxConfig().setDefaults();
+iox::roudi::IceOryxRouDiComponents roudiComponents(defaultConfig);
 ```
 
  3. We are starting RouDi, provide the required components and

@@ -33,9 +33,9 @@ class TomlRouDiConfigFileProvider : public iox::roudi::RouDiConfigFileProvider
   public:
     TomlRouDiConfigFileProvider(iox::config::CmdLineArgs_t& cmdLineArgs) noexcept;
 
-    iox::expected<iox::RouDiConfig_t, iox::roudi::RouDiConfigFileParseError> parse() noexcept override;
+    iox::expected<iox::IceoryxConfig, iox::roudi::RouDiConfigFileParseError> parse() noexcept override;
 
-    static iox::expected<iox::RouDiConfig_t, iox::roudi::RouDiConfigFileParseError>
+    static iox::expected<iox::IceoryxConfig, iox::roudi::RouDiConfigFileParseError>
     parse(std::istream& stream) noexcept;
 };
 } // namespace config

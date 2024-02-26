@@ -27,8 +27,8 @@ namespace iox
 {
 namespace roudi
 {
-IceOryxRouDiApp::IceOryxRouDiApp(const config::CmdLineArgs_t& cmdLineArgs, const RouDiConfig_t& roudiConfig) noexcept
-    : RouDiApp(cmdLineArgs, roudiConfig)
+IceOryxRouDiApp::IceOryxRouDiApp(const config::CmdLineArgs_t& cmdLineArgs, const IceoryxConfig& config) noexcept
+    : RouDiApp(cmdLineArgs, config)
 {
 }
 

@@ -36,17 +36,17 @@ int main(int argc, char* argv[]) noexcept
 
     iox::config::TomlRouDiConfigFileProvider configFileProvider(cmdLineArgs.value());
 
-    auto roudiConfig = configFileProvider.parse();
+    auto config = configFileProvider.parse();
 
-    if (roudiConfig.has_error())
+    if (config.has_error())
     {
-        auto errorStringIndex = static_cast<uint64_t>(roudiConfig.error());
+        auto errorStringIndex = static_cast<uint64_t>(config.error());
         IOX_LOG(FATAL,
                 "Couldn't parse config file. Error: "
                     << iox::roudi::ROUDI_CONFIG_FILE_PARSE_ERROR_STRINGS[errorStringIndex]);
         return EXIT_FAILURE;
     }
 
-    IceOryxRouDiApp roudi(cmdLineArgs.value(), roudiConfig.value());
+    IceOryxRouDiApp roudi(cmdLineArgs.value(), config.value());
     return roudi.run();
 }

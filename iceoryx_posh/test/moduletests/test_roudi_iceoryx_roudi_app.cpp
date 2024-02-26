@@ -26,7 +26,7 @@
 #include "iox/logging.hpp"
 
 #include "iceoryx_hoofs/testing/fatal_failure.hpp"
-#include "iceoryx_posh/roudi_env/minimal_roudi_config.hpp"
+#include "iceoryx_posh/roudi_env/minimal_iceoryx_config.hpp"
 #include "iceoryx_posh/roudi_env/roudi_env.hpp"
 #include "test.hpp"
 
@@ -44,8 +44,8 @@ using namespace iox;
 class IceoryxRoudiApp_Child : public IceOryxRouDiApp
 {
   public:
-    IceoryxRoudiApp_Child(const config::CmdLineArgs_t& cmdLineArgs, const RouDiConfig_t& roudiConfig)
-        : IceOryxRouDiApp(cmdLineArgs, roudiConfig)
+    IceoryxRoudiApp_Child(const config::CmdLineArgs_t& cmdLineArgs, const IceoryxConfig& config)
+        : IceOryxRouDiApp(cmdLineArgs, config)
     {
     }
 
@@ -102,7 +102,7 @@ TEST_F(IceoryxRoudiApp_test, VerifyConstructorIsSuccessful)
 
     ASSERT_FALSE(cmdLineArgs.has_error());
 
-    IceoryxRoudiApp_Child roudi(cmdLineArgs.value(), iox::RouDiConfig_t().setDefaults());
+    IceoryxRoudiApp_Child roudi(cmdLineArgs.value(), iox::IceoryxConfig().setDefaults());
 
     EXPECT_TRUE(roudi.getVariableRun());
     EXPECT_EQ(roudi.getLogLevel(), iox::log::LogLevel::INFO);
@@ -121,9 +121,9 @@ TEST_F(IceoryxRoudiApp_test, CreateTwoRoudiAppIsSuccessful)
 
     ASSERT_FALSE(cmdLineArgs.has_error());
 
-    IceoryxRoudiApp_Child roudi(cmdLineArgs.value(), iox::RouDiConfig_t().setDefaults());
+    IceoryxRoudiApp_Child roudi(cmdLineArgs.value(), iox::IceoryxConfig().setDefaults());
 
-    IceoryxRoudiApp_Child roudiTest(cmdLineArgs.value(), iox::RouDiConfig_t().setDefaults());
+    IceoryxRoudiApp_Child roudiTest(cmdLineArgs.value(), iox::IceoryxConfig().setDefaults());
 
     EXPECT_TRUE(roudiTest.getVariableRun());
 }
@@ -140,7 +140,7 @@ TEST_F(IceoryxRoudiApp_test, VerifyRunMethodWithFalseConditionReturnExitSuccess)
 
     ASSERT_FALSE(cmdLineArgs.has_error());
 
-    IceoryxRoudiApp_Child roudi(cmdLineArgs.value(), iox::RouDiConfig_t().setDefaults());
+    IceoryxRoudiApp_Child roudi(cmdLineArgs.value(), iox::IceoryxConfig().setDefaults());
 
     roudi.setVariableRun(false);
 
@@ -163,7 +163,7 @@ TEST_F(IceoryxRoudiApp_test, ConstructorCalledWithArgVersionSetRunVariableToFals
 
     ASSERT_FALSE(cmdLineArgs.has_error());
 
-    IceoryxRoudiApp_Child roudi(cmdLineArgs.value(), iox::RouDiConfig_t().setDefaults());
+    IceoryxRoudiApp_Child roudi(cmdLineArgs.value(), iox::IceoryxConfig().setDefaults());
 
     EXPECT_FALSE(roudi.getVariableRun());
 }
@@ -175,15 +175,15 @@ TEST_F(IceoryxRoudiApp_test, VerifyConstructorWithEmptyConfigSetRunVariableToFal
     char* args[NUMBER_OF_ARGS];
     char appName[] = "./foo";
     args[0] = &appName[0];
-    const std::string expectedOutput = "A RouDiConfig without segments was specified! Please provide a valid config!";
+    const std::string expectedOutput = "A IceoryxConfig without segments was specified! Please provide a valid config!";
 
     auto cmdLineArgs = cmdLineParser.parse(NUMBER_OF_ARGS, args);
 
     ASSERT_FALSE(cmdLineArgs.has_error());
 
-    iox::RouDiConfig_t roudiConfig;
+    iox::IceoryxConfig config;
 
-    IceoryxRoudiApp_Child roudi(cmdLineArgs.value(), roudiConfig);
+    IceoryxRoudiApp_Child roudi(cmdLineArgs.value(), config);
 
     EXPECT_FALSE(roudi.getVariableRun());
 
@@ -202,7 +202,7 @@ TEST_F(IceoryxRoudiApp_test, VerifyConstructorUsingConfigWithSegmentWithoutMemPo
     char appName[] = "./foo";
     args[0] = &appName[0];
     const std::string expectedOutput =
-        "A RouDiConfig with segments without mempools was specified! Please provide a valid config!";
+        "A IceoryxConfig with segments without mempools was specified! Please provide a valid config!";
 
     auto cmdLineArgs = cmdLineParser.parse(NUMBER_OF_ARGS, args);
 
@@ -211,11 +211,11 @@ TEST_F(IceoryxRoudiApp_test, VerifyConstructorUsingConfigWithSegmentWithoutMemPo
     iox::mepoo::MePooConfig mempoolConfig;
     auto currentGroup = PosixGroup::getGroupOfCurrentProcess();
 
-    iox::RouDiConfig_t roudiConfig;
+    iox::IceoryxConfig config;
 
-    roudiConfig.m_sharedMemorySegments.push_back({currentGroup.getName(), currentGroup.getName(), mempoolConfig});
+    config.m_sharedMemorySegments.push_back({currentGroup.getName(), currentGroup.getName(), mempoolConfig});
 
-    IceoryxRoudiApp_Child roudi(cmdLineArgs.value(), roudiConfig);
+    IceoryxRoudiApp_Child roudi(cmdLineArgs.value(), config);
 
     EXPECT_FALSE(roudi.getVariableRun());
 

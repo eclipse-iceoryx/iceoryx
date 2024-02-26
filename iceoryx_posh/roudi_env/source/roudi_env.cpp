@@ -30,9 +30,7 @@ RouDiEnv::RouDiEnv(MainCTor) noexcept
 {
 }
 
-RouDiEnv::RouDiEnv(const uint16_t uniqueRouDiId,
-                   const RouDiConfig_t& roudiConfig,
-                   const roudi::MonitoringMode monitoringMode) noexcept
+RouDiEnv::RouDiEnv(const uint16_t uniqueRouDiId, const IceoryxConfig& config) noexcept
     : RouDiEnv(MainCTor{})
 {
     if (uniqueRouDiId == 0)
@@ -40,11 +38,11 @@ RouDiEnv::RouDiEnv(const uint16_t uniqueRouDiId,
         m_runtimes.emplace();
     }
     m_roudiComponents =
-        std::unique_ptr<roudi::IceOryxRouDiComponents>(new roudi::IceOryxRouDiComponents(roudiConfig, uniqueRouDiId));
+        std::unique_ptr<roudi::IceOryxRouDiComponents>(new roudi::IceOryxRouDiComponents(config, uniqueRouDiId));
     m_roudiApp = std::unique_ptr<roudi::RouDi>(
         new roudi::RouDi(m_roudiComponents->rouDiMemoryManager,
                          m_roudiComponents->portManager,
-                         roudi::RouDi::RoudiStartupParameters{monitoringMode,
+                         roudi::RouDi::RoudiStartupParameters{roudi::MonitoringMode::OFF,
                                                               false,
                                                               roudi::RouDi::RuntimeMessagesThreadStart::IMMEDIATE,
                                                               version::CompatibilityCheckLevel::PATCH,
@@ -53,8 +51,8 @@ RouDiEnv::RouDiEnv(const uint16_t uniqueRouDiId,
                                                               uniqueRouDiId}));
 }
 
-RouDiEnv::RouDiEnv(const RouDiConfig_t& roudiConfig, const roudi::MonitoringMode monitoringMode) noexcept
-    : RouDiEnv(roudi::DEFAULT_UNIQUE_ROUDI_ID, roudiConfig, monitoringMode)
+RouDiEnv::RouDiEnv(const IceoryxConfig& config) noexcept
+    : RouDiEnv(roudi::DEFAULT_UNIQUE_ROUDI_ID, config)
 {
 }
 

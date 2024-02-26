@@ -26,7 +26,7 @@
 #include "iceoryx_posh/popo/client_options.hpp"
 #include "iceoryx_posh/popo/server_options.hpp"
 #include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
-#include "iceoryx_posh/roudi_env/minimal_roudi_config.hpp"
+#include "iceoryx_posh/roudi_env/minimal_iceoryx_config.hpp"
 #include "iox/detail/convert.hpp"
 #include "iox/posix_user.hpp"
 #include "iox/std_string_support.hpp"
@@ -86,7 +86,7 @@ class PortManager_test : public Test
         // starting at {1,1,1}
 
         m_roudiMemoryManager =
-            new IceOryxRouDiMemoryManager(MinimalRouDiConfigBuilder().create(), DEFAULT_UNIQUE_ROUDI_ID);
+            new IceOryxRouDiMemoryManager(MinimalIceoryxConfigBuilder().create(), DEFAULT_UNIQUE_ROUDI_ID);
         EXPECT_FALSE(m_roudiMemoryManager->createAndAnnounceMemory().has_error());
         m_portManager = new PortManagerTester(m_roudiMemoryManager);
 

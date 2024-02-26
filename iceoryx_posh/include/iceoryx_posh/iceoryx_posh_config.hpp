@@ -17,6 +17,7 @@
 #define IOX_POSH_ICEORYX_POSH_CONFIG_HPP
 
 #include "iceoryx_posh/mepoo/segment_config.hpp"
+#include "iox/detail/deprecation_marker.hpp"
 #include "roudi/roudi_config.hpp"
 
 namespace iox
@@ -95,7 +96,9 @@ struct Config : public ConfigParts...
     }
 };
 
-using RouDiConfig_t = Config<mepoo::SegmentConfig, config::RouDiConfig>;
+using IceoryxConfig = Config<mepoo::SegmentConfig, config::RouDiConfig>;
+
+using RouDiConfig_t IOX_DEPRECATED_SINCE(3, "Please use 'iox::IceoryxConfig' instead.") = IceoryxConfig;
 } // namespace iox
 
 #endif // IOX_POSH_ICEORYX_POSH_CONFIG_HPP

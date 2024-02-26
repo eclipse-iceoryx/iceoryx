@@ -20,7 +20,7 @@
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
-#include "iceoryx_posh/roudi_env/minimal_roudi_config.hpp"
+#include "iceoryx_posh/roudi_env/minimal_iceoryx_config.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_posh/testing/roudi_gtest.hpp"
 #include "iox/forward_list.hpp"
@@ -59,14 +59,14 @@ struct BigPayloadStruct
 class PublisherSubscriberCommunication_test : public RouDi_GTest
 {
   protected:
-    PublisherSubscriberCommunication_test(iox::RouDiConfig_t&& roudiConfig)
-        : RouDi_GTest(std::move(roudiConfig))
+    PublisherSubscriberCommunication_test(iox::IceoryxConfig&& config)
+        : RouDi_GTest(std::move(config))
     {
     }
 
   public:
     PublisherSubscriberCommunication_test()
-        : RouDi_GTest(MinimalRouDiConfigBuilder().payloadChunkSize(512).create())
+        : RouDi_GTest(MinimalIceoryxConfigBuilder().payloadChunkSize(512).create())
     {
     }
 
@@ -156,7 +156,7 @@ class PublisherSubscriberCommunicationWithBigPayload_test : public PublisherSubs
   public:
     PublisherSubscriberCommunicationWithBigPayload_test()
         : PublisherSubscriberCommunication_test(
-            MinimalRouDiConfigBuilder()
+            MinimalIceoryxConfigBuilder()
                 .payloadChunkSize(SIZE_LARGER_THAN_4GB + additionalSizeForUserHeader)
                 .payloadChunkCount(2)
                 .create())
