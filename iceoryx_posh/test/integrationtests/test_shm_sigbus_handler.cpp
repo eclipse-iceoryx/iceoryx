@@ -27,10 +27,14 @@ namespace
 {
 using namespace ::testing;
 
-#if !(defined(unix) | defined(__unix) | defined(__unix__))
 TEST(ShmCreatorDeathTest, AllocatingTooMuchMemoryLeadsToExitWithSIGBUS)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d6c8949d-42c9-4b2c-a150-4306cb2a57f6");
+
+#if (defined(unix) | defined(__unix) | defined(__unix__))
+    GTEST_SKIP() << "This test does not run reliable on the CI on unix like systems";
+#endif
+
     const iox::ShmName_t TEST_SHM_NAME{"test_name"};
     // the death test makes only sense on platforms which are zeroing the whole shared memory
     // if the memory is only reserved a death will never occur
@@ -40,8 +44,10 @@ TEST(ShmCreatorDeathTest, AllocatingTooMuchMemoryLeadsToExitWithSIGBUS)
         iox::mepoo::MePooConfig badconfig;
         badconfig.addMemPool({1 << 30, 100});
         iox::roudi::MemPoolCollectionMemoryBlock badmempools(badconfig);
-        iox::roudi::PosixShmMemoryProvider badShmProvider(
-            TEST_SHM_NAME, iox::AccessMode::READ_WRITE, iox::OpenMode::PURGE_AND_CREATE);
+        iox::roudi::PosixShmMemoryProvider badShmProvider(TEST_SHM_NAME,
+                                                          iox::roudi::DEFAULT_UNIQUE_ROUDI_ID,
+                                                          iox::AccessMode::READ_WRITE,
+                                                          iox::OpenMode::PURGE_AND_CREATE);
         ASSERT_FALSE(badShmProvider.addMemoryBlock(&badmempools).has_error());
 
         GTEST_FLAG(death_test_style) = "threadsafe";
@@ -53,12 +59,13 @@ TEST(ShmCreatorDeathTest, AllocatingTooMuchMemoryLeadsToExitWithSIGBUS)
     iox::mepoo::MePooConfig goodconfig;
     goodconfig.addMemPool({1024, 1});
     iox::roudi::MemPoolCollectionMemoryBlock goodmempools(goodconfig);
-    iox::roudi::PosixShmMemoryProvider goodShmProvider(
-        TEST_SHM_NAME, iox::AccessMode::READ_WRITE, iox::OpenMode::PURGE_AND_CREATE);
+    iox::roudi::PosixShmMemoryProvider goodShmProvider(TEST_SHM_NAME,
+                                                       iox::roudi::DEFAULT_UNIQUE_ROUDI_ID,
+                                                       iox::AccessMode::READ_WRITE,
+                                                       iox::OpenMode::PURGE_AND_CREATE);
     ASSERT_FALSE(goodShmProvider.addMemoryBlock(&goodmempools).has_error());
     ASSERT_FALSE(goodShmProvider.create().has_error());
 }
-#endif
 } // namespace
 
 #endif
