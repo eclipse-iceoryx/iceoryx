@@ -23,11 +23,11 @@
 
 IOX_DEPRECATED_HEADER_SINCE(3, "Please include 'iox/assertions.hpp' and 'IOX_ENFORCE' instead of 'Expects'/'Ensures'.")
 
+// clang-format off
+
 namespace iox
 {
-/// @todo iox-#1593 Deprecate namespace with
-/// namespace IOX_DEPRECATED_SINCE(3, "Please use the 'iox' namespace directly and the corresponding header.")
-namespace cxx
+namespace IOX_DEPRECATED_SINCE(3, "Please use the 'iox' namespace directly and the corresponding header.") cxx
 {
 
 // NOLINTBEGIN(cppcoreguidelines-macro-usage) deprecated; used for legacy code
@@ -44,5 +44,7 @@ namespace cxx
 
 } // namespace cxx
 } // namespace iox
+
+// clang-format on
 
 #endif

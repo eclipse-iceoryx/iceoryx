@@ -22,11 +22,11 @@
 
 IOX_DEPRECATED_HEADER_SINCE(3, "Please include 'iox/optional.hpp' instead.")
 
+// clang-format off
+
 namespace iox
 {
-/// @todo iox-#1593 Deprecate namespace with
-/// namespace IOX_DEPRECATED_SINCE(3, "Please use the 'iox' namespace directly and the corresponding header.")
-namespace cxx
+namespace IOX_DEPRECATED_SINCE(3, "Please use the 'iox' namespace directly and the corresponding header.") cxx
 {
 /// @deprecated use 'iox::in_place' instead of 'iox::cxx::in_place'
 using iox::in_place;
@@ -44,5 +44,7 @@ using iox::nullopt_t;
 using iox::optional;
 } // namespace cxx
 } // namespace iox
+
+// clang-format on
 
 #endif // IOX_HOOFS_CXX_OPTIONAL_HPP

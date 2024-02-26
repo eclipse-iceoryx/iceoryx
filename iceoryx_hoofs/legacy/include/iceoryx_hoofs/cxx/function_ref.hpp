@@ -22,11 +22,11 @@
 
 IOX_DEPRECATED_HEADER_SINCE(3, "Please include 'iox/function_ref.hpp' instead.")
 
+// clang-format off
+
 namespace iox
 {
-/// @todo iox-#1593 Deprecate namespace with
-/// namespace IOX_DEPRECATED_SINCE(3, "Please use the 'iox' namespace directly and the corresponding header.")
-namespace cxx
+namespace IOX_DEPRECATED_SINCE(3, "Please use the 'iox' namespace directly and the corresponding header.") cxx
 {
 /// @deprecated use 'iox::function_ref' instead of 'iox::cxx::function_ref'
 using iox::function_ref;
@@ -36,5 +36,7 @@ using iox::has_same_decayed_type;
 
 } // namespace cxx
 } // namespace iox
+
+// clang-format on
 
 #endif // IOX_HOOFS_CXX_FUNCTION_REF_HPP

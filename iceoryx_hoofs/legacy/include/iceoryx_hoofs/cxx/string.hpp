@@ -22,11 +22,11 @@
 
 IOX_DEPRECATED_HEADER_SINCE(3, "Please include 'iox/string.hpp' instead.")
 
+// clang-format off
+
 namespace iox
 {
-/// @todo iox-#1593 Deprecate namespace with
-/// namespace IOX_DEPRECATED_SINCE(3, "Please use the 'iox' namespace directly and the corresponding header.")
-namespace cxx
+namespace IOX_DEPRECATED_SINCE(3, "Please use the 'iox' namespace directly and the corresponding header.") cxx
 {
 /// @deprecated use 'iox::concatenate' instead of 'iox::cxx::concatenate'
 using iox::concatenate;
@@ -55,5 +55,7 @@ using iox::TruncateToCapacity;
 using iox::TruncateToCapacity_t;
 } // namespace cxx
 } // namespace iox
+
+// clang-format on
 
 #endif // IOX_HOOFS_CXX_STRING_HPP

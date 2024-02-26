@@ -33,7 +33,9 @@
 - Add posix thread wrapper [\#1365](https://github.com/eclipse-iceoryx/iceoryx/issues/1365)
 - Apps send only the heartbeat when monitoring is enabled in roudi [\#1436](https://github.com/eclipse-iceoryx/iceoryx/issues/1436)
 - Support [Bazel](https://bazel.build/) as optional build system [\#1542](https://github.com/eclipse-iceoryx/iceoryx/issues/1542)
-- Support user defined platforms with cmake switch `-DIOX_PLATFORM_PATH` [\#1619](https://github.com/eclipse-iceoryx/iceoryx/issues/1619)
+- Exchangable and customizable iceoryx platform [#1432](https://github.com/eclipse-iceoryx/iceoryx/issues/1432)
+    - Support user defined platforms with cmake switch `-DIOX_PLATFORM_PATH` [\#1619](https://github.com/eclipse-iceoryx/iceoryx/issues/1619)
+    - See also `website/advanced/custom-iceoryx-platform.md`
 - Add equality and inequality operators for `iox::variant` and `iox::expected` [\#1751](https://github.com/eclipse-iceoryx/iceoryx/issues/1751)
 - Implement UninitializedArray [\#1614](https://github.com/eclipse-iceoryx/iceoryx/issues/1614)
 - Implement BumpAllocator [\#1732](https://github.com/eclipse-iceoryx/iceoryx/issues/1732)
@@ -203,6 +205,8 @@
 - Replace `iox::byte_t` with std::byte [#1900](https://github.com/eclipse-iceoryx/iceoryx/issues/1900)
 - Merge `iceoryx_dust` back to `iceoryx_hoofs` [#2130](https://github.com/eclipse-iceoryx/iceoryx/issues/2130)
 - Activate clang-tidy for all the code in iceoryx_hoofs [#2184](https://github.com/eclipse-iceoryx/iceoryx/issues/2184)
+- Split `iceoryx_hoofs` into logical modules [#1391](https://github.com/eclipse-iceoryx/iceoryx/issues/1391)
+- Create a flat include structure for `iceoryx_hoofs` [#1593](https://github.com/eclipse-iceoryx/iceoryx/issues/1593)
 
 **Workflow:**
 
@@ -295,7 +299,7 @@
     uint8_t MyCustomRoudiApp::run() noexcept {
         // ...
 
-        iox::posix::waitForTerminationRequest();
+        iox::waitForTerminationRequest();
     }
     ```
 
@@ -492,6 +496,20 @@
     std::cout << SOME_ENUM_STRINGS[static_cast<uint64_t>(someEnum)] << std::endl;
     ```
 
+    Note: The recommended enum to string conversion pattern is as following
+    ```cpp
+    constexpr const char* asStringLiteral(const SOME_ENUM value) noexcept {
+        switch (value) {
+        case SOME_ENUM::FOO:
+            return "SOME_ENUM::FOO";
+        case SOME_ENUM::BAR:
+            return "SOME_ENUM::BAR";
+        }
+
+        return "SOME_ENUM::UNDEFINED_VALUE";
+    }
+    ```
+
 16. Remove `convertEnumToString`
 
     ```cpp
@@ -502,6 +520,20 @@
 
     // after
     std::cout << SOME_ENUM_STRINGS[static_cast<uint64_t>(someEnum)] << std::endl;
+    ```
+
+    Note: The recommended enum to string conversion pattern is as following
+    ```cpp
+    constexpr const char* asStringLiteral(const SOME_ENUM value) noexcept {
+        switch (value) {
+        case SOME_ENUM::FOO:
+            return "SOME_ENUM::FOO";
+        case SOME_ENUM::BAR:
+            return "SOME_ENUM::BAR";
+        }
+
+        return "SOME_ENUM::UNDEFINED_VALUE";
+    }
     ```
 
 17. Replace `strlen2` with more generic `iox::size`
@@ -646,7 +678,7 @@
 
     // after
     iox::unique_ptr<int> myPtr(ptrToInt, someDeleter);
-    iox::optional<cxx::unique_ptr<int>> emptyPtr(nullopt); // if unique_ptr shall be nullable use optional
+    iox::optional<iox::unique_ptr<int>> emptyPtr(nullopt); // if unique_ptr shall be nullable use optional
 
     // no more null check required since it is no longer nullable
     std::cout << *myPtr << std::endl;
@@ -833,14 +865,14 @@
 
 34. Free function logger calls changed
 
-    | before                | after                 |
-    |:---------------------:|:---------------------:|
-    | `LogFatal() << "x"`   | `IOX_LOG(FATAL, "x")` |
-    | `LogError() << "x"`   | `IOX_LOG(ERROR, "x")` |
-    | `LogWarn() << "x"`    | `IOX_LOG(WARN, "x")`  |
-    | `LogInfo() << "x"`    | `IOX_LOG(INFO, "x")`  |
-    | `LogDebug() << "x"`   | `IOX_LOG(DEBUG, "x")` |
-    | `LogVerbose() << "x"` | `IOX_LOG(TRACE, "x")` |
+    | before                      | after                       |
+    |:---------------------------:|:---------------------------:|
+    | `LogFatal() << "x" << 42`   | `IOX_LOG(FATAL, "x" << 42)` |
+    | `LogError() << "x" << 42`   | `IOX_LOG(ERROR, "x" << 42)` |
+    | `LogWarn() << "x" << 42`    | `IOX_LOG(WARN, "x" << 42)`  |
+    | `LogInfo() << "x" << 42`    | `IOX_LOG(INFO, "x" << 42)`  |
+    | `LogDebug() << "x" << 42`   | `IOX_LOG(DEBUG, "x" << 42)` |
+    | `LogVerbose() << "x" << 42` | `IOX_LOG(TRACE, "x" << 42)` |
 
 35. Logger formatting changed
 
@@ -951,10 +983,26 @@
 
     Have a look at the logger design document for more details on how to setup the testing logger.
 
-40. Changed the include path and namespace of several classes in `iceoryx_hoofs`:
+40. Flat include structure and namespace for `iceoryx_hoofs`
 
-    * `iox::bar::foo` to `iox::foo`
-        * `iceoryx_hoofs/bar/foo.hpp` to `iox/foo.hpp`
+    There was quite a big refactoring in `iceoryx_hoofs` and the header are now in a flat structure
+    and namespace with some small exceptions like concurrent constructs being in the `iox::concurrent`
+    namespace.
+
+    ```cpp
+    // before
+    #include "iceoryx_hoofs/cxx/vector.hpp"
+    iox::cxx::vector<bool, 2> b;
+
+    // after
+    #include "iox/vector.hpp"
+    iox::vector<bool, 2> b;
+    ```
+
+    The same pattern applies to the other header in `icoryx_hoofs`.
+
+    Some, but not all, header are still available from the legacy path. Those header will generate a
+    deprecation warning and will be removed in a future release.
 
 41. Use proper aligned `iox::UninitializedArray` instead of C-style array
 
@@ -1258,16 +1306,19 @@
 
     It is now also possible to directly link to `iceoryx_posh::iceoryx_posh_roudi_env` which has no dependency to gTest.
 
-54. `Expects` and `Ensures` macros are renamed to `IOX_EXPECTS` and `IOX_ENSURES`
+54. `Expects` and `Ensures` macros are replaced with `IOX_ENFORCE` from the new error handling concept
 
     ```cpp
     // before
+    #include "iceoryx_hoofs/cxx/requires.hpp"
+
     iox::cxx::Expects(foo == true);
     iox::cxx::Ensures(foo == true);
 
     // after
-    IOX_EXPECTS(foo == true);
-    IOX_ENSURES(foo == true);
+    #include "iox/assertions.hpp"
+
+    IOX_ENFORCE(foo == true);
     ```
 
 55. `IOX_MAYBE_UNUSED`, `IOX_FALLTHROUGH` and `IOX_NO_DISCARD` are deprecated
@@ -1303,4 +1354,3 @@
     Hence the `ChunkHeader` (iceoryx_posh/mepoo/chunk_header.hpp) layout changes
     and `m_chunkHeaderVersion` is getting increased.
     Moreover many functions' signatures are also affected by this change.
-

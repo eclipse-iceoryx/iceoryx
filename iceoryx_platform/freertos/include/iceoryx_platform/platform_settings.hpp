@@ -29,11 +29,6 @@
 
 namespace iox
 {
-namespace posix
-{
-class NamedPipe;
-} // namespace posix
-
 namespace platform
 {
 /// defined in the man sem_overview

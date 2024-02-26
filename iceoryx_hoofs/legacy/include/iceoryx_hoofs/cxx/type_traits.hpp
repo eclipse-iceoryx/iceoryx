@@ -22,11 +22,11 @@
 
 IOX_DEPRECATED_HEADER_SINCE(3, "Please include 'iox/type_traits.hpp' instead.")
 
+// clang-format off
+
 namespace iox
 {
-/// @todo iox-#1593 Deprecate namespace with
-/// namespace IOX_DEPRECATED_SINCE(3, "Please use the 'iox' namespace directly and the corresponding header.")
-namespace cxx
+namespace IOX_DEPRECATED_SINCE(3, "Please use the 'iox' namespace directly and the corresponding header.") cxx
 {
 /// @deprecated use 'iox::add_const_conditionally' instead of 'iox::cxx::add_const_conditionally'
 using iox::add_const_conditionally;
@@ -56,5 +56,7 @@ using iox::void_t;
 using iox::TypeInfo;
 } // namespace cxx
 } // namespace iox
+
+// clang-format on
 
 #endif // IOX_HOOFS_CXX_TYPE_TRAITS_HPP

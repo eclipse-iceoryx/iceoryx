@@ -24,14 +24,18 @@
 
 IOX_DEPRECATED_HEADER_SINCE(3, "Please include 'iox/posix_group.hpp' and/or 'iox/posix_user.hpp' instead.")
 
+// clang-format off
+
 namespace iox
 {
-namespace posix
+namespace IOX_DEPRECATED_SINCE(3, "Please use the 'iox' namespace directly and the corresponding header.") posix
 {
 using PosixGroup IOX_DEPRECATED_SINCE(3,
                                       "Please use 'iox::PosixGroup' from 'iox/posix_group.hpp' instead.") = PosixGroup;
 using PosixUser IOX_DEPRECATED_SINCE(3, "Please use 'iox::PosixUser' from 'iox/posix_user.hpp' instead.") = PosixUser;
 } // namespace posix
 } // namespace iox
+
+// clang-format on
 
 #endif // IOX_HOOFS_POSIX_WRAPPER_POSIX_ACCESS_RIGHTS_HPP

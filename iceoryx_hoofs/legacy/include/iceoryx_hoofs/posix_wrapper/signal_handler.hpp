@@ -23,9 +23,11 @@
 
 IOX_DEPRECATED_HEADER_SINCE(3, "Please include 'iox/signal_handler.hpp' instead.")
 
+// clang-format off
+
 namespace iox
 {
-namespace posix
+namespace IOX_DEPRECATED_SINCE(3, "Please use the 'iox' namespace directly and the corresponding header.") posix
 {
 using SignalHandlerCallback_t IOX_DEPRECATED_SINCE(
     3, "Please use 'iox::SignalHandlerCallback_t' from 'iox/signal_handler.hpp' instead.") = SignalHandlerCallback_t;
@@ -48,5 +50,7 @@ inline expected<SignalGuard, SignalGuardError> registerSignalHandler(const Signa
 
 } // namespace posix
 } // namespace iox
+
+// clang-format on
 
 #endif // IOX_HOOFS_POSIX_SYNC_SIGNAL_HANDLER_HPP

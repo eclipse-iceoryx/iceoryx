@@ -21,15 +21,17 @@
 
 IOX_DEPRECATED_HEADER_SINCE(3, "Please include 'iox/filesystem.hpp' instead.")
 
+// clang-format off
+
 namespace iox
 {
-/// @todo iox-#1593 Deprecate namespace with
-/// namespace IOX_DEPRECATED_SINCE(3, "Please use the 'iox' namespace directly and the corresponding header.")
-namespace cxx
+namespace IOX_DEPRECATED_SINCE(3, "Please use the 'iox' namespace directly and the corresponding header.") cxx
 {
 /// @deprecated use 'iox::access_rights' instead of 'iox::cxx::perms'
 using perms IOX_DEPRECATED_SINCE(3, "Please use 'iox::access_rights' instead.") = iox::access_rights;
 } // namespace cxx
 } // namespace iox
+
+// clang-format on
 
 #endif

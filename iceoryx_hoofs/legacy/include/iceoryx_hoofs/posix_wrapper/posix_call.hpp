@@ -22,11 +22,11 @@
 
 IOX_DEPRECATED_HEADER_SINCE(3, "Please include 'iox/posix_call.hpp' instead.")
 
+// clang-format off
+
 namespace iox
 {
-/// @todo iox-#1593 Deprecate namespace with
-/// namespace IOX_DEPRECATED_SINCE(3, "Please use the 'iox' namespace directly and the corresponding header.")
-namespace posix
+namespace IOX_DEPRECATED_SINCE(3, "Please use the 'iox' namespace directly and the corresponding header.") posix
 {
 /// @deprecated use corresponding constant from 'iox/posix_call.hpp'
 IOX_DEPRECATED_SINCE(3, "Please use 'POSIX_CALL_ERROR_STRING_SIZE' from 'iox/posix_call.hpp' instead.")
@@ -70,5 +70,7 @@ PosixCallBuilder<ReturnType, FunctionArguments...> createPosixCallBuilder(Return
 
 } // namespace posix
 } // namespace iox
+
+// clang-format on
 
 #endif // IOX_HOOFS_POSIX_WRAPPER_POSIX_CALL_HPP

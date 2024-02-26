@@ -67,7 +67,7 @@ expected<ChunkSettings, ChunkSettings::Error> ChunkSettings::create(const uint64
     auto expectChunkSize = calculateRequiredChunkSize(userPayloadSize, adjustedUserPayloadAlignment, userHeaderSize);
     if (expectChunkSize.has_error())
     {
-        return err(expectChunkSize.get_error());
+        return err(expectChunkSize.error());
     }
     uint64_t requiredChunkSize = expectChunkSize.value();
 

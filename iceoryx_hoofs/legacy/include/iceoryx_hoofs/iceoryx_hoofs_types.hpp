@@ -24,11 +24,11 @@
 
 IOX_DEPRECATED_HEADER_SINCE(3, "Please include 'iox/iceoryx_hoofs_types.hpp' instead.")
 
+// clang-format off
+
 namespace iox
 {
-/// @todo iox-#1593 Deprecate namespace with
-/// namespace IOX_DEPRECATED_SINCE(3, "Please use the 'iox' namespace directly and the corresponding header.")
-namespace cxx
+namespace IOX_DEPRECATED_SINCE(3, "Please use the 'iox' namespace directly and the corresponding header.") cxx
 {
 /// @deprecated use 'std::byte' instead of 'iox::cxx::byte_t'
 using byte_t IOX_DEPRECATED_SINCE(3, "Please use 'std::byte' instead.") = std::byte;
@@ -40,5 +40,7 @@ namespace log
 using iox::log::LogLevel;
 } // namespace log
 } // namespace iox
+
+// clang-format on
 
 #endif // IOX_HOOFS_ICEORYX_HOOFS_TYPES_HPP
