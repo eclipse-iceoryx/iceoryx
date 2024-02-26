@@ -95,6 +95,7 @@ iox_add_library(
     FILES
         source/capro/capro_message.cpp
         source/capro/service_description.cpp
+        source/iceoryx_posh_types.cpp
         source/mepoo/chunk_header.cpp
         source/mepoo/chunk_management.cpp
         source/mepoo/chunk_settings.cpp
@@ -295,7 +296,7 @@ install(
     DESTINATION ${DESTINATION_CONFIGDIR}
 )
 
-if(IOX_EXPERIMENTAL)
+if(IOX_EXPERIMENTAL_POSH)
     set(IOX_EXPERIMENTAL_INCLUDE_EXPORT experimental/include/)
 endif()
 

@@ -39,12 +39,6 @@ uint8_t IceOryxRouDiApp::run() noexcept
         static optional<IceOryxRouDiComponents> m_rouDiComponents;
         auto componentsScopeGuard = makeScopedStatic(m_rouDiComponents, m_config, m_uniqueRouDiId);
 
-#ifdef IOX_EXPERIMENTAL
-        bool enableExperimentalFeatures = true;
-#else
-        bool enableExperimentalFeatures = true; // TODO
-#endif
-
         static optional<RouDi> roudi;
         auto roudiScopeGuard =
             makeScopedStatic(roudi,
@@ -56,8 +50,7 @@ uint8_t IceOryxRouDiApp::run() noexcept
                                                            m_compatibilityCheckLevel,
                                                            m_processKillDelay,
                                                            m_processTeminationDelay,
-                                                           m_uniqueRouDiId,
-                                                           enableExperimentalFeatures});
+                                                           m_uniqueRouDiId});
         iox::waitForTerminationRequest();
     }
     return EXIT_SUCCESS;

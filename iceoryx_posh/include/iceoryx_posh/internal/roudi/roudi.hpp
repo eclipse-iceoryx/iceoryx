@@ -60,8 +60,7 @@ class RouDi
             const version::CompatibilityCheckLevel compatibilityCheckLevel = version::CompatibilityCheckLevel::PATCH,
             const units::Duration processKillDelay = roudi::PROCESS_DEFAULT_KILL_DELAY,
             const units::Duration processTerminationDelay = roudi::PROCESS_DEFAULT_TERMINATION_DELAY,
-            const uint16_t uniqueRouDiId = roudi::DEFAULT_UNIQUE_ROUDI_ID,
-            const bool enableExperimentalFeatures = false) noexcept
+            const uint16_t uniqueRouDiId = roudi::DEFAULT_UNIQUE_ROUDI_ID) noexcept
             : m_monitoringMode(monitoringMode)
             , m_killProcessesInDestructor(killProcessesInDestructor)
             , m_runtimesMessagesThreadStart(RuntimeMessagesThreadStart)
@@ -69,7 +68,6 @@ class RouDi
             , m_processKillDelay(processKillDelay)
             , m_processTerminationDelay(processTerminationDelay)
             , m_uniqueRouDiId(uniqueRouDiId)
-            , m_enableExperimentalFeatures(enableExperimentalFeatures)
         {
         }
 
@@ -80,7 +78,6 @@ class RouDi
         const units::Duration m_processKillDelay;
         const units::Duration m_processTerminationDelay;
         const uint16_t m_uniqueRouDiId;
-        const bool m_enableExperimentalFeatures;
     };
 
     RouDi& operator=(const RouDi& other) = delete;
@@ -143,7 +140,6 @@ class RouDi
 
     ScopeGuard m_unregisterRelativePtr{[] { UntypedRelativePointer::unregisterAll(); }};
     const uint16_t m_uniqueRouDiId;
-    const bool m_enableExperimentalFeatures;
     bool m_killProcessesInDestructor;
     std::atomic_bool m_runMonitoringAndDiscoveryThread;
     std::atomic_bool m_runHandleRuntimeMessageThread;

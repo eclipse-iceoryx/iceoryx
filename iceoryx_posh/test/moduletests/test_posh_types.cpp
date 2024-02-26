@@ -33,14 +33,18 @@ TEST(PoshTypes_test, IceoryxResourcePrefixWithMaxRouDiIdWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "049e79d7-d0ca-4951-8d44-c80aebab7a88");
 
+    const char* EXPECTED_PREFIX = experimental::hasExperimentalPoshFeaturesEnabled() ? "iox1_65535_i_" : "iox1_0_i_";
+
     EXPECT_THAT(iceoryxResourcePrefix(std::numeric_limits<uint16_t>::max(), ResourceType::ICEORYX_DEFINED).c_str(),
-                StrEq("iox1_65535_i_"));
+                StrEq(EXPECTED_PREFIX));
 }
 
 TEST(PoshTypes_test, IceoryxResourcePrefixWithMaxRouDiIdAndUserDefinedResourceTypeWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b63bbdca-ff19-41bc-9f8a-c657b0ee8009");
 
+    const char* EXPECTED_PREFIX = experimental::hasExperimentalPoshFeaturesEnabled() ? "iox1_65535_u_" : "iox1_0_u_";
+
     EXPECT_THAT(iceoryxResourcePrefix(std::numeric_limits<uint16_t>::max(), ResourceType::USER_DEFINED).c_str(),
-                StrEq("iox1_65535_u_"));
+                StrEq(EXPECTED_PREFIX));
 }

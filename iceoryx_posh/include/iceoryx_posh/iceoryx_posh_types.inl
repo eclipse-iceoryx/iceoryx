@@ -50,19 +50,6 @@ log::LogStream& operator<<(log::LogStream& stream, ConnectionState value) noexce
     return stream;
 }
 
-ResourcePrefix_t iceoryxResourcePrefix(uint16_t uniqueRouDiID, ResourceType resourceType)
-{
-    static_assert(std::is_same_v<uint16_t, std::remove_const_t<decltype(uniqueRouDiID)>>,
-                  "Please adjust 'MAX_UINT16_WIDTH' to the new fixed width type to have enough space for the "
-                  "stringified unique RouDi ID");
-    constexpr auto MAX_UINT16_WIDTH{5};
-    iox::string<MAX_UINT16_WIDTH> uniqueRoudiIdString{TruncateToCapacity,
-                                                      iox::convert::toString(uniqueRouDiID).c_str()};
-
-    auto resourceTypeString{resourceType == ResourceType::ICEORYX_DEFINED ? iox::string<1>{"i"} : iox::string<1>{"u"}};
-    return concatenate(ICEORYX_RESOURCE_PREFIX, "_", uniqueRoudiIdString, "_", resourceTypeString, "_");
-}
-
 namespace roudi
 {
 inline iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const MonitoringMode& mode) noexcept

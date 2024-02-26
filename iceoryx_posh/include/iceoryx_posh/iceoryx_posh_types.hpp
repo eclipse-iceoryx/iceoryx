@@ -219,7 +219,12 @@ enum class ResourceType
 using ResourcePrefix_t = string<RESOURCE_PREFIX_LENGTH>;
 /// @brief Returns the prefix string used for resources
 /// @param[in] uniqueRouDiID to use for the prefix string
-inline ResourcePrefix_t iceoryxResourcePrefix(uint16_t uniqueRouDiID, ResourceType resourceType);
+ResourcePrefix_t iceoryxResourcePrefix(const uint16_t uniqueRouDiID, const ResourceType resourceType) noexcept;
+
+namespace experimental
+{
+bool hasExperimentalPoshFeaturesEnabled(const optional<bool>& newValue = nullopt) noexcept;
+}
 
 // alias for string
 using RuntimeName_t = string<MAX_RUNTIME_NAME_LENGTH>;

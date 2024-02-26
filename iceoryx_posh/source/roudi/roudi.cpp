@@ -37,7 +37,6 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
              PortManager& portManager,
              RoudiStartupParameters roudiStartupParameters) noexcept
     : m_uniqueRouDiId(roudiStartupParameters.m_uniqueRouDiId)
-    , m_enableExperimentalFeatures(roudiStartupParameters.m_enableExperimentalFeatures)
     , m_killProcessesInDestructor(roudiStartupParameters.m_killProcessesInDestructor)
     , m_runMonitoringAndDiscoveryThread(true)
     , m_runHandleRuntimeMessageThread(true)

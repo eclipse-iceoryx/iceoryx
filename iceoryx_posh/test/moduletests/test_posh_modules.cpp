@@ -17,12 +17,15 @@
 
 #include "iceoryx_hoofs/testing/error_reporting/testing_error_handler.hpp"
 #include "iceoryx_hoofs/testing/testing_logger.hpp"
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 
 #include "test.hpp"
 
 int main(int argc, char* argv[])
 {
     ::testing::InitGoogleTest(&argc, argv);
+
+    iox::experimental::hasExperimentalPoshFeaturesEnabled(true);
 
     iox::testing::TestingLogger::init();
     iox::testing::TestingErrorHandler::init();

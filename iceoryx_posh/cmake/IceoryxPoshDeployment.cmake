@@ -134,5 +134,12 @@ configure_option(
     DEFAULT_VALUE 256
 )
 
+if(IOX_EXPERIMENTAL_POSH)
+     set(IOX_EXPERIMENTAL_POSH_FLAG true)
+else()
+     set(IOX_EXPERIMENTAL_POSH_FLAG false)
+endif()
+message(STATUS "[i] IOX_EXPERIMENTAL_POSH_FLAG: ${IOX_EXPERIMENTAL_POSH_FLAG}")
+
 message(STATUS "[i] <<<<<<<<<<<<<< End iceoryx_posh configuration: >>>>>>>>>>>>>>")
 
