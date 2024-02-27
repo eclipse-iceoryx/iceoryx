@@ -35,10 +35,9 @@ namespace roudi
 class RouDiApp
 {
   public:
-    /// @brief C'tor with command line parser, which has already parsed the command line parameters
-    /// @param[in] cmdLineParser reference to a command line parser object
+    /// @brief Common ctor to run RouDi
     /// @param[in] config the configuration to use
-    RouDiApp(const config::CmdLineArgs_t& cmdLineArgs, const IceoryxConfig& config) noexcept;
+    RouDiApp(const IceoryxConfig& config) noexcept;
 
     virtual ~RouDiApp() noexcept {};
 
@@ -51,15 +50,8 @@ class RouDiApp
     IOX_DEPRECATED_SINCE(3, "Please use iox::waitForTerminationRequest() from 'iox/signal_watcher.hpp'")
     bool waitForSignal() noexcept;
 
-    iox::log::LogLevel m_logLevel{iox::log::LogLevel::WARN};
-    roudi::MonitoringMode m_monitoringMode{roudi::MonitoringMode::ON};
     bool m_run{true};
     IceoryxConfig m_config;
-
-    version::CompatibilityCheckLevel m_compatibilityCheckLevel{version::CompatibilityCheckLevel::PATCH};
-    units::Duration m_processTeminationDelay{roudi::PROCESS_DEFAULT_TERMINATION_DELAY};
-    units::Duration m_processKillDelay{roudi::PROCESS_DEFAULT_KILL_DELAY};
-    const uint16_t m_uniqueRouDiId{roudi::DEFAULT_UNIQUE_ROUDI_ID};
 
   private:
     bool checkAndOptimizeConfig(const IceoryxConfig& config) noexcept;

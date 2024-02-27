@@ -34,11 +34,13 @@ namespace config
 {
 bool operator==(const CmdLineArgs_t& lhs, const CmdLineArgs_t& rhs)
 {
-    return (lhs.monitoringMode == rhs.monitoringMode) && (lhs.logLevel == rhs.logLevel)
-           && (lhs.compatibilityCheckLevel == rhs.compatibilityCheckLevel)
-           && (lhs.processTerminationDelay == rhs.processTerminationDelay)
-           && (lhs.processKillDelay == rhs.processKillDelay) && (lhs.uniqueRouDiId == rhs.uniqueRouDiId)
-           && (lhs.run == rhs.run) && (lhs.configFilePath == rhs.configFilePath);
+    return (lhs.roudiConfig.monitoringMode == rhs.roudiConfig.monitoringMode)
+           && (lhs.roudiConfig.logLevel == rhs.roudiConfig.logLevel)
+           && (lhs.roudiConfig.compatibilityCheckLevel == rhs.roudiConfig.compatibilityCheckLevel)
+           && (lhs.roudiConfig.processTerminationDelay == rhs.roudiConfig.processTerminationDelay)
+           && (lhs.roudiConfig.processKillDelay == rhs.roudiConfig.processKillDelay)
+           && (lhs.roudiConfig.uniqueRouDiId == rhs.roudiConfig.uniqueRouDiId) && (lhs.run == rhs.run)
+           && (lhs.configFilePath == rhs.configFilePath);
 }
 } // namespace config
 } // namespace iox
@@ -61,7 +63,7 @@ class CmdLineParser_test : public Test
         auto result = sut.parse(numberOfArgs, args);
 
         ASSERT_FALSE(result.has_error());
-        EXPECT_EQ(result.value().logLevel, level);
+        EXPECT_EQ(result.value().roudiConfig.logLevel, level);
         EXPECT_TRUE(result.value().run);
 
         // Reset optind to be able to parse again
@@ -74,7 +76,7 @@ class CmdLineParser_test : public Test
         auto result = sut.parse(numberOfArgs, args);
 
         ASSERT_FALSE(result.has_error());
-        EXPECT_EQ(result.value().monitoringMode, mode);
+        EXPECT_EQ(result.value().roudiConfig.monitoringMode, mode);
         EXPECT_TRUE(result.value().run);
 
         // Reset optind to be able to parse again
@@ -87,7 +89,7 @@ class CmdLineParser_test : public Test
         auto result = sut.parse(numberOfArgs, args);
 
         ASSERT_FALSE(result.has_error());
-        EXPECT_EQ(result.value().compatibilityCheckLevel, level);
+        EXPECT_EQ(result.value().roudiConfig.compatibilityCheckLevel, level);
         EXPECT_TRUE(result.value().run);
 
         // Reset optind to be able to parse again
@@ -304,7 +306,7 @@ TEST_F(CmdLineParser_test, KillDelayLongOptionLeadsToCorrectDelay)
     auto result = sut.parse(NUMBER_OF_ARGS, args);
 
     ASSERT_FALSE(result.has_error());
-    EXPECT_EQ(result.value().processKillDelay, Duration::fromSeconds(73));
+    EXPECT_EQ(result.value().roudiConfig.processKillDelay, Duration::fromSeconds(73));
     EXPECT_TRUE(result.value().run);
 }
 
@@ -324,7 +326,7 @@ TEST_F(CmdLineParser_test, KillDelayShortOptionLeadsToCorrectDelay)
     auto result = sut.parse(NUMBER_OF_ARGS, args);
 
     ASSERT_FALSE(result.has_error());
-    EXPECT_EQ(result.value().processKillDelay, Duration::fromSeconds(42));
+    EXPECT_EQ(result.value().roudiConfig.processKillDelay, Duration::fromSeconds(42));
     EXPECT_TRUE(result.value().run);
 }
 
@@ -363,7 +365,7 @@ TEST_F(CmdLineParser_test, TerminationDelayLongOptionLeadsToCorrectDelay)
     auto result = sut.parse(NUMBER_OF_ARGS, args);
 
     ASSERT_FALSE(result.has_error());
-    EXPECT_EQ(result.value().processTerminationDelay, 73_s);
+    EXPECT_EQ(result.value().roudiConfig.processTerminationDelay, 73_s);
     EXPECT_TRUE(result.value().run);
 }
 
@@ -383,7 +385,7 @@ TEST_F(CmdLineParser_test, TerminationDelayShortOptionLeadsToCorrectDelay)
     auto result = sut.parse(NUMBER_OF_ARGS, args);
 
     ASSERT_FALSE(result.has_error());
-    EXPECT_EQ(result.value().processTerminationDelay, 42_s);
+    EXPECT_EQ(result.value().roudiConfig.processTerminationDelay, 42_s);
     EXPECT_TRUE(result.value().run);
 }
 
@@ -470,8 +472,7 @@ TEST_F(CmdLineParser_test, UniqueIdLongOptionLeadsToCorrectUniqueId)
     auto result = sut.parse(NUMBER_OF_ARGS, args);
 
     ASSERT_FALSE(result.has_error());
-    ASSERT_TRUE(result.value().uniqueRouDiId.has_value());
-    EXPECT_EQ(result.value().uniqueRouDiId.value(), 4242);
+    EXPECT_EQ(result.value().roudiConfig.uniqueRouDiId, 4242);
     EXPECT_TRUE(result.value().run);
 }
 
@@ -491,8 +492,7 @@ TEST_F(CmdLineParser_test, UniqueIdShortOptionLeadsToCorrectUniqueId)
     auto result = sut.parse(NUMBER_OF_ARGS, args);
 
     ASSERT_FALSE(result.has_error());
-    ASSERT_TRUE(result.value().uniqueRouDiId.has_value());
-    EXPECT_EQ(result.value().uniqueRouDiId.value(), 4242);
+    EXPECT_EQ(result.value().roudiConfig.uniqueRouDiId, 4242);
     EXPECT_TRUE(result.value().run);
 }
 
@@ -539,10 +539,10 @@ TEST_F(CmdLineParser_test, CmdLineParsingModeEqualToOneHandlesOnlyTheFirstOption
     auto result = sut.parse(NUMBER_OF_ARGS, args, CmdLineParser::CmdLineArgumentParsingMode::ONE);
 
     ASSERT_FALSE(result.has_error());
-    ASSERT_TRUE(result.value().uniqueRouDiId.has_value());
-    EXPECT_EQ(result.value().uniqueRouDiId.value(), 4242);
-    EXPECT_EQ(result.value().processTerminationDelay, iox::roudi::PROCESS_DEFAULT_TERMINATION_DELAY);
-    EXPECT_EQ(result.value().processKillDelay, iox::roudi::PROCESS_DEFAULT_KILL_DELAY); // default value for kill delay
+    EXPECT_EQ(result.value().roudiConfig.uniqueRouDiId, 4242);
+    EXPECT_EQ(result.value().roudiConfig.processTerminationDelay, iox::roudi::PROCESS_DEFAULT_TERMINATION_DELAY);
+    EXPECT_EQ(result.value().roudiConfig.processKillDelay,
+              iox::roudi::PROCESS_DEFAULT_KILL_DELAY); // default value for kill delay
     EXPECT_TRUE(result.value().run);
 
     optind = 0;
@@ -550,10 +550,9 @@ TEST_F(CmdLineParser_test, CmdLineParsingModeEqualToOneHandlesOnlyTheFirstOption
     auto res = sut.parse(NUMBER_OF_ARGS, args);
 
     ASSERT_FALSE(res.has_error());
-    ASSERT_TRUE(res.value().uniqueRouDiId.has_value());
-    EXPECT_EQ(res.value().uniqueRouDiId.value(), 4242);
-    EXPECT_EQ(res.value().processTerminationDelay, 2_s);
-    EXPECT_EQ(res.value().processKillDelay, 42_s);
+    EXPECT_EQ(res.value().roudiConfig.uniqueRouDiId, 4242);
+    EXPECT_EQ(res.value().roudiConfig.processTerminationDelay, 2_s);
+    EXPECT_EQ(res.value().roudiConfig.processKillDelay, 42_s);
     EXPECT_TRUE(res.value().run);
 }
 

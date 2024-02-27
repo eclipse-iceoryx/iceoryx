@@ -17,6 +17,7 @@
 #define IOX_POSH_ROUDI_CMD_LINE_ARGS_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/roudi/roudi_config.hpp"
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
 #include "iox/log/logstream.hpp"
 
@@ -29,24 +30,18 @@ namespace config
 struct CmdLineArgs_t
 {
     bool run{true};
-    iox::log::LogLevel logLevel{iox::log::LogLevel::INFO};
-    roudi::MonitoringMode monitoringMode{roudi::MonitoringMode::OFF};
-    version::CompatibilityCheckLevel compatibilityCheckLevel{version::CompatibilityCheckLevel::PATCH};
-    optional<uint16_t> uniqueRouDiId{nullopt};
-    units::Duration processTerminationDelay{roudi::PROCESS_DEFAULT_TERMINATION_DELAY};
-    units::Duration processKillDelay{roudi::PROCESS_DEFAULT_KILL_DELAY};
+    RouDiConfig roudiConfig;
     roudi::ConfigFilePathString_t configFilePath;
 };
 
 inline iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const CmdLineArgs_t& cmdLineArgs) noexcept
 {
-    logstream << "Log level: " << cmdLineArgs.logLevel << "\n";
-    logstream << "Monitoring mode: " << cmdLineArgs.monitoringMode << "\n";
-    logstream << "Compatibility check level: " << cmdLineArgs.compatibilityCheckLevel << "\n";
-    cmdLineArgs.uniqueRouDiId.and_then([&logstream](auto& id) { logstream << "Unique RouDi ID: " << id << "\n"; })
-        .or_else([&logstream] { logstream << "Unique RouDi ID: < unset >\n"; });
-    logstream << "Process termination delay: " << cmdLineArgs.processTerminationDelay.toSeconds() << " s\n";
-    logstream << "Process kill delay: " << cmdLineArgs.processKillDelay.toSeconds() << " s\n";
+    logstream << "Log level: " << cmdLineArgs.roudiConfig.logLevel << "\n";
+    logstream << "Monitoring mode: " << cmdLineArgs.roudiConfig.monitoringMode << "\n";
+    logstream << "Compatibility check level: " << cmdLineArgs.roudiConfig.compatibilityCheckLevel << "\n";
+    logstream << "Unique RouDi ID: " << cmdLineArgs.roudiConfig.uniqueRouDiId << "\n";
+    logstream << "Process termination delay: " << cmdLineArgs.roudiConfig.processTerminationDelay.toSeconds() << " s\n";
+    logstream << "Process kill delay: " << cmdLineArgs.roudiConfig.processKillDelay.toSeconds() << " s\n";
     if (!cmdLineArgs.configFilePath.empty())
     {
         logstream << "Config file used is: " << cmdLineArgs.configFilePath;

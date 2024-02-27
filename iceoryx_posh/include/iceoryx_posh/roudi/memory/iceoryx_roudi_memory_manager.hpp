@@ -33,7 +33,7 @@ namespace roudi
 class IceOryxRouDiMemoryManager : public RouDiMemoryInterface
 {
   public:
-    IceOryxRouDiMemoryManager(const IceoryxConfig& config, const uint16_t uniqueRouDiId) noexcept;
+    IceOryxRouDiMemoryManager(const IceoryxConfig& config) noexcept;
     /// @brief The Destructor of the IceOryxRouDiMemoryManager also calls destroy on the registered MemoryProvider
     virtual ~IceOryxRouDiMemoryManager() noexcept = default;
 

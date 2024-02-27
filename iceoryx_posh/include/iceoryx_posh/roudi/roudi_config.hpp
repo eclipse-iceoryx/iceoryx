@@ -17,6 +17,7 @@
 #define IOX_POSH_ROUDI_ROUDI_CONFIG_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/version/compatibility_check_level.hpp"
 
 #include <cstdint>
 
@@ -26,6 +27,14 @@ namespace config
 {
 struct RouDiConfig
 {
+    uint16_t uniqueRouDiId{roudi::DEFAULT_UNIQUE_ROUDI_ID};
+    bool sharesAddressSpaceWithApplications{false};
+    iox::log::LogLevel logLevel{iox::log::LogLevel::INFO};
+    roudi::MonitoringMode monitoringMode{roudi::MonitoringMode::OFF};
+    version::CompatibilityCheckLevel compatibilityCheckLevel{version::CompatibilityCheckLevel::PATCH};
+    units::Duration processTerminationDelay{roudi::PROCESS_DEFAULT_TERMINATION_DELAY};
+    units::Duration processKillDelay{roudi::PROCESS_DEFAULT_KILL_DELAY};
+
     // have some spare chunks to still deliver introspection data in case there are multiple subscribers to the data
     // which are caching different samples; could probably be reduced to 2 with the instruction to not cache the
     // introspection samples

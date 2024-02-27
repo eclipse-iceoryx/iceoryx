@@ -31,25 +31,25 @@ namespace iox
 {
 namespace roudi
 {
-RouDiApp::RouDiApp(const config::CmdLineArgs_t& cmdLineArgs, const IceoryxConfig& config) noexcept
-    : m_logLevel(cmdLineArgs.logLevel)
-    , m_monitoringMode(cmdLineArgs.monitoringMode)
-    , m_run(checkAndOptimizeConfig(config))
+RouDiApp::RouDiApp(const IceoryxConfig& config) noexcept
+    : m_run(checkAndOptimizeConfig(config))
     , m_config(config)
-    , m_compatibilityCheckLevel(cmdLineArgs.compatibilityCheckLevel)
-    , m_processTeminationDelay(cmdLineArgs.processTerminationDelay)
-    , m_processKillDelay(cmdLineArgs.processKillDelay)
-    , m_uniqueRouDiId(cmdLineArgs.uniqueRouDiId.value_or(DEFAULT_UNIQUE_ROUDI_ID))
 {
-    // the "and" is intentional, just in case the the provided IceoryxConfig is empty
-    m_run &= cmdLineArgs.run;
-
     // be silent if not running
     if (m_run)
     {
-        iox::log::Logger::setLogLevel(m_logLevel);
+        iox::log::Logger::setLogLevel(m_config.logLevel);
 
-        IOX_LOG(TRACE, "Command line parameters are:\n" << cmdLineArgs);
+        auto& roudiConfig = static_cast<config::RouDiConfig&>(m_config);
+        IOX_LOG(TRACE, "RouDi config is:");
+        IOX_LOG(TRACE, "  uniqueRouDiId = " << roudiConfig.uniqueRouDiId);
+        IOX_LOG(TRACE, "  monitoringMode = " << roudiConfig.monitoringMode);
+        IOX_LOG(TRACE, "  sharesAddressSpaceWithApplications = " << roudiConfig.sharesAddressSpaceWithApplications);
+        IOX_LOG(TRACE, "  processTerminationDelay = " << roudiConfig.processTerminationDelay);
+        IOX_LOG(TRACE, "  processKillDelay = " << roudiConfig.processKillDelay);
+        IOX_LOG(TRACE, "  compatibilityCheckLevel = " << roudiConfig.compatibilityCheckLevel);
+        IOX_LOG(TRACE, "  introspectionChunkCount = " << roudiConfig.introspectionChunkCount);
+        IOX_LOG(TRACE, "  discoveryChunkCount = " << roudiConfig.discoveryChunkCount);
     }
 }
 

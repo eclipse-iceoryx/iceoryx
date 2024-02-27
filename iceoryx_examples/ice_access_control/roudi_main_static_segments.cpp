@@ -32,8 +32,15 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
+    if (!cmdLineArgs.value().run)
+    {
+        return 0;
+    }
+
     //! [config]
     iox::IceoryxConfig config;
+    static_cast<iox::config::RouDiConfig&>(config) = cmdLineArgs.value().roudiConfig;
+
 
     // Create Mempool Config
     iox::mepoo::MePooConfig mepooConfig;
@@ -47,7 +54,7 @@ int main(int argc, char* argv[])
     config.m_sharedMemorySegments.push_back({"infotainment", "infotainment", mepooConfig});
     //! [config]
 
-    IceOryxRouDiApp roudi(cmdLineArgs.value(), config);
+    IceOryxRouDiApp roudi(config);
 
     return roudi.run();
 }

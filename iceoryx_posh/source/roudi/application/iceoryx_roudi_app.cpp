@@ -27,8 +27,8 @@ namespace iox
 {
 namespace roudi
 {
-IceOryxRouDiApp::IceOryxRouDiApp(const config::CmdLineArgs_t& cmdLineArgs, const IceoryxConfig& config) noexcept
-    : RouDiApp(cmdLineArgs, config)
+IceOryxRouDiApp::IceOryxRouDiApp(const IceoryxConfig& config) noexcept
+    : RouDiApp(config)
 {
 }
 
@@ -37,20 +37,11 @@ uint8_t IceOryxRouDiApp::run() noexcept
     if (m_run)
     {
         static optional<IceOryxRouDiComponents> m_rouDiComponents;
-        auto componentsScopeGuard = makeScopedStatic(m_rouDiComponents, m_config, m_uniqueRouDiId);
+        auto componentsScopeGuard = makeScopedStatic(m_rouDiComponents, m_config);
 
         static optional<RouDi> roudi;
-        auto roudiScopeGuard =
-            makeScopedStatic(roudi,
-                             m_rouDiComponents.value().rouDiMemoryManager,
-                             m_rouDiComponents.value().portManager,
-                             RouDi::RoudiStartupParameters{m_monitoringMode,
-                                                           true,
-                                                           RouDi::RuntimeMessagesThreadStart::IMMEDIATE,
-                                                           m_compatibilityCheckLevel,
-                                                           m_processKillDelay,
-                                                           m_processTeminationDelay,
-                                                           m_uniqueRouDiId});
+        auto roudiScopeGuard = makeScopedStatic(
+            roudi, m_rouDiComponents.value().rouDiMemoryManager, m_rouDiComponents.value().portManager, m_config);
         iox::waitForTerminationRequest();
     }
     return EXIT_SUCCESS;

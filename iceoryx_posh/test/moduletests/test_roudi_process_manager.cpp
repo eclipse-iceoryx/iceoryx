@@ -43,8 +43,7 @@ class ProcessManager_test : public Test
   public:
     void SetUp() override
     {
-        m_roudiMemoryManager = std::make_unique<IceOryxRouDiMemoryManager>(MinimalIceoryxConfigBuilder().create(),
-                                                                           DEFAULT_UNIQUE_ROUDI_ID);
+        m_roudiMemoryManager = std::make_unique<IceOryxRouDiMemoryManager>(MinimalIceoryxConfigBuilder().create());
         EXPECT_FALSE(m_roudiMemoryManager->createAndAnnounceMemory().has_error());
         m_portManager = std::make_unique<PortManager>(m_roudiMemoryManager.get());
         CompatibilityCheckLevel m_compLevel{CompatibilityCheckLevel::OFF};

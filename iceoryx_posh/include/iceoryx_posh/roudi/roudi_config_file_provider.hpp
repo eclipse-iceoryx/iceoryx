@@ -70,6 +70,7 @@ class RouDiConfigFileProvider
     virtual expected<IceoryxConfig, RouDiConfigFileParseError> parse() noexcept = 0;
 
   protected:
+    config::RouDiConfig m_roudiConfig;
     ConfigFilePathString_t m_customConfigFilePath;
 };
 

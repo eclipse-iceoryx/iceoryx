@@ -53,12 +53,12 @@ class PoshRuntimeSingleProcess_test : public Test
 TEST_F(PoshRuntimeSingleProcess_test, ConstructorPoshRuntimeSingleProcessIsSuccess)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9faf7053-86af-4d26-b3a7-fb3c6319ab86");
-    std::unique_ptr<IceOryxRouDiComponents> roudiComponents{
-        new IceOryxRouDiComponents(MinimalIceoryxConfigBuilder().create(), DEFAULT_UNIQUE_ROUDI_ID)};
+    auto config = MinimalIceoryxConfigBuilder().create();
+    config.sharesAddressSpaceWithApplications = true;
 
-    std::unique_ptr<RouDi> roudi{new RouDi(roudiComponents->rouDiMemoryManager,
-                                           roudiComponents->portManager,
-                                           RouDi::RoudiStartupParameters{iox::roudi::MonitoringMode::OFF, false})};
+    std::unique_ptr<IceOryxRouDiComponents> roudiComponents{new IceOryxRouDiComponents(config)};
+
+    std::unique_ptr<RouDi> roudi{new RouDi(roudiComponents->rouDiMemoryManager, roudiComponents->portManager, config)};
 
     const RuntimeName_t runtimeName{"App"};
 

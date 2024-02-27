@@ -85,8 +85,7 @@ class PortManager_test : public Test
         m_eventIdCounter = 0;
         // starting at {1,1,1}
 
-        m_roudiMemoryManager =
-            new IceOryxRouDiMemoryManager(MinimalIceoryxConfigBuilder().create(), DEFAULT_UNIQUE_ROUDI_ID);
+        m_roudiMemoryManager = new IceOryxRouDiMemoryManager(MinimalIceoryxConfigBuilder().create());
         EXPECT_FALSE(m_roudiMemoryManager->createAndAnnounceMemory().has_error());
         m_portManager = new PortManagerTester(m_roudiMemoryManager);
 

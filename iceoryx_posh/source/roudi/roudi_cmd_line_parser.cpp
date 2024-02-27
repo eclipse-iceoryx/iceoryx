@@ -100,7 +100,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
         {
             constexpr uint64_t MAX_ROUDI_ID = ((1 << 16) - 1);
             convert::from_string<uint16_t>(optarg)
-                .and_then([&](const auto result) { m_cmdLineArgs.uniqueRouDiId.emplace(result); })
+                .and_then([&](const auto value) { m_cmdLineArgs.roudiConfig.uniqueRouDiId = value; })
                 .or_else([&] {
                     IOX_LOG(ERROR, "The RouDi id must be in the range of [0, " << MAX_ROUDI_ID << "]");
                     m_cmdLineArgs.run = false;
@@ -111,11 +111,11 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
         {
             if (strcmp(optarg, "on") == 0)
             {
-                m_cmdLineArgs.monitoringMode = roudi::MonitoringMode::ON;
+                m_cmdLineArgs.roudiConfig.monitoringMode = roudi::MonitoringMode::ON;
             }
             else if (strcmp(optarg, "off") == 0)
             {
-                m_cmdLineArgs.monitoringMode = roudi::MonitoringMode::OFF;
+                m_cmdLineArgs.roudiConfig.monitoringMode = roudi::MonitoringMode::OFF;
             }
             else
             {
@@ -128,31 +128,31 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
         {
             if (strcmp(optarg, "off") == 0)
             {
-                m_cmdLineArgs.logLevel = iox::log::LogLevel::OFF;
+                m_cmdLineArgs.roudiConfig.logLevel = iox::log::LogLevel::OFF;
             }
             else if (strcmp(optarg, "fatal") == 0)
             {
-                m_cmdLineArgs.logLevel = iox::log::LogLevel::FATAL;
+                m_cmdLineArgs.roudiConfig.logLevel = iox::log::LogLevel::FATAL;
             }
             else if (strcmp(optarg, "error") == 0)
             {
-                m_cmdLineArgs.logLevel = iox::log::LogLevel::ERROR;
+                m_cmdLineArgs.roudiConfig.logLevel = iox::log::LogLevel::ERROR;
             }
             else if (strcmp(optarg, "warning") == 0)
             {
-                m_cmdLineArgs.logLevel = iox::log::LogLevel::WARN;
+                m_cmdLineArgs.roudiConfig.logLevel = iox::log::LogLevel::WARN;
             }
             else if (strcmp(optarg, "info") == 0)
             {
-                m_cmdLineArgs.logLevel = iox::log::LogLevel::INFO;
+                m_cmdLineArgs.roudiConfig.logLevel = iox::log::LogLevel::INFO;
             }
             else if (strcmp(optarg, "debug") == 0)
             {
-                m_cmdLineArgs.logLevel = iox::log::LogLevel::DEBUG;
+                m_cmdLineArgs.roudiConfig.logLevel = iox::log::LogLevel::DEBUG;
             }
             else if (strcmp(optarg, "trace") == 0)
             {
-                m_cmdLineArgs.logLevel = iox::log::LogLevel::TRACE;
+                m_cmdLineArgs.roudiConfig.logLevel = iox::log::LogLevel::TRACE;
             }
             else
             {
@@ -166,8 +166,8 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
         {
             constexpr uint64_t MAX_PROCESS_TERMINATION_DELAY = std::numeric_limits<uint32_t>::max();
             convert::from_string<uint32_t>(optarg)
-                .and_then([&](const auto result) {
-                    m_cmdLineArgs.processTerminationDelay = units::Duration::fromSeconds(result);
+                .and_then([&](const auto value) {
+                    m_cmdLineArgs.roudiConfig.processTerminationDelay = units::Duration::fromSeconds(value);
                 })
                 .or_else([&] {
                     IOX_LOG(ERROR,
@@ -181,8 +181,9 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
         {
             constexpr uint64_t MAX_PROCESS_KILL_DELAY = std::numeric_limits<uint32_t>::max();
             convert::from_string<uint32_t>(optarg)
-                .and_then(
-                    [&](const auto result) { m_cmdLineArgs.processKillDelay = units::Duration::fromSeconds(result); })
+                .and_then([&](const auto value) {
+                    m_cmdLineArgs.roudiConfig.processKillDelay = units::Duration::fromSeconds(value);
+                })
                 .or_else([&] {
                     IOX_LOG(ERROR,
                             "The process kill delay must be in the range of [0, " << MAX_PROCESS_KILL_DELAY << "]");
@@ -194,27 +195,27 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
         {
             if (strcmp(optarg, "off") == 0)
             {
-                m_cmdLineArgs.compatibilityCheckLevel = iox::version::CompatibilityCheckLevel::OFF;
+                m_cmdLineArgs.roudiConfig.compatibilityCheckLevel = iox::version::CompatibilityCheckLevel::OFF;
             }
             else if (strcmp(optarg, "major") == 0)
             {
-                m_cmdLineArgs.compatibilityCheckLevel = iox::version::CompatibilityCheckLevel::MAJOR;
+                m_cmdLineArgs.roudiConfig.compatibilityCheckLevel = iox::version::CompatibilityCheckLevel::MAJOR;
             }
             else if (strcmp(optarg, "minor") == 0)
             {
-                m_cmdLineArgs.compatibilityCheckLevel = iox::version::CompatibilityCheckLevel::MINOR;
+                m_cmdLineArgs.roudiConfig.compatibilityCheckLevel = iox::version::CompatibilityCheckLevel::MINOR;
             }
             else if (strcmp(optarg, "patch") == 0)
             {
-                m_cmdLineArgs.compatibilityCheckLevel = iox::version::CompatibilityCheckLevel::PATCH;
+                m_cmdLineArgs.roudiConfig.compatibilityCheckLevel = iox::version::CompatibilityCheckLevel::PATCH;
             }
             else if (strcmp(optarg, "commitId") == 0)
             {
-                m_cmdLineArgs.compatibilityCheckLevel = iox::version::CompatibilityCheckLevel::COMMIT_ID;
+                m_cmdLineArgs.roudiConfig.compatibilityCheckLevel = iox::version::CompatibilityCheckLevel::COMMIT_ID;
             }
             else if (strcmp(optarg, "buildDate") == 0)
             {
-                m_cmdLineArgs.compatibilityCheckLevel = iox::version::CompatibilityCheckLevel::BUILD_DATE;
+                m_cmdLineArgs.roudiConfig.compatibilityCheckLevel = iox::version::CompatibilityCheckLevel::BUILD_DATE;
             }
             else
             {

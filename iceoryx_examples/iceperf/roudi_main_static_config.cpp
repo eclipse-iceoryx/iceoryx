@@ -34,8 +34,14 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
+    if (!cmdLineArgs.value().run)
+    {
+        return 0;
+    }
+
     iox::IceoryxConfig config;
     // config.setDefaults(); can be used if you want to use the default config only.
+    static_cast<iox::config::RouDiConfig&>(config) = cmdLineArgs.value().roudiConfig;
 
     /// @brief Create Mempool Config
     iox::mepoo::MePooConfig mepooConfig;
@@ -74,7 +80,7 @@ int main(int argc, char* argv[])
     /// configure the chunk count for the service discovery
     config.discoveryChunkCount = 10;
 
-    IceOryxRouDiApp roudi(cmdLineArgs.value(), config);
+    IceOryxRouDiApp roudi(config);
 
     return roudi.run();
 }

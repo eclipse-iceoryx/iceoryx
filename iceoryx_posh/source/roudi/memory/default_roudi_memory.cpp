@@ -26,11 +26,11 @@ namespace iox
 {
 namespace roudi
 {
-DefaultRouDiMemory::DefaultRouDiMemory(const IceoryxConfig& config, const uint16_t uniqueRouDiId) noexcept
+DefaultRouDiMemory::DefaultRouDiMemory(const IceoryxConfig& config) noexcept
     : m_introspectionMemPoolBlock(introspectionMemPoolConfig(config.introspectionChunkCount))
     , m_discoveryMemPoolBlock(discoveryMemPoolConfig(config.discoveryChunkCount))
-    , m_segmentManagerBlock(config, uniqueRouDiId)
-    , m_managementShm(SHM_NAME, uniqueRouDiId, AccessMode::READ_WRITE, OpenMode::PURGE_AND_CREATE)
+    , m_segmentManagerBlock(config, config.uniqueRouDiId)
+    , m_managementShm(SHM_NAME, config.uniqueRouDiId, AccessMode::READ_WRITE, OpenMode::PURGE_AND_CREATE)
 {
     m_managementShm.addMemoryBlock(&m_introspectionMemPoolBlock).or_else([](auto) {
         IOX_REPORT_FATAL(PoshError::ROUDI__DEFAULT_ROUDI_MEMORY_FAILED_TO_ADD_INTROSPECTION_MEMORY_BLOCK);

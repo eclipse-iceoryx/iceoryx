@@ -35,9 +35,8 @@ namespace roudi
 {
 RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
              PortManager& portManager,
-             RoudiStartupParameters roudiStartupParameters) noexcept
-    : m_uniqueRouDiId(roudiStartupParameters.m_uniqueRouDiId)
-    , m_killProcessesInDestructor(roudiStartupParameters.m_killProcessesInDestructor)
+             const config::RouDiConfig& roudiConfig) noexcept
+    : m_roudiConfig(roudiConfig)
     , m_runMonitoringAndDiscoveryThread(true)
     , m_runHandleRuntimeMessageThread(true)
     , m_roudiMemoryInterface(&roudiMemoryInterface)
@@ -45,15 +44,12 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
     , m_prcMgr(concurrent::ForwardArgsToCTor,
                *m_roudiMemoryInterface,
                portManager,
-               m_uniqueRouDiId,
-               roudiStartupParameters.m_compatibilityCheckLevel)
+               m_roudiConfig.uniqueRouDiId,
+               m_roudiConfig.compatibilityCheckLevel)
     , m_mempoolIntrospection(
           *m_roudiMemoryInterface->introspectionMemoryManager().value(),
           *m_roudiMemoryInterface->segmentManager().value(),
           PublisherPortUserType(m_prcMgr->addIntrospectionPublisherPort(IntrospectionMempoolService)))
-    , m_monitoringMode(roudiStartupParameters.m_monitoringMode)
-    , m_processTerminationDelay(roudiStartupParameters.m_processTerminationDelay)
-    , m_processKillDelay(roudiStartupParameters.m_processKillDelay)
 {
     if (detail::isCompiledOn32BitSystem())
     {
@@ -78,10 +74,7 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
     // run the threads
     m_monitoringAndDiscoveryThread = std::thread(&RouDi::monitorAndDiscoveryUpdate, this);
 
-    if (roudiStartupParameters.m_runtimesMessagesThreadStart == RuntimeMessagesThreadStart::IMMEDIATE)
-    {
-        startProcessRuntimeMessagesThread();
-    }
+    startProcessRuntimeMessagesThread();
 }
 
 RouDi::~RouDi() noexcept
@@ -91,11 +84,12 @@ RouDi::~RouDi() noexcept
 
 void RouDi::startProcessRuntimeMessagesThread() noexcept
 {
-    m_handleRuntimeMessageThread = std::thread(
-        &RouDi::processRuntimeMessages,
-        this,
-        runtime::IpcInterfaceCreator::create(IPC_CHANNEL_ROUDI_NAME, m_uniqueRouDiId, ResourceType::ICEORYX_DEFINED)
-            .expect("Creating IPC channel for request to RouDi"));
+    m_handleRuntimeMessageThread =
+        std::thread(&RouDi::processRuntimeMessages,
+                    this,
+                    runtime::IpcInterfaceCreator::create(
+                        IPC_CHANNEL_ROUDI_NAME, m_roudiConfig.uniqueRouDiId, ResourceType::ICEORYX_DEFINED)
+                        .expect("Creating IPC channel for request to RouDi"));
 }
 
 void RouDi::shutdown() noexcept
@@ -118,11 +112,11 @@ void RouDi::shutdown() noexcept
         IOX_LOG(DEBUG, "...'Mon+Discover' thread joined.");
     }
 
-    if (m_killProcessesInDestructor)
+    if (!m_roudiConfig.sharesAddressSpaceWithApplications)
     {
-        deadline_timer terminationDelayTimer(m_processTerminationDelay);
+        deadline_timer terminationDelayTimer(m_roudiConfig.processTerminationDelay);
         using namespace units::duration_literals;
-        auto remainingDurationForInfoPrint = m_processTerminationDelay - 1_s;
+        auto remainingDurationForInfoPrint = m_roudiConfig.processTerminationDelay - 1_s;
         while (!terminationDelayTimer.hasExpired() && m_prcMgr->registeredProcessCount() > 0)
         {
             if (remainingDurationForInfoPrint > terminationDelayTimer.remainingTime())
@@ -137,8 +131,8 @@ void RouDi::shutdown() noexcept
 
         m_prcMgr->requestShutdownOfAllProcesses();
 
-        deadline_timer finalKillTimer(m_processKillDelay);
-        auto remainingDurationForWarnPrint = m_processKillDelay - 2_s;
+        deadline_timer finalKillTimer(m_roudiConfig.processKillDelay);
+        auto remainingDurationForWarnPrint = m_roudiConfig.processKillDelay - 2_s;
         while (m_prcMgr->probeRegisteredProcessesAliveWithSigTerm() && !finalKillTimer.hasExpired())
         {
             if (remainingDurationForWarnPrint > finalKillTimer.remainingTime())
@@ -583,7 +577,8 @@ void RouDi::registerProcess(const RuntimeName_t& name,
                             const uint64_t sessionId,
                             const version::VersionInfo& versionInfo) noexcept
 {
-    bool monitorProcess = (m_monitoringMode == roudi::MonitoringMode::ON);
+    bool monitorProcess = (m_roudiConfig.monitoringMode == roudi::MonitoringMode::ON
+                           && !m_roudiConfig.sharesAddressSpaceWithApplications);
     IOX_DISCARD_RESULT(
         m_prcMgr->registerProcess(name, pid, user, monitorProcess, transmissionTimestamp, sessionId, versionInfo));
 }

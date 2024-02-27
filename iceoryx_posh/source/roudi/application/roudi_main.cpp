@@ -47,6 +47,11 @@ int main(int argc, char* argv[]) noexcept
         return EXIT_FAILURE;
     }
 
-    IceOryxRouDiApp roudi(cmdLineArgs.value(), config.value());
+    if (!cmdLineArgs.value().run)
+    {
+        return 0;
+    }
+
+    IceOryxRouDiApp roudi(config.value());
     return roudi.run();
 }

@@ -37,22 +37,19 @@ RouDiEnv::RouDiEnv(const uint16_t uniqueRouDiId, const IceoryxConfig& config) no
     {
         m_runtimes.emplace();
     }
+
+    auto adjustedConfig = config;
+    adjustedConfig.uniqueRouDiId = uniqueRouDiId;
+    adjustedConfig.sharesAddressSpaceWithApplications = true;
+
     m_roudiComponents =
-        std::unique_ptr<roudi::IceOryxRouDiComponents>(new roudi::IceOryxRouDiComponents(config, uniqueRouDiId));
+        std::unique_ptr<roudi::IceOryxRouDiComponents>(new roudi::IceOryxRouDiComponents(adjustedConfig));
     m_roudiApp = std::unique_ptr<roudi::RouDi>(
-        new roudi::RouDi(m_roudiComponents->rouDiMemoryManager,
-                         m_roudiComponents->portManager,
-                         roudi::RouDi::RoudiStartupParameters{roudi::MonitoringMode::OFF,
-                                                              false,
-                                                              roudi::RouDi::RuntimeMessagesThreadStart::IMMEDIATE,
-                                                              version::CompatibilityCheckLevel::PATCH,
-                                                              roudi::PROCESS_DEFAULT_KILL_DELAY,
-                                                              roudi::PROCESS_DEFAULT_TERMINATION_DELAY,
-                                                              uniqueRouDiId}));
+        new roudi::RouDi(m_roudiComponents->rouDiMemoryManager, m_roudiComponents->portManager, adjustedConfig));
 }
 
 RouDiEnv::RouDiEnv(const IceoryxConfig& config) noexcept
-    : RouDiEnv(roudi::DEFAULT_UNIQUE_ROUDI_ID, config)
+    : RouDiEnv(config.uniqueRouDiId, config)
 {
 }
 

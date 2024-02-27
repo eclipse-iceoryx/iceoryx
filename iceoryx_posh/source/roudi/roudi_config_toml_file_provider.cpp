@@ -40,6 +40,7 @@ TomlRouDiConfigFileProvider::TomlRouDiConfigFileProvider(config::CmdLineArgs_t& 
     /// don't print additional output if not running
     if (cmdLineArgs.run)
     {
+        m_roudiConfig = cmdLineArgs.roudiConfig;
         if (cmdLineArgs.configFilePath.empty())
         {
             FileReader configFile(defaultConfigFilePath, "", FileReader::ErrorMode::Ignore);
@@ -69,6 +70,7 @@ iox::expected<iox::IceoryxConfig, iox::roudi::RouDiConfigFileParseError> TomlRou
     {
         iox::IceoryxConfig defaultConfig;
         defaultConfig.setDefaults();
+        static_cast<RouDiConfig&>(defaultConfig) = m_roudiConfig;
         return iox::ok(defaultConfig);
     }
 
@@ -79,7 +81,9 @@ iox::expected<iox::IceoryxConfig, iox::roudi::RouDiConfigFileParseError> TomlRou
         return iox::err(iox::roudi::RouDiConfigFileParseError::FILE_OPEN_FAILED);
     }
 
-    return TomlRouDiConfigFileProvider::parse(fileStream);
+    return TomlRouDiConfigFileProvider::parse(fileStream).and_then([this](auto& config) {
+        static_cast<RouDiConfig&>(config) = m_roudiConfig;
+    });
 }
 
 
