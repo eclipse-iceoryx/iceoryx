@@ -37,7 +37,7 @@ expected<Node, NodeBuilderError> NodeBuilder::create() noexcept
 }
 
 Node::Node(const NodeName_t& name,
-           runtime::RuntimeLocation location,
+           const runtime::RuntimeLocation location,
            runtime::IpcRuntimeInterface&& runtime_interface) noexcept
     : m_runtime(unique_ptr<runtime::PoshRuntime>{
         new runtime::PoshRuntimeImpl{make_optional<const NodeName_t*>(&name), location, std::move(runtime_interface)},

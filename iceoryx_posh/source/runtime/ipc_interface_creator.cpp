@@ -29,7 +29,6 @@ expected<IpcInterfaceCreator, IpcInterfaceCreatorError> IpcInterfaceCreator::cre
                                                                                     const uint64_t messageSize) noexcept
 {
     auto interfaceName = ipcChannelNameToInterfaceName(runtimeName, resourceType);
-    ;
     auto fileLock =
         FileLockBuilder().name(interfaceName).permission(iox::perms::owner_read | iox::perms::owner_write).create();
 

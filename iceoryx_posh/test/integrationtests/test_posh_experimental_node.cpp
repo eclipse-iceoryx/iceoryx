@@ -224,26 +224,6 @@ TEST(Node_test, CreatingUntypedPublisherWithUserHeaderWorks)
     EXPECT_TRUE((std::is_same_v<decltype(publisher), iox::unique_ptr<iox::posh::experimental::UntypedPublisher>>));
 }
 
-TEST(Node_test, ExhaustingPublisherLeadsToError)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "d24c47b2-4ca7-40fd-9735-53e17ae9a870");
-
-    RouDiEnv roudi;
-
-    auto node = RouDiEnvNodeBuilder("hypnotoad").create().expect("Creating a node should not fail!");
-
-    iox::vector<iox::unique_ptr<UntypedPublisher>, iox::MAX_PUBLISHERS> pub;
-
-    for (uint64_t i = 0; i < iox::MAX_PUBLISHERS - iox::NUMBER_OF_INTERNAL_PUBLISHERS; ++i)
-    {
-        pub.emplace_back(node.publisher({"all", "glory", "hypnotoad"}).create().expect("Getting publisher"));
-    }
-
-    auto publisher_result = node.publisher({"all", "glory", "hypnotoad"}).create();
-    ASSERT_TRUE(publisher_result.has_error());
-    EXPECT_THAT(publisher_result.error(), Eq(PublisherBuilderError::OUT_OF_RESOURCES));
-}
-
 TEST(Node_test, CreatingTypedSubscriberWithoutUserHeaderWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e14f3c82-d758-43cc-bd89-dfdf0ed71480");
@@ -294,26 +274,6 @@ TEST(Node_test, CreatingUntypedSubscriberWorks)
     EXPECT_TRUE((std::is_same_v<decltype(subscriber), iox::unique_ptr<iox::posh::experimental::UntypedSubscriber>>));
 }
 
-TEST(Node_test, ExhaustingSubscriberLeadsToError)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "2caf6bb4-1c70-443a-be3a-706660f052f9");
-
-    RouDiEnv roudi;
-
-    auto node = RouDiEnvNodeBuilder("hypnotoad").create().expect("Creating a node should not fail!");
-
-    iox::vector<iox::unique_ptr<UntypedSubscriber>, iox::MAX_SUBSCRIBERS> sub;
-
-    for (uint64_t i = 0; i < iox::MAX_SUBSCRIBERS; ++i)
-    {
-        sub.emplace_back(node.subscriber({"all", "glory", "hypnotoad"}).create().expect("Getting subscriber"));
-    }
-
-    auto subscriber_result = node.subscriber({"all", "glory", "hypnotoad"}).create();
-    ASSERT_TRUE(subscriber_result.has_error());
-    EXPECT_THAT(subscriber_result.error(), Eq(SubscriberBuilderError::OUT_OF_RESOURCES));
-}
-
 TEST(Node_test, CreatingWaitSetWithDefaultCapacityWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ccbef3ca-87b5-4d76-955e-171c5f1b5abd");
@@ -347,20 +307,41 @@ TEST(Node_test, CreatingWaitSetWithCustomCapacityWorks)
     EXPECT_TRUE((std::is_same_v<decltype(ws), iox::unique_ptr<iox::posh::experimental::WaitSet<CAPACITY>>>));
 }
 
-TEST(Node_test, ExhaustingWaitSetLeadsToError)
+TEST(Node_test, ExhaustingPublisherSubscriberAndWaitSetLeadsToError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "794e5db8-8d08-428b-af21-e3934a29ea8f");
+
+    const ServiceDescription service_description{"all", "glory", "hypnotoad"};
 
     RouDiEnv roudi;
 
     auto node = RouDiEnvNodeBuilder("hypnotoad").create().expect("Creating a node should not fail!");
 
-    iox::vector<iox::unique_ptr<WaitSet<>>, iox::MAX_NUMBER_OF_CONDITION_VARIABLES> ws;
+    iox::vector<iox::unique_ptr<UntypedPublisher>, iox::MAX_PUBLISHERS> pub;
+    for (uint64_t i = 0; i < iox::MAX_PUBLISHERS - iox::NUMBER_OF_INTERNAL_PUBLISHERS; ++i)
+    {
+        pub.emplace_back(node.publisher(service_description).create().expect("Getting publisher"));
+    }
 
+    iox::vector<iox::unique_ptr<UntypedSubscriber>, iox::MAX_SUBSCRIBERS> sub;
     for (uint64_t i = 0; i < iox::MAX_SUBSCRIBERS; ++i)
+    {
+        sub.emplace_back(node.subscriber(service_description).create().expect("Getting subscriber"));
+    }
+
+    iox::vector<iox::unique_ptr<WaitSet<>>, iox::MAX_NUMBER_OF_CONDITION_VARIABLES> ws;
+    for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_CONDITION_VARIABLES; ++i)
     {
         ws.emplace_back(node.wait_set().create().expect("Getting waitset"));
     }
+
+    auto publisher_result = node.publisher(service_description).create();
+    ASSERT_TRUE(publisher_result.has_error());
+    EXPECT_THAT(publisher_result.error(), Eq(PublisherBuilderError::OUT_OF_RESOURCES));
+
+    auto subscriber_result = node.subscriber(service_description).create();
+    ASSERT_TRUE(subscriber_result.has_error());
+    EXPECT_THAT(subscriber_result.error(), Eq(SubscriberBuilderError::OUT_OF_RESOURCES));
 
     auto ws_result = node.wait_set().create();
     ASSERT_TRUE(ws_result.has_error());

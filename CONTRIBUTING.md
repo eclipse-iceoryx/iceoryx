@@ -65,7 +65,7 @@ Please make sure you have:
 Large features or features where the API is not yet clear can be implemented with the `IOX_EXPERIMENTAL` feature flag. Those
 features shall not be available in the installed headers when the `IOX_EXPERIMENTAL` feature flag was not set during compilation.
 
-If possible, this should be achieved not installing the headers of the experimental feature instead of `ifdefs`. With this
+If possible, this should be achieved by not installing the headers of the experimental feature instead of `ifdefs`. With this
 approach, the experimental features can still be build on all targets on the CI without specifying the `IOX_EXPERIMENTAL` feature
 flag and does not require new CI targets.
 
