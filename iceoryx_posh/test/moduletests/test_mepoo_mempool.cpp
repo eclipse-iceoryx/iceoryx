@@ -62,10 +62,10 @@ TEST_F(MemPool_test, MempoolIndexToPointerConversionForIndexZeroWorks)
 
     constexpr uint32_t INDEX{0};
     constexpr uint64_t CHUNK_SIZE{128};
-    uint8_t* const RAW_MEMORY_BASE{reinterpret_cast<uint8_t*>(0x7f60d90c5000ULL)};
-    uint8_t* const EXPECTED_CHUNK_PTR{RAW_MEMORY_BASE};
+    uint8_t* const RAW_MEMORY_PTR{reinterpret_cast<uint8_t*>(0x7f60d90c5000ULL)};
+    uint8_t* const EXPECTED_CHUNK_PTR{RAW_MEMORY_PTR};
 
-    const auto* chunk = MemPool::indexToPointer(INDEX, CHUNK_SIZE, RAW_MEMORY_BASE);
+    const auto* chunk = MemPool::indexToPointer(INDEX, CHUNK_SIZE, RAW_MEMORY_PTR);
 
     EXPECT_THAT(chunk, Eq(EXPECTED_CHUNK_PTR));
 }
@@ -76,10 +76,10 @@ TEST_F(MemPool_test, MempoolIndexToPointerConversionForIndexOneWorks)
 
     constexpr uint32_t INDEX{1};
     constexpr uint64_t CHUNK_SIZE{128};
-    uint8_t* const RAW_MEMORY_BASE{reinterpret_cast<uint8_t*>(0x7f60d90c5000ULL)};
-    uint8_t* const EXPECTED_CHUNK_PTR{RAW_MEMORY_BASE + CHUNK_SIZE};
+    uint8_t* const RAW_MEMORY_PTR{reinterpret_cast<uint8_t*>(0x7f60d90c5000ULL)};
+    uint8_t* const EXPECTED_CHUNK_PTR{RAW_MEMORY_PTR + CHUNK_SIZE};
 
-    const auto* chunk = MemPool::indexToPointer(INDEX, CHUNK_SIZE, RAW_MEMORY_BASE);
+    const auto* chunk = MemPool::indexToPointer(INDEX, CHUNK_SIZE, RAW_MEMORY_PTR);
 
     EXPECT_THAT(chunk, Eq(EXPECTED_CHUNK_PTR));
 }
@@ -92,13 +92,14 @@ TEST_F(MemPool_test, MempoolIndexToPointerConversionForMemoryOffsetsLargerThan4G
     constexpr uint64_t MB{1UL << 20};
     constexpr uint64_t GB{1ULL << 30};
     constexpr uint64_t CHUNK_SIZE{128 * MB};
-    uint8_t* const RAW_MEMORY_BASE{reinterpret_cast<uint8_t*>(0x7f60d90c5000ULL)};
-    uint8_t* const EXPECTED_CHUNK_PTR{RAW_MEMORY_BASE + static_cast<uint64_t>(INDEX) * CHUNK_SIZE};
+    constexpr uint64_t RAW_MEMORY_BASE{0x7f60d90c5000ULL};
+    uint8_t* const RAW_MEMORY_BASE_PTR{reinterpret_cast<uint8_t*>(RAW_MEMORY_BASE)};
+    uint8_t* const EXPECTED_CHUNK_PTR{RAW_MEMORY_BASE_PTR + static_cast<uint64_t>(INDEX) * CHUNK_SIZE};
 
-    const auto* chunk = MemPool::indexToPointer(INDEX, CHUNK_SIZE, RAW_MEMORY_BASE);
+    const auto* chunk = MemPool::indexToPointer(INDEX, CHUNK_SIZE, RAW_MEMORY_BASE_PTR);
 
     EXPECT_THAT(chunk, Eq(EXPECTED_CHUNK_PTR));
-    EXPECT_THAT(static_cast<const uint8_t*>(chunk) - RAW_MEMORY_BASE, Gt(5 * GB));
+    EXPECT_THAT(reinterpret_cast<uint64_t>(chunk) - RAW_MEMORY_BASE, Gt(5 * GB));
 }
 
 TEST_F(MemPool_test, MempoolPointerToIndexConversionForIndexZeroWorks)
@@ -106,11 +107,11 @@ TEST_F(MemPool_test, MempoolPointerToIndexConversionForIndexZeroWorks)
     ::testing::Test::RecordProperty("TEST_ID", "37b23350-b562-4e89-a452-2f3d328bc016");
 
     constexpr uint64_t CHUNK_SIZE{128};
-    uint8_t* const RAW_MEMORY_BASE{reinterpret_cast<uint8_t*>(0x7f60d90c5000ULL)};
-    uint8_t* const CHUNK_PTR{RAW_MEMORY_BASE};
+    uint8_t* const RAW_MEMORY_PTR{reinterpret_cast<uint8_t*>(0x7f60d90c5000ULL)};
+    uint8_t* const CHUNK_PTR{RAW_MEMORY_PTR};
     constexpr uint32_t EXPECTED_INDEX{0};
 
-    const auto index = MemPool::pointerToIndex(CHUNK_PTR, CHUNK_SIZE, RAW_MEMORY_BASE);
+    const auto index = MemPool::pointerToIndex(CHUNK_PTR, CHUNK_SIZE, RAW_MEMORY_PTR);
 
     EXPECT_THAT(index, Eq(EXPECTED_INDEX));
 }
@@ -120,11 +121,11 @@ TEST_F(MemPool_test, MempoolPointerToIndexConversionForIndexOneWorks)
     ::testing::Test::RecordProperty("TEST_ID", "64349d9a-1a97-4ba0-a04f-07c929befe38");
 
     constexpr uint64_t CHUNK_SIZE{128};
-    uint8_t* const RAW_MEMORY_BASE{reinterpret_cast<uint8_t*>(0x7f60d90c5000ULL)};
-    uint8_t* const CHUNK_PTR{RAW_MEMORY_BASE + CHUNK_SIZE};
+    uint8_t* const RAW_MEMORY_PTR{reinterpret_cast<uint8_t*>(0x7f60d90c5000ULL)};
+    uint8_t* const CHUNK_PTR{RAW_MEMORY_PTR + CHUNK_SIZE};
     constexpr uint32_t EXPECTED_INDEX{1};
 
-    const auto index = MemPool::pointerToIndex(CHUNK_PTR, CHUNK_SIZE, RAW_MEMORY_BASE);
+    const auto index = MemPool::pointerToIndex(CHUNK_PTR, CHUNK_SIZE, RAW_MEMORY_PTR);
 
     EXPECT_THAT(index, Eq(EXPECTED_INDEX));
 }
@@ -136,14 +137,15 @@ TEST_F(MemPool_test, MempoolPointeToIndexConversionForMemoryOffsetsLargerThan4GB
     constexpr uint64_t MB{1UL << 20};
     constexpr uint64_t GB{1ULL << 30};
     constexpr uint64_t CHUNK_SIZE{128 * MB};
-    uint8_t* const RAW_MEMORY_BASE{reinterpret_cast<uint8_t*>(0x7f60d90c5000ULL)};
+    constexpr uint64_t RAW_MEMORY_BASE{0x7f60d90c5000ULL};
+    uint8_t* const RAW_MEMORY_PTR{reinterpret_cast<uint8_t*>(RAW_MEMORY_BASE)};
     constexpr uint32_t EXPECTED_INDEX{42};
-    uint8_t* const CHUNK_PTR{RAW_MEMORY_BASE + static_cast<uint64_t>(EXPECTED_INDEX) * CHUNK_SIZE};
+    uint8_t* const CHUNK_PTR{RAW_MEMORY_PTR + static_cast<uint64_t>(EXPECTED_INDEX) * CHUNK_SIZE};
 
-    const auto index = MemPool::pointerToIndex(CHUNK_PTR, CHUNK_SIZE, RAW_MEMORY_BASE);
+    const auto index = MemPool::pointerToIndex(CHUNK_PTR, CHUNK_SIZE, RAW_MEMORY_PTR);
 
     EXPECT_THAT(index, Eq(EXPECTED_INDEX));
-    EXPECT_THAT(static_cast<const uint8_t*>(CHUNK_PTR) - RAW_MEMORY_BASE, Gt(5 * GB));
+    EXPECT_THAT(reinterpret_cast<uint64_t>(CHUNK_PTR) - RAW_MEMORY_BASE, Gt(5 * GB));
 }
 
 TEST_F(MemPool_test, MempoolCtorInitialisesTheObjectWithValuesPassedToTheCtor)

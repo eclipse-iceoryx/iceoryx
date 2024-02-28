@@ -106,6 +106,9 @@ TEST(Node_test, CreatingNodeWithInvalidNameLeadsToError)
         .or_else([](const auto error) { EXPECT_THAT(error, Eq(NodeBuilderError::IPC_CHANNEL_CREATION_FAILED)); });
 }
 
+// NOTE there is no 'unsetenv' and 'setenv' on Windows and the corresponding 'SetEnvironmentVariableA' does not update
+// the buffer 'getenv' accesses ('getenv' is used in 'domain_id_from_env*' methods)
+#if !defined(_WIN32)
 TEST(Node_test, CreatingNodeWithDomainIdFromEnvFailsIfDomainIdIsNotSet)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b1268403-2b76-4713-a4f6-5f62a9ce9e57");
@@ -210,6 +213,7 @@ TEST(Node_test, CreatingNodeWithDomainIdFromEnvOrDefaultWorksIfDomainIdIsNotSet)
 
     EXPECT_FALSE(node_result.has_error());
 }
+#endif
 
 TEST(Node_test, ReRegisteringNodeWithRunningRouDiWorks)
 {
