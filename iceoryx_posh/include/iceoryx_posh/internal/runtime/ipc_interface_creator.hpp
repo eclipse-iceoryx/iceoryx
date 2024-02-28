@@ -39,6 +39,7 @@ class IpcInterfaceCreator : public IpcInterfaceBase
   public:
     /// @brief Constructs a 'IpcInterfaceCreator' and opens a new IPC channel.
     /// @param[in] name Unique identifier of the IPC channel
+    /// @param[in] uniqueRouDiId to tie the interface to
     /// @param[in] resourceType to be used for the resource prefix
     /// @param[in] maxMessages maximum number of queued messages
     /// @param[in] message size maximum message size

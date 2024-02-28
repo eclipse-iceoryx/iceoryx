@@ -57,8 +57,8 @@ class UniquePortId : public NewType<UniquePortId,
   public:
     using ThisType::ThisType;
 
-    /// @brief The constructor creates an id which is greater than the
-    ///         previous created id
+    /// @brief The constructor creates an id which is greater than the previous created id
+    /// @param[in] uniqueRouDiId to tie the unique port id to
     UniquePortId(uint16_t uniqueRouDiId) noexcept;
 
     /// @brief Constructor which creates an invalid id

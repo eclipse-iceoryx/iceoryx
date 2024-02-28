@@ -42,14 +42,14 @@ RouDiApp::RouDiApp(const IceoryxConfig& config) noexcept
 
         auto& roudiConfig = static_cast<config::RouDiConfig&>(m_config);
         IOX_LOG(TRACE, "RouDi config is:");
-        IOX_LOG(TRACE, "  uniqueRouDiId = " << roudiConfig.uniqueRouDiId);
-        IOX_LOG(TRACE, "  monitoringMode = " << roudiConfig.monitoringMode);
-        IOX_LOG(TRACE, "  sharesAddressSpaceWithApplications = " << roudiConfig.sharesAddressSpaceWithApplications);
-        IOX_LOG(TRACE, "  processTerminationDelay = " << roudiConfig.processTerminationDelay);
-        IOX_LOG(TRACE, "  processKillDelay = " << roudiConfig.processKillDelay);
-        IOX_LOG(TRACE, "  compatibilityCheckLevel = " << roudiConfig.compatibilityCheckLevel);
-        IOX_LOG(TRACE, "  introspectionChunkCount = " << roudiConfig.introspectionChunkCount);
-        IOX_LOG(TRACE, "  discoveryChunkCount = " << roudiConfig.discoveryChunkCount);
+        IOX_LOG(TRACE, "  Unique RouDi Id = " << roudiConfig.uniqueRouDiId);
+        IOX_LOG(TRACE, "  Monitoring Mode = " << roudiConfig.monitoringMode);
+        IOX_LOG(TRACE, "  Shares Address Space With Applications = " << roudiConfig.sharesAddressSpaceWithApplications);
+        IOX_LOG(TRACE, "  Process Termination Delay = " << roudiConfig.processTerminationDelay);
+        IOX_LOG(TRACE, "  Process Kill Delay = " << roudiConfig.processKillDelay);
+        IOX_LOG(TRACE, "  Compatibility Check Level = " << roudiConfig.compatibilityCheckLevel);
+        IOX_LOG(TRACE, "  Introspection Chunk Count = " << roudiConfig.introspectionChunkCount);
+        IOX_LOG(TRACE, "  Discovery Chunk Count = " << roudiConfig.discoveryChunkCount);
     }
 }
 

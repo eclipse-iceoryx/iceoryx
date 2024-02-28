@@ -34,6 +34,7 @@ class PortPoolMemoryBlock : public MemoryBlock
   public:
     /// @todo iox-#1709 the PortPool needs to be refactored to use a typed MemPool
     /// once that is done, the cTor needs a configuration similar to MemPoolCollectionMemoryProvider
+    /// @param[in] uniqueRouDiId to tie the ports to
     PortPoolMemoryBlock(const uint16_t uniqueRouDiId) noexcept;
     ~PortPoolMemoryBlock() noexcept;
 

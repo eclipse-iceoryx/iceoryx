@@ -1354,3 +1354,97 @@
     Hence the `ChunkHeader` (iceoryx_posh/mepoo/chunk_header.hpp) layout changes
     and `m_chunkHeaderVersion` is getting increased.
     Moreover many functions' signatures are also affected by this change.
+60. `iox::RouDiConfig_t` is renamed to `iox::IceoryxConfig` to prevent confusion with `iox::config::RouDiConfig` which is a part of `iox::RouDiConfig_t`
+
+    ```cpp
+    // before
+    iox::RouDiConfig_t config;
+
+    // after
+    iox::IceoryxConfig config;
+    ```
+
+61. The `iox::roudi::RouDi` class takes a `iox::config::RouDiConfig` instead of a `iox::roudi::RouDi::RoudiStartupParameters` as ctor argument
+
+    ```cpp
+    // before
+    static optional<IceOryxRouDiComponents> m_rouDiComponents;
+    auto componentsScopeGuard = makeScopedStatic(m_rouDiComponents, m_config);
+
+    static optional<RouDi> roudi;
+    auto roudiScopeGuard =
+        makeScopedStatic(roudi,
+                            m_rouDiComponents.value().rouDiMemoryManager,
+                            m_rouDiComponents.value().portManager,
+                            RouDi::RoudiStartupParameters{m_monitoringMode,
+                                                        true,
+                                                        RouDi::RuntimeMessagesThreadStart::IMMEDIATE,
+                                                        m_compatibilityCheckLevel,
+                                                        m_processKillDelay,
+                                                        m_processTeminationDelay});
+
+    // after
+    static optional<IceOryxRouDiComponents> m_rouDiComponents;
+    auto componentsScopeGuard = makeScopedStatic(m_rouDiComponents, m_config);
+
+    static optional<RouDi> roudi;
+    auto roudiScopeGuard = makeScopedStatic(
+        roudi, m_rouDiComponents.value().rouDiMemoryManager, m_rouDiComponents.value().portManager, m_config);
+    ```
+
+62. The `iox::config::CmdLineArgs_t` parameter is removed from the `iox::roudi::IceoryxRouDiApp` and `iox::roudi::RouDiApp` ctors
+
+    In case the config is created via the parsing of the config file, the `parse` function will add the
+    parameter from the cmd line args to the config.
+    ```cpp
+    // before
+    iox::config::TomlRouDiConfigFileProvider configFileProvider(cmdLineArgs.value());
+
+    auto config = configFileProvider.parse();
+
+    if (config.has_error())
+    {
+        // error handling
+    }
+
+    iox::roudi::IceOryxRouDiApp roudi(cmdLineArgs.value(), config.value());
+
+    // after
+    iox::config::TomlRouDiConfigFileProvider configFileProvider(cmdLineArgs.value());
+
+    auto config = configFileProvider.parse();
+
+    if (config.has_error())
+    {
+        // error handling
+    }
+
+    if (!cmdLineArgs.value().run)
+    {
+        return 0;
+    }
+
+    iox::roudi::IceOryxRouDiApp roudi(config.value());
+    ```
+
+    In case the config is created manually, the cmd line args also need to be copied manually to the config.
+    ```cpp
+    // before
+    iox::RouDiConfig_t config = iox::RouDiConfig_t().setDefaults();
+    iox::roudi::IceOryxRouDiApp roudi(cmdLineArgs.value(), config.value());
+
+    // after
+    iox::IceoryxConfig config = iox::IceoryxConfig().setDefaults();
+    static_cast<iox::config::RouDiConfig>(config) = cmdLineArgs.value().roudiConfig;
+    iox::roudi::IceOryxRouDiApp roudi(config);
+    ```
+
+63. The `iox::config::CmdLineArgs_t` now contains a single `iox::config::RouDiConfig` instead of multiple distinct fields
+
+    ```cpp
+    // before
+    auto logLevel = cmdArgs.logLevel;
+
+    // after
+    auto logLevel = cmdArgs.roudiConfig.logLevel;
+    ```

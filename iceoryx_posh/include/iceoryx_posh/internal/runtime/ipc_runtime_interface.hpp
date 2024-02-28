@@ -40,6 +40,7 @@ class IpcRuntimeInterface
   public:
     /// @brief Creates an 'IpcRuntimeInterface' which tries to register at RouDi and delegates any error up in the stack
     /// @param[in] runtimeName is the name of the runtime to register at RouDi
+    /// @param[in] uniqueRouDiId to tie the interface to
     /// @param[in] roudiWaitingTimeout is the time to wait for RouDi to start if it is nor running
     /// @return an IPC interface to communicate with RouDi or a IpcRuntimeInterfaceError
     static expected<IpcRuntimeInterface, IpcRuntimeInterfaceError>

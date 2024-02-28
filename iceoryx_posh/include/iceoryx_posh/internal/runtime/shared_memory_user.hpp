@@ -38,10 +38,11 @@ class SharedMemoryUser
     /// @param[in] segmentManagerAddr adress of the segment manager that does the final mapping of memory in the process
     /// @param[in] segmentId of the relocatable shared memory segment
     /// address space
+    /// @param[in] uniqueRouDiId to tie the shared memory to
     SharedMemoryUser(const size_t topicSize,
                      const uint64_t segmentId,
                      const UntypedRelativePointer::offset_t segmentManagerAddressOffset,
-                     const uint16_t uniqueRouDiId = roudi::DEFAULT_UNIQUE_ROUDI_ID) noexcept;
+                     const uint16_t uniqueRouDiId) noexcept;
 
     ~SharedMemoryUser() noexcept;
 

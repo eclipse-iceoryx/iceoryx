@@ -37,6 +37,7 @@ class Process
     /// @brief This class represents an application which has registered at RouDi and manages the communication to the
     /// application
     /// @param [in] name of the process; this is equal to the IPC channel name, which is used for communication
+    /// @param [in] uniqueRouDiId to tie the process to
     /// @param [in] pid is the host system process id
     /// @param [in] user is user used in the operating system for this process
     /// @param [in] heartbeatPoolIndex index to the Heartbeat instance for this process; if the index is invalid, no

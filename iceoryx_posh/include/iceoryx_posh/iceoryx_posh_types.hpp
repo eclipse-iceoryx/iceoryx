@@ -219,12 +219,15 @@ enum class ResourceType
 using ResourcePrefix_t = string<RESOURCE_PREFIX_LENGTH>;
 /// @brief Returns the prefix string used for resources
 /// @param[in] uniqueRouDiID to use for the prefix string
+/// @param[in] resourceType to specify whether the resource is defined by iceoryx internals or by user input
 ResourcePrefix_t iceoryxResourcePrefix(const uint16_t uniqueRouDiID, const ResourceType resourceType) noexcept;
 
 namespace experimental
 {
+/// @brief Should only be used in internal iceoryx tests to enable experimental posh features in tests without setting
+/// the compiler flag
 bool hasExperimentalPoshFeaturesEnabled(const optional<bool>& newValue = nullopt) noexcept;
-}
+} // namespace experimental
 
 // alias for string
 using RuntimeName_t = string<MAX_RUNTIME_NAME_LENGTH>;

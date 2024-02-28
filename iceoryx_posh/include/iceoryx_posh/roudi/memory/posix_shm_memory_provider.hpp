@@ -38,6 +38,7 @@ class PosixShmMemoryProvider : public MemoryProvider
   public:
     /// @brief Constructs a PosixShmMemoryProvider which can be used to request memory via MemoryBlocks
     /// @param [in] shmName is the name of the posix share memory
+    /// @param[in] uniqueRouDiId to tie the shared memory to
     /// @param [in] accessMode defines the read and write access to the memory
     /// @param [in] openMode defines the creation/open mode of the shared memory.
     PosixShmMemoryProvider(const ShmName_t& shmName,
