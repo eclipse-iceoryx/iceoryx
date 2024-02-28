@@ -25,6 +25,7 @@
 #include "iceoryx_posh/roudi_env/roudi_env_node_builder.hpp"
 #include "test.hpp"
 
+#include <cstdlib>
 #include <optional>
 
 namespace
@@ -103,6 +104,111 @@ TEST(Node_test, CreatingNodeWithInvalidNameLeadsToError)
         .create()
         .and_then([](const auto&) { GTEST_FAIL() << "Creating a 'Node' with '/' in name should fail"; })
         .or_else([](const auto error) { EXPECT_THAT(error, Eq(NodeBuilderError::IPC_CHANNEL_CREATION_FAILED)); });
+}
+
+TEST(Node_test, CreatingNodeWithRouDiIdFromEnvFailsIfRouDiIdIsNotSet)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "b1268403-2b76-4713-a4f6-5f62a9ce9e57");
+
+    IOX_POSIX_CALL(unsetenv)
+    ("IOX_ROUDI_ID").failureReturnValue(-1).evaluate().expect("Unsetting environment variable works!");
+    auto node_result = RouDiEnvNodeBuilder("foo").roudi_id_from_env().create();
+
+    ASSERT_TRUE(node_result.has_error());
+    EXPECT_THAT(node_result.error(), Eq(NodeBuilderError::INVALID_OR_NO_ROUDI_ID));
+}
+
+TEST(Node_test, CreatingNodeWithRouDiIdFromEnvFailsIfRouDiIdIsInvalid)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "07bc4bf6-cb06-40cb-b3d4-761e95e82e4b");
+
+    constexpr int32_t OVERWRITE_ENV_VARIABLE{1};
+    IOX_POSIX_CALL(setenv)
+    ("IOX_ROUDI_ID", "1234567", OVERWRITE_ENV_VARIABLE)
+        .failureReturnValue(-1)
+        .evaluate()
+        .expect("Setting environment variable works!");
+    auto node_result = RouDiEnvNodeBuilder("foo").roudi_id_from_env().create();
+
+    ASSERT_TRUE(node_result.has_error());
+    EXPECT_THAT(node_result.error(), Eq(NodeBuilderError::INVALID_OR_NO_ROUDI_ID));
+}
+
+TEST(Node_test, CreatingNodeWithRouDiIdFromEnvWorksIfRouDiIdIsSet)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "dcf02c88-8c7a-4327-8ba2-0f71dc7b0ff1");
+
+    RouDiEnv roudi{42};
+
+    constexpr int32_t OVERWRITE_ENV_VARIABLE{1};
+    IOX_POSIX_CALL(setenv)
+    ("IOX_ROUDI_ID", "42", OVERWRITE_ENV_VARIABLE)
+        .failureReturnValue(-1)
+        .evaluate()
+        .expect("Setting environment variable works!");
+    auto node_result = RouDiEnvNodeBuilder("foo").roudi_id_from_env().create();
+
+    EXPECT_FALSE(node_result.has_error());
+}
+
+TEST(Node_test, CreatingNodeWithRouDiIdFromEnvOrAlternativeValueWorksIfRouDiIdIsSet)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "ba16d5cc-46b8-4450-8c77-16081a52f38c");
+
+    RouDiEnv roudi{42};
+
+    constexpr int32_t OVERWRITE_ENV_VARIABLE{1};
+    IOX_POSIX_CALL(setenv)
+    ("IOX_ROUDI_ID", "42", OVERWRITE_ENV_VARIABLE)
+        .failureReturnValue(-1)
+        .evaluate()
+        .expect("Setting environment variable works!");
+    auto node_result = RouDiEnvNodeBuilder("foo").roudi_id_from_env_or(13).create();
+
+    EXPECT_FALSE(node_result.has_error());
+}
+
+TEST(Node_test, CreatingNodeWithRouDiIdFromEnvOrAlternativeValueWorksIfRouDiIdIsNotSet)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "b071843a-a821-43b4-ac1a-e76ccafd35e0");
+
+    RouDiEnv roudi{13};
+
+    IOX_POSIX_CALL(unsetenv)
+    ("IOX_ROUDI_ID").failureReturnValue(-1).evaluate().expect("Unsetting environment variable works!");
+    auto node_result = RouDiEnvNodeBuilder("foo").roudi_id_from_env_or(13).create();
+
+    EXPECT_FALSE(node_result.has_error());
+}
+
+TEST(Node_test, CreatingNodeWithRouDiIdFromEnvOrDefaultWorksIfRouDiIdIsSet)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "35f422ec-3723-4c8f-93ae-ce1c8dfaca76");
+
+    RouDiEnv roudi{42};
+
+    constexpr int32_t OVERWRITE_ENV_VARIABLE{1};
+    IOX_POSIX_CALL(setenv)
+    ("IOX_ROUDI_ID", "42", OVERWRITE_ENV_VARIABLE)
+        .failureReturnValue(-1)
+        .evaluate()
+        .expect("Setting environment variable works!");
+    auto node_result = RouDiEnvNodeBuilder("foo").roudi_id_from_env_or_default().create();
+
+    EXPECT_FALSE(node_result.has_error());
+}
+
+TEST(Node_test, CreatingNodeWithRouDiIdFromEnvOrDefaultWorksIfRouDiIdIsNotSet)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "363dfb49-75fa-4486-b8b1-0f31c16bf37c");
+
+    RouDiEnv roudi{roudi::DEFAULT_UNIQUE_ROUDI_ID};
+
+    IOX_POSIX_CALL(unsetenv)
+    ("IOX_ROUDI_ID").failureReturnValue(-1).evaluate().expect("Unsetting environment variable works!");
+    auto node_result = RouDiEnvNodeBuilder("foo").roudi_id_from_env_or_default().create();
+
+    EXPECT_FALSE(node_result.has_error());
 }
 
 TEST(Node_test, ReRegisteringNodeWithRunningRouDiWorks)

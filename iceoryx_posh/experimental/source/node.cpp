@@ -32,6 +32,7 @@ NodeBuilder&& NodeBuilder::roudi_id(const uint16_t value) && noexcept
 
 NodeBuilder&& NodeBuilder::roudi_id_from_env() && noexcept
 {
+    m_roudi_id.reset();
     // JUSTIFICATION getenv is required for the functionality of this function; see also declaration in header
     // NOLINTNEXTLINE(concurrency-mt-unsafe)
     if (const auto* roudi_id_string = std::getenv("IOX_ROUDI_ID"))
@@ -51,6 +52,7 @@ NodeBuilder&& NodeBuilder::roudi_id_from_env_or(const uint16_t value) && noexcep
     std::move(*this).roudi_id_from_env();
     if (!m_roudi_id.has_value())
     {
+        IOX_LOG(INFO, "Could not get RouDi ID from 'IOX_ROUDI_ID' and using '" << value << "' as fallback!");
         m_roudi_id.emplace(value);
     }
     return std::move(*this);
