@@ -240,7 +240,10 @@ bool ProcessManager::registerProcess(const RuntimeName_t& name,
             }
 
             // process exists, we expect that the existing process crashed
-            IOX_LOG(WARN, "Application " << name << " crashed. Re-registering application");
+            IOX_LOG(WARN,
+                    "Application '" << name
+                                    << "' is still registered but it seems it has been terminated without RouDi "
+                                       "recognizing it. Re-registering application");
 
             // remove the existing process and add the new process afterwards, we do not send ack to new process
             constexpr TerminationFeedback TERMINATION_FEEDBACK{TerminationFeedback::DO_NOT_SEND_ACK_TO_PROCESS};

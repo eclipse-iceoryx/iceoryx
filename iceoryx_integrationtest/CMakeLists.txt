@@ -30,6 +30,12 @@ if(BUILD_TESTING)
     test_request_response_in_c_listener_and_waitset test_request_response_basic test_request_response_in_c_basic
     test_request_response_listener test_request_response_untyped
   )
+
+  if(IOX_EXPERIMENTAL)
+    list(APPEND IOX_INT_TESTS test_experimental_node)
+  else()
+    message(FATAL_ERROR "Please run colcon with '--meta=path/to/iceoryx_integrationtest/colcon.meta' to enable the experimental feature flag for the integration tests")
+  endif()
   # add test_ice_access_control_example when activating integrationtest #1910
 
   foreach(TEST IN LISTS IOX_INT_TESTS)

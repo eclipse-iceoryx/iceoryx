@@ -42,9 +42,11 @@ endif()
 # Refer to iceoryx_hoofs/posix/ipc/include/iox/posix_ipc_channel.hpp
 # for info why this is needed.
 if(APPLE)
-    set(IOX_MAX_RUNTIME_NAME_LENGTH_DEFAULT 98)
+    set(IOX_MAX_NODE_NAME_LENGTH_DEFAULT 85)
+    set(IOX_MAX_RUNTIME_NAME_LENGTH_DEFAULT 85)
 else()
-    set(IOX_MAX_RUNTIME_NAME_LENGTH_DEFAULT 100)
+    set(IOX_MAX_NODE_NAME_LENGTH_DEFAULT 87)
+    set(IOX_MAX_RUNTIME_NAME_LENGTH_DEFAULT 87)
 endif()
 
 configure_option(
@@ -101,7 +103,7 @@ configure_option(
 )
 configure_option(
     NAME IOX_MAX_NODE_NAME_LENGTH
-    DEFAULT_VALUE 100
+    DEFAULT_VALUE ${IOX_MAX_NODE_NAME_LENGTH_DEFAULT}
 )
 configure_option(
     NAME IOX_MAX_ID_STRING_LENGTH

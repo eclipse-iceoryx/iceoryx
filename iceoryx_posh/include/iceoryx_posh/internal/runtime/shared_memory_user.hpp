@@ -42,6 +42,13 @@ class SharedMemoryUser
                      const uint64_t segmentId,
                      const UntypedRelativePointer::offset_t segmentManagerAddressOffset) noexcept;
 
+    ~SharedMemoryUser() noexcept;
+
+    SharedMemoryUser(const SharedMemoryUser&) = delete;
+    SharedMemoryUser& operator=(const SharedMemoryUser&) = delete;
+    SharedMemoryUser(SharedMemoryUser&&) noexcept = default;
+    SharedMemoryUser& operator=(SharedMemoryUser&&) noexcept = default;
+
   private:
     void openDataSegments(const uint64_t segmentId,
                           const UntypedRelativePointer::offset_t segmentManagerAddressOffset) noexcept;

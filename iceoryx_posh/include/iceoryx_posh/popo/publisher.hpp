@@ -20,6 +20,11 @@
 
 #include "iceoryx_posh/internal/popo/publisher_impl.hpp"
 
+namespace iox::posh::experimental
+{
+class PublisherBuilder;
+}
+
 namespace iox
 {
 namespace popo
@@ -32,6 +37,14 @@ class Publisher : public PublisherImpl<T, H>
 {
   public:
     using PublisherImpl<T, H>::PublisherImpl;
+
+  private:
+    friend class iox::posh::experimental::PublisherBuilder;
+
+    explicit Publisher(typename PublisherImpl<T, H>::PortType&& port) noexcept
+        : PublisherImpl<T, H>(std::move(port))
+    {
+    }
 };
 
 } // namespace popo

@@ -75,11 +75,11 @@ TEST_F(PoshRuntimeNode_test, ConstructorNodeEmptyNodeNameIsSuccess)
 TEST_F(PoshRuntimeNode_test, ConstructorNodeWithMaximalSizeNodeNameIsSuccess)
 {
     ::testing::Test::RecordProperty("TEST_ID", "286fa814-6681-411f-9ef9-924da4f4af28");
-    const NodeName_t nodeName{
-        "aaaaabbbbbcccccdddddaaaaabbbbbcccccdddddaaaaabbbbbcccccdddddaaaaabbbbbcccccdddddaaaaabbbbbcccccddddd"};
+    auto nodeName = into<lossy<NodeName_t>>(std::string(iox::MAX_NODE_NAME_LENGTH, 's'));
 
     Node node(nodeName);
 
+    EXPECT_THAT(nodeName.size(), Eq(MAX_NODE_NAME_LENGTH));
     EXPECT_THAT(node.getNodeName(), Eq(nodeName));
 }
 

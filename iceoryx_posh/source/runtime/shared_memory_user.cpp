@@ -65,6 +65,21 @@ SharedMemoryUser::SharedMemoryUser(const size_t topicSize,
         .or_else([](auto&) { IOX_REPORT_FATAL(PoshError::POSH__SHM_APP_MAPP_ERR); });
 }
 
+SharedMemoryUser::~SharedMemoryUser() noexcept
+{
+    for (auto& shm : m_dataShmObjects)
+    {
+        auto segmentId = segment_id_t{UntypedRelativePointer::searchId(shm.getBaseAddress())};
+        UntypedRelativePointer::unregisterPtr(segmentId);
+    }
+
+    if (m_shmObject.has_value())
+    {
+        auto segmentId = segment_id_t{UntypedRelativePointer::searchId(m_shmObject->getBaseAddress())};
+        UntypedRelativePointer::unregisterPtr(segmentId);
+    }
+}
+
 void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
                                         const UntypedRelativePointer::offset_t segmentManagerAddressOffset) noexcept
 {

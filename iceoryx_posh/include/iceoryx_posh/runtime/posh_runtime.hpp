@@ -52,11 +52,12 @@ class NodeData;
 class PoshRuntime
 {
   public:
+    virtual ~PoshRuntime() noexcept = default;
+
     PoshRuntime(const PoshRuntime&) = delete;
     PoshRuntime& operator=(const PoshRuntime&) = delete;
-    PoshRuntime(PoshRuntime&&) = delete;
-    PoshRuntime& operator=(PoshRuntime&&) = delete;
-    virtual ~PoshRuntime() noexcept = default;
+    PoshRuntime(PoshRuntime&&) noexcept = delete;
+    PoshRuntime& operator=(PoshRuntime&&) noexcept = delete;
 
     /// @brief returns active runtime
     ///

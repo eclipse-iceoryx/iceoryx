@@ -131,7 +131,7 @@ class RouDi
     static uint64_t getUniqueSessionIdForProcess() noexcept;
 
   private:
-    void processRuntimeMessages() noexcept;
+    void processRuntimeMessages(runtime::IpcInterfaceCreator&& roudiIpcInterface) noexcept;
 
     void monitorAndDiscoveryUpdate() noexcept;
 

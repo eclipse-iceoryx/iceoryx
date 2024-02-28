@@ -74,6 +74,8 @@ class RuntimeTestInterface
     RuntimeTestInterface(const RuntimeTestInterface&) = delete;
     RuntimeTestInterface& operator=(const RuntimeTestInterface&) = delete;
 
+    uint64_t activeRuntimeCount() noexcept;
+
   private:
     RuntimeTestInterface();
     ~RuntimeTestInterface();

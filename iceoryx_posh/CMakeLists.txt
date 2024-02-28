@@ -80,6 +80,7 @@ iox_add_library(
                                             # and include both iceoryx_posh_core and iceoryx_posh_runtime
     PROJECT_PREFIX          ${PREFIX}
     BUILD_INTERFACE         ${CMAKE_CURRENT_SOURCE_DIR}/include
+                            ${CMAKE_CURRENT_SOURCE_DIR}/experimental/include
                             ${CMAKE_BINARY_DIR}/generated/iceoryx_posh/include
     INSTALL_INTERFACE       include/${PREFIX}
     PRIVATE_INCLUDES        source/capro
@@ -157,6 +158,8 @@ iox_add_library(
         source/runtime/node_property.cpp
         source/runtime/shared_memory_user.cpp
         source/roudi/service_registry.cpp              # @todo iox-#415 Move the service registry into runtime namespace?
+
+        experimental/source/node.cpp
 )
 
 #
@@ -292,9 +295,13 @@ install(
     DESTINATION ${DESTINATION_CONFIGDIR}
 )
 
+if(IOX_EXPERIMENTAL)
+    set(IOX_EXPERIMENTAL_INCLUDE_EXPORT experimental/include/)
+endif()
+
 setup_install_directories_and_export_package(
     TARGETS iceoryx_posh iceoryx_posh_roudi iceoryx_posh_gateway ${ROUDI_EXPORT}
-    INCLUDE_DIRECTORIES include/
+    INCLUDE_DIRECTORIES include/ ${IOX_EXPERIMENTAL_INCLUDE_EXPORT}
 )
 
 

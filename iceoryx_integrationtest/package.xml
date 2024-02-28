@@ -37,6 +37,8 @@
   <test_depend>example_waitset</test_depend>
   <test_depend>example_waitset_in_c</test_depend>
 
+  <test_depend>example_experimental_node</test_depend>
+
   <export>
     <build_type>ament_cmake</build_type>
   </export>

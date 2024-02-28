@@ -38,11 +38,13 @@ class SubscriberImpl : public BaseSubscriberType
   public:
     explicit SubscriberImpl(const capro::ServiceDescription& service,
                             const SubscriberOptions& subscriberOptions = SubscriberOptions()) noexcept;
+
+    virtual ~SubscriberImpl() noexcept;
+
     SubscriberImpl(const SubscriberImpl& other) = delete;
     SubscriberImpl& operator=(const SubscriberImpl&) = delete;
-    SubscriberImpl(SubscriberImpl&& rhs) = delete;
-    SubscriberImpl& operator=(SubscriberImpl&& rhs) = delete;
-    virtual ~SubscriberImpl() noexcept;
+    SubscriberImpl(SubscriberImpl&& rhs) noexcept = delete;
+    SubscriberImpl& operator=(SubscriberImpl&& rhs) noexcept = delete;
 
     ///
     /// @brief Take the samples from the top of the receive queue.
@@ -52,10 +54,11 @@ class SubscriberImpl : public BaseSubscriberType
     ///
     expected<Sample<const T, const H>, ChunkReceiveResult> take() noexcept;
 
-    using PortType = typename BaseSubscriberType::PortType;
-
   protected:
+    using PortType = typename BaseSubscriberType::PortType;
     using BaseSubscriberType::port;
+
+    SubscriberImpl(PortType&& port) noexcept;
 };
 
 } // namespace popo

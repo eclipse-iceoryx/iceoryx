@@ -141,11 +141,12 @@ IpcMessageErrorType stringToIpcMessageErrorType(const char* str) noexcept;
 /// @param[in] msg enum value to convert
 std::string IpcMessageErrorTypeToString(const IpcMessageErrorType msg) noexcept;
 
+using InterfaceName_t = string<MAX_IPC_CHANNEL_NAME_LENGTH>;
 /// @brief Transforms an IPC channel name to a prefixed interface name
 /// @param[in] channelName the name of the channel without the 'iox1_#_' prefix
 /// @param[in] resourceType to be used for the resource prefix
-/// @return the interface name with the 'iox1_#_' prefix or a 'nullopt' if the resulting name would be too long
-iox::optional<RuntimeName_t> ipcChannelNameToInterfaceName(RuntimeName_t channelName, ResourceType resourceType);
+/// @return the interface name with the 'iox1_#_' prefix
+InterfaceName_t ipcChannelNameToInterfaceName(RuntimeName_t channelName, ResourceType resourceType);
 
 class IpcInterfaceUser;
 class IpcInterfaceCreator;
@@ -215,7 +216,7 @@ class IpcInterface
     /// @brief Since there might be an outdated IPC channel due to an unclean temination
     ///        this function closes the IPC channel if it's existing.
     /// @param[in] name of the IPC channel to clean up
-    static void cleanupOutdatedIpcChannel(const RuntimeName_t& name) noexcept;
+    static void cleanupOutdatedIpcChannel(const InterfaceName_t& name) noexcept;
 
     friend class IpcInterfaceUser;
     friend class IpcInterfaceCreator;
@@ -242,11 +243,12 @@ class IpcInterface
                  const uint64_t maxMessages,
                  const uint64_t messageSize) noexcept;
 
-    /// @brief delete copy and move ctor and assignment since they are not needed
+    IpcInterface(IpcInterface&&) noexcept = default;
+    IpcInterface& operator=(IpcInterface&&) noexcept = default;
+
+    /// @brief delete unneeded ctors and assignment operators
     IpcInterface(const IpcInterface&) = delete;
-    IpcInterface(IpcInterface&&) = delete;
     IpcInterface& operator=(const IpcInterface&) = delete;
-    IpcInterface& operator=(IpcInterface&&) = delete;
 
     /// @brief Set the content of answer from buffer.
     /// @param[in] buffer Raw message as char pointer
@@ -272,7 +274,7 @@ class IpcInterface
     bool hasClosableIpcChannel() const noexcept;
 
   protected:
-    RuntimeName_t m_interfaceName;
+    InterfaceName_t m_interfaceName;
     RuntimeName_t m_runtimeName;
     uint64_t m_maxMessageSize{0U};
     uint64_t m_maxMessages{0U};

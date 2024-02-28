@@ -32,12 +32,11 @@ namespace iox
 {
 namespace runtime
 {
-PoshRuntimeImpl::PoshRuntimeImpl(optional<const RuntimeName_t*> name, const RuntimeLocation location) noexcept
+PoshRuntimeImpl::PoshRuntimeImpl(optional<const RuntimeName_t*> name,
+                                 const RuntimeLocation location,
+                                 IpcRuntimeInterface&& ipcRuntimeInterface) noexcept
     : PoshRuntime(name)
-    , m_ipcChannelInterface(concurrent::ForwardArgsToCTor,
-                            roudi::IPC_CHANNEL_ROUDI_NAME,
-                            *name.value(),
-                            runtime::PROCESS_WAITING_FOR_ROUDI_TIMEOUT)
+    , m_ipcChannelInterface(concurrent::ForwardArgsToCTor, std::move(ipcRuntimeInterface))
     , m_ShmInterface([&] {
         // in case the runtime is located in the same process like RouDi the shm is already opened;
         // also in case of the RouDiEnvironment this would close the shm on destruction of the runstime which is also
@@ -64,6 +63,31 @@ PoshRuntimeImpl::PoshRuntimeImpl(optional<const RuntimeName_t*> name, const Runt
                             "KeepAlive",
                             *this,
                             &PoshRuntimeImpl::sendKeepAliveAndHandleShutdownPreparation);
+}
+
+PoshRuntimeImpl::PoshRuntimeImpl(optional<const RuntimeName_t*> name, const RuntimeLocation location) noexcept
+    : PoshRuntimeImpl(name, location, [&name] {
+        auto runtimeInterface = IpcRuntimeInterface::create(*name.value(), runtime::PROCESS_WAITING_FOR_ROUDI_TIMEOUT);
+        if (runtimeInterface.has_error())
+        {
+            switch (runtimeInterface.error())
+            {
+            case IpcRuntimeInterfaceError::CANNOT_CREATE_APPLICATION_CHANNEL:
+                IOX_REPORT_FATAL(PoshError::IPC_INTERFACE__UNABLE_TO_CREATE_APPLICATION_CHANNEL);
+            case IpcRuntimeInterfaceError::TIMEOUT_WAITING_FOR_ROUDI:
+                IOX_LOG(FATAL, "Timeout registering at RouDi. Is RouDi running?");
+                IOX_REPORT_FATAL(PoshError::IPC_INTERFACE__REG_ROUDI_NOT_AVAILABLE);
+            case IpcRuntimeInterfaceError::SENDING_REQUEST_TO_ROUDI_FAILED:
+                IOX_REPORT_FATAL(PoshError::IPC_INTERFACE__REG_UNABLE_TO_WRITE_TO_ROUDI_CHANNEL);
+            case IpcRuntimeInterfaceError::NO_RESPONSE_FROM_ROUDI:
+                IOX_REPORT_FATAL(PoshError::IPC_INTERFACE__REG_ACK_NO_RESPONSE);
+            }
+
+            IOX_UNREACHABLE();
+        }
+        return std::move(runtimeInterface.value());
+    }())
+{
 }
 
 PoshRuntimeImpl::~PoshRuntimeImpl() noexcept

@@ -68,6 +68,11 @@ void RouDiEnv::cleanupAppResources(const RuntimeName_t& name) noexcept
     m_runtimes.eraseRuntime(name);
 }
 
+uint64_t RouDiEnv::numberOfActiveRuntimeTestInterfaces() noexcept
+{
+    return m_runtimes.activeRuntimeCount();
+}
+
 void RouDiEnv::cleanupRuntimes() noexcept
 {
     m_runtimes.cleanupRuntimes();

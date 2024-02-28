@@ -67,8 +67,10 @@ iceoryx_workspace
 Go into your iceoryx_workspace folder and do the colcon build:
 
 ```bash
-colcon build --packages-up-to iceoryx_integrationtest
+colcon build --packages-up-to iceoryx_integrationtest --meta=src/iceoryx/iceoryx_integrationtest/colcon.meta
 ```
+
+The `colcon.meta` sets the required cmake parameter to also build and test the examples with the experimental API.
 
 The expected output should be like this: `Summary: 21 packages finished [31.7s]`
 Colcon automatically creates the folders `build`, `install` and `log`.
@@ -80,7 +82,7 @@ For executing tests you can use colcon too:
 
 ```bash
 source install/setup.bash # your install directory created by colcon
-colcon test --packages-select iceoryx_integrationtest
+colcon test --packages-select iceoryx_integrationtest --meta=src/iceoryx/iceoryx_integrationtest/colcon.meta
 ```
 
 In case a test fails, the output looks like this

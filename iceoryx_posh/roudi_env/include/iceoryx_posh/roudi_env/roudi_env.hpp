@@ -35,6 +35,7 @@ class RouDi;
 namespace roudi_env
 {
 
+/// @brief A convenient way to create a 'RouDi' for integration tests
 class RouDiEnv
 {
   public:
@@ -53,6 +54,8 @@ class RouDiEnv
     void triggerDiscoveryLoopAndWaitToFinish() noexcept;
 
     void cleanupAppResources(const RuntimeName_t& name) noexcept;
+
+    uint64_t numberOfActiveRuntimeTestInterfaces() noexcept;
 
   protected:
     /// @note this is due to ambiguity of the cTor with the default parameter

@@ -20,6 +20,11 @@
 
 #include "iceoryx_posh/internal/popo/untyped_publisher_impl.hpp"
 
+namespace iox::posh::experimental
+{
+class PublisherBuilder;
+}
+
 namespace iox
 {
 namespace popo
@@ -29,6 +34,14 @@ class UntypedPublisher : public UntypedPublisherImpl<>
 {
   public:
     using UntypedPublisherImpl<>::UntypedPublisherImpl;
+
+  private:
+    friend class iox::posh::experimental::PublisherBuilder;
+
+    explicit UntypedPublisher(typename UntypedPublisherImpl<>::PortType&& port) noexcept
+        : UntypedPublisherImpl<>(std::move(port))
+    {
+    }
 };
 
 } // namespace popo

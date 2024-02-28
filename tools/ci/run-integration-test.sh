@@ -48,10 +48,10 @@ $(clang --version)"
 
 msg "building"
 rm -rf iceoryx_examples/COLCON_IGNORE iceoryx_integrationtest/COLCON_IGNORE
-colcon build --packages-up-to iceoryx_integrationtest
+colcon build --packages-up-to iceoryx_integrationtest --meta=iceoryx_integrationtest/colcon.meta
 
 msg "executing tests"
 # shellcheck source=/dev/null
 source ./install/setup.bash
-colcon test --packages-select iceoryx_integrationtest
+colcon test --packages-select iceoryx_integrationtest --meta=iceoryx_integrationtest/colcon.meta
 colcon test-result --all --verbose

@@ -20,6 +20,11 @@
 
 #include "iceoryx_posh/internal/popo/untyped_subscriber_impl.hpp"
 
+namespace iox::posh::experimental
+{
+class SubscriberBuilder;
+}
+
 namespace iox
 {
 namespace popo
@@ -35,6 +40,14 @@ class UntypedSubscriber : public UntypedSubscriberImpl<>
     virtual ~UntypedSubscriber() noexcept
     {
         Impl::m_trigger.reset();
+    }
+
+  private:
+    friend class iox::posh::experimental::SubscriberBuilder;
+
+    explicit UntypedSubscriber(typename UntypedSubscriberImpl<>::PortType&& port) noexcept
+        : UntypedSubscriberImpl<>(std::move(port))
+    {
     }
 };
 

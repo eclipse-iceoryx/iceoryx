@@ -127,5 +127,11 @@ PoshRuntime& RuntimeTestInterface::runtimeFactoryGetInstance(optional<const Runt
     return *RuntimeTestInterface::t_activeRuntime;
 }
 
+uint64_t RuntimeTestInterface::activeRuntimeCount() noexcept
+{
+    std::lock_guard<std::mutex> lock(RuntimeTestInterface::s_runtimeAccessMutex);
+    return RuntimeTestInterface::s_runtimes.size();
+}
+
 } // namespace roudi_env
 } // namespace iox

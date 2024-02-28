@@ -114,11 +114,14 @@ class BaseSubscriber
 
     BaseSubscriber() noexcept; // Required for testing.
     BaseSubscriber(const capro::ServiceDescription& service, const SubscriberOptions& subscriberOptions) noexcept;
+    BaseSubscriber(port_t&& port) noexcept;
 
     BaseSubscriber(const BaseSubscriber& other) = delete;
     BaseSubscriber& operator=(const BaseSubscriber&) = delete;
-    BaseSubscriber(BaseSubscriber&& rhs) = delete;
-    BaseSubscriber& operator=(BaseSubscriber&& rhs) = delete;
+    // NOTE: non-movable due to the 'TriggerHandle' member and a 'WaitSet' or 'Listener' could hold a pointer to the
+    // 'Subscriber'
+    BaseSubscriber(BaseSubscriber&& rhs) noexcept = delete;
+    BaseSubscriber& operator=(BaseSubscriber&& rhs) noexcept = delete;
 
     /// @brief small helper method to unwrap the 'expected<optional<ChunkHeader*>>' from the 'tryGetChunk' method of the
     /// port

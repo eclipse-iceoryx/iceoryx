@@ -20,6 +20,11 @@
 
 #include "iceoryx_posh/internal/popo/subscriber_impl.hpp"
 
+namespace iox::posh::experimental
+{
+class SubscriberBuilder;
+}
+
 namespace iox
 {
 namespace popo
@@ -38,6 +43,14 @@ class Subscriber : public SubscriberImpl<T, H>
     virtual ~Subscriber() noexcept
     {
         Impl::m_trigger.reset();
+    }
+
+  private:
+    friend class iox::posh::experimental::SubscriberBuilder;
+
+    explicit Subscriber(typename SubscriberImpl<T, H>::PortType&& port) noexcept
+        : SubscriberImpl<T, H>(std::move(port))
+    {
     }
 };
 

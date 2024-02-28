@@ -35,6 +35,12 @@ inline PublisherImpl<T, H, BasePublisherType>::PublisherImpl(const capro::Servic
 }
 
 template <typename T, typename H, typename BasePublisherType>
+inline PublisherImpl<T, H, BasePublisherType>::PublisherImpl(PortType&& port) noexcept
+    : BasePublisherType(std::move(port))
+{
+}
+
+template <typename T, typename H, typename BasePublisherType>
 template <typename... Args>
 inline expected<Sample<T, H>, AllocationError> PublisherImpl<T, H, BasePublisherType>::loan(Args&&... args) noexcept
 {

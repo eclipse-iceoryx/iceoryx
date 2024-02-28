@@ -25,6 +25,11 @@
 #include "iox/optional.hpp"
 #include "iox/smart_lock.hpp"
 
+namespace iox::posh::experimental
+{
+class Node;
+}
+
 namespace iox
 {
 namespace runtime
@@ -39,11 +44,12 @@ enum class RuntimeLocation
 class PoshRuntimeImpl : public PoshRuntime
 {
   public:
+    virtual ~PoshRuntimeImpl() noexcept;
+
     PoshRuntimeImpl(const PoshRuntimeImpl&) = delete;
     PoshRuntimeImpl& operator=(const PoshRuntimeImpl&) = delete;
-    PoshRuntimeImpl(PoshRuntimeImpl&&) = delete;
-    PoshRuntimeImpl& operator=(PoshRuntimeImpl&&) = delete;
-    virtual ~PoshRuntimeImpl() noexcept;
+    PoshRuntimeImpl(PoshRuntimeImpl&&) noexcept = delete;
+    PoshRuntimeImpl& operator=(PoshRuntimeImpl&&) noexcept = delete;
 
     /// @copydoc PoshRuntime::getMiddlewarePublisher
     PublisherPortUserType::MemberType_t*
@@ -85,10 +91,15 @@ class PoshRuntimeImpl : public PoshRuntime
   protected:
     friend class PoshRuntime;
     friend class roudi_env::RuntimeTestInterface;
+    friend class posh::experimental::Node;
 
     // Protected constructor for IPC setup
     PoshRuntimeImpl(optional<const RuntimeName_t*> name,
                     const RuntimeLocation location = RuntimeLocation::SEPARATE_PROCESS_FROM_ROUDI) noexcept;
+
+    PoshRuntimeImpl(optional<const RuntimeName_t*> name,
+                    const RuntimeLocation location,
+                    IpcRuntimeInterface&& ipcRuntimeInterface) noexcept;
 
   private:
     expected<PublisherPortUserType::MemberType_t*, IpcMessageErrorType>
@@ -109,6 +120,7 @@ class PoshRuntimeImpl : public PoshRuntime
     expected<std::tuple<segment_id_underlying_t, UntypedRelativePointer::offset_t>, IpcMessageErrorType>
     convert_id_and_offset(IpcMessage& msg);
 
+  private:
     concurrent::smart_lock<IpcRuntimeInterface> m_ipcChannelInterface;
     optional<SharedMemoryUser> m_ShmInterface;
 

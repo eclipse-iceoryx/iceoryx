@@ -128,11 +128,8 @@ TEST_F(PoshRuntime_test, ValidAppName)
 TEST_F(PoshRuntime_test, MaxAppNameLength)
 {
     ::testing::Test::RecordProperty("TEST_ID", "dfdf3ce1-c7d4-4c57-94ea-6ed9479371e3");
-    RuntimeName_t dummy{"a"};
-    auto prefixLength =
-        runtime::ipcChannelNameToInterfaceName(dummy, ResourceType::USER_DEFINED).value().size() - dummy.size();
-    std::string maxValidName(iox::MAX_RUNTIME_NAME_LENGTH - prefixLength, 's');
 
+    std::string maxValidName(iox::MAX_RUNTIME_NAME_LENGTH, 's');
     auto& runtime = PoshRuntime::initRuntime(into<lossy<RuntimeName_t>>(maxValidName));
 
     EXPECT_THAT(maxValidName, StrEq(runtime.getInstanceName().c_str()));

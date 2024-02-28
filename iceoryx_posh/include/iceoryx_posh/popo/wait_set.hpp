@@ -34,6 +34,11 @@
 #include "iox/stack.hpp"
 #include "iox/vector.hpp"
 
+namespace iox::posh::experimental
+{
+class WaitSetBuilder;
+}
+
 namespace iox
 {
 namespace popo
@@ -66,9 +71,9 @@ class WaitSet
     /// @brief all the Trigger have a pointer pointing to this waitset for cleanup
     ///        calls, therefore the WaitSet cannot be moved
     WaitSet(const WaitSet& rhs) = delete;
-    WaitSet(WaitSet&& rhs) = delete;
+    WaitSet(WaitSet&& rhs) noexcept = delete;
     WaitSet& operator=(const WaitSet& rhs) = delete;
-    WaitSet& operator=(WaitSet&& rhs) = delete;
+    WaitSet& operator=(WaitSet&& rhs) noexcept = delete;
 
     /// @brief Non-reversible call. After this call wait() and timedWait() do
     ///        not block any longer and never return triggered events/states. This
@@ -208,6 +213,7 @@ class WaitSet
     static constexpr uint64_t capacity() noexcept;
 
   protected:
+    friend class iox::posh::experimental::WaitSetBuilder;
     explicit WaitSet(ConditionVariableData& condVarData) noexcept;
 
   private:

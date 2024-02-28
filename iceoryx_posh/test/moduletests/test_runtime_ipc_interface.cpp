@@ -123,15 +123,6 @@ TYPED_TEST(IpcInterface_test, CreateWithNoNameFails)
     IOX_EXPECT_FATAL_FAILURE([] { typename TestFixture::SutType sut(""); }, iox::er::FATAL);
 }
 
-TYPED_TEST(IpcInterface_test, CreateWithTooLargeNameFails)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "1463137c-ce3c-4a09-a568-f71ad10b558a");
-
-    auto tooLargeName = into<lossy<RuntimeName_t>>(std::string(iox::MAX_RUNTIME_NAME_LENGTH, 's'));
-
-    IOX_EXPECT_FATAL_FAILURE([&] { typename TestFixture::SutType sut(tooLargeName); }, iox::er::FATAL);
-}
-
 TYPED_TEST(IpcInterface_test, CreateWithLeadingSlashFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "89340ebd-f80d-480b-833f-da37dff06cef");

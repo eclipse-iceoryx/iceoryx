@@ -68,7 +68,10 @@ class UntypedSubscriberImpl : public BaseSubscriberType
     void release(const void* const userPayload) noexcept;
 
   protected:
+    using PortType = typename BaseSubscriberType::PortType;
     using BaseSubscriber::port;
+
+    UntypedSubscriberImpl(PortType&& port) noexcept;
 };
 
 } // namespace popo
