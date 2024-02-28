@@ -34,6 +34,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
                                        {"version", no_argument, nullptr, 'v'},
                                        {"monitoring-mode", required_argument, nullptr, 'm'},
                                        {"log-level", required_argument, nullptr, 'l'},
+                                       {"domain-id", required_argument, nullptr, 'd'},
                                        {"unique-roudi-id", required_argument, nullptr, 'u'},
                                        {"compatibility", required_argument, nullptr, 'x'},
                                        {"termination-delay", required_argument, nullptr, 't'},
@@ -41,7 +42,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
                                        {nullptr, 0, nullptr, 0}};
 
     // colon after shortOption means it requires an argument, two colons mean optional argument
-    constexpr const char* SHORT_OPTIONS = "hvm:l:u:x:t:k:";
+    constexpr const char* SHORT_OPTIONS = "hvm:l:d:u:x:t:k:";
     int index;
     int32_t opt{-1};
     while ((opt = getopt_long(argc, argv, SHORT_OPTIONS, LONG_OPTIONS, &index), opt != -1))
@@ -53,7 +54,11 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             std::cout << "Options:" << std::endl;
             std::cout << "-h, --help                        Display help." << std::endl;
             std::cout << "-v, --version                     Display version." << std::endl;
-            std::cout << "-u, --unique-roudi-id <INT>       Set the unique RouDi id." << std::endl;
+            std::cout << "-d, --domain-id <UINT>            Set the Domain ID." << std::endl;
+            std::cout << "                                  <UINT> 0..65536" << std::endl;
+            std::cout << "                                  Experimental!" << std::endl;
+            std::cout << "-u, --unique-roudi-id <UINT>      Set the unique RouDi ID." << std::endl;
+            std::cout << "                                  <UINT> 0..65536" << std::endl;
             std::cout << "-m, --monitoring-mode <MODE>      Set process alive monitoring mode." << std::endl;
             std::cout << "                                  <MODE> {on, off}" << std::endl;
             std::cout << "                                  default = 'off'" << std::endl;
@@ -96,13 +101,36 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             std::cout << "Commit ID: " << ICEORYX_SHA1 << std::endl;
             m_cmdLineArgs.run = false;
             break;
+        case 'd':
+        {
+            constexpr uint64_t MAX_DOMAIN_ID = ((1 << 16) - 1);
+            convert::from_string<uint16_t>(optarg)
+                .and_then([&](const auto value) {
+                    if (experimental::hasExperimentalPoshFeaturesEnabled())
+                    {
+                        m_cmdLineArgs.roudiConfig.domainId = DomainId{value};
+                    }
+                    else
+                    {
+                        IOX_LOG(WARN,
+                                "The domain ID is an experimental feature and iceoryx must be compiled with the "
+                                "'IOX_EXPERIMENTAL_POSH' cmake option to use it!"
+                                    << static_cast<DomainId::value_type>(DEFAULT_DOMAIN_ID));
+                    }
+                })
+                .or_else([&] {
+                    IOX_LOG(ERROR, "The domain ID must be in the range of [0, " << MAX_DOMAIN_ID << "]");
+                    m_cmdLineArgs.run = false;
+                });
+            break;
+        }
         case 'u':
         {
             constexpr uint64_t MAX_ROUDI_ID = ((1 << 16) - 1);
             convert::from_string<uint16_t>(optarg)
                 .and_then([&](const auto value) { m_cmdLineArgs.roudiConfig.uniqueRouDiId = value; })
                 .or_else([&] {
-                    IOX_LOG(ERROR, "The RouDi id must be in the range of [0, " << MAX_ROUDI_ID << "]");
+                    IOX_LOG(ERROR, "The RouDi ID must be in the range of [0, " << MAX_ROUDI_ID << "]");
                     m_cmdLineArgs.run = false;
                 });
             break;

@@ -78,15 +78,14 @@ std::string IpcMessageErrorTypeToString(const IpcMessageErrorType msg) noexcept
     return convert::toString(static_cast<UnderlyingType>(msg));
 }
 
-InterfaceName_t
-ipcChannelNameToInterfaceName(RuntimeName_t channelName, uint16_t uniqueRouDiId, ResourceType resourceType)
+InterfaceName_t ipcChannelNameToInterfaceName(RuntimeName_t channelName, DomainId domainId, ResourceType resourceType)
 {
-    return concatenate(iceoryxResourcePrefix(uniqueRouDiId, resourceType), channelName);
+    return concatenate(iceoryxResourcePrefix(domainId, resourceType), channelName);
 }
 
 template <typename IpcChannelType>
 IpcInterface<IpcChannelType>::IpcInterface(const RuntimeName_t& runtimeName,
-                                           const uint16_t uniqueRouDiId,
+                                           const DomainId domainId,
                                            const ResourceType resourceType,
                                            const uint64_t maxMessages,
                                            const uint64_t messageSize) noexcept
@@ -105,7 +104,7 @@ IpcInterface<IpcChannelType>::IpcInterface(const RuntimeName_t& runtimeName,
         }
     }
 
-    m_interfaceName = ipcChannelNameToInterfaceName(runtimeName, uniqueRouDiId, resourceType);
+    m_interfaceName = ipcChannelNameToInterfaceName(runtimeName, domainId, resourceType);
     m_runtimeName = runtimeName;
     m_maxMessages = maxMessages;
     m_maxMessageSize = messageSize;

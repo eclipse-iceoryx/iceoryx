@@ -30,16 +30,16 @@ RouDiEnv::RouDiEnv(MainCTor) noexcept
 {
 }
 
-RouDiEnv::RouDiEnv(const uint16_t uniqueRouDiId, const IceoryxConfig& config) noexcept
+RouDiEnv::RouDiEnv(const DomainId domainId, const IceoryxConfig& config) noexcept
     : RouDiEnv(MainCTor{})
 {
-    if (uniqueRouDiId == 0)
+    if (domainId == DEFAULT_DOMAIN_ID)
     {
         m_runtimes.emplace();
     }
 
     auto adjustedConfig = config;
-    adjustedConfig.uniqueRouDiId = uniqueRouDiId;
+    adjustedConfig.domainId = domainId;
     adjustedConfig.sharesAddressSpaceWithApplications = true;
 
     m_roudiComponents =
@@ -49,7 +49,7 @@ RouDiEnv::RouDiEnv(const uint16_t uniqueRouDiId, const IceoryxConfig& config) no
 }
 
 RouDiEnv::RouDiEnv(const IceoryxConfig& config) noexcept
-    : RouDiEnv(config.uniqueRouDiId, config)
+    : RouDiEnv(config.domainId, config)
 {
 }
 

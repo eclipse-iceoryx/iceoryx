@@ -39,6 +39,7 @@ bool operator==(const CmdLineArgs_t& lhs, const CmdLineArgs_t& rhs)
            && (lhs.roudiConfig.compatibilityCheckLevel == rhs.roudiConfig.compatibilityCheckLevel)
            && (lhs.roudiConfig.processTerminationDelay == rhs.roudiConfig.processTerminationDelay)
            && (lhs.roudiConfig.processKillDelay == rhs.roudiConfig.processKillDelay)
+           && (lhs.roudiConfig.domainId == rhs.roudiConfig.domainId)
            && (lhs.roudiConfig.uniqueRouDiId == rhs.roudiConfig.uniqueRouDiId) && (lhs.run == rhs.run)
            && (lhs.configFilePath == rhs.configFilePath);
 }
@@ -456,6 +457,47 @@ TEST_F(CmdLineParser_test, WrongCompatibilityLevelOptionLeadsToProgrammNotRunnin
     EXPECT_FALSE(result.value().run);
 }
 
+TEST_F(CmdLineParser_test, DomainIdLongOptionLeadsToCorrectDomainId)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "5b5d76d1-d935-47e6-aaaa-df5058d35dad");
+    constexpr uint8_t NUMBER_OF_ARGS{3U};
+    char* args[NUMBER_OF_ARGS];
+    char appName[] = "./foo";
+    char option[] = "--domain-id";
+    char value[] = "73";
+    args[0] = &appName[0];
+    args[1] = &option[0];
+    args[2] = &value[0];
+
+    CmdLineParser sut;
+    auto result = sut.parse(NUMBER_OF_ARGS, args);
+
+    ASSERT_FALSE(result.has_error());
+    EXPECT_EQ(result.value().roudiConfig.domainId, iox::DomainId{73});
+    EXPECT_TRUE(result.value().run);
+}
+
+TEST_F(CmdLineParser_test, DomainIdShortOptionLeadsToCorrectDomainId)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "484eb1b5-60c3-4b93-af3a-9a55c4d206f8");
+    constexpr uint8_t NUMBER_OF_ARGS{3U};
+    char* args[NUMBER_OF_ARGS];
+    char appName[] = "./foo";
+    char option[] = "-d";
+    char value[] = "73";
+    args[0] = &appName[0];
+    args[1] = &option[0];
+    args[2] = &value[0];
+
+    CmdLineParser sut;
+    auto result = sut.parse(NUMBER_OF_ARGS, args);
+
+    ASSERT_FALSE(result.has_error());
+    EXPECT_EQ(result.value().roudiConfig.domainId, iox::DomainId{73});
+    EXPECT_TRUE(result.value().run);
+}
+
+
 TEST_F(CmdLineParser_test, UniqueIdLongOptionLeadsToCorrectUniqueId)
 {
     ::testing::Test::RecordProperty("TEST_ID", "84d0b41d-44ae-498d-81a9-c94b92255f2b");
@@ -518,28 +560,33 @@ TEST_F(CmdLineParser_test, OutOfBoundsUniqueIdOptionLeadsToProgrammNotRunning)
 TEST_F(CmdLineParser_test, CmdLineParsingModeEqualToOneHandlesOnlyTheFirstOption)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1e674db9-d71a-4b82-83cc-eea2e04f4601");
-    constexpr uint8_t NUMBER_OF_ARGS{7U};
+    constexpr uint8_t NUMBER_OF_ARGS{9U};
     char* args[NUMBER_OF_ARGS];
     char appName[] = "./foo";
-    char uniqueIdOption[] = "-u";
-    char idValue[] = "4242";
+    char domainIdOption[] = "-d";
+    char domainIdValue[] = "73";
+    char uniqueRouDiIdOption[] = "-u";
+    char uniqueRouDiIdValue[] = "4242";
     char killOption[] = "-k";
     char killValue[] = "42";
     char terminationOption[] = "-t";
     char terminationValue[] = "2";
     args[0] = &appName[0];
-    args[1] = &uniqueIdOption[0];
-    args[2] = &idValue[0];
-    args[3] = &killOption[0];
-    args[4] = &killValue[0];
-    args[5] = &terminationOption[0];
-    args[6] = &terminationValue[0];
+    args[1] = &domainIdOption[0];
+    args[2] = &domainIdValue[0];
+    args[3] = &uniqueRouDiIdOption[0];
+    args[4] = &uniqueRouDiIdValue[0];
+    args[5] = &killOption[0];
+    args[6] = &killValue[0];
+    args[7] = &terminationOption[0];
+    args[8] = &terminationValue[0];
 
     CmdLineParser sut;
     auto result = sut.parse(NUMBER_OF_ARGS, args, CmdLineParser::CmdLineArgumentParsingMode::ONE);
 
     ASSERT_FALSE(result.has_error());
-    EXPECT_EQ(result.value().roudiConfig.uniqueRouDiId, 4242);
+    EXPECT_EQ(result.value().roudiConfig.domainId, iox::DomainId{73});
+    EXPECT_EQ(result.value().roudiConfig.uniqueRouDiId, iox::roudi::DEFAULT_UNIQUE_ROUDI_ID);
     EXPECT_EQ(result.value().roudiConfig.processTerminationDelay, iox::roudi::PROCESS_DEFAULT_TERMINATION_DELAY);
     EXPECT_EQ(result.value().roudiConfig.processKillDelay,
               iox::roudi::PROCESS_DEFAULT_KILL_DELAY); // default value for kill delay
@@ -550,6 +597,7 @@ TEST_F(CmdLineParser_test, CmdLineParsingModeEqualToOneHandlesOnlyTheFirstOption
     auto res = sut.parse(NUMBER_OF_ARGS, args);
 
     ASSERT_FALSE(res.has_error());
+    EXPECT_EQ(result.value().roudiConfig.domainId, iox::DomainId{73});
     EXPECT_EQ(res.value().roudiConfig.uniqueRouDiId, 4242);
     EXPECT_EQ(res.value().roudiConfig.processTerminationDelay, 2_s);
     EXPECT_EQ(res.value().roudiConfig.processKillDelay, 42_s);

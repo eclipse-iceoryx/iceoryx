@@ -33,7 +33,7 @@ namespace iox
 namespace runtime
 {
 PoshRuntimeImpl::PoshRuntimeImpl(optional<const RuntimeName_t*> name,
-                                 const uint16_t uniqueRouDiId,
+                                 const DomainId domainId,
                                  const RuntimeLocation location,
                                  IpcRuntimeInterface&& ipcRuntimeInterface) noexcept
     : PoshRuntime(name)
@@ -48,7 +48,7 @@ PoshRuntimeImpl::PoshRuntimeImpl(optional<const RuntimeName_t*> name,
                    : optional<SharedMemoryUser>({ipcInterface->getShmTopicSize(),
                                                  ipcInterface->getSegmentId(),
                                                  ipcInterface->getSegmentManagerAddressOffset(),
-                                                 uniqueRouDiId});
+                                                 domainId});
     }())
 {
     auto ipcInterface = m_ipcChannelInterface.get_scope_guard();
@@ -68,11 +68,11 @@ PoshRuntimeImpl::PoshRuntimeImpl(optional<const RuntimeName_t*> name,
 }
 
 PoshRuntimeImpl::PoshRuntimeImpl(optional<const RuntimeName_t*> name,
-                                 const uint16_t uniqueRouDiId,
+                                 const DomainId domainId,
                                  const RuntimeLocation location) noexcept
-    : PoshRuntimeImpl(name, uniqueRouDiId, location, [&name, &uniqueRouDiId] {
+    : PoshRuntimeImpl(name, domainId, location, [&name, &domainId] {
         auto runtimeInterface =
-            IpcRuntimeInterface::create(*name.value(), uniqueRouDiId, runtime::PROCESS_WAITING_FOR_ROUDI_TIMEOUT);
+            IpcRuntimeInterface::create(*name.value(), domainId, runtime::PROCESS_WAITING_FOR_ROUDI_TIMEOUT);
         if (runtimeInterface.has_error())
         {
             switch (runtimeInterface.error())

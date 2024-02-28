@@ -31,7 +31,7 @@ namespace iox
 namespace runtime
 {
 expected<IpcRuntimeInterface, IpcRuntimeInterfaceError> IpcRuntimeInterface::create(
-    const RuntimeName_t& runtimeName, const uint16_t uniqueRouDiId, const units::Duration roudiWaitingTimeout) noexcept
+    const RuntimeName_t& runtimeName, const DomainId domainId, const units::Duration roudiWaitingTimeout) noexcept
 {
     if (runtimeName.empty())
     {
@@ -41,10 +41,9 @@ expected<IpcRuntimeInterface, IpcRuntimeInterfaceError> IpcRuntimeInterface::cre
 
     MgmtShmCharacteristics mgmtShmCharacteristics;
 
-    auto roudiIpcInterface =
-        IpcInterfaceUser(roudi::IPC_CHANNEL_ROUDI_NAME, uniqueRouDiId, ResourceType::ICEORYX_DEFINED);
+    auto roudiIpcInterface = IpcInterfaceUser(roudi::IPC_CHANNEL_ROUDI_NAME, domainId, ResourceType::ICEORYX_DEFINED);
 
-    auto appIpcInterface = IpcInterfaceCreator::create(runtimeName, uniqueRouDiId, ResourceType::USER_DEFINED);
+    auto appIpcInterface = IpcInterfaceCreator::create(runtimeName, domainId, ResourceType::USER_DEFINED);
     if (appIpcInterface.has_error() || !appIpcInterface->isInitialized())
     {
         return err(IpcRuntimeInterfaceError::CANNOT_CREATE_APPLICATION_CHANNEL);

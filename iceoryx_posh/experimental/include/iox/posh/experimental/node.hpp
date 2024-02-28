@@ -37,7 +37,7 @@ class Node;
 
 enum class NodeBuilderError
 {
-    INVALID_OR_NO_ROUDI_ID,
+    INVALID_OR_NO_DOMAIN_ID,
     IPC_CHANNEL_CREATION_FAILED,
     TIMEOUT,
     REGISTRATION_FAILED,
@@ -60,37 +60,37 @@ class NodeBuilder
     IOX_BUILDER_PARAMETER(bool, shares_address_space_with_roudi, false)
 
   public:
-    /// @brief Determines to which RouDi instance to register with
-    /// @param[in] value to be used as RouDi ID
-    NodeBuilder&& roudi_id(const uint16_t value) && noexcept;
+    /// @brief Determines which domain to use to register to a RouDi instance
+    /// @param[in] value to be used as domain ID
+    NodeBuilder&& domain_id(const uint16_t value) && noexcept;
 
-    /// @brief Determines to which RouDi instance to register with by using the one specified by 'IOX_ROUDI_ID'. If
-    /// the environment variable is not set or invalid, the creation of the 'Node' will fail.
+    /// @brief Determines which domain to use to register to a RouDi instance by using the one specified by
+    /// 'IOX_DOMAIN_ID'. If the environment variable is not set or invalid, the creation of the 'Node' will fail.
     /// @note The function uses 'getenv' which is not thread safe and can result in undefined behavior when it is called
     /// from multiple threads or the env variable is changed while the function holds a pointer to the data. For this
     /// reason the function should only be used in the startup phase of the application and only in the main thread.
-    NodeBuilder&& roudi_id_from_env() && noexcept;
+    NodeBuilder&& domain_id_from_env() && noexcept;
 
-    /// @brief Determines to which RouDi instance to register with by using the one specified by 'IOX_ROUDI_ID' or
-    /// the one by 'value' if the environment variable is not set or invalid.
-    /// @param[in] value to be used if the 'IOX_ROUDI_ID' environment variable is not set or invalid
+    /// @brief Determines which domain to use to register to a RouDi instance by using the one specified by
+    /// 'IOX_DOMAIN_ID' or the one by 'value' if the environment variable is not set or invalid.
+    /// @param[in] value to be used as domain ID if the 'IOX_DOMAIN_ID' environment variable is not set or invalid
     /// @note The function uses 'getenv' which is not thread safe and can result in undefined behavior when it is called
     /// from multiple threads or the env variable is changed while the function holds a pointer to the data. For this
     /// reason the function should only be used in the startup phase of the application and only in the main thread.
-    NodeBuilder&& roudi_id_from_env_or(const uint16_t value) && noexcept;
+    NodeBuilder&& domain_id_from_env_or(const uint16_t value) && noexcept;
 
-    /// @brief Determines to which RouDi instance to register with by using the one specified by 'IOX_ROUDI_ID' or
-    /// the the default RouDi ID if the environment variable is not set
+    /// @brief Determines which domain to use to register to a RouDi instance using the one specified by
+    /// 'IOX_DOMAIN_ID' or the the default Domain ID if the environment variable is not set
     /// @note The function uses 'getenv' which is not thread safe and can result in undefined behavior when it is called
     /// from multiple threads or the env variable is changed while the function holds a pointer to the data. For this
     /// reason the function should only be used in the startup phase of the application and only in the main thread.
-    NodeBuilder&& roudi_id_from_env_or_default() && noexcept;
+    NodeBuilder&& domain_id_from_env_or_default() && noexcept;
 
     expected<Node, NodeBuilderError> create() noexcept;
 
   private:
     NodeName_t m_name;
-    optional<uint16_t> m_roudi_id{roudi::DEFAULT_UNIQUE_ROUDI_ID};
+    optional<DomainId> m_domain_id{DEFAULT_DOMAIN_ID};
 };
 
 /// @brief Entry point to create publisher, subscriber, wait sets, etc.
@@ -111,7 +111,7 @@ class Node
   private:
     friend class NodeBuilder;
     Node(const NodeName_t& name,
-         const uint16_t uniqueRouDiId,
+         const DomainId domainId,
          const runtime::RuntimeLocation location,
          runtime::IpcRuntimeInterface&& runtime_interface) noexcept;
 

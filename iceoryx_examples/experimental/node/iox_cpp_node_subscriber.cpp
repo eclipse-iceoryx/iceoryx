@@ -46,14 +46,14 @@ int main()
         iox::registerSignalHandler(iox::PosixSignal::TERM, sigHandler).expect("failed to register SIGTERM");
 
     constexpr char APP_NAME[] = "iox-cpp-node-subscriber";
-    auto node_result = iox::posh::experimental::NodeBuilder(APP_NAME).roudi_id_from_env_or_default().create();
+    auto node_result = iox::posh::experimental::NodeBuilder(APP_NAME).domain_id_from_env_or_default().create();
 
     while (keep_running && node_result.has_error())
     {
         std::cout << "Could not create the node!" << std::endl;
 
         node_result = iox::posh::experimental::NodeBuilder(APP_NAME)
-                          .roudi_id_from_env_or_default()
+                          .domain_id_from_env_or_default()
                           .roudi_registration_timeout(iox::units::Duration::fromSeconds(1))
                           .create();
     }

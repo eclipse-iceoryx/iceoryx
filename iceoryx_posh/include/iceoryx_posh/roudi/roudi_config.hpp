@@ -27,8 +27,9 @@ namespace config
 {
 struct RouDiConfig
 {
-    /// @brief The unique RouDi id which is used to tie the iceoryx resources to when created in the file system and
-    /// also used for the unique port id
+    /// @brief The domain ID which is used to tie the iceoryx resources to when created in the file system
+    DomainId domainId{DEFAULT_DOMAIN_ID};
+    /// @brief The unique RouDi id used for the unique port id in order to distinguish between remote and local ports
     uint16_t uniqueRouDiId{roudi::DEFAULT_UNIQUE_ROUDI_ID};
     /// @brief Specifies whether RouDi is running in the same address space as the applications as it is the case with
     /// RouDiEnv

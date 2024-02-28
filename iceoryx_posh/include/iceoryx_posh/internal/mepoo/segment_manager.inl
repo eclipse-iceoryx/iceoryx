@@ -29,7 +29,7 @@ namespace mepoo
 {
 template <typename SegmentType>
 inline SegmentManager<SegmentType>::SegmentManager(const SegmentConfig& segmentConfig,
-                                                   const uint16_t uniqueRouDiId,
+                                                   const DomainId domainId,
                                                    BumpAllocator* managementAllocator) noexcept
     : m_managementAllocator(managementAllocator)
 {
@@ -43,18 +43,18 @@ inline SegmentManager<SegmentType>::SegmentManager(const SegmentConfig& segmentC
     }
     for (const auto& segmentEntry : segmentConfig.m_sharedMemorySegments)
     {
-        createSegment(segmentEntry, uniqueRouDiId);
+        createSegment(segmentEntry, domainId);
     }
 }
 
 template <typename SegmentType>
 inline void SegmentManager<SegmentType>::createSegment(const SegmentConfig::SegmentEntry& segmentEntry,
-                                                       const uint16_t uniqueRouDiId) noexcept
+                                                       const DomainId domainId) noexcept
 {
     auto readerGroup = PosixGroup(segmentEntry.m_readerGroup);
     auto writerGroup = PosixGroup(segmentEntry.m_writerGroup);
     m_segmentContainer.emplace_back(segmentEntry.m_mempoolConfig,
-                                    uniqueRouDiId,
+                                    domainId,
                                     *m_managementAllocator,
                                     readerGroup,
                                     writerGroup,

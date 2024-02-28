@@ -27,13 +27,13 @@ namespace iox
 namespace roudi
 {
 Process::Process(const RuntimeName_t& name,
-                 const uint16_t uniqueRouDiId,
+                 const DomainId domainId,
                  const uint32_t pid,
                  const PosixUser& user,
                  const HeartbeatPoolIndexType heartbeatPoolIndex,
                  const uint64_t sessionId) noexcept
     : m_pid(pid)
-    , m_ipcChannel(name, uniqueRouDiId, ResourceType::USER_DEFINED)
+    , m_ipcChannel(name, domainId, ResourceType::USER_DEFINED)
     , m_heartbeatPoolIndex(heartbeatPoolIndex)
     , m_user(user)
     , m_sessionId(sessionId)

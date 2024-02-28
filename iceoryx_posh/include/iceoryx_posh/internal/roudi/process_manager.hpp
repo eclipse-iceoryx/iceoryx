@@ -58,7 +58,7 @@ class ProcessManager : public ProcessManagerInterface
 
     ProcessManager(RouDiMemoryInterface& roudiMemoryInterface,
                    PortManager& portManager,
-                   const uint16_t uniqueRouDiId,
+                   const DomainId domainId,
                    const version::CompatibilityCheckLevel compatibilityCheckLevel) noexcept;
     virtual ~ProcessManager() noexcept override = default;
 
@@ -226,7 +226,7 @@ class ProcessManager : public ProcessManagerInterface
 
     RouDiMemoryInterface& m_roudiMemoryInterface;
     PortManager& m_portManager;
-    const uint16_t m_uniqueRouDiId;
+    const DomainId m_domainId;
     mepoo::SegmentManager<>* m_segmentManager{nullptr};
     mepoo::MemoryManager* m_introspectionMemoryManager{nullptr};
     segment_id_underlying_t m_mgmtSegmentId{UntypedRelativePointer::NULL_POINTER_ID};

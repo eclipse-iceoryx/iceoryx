@@ -38,7 +38,7 @@ constexpr access_rights MePooSegment<SharedMemoryObjectType, MemoryManagerType>:
 template <typename SharedMemoryObjectType, typename MemoryManagerType>
 inline MePooSegment<SharedMemoryObjectType, MemoryManagerType>::MePooSegment(
     const MePooConfig& mempoolConfig,
-    const uint16_t uniqueRouDiId,
+    const DomainId domainId,
     BumpAllocator& managementAllocator,
     const PosixGroup& readerGroup,
     const PosixGroup& writerGroup,
@@ -46,7 +46,7 @@ inline MePooSegment<SharedMemoryObjectType, MemoryManagerType>::MePooSegment(
     : m_readerGroup(readerGroup)
     , m_writerGroup(writerGroup)
     , m_memoryInfo(memoryInfo)
-    , m_sharedMemoryObject(createSharedMemoryObject(mempoolConfig, uniqueRouDiId, writerGroup))
+    , m_sharedMemoryObject(createSharedMemoryObject(mempoolConfig, domainId, writerGroup))
 {
     using namespace detail;
     PosixAcl acl;
@@ -71,13 +71,13 @@ inline MePooSegment<SharedMemoryObjectType, MemoryManagerType>::MePooSegment(
 
 template <typename SharedMemoryObjectType, typename MemoryManagerType>
 inline SharedMemoryObjectType MePooSegment<SharedMemoryObjectType, MemoryManagerType>::createSharedMemoryObject(
-    const MePooConfig& mempoolConfig, const uint16_t uniqueRouDiId, const PosixGroup& writerGroup) noexcept
+    const MePooConfig& mempoolConfig, const DomainId domainId, const PosixGroup& writerGroup) noexcept
 {
     return std::move(
         typename SharedMemoryObjectType::Builder()
-            .name([&uniqueRouDiId, &writerGroup] {
+            .name([&domainId, &writerGroup] {
                 using ShmName_t = detail::PosixSharedMemory::Name_t;
-                ShmName_t shmName = iceoryxResourcePrefix(uniqueRouDiId, ResourceType::USER_DEFINED);
+                ShmName_t shmName = iceoryxResourcePrefix(domainId, ResourceType::USER_DEFINED);
                 if (shmName.size() + writerGroup.getName().size() > ShmName_t::capacity())
                 {
                     IOX_LOG(FATAL,

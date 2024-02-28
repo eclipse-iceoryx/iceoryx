@@ -138,7 +138,7 @@ class MePooSegment_test : public Test
     std::unique_ptr<SUT> createSut()
     {
         return std::make_unique<SUT>(mepooConfig,
-                                     roudi::DEFAULT_UNIQUE_ROUDI_ID,
+                                     DEFAULT_DOMAIN_ID,
                                      m_managementAllocator,
                                      PosixGroup{"iox_roudi_test1"},
                                      PosixGroup{"iox_roudi_test2"});
@@ -164,14 +164,13 @@ TEST_F(MePooSegment_test, SharedMemoryCreationParameter)
                                                                        const void*,
                                                                        const iox::access_rights) {
         EXPECT_THAT(name,
-                    Eq(detail::PosixSharedMemory::Name_t(
-                        concatenate(iceoryxResourcePrefix(roudi::DEFAULT_UNIQUE_ROUDI_ID, ResourceType::USER_DEFINED),
-                                    "iox_roudi_test2"))));
+                    Eq(detail::PosixSharedMemory::Name_t(concatenate(
+                        iceoryxResourcePrefix(DEFAULT_DOMAIN_ID, ResourceType::USER_DEFINED), "iox_roudi_test2"))));
         EXPECT_THAT(accessMode, Eq(iox::AccessMode::READ_WRITE));
         EXPECT_THAT(openMode, Eq(iox::OpenMode::PURGE_AND_CREATE));
     };
     SUT sut{mepooConfig,
-            roudi::DEFAULT_UNIQUE_ROUDI_ID,
+            DEFAULT_DOMAIN_ID,
             m_managementAllocator,
             PosixGroup{"iox_roudi_test1"},
             PosixGroup{"iox_roudi_test2"}};

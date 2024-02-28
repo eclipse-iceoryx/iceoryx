@@ -44,7 +44,7 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
     , m_prcMgr(concurrent::ForwardArgsToCTor,
                *m_roudiMemoryInterface,
                portManager,
-               m_roudiConfig.uniqueRouDiId,
+               m_roudiConfig.domainId,
                m_roudiConfig.compatibilityCheckLevel)
     , m_mempoolIntrospection(
           *m_roudiMemoryInterface->introspectionMemoryManager().value(),
@@ -88,7 +88,7 @@ void RouDi::startProcessRuntimeMessagesThread() noexcept
         std::thread(&RouDi::processRuntimeMessages,
                     this,
                     runtime::IpcInterfaceCreator::create(
-                        IPC_CHANNEL_ROUDI_NAME, m_roudiConfig.uniqueRouDiId, ResourceType::ICEORYX_DEFINED)
+                        IPC_CHANNEL_ROUDI_NAME, m_roudiConfig.domainId, ResourceType::ICEORYX_DEFINED)
                         .expect("Creating IPC channel for request to RouDi"));
 }
 

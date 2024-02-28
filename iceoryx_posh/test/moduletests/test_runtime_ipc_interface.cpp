@@ -69,8 +69,7 @@ class IpcInterface_test : public Test
         SutType(const RuntimeName_t& runtimeName,
                 const uint64_t maxMessages = MaxMsgNumber,
                 const uint64_t messageSize = MaxMsgSize) noexcept
-            : IpcChannelType(
-                runtimeName, roudi::DEFAULT_UNIQUE_ROUDI_ID, ResourceType::USER_DEFINED, maxMessages, messageSize)
+            : IpcChannelType(runtimeName, DEFAULT_DOMAIN_ID, ResourceType::USER_DEFINED, maxMessages, messageSize)
         {
         }
         using IpcChannelType::ipcChannelMapsToFile;

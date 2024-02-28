@@ -38,11 +38,11 @@ class PosixShmMemoryProvider : public MemoryProvider
   public:
     /// @brief Constructs a PosixShmMemoryProvider which can be used to request memory via MemoryBlocks
     /// @param [in] shmName is the name of the posix share memory
-    /// @param[in] uniqueRouDiId to tie the shared memory to
+    /// @param[in] domainId to tie the shared memory to
     /// @param [in] accessMode defines the read and write access to the memory
     /// @param [in] openMode defines the creation/open mode of the shared memory.
     PosixShmMemoryProvider(const ShmName_t& shmName,
-                           const uint16_t uniqueRouDiId,
+                           const DomainId domainId,
                            const AccessMode accessMode,
                            const OpenMode openMode) noexcept;
     ~PosixShmMemoryProvider() noexcept;
@@ -64,7 +64,7 @@ class PosixShmMemoryProvider : public MemoryProvider
 
   private:
     ShmName_t m_shmName;
-    const uint16_t m_uniqueRouDiId;
+    const DomainId m_domainId;
     AccessMode m_accessMode{AccessMode::READ_ONLY};
     OpenMode m_openMode{OpenMode::OPEN_EXISTING};
     optional<PosixSharedMemoryObject> m_shmObject;

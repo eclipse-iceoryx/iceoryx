@@ -18,6 +18,7 @@
 #ifndef IOX_POSH_MEPOO_MEPOO_SEGMENT_HPP
 #define IOX_POSH_MEPOO_MEPOO_SEGMENT_HPP
 
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/mepoo/memory_info.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
@@ -36,7 +37,7 @@ class MePooSegment
 {
   public:
     MePooSegment(const MePooConfig& mempoolConfig,
-                 const uint16_t uniqueRouDiId,
+                 const DomainId domainId,
                  BumpAllocator& managementAllocator,
                  const PosixGroup& readerGroup,
                  const PosixGroup& writerGroup,
@@ -53,7 +54,7 @@ class MePooSegment
 
   protected:
     SharedMemoryObjectType createSharedMemoryObject(const MePooConfig& mempoolConfig,
-                                                    const uint16_t uniqueRouDiId,
+                                                    const DomainId domainId,
                                                     const PosixGroup& writerGroup) noexcept;
 
   protected:

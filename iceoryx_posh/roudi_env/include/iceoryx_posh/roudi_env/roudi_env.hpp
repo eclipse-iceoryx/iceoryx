@@ -40,8 +40,7 @@ namespace roudi_env
 class RouDiEnv
 {
   public:
-    RouDiEnv(const uint16_t uniqueRouDiId,
-             const IceoryxConfig& config = MinimalIceoryxConfigBuilder().create()) noexcept;
+    RouDiEnv(const DomainId domainId, const IceoryxConfig& config = MinimalIceoryxConfigBuilder().create()) noexcept;
 
     RouDiEnv(const IceoryxConfig& config = MinimalIceoryxConfigBuilder().create()) noexcept;
     virtual ~RouDiEnv() noexcept;

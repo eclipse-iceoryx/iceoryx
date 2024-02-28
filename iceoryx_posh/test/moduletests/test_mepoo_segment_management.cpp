@@ -41,7 +41,7 @@ class MePooSegmentMock
 {
   public:
     MePooSegmentMock(const MePooConfig& mempoolConfig [[maybe_unused]],
-                     const uint16_t uniqueRouDiId [[maybe_unused]],
+                     const DomainId domainId [[maybe_unused]],
                      iox::BumpAllocator& managementAllocator [[maybe_unused]],
                      const PosixGroup& readerGroup [[maybe_unused]],
                      const PosixGroup& writerGroup [[maybe_unused]],
@@ -104,7 +104,7 @@ class SegmentManager_test : public Test
     using SUT = SegmentManager<>;
     std::unique_ptr<SUT> createSut()
     {
-        return std::make_unique<SUT>(segmentConfig, roudi::DEFAULT_UNIQUE_ROUDI_ID, &allocator);
+        return std::make_unique<SUT>(segmentConfig, DEFAULT_DOMAIN_ID, &allocator);
     }
 };
 
@@ -191,7 +191,7 @@ TEST_F(SegmentManager_test, addingMoreThanOneWriterGroupFails)
     GTEST_SKIP_FOR_ADDITIONAL_USER() << "This test requires the -DTEST_WITH_ADDITIONAL_USER=ON cmake argument";
 
     SegmentConfig segmentConfig = getInvalidSegmentConfig();
-    SUT sut{segmentConfig, roudi::DEFAULT_UNIQUE_ROUDI_ID, &allocator};
+    SUT sut{segmentConfig, DEFAULT_DOMAIN_ID, &allocator};
 
 
     IOX_EXPECT_FATAL_FAILURE([&] { sut.getSegmentMappings(PosixUser("iox_roudi_test1")); },
@@ -204,7 +204,7 @@ TEST_F(SegmentManager_test, addingMaximumNumberOfSegmentsWorks)
     GTEST_SKIP_FOR_ADDITIONAL_USER() << "This test requires the -DTEST_WITH_ADDITIONAL_USER=ON cmake argument";
 
     SegmentConfig segmentConfig = getSegmentConfigWithMaximumNumberOfSegements();
-    SegmentManager<MePooSegmentMock> sut{segmentConfig, roudi::DEFAULT_UNIQUE_ROUDI_ID, &allocator};
+    SegmentManager<MePooSegmentMock> sut{segmentConfig, DEFAULT_DOMAIN_ID, &allocator};
 }
 
 } // namespace

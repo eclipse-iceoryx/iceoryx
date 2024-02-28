@@ -43,7 +43,7 @@ class SegmentManager
 {
   public:
     SegmentManager(const SegmentConfig& segmentConfig,
-                   const uint16_t uniqueRouDiId,
+                   const DomainId domainId,
                    BumpAllocator* managementAllocator) noexcept;
     ~SegmentManager() noexcept = default;
 
@@ -93,7 +93,7 @@ class SegmentManager
     static uint64_t requiredFullMemorySize(const SegmentConfig& config) noexcept;
 
   private:
-    void createSegment(const SegmentConfig::SegmentEntry& segmentEntry, const uint16_t uniqueRouDiId) noexcept;
+    void createSegment(const SegmentConfig::SegmentEntry& segmentEntry, const DomainId domainId) noexcept;
 
   private:
     template <typename MemoryManger, typename SegmentManager, typename PublisherPort>

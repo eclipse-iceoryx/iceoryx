@@ -24,12 +24,12 @@ namespace iox
 namespace runtime
 {
 expected<IpcInterfaceCreator, IpcInterfaceCreatorError> IpcInterfaceCreator::create(const RuntimeName_t& runtimeName,
-                                                                                    const uint16_t uniqueRouDiId,
+                                                                                    const DomainId domainId,
                                                                                     const ResourceType resourceType,
                                                                                     const uint64_t maxMessages,
                                                                                     const uint64_t messageSize) noexcept
 {
-    auto interfaceName = ipcChannelNameToInterfaceName(runtimeName, uniqueRouDiId, resourceType);
+    auto interfaceName = ipcChannelNameToInterfaceName(runtimeName, domainId, resourceType);
     auto fileLock =
         FileLockBuilder().name(interfaceName).permission(iox::perms::owner_read | iox::perms::owner_write).create();
 
@@ -48,16 +48,16 @@ expected<IpcInterfaceCreator, IpcInterfaceCreatorError> IpcInterfaceCreator::cre
     cleanupOutdatedIpcChannel(interfaceName);
 
     return ok(IpcInterfaceCreator{
-        std::move(fileLock.value()), runtimeName, uniqueRouDiId, resourceType, maxMessages, messageSize});
+        std::move(fileLock.value()), runtimeName, domainId, resourceType, maxMessages, messageSize});
 }
 
 IpcInterfaceCreator::IpcInterfaceCreator(FileLock&& fileLock,
                                          const RuntimeName_t& runtimeName,
-                                         const uint16_t uniqueRouDiId,
+                                         const DomainId domainId,
                                          const ResourceType resourceType,
                                          const uint64_t maxMessages,
                                          const uint64_t messageSize) noexcept
-    : IpcInterfaceBase(runtimeName, uniqueRouDiId, resourceType, maxMessages, messageSize)
+    : IpcInterfaceBase(runtimeName, domainId, resourceType, maxMessages, messageSize)
     , m_fileLock(std::move(fileLock))
 {
     openIpcChannel(PosixIpcChannelSide::SERVER);

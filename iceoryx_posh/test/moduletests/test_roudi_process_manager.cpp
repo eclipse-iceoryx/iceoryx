@@ -47,8 +47,7 @@ class ProcessManager_test : public Test
         EXPECT_FALSE(m_roudiMemoryManager->createAndAnnounceMemory().has_error());
         m_portManager = std::make_unique<PortManager>(m_roudiMemoryManager.get());
         CompatibilityCheckLevel m_compLevel{CompatibilityCheckLevel::OFF};
-        m_sut = std::make_unique<ProcessManager>(
-            *m_roudiMemoryManager, *m_portManager, DEFAULT_UNIQUE_ROUDI_ID, m_compLevel);
+        m_sut = std::make_unique<ProcessManager>(*m_roudiMemoryManager, *m_portManager, DEFAULT_DOMAIN_ID, m_compLevel);
         m_sut->initIntrospection(&m_processIntrospection);
     }
 
@@ -63,7 +62,7 @@ class ProcessManager_test : public Test
     VersionInfo m_versionInfo{42U, 42U, 42U, 42U, "Foo", "Bar"};
 
     IpcInterfaceCreator m_processIpcInterface{
-        IpcInterfaceCreator::create(m_processname, roudi::DEFAULT_UNIQUE_ROUDI_ID, ResourceType::USER_DEFINED)
+        IpcInterfaceCreator::create(m_processname, DEFAULT_DOMAIN_ID, ResourceType::USER_DEFINED)
             .expect("This should never fail")};
     ProcessIntrospectionType m_processIntrospection;
 

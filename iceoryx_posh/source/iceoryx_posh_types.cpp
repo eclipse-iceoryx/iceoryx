@@ -21,22 +21,23 @@
 namespace iox
 {
 
-ResourcePrefix_t iceoryxResourcePrefix(const uint16_t uniqueRouDiID, const ResourceType resourceType) noexcept
+ResourcePrefix_t iceoryxResourcePrefix(const DomainId domainId, const ResourceType resourceType) noexcept
 {
-    static_assert(std::is_same_v<uint16_t, std::remove_const_t<decltype(uniqueRouDiID)>>,
+    static_assert(std::is_same_v<uint16_t, DomainId::value_type>,
                   "Please adjust 'MAX_UINT16_WIDTH' to the new fixed width type to have enough space for the "
-                  "stringified unique RouDi ID");
+                  "stringified Domain ID");
     constexpr auto MAX_UINT16_WIDTH{5};
 
-    uint16_t usedRouDiId = uniqueRouDiID;
+    uint16_t usedDomainId = static_cast<DomainId::value_type>(domainId);
     if (!experimental::hasExperimentalPoshFeaturesEnabled())
     {
-        usedRouDiId = roudi::DEFAULT_UNIQUE_ROUDI_ID;
+        usedDomainId = static_cast<DomainId::value_type>(DEFAULT_DOMAIN_ID);
     }
-    iox::string<MAX_UINT16_WIDTH> uniqueRoudiIdString{TruncateToCapacity, iox::convert::toString(usedRouDiId).c_str()};
+    iox::string<MAX_UINT16_WIDTH> uniqueDomainIdString{TruncateToCapacity,
+                                                       iox::convert::toString(usedDomainId).c_str()};
 
     auto resourceTypeString{resourceType == ResourceType::ICEORYX_DEFINED ? iox::string<1>{"i"} : iox::string<1>{"u"}};
-    return concatenate(ICEORYX_RESOURCE_PREFIX, "_", uniqueRoudiIdString, "_", resourceTypeString, "_");
+    return concatenate(ICEORYX_RESOURCE_PREFIX, "_", uniqueDomainIdString, "_", resourceTypeString, "_");
 }
 
 namespace experimental

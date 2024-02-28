@@ -50,7 +50,7 @@ class PosixShmMemoryProvider_Test : public Test
 
     iox::detail::PosixSharedMemory::Name_t resourceName(ShmName_t name)
     {
-        return concatenate(iceoryxResourcePrefix(DEFAULT_UNIQUE_ROUDI_ID, ResourceType::ICEORYX_DEFINED), name);
+        return concatenate(iceoryxResourcePrefix(DEFAULT_DOMAIN_ID, ResourceType::ICEORYX_DEFINED), name);
     }
 
     bool shmExists()
@@ -73,7 +73,7 @@ TEST_F(PosixShmMemoryProvider_Test, CreateMemory)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9808f2a5-4cd3-49fe-9a19-6e747183141d");
     PosixShmMemoryProvider sut(
-        TEST_SHM_NAME, DEFAULT_UNIQUE_ROUDI_ID, iox::AccessMode::READ_WRITE, iox::OpenMode::PURGE_AND_CREATE);
+        TEST_SHM_NAME, DEFAULT_DOMAIN_ID, iox::AccessMode::READ_WRITE, iox::OpenMode::PURGE_AND_CREATE);
     ASSERT_FALSE(sut.addMemoryBlock(&memoryBlock1).has_error());
     uint64_t MEMORY_SIZE{16};
     uint64_t MEMORY_ALIGNMENT{8};
@@ -91,7 +91,7 @@ TEST_F(PosixShmMemoryProvider_Test, DestroyMemory)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f864b99c-373d-4954-ac8b-61acc3c9c555");
     PosixShmMemoryProvider sut(
-        TEST_SHM_NAME, DEFAULT_UNIQUE_ROUDI_ID, iox::AccessMode::READ_WRITE, iox::OpenMode::PURGE_AND_CREATE);
+        TEST_SHM_NAME, DEFAULT_DOMAIN_ID, iox::AccessMode::READ_WRITE, iox::OpenMode::PURGE_AND_CREATE);
     ASSERT_FALSE(sut.addMemoryBlock(&memoryBlock1).has_error());
     uint64_t MEMORY_SIZE{16};
     uint64_t MEMORY_ALIGNMENT{8};
@@ -111,7 +111,7 @@ TEST_F(PosixShmMemoryProvider_Test, CreationFailedWithAlignmentExceedingPageSize
 {
     ::testing::Test::RecordProperty("TEST_ID", "6614de7e-0f4c-48ea-bd3c-dd500fa231f2");
     PosixShmMemoryProvider sut(
-        TEST_SHM_NAME, DEFAULT_UNIQUE_ROUDI_ID, iox::AccessMode::READ_WRITE, iox::OpenMode::PURGE_AND_CREATE);
+        TEST_SHM_NAME, DEFAULT_DOMAIN_ID, iox::AccessMode::READ_WRITE, iox::OpenMode::PURGE_AND_CREATE);
     ASSERT_FALSE(sut.addMemoryBlock(&memoryBlock1).has_error());
     uint64_t MEMORY_SIZE{16};
     uint64_t MEMORY_ALIGNMENT{iox::detail::pageSize() + 8U};

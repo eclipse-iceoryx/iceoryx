@@ -39,7 +39,7 @@ class IpcInterfaceCreator : public IpcInterfaceBase
   public:
     /// @brief Constructs a 'IpcInterfaceCreator' and opens a new IPC channel.
     /// @param[in] name Unique identifier of the IPC channel
-    /// @param[in] uniqueRouDiId to tie the interface to
+    /// @param[in] domainId to tie the interface to
     /// @param[in] resourceType to be used for the resource prefix
     /// @param[in] maxMessages maximum number of queued messages
     /// @param[in] message size maximum message size
@@ -48,7 +48,7 @@ class IpcInterfaceCreator : public IpcInterfaceBase
     /// this class.
     static expected<IpcInterfaceCreator, IpcInterfaceCreatorError>
     create(const RuntimeName_t& runtimeName,
-           const uint16_t uniqueRouDiId,
+           const DomainId domainId,
            const ResourceType resourceType,
            const uint64_t maxMessages = ROUDI_MAX_MESSAGES,
            const uint64_t messageSize = ROUDI_MESSAGE_SIZE) noexcept;
@@ -65,7 +65,7 @@ class IpcInterfaceCreator : public IpcInterfaceBase
   private:
     IpcInterfaceCreator(FileLock&& fileLock,
                         const RuntimeName_t& runtimeName,
-                        const uint16_t uniqueRouDiId,
+                        const DomainId domainId,
                         const ResourceType resourceType,
                         const uint64_t maxMessages,
                         const uint64_t messageSize) noexcept;

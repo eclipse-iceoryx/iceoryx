@@ -33,11 +33,11 @@ namespace roudi
 constexpr access_rights PosixShmMemoryProvider::SHM_MEMORY_PERMISSIONS;
 
 PosixShmMemoryProvider::PosixShmMemoryProvider(const ShmName_t& shmName,
-                                               const uint16_t uniqueRouDiId,
+                                               const DomainId domainId,
                                                const AccessMode accessMode,
                                                const OpenMode openMode) noexcept
     : m_shmName(shmName)
-    , m_uniqueRouDiId(uniqueRouDiId)
+    , m_domainId(domainId)
     , m_accessMode(accessMode)
     , m_openMode(openMode)
 {
@@ -60,7 +60,7 @@ expected<void*, MemoryProviderError> PosixShmMemoryProvider::createMemory(const 
     }
 
     if (!PosixSharedMemoryObjectBuilder()
-             .name(concatenate(iceoryxResourcePrefix(m_uniqueRouDiId, ResourceType::ICEORYX_DEFINED), m_shmName))
+             .name(concatenate(iceoryxResourcePrefix(m_domainId, ResourceType::ICEORYX_DEFINED), m_shmName))
              .memorySizeInBytes(size)
              .accessMode(m_accessMode)
              .openMode(m_openMode)

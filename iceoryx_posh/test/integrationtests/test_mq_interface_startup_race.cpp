@@ -106,8 +106,7 @@ class CMqInterfaceStartupRace_test : public Test
         if (!m_appQueue.has_value())
         {
             platform::IoxIpcChannelType::Builder_t()
-                .name(runtime::ipcChannelNameToInterfaceName(
-                    MqAppName, roudi::DEFAULT_UNIQUE_ROUDI_ID, ResourceType::USER_DEFINED))
+                .name(runtime::ipcChannelNameToInterfaceName(MqAppName, DEFAULT_DOMAIN_ID, ResourceType::USER_DEFINED))
                 .channelSide(PosixIpcChannelSide::CLIENT)
                 .create()
                 .and_then([this](auto& channel) { this->m_appQueue.emplace(std::move(channel)); });
@@ -123,7 +122,7 @@ class CMqInterfaceStartupRace_test : public Test
     std::mutex m_appQueueMutex;
     optional<platform::IoxIpcChannelType> m_appQueue;
     InterfaceName_t m_roudiIpcChannelName{runtime::ipcChannelNameToInterfaceName(
-        roudi::IPC_CHANNEL_ROUDI_NAME, roudi::DEFAULT_UNIQUE_ROUDI_ID, ResourceType::ICEORYX_DEFINED)};
+        roudi::IPC_CHANNEL_ROUDI_NAME, DEFAULT_DOMAIN_ID, ResourceType::ICEORYX_DEFINED)};
 };
 
 #if !defined(__APPLE__)
@@ -172,7 +171,7 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMq)
         }
     });
 
-    auto dut = IpcRuntimeInterface::create(MqAppName, roudi::DEFAULT_UNIQUE_ROUDI_ID, 35_s)
+    auto dut = IpcRuntimeInterface::create(MqAppName, DEFAULT_DOMAIN_ID, 35_s)
                    .expect("Successfully created runtime interface");
 
     shutdown = true;
@@ -232,7 +231,7 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMqWithFullMq)
         }
     });
 
-    auto dut = IpcRuntimeInterface::create(MqAppName, roudi::DEFAULT_UNIQUE_ROUDI_ID, 35_s)
+    auto dut = IpcRuntimeInterface::create(MqAppName, DEFAULT_DOMAIN_ID, 35_s)
                    .expect("Successfully created runtime interface");
 
     shutdown = true;
@@ -274,7 +273,7 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRegAck)
         }
     });
 
-    auto dut = IpcRuntimeInterface::create(MqAppName, roudi::DEFAULT_UNIQUE_ROUDI_ID, 35_s)
+    auto dut = IpcRuntimeInterface::create(MqAppName, DEFAULT_DOMAIN_ID, 35_s)
                    .expect("Successfully created runtime interface");
 
     shutdown = true;
