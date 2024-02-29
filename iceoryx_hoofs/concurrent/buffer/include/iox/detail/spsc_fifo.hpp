@@ -27,37 +27,48 @@ namespace iox
 {
 namespace concurrent
 {
-/// @brief single pusher single pop'er thread safe fifo
+/// @brief single producer single consumer thread safe fifo
+/// @note there is only one push and one pop thread that can work on the FIFO without additional synchronization
+/// mechanisms like transferring the authorization to push to a third thread
 template <typename ValueType, uint64_t Capacity>
 class SpscFifo
 {
   public:
     /// @brief pushes a value into the fifo
-    /// @return if the values was pushed successfully into the fifo it returns
+    /// @note restricted thread-safe: can only be accessed from one thread. The authorization to push into the FIFO can
+    /// be transferred to another thread if appropriate synchronization mechanisms are used.
+    /// @return if the value was pushed successfully into the fifo, returns
     ///         true, otherwise false
     bool push(const ValueType& value) noexcept;
 
     /// @brief returns the oldest value from the fifo and removes it
-    /// @return if the fifo was not empty the optional contains the value,
+    /// @note restricted thread-safe: can only be accessed from one thread. The authorization to pop from the FIFO can
+    /// be transferred to another thread if appropriate synchronization mechanisms are used.
+    /// @return if the fifo was not empty, the optional contains the value,
     ///         otherwise it contains a nullopt
     optional<ValueType> pop() noexcept;
 
     /// @brief returns true when the fifo is empty, otherwise false
+    /// @note thread safe (the result might already be outdated when used). Expected to be called from either the push
+    /// or the pop thread but not from a third thread
     bool empty() const noexcept;
 
     /// @brief returns the size of the fifo
+    /// @note calling 'size' from a third thread while the producer and consumer threads are still running might yield
+    /// an invalid result with values even outside of the capacity.
     uint64_t size() const noexcept;
 
     /// @brief returns the capacity of the fifo
     static constexpr uint64_t capacity() noexcept;
 
   private:
-    bool is_full() const noexcept;
+    bool is_full(uint64_t currentReadPos, uint64_t currentWritePos) const noexcept;
+
 
   private:
     UninitializedArray<ValueType, Capacity> m_data;
-    std::atomic<uint64_t> m_write_pos{0};
-    std::atomic<uint64_t> m_read_pos{0};
+    std::atomic<uint64_t> m_writePos{0};
+    std::atomic<uint64_t> m_readPos{0};
 };
 
 } // namespace concurrent
