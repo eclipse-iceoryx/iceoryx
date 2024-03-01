@@ -99,9 +99,7 @@ class PoshRuntimeImpl : public PoshRuntime
                     const RuntimeLocation location = RuntimeLocation::SEPARATE_PROCESS_FROM_ROUDI) noexcept;
 
     PoshRuntimeImpl(optional<const RuntimeName_t*> name,
-                    const DomainId domainId,
-                    const RuntimeLocation location,
-                    IpcRuntimeInterface&& ipcRuntimeInterface) noexcept;
+                    std::pair<IpcRuntimeInterface, optional<SharedMemoryUser>>&& interfaces) noexcept;
 
   private:
     expected<PublisherPortUserType::MemberType_t*, IpcMessageErrorType>

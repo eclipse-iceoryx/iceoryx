@@ -20,7 +20,9 @@
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_runtime_interface.hpp"
+#include "iceoryx_posh/internal/runtime/shared_memory_user.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iox/assertions.hpp"
 #include "iox/builder.hpp"
 #include "iox/expected.hpp"
 #include "iox/optional.hpp"
@@ -41,6 +43,9 @@ enum class NodeBuilderError
     IPC_CHANNEL_CREATION_FAILED,
     TIMEOUT,
     REGISTRATION_FAILED,
+    SHM_MAPPING_ERROR,
+    RELATIVE_POINTER_MAPPING_ERROR,
+    TOO_MANY_SHM_SEGMENTS,
 };
 
 /// @brief A builder for a 'Node' which is th entry point to create publisher, subscriber, wait sets, etc.
@@ -111,9 +116,8 @@ class Node
   private:
     friend class NodeBuilder;
     Node(const NodeName_t& name,
-         const DomainId domainId,
-         const runtime::RuntimeLocation location,
-         runtime::IpcRuntimeInterface&& runtime_interface) noexcept;
+         runtime::IpcRuntimeInterface&& runtime_interface,
+         optional<runtime::SharedMemoryUser>&&) noexcept;
 
   private:
     unique_ptr<runtime::PoshRuntime> m_runtime;
@@ -142,7 +146,29 @@ from<runtime::IpcRuntimeInterfaceError, posh::experimental::NodeBuilderError>(
         return NodeBuilderError::REGISTRATION_FAILED;
     }
 
-    // just to prevent a warning regarding not returning from a non-void function
+    // just to prevent a warning regarding not returning from a non-void function; IOX_UNREACHABLE does not work since
+    // this is a constexpr
+    return NodeBuilderError::REGISTRATION_FAILED;
+}
+
+template <>
+constexpr posh::experimental::NodeBuilderError
+from<runtime::SharedMemoryUserError, posh::experimental::NodeBuilderError>(runtime::SharedMemoryUserError e) noexcept
+{
+    using namespace posh::experimental;
+    using namespace runtime;
+    switch (e)
+    {
+    case SharedMemoryUserError::SHM_MAPPING_ERROR:
+        return NodeBuilderError::SHM_MAPPING_ERROR;
+    case SharedMemoryUserError::RELATIVE_POINTER_MAPPING_ERROR:
+        return NodeBuilderError::RELATIVE_POINTER_MAPPING_ERROR;
+    case SharedMemoryUserError::TOO_MANY_SHM_SEGMENTS:
+        return NodeBuilderError::TOO_MANY_SHM_SEGMENTS;
+    }
+
+    // just to prevent a warning regarding not returning from a non-void function; IOX_UNREACHABLE does not work since
+    // this is a constexpr
     return NodeBuilderError::REGISTRATION_FAILED;
 }
 } // namespace iox

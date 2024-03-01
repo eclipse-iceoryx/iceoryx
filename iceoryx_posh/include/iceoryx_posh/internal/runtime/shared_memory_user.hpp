@@ -18,49 +18,70 @@
 #define IOX_POSH_RUNTIME_SHARED_MEMORY_USER_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iox/builder.hpp"
 #include "iox/filesystem.hpp"
 #include "iox/optional.hpp"
 #include "iox/posix_shared_memory_object.hpp"
 #include "iox/relative_pointer.hpp"
 #include "iox/vector.hpp"
 
-
 namespace iox
 {
 namespace runtime
 {
+
+enum class SharedMemoryUserError
+{
+    SHM_MAPPING_ERROR,
+    RELATIVE_POINTER_MAPPING_ERROR,
+    TOO_MANY_SHM_SEGMENTS,
+};
+
 /// @brief shared memory setup for the management segment user side
 class SharedMemoryUser
 {
+  private:
+    static constexpr uint32_t NUMBER_OF_ALL_SHM_SEGMENTS{1 /* management shm */ + MAX_SHM_SEGMENTS /* payload shm */};
+    using ShmVector_t = vector<PosixSharedMemoryObject, NUMBER_OF_ALL_SHM_SEGMENTS>;
+
   public:
-    /// @brief Constructor
-    /// @param[in] topicSize size of the shared memory management segment
-    /// @param[in] segmentManagerAddr adress of the segment manager that does the final mapping of memory in the process
-    /// @param[in] segmentId of the relocatable shared memory segment
-    /// address space
+    /// @brief Creates a 'SharedMemoryUser'
     /// @param[in] domainId to tie the shared memory to
-    SharedMemoryUser(const size_t topicSize,
-                     const uint64_t segmentId,
-                     const UntypedRelativePointer::offset_t segmentManagerAddressOffset,
-                     const DomainId domainId) noexcept;
+    /// @param[in] segmentId of the segment for the relocatable shared memory segment address space
+    /// @param[in] managementShmSize size of the shared memory management segment
+    /// @param[in] segmentManagerAddressOffset adress of the segment manager that does the final mapping of memory in
+    /// the process
+    /// @return a 'SharedMemoryUser' instance or an 'SharedMemoryUserError' on failure
+    static expected<SharedMemoryUser, SharedMemoryUserError>
+    create(const DomainId domainId,
+           const uint64_t segmentId,
+           const size_t managementShmSize,
+           const UntypedRelativePointer::offset_t segmentManagerAddressOffset) noexcept;
 
     ~SharedMemoryUser() noexcept;
 
-    SharedMemoryUser(const SharedMemoryUser&) = delete;
-    SharedMemoryUser& operator=(const SharedMemoryUser&) = delete;
     SharedMemoryUser(SharedMemoryUser&&) noexcept = default;
     SharedMemoryUser& operator=(SharedMemoryUser&&) noexcept = default;
 
-  private:
-    void openDataSegments(const uint64_t segmentId,
-                          const UntypedRelativePointer::offset_t segmentManagerAddressOffset) noexcept;
+    SharedMemoryUser(const SharedMemoryUser&) = delete;
+    SharedMemoryUser& operator=(const SharedMemoryUser&) = delete;
 
   private:
-    DomainId m_domainId;
-    optional<PosixSharedMemoryObject> m_shmObject;
-    vector<PosixSharedMemoryObject, MAX_SHM_SEGMENTS> m_dataShmObjects;
-    static constexpr access_rights SHM_SEGMENT_PERMISSIONS =
-        perms::owner_read | perms::owner_write | perms::group_read | perms::group_write;
+    SharedMemoryUser(ShmVector_t&& payloadShm) noexcept;
+
+    static void destroy(ShmVector_t& shmSegments) noexcept;
+
+    static expected<void, SharedMemoryUserError> openShmSegment(ShmVector_t& shmSegments,
+                                                                const DomainId domainId,
+                                                                const uint64_t segmentId,
+                                                                const ResourceType resourceType,
+                                                                const ShmName_t& shmName,
+                                                                const uint64_t shmSize,
+                                                                const AccessMode accessMode) noexcept;
+
+
+  private:
+    ShmVector_t m_shmSegments;
 };
 
 } // namespace runtime
