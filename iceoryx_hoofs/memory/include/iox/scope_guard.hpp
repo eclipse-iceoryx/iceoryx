@@ -68,6 +68,10 @@ class ScopeGuardWithVariableCapacity final
     /// @brief move assignment which moves a ScopeGuard object without calling the cleanupFunction
     ScopeGuardWithVariableCapacity& operator=(ScopeGuardWithVariableCapacity&& rhs) noexcept;
 
+    /// @brief releases the cleanup function without calling it
+    /// @param[in] scopeGuard to release the cleanup function
+    static void release(ScopeGuardWithVariableCapacity&& scopeGuard) noexcept;
+
   private:
     void destroy() noexcept;
 

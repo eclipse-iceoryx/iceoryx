@@ -147,4 +147,20 @@ TEST_F(ScopeGuard_test, MoveAssignedCallsCleanupWhenOutOfScope)
 
     EXPECT_THAT(hasCalledCleanup2, Eq(1));
 }
+
+TEST_F(ScopeGuard_test, ReleaseInhibitsTheCallOfTheCleanupFunction)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "d849da9c-5733-4ab0-ab35-8cde433343ce");
+    int hasCalledCleanup = 0;
+
+    {
+        ScopeGuard sut([&] { ++hasCalledCleanup; });
+
+        ScopeGuard::release(std::move(sut));
+        EXPECT_THAT(hasCalledCleanup, Eq(0));
+    }
+
+    EXPECT_THAT(hasCalledCleanup, Eq(0));
+}
+
 } // namespace
