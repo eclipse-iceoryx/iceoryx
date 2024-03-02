@@ -37,7 +37,7 @@ SharedMemoryUser::create(const DomainId domainId,
                          const UntypedRelativePointer::offset_t segmentManagerAddressOffset) noexcept
 {
     ShmVector_t shmSegments;
-    // ScopeGuard shmCleaner{[] {}, [&shmSegments] { SharedMemoryUser::destroy(shmSegments); }};
+    ScopeGuard shmCleaner{[] {}, [&shmSegments] { SharedMemoryUser::destroy(shmSegments); }};
 
     // open management segment
     auto shmOpen = openShmSegment(shmSegments,
@@ -77,7 +77,7 @@ SharedMemoryUser::create(const DomainId domainId,
         }
     }
 
-    // shmCleaner = {[] {},[] {}};
+    ScopeGuard::release(std::move(shmCleaner));
     return ok(SharedMemoryUser{std::move(shmSegments)});
 }
 
