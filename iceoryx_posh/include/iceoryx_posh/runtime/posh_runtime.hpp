@@ -26,7 +26,6 @@
 #include "iceoryx_posh/internal/popo/ports/server_port_user.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_runtime_interface.hpp"
-#include "iceoryx_posh/internal/runtime/node_property.hpp"
 #include "iceoryx_posh/popo/client_options.hpp"
 #include "iceoryx_posh/popo/server_options.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
@@ -45,9 +44,6 @@ class RuntimeTestInterface;
 
 namespace runtime
 {
-class Node;
-class NodeData;
-
 /// @brief The runtime that is needed for each application to communicate with the RouDi daemon
 class PoshRuntime
 {
@@ -146,11 +142,6 @@ class PoshRuntime
     /// @brief request the RouDi daemon to create a condition variable
     /// @return pointer to a created condition variable data
     virtual popo::ConditionVariableData* getMiddlewareConditionVariable() noexcept = 0;
-
-    /// @brief request the RouDi daemon to create a node
-    /// @param[in] nodeProperty class which contains all properties which the node should have
-    /// @return pointer to the data of the node
-    virtual NodeData* createNode(const NodeProperty& nodeProperty) noexcept = 0;
 
     /// @brief send a request to the RouDi daemon and get the response
     ///        currently each request is followed by a response

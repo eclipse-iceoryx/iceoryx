@@ -171,25 +171,6 @@ class PortManager_test : public Test
         }
     }
 
-    void acquireMaxNumberOfNodes(std::string nodeName,
-                                 std::string runtimeName,
-                                 std::function<void(iox::runtime::NodeData*, std::string, std::string)> f =
-                                     std::function<void(iox::runtime::NodeData*, std::string, std::string)>())
-    {
-        for (unsigned int i = 0U; i < iox::MAX_NODE_NUMBER; i++)
-        {
-            auto newProcessName = runtimeName + iox::convert::toString(i);
-            auto newNodeName = nodeName + iox::convert::toString(i);
-            auto node = m_portManager->acquireNodeData(into<lossy<RuntimeName_t>>(newProcessName),
-                                                       into<lossy<NodeName_t>>(newNodeName));
-            ASSERT_FALSE(node.has_error());
-            if (f)
-            {
-                f(node.value(), newNodeName, newProcessName);
-            }
-        }
-    }
-
     void setupAndTestBlockingPublisher(const iox::RuntimeName_t& publisherRuntimeName,
                                        std::function<void()> testHook) noexcept;
 

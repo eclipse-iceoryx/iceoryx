@@ -307,7 +307,6 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
     constexpr int32_t instanceWidth{16};
     constexpr int32_t eventWidth{21};
     constexpr int32_t runtimeNameWidth{23};
-    constexpr int32_t nodeNameWidth{23};
     // uncomment once this information is needed
     // constexpr int32_t sampleSizeWidth{12};
     // constexpr int32_t chunkSizeWidth{12};
@@ -324,7 +323,6 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
     wprintw(pad, " %*s |", instanceWidth, "Instance");
     wprintw(pad, " %*s |", eventWidth, "Event");
     wprintw(pad, " %*s |", runtimeNameWidth, "Process");
-    wprintw(pad, " %*s |", nodeNameWidth, "Node");
     // uncomment once this information is needed
     // wprintw(pad, " %*s |", sampleSizeWidth, "Sample Size");
     // wprintw(pad, " %*s |", chunkSizeWidth, "Chunk Size");
@@ -336,7 +334,6 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
     wprintw(pad, " %*s |", instanceWidth, "");
     wprintw(pad, " %*s |", eventWidth, "");
     wprintw(pad, " %*s |", runtimeNameWidth, "");
-    wprintw(pad, " %*s |", nodeNameWidth, "");
     // uncomment once this information is needed
     // wprintw(pad, " %*s |", sampleSizeWidth, "[Byte]");
     // wprintw(pad, " %*s |", chunkSizeWidth, "[Byte]");
@@ -344,8 +341,8 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
     // wprintw(pad, " %*s |", intervalWidth, "[Milliseconds]");
     wprintw(pad, " %*s\n", interfaceSourceWidth, "");
 
-    wprintw(pad, "---------------------------------------------------------------------------------------------------");
-    wprintw(pad, "--------------------------------\n");
+    wprintw(pad,
+            "---------------------------------------------------------------------------------------------------\n");
 
     bool needsLineBreak{false};
     uint32_t currentLine{0U};
@@ -406,9 +403,6 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
             wprintw(pad,
                     " %s |",
                     printEntry(runtimeNameWidth, iox::into<std::string>(publisherPort.portData->m_name)).c_str());
-            wprintw(pad,
-                    " %s |",
-                    printEntry(nodeNameWidth, iox::into<std::string>(publisherPort.portData->m_node)).c_str());
             // uncomment once this information is needed
             // wprintw(pad, " %s |", printEntry(sampleSizeWidth, m_sampleSize).c_str());
             // wprintw(pad, " %s |", printEntry(chunkSizeWidth, m_chunkSize).c_str());
@@ -434,7 +428,6 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
     wprintw(pad, " %*s |", instanceWidth, "Instance");
     wprintw(pad, " %*s |", eventWidth, "Event");
     wprintw(pad, " %*s |", runtimeNameWidth, "Process");
-    wprintw(pad, " %*s |", nodeNameWidth, "Node");
     wprintw(pad, " %*s |", subscriptionStateWidth, "Subscription");
     // wprintw(pad, " %*s |", fifoWidth, "FiFo"); // uncomment once this information is needed
     wprintw(pad, " %*s\n", scopeWidth, "Propagation");
@@ -443,13 +436,12 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
     wprintw(pad, " %*s |", instanceWidth, "");
     wprintw(pad, " %*s |", eventWidth, "");
     wprintw(pad, " %*s |", runtimeNameWidth, "");
-    wprintw(pad, " %*s |", nodeNameWidth, "");
     wprintw(pad, " %*s |", subscriptionStateWidth, "State");
     // wprintw(pad, " %*s |", fifoWidth, "size / capacity"); // uncomment once this information is needed
     wprintw(pad, " %*s\n", scopeWidth, "scope");
 
     wprintw(pad, "---------------------------------------------------------------------------------------------------");
-    wprintw(pad, "---------------------------------------------------\n");
+    wprintw(pad, "--------------------\n");
 
     auto subscriptionStateToString = [](iox::SubscribeState subState) -> std::string {
         switch (subState)
@@ -487,8 +479,6 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
             wprintw(pad,
                     " %s |",
                     printEntry(runtimeNameWidth, iox::into<std::string>(subscriber.portData->m_name)).c_str());
-            wprintw(
-                pad, " %s |", printEntry(nodeNameWidth, iox::into<std::string>(subscriber.portData->m_node)).c_str());
             wprintw(pad,
                     " %s |",
                     printEntry(subscriptionStateWidth,
@@ -522,7 +512,6 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
         wprintw(pad, " %*s |", instanceWidth, "");
         wprintw(pad, " %*s |", eventWidth, "");
         wprintw(pad, " %*s |", runtimeNameWidth, "");
-        wprintw(pad, " %*s |", nodeNameWidth, "");
         wprintw(pad, " %*s |", subscriptionStateWidth, "");
         // wprintw(pad, " %*s |", fifoWidth, ""); // uncomment once this information is needed
         wprintw(pad, " %*s", scopeWidth, "");

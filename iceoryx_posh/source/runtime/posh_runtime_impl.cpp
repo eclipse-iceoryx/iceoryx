@@ -646,45 +646,6 @@ popo::InterfacePortData* PoshRuntimeImpl::getMiddlewareInterface(const capro::In
     return nullptr;
 }
 
-NodeData* PoshRuntimeImpl::createNode(const NodeProperty& nodeProperty) noexcept
-{
-    IpcMessage sendBuffer;
-    sendBuffer << IpcMessageTypeToString(IpcMessageType::CREATE_NODE) << m_appName
-               << static_cast<Serialization>(nodeProperty).toString();
-
-    IpcMessage receiveBuffer;
-
-    if (sendRequestToRouDi(sendBuffer, receiveBuffer) == false)
-    {
-        IOX_LOG(ERROR, "Request node got invalid response!");
-        IOX_REPORT(PoshError::POSH__RUNTIME_ROUDI_CREATE_NODE_INVALID_RESPONSE, iox::er::RUNTIME_ERROR);
-        return nullptr;
-    }
-    else if (receiveBuffer.getNumberOfElements() == 3U)
-    {
-        std::string IpcMessage = receiveBuffer.getElementAtIndex(0U);
-
-        if (stringToIpcMessageType(IpcMessage.c_str()) == IpcMessageType::CREATE_NODE_ACK)
-        {
-            auto result = convert_id_and_offset(receiveBuffer);
-
-            if (!result)
-            {
-                return nullptr;
-            }
-
-            auto [segment_id, offset] = result.value();
-
-            auto ptr = UntypedRelativePointer::getPtr(segment_id_t{segment_id}, offset);
-            return reinterpret_cast<NodeData*>(ptr);
-        }
-    }
-
-    IOX_LOG(ERROR, "Got wrong response from RouDi while creating node:'" << receiveBuffer.getMessage() << "'");
-    IOX_REPORT(PoshError::POSH__RUNTIME_ROUDI_CREATE_NODE_WRONG_IPC_MESSAGE_RESPONSE, iox::er::RUNTIME_ERROR);
-    return nullptr;
-}
-
 expected<popo::ConditionVariableData*, IpcMessageErrorType>
 PoshRuntimeImpl::requestConditionVariableFromRoudi(const IpcMessage& sendBuffer) noexcept
 {

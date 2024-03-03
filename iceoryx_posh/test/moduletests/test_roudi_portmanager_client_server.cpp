@@ -51,7 +51,6 @@ TEST_F(PortManager_test, AcquireClientPortDataReturnsPort)
         .and_then([&](const auto& clientPortData) {
             EXPECT_THAT(clientPortData->m_serviceDescription, Eq(sd));
             EXPECT_THAT(clientPortData->m_runtimeName, Eq(runtimeName));
-            EXPECT_THAT(clientPortData->m_nodeName, Eq(clientOptions.nodeName));
             EXPECT_THAT(clientPortData->m_toBeDestroyed, Eq(false));
             EXPECT_THAT(clientPortData->m_chunkReceiverData.m_queue.capacity(),
                         Eq(clientOptions.responseQueueCapacity));
@@ -83,7 +82,6 @@ TEST_F(PortManager_test, AcquireServerPortDataReturnsPort)
         .and_then([&](const auto& serverPortData) {
             EXPECT_THAT(serverPortData->m_serviceDescription, Eq(sd));
             EXPECT_THAT(serverPortData->m_runtimeName, Eq(runtimeName));
-            EXPECT_THAT(serverPortData->m_nodeName, Eq(serverOptions.nodeName));
             EXPECT_THAT(serverPortData->m_toBeDestroyed, Eq(false));
             EXPECT_THAT(serverPortData->m_chunkReceiverData.m_queue.capacity(), Eq(serverOptions.requestQueueCapacity));
             EXPECT_THAT(serverPortData->m_offeringRequested, Eq(serverOptions.offerOnCreate));

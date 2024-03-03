@@ -35,7 +35,7 @@ ClientPortData::ClientPortData(const capro::ServiceDescription& serviceDescripti
                                const ClientOptions& clientOptions,
                                mepoo::MemoryManager* const memoryManager,
                                const mepoo::MemoryInfo& memoryInfo) noexcept
-    : BasePortData(serviceDescription, runtimeName, clientOptions.nodeName, uniqueRouDiId)
+    : BasePortData(serviceDescription, runtimeName, uniqueRouDiId)
     , m_chunkSenderData(memoryManager, clientOptions.serverTooSlowPolicy, HISTORY_CAPACITY_ZERO, memoryInfo)
     , m_chunkReceiverData(getResponseQueueType(clientOptions.responseQueueFullPolicy),
                           clientOptions.responseQueueFullPolicy,

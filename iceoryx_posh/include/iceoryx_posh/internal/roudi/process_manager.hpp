@@ -108,10 +108,7 @@ class ProcessManager : public ProcessManagerInterface
     /// @brief Tries to gracefully terminate all registered processes
     void requestShutdownOfAllProcesses() noexcept;
 
-    void
-    addInterfaceForProcess(const RuntimeName_t& name, capro::Interfaces interface, const NodeName_t& node) noexcept;
-
-    void addNodeForProcess(const RuntimeName_t& process, const NodeName_t& node) noexcept;
+    void addInterfaceForProcess(const RuntimeName_t& name, capro::Interfaces interface) noexcept;
 
     void addSubscriberForProcess(const RuntimeName_t& name,
                                  const capro::ServiceDescription& service,

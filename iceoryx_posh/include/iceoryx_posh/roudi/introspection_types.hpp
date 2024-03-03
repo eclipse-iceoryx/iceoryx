@@ -70,7 +70,6 @@ struct PortData
     capro::IdString_t m_caproInstanceID;
     capro::IdString_t m_caproServiceID;
     capro::IdString_t m_caproEventMethodID;
-    NodeName_t m_node;
 };
 
 using SubscriberPortData = PortData;
@@ -131,7 +130,6 @@ struct ProcessIntrospectionData
 {
     int m_pid{0};
     RuntimeName_t m_name;
-    vector<NodeName_t, MAX_NODE_PER_PROCESS> m_nodes;
 };
 
 /// @brief the topic for the process introspection that a user can subscribe to

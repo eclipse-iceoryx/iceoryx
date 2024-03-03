@@ -25,7 +25,6 @@
 #include "enums.h"
 #include "listener.h"
 #include "log.h"
-#include "node.h"
 #include "notification_info.h"
 #include "publisher.h"
 #include "request_header.h"

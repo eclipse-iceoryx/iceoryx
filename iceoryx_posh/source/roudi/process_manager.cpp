@@ -380,14 +380,12 @@ bool ProcessManager::removeProcessAndDeleteRespectiveSharedMemoryObjects(Process
     return false;
 }
 
-void ProcessManager::addInterfaceForProcess(const RuntimeName_t& name,
-                                            capro::Interfaces interface,
-                                            const NodeName_t& node) noexcept
+void ProcessManager::addInterfaceForProcess(const RuntimeName_t& name, capro::Interfaces interface) noexcept
 {
     findProcess(name)
         .and_then([&](auto& process) {
             // create a ReceiverPort
-            popo::InterfacePortData* port = m_portManager.acquireInterfacePortData(interface, name, node);
+            popo::InterfacePortData* port = m_portManager.acquireInterfacePortData(interface, name);
 
             // send ReceiverPort to app as a serialized relative pointer
             auto offset = UntypedRelativePointer::getOffset(segment_id_t{m_mgmtSegmentId}, port);
@@ -400,39 +398,6 @@ void ProcessManager::addInterfaceForProcess(const RuntimeName_t& name,
             IOX_LOG(DEBUG, "Created new interface for application " << name);
         })
         .or_else([&]() { IOX_LOG(WARN, "Unknown application " << name << " requested an interface."); });
-}
-
-void ProcessManager::addNodeForProcess(const RuntimeName_t& runtimeName, const NodeName_t& nodeName) noexcept
-{
-    findProcess(runtimeName)
-        .and_then([&](auto& process) {
-            m_portManager.acquireNodeData(runtimeName, nodeName)
-                .and_then([&](auto nodeData) {
-                    auto offset = UntypedRelativePointer::getOffset(segment_id_t{m_mgmtSegmentId}, nodeData);
-
-                    runtime::IpcMessage sendBuffer;
-                    sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_NODE_ACK)
-                               << convert::toString(offset) << convert::toString(m_mgmtSegmentId);
-
-                    process->sendViaIpcChannel(sendBuffer);
-                    m_processIntrospection->addNode(RuntimeName_t(TruncateToCapacity, runtimeName.c_str()),
-                                                    NodeName_t(TruncateToCapacity, nodeName.c_str()));
-                    IOX_LOG(DEBUG, "Created new node " << nodeName << " for process " << runtimeName);
-                })
-                .or_else([&](PortPoolError error) {
-                    runtime::IpcMessage sendBuffer;
-                    sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR);
-                    if (error == PortPoolError::NODE_DATA_LIST_FULL)
-                    {
-                        sendBuffer << runtime::IpcMessageErrorTypeToString(
-                            runtime::IpcMessageErrorType::NODE_DATA_LIST_FULL);
-                    }
-                    process->sendViaIpcChannel(sendBuffer);
-
-                    IOX_LOG(DEBUG, "Could not create new node for process " << runtimeName);
-                });
-        })
-        .or_else([&]() { IOX_LOG(WARN, "Unknown process " << runtimeName << " requested a node."); });
 }
 
 void ProcessManager::sendMessageNotSupportedToRuntime(const RuntimeName_t& name) noexcept

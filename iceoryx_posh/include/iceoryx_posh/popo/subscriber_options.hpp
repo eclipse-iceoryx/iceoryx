@@ -39,6 +39,7 @@ struct SubscriberOptions
     uint64_t historyRequest{0U};
 
     /// @brief The name of the node where the subscriber should belong to
+    /// @deprecated the 'nodeName' is not used with the current stable API
     iox::NodeName_t nodeName{""};
 
     /// @brief The option whether the subscriber shall try to subscribe when creating it

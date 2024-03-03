@@ -82,9 +82,6 @@ class PoshRuntimeImpl : public PoshRuntime
     /// @copydoc PoshRuntime::getMiddlewareConditionVariable
     popo::ConditionVariableData* getMiddlewareConditionVariable() noexcept override;
 
-    /// @copydoc PoshRuntime::createNode
-    NodeData* createNode(const NodeProperty& nodeProperty) noexcept override;
-
     /// @copydoc PoshRuntime::sendRequestToRouDi
     bool sendRequestToRouDi(const IpcMessage& msg, IpcMessage& answer) noexcept override;
 

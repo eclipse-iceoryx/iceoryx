@@ -68,10 +68,6 @@ class BasePort
     /// @return UniqueId name as Integer
     UniquePortId getUniqueID() const noexcept;
 
-    /// @brief returns node name for the active port
-    /// @return node name as a string
-    const NodeName_t& getNodeName() const noexcept;
-
     /// @brief Indicate that this port can be destroyed
     void destroy() noexcept;
 

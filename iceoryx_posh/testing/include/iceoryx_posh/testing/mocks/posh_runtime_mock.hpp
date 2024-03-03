@@ -75,7 +75,6 @@ class PoshRuntimeMock : public iox::runtime::PoshRuntime
                 (const iox::capro::Interfaces, const iox::NodeName_t&),
                 (noexcept, override));
     MOCK_METHOD(iox::popo::ConditionVariableData*, getMiddlewareConditionVariable, (), (noexcept, override));
-    MOCK_METHOD(iox::runtime::NodeData*, createNode, (const iox::runtime::NodeProperty&), (noexcept, override));
     MOCK_METHOD(bool,
                 sendRequestToRouDi,
                 (const iox::runtime::IpcMessage&, iox::runtime::IpcMessage&),

@@ -17,7 +17,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
-#include "iceoryx_posh/internal/runtime/node_property.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
@@ -511,23 +510,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
             capro::Interfaces interface =
                 StringToCaProInterface(into<lossy<capro::IdString_t>>(message.getElementAtIndex(2)));
 
-            m_prcMgr->addInterfaceForProcess(
-                runtimeName, interface, into<lossy<NodeName_t>>(message.getElementAtIndex(3)));
-        }
-        break;
-    }
-    case runtime::IpcMessageType::CREATE_NODE:
-    {
-        if (message.getNumberOfElements() != 3)
-        {
-            IOX_LOG(ERROR,
-                    "Wrong number of parameters for \"IpcMessageType::CREATE_NODE\" from \"" << runtimeName
-                                                                                             << "\"received!");
-        }
-        else
-        {
-            runtime::NodeProperty nodeProperty(Serialization(message.getElementAtIndex(2)));
-            m_prcMgr->addNodeForProcess(runtimeName, nodeProperty.m_name);
+            m_prcMgr->addInterfaceForProcess(runtimeName, interface);
         }
         break;
     }

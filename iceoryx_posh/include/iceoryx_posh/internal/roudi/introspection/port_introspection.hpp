@@ -76,14 +76,12 @@ class PortIntrospection
                 : portData(&portData)
                 , process(portData.m_runtimeName)
                 , service(portData.m_serviceDescription)
-                , node(portData.m_nodeName)
             {
             }
 
             typename PublisherPort::MemberType_t* portData{nullptr};
             RuntimeName_t process;
             capro::ServiceDescription service;
-            NodeName_t node;
 
             /// map from indices to ConnectionContainer indices
             std::map<int, ConnectionContainerIndexType> connectionMap;
@@ -98,14 +96,12 @@ class PortIntrospection
                 : portData(&portData)
                 , process(portData.m_runtimeName)
                 , service(portData.m_serviceDescription)
-                , node(portData.m_nodeName)
             {
             }
 
             typename SubscriberPort::MemberType_t* portData{nullptr};
             RuntimeName_t process;
             capro::ServiceDescription service;
-            NodeName_t node;
         };
 
         struct ConnectionInfo
