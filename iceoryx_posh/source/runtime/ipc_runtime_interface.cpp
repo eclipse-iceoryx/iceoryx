@@ -122,7 +122,7 @@ expected<IpcRuntimeInterface, IpcRuntimeInterfaceError> IpcRuntimeInterface::cre
             {
                 regState = RegState::FINISHED;
             }
-            else
+            else if (!timer.hasExpired())
             {
                 regState = RegState::WAIT_FOR_ROUDI;
             }
