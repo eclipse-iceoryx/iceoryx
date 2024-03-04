@@ -24,9 +24,9 @@ NodeBuilder::NodeBuilder(const NodeName_t& name) noexcept
 {
 }
 
-NodeBuilder&& NodeBuilder::domain_id(const uint16_t value) && noexcept
+NodeBuilder&& NodeBuilder::domain_id(const DomainId domainId) && noexcept
 {
-    m_domain_id.emplace(value);
+    m_domain_id.emplace(domainId);
     return std::move(*this);
 }
 
@@ -47,20 +47,22 @@ NodeBuilder&& NodeBuilder::domain_id_from_env() && noexcept
     return std::move(*this);
 }
 
-NodeBuilder&& NodeBuilder::domain_id_from_env_or(const uint16_t value) && noexcept
+NodeBuilder&& NodeBuilder::domain_id_from_env_or(const DomainId domainId) && noexcept
 {
     std::move(*this).domain_id_from_env();
     if (!m_domain_id.has_value())
     {
-        IOX_LOG(INFO, "Could not get domain ID from 'IOX_DOMAIN_ID' and using '" << value << "' as fallback!");
-        m_domain_id.emplace(value);
+        IOX_LOG(INFO,
+                "Could not get domain ID from 'IOX_DOMAIN_ID' and using '"
+                    << static_cast<DomainId::value_type>(domainId) << "' as fallback!");
+        m_domain_id.emplace(domainId);
     }
     return std::move(*this);
 }
 
 NodeBuilder&& NodeBuilder::domain_id_from_env_or_default() && noexcept
 {
-    return std::move(*this).domain_id_from_env_or(static_cast<DomainId::value_type>(DEFAULT_DOMAIN_ID));
+    return std::move(*this).domain_id_from_env_or(DEFAULT_DOMAIN_ID);
 }
 
 expected<Node, NodeBuilderError> NodeBuilder::create() noexcept

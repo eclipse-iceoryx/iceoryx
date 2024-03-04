@@ -166,7 +166,7 @@ TEST(Node_test, CreatingNodeWithDomainIdFromEnvOrAlternativeValueWorksIfDomainId
         .failureReturnValue(-1)
         .evaluate()
         .expect("Setting environment variable works!");
-    auto node_result = RouDiEnvNodeBuilder("foo").domain_id_from_env_or(13).create();
+    auto node_result = RouDiEnvNodeBuilder("foo").domain_id_from_env_or(DomainId{13}).create();
 
     EXPECT_FALSE(node_result.has_error());
 }
@@ -179,7 +179,7 @@ TEST(Node_test, CreatingNodeWithDomainIdFromEnvOrAlternativeValueWorksIfDomainId
 
     IOX_POSIX_CALL(unsetenv)
     ("IOX_DOMAIN_ID").failureReturnValue(-1).evaluate().expect("Unsetting environment variable works!");
-    auto node_result = RouDiEnvNodeBuilder("foo").domain_id_from_env_or(13).create();
+    auto node_result = RouDiEnvNodeBuilder("foo").domain_id_from_env_or(DomainId{13}).create();
 
     EXPECT_FALSE(node_result.has_error());
 }
@@ -511,10 +511,14 @@ TEST(Node_test, MultipleNodeAndEndpointsAreRegisteredWithSeparateRouDiRunningInP
     RouDiEnv roudi_a{DomainId{domain_id_a}};
     RouDiEnv roudi_b{DomainId{domain_id_b}};
 
-    auto node_a =
-        RouDiEnvNodeBuilder(node_name).domain_id(domain_id_a).create().expect("Creating a node should not fail!");
-    auto node_b =
-        RouDiEnvNodeBuilder(node_name).domain_id(domain_id_b).create().expect("Creating a node should not fail!");
+    auto node_a = RouDiEnvNodeBuilder(node_name)
+                      .domain_id(DomainId{domain_id_a})
+                      .create()
+                      .expect("Creating a node should not fail!");
+    auto node_b = RouDiEnvNodeBuilder(node_name)
+                      .domain_id(DomainId{domain_id_b})
+                      .create()
+                      .expect("Creating a node should not fail!");
 
     auto publisher_a = node_a.publisher(service_description).create<uint16_t>().expect("Getting publisher");
     auto publisher_b = node_b.publisher(service_description).create<uint16_t>().expect("Getting publisher");

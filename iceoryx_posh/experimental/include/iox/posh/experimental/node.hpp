@@ -66,8 +66,8 @@ class NodeBuilder
 
   public:
     /// @brief Determines which domain to use to register to a RouDi instance
-    /// @param[in] value to be used as domain ID
-    NodeBuilder&& domain_id(const uint16_t value) && noexcept;
+    /// @param[in] domain_id to be used as domain ID
+    NodeBuilder&& domain_id(const DomainId domainId) && noexcept;
 
     /// @brief Determines which domain to use to register to a RouDi instance by using the one specified by
     /// 'IOX_DOMAIN_ID'. If the environment variable is not set or invalid, the creation of the 'Node' will fail.
@@ -78,11 +78,11 @@ class NodeBuilder
 
     /// @brief Determines which domain to use to register to a RouDi instance by using the one specified by
     /// 'IOX_DOMAIN_ID' or the one by 'value' if the environment variable is not set or invalid.
-    /// @param[in] value to be used as domain ID if the 'IOX_DOMAIN_ID' environment variable is not set or invalid
+    /// @param[in] domain_id to be used as domain ID if the 'IOX_DOMAIN_ID' environment variable is not set or invalid
     /// @note The function uses 'getenv' which is not thread safe and can result in undefined behavior when it is called
     /// from multiple threads or the env variable is changed while the function holds a pointer to the data. For this
     /// reason the function should only be used in the startup phase of the application and only in the main thread.
-    NodeBuilder&& domain_id_from_env_or(const uint16_t value) && noexcept;
+    NodeBuilder&& domain_id_from_env_or(const DomainId domainId) && noexcept;
 
     /// @brief Determines which domain to use to register to a RouDi instance using the one specified by
     /// 'IOX_DOMAIN_ID' or the the default Domain ID if the environment variable is not set
