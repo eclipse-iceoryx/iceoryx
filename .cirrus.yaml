@@ -221,7 +221,7 @@ arch_linux_x64_test_task:
 freebsd_x64_build_task:
   depends_on: preflight_check
   freebsd_instance:
-    image_family: freebsd-13-2
+    image_family: freebsd-14-0
     <<: *IOX_COMMON_CPU_AND_MEMORY_CONFIG_FOR_BUILDS
   <<: *IOX_TASK_TIMEOUT
   test_binaries_cache:
@@ -239,7 +239,7 @@ freebsd_x64_build_task:
 freebsd_x64_test_task:
   depends_on: freebsd_x64_build
   freebsd_instance:
-    image_family: freebsd-13-2
+    image_family: freebsd-14-0
     <<: *IOX_COMMON_CPU_AND_MEMORY_CONFIG_FOR_TESTS
   <<: *IOX_TASK_TIMEOUT
   test_binaries_cache:
