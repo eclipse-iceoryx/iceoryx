@@ -24,6 +24,11 @@
 #include "iox/into.hpp"
 #include "iox/std_string_support.hpp"
 
+#if __has_include("iox/posh/experimental/node.hpp")
+#include "iox/posh/experimental/node.hpp"
+#define HAS_EXPERIMENTAL_POSH
+#endif
+
 #include <chrono>
 #include <iomanip>
 #include <poll.h>
@@ -56,19 +61,22 @@ void IntrospectionApp::printHelp() noexcept
                  "  introspection --help\n"
                  "  introspection --version\n"
                  "\nOptions:\n"
-                 "  -h, --help        Display help and exit.\n"
-                 "  -t, --time <ms>   Update period (in milliseconds) for the display of introspection data\n"
-                 "                    [min: "
+                 "  -h, --help              Display help and exit.\n"
+                 "  -v, --version           Display latest official iceoryx release version and exit.\n"
+                 "  -t, --time <ms>         Update period (in milliseconds) for the display of introspection data\n"
+                 "                          [min: "
               << MIN_UPDATE_PERIOD.toMilliseconds() << ", max: " << MAX_UPDATE_PERIOD.toMilliseconds()
               << ", default: " << DEFAULT_UPDATE_PERIOD.toMilliseconds()
               << "]\n"
-                 "  -v, --version     Display latest official iceoryx release version and exit.\n"
+                 "  -d, --domain-id <UINT>  Set the Domain ID\n"
+                 "                          <UINT> 0..65535\n"
+                 "                          Experimental!\n"
                  "\nSubscription:\n"
                  "  Select which introspection data you would like to receive.\n"
-                 "  --all             Subscribe to all available introspection data.\n"
-                 "  --mempool         Subscribe to mempool introspection data.\n"
-                 "  --port            Subscribe to port introspection data.\n"
-                 "  --process         Subscribe to process introspection data.\n"
+                 "  --all                   Subscribe to all available introspection data.\n"
+                 "  --mempool               Subscribe to mempool introspection data.\n"
+                 "  --port                  Subscribe to port introspection data.\n"
+                 "  --process               Subscribe to process introspection data.\n"
               << std::endl;
 }
 
@@ -111,6 +119,21 @@ void IntrospectionApp::parseCmdLineArguments(int argc,
             const auto newUpdatePeriodMs = result.value();
             iox::units::Duration rate = iox::units::Duration::fromMilliseconds(newUpdatePeriodMs);
             updatePeriodMs = bounded(rate, MIN_UPDATE_PERIOD, MAX_UPDATE_PERIOD);
+            break;
+        }
+        case 'd':
+        {
+            auto result = convert::from_string<uint16_t>(optarg);
+            if (!result.has_value())
+            {
+                std::cout << "Invalid argument for 't'! Will be ignored!";
+            }
+#ifdef HAS_EXPERIMENTAL_POSH
+            domainId = DomainId{result.value()};
+#else
+            std::cout << "The domain ID is an experimental feature and iceoryx must be compiled with the "
+                         "'IOX_EXPERIMENTAL_POSH' cmake option to use it!";
+#endif
             break;
         }
 
@@ -519,12 +542,24 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
     }
 }
 
+template <typename Topic>
+iox::unique_ptr<iox::popo::Subscriber<Topic>>
+IntrospectionApp::createSubscriber(const iox::capro::ServiceDescription& serviceDescription) noexcept
+{
+    popo::SubscriberOptions subscriberOptions;
+    subscriberOptions.queueCapacity = 1U;
+    subscriberOptions.historyRequest = 1U;
+
+    return iox::unique_ptr<iox::popo::Subscriber<Topic>>{
+        new iox::popo::Subscriber<Topic>{serviceDescription, subscriberOptions}, [&](auto* const pub) { delete pub; }};
+}
+
 template <typename Subscriber>
 bool IntrospectionApp::waitForSubscription(Subscriber& port)
 {
     uint32_t numberOfLoopsTillTimeout{100};
     bool subscribed{false};
-    while ((subscribed = (port.getSubscriptionState() == iox::SubscribeState::SUBSCRIBED)),
+    while ((subscribed = (port->getSubscriptionState() == iox::SubscribeState::SUBSCRIBED)),
            !subscribed && numberOfLoopsTillTimeout > 0)
     {
         numberOfLoopsTillTimeout--;
@@ -613,23 +648,41 @@ std::vector<ComposedSubscriberPortData> IntrospectionApp::composeSubscriberPortD
 void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriod,
                                         const IntrospectionSelection introspectionSelection)
 {
+#ifdef HAS_EXPERIMENTAL_POSH
+    auto nodeResult = iox::posh::experimental::NodeBuilder(iox::roudi::INTROSPECTION_APP_NAME)
+                          .roudi_registration_timeout(iox::runtime::PROCESS_WAITING_FOR_ROUDI_TIMEOUT)
+                          .domain_id(domainId)
+                          .create();
+
+    if (nodeResult.has_error())
+    {
+        std::cout << "Could not register at RouDi!" << std::endl;
+        return;
+    }
+    auto node = std::move(nodeResult.value());
+#else
     iox::runtime::PoshRuntime::initRuntime(iox::roudi::INTROSPECTION_APP_NAME);
+#endif
 
     using namespace iox::roudi;
 
     initTerminal();
     prettyPrint("### Iceoryx Introspection Client ###\n\n", PrettyOptions::title);
 
-    popo::SubscriberOptions subscriberOptions;
-    subscriberOptions.queueCapacity = 1U;
-    subscriberOptions.historyRequest = 1U;
 
     // mempool
-    iox::popo::Subscriber<MemPoolIntrospectionInfoContainer> memPoolSubscriber(IntrospectionMempoolService,
-                                                                               subscriberOptions);
+#ifdef HAS_EXPERIMENTAL_POSH
+    auto memPoolSubscriber = node.subscriber(IntrospectionMempoolService)
+                                 .queue_capacity(1)
+                                 .history_request(1)
+                                 .create<MemPoolIntrospectionInfoContainer>()
+                                 .expect("Getting subscriber for mempool topic");
+#else
+    auto memPoolSubscriber = createSubscriber<MemPoolIntrospectionInfoContainer>(IntrospectionMempoolService);
+#endif
     if (introspectionSelection.mempool == true)
     {
-        memPoolSubscriber.subscribe();
+        memPoolSubscriber->subscribe();
 
         if (waitForSubscription(memPoolSubscriber) == false)
         {
@@ -639,11 +692,19 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriod,
     }
 
     // process
-    iox::popo::Subscriber<ProcessIntrospectionFieldTopic> processSubscriber(IntrospectionProcessService,
-                                                                            subscriberOptions);
+#ifdef HAS_EXPERIMENTAL_POSH
+    auto processSubscriber = node.subscriber(IntrospectionProcessService)
+                                 .queue_capacity(1)
+                                 .history_request(1)
+                                 .create<ProcessIntrospectionFieldTopic>()
+                                 .expect("Getting subscriber for mempool topic");
+#else
+    auto processSubscriber = createSubscriber<ProcessIntrospectionFieldTopic>(IntrospectionProcessService);
+#endif
+
     if (introspectionSelection.process == true)
     {
-        processSubscriber.subscribe();
+        processSubscriber->subscribe();
 
         if (waitForSubscription(processSubscriber) == false)
         {
@@ -653,17 +714,35 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriod,
     }
 
     // port
-    iox::popo::Subscriber<PortIntrospectionFieldTopic> portSubscriber(IntrospectionPortService, subscriberOptions);
-    iox::popo::Subscriber<PortThroughputIntrospectionFieldTopic> portThroughputSubscriber(
-        IntrospectionPortThroughputService, subscriberOptions);
-    iox::popo::Subscriber<SubscriberPortChangingIntrospectionFieldTopic> subscriberPortChangingDataSubscriber(
-        IntrospectionSubscriberPortChangingDataService, subscriberOptions);
+#ifdef HAS_EXPERIMENTAL_POSH
+    auto portSubscriber = node.subscriber(IntrospectionPortService)
+                              .queue_capacity(1)
+                              .history_request(1)
+                              .create<PortIntrospectionFieldTopic>()
+                              .expect("Getting subscriber for mempool topic");
+    auto portThroughputSubscriber = node.subscriber(IntrospectionPortThroughputService)
+                                        .queue_capacity(1)
+                                        .history_request(1)
+                                        .create<PortThroughputIntrospectionFieldTopic>()
+                                        .expect("Getting subscriber for mempool topic");
+    auto subscriberPortChangingDataSubscriber = node.subscriber(IntrospectionSubscriberPortChangingDataService)
+                                                    .queue_capacity(1)
+                                                    .history_request(1)
+                                                    .create<SubscriberPortChangingIntrospectionFieldTopic>()
+                                                    .expect("Getting subscriber for mempool topic");
+#else
+    auto portSubscriber = createSubscriber<PortIntrospectionFieldTopic>(IntrospectionPortService);
+    auto portThroughputSubscriber =
+        createSubscriber<PortThroughputIntrospectionFieldTopic>(IntrospectionPortThroughputService);
+    auto subscriberPortChangingDataSubscriber =
+        createSubscriber<SubscriberPortChangingIntrospectionFieldTopic>(IntrospectionSubscriberPortChangingDataService);
+#endif
 
     if (introspectionSelection.port == true)
     {
-        portSubscriber.subscribe();
-        portThroughputSubscriber.subscribe();
-        subscriberPortChangingDataSubscriber.subscribe();
+        portSubscriber->subscribe();
+        portThroughputSubscriber->subscribe();
+        subscriberPortChangingDataSubscriber->subscribe();
 
         if (waitForSubscription(portSubscriber) == false)
         {
@@ -690,6 +769,8 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriod,
     optional<popo::Sample<const PortThroughputIntrospectionFieldTopic>> portThroughputSample;
     optional<popo::Sample<const SubscriberPortChangingIntrospectionFieldTopic>> subscriberPortChangingDataSamples;
 
+    auto domainIdString = iox::convert::toString(static_cast<DomainId::value_type>(domainId));
+
     while (true)
     {
         // get and print time
@@ -701,12 +782,18 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriod,
         prettyPrint(timeBuf, PrettyOptions::bold);
         prettyPrint("\n\n", PrettyOptions::bold);
 
+#ifdef HAS_EXPERIMENTAL_POSH
+        prettyPrint("Domain ID: ", PrettyOptions::normal);
+        prettyPrint(domainIdString, PrettyOptions::normal);
+        prettyPrint("\n\n", PrettyOptions::normal);
+#endif
+
         // print mempool information
         if (introspectionSelection.mempool == true)
         {
             prettyPrint("### MemPool Status ###\n\n", PrettyOptions::highlight);
 
-            memPoolSubscriber.take().and_then([&](auto& sample) { memPoolSample = sample; });
+            memPoolSubscriber->take().and_then([&](auto& sample) { memPoolSample = sample; });
 
             if (memPoolSample)
             {
@@ -725,7 +812,7 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriod,
         if (introspectionSelection.process == true)
         {
             prettyPrint("### Processes ###\n\n", PrettyOptions::highlight);
-            processSubscriber.take().and_then([&](auto& sample) { processSample = sample; });
+            processSubscriber->take().and_then([&](auto& sample) { processSample = sample; });
 
             if (processSample)
             {
@@ -740,11 +827,11 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriod,
         // print port information
         if (introspectionSelection.port == true)
         {
-            portSubscriber.take().and_then([&](auto& sample) { portSample = sample; });
+            portSubscriber->take().and_then([&](auto& sample) { portSample = sample; });
 
-            portThroughputSubscriber.take().and_then([&](auto& sample) { portThroughputSample = sample; });
+            portThroughputSubscriber->take().and_then([&](auto& sample) { portThroughputSample = sample; });
 
-            subscriberPortChangingDataSubscriber.take().and_then(
+            subscriberPortChangingDataSubscriber->take().and_then(
                 [&](auto& sample) { subscriberPortChangingDataSamples = sample; });
 
             if (portSample && portThroughputSample && subscriberPortChangingDataSamples)

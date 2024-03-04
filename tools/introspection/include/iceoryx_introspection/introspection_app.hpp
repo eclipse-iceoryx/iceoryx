@@ -33,13 +33,14 @@ namespace introspection
 static constexpr option longOptions[] = {{"help", no_argument, nullptr, 'h'},
                                          {"version", no_argument, nullptr, 'v'},
                                          {"time", required_argument, nullptr, 't'},
+                                         {"domain-id", required_argument, nullptr, 'd'},
                                          {"mempool", no_argument, nullptr, 0},
                                          {"port", no_argument, nullptr, 0},
                                          {"process", no_argument, nullptr, 0},
                                          {"all", no_argument, nullptr, 0},
                                          {nullptr, 0, nullptr, 0}};
 
-static constexpr const char* shortOptions = "hvt:";
+static constexpr const char* shortOptions = "hvt:d:";
 
 static constexpr iox::units::Duration MIN_UPDATE_PERIOD = 500_ms;
 static constexpr iox::units::Duration DEFAULT_UPDATE_PERIOD = 1000_ms;
@@ -131,6 +132,10 @@ class IntrospectionApp
     /// @brief prints table showing current mempool usage
     void printMemPoolInfo(const MemPoolIntrospectionInfo& introspectionInfo);
 
+    template <typename Topic>
+    iox::unique_ptr<iox::popo::Subscriber<Topic>>
+    createSubscriber(const iox::capro::ServiceDescription& serviceDescription) noexcept;
+
     /// @brief Waits till port is subscribed
     template <typename Subscriber>
     bool waitForSubscription(Subscriber& port);
@@ -160,6 +165,9 @@ class IntrospectionApp
 
     /// @brief Update rate of the terminal
     iox::units::Duration updatePeriodMs = DEFAULT_UPDATE_PERIOD;
+
+    /// @bried the domain ID to connect to RouDi
+    iox::DomainId domainId{iox::DEFAULT_DOMAIN_ID};
 
     /// @brief ncurses pad
     WINDOW* pad;
