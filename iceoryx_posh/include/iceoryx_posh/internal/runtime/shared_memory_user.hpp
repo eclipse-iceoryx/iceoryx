@@ -55,7 +55,7 @@ class SharedMemoryUser
     static expected<SharedMemoryUser, SharedMemoryUserError>
     create(const DomainId domainId,
            const uint64_t segmentId,
-           const size_t managementShmSize,
+           const uint64_t managementShmSize,
            const UntypedRelativePointer::offset_t segmentManagerAddressOffset) noexcept;
 
     ~SharedMemoryUser() noexcept;

@@ -33,7 +33,7 @@ constexpr uint32_t SharedMemoryUser::NUMBER_OF_ALL_SHM_SEGMENTS;
 expected<SharedMemoryUser, SharedMemoryUserError>
 SharedMemoryUser::create(const DomainId domainId,
                          const uint64_t segmentId,
-                         const size_t managementShmSize,
+                         const uint64_t managementShmSize,
                          const UntypedRelativePointer::offset_t segmentManagerAddressOffset) noexcept
 {
     ShmVector_t shmSegments;

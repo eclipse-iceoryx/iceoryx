@@ -185,7 +185,7 @@ bool IpcRuntimeInterface::sendRequestToRouDi(const IpcMessage& msg, IpcMessage& 
     return true;
 }
 
-size_t IpcRuntimeInterface::getShmTopicSize() noexcept
+uint64_t IpcRuntimeInterface::getShmTopicSize() noexcept
 {
     return m_mgmtShmCharacteristics.shmTopicSize;
 }

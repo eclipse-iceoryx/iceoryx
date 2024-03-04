@@ -67,7 +67,7 @@ class IpcRuntimeInterface
 
     /// @brief get the size of the management shared memory object
     /// @return size in bytes
-    size_t getShmTopicSize() noexcept;
+    uint64_t getShmTopicSize() noexcept;
 
     /// @brief get the segment id of the shared memory object
     /// @return segment id
