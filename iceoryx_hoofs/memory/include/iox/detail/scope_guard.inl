@@ -64,7 +64,7 @@ inline ScopeGuardWithVariableCapacity<CleanupCapacity>& ScopeGuardWithVariableCa
 }
 
 template <uint64_t CleanupCapacity>
-void ScopeGuardWithVariableCapacity<CleanupCapacity>::release(
+inline void ScopeGuardWithVariableCapacity<CleanupCapacity>::release(
     ScopeGuardWithVariableCapacity<CleanupCapacity>&& scopeGuard) noexcept
 {
     scopeGuard.m_cleanupFunction.reset();

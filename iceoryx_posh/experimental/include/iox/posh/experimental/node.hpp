@@ -128,7 +128,7 @@ class Node
 namespace iox
 {
 template <>
-constexpr posh::experimental::NodeBuilderError
+inline constexpr posh::experimental::NodeBuilderError
 from<runtime::IpcRuntimeInterfaceError, posh::experimental::NodeBuilderError>(
     runtime::IpcRuntimeInterfaceError e) noexcept
 {
@@ -152,7 +152,7 @@ from<runtime::IpcRuntimeInterfaceError, posh::experimental::NodeBuilderError>(
 }
 
 template <>
-constexpr posh::experimental::NodeBuilderError
+inline constexpr posh::experimental::NodeBuilderError
 from<runtime::SharedMemoryUserError, posh::experimental::NodeBuilderError>(runtime::SharedMemoryUserError e) noexcept
 {
     using namespace posh::experimental;
