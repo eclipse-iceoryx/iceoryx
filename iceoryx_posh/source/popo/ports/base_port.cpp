@@ -56,11 +56,6 @@ UniquePortId BasePort::getUniqueID() const noexcept
     return getMembers()->m_uniqueId;
 }
 
-const NodeName_t& BasePort::getNodeName() const noexcept
-{
-    return getMembers()->m_nodeName;
-}
-
 BasePort::operator bool() const noexcept
 {
     return m_basePortDataPtr != nullptr;

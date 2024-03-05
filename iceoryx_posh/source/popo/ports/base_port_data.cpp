@@ -23,11 +23,9 @@ namespace popo
 {
 BasePortData::BasePortData(const capro::ServiceDescription& serviceDescription,
                            const RuntimeName_t& runtimeName,
-                           const NodeName_t& nodeName,
                            const roudi::UniqueRouDiId uniqueRoudiId) noexcept
     : m_serviceDescription(serviceDescription)
     , m_runtimeName(runtimeName)
-    , m_nodeName(nodeName)
     , m_uniqueId(uniqueRoudiId)
 {
 }

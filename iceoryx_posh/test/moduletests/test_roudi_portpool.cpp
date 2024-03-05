@@ -17,7 +17,6 @@
 
 #include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iceoryx_posh/internal/roudi/port_pool_data.hpp"
-#include "iceoryx_posh/internal/runtime/node_data.hpp"
 #include "iceoryx_posh/popo/client_options.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
 #include "iceoryx_posh/roudi/port_pool.hpp"
@@ -103,94 +102,6 @@ class PortPool_test : public Test
     iox::mepoo::MemoryInfo m_memoryInfo{DEFAULT_DEVICE_ID, DEFAULT_MEMORY_TYPE};
 };
 
-// BEGIN Node tests
-
-TEST_F(PortPool_test, AddNodeDataIsSuccessful)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "a917fe3d-08a4-4c8f-83a5-4b99b915c0dd");
-    auto nodeData = sut.addNodeData(m_runtimeName, m_nodeName, m_nodeDeviceId);
-
-    ASSERT_THAT(nodeData.has_error(), Eq(false));
-    EXPECT_EQ(nodeData.value()->m_runtimeName, m_runtimeName);
-    EXPECT_EQ(nodeData.value()->m_nodeName, m_nodeName);
-    EXPECT_EQ(nodeData.value()->m_nodeDeviceIdentifier, m_nodeDeviceId);
-}
-
-TEST_F(PortPool_test, AddNodeDataWithMaxCapacityIsSuccessful)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "1553d03e-4154-49e8-9f38-db6f52e6fa29");
-    for (uint32_t i = 1U; i <= MAX_NODE_NUMBER; ++i)
-    {
-        auto nodeData = sut.addNodeData(m_runtimeName, m_nodeName, i);
-
-        ASSERT_THAT(nodeData.has_error(), Eq(false));
-    }
-
-    EXPECT_EQ(sut.getNodeDataList().size(), MAX_NODE_NUMBER);
-}
-
-
-TEST_F(PortPool_test, AddNodeDataWhenNodeListIsFullReturnsError)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "23ff8250-6c1b-4a4e-b3e6-207883386edc");
-    for (uint32_t i = 0U; i < MAX_NODE_NUMBER; ++i)
-    {
-        ASSERT_FALSE(sut.addNodeData(m_runtimeName, m_nodeName, i).has_error());
-    }
-
-    IOX_TESTING_EXPECT_OK();
-
-    ASSERT_TRUE(sut.addNodeData(m_runtimeName, m_nodeName, MAX_NODE_NUMBER).has_error());
-
-    IOX_TESTING_EXPECT_ERROR(iox::PoshError::PORT_POOL__NODELIST_OVERFLOW);
-}
-
-TEST_F(PortPool_test, GetNodeDataListIsSuccessful)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "5a86e0ed-e61a-4f45-9aab-2b38a22730a9");
-    ASSERT_FALSE(sut.addNodeData(m_runtimeName, m_nodeName, m_nodeDeviceId).has_error());
-
-    EXPECT_EQ(sut.getNodeDataList().size(), 1U);
-
-    auto node = sut.getNodeDataList().begin();
-
-    EXPECT_EQ(node->m_runtimeName, m_runtimeName);
-    EXPECT_EQ(node->m_nodeName, m_nodeName);
-    EXPECT_EQ(node->m_nodeDeviceIdentifier, m_nodeDeviceId);
-}
-
-TEST_F(PortPool_test, GetNodeDataListWhenEmptyIsSuccessful)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "c5f629bd-b9ea-4d41-b991-5654e20dae3b");
-
-    EXPECT_EQ(sut.getNodeDataList().size(), 0U);
-}
-
-TEST_F(PortPool_test, GetNodeDataListWithMaxCapacityIsSuccessful)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "6a43182d-f0fd-4cbf-931e-f803a0236180");
-    for (uint32_t i = 1U; i <= MAX_NODE_NUMBER; ++i)
-    {
-        auto nodeData = sut.addNodeData(m_runtimeName, m_nodeName, i);
-
-        ASSERT_THAT(nodeData.has_error(), Eq(false));
-    }
-
-    EXPECT_EQ(sut.getNodeDataList().size(), MAX_NODE_NUMBER);
-}
-
-TEST_F(PortPool_test, RemoveNodeDataIsSuccessful)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "b300e7a6-df97-417d-9f7a-df3b55dace41");
-    auto nodeData = sut.addNodeData(m_runtimeName, m_nodeName, m_nodeDeviceId);
-
-    sut.removeNodeData(nodeData.value());
-
-    EXPECT_EQ(sut.getNodeDataList().size(), 0U);
-}
-
-// END Node tests
-
 // BEGIN PublisherPort tests
 
 TEST_F(PortPool_test, AddPublisherPortIsSuccessful)
@@ -203,7 +114,6 @@ TEST_F(PortPool_test, AddPublisherPortIsSuccessful)
     EXPECT_EQ(publisherPort.value()->m_serviceDescription, m_serviceDescription);
     EXPECT_EQ(publisherPort.value()->m_runtimeName, m_applicationName);
     EXPECT_EQ(publisherPort.value()->m_chunkSenderData.m_historyCapacity, m_publisherOptions.historyCapacity);
-    EXPECT_EQ(publisherPort.value()->m_nodeName, m_publisherOptions.nodeName);
     EXPECT_EQ(publisherPort.value()->m_chunkSenderData.m_memoryInfo.deviceId, DEFAULT_DEVICE_ID);
     EXPECT_EQ(publisherPort.value()->m_chunkSenderData.m_memoryInfo.memoryType, DEFAULT_MEMORY_TYPE);
 }
@@ -222,7 +132,6 @@ TEST_F(PortPool_test, AddPublisherPortWithMaxCapacityIsSuccessful)
         EXPECT_EQ(publisherPort.value()->m_serviceDescription, m_serviceDescription);
         EXPECT_EQ(publisherPort.value()->m_runtimeName, applicationName);
         EXPECT_EQ(publisherPort.value()->m_chunkSenderData.m_historyCapacity, m_publisherOptions.historyCapacity);
-        EXPECT_EQ(publisherPort.value()->m_nodeName, m_publisherOptions.nodeName);
         EXPECT_EQ(publisherPort.value()->m_chunkSenderData.m_memoryInfo.deviceId, DEFAULT_DEVICE_ID);
         EXPECT_EQ(publisherPort.value()->m_chunkSenderData.m_memoryInfo.memoryType, DEFAULT_MEMORY_TYPE);
     }
@@ -317,7 +226,6 @@ TEST_F(PortPool_test, AddSubscriberPortIsSuccessful)
     ASSERT_THAT(subscriberPort.has_error(), Eq(false));
     EXPECT_EQ(subscriberPort.value()->m_serviceDescription, m_serviceDescription);
     EXPECT_EQ(subscriberPort.value()->m_runtimeName, m_applicationName);
-    EXPECT_EQ(subscriberPort.value()->m_nodeName, m_subscriberOptions.nodeName);
     EXPECT_EQ(subscriberPort.value()->m_options.historyRequest, m_subscriberOptions.historyRequest);
     EXPECT_EQ(subscriberPort.value()->m_chunkReceiverData.m_queue.capacity(), 256U);
     EXPECT_EQ(subscriberPort.value()->m_chunkReceiverData.m_memoryInfo.deviceId, DEFAULT_DEVICE_ID);
@@ -340,7 +248,6 @@ TEST_F(PortPool_test, AddSubscriberPortToMaxCapacityIsSuccessful)
         ASSERT_THAT(subscriberPort.has_error(), Eq(false));
         EXPECT_EQ(subscriberPort.value()->m_serviceDescription, m_serviceDescription);
         EXPECT_EQ(subscriberPort.value()->m_runtimeName, applicationName);
-        EXPECT_EQ(subscriberPort.value()->m_nodeName, m_subscriberOptions.nodeName);
         EXPECT_EQ(subscriberPort.value()->m_chunkReceiverData.m_memoryInfo.deviceId, DEFAULT_DEVICE_ID);
         EXPECT_EQ(subscriberPort.value()->m_chunkReceiverData.m_memoryInfo.memoryType, DEFAULT_MEMORY_TYPE);
     }
@@ -432,7 +339,6 @@ TEST_F(PortPool_test, AddClientPortIsSuccessful)
         addClientPorts(NUMBER_OF_CLIENTS_TO_ADD, [&](const auto& sd, const auto& runtimeName, const auto& clientPort) {
             EXPECT_EQ(clientPort.m_serviceDescription, sd);
             EXPECT_EQ(clientPort.m_runtimeName, runtimeName);
-            EXPECT_EQ(clientPort.m_nodeName, m_clientOptions.nodeName);
             EXPECT_EQ(clientPort.m_connectRequested, m_clientOptions.connectOnCreate);
             EXPECT_EQ(clientPort.m_connectionState, ConnectionState::NOT_CONNECTED);
             EXPECT_EQ(clientPort.m_chunkReceiverData.m_queue.capacity(), QUEUE_CAPACITY);
@@ -527,7 +433,6 @@ TEST_F(PortPool_test, AddServerPortIsSuccessful)
         addServerPorts(NUMBER_OF_SERVERS_TO_ADD, [&](const auto& sd, const auto& runtimeName, const auto& serverPort) {
             EXPECT_EQ(serverPort.m_serviceDescription, sd);
             EXPECT_EQ(serverPort.m_runtimeName, runtimeName);
-            EXPECT_EQ(serverPort.m_nodeName, m_serverOptions.nodeName);
             EXPECT_EQ(serverPort.m_offeringRequested, m_serverOptions.offerOnCreate);
             EXPECT_EQ(serverPort.m_offered, false);
             EXPECT_EQ(serverPort.m_chunkReceiverData.m_queue.capacity(), QUEUE_CAPACITY);

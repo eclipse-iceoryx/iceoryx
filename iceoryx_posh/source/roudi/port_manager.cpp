@@ -128,8 +128,6 @@ void PortManager::doDiscovery() noexcept
 
     handleInterfaces();
 
-    handleNodes();
-
     handleConditionVariables();
 
     publishServiceRegistry();
@@ -490,28 +488,6 @@ void PortManager::handleInterfaces() noexcept
     }
 }
 
-void PortManager::handleNodes() noexcept
-{
-    /// @todo iox-#518 we have to update the introspection but node information is in process introspection which is not
-    // accessible here. So currently nodes will be removed not before a process is removed
-    // m_processIntrospection->removeNode(RuntimeName_t(process.c_str()),
-    // NodeName_t(node.c_str()));
-
-    auto& nodes = m_portPool->getNodeDataList();
-    auto node = nodes.begin();
-    while (node != nodes.end())
-    {
-        auto currentNode = node++;
-        if (currentNode->m_toBeDestroyed.load(std::memory_order_relaxed))
-        {
-            IOX_LOG(DEBUG,
-                    "Destroy NodeData from runtime '" << currentNode->m_runtimeName << "' and node name '"
-                                                      << currentNode->m_nodeName << "'");
-            m_portPool->removeNodeData(currentNode.to_ptr());
-        }
-    }
-}
-
 void PortManager::handleConditionVariables() noexcept
 {
     auto& condVars = m_portPool->getConditionVariableDataList();
@@ -842,18 +818,6 @@ void PortManager::deletePortsOfProcess(const RuntimeName_t& runtimeName) noexcep
         }
     }
 
-    auto& nodes = m_portPool->getNodeDataList();
-    auto node = nodes.begin();
-    while (node != nodes.end())
-    {
-        auto currentNode = node++;
-        if (runtimeName == currentNode->m_runtimeName)
-        {
-            IOX_LOG(DEBUG, "Deleted node of application " << runtimeName);
-            m_portPool->removeNodeData(currentNode.to_ptr());
-        }
-    }
-
     auto& condVars = m_portPool->getConditionVariableDataList();
     auto condVar = condVars.begin();
     while (condVar != condVars.end())
@@ -1110,8 +1074,7 @@ PortManager::acquireServerPortData(const capro::ServiceDescription& service,
 
 /// @todo iox-#518 return a expected
 popo::InterfacePortData* PortManager::acquireInterfacePortData(capro::Interfaces interface,
-                                                               const RuntimeName_t& runtimeName,
-                                                               const NodeName_t& /*node*/) noexcept
+                                                               const RuntimeName_t& runtimeName) noexcept
 {
     auto result = m_portPool->addInterfacePort(runtimeName, interface);
     if (result.has_value())
@@ -1182,12 +1145,6 @@ void PortManager::addServerToServiceRegistry(const capro::ServiceDescription& se
 void PortManager::removeServerFromServiceRegistry(const capro::ServiceDescription& service) noexcept
 {
     m_serviceRegistry.removeServer(service);
-}
-
-expected<runtime::NodeData*, PortPoolError> PortManager::acquireNodeData(const RuntimeName_t& runtimeName,
-                                                                         const NodeName_t& nodeName) noexcept
-{
-    return m_portPool->addNodeData(runtimeName, nodeName, 0);
 }
 
 expected<popo::ConditionVariableData*, PortPoolError>

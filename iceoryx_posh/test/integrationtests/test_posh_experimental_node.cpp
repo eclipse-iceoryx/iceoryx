@@ -215,6 +215,52 @@ TEST(Node_test, CreatingNodeWithDomainIdFromEnvOrDefaultWorksIfDomainIdIsNotSet)
 }
 #endif
 
+TEST(Node_test, ExhaustingNodesLeadsToError)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "540aa751-cf7b-43fb-800b-a05d3eacf68e");
+
+    bool run_ulimit_test{false};
+
+    if (const auto* run_ulimit_test_string = getenv("IOX_RUN_ULIMIT_TESTS"))
+    {
+        if (strncmp(run_ulimit_test_string, "on", 2) == 0)
+        {
+            run_ulimit_test = true;
+        }
+        else if (strncmp(run_ulimit_test_string, "off", 2) == 0)
+        {
+            run_ulimit_test = false;
+        }
+        else
+        {
+            std::cout << "Invalid value for 'IOX_RUN_ULIMIT_TESTS' environment variable!'" << std::endl;
+            std::cout << "Found:" << run_ulimit_test_string << std::endl;
+            std::cout << "Allowed is either 'on' of 'off'!";
+        }
+    }
+
+    if (!run_ulimit_test)
+    {
+        GTEST_SKIP() << "Set the 'IOX_RUN_ULIMIT_TESTS' env variable to 'on' to run this test. It might fail if "
+                        "number of file descriptors is not increased with 'ulimit -n 2000'!";
+    }
+
+    RouDiEnv roudi;
+
+    iox::vector<Node, iox::MAX_NODE_NUMBER> nodes;
+
+    for (uint64_t i = 0; i < iox::MAX_NODE_NUMBER; ++i)
+    {
+        nodes.emplace_back(RouDiEnvNodeBuilder(NodeName_t(iox::TruncateToCapacity, iox::convert::toString(i).c_str()))
+                               .create()
+                               .expect("Creating a node should not fail!"));
+    }
+
+    auto node_result = RouDiEnvNodeBuilder("hypnotoad").create();
+    ASSERT_TRUE(node_result.has_error());
+    EXPECT_THAT(node_result.error(), Eq(NodeBuilderError::REGISTRATION_FAILED));
+}
+
 TEST(Node_test, ReRegisteringNodeWithRunningRouDiWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2ce9d5f0-6989-4302-92b7-458fe1412111");

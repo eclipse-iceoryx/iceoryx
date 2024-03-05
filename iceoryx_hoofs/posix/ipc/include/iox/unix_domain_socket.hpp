@@ -137,8 +137,6 @@ class UnixDomainSocket
 
     expected<void, PosixIpcChannelError> destroy() noexcept;
 
-    expected<void, PosixIpcChannelError> initalizeSocket() noexcept;
-
     PosixIpcChannelError errnoToEnum(const int32_t errnum) const noexcept;
     static PosixIpcChannelError errnoToEnum(const UdsName_t& name, const int32_t errnum) noexcept;
 

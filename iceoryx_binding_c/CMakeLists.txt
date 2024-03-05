@@ -55,7 +55,6 @@ iox_add_library(
         source/c_config.cpp
         source/c_notification_info.cpp
         source/c_listener.cpp
-        source/c_node.cpp
         source/c_publisher.cpp
         source/c_request_header.cpp
         source/c_response_header.cpp

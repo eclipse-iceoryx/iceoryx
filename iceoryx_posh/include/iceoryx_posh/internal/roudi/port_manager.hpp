@@ -34,7 +34,6 @@
 #include "iceoryx_posh/internal/roudi/introspection/port_introspection.hpp"
 #include "iceoryx_posh/internal/roudi/service_registry.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_message.hpp"
-#include "iceoryx_posh/internal/runtime/node_data.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_interface.hpp"
 #include "iceoryx_posh/roudi/port_pool.hpp"
@@ -111,11 +110,7 @@ class PortManager
                           const PortConfigInfo& portConfigInfo) noexcept;
 
     popo::InterfacePortData* acquireInterfacePortData(capro::Interfaces interface,
-                                                      const RuntimeName_t& runtimeName,
-                                                      const NodeName_t& nodeName = {""}) noexcept;
-
-    expected<runtime::NodeData*, PortPoolError> acquireNodeData(const RuntimeName_t& runtimeName,
-                                                                const NodeName_t& nodeName) noexcept;
+                                                      const RuntimeName_t& runtimeName) noexcept;
 
     expected<popo::ConditionVariableData*, PortPoolError>
     acquireConditionVariableData(const RuntimeName_t& runtimeName) noexcept;
@@ -159,8 +154,6 @@ class PortManager
     void doDiscoveryForServerPort(popo::ServerPortRouDi& serverPort) noexcept;
 
     void handleInterfaces() noexcept;
-
-    void handleNodes() noexcept;
 
     void handleConditionVariables() noexcept;
 

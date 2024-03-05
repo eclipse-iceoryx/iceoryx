@@ -36,6 +36,7 @@ struct ClientOptions
     uint64_t responseQueueCapacity{ClientChunkQueueData_t::MAX_CAPACITY};
 
     /// @brief The name of the node where the client should belong to
+    /// @deprecated the 'nodeName' is not used with the current stable API
     iox::NodeName_t nodeName{""};
 
     /// @brief The option whether the client shall try to connect when creating it

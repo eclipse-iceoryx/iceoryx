@@ -75,7 +75,6 @@ class PoshRuntime_test : public Test
 
         EXPECT_EQ(portData->m_serviceDescription, sd);
         EXPECT_EQ(portData->m_runtimeName, m_runtimeName);
-        EXPECT_EQ(portData->m_nodeName, options.nodeName);
         EXPECT_EQ(portData->m_connectRequested, options.connectOnCreate);
         EXPECT_EQ(portData->m_chunkReceiverData.m_queue.capacity(), options.responseQueueCapacity);
         EXPECT_EQ(portData->m_chunkReceiverData.m_queueFullPolicy, options.responseQueueFullPolicy);
@@ -96,7 +95,6 @@ class PoshRuntime_test : public Test
 
         EXPECT_EQ(portData->m_serviceDescription, sd);
         EXPECT_EQ(portData->m_runtimeName, m_runtimeName);
-        EXPECT_EQ(portData->m_nodeName, options.nodeName);
         EXPECT_EQ(portData->m_offeringRequested, options.offerOnCreate);
         EXPECT_EQ(portData->m_chunkReceiverData.m_queue.capacity(), options.requestQueueCapacity);
         EXPECT_EQ(portData->m_chunkReceiverData.m_queueFullPolicy, options.requestQueueFullPolicy);
@@ -830,32 +828,6 @@ TEST_F(PoshRuntime_test, GetMiddlewareConditionVariableListOverflow)
     EXPECT_EQ(nullptr, conditionVariable);
 
     IOX_TESTING_EXPECT_ERROR(iox::PoshError::PORT_POOL__CONDITION_VARIABLE_LIST_OVERFLOW);
-}
-
-TEST_F(PoshRuntime_test, CreateNodeReturnValue)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "9f56126d-6920-491f-ba6b-d8e543a15c6a");
-    const uint32_t nodeDeviceIdentifier = 1U;
-    iox::runtime::NodeProperty nodeProperty(m_nodeName, nodeDeviceIdentifier);
-
-    auto nodeData = m_runtime->createNode(nodeProperty);
-
-    EXPECT_EQ(m_runtimeName, nodeData->m_runtimeName);
-    EXPECT_EQ(m_nodeName, nodeData->m_nodeName);
-
-    /// @todo iox-#1716 I am passing nodeDeviceIdentifier as 1, but it returns 0, is this expected?
-    // EXPECT_EQ(nodeDeviceIdentifier, nodeData->m_nodeDeviceIdentifier);
-}
-
-TEST_F(PoshRuntime_test, CreatingNodeWithInvalidNodeNameLeadsToErrorHandlerCall)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "de0254ab-c413-4dbe-83c5-2b16fb8fb88f");
-    const uint32_t nodeDeviceIdentifier = 1U;
-    iox::runtime::NodeProperty nodeProperty(m_invalidNodeName, nodeDeviceIdentifier);
-
-    m_runtime->createNode(nodeProperty);
-
-    IOX_TESTING_EXPECT_ERROR(iox::PoshError::POSH__RUNTIME_ROUDI_CREATE_NODE_INVALID_RESPONSE);
 }
 
 TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingPublisher)

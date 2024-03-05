@@ -36,6 +36,7 @@ struct ServerOptions
     uint64_t requestQueueCapacity{ServerChunkQueueData_t::MAX_CAPACITY};
 
     /// @brief The name of the node where the server should belong to
+    /// @deprecated the 'nodeName' is not used with the current stable API
     iox::NodeName_t nodeName{""};
 
     /// @brief The option whether the server should already be offered when creating it

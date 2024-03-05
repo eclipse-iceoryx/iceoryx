@@ -157,7 +157,7 @@ constexpr uint32_t MAX_RUNTIME_NAME_LENGTH = build::IOX_MAX_RUNTIME_NAME_LENGTH;
 static_assert(MAX_RUNTIME_NAME_LENGTH + RESOURCE_PREFIX_LENGTH <= MAX_IPC_CHANNEL_NAME_LENGTH,
               "Invalid configuration of maximum runtime name length");
 
-static_assert(MAX_PROCESS_NUMBER * MAX_NODE_PER_PROCESS > MAX_NODE_NUMBER, "Invalid configuration for nodes");
+static_assert(MAX_PROCESS_NUMBER * MAX_NODE_PER_PROCESS >= MAX_NODE_NUMBER, "Invalid configuration for nodes");
 
 enum class SubscribeState : uint32_t
 {

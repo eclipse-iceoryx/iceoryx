@@ -64,7 +64,7 @@ T* createPortData()
 template <>
 BasePortData* createPortData()
 {
-    return new BasePortData(SERVICE_DESCRIPTION, RUNTIME_NAME_FOR_BASE_PORTS, "", iox::roudi::DEFAULT_UNIQUE_ROUDI_ID);
+    return new BasePortData(SERVICE_DESCRIPTION, RUNTIME_NAME_FOR_BASE_PORTS, iox::roudi::DEFAULT_UNIQUE_ROUDI_ID);
 }
 template <>
 PublisherPortData* createPortData()

@@ -96,10 +96,6 @@ class PortIntrospection_test : public Test
         {
             return false;
         }
-        if (a.m_node != b.m_node)
-        {
-            return false;
-        }
 
         return true;
     }
@@ -122,10 +118,6 @@ class PortIntrospection_test : public Test
             return false;
         }
         if (a.m_caproEventMethodID != b.m_caproEventMethodID)
-        {
-            return false;
-        }
-        if (a.m_node != b.m_node)
         {
             return false;
         }
@@ -190,8 +182,6 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
 
     const iox::RuntimeName_t runtimeName1{"name1"};
     const iox::RuntimeName_t runtimeName2{"name2"};
-    const iox::NodeName_t nodeName1{"4"};
-    const iox::NodeName_t nodeName2{"jkl"};
 
     // prepare expected outputs
     PortData expected1;
@@ -199,14 +189,12 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
     expected1.m_caproInstanceID = "1";
     expected1.m_caproServiceID = "2";
     expected1.m_caproEventMethodID = "3";
-    expected1.m_node = nodeName1;
 
     PortData expected2;
     expected2.m_name = runtimeName2;
     expected2.m_caproInstanceID = "abc";
     expected2.m_caproServiceID = "def";
     expected2.m_caproEventMethodID = "ghi";
-    expected2.m_node = nodeName2;
 
     // prepare inputs
     iox::capro::ServiceDescription service1(
@@ -216,9 +204,7 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
 
     iox::mepoo::MemoryManager memoryManager;
     iox::popo::PublisherOptions publisherOptions1;
-    publisherOptions1.nodeName = nodeName1;
     iox::popo::PublisherOptions publisherOptions2;
-    publisherOptions2.nodeName = nodeName2;
     iox::popo::PublisherPortData portData1(
         service1, runtimeName1, iox::roudi::DEFAULT_UNIQUE_ROUDI_ID, &memoryManager, publisherOptions1);
     iox::popo::PublisherPortData portData2(
@@ -332,14 +318,12 @@ TEST_F(PortIntrospection_test, addAndRemoveSubscriber)
     expected1.m_caproInstanceID = "1";
     expected1.m_caproServiceID = "2";
     expected1.m_caproEventMethodID = "3";
-    expected1.m_node = nodeName1;
 
     PortData expected2;
     expected2.m_name = runtimeName2;
     expected2.m_caproInstanceID = "4";
     expected2.m_caproServiceID = "5";
     expected2.m_caproEventMethodID = "6";
-    expected2.m_node = nodeName2;
 
     // prepare inputs
     iox::capro::ServiceDescription service1(

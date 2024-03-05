@@ -42,6 +42,11 @@ msg "building sources"
 msg "building debian package"
 ./tools/iceoryx_build_test.sh package
 
+# there are tests which open quite a lot of file descriptors simultaneously to exhaust the creation of some resources
+# therefore the limits needs to be increased
+ulimit -n 2000
+export IOX_RUN_ULIMIT_TESTS=on
+
 msg "running all tests"
 cd ./build
 ./tools/run_tests.sh all

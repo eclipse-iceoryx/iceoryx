@@ -81,13 +81,16 @@ configure_option(
     NAME IOX_MAX_PROCESS_NUMBER
     DEFAULT_VALUE 300
 )
+# NOTE: this is currently only used in the experimental API and corresponds to 'IOX_MAX_PROCESS_NUMBER'
+# due to a limitation in the 'PointerRepository'
 configure_option(
     NAME IOX_MAX_NODE_NUMBER
-    DEFAULT_VALUE 1000
+    DEFAULT_VALUE 300
 )
+# NOTE: this is currently set to 1 due to the limitation  in the 'PointerRepository'
 configure_option(
     NAME IOX_MAX_NODE_PER_PROCESS
-    DEFAULT_VALUE 50
+    DEFAULT_VALUE 1
 )
 configure_option(
     NAME IOX_MAX_SHM_SEGMENTS

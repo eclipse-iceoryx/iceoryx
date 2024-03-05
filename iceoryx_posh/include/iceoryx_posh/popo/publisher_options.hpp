@@ -36,6 +36,7 @@ struct PublisherOptions
     uint64_t historyCapacity{0U};
 
     /// @brief The name of the node where the publisher should belong to
+    /// @deprecated the 'nodeName' is not used with the current stable API
     iox::NodeName_t nodeName{""};
 
     /// @brief The option whether the publisher should already be offered when creating it

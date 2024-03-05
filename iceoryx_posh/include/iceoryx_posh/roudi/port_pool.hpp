@@ -28,7 +28,6 @@
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_multi_producer.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_single_producer.hpp"
 #include "iceoryx_posh/internal/roudi/port_pool_data.hpp"
-#include "iceoryx_posh/internal/runtime/node_data.hpp"
 #include "iceoryx_posh/popo/client_options.hpp"
 #include "iceoryx_posh/popo/publisher_options.hpp"
 #include "iceoryx_posh/popo/server_options.hpp"
@@ -51,7 +50,6 @@ enum class PortPoolError : uint8_t
     CLIENT_PORT_LIST_FULL,
     UNIQUE_SERVER_PORT_ALREADY_EXISTS,
     SERVER_PORT_LIST_FULL,
-    NODE_DATA_LIST_FULL,
     CONDITION_VARIABLE_LIST_FULL,
     EVENT_VARIABLE_LIST_FULL,
 };
@@ -68,7 +66,6 @@ class PortPool
     PortPoolData::ClientContainer& getClientPortDataList() noexcept;
     PortPoolData::ServerContainer& getServerPortDataList() noexcept;
     PortPoolData::InterfaceContainer& getInterfacePortDataList() noexcept;
-    PortPoolData::NodeContainer& getNodeDataList() noexcept;
     PortPoolData::CondVarContainer& getConditionVariableDataList() noexcept;
 
     expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
@@ -129,10 +126,6 @@ class PortPool
     expected<popo::InterfacePortData*, PortPoolError> addInterfacePort(const RuntimeName_t& runtimeName,
                                                                        const capro::Interfaces interface) noexcept;
 
-    expected<runtime::NodeData*, PortPoolError> addNodeData(const RuntimeName_t& runtimeName,
-                                                            const NodeName_t& nodeName,
-                                                            const uint64_t nodeDeviceIdentifier) noexcept;
-
     expected<popo::ConditionVariableData*, PortPoolError>
     addConditionVariableData(const RuntimeName_t& runtimeName) noexcept;
 
@@ -160,11 +153,6 @@ class PortPool
     /// @param[in] portData is a  pointer to the InterfacePortData to be removed
     /// @note after this call the provided InterfacePortData is no longer available for usage
     void removeInterfacePort(const popo::InterfacePortData* const portData) noexcept;
-
-    /// @brief Removes a NodeData from the internal pool
-    /// @param[in] nodeData is a pointer to the NodeData to be removed
-    /// @note after this call the provided NodeData is no longer available for usage
-    void removeNodeData(const runtime::NodeData* const nodeData) noexcept;
 
     /// @brief Removes a ConditionVariableData from the internal pool
     /// @param[in] conditionVariableData is a pointer to the ConditionVariableData to be removed

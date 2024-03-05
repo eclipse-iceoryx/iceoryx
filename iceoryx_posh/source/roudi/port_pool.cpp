@@ -33,11 +33,6 @@ PortPoolData::InterfaceContainer& PortPool::getInterfacePortDataList() noexcept
     return m_portPoolData->m_interfacePortMembers;
 }
 
-PortPoolData::NodeContainer& PortPool::getNodeDataList() noexcept
-{
-    return m_portPoolData->m_nodeMembers;
-}
-
 PortPoolData::CondVarContainer& PortPool::getConditionVariableDataList() noexcept
 {
     return m_portPoolData->m_conditionVariableMembers;
@@ -57,21 +52,6 @@ expected<popo::InterfacePortData*, PortPoolError> PortPool::addInterfacePort(con
     return ok(interfacePortData.to_ptr());
 }
 
-expected<runtime::NodeData*, PortPoolError> PortPool::addNodeData(const RuntimeName_t& runtimeName,
-                                                                  const NodeName_t& nodeName,
-                                                                  const uint64_t nodeDeviceIdentifier) noexcept
-{
-    auto nodeData = getNodeDataList().emplace(runtimeName, nodeName, nodeDeviceIdentifier);
-    if (nodeData == getNodeDataList().end())
-    {
-        IOX_LOG(WARN,
-                "Out of node data! Requested by runtime '" << runtimeName << "' and node name '" << nodeName << "'");
-        IOX_REPORT(PoshError::PORT_POOL__NODELIST_OVERFLOW, iox::er::RUNTIME_ERROR);
-        return err(PortPoolError::NODE_DATA_LIST_FULL);
-    }
-    return ok(nodeData.to_ptr());
-}
-
 expected<popo::ConditionVariableData*, PortPoolError>
 PortPool::addConditionVariableData(const RuntimeName_t& runtimeName) noexcept
 {
@@ -88,11 +68,6 @@ PortPool::addConditionVariableData(const RuntimeName_t& runtimeName) noexcept
 void PortPool::removeInterfacePort(const popo::InterfacePortData* const portData) noexcept
 {
     m_portPoolData->m_interfacePortMembers.erase(portData);
-}
-
-void PortPool::removeNodeData(const runtime::NodeData* const nodeData) noexcept
-{
-    m_portPoolData->m_nodeMembers.erase(nodeData);
 }
 
 void PortPool::removeConditionVariableData(const popo::ConditionVariableData* const conditionVariableData) noexcept
