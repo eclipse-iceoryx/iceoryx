@@ -23,7 +23,7 @@ namespace iox
 {
 namespace roudi
 {
-PortPoolMemoryBlock::PortPoolMemoryBlock(const uint16_t uniqueRouDiId) noexcept
+PortPoolMemoryBlock::PortPoolMemoryBlock(const roudi::UniqueRouDiId uniqueRouDiId) noexcept
     : m_uniqueRouDiId(uniqueRouDiId)
 {
 }

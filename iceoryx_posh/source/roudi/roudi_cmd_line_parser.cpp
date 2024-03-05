@@ -134,7 +134,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
                 return err(CmdLineParserResult::INVALID_PARAMETER);
             }
 
-            m_cmdLineArgs.roudiConfig.uniqueRouDiId = maybeValue.value();
+            m_cmdLineArgs.roudiConfig.uniqueRouDiId = roudi::UniqueRouDiId{maybeValue.value()};
             break;
         }
         case 'm':

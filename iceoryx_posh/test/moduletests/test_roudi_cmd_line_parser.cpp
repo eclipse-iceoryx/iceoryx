@@ -532,7 +532,7 @@ TEST_F(CmdLineParser_test, UniqueIdLongOptionLeadsToCorrectUniqueId)
     auto result = sut.parse(NUMBER_OF_ARGS, args);
 
     ASSERT_FALSE(result.has_error());
-    EXPECT_EQ(result.value().roudiConfig.uniqueRouDiId, 4242);
+    EXPECT_EQ(result.value().roudiConfig.uniqueRouDiId, iox::roudi::UniqueRouDiId{4242});
     EXPECT_TRUE(result.value().run);
 }
 
@@ -552,7 +552,7 @@ TEST_F(CmdLineParser_test, UniqueIdShortOptionLeadsToCorrectUniqueId)
     auto result = sut.parse(NUMBER_OF_ARGS, args);
 
     ASSERT_FALSE(result.has_error());
-    EXPECT_EQ(result.value().roudiConfig.uniqueRouDiId, 4242);
+    EXPECT_EQ(result.value().roudiConfig.uniqueRouDiId, iox::roudi::UniqueRouDiId{4242});
     EXPECT_TRUE(result.value().run);
 }
 
@@ -616,7 +616,7 @@ TEST_F(CmdLineParser_test, CmdLineParsingModeEqualToOneHandlesOnlyTheFirstOption
 
     ASSERT_FALSE(res.has_error());
     EXPECT_EQ(result.value().roudiConfig.domainId, iox::DomainId{73});
-    EXPECT_EQ(res.value().roudiConfig.uniqueRouDiId, 4242);
+    EXPECT_EQ(res.value().roudiConfig.uniqueRouDiId, iox::roudi::UniqueRouDiId{4242});
     EXPECT_EQ(res.value().roudiConfig.processTerminationDelay, 2_s);
     EXPECT_EQ(res.value().roudiConfig.processKillDelay, 42_s);
     EXPECT_TRUE(res.value().run);

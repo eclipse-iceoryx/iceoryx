@@ -26,9 +26,10 @@ namespace popo
 // start with 1 to prevent accidentally generating an invalid ID when unique roudi ID is 0
 std::atomic<UniquePortId::value_type> UniquePortId::globalIDCounter{1U};
 
-UniquePortId::UniquePortId(uint16_t uniqueRouDiId) noexcept
+UniquePortId::UniquePortId(const roudi::UniqueRouDiId uniqueRouDiId) noexcept
     : ThisType(newtype::internal::ProtectedConstructor,
-               (static_cast<UniquePortId::value_type>(uniqueRouDiId) << UNIQUE_ID_BIT_LENGTH)
+               (static_cast<UniquePortId::value_type>(static_cast<roudi::UniqueRouDiId::value_type>(uniqueRouDiId))
+                << UNIQUE_ID_BIT_LENGTH)
                    + ((globalIDCounter.fetch_add(1u, std::memory_order_relaxed) << ROUDI_ID_BIT_LENGTH)
                       >> ROUDI_ID_BIT_LENGTH))
 {

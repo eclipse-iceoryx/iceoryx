@@ -43,7 +43,8 @@ RouDiApp::RouDiApp(const IceoryxConfig& config) noexcept
         auto& roudiConfig = static_cast<config::RouDiConfig&>(m_config);
         IOX_LOG(TRACE, "RouDi config is:");
         IOX_LOG(TRACE, "  Domain ID = " << static_cast<DomainId::value_type>(roudiConfig.domainId));
-        IOX_LOG(TRACE, "  Unique RouDi ID = " << roudiConfig.uniqueRouDiId);
+        IOX_LOG(TRACE,
+                "  Unique RouDi ID = " << static_cast<roudi::UniqueRouDiId::value_type>(roudiConfig.uniqueRouDiId));
         IOX_LOG(TRACE, "  Monitoring Mode = " << roudiConfig.monitoringMode);
         IOX_LOG(TRACE, "  Shares Address Space With Applications = " << roudiConfig.sharesAddressSpaceWithApplications);
         IOX_LOG(TRACE, "  Process Termination Delay = " << roudiConfig.processTerminationDelay);

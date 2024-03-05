@@ -40,7 +40,7 @@ struct BasePortData
     BasePortData(const capro::ServiceDescription& serviceDescription,
                  const RuntimeName_t& runtimeName,
                  const NodeName_t& nodeName,
-                 const uint16_t uniqueRoudiId) noexcept;
+                 const roudi::UniqueRouDiId uniqueRoudiId) noexcept;
 
     BasePortData(const BasePortData&) = delete;
     BasePortData& operator=(const BasePortData&) = delete;

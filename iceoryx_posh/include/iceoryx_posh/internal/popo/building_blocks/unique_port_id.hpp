@@ -17,6 +17,7 @@
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_UNIQUE_PORT_ID_HPP
 #define IOX_POSH_POPO_BUILDING_BLOCKS_UNIQUE_PORT_ID_HPP
 
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iox/newtype.hpp"
 
@@ -59,7 +60,7 @@ class UniquePortId : public NewType<UniquePortId,
 
     /// @brief The constructor creates an id which is greater than the previous created id
     /// @param[in] uniqueRouDiId to tie the unique port id to
-    UniquePortId(uint16_t uniqueRouDiId) noexcept;
+    UniquePortId(const roudi::UniqueRouDiId uniqueRouDiId) noexcept;
 
     /// @brief Constructor which creates an invalid id
     UniquePortId(InvalidPortId_t) noexcept;

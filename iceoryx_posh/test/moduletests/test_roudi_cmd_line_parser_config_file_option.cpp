@@ -143,7 +143,7 @@ TEST_F(CmdLineParserConfigFileOption_test, UniqueIdOptionLeadsCallingCmdLinePars
     auto result = sut.parse(NUMBER_OF_ARGS, args);
 
     ASSERT_FALSE(result.has_error());
-    EXPECT_EQ(result.value().roudiConfig.uniqueRouDiId, 4242);
+    EXPECT_EQ(result.value().roudiConfig.uniqueRouDiId, iox::roudi::UniqueRouDiId{4242});
 }
 
 TEST_F(CmdLineParserConfigFileOption_test, CmdLineParsingModeEqualToOneHandleOnlyTheFirstOptionReturningNoError)
@@ -166,7 +166,7 @@ TEST_F(CmdLineParserConfigFileOption_test, CmdLineParsingModeEqualToOneHandleOnl
     auto result = sut.parse(NUMBER_OF_ARGS, args, CmdLineParser::CmdLineArgumentParsingMode::ONE);
 
     ASSERT_FALSE(result.has_error());
-    EXPECT_EQ(result.value().roudiConfig.uniqueRouDiId, 4242);
+    EXPECT_EQ(result.value().roudiConfig.uniqueRouDiId, iox::roudi::UniqueRouDiId{4242});
     EXPECT_THAT(result.value().configFilePath.c_str(), StrEq(""));
 
     optind = 0;
@@ -174,7 +174,7 @@ TEST_F(CmdLineParserConfigFileOption_test, CmdLineParsingModeEqualToOneHandleOnl
     auto res = sut.parse(NUMBER_OF_ARGS, args);
 
     ASSERT_FALSE(res.has_error());
-    EXPECT_EQ(result.value().roudiConfig.uniqueRouDiId, 4242);
+    EXPECT_EQ(result.value().roudiConfig.uniqueRouDiId, iox::roudi::UniqueRouDiId{4242});
     EXPECT_THAT(res.value().configFilePath.c_str(), StrEq(path));
 }
 

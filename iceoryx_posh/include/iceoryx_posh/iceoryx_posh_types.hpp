@@ -269,8 +269,20 @@ constexpr const char IPC_CHANNEL_ROUDI_NAME[] = "roudi";
 /// shared memory segment for the iceoryx management data
 constexpr const char SHM_NAME[] = "management";
 
+// Unique RouDi ID
+IOX_NEW_TYPE(UniqueRouDiId,
+             uint16_t,
+             newtype::ConstructByValueCopy,
+             newtype::MoveConstructable,
+             newtype::CopyConstructable,
+             newtype::MoveAssignable,
+             newtype::CopyAssignable,
+             newtype::Comparable,
+             newtype::Convertable,
+             newtype::Sortable);
+
 // this is used by the UniquePortId
-constexpr uint16_t DEFAULT_UNIQUE_ROUDI_ID{0U};
+constexpr UniqueRouDiId DEFAULT_UNIQUE_ROUDI_ID{0U};
 
 // Timeout
 using namespace units::duration_literals;

@@ -36,7 +36,7 @@ struct SubscriberPortData : public BasePortData
 {
     SubscriberPortData(const capro::ServiceDescription& serviceDescription,
                        const RuntimeName_t& runtimeName,
-                       const uint16_t uniqueRouDiId,
+                       const roudi::UniqueRouDiId uniqueRouDiId,
                        const VariantQueueTypes queueType,
                        const SubscriberOptions& subscriberOptions,
                        const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;

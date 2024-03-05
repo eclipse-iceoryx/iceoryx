@@ -31,7 +31,7 @@ constexpr uint64_t ClientPortData::HISTORY_CAPACITY_ZERO;
 
 ClientPortData::ClientPortData(const capro::ServiceDescription& serviceDescription,
                                const RuntimeName_t& runtimeName,
-                               const uint16_t uniqueRouDiId,
+                               const roudi::UniqueRouDiId uniqueRouDiId,
                                const ClientOptions& clientOptions,
                                mepoo::MemoryManager* const memoryManager,
                                const mepoo::MemoryInfo& memoryInfo) noexcept
