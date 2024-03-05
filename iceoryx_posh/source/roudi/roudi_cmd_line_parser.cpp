@@ -55,7 +55,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             std::cout << "-h, --help                        Display help." << std::endl;
             std::cout << "-v, --version                     Display version." << std::endl;
             std::cout << "-d, --domain-id <UINT>            Set the Domain ID." << std::endl;
-            std::cout << "                                  <UINT> 0..65536" << std::endl;
+            std::cout << "                                  <UINT> 0..65535" << std::endl;
             std::cout << "                                  Experimental!" << std::endl;
             std::cout << "-u, --unique-roudi-id <UINT>      Set the unique RouDi ID." << std::endl;
             std::cout << "                                  <UINT> 0..65535" << std::endl;
