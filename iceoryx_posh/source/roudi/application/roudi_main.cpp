@@ -28,10 +28,15 @@ int main(int argc, char* argv[]) noexcept
 
     iox::config::CmdLineParserConfigFileOption cmdLineParser;
     auto cmdLineArgs = cmdLineParser.parse(argc, argv);
-    if (cmdLineArgs.has_error() && (cmdLineArgs.error() != iox::config::CmdLineParserResult::INFO_OUTPUT_ONLY))
+    if (cmdLineArgs.has_error())
     {
         IOX_LOG(FATAL, "Unable to parse command line arguments!");
         return EXIT_FAILURE;
+    }
+
+    if (!cmdLineArgs.value().run)
+    {
+        return EXIT_SUCCESS;
     }
 
     iox::config::TomlRouDiConfigFileProvider configFileProvider(cmdLineArgs.value());
@@ -45,11 +50,6 @@ int main(int argc, char* argv[]) noexcept
                 "Couldn't parse config file. Error: "
                     << iox::roudi::ROUDI_CONFIG_FILE_PARSE_ERROR_STRINGS[errorStringIndex]);
         return EXIT_FAILURE;
-    }
-
-    if (!cmdLineArgs.value().run)
-    {
-        return 0;
     }
 
     IceOryxRouDiApp roudi(config.value());

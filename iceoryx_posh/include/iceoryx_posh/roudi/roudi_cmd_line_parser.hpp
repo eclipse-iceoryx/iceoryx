@@ -32,7 +32,7 @@ namespace config
 enum class CmdLineParserResult
 {
     UNKNOWN_OPTION_USED,
-    INFO_OUTPUT_ONLY
+    INVALID_PARAMETER
 };
 
 class CmdLineParser

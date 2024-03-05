@@ -223,7 +223,7 @@ TEST_F(CmdLineParser_test, MonitoringModeOptionsLeadToCorrectMode)
     }
 }
 
-TEST_F(CmdLineParser_test, WrongMonitoringModeOptionLeadsToProgrammNotRunning)
+TEST_F(CmdLineParser_test, WrongMonitoringModeOptionLeadsToError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2c2b81f2-1ba6-486f-8ec3-4cafbd0cdb3c");
     constexpr uint8_t NUMBER_OF_ARGS{3U};
@@ -238,8 +238,8 @@ TEST_F(CmdLineParser_test, WrongMonitoringModeOptionLeadsToProgrammNotRunning)
     CmdLineParser sut;
     auto result = sut.parse(NUMBER_OF_ARGS, args);
 
-    ASSERT_FALSE(result.has_error());
-    EXPECT_FALSE(result.value().run);
+    ASSERT_TRUE(result.has_error());
+    EXPECT_THAT(result.error(), Eq(CmdLineParserResult::INVALID_PARAMETER));
 }
 
 TEST_F(CmdLineParser_test, LogLevelOptionsLeadToCorrectLogLevel)
@@ -272,7 +272,7 @@ TEST_F(CmdLineParser_test, LogLevelOptionsLeadToCorrectLogLevel)
     }
 }
 
-TEST_F(CmdLineParser_test, WrongLogLevelOptionLeadsToProgrammNotRunning)
+TEST_F(CmdLineParser_test, WrongLogLevelOptionLeadsToError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "00a08b20-bdf9-436a-9ead-a65e19c89f91");
     constexpr uint8_t NUMBER_OF_ARGS{3U};
@@ -287,8 +287,8 @@ TEST_F(CmdLineParser_test, WrongLogLevelOptionLeadsToProgrammNotRunning)
     CmdLineParser sut;
     auto result = sut.parse(NUMBER_OF_ARGS, args);
 
-    ASSERT_FALSE(result.has_error());
-    EXPECT_FALSE(result.value().run);
+    ASSERT_TRUE(result.has_error());
+    EXPECT_THAT(result.error(), Eq(CmdLineParserResult::INVALID_PARAMETER));
 }
 
 TEST_F(CmdLineParser_test, KillDelayLongOptionLeadsToCorrectDelay)
@@ -331,7 +331,7 @@ TEST_F(CmdLineParser_test, KillDelayShortOptionLeadsToCorrectDelay)
     EXPECT_TRUE(result.value().run);
 }
 
-TEST_F(CmdLineParser_test, KillDelayOptionOutOfBoundsLeadsToProgrammNotRunning)
+TEST_F(CmdLineParser_test, KillDelayOptionOutOfBoundsLeadsToError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "eb6a67cd-4e5a-41df-bf79-ef5dcdb13fbf");
     constexpr uint8_t NUMBER_OF_ARGS{3U};
@@ -346,8 +346,8 @@ TEST_F(CmdLineParser_test, KillDelayOptionOutOfBoundsLeadsToProgrammNotRunning)
     CmdLineParser sut;
     auto result = sut.parse(NUMBER_OF_ARGS, args);
 
-    ASSERT_FALSE(result.has_error());
-    EXPECT_FALSE(result.value().run);
+    ASSERT_TRUE(result.has_error());
+    EXPECT_THAT(result.error(), Eq(CmdLineParserResult::INVALID_PARAMETER));
 }
 
 TEST_F(CmdLineParser_test, TerminationDelayLongOptionLeadsToCorrectDelay)
@@ -390,7 +390,7 @@ TEST_F(CmdLineParser_test, TerminationDelayShortOptionLeadsToCorrectDelay)
     EXPECT_TRUE(result.value().run);
 }
 
-TEST_F(CmdLineParser_test, TerminationDelayOptionOutOfBoundsLeadsToProgrammNotRunning)
+TEST_F(CmdLineParser_test, TerminationDelayOptionOutOfBoundsLeadsToError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7eaffeb5-a0e5-4cdd-a898-d9d64c999d16");
     constexpr uint8_t NUMBER_OF_ARGS{3U};
@@ -405,8 +405,8 @@ TEST_F(CmdLineParser_test, TerminationDelayOptionOutOfBoundsLeadsToProgrammNotRu
     CmdLineParser sut;
     auto result = sut.parse(NUMBER_OF_ARGS, args);
 
-    ASSERT_FALSE(result.has_error());
-    EXPECT_FALSE(result.value().run);
+    ASSERT_TRUE(result.has_error());
+    EXPECT_THAT(result.error(), Eq(CmdLineParserResult::INVALID_PARAMETER));
 }
 
 TEST_F(CmdLineParser_test, CompatibilityLevelOptionsLeadToCorrectCompatibilityLevel)
@@ -438,7 +438,7 @@ TEST_F(CmdLineParser_test, CompatibilityLevelOptionsLeadToCorrectCompatibilityLe
     }
 }
 
-TEST_F(CmdLineParser_test, WrongCompatibilityLevelOptionLeadsToProgrammNotRunning)
+TEST_F(CmdLineParser_test, WrongCompatibilityLevelOptionLeadsToError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f270804c-428c-410f-865d-2dc039fcb401");
     constexpr uint8_t NUMBER_OF_ARGS{3U};
@@ -453,8 +453,8 @@ TEST_F(CmdLineParser_test, WrongCompatibilityLevelOptionLeadsToProgrammNotRunnin
     CmdLineParser sut;
     auto result = sut.parse(NUMBER_OF_ARGS, args);
 
-    ASSERT_FALSE(result.has_error());
-    EXPECT_FALSE(result.value().run);
+    ASSERT_TRUE(result.has_error());
+    EXPECT_THAT(result.error(), Eq(CmdLineParserResult::INVALID_PARAMETER));
 }
 
 TEST_F(CmdLineParser_test, DomainIdLongOptionLeadsToCorrectDomainId)
@@ -497,6 +497,24 @@ TEST_F(CmdLineParser_test, DomainIdShortOptionLeadsToCorrectDomainId)
     EXPECT_TRUE(result.value().run);
 }
 
+TEST_F(CmdLineParser_test, OutOfBoundsDomainIdOptionLeadsToError)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "ddca4085-ad28-4309-965a-8ed82a3924bc");
+    constexpr uint8_t NUMBER_OF_ARGS{3U};
+    char* args[NUMBER_OF_ARGS];
+    char appName[] = "./foo";
+    char option[] = "-d";
+    char value[] = "65536";
+    args[0] = &appName[0];
+    args[1] = &option[0];
+    args[2] = &value[0];
+
+    CmdLineParser sut;
+    auto result = sut.parse(NUMBER_OF_ARGS, args);
+
+    ASSERT_TRUE(result.has_error());
+    EXPECT_THAT(result.error(), Eq(CmdLineParserResult::INVALID_PARAMETER));
+}
 
 TEST_F(CmdLineParser_test, UniqueIdLongOptionLeadsToCorrectUniqueId)
 {
@@ -538,7 +556,7 @@ TEST_F(CmdLineParser_test, UniqueIdShortOptionLeadsToCorrectUniqueId)
     EXPECT_TRUE(result.value().run);
 }
 
-TEST_F(CmdLineParser_test, OutOfBoundsUniqueIdOptionLeadsToProgrammNotRunning)
+TEST_F(CmdLineParser_test, OutOfBoundsUniqueIdOptionLeadsError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "13f6b1fb-3c6d-4dda-87ab-d883533bb1ed");
     constexpr uint8_t NUMBER_OF_ARGS{3U};
@@ -553,8 +571,8 @@ TEST_F(CmdLineParser_test, OutOfBoundsUniqueIdOptionLeadsToProgrammNotRunning)
     CmdLineParser sut;
     auto result = sut.parse(NUMBER_OF_ARGS, args);
 
-    ASSERT_FALSE(result.has_error());
-    EXPECT_FALSE(result.value().run);
+    ASSERT_TRUE(result.has_error());
+    EXPECT_THAT(result.error(), Eq(CmdLineParserResult::INVALID_PARAMETER));
 }
 
 TEST_F(CmdLineParser_test, CmdLineParsingModeEqualToOneHandlesOnlyTheFirstOption)
