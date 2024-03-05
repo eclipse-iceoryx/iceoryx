@@ -14,9 +14,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iox/fixed_position_container.hpp"
-
 #include "iceoryx_posh/internal/runtime/heartbeat.hpp"
+
+#include "iox/duration.hpp"
 
 #include "test.hpp"
 
@@ -29,9 +29,16 @@ using namespace ::testing;
 using namespace iox;
 using namespace iox::runtime;
 
-constexpr uint64_t ALLOWED_NON_SLEEP_JITTER_MS{5};
-// NOTE: this needs to be quite high due to the thread sanitizer on macOS slows the application down quite a lot
-constexpr uint64_t ALLOWED_SLEEP_JITTER_MS{150};
+constexpr uint64_t ALLOWED_JITTER_MS{5};
+
+units::Duration sleep_for(units::Duration sleep_time)
+{
+    auto start = std::chrono::steady_clock::now();
+    std::this_thread::sleep_for(std::chrono::milliseconds(sleep_time.toMilliseconds()));
+    auto end = std::chrono::steady_clock::now();
+    return units::Duration::fromMilliseconds(
+        std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count());
+}
 
 TEST(Heartbeat_test, ElapsedMillisecondsSinceLastBeatOnNewlyCreatedInstanceIsCloseToZero)
 {
@@ -42,21 +49,22 @@ TEST(Heartbeat_test, ElapsedMillisecondsSinceLastBeatOnNewlyCreatedInstanceIsClo
     Heartbeat sut;
     auto elapsed_ms = sut.elapsed_milliseconds_since_last_beat();
 
-    EXPECT_THAT(elapsed_ms, Le(EXPECTED_MS + ALLOWED_NON_SLEEP_JITTER_MS));
+    EXPECT_THAT(elapsed_ms, Le(EXPECTED_MS + ALLOWED_JITTER_MS));
 }
 
 TEST(Heartbeat_test, ElapsedMillisecondsSinceLastBeatIsLargerOrEqualToSleepTimeAfterInstanceCreation)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d076c96b-59ad-4241-a024-20d65667c404");
 
-    constexpr uint64_t EXPECTED_MS{100};
+    constexpr auto SLEEP_TIME{units::Duration::fromMilliseconds(100)};
 
     Heartbeat sut;
-    std::this_thread::sleep_for(std::chrono::milliseconds(EXPECTED_MS));
+
+    auto real_sleep_duration = sleep_for(SLEEP_TIME);
     auto elapsed_ms = sut.elapsed_milliseconds_since_last_beat();
 
-    EXPECT_THAT(elapsed_ms, Ge(EXPECTED_MS));
-    EXPECT_THAT(elapsed_ms, Le(EXPECTED_MS + ALLOWED_SLEEP_JITTER_MS));
+    EXPECT_THAT(elapsed_ms, Ge(real_sleep_duration.toMilliseconds()));
+    EXPECT_THAT(elapsed_ms, Le(real_sleep_duration.toMilliseconds() + ALLOWED_JITTER_MS));
 }
 
 TEST(Heartbeat_test, ElapsedMillisecondsSinceLastBeatAfterBeatCallIsCloseToZero)
@@ -66,26 +74,32 @@ TEST(Heartbeat_test, ElapsedMillisecondsSinceLastBeatAfterBeatCallIsCloseToZero)
     constexpr uint64_t EXPECTED_MS{0};
 
     Heartbeat sut;
-    std::this_thread::sleep_for(std::chrono::milliseconds(ALLOWED_NON_SLEEP_JITTER_MS * 2));
+    units::Duration real_sleep_duration{units::Duration::zero()};
+    do
+    {
+        real_sleep_duration += sleep_for(units::Duration::fromMilliseconds(ALLOWED_JITTER_MS));
+    } while (real_sleep_duration.toMilliseconds() < 2 * ALLOWED_JITTER_MS);
+
     sut.beat();
     auto elapsed_ms = sut.elapsed_milliseconds_since_last_beat();
 
-    EXPECT_THAT(elapsed_ms, Le(EXPECTED_MS + ALLOWED_NON_SLEEP_JITTER_MS));
+    EXPECT_THAT(elapsed_ms, Le(EXPECTED_MS + ALLOWED_JITTER_MS));
 }
 
 TEST(Heartbeat_test, ElapsedMillisecondsSinceLastBeatIsLargerOrEqualToSleepTimeAfterCallToBeat)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8891a282-f606-44b4-9bcb-6d99cff4ab71");
 
-    constexpr uint64_t EXPECTED_MS{100};
+    constexpr auto SLEEP_TIME{units::Duration::fromMilliseconds(100)};
 
     Heartbeat sut;
-    std::this_thread::sleep_for(std::chrono::milliseconds(ALLOWED_SLEEP_JITTER_MS * 2));
+
     sut.beat();
-    std::this_thread::sleep_for(std::chrono::milliseconds(EXPECTED_MS));
+
+    auto real_sleep_duration = sleep_for(SLEEP_TIME);
     auto elapsed_ms = sut.elapsed_milliseconds_since_last_beat();
 
-    EXPECT_THAT(elapsed_ms, Ge(EXPECTED_MS));
-    EXPECT_THAT(elapsed_ms, Le(EXPECTED_MS + ALLOWED_SLEEP_JITTER_MS));
+    EXPECT_THAT(elapsed_ms, Ge(real_sleep_duration.toMilliseconds()));
+    EXPECT_THAT(elapsed_ms, Le(real_sleep_duration.toMilliseconds() + ALLOWED_JITTER_MS));
 }
 } // namespace
