@@ -110,15 +110,11 @@ expected<void, SharedMemoryUserError> SharedMemoryUser::openShmSegment(ShmVector
                                                                        const uint64_t shmSize,
                                                                        const AccessMode accessMode) noexcept
 {
-    constexpr access_rights SHM_SEGMENT_PERMISSIONS =
-        perms::owner_read | perms::owner_write | perms::group_read | perms::group_write;
-
     auto shmResult = PosixSharedMemoryObjectBuilder()
                          .name(concatenate(iceoryxResourcePrefix(domainId, resourceType), shmName))
                          .memorySizeInBytes(shmSize)
                          .accessMode(accessMode)
                          .openMode(OpenMode::OPEN_EXISTING)
-                         .permissions(SHM_SEGMENT_PERMISSIONS)
                          .create();
 
     if (shmResult.has_error())
