@@ -63,6 +63,7 @@ class PortIntrospection_test : public Test
 
     void SetUp() override
     {
+        DefaultValue<iox::popo::UniquePortId>::Set(iox::roudi::DEFAULT_UNIQUE_ROUDI_ID);
         ASSERT_THAT(m_introspectionAccess.registerPublisherPort(std::move(m_mockPublisherPortUserIntrospection),
                                                                 std::move(m_mockPublisherPortUserIntrospection),
                                                                 std::move(m_mockPublisherPortUserIntrospection)),
@@ -71,6 +72,7 @@ class PortIntrospection_test : public Test
 
     void TearDown() override
     {
+        DefaultValue<iox::popo::UniquePortId>::Clear();
     }
 
     bool comparePortData(const iox::roudi::SubscriberPortData& a, const iox::roudi::SubscriberPortData& b)
@@ -217,8 +219,10 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
     publisherOptions1.nodeName = nodeName1;
     iox::popo::PublisherOptions publisherOptions2;
     publisherOptions2.nodeName = nodeName2;
-    iox::popo::PublisherPortData portData1(service1, runtimeName1, &memoryManager, publisherOptions1);
-    iox::popo::PublisherPortData portData2(service2, runtimeName2, &memoryManager, publisherOptions2);
+    iox::popo::PublisherPortData portData1(
+        service1, runtimeName1, iox::roudi::DEFAULT_UNIQUE_ROUDI_ID, &memoryManager, publisherOptions1);
+    iox::popo::PublisherPortData portData2(
+        service2, runtimeName2, iox::roudi::DEFAULT_UNIQUE_ROUDI_ID, &memoryManager, publisherOptions2);
     MockPublisherPortUser port1(&portData1);
     MockPublisherPortUser port2(&portData2);
     // test adding of ports
@@ -350,11 +354,17 @@ TEST_F(PortIntrospection_test, addAndRemoveSubscriber)
 
     // test adding of ports
     // remark: duplicate subscriber insertions are not possible
-    iox::popo::SubscriberPortData recData1{
-        service1, runtimeName1, iox::popo::VariantQueueTypes::FiFo_MultiProducerSingleConsumer, subscriberOptions1};
+    iox::popo::SubscriberPortData recData1{service1,
+                                           runtimeName1,
+                                           iox::roudi::DEFAULT_UNIQUE_ROUDI_ID,
+                                           iox::popo::VariantQueueTypes::FiFo_MultiProducerSingleConsumer,
+                                           subscriberOptions1};
     MockSubscriberPortUser port1(&recData1);
-    iox::popo::SubscriberPortData recData2{
-        service2, runtimeName2, iox::popo::VariantQueueTypes::FiFo_MultiProducerSingleConsumer, subscriberOptions2};
+    iox::popo::SubscriberPortData recData2{service2,
+                                           runtimeName2,
+                                           iox::roudi::DEFAULT_UNIQUE_ROUDI_ID,
+                                           iox::popo::VariantQueueTypes::FiFo_MultiProducerSingleConsumer,
+                                           subscriberOptions2};
     MockSubscriberPortUser port2(&recData2);
     EXPECT_THAT(m_introspectionAccess.addSubscriber(recData1), Eq(true));
     EXPECT_THAT(m_introspectionAccess.addSubscriber(recData1), Eq(false));

@@ -39,7 +39,7 @@ using namespace iox::popo;
 const iox::capro::ServiceDescription SERVICE_DESCRIPTION("Radar", "FrontRight", "ChuckNorrisDetected");
 const iox::capro::ServiceDescription DEFAULT_SERVICE_DESCRIPTION;
 
-const iox::RuntimeName_t RUNTIME_NAME_EMPTY = {""};
+const iox::RuntimeName_t RUNTIME_NAME_FOR_BASE_PORTS = {"BasePort"};
 const iox::RuntimeName_t RUNTIME_NAME_FOR_PUBLISHER_PORTS = {"PublisherPort"};
 const iox::RuntimeName_t RUNTIME_NAME_FOR_SUBSCRIBER_PORTS = {"SubscriberPort"};
 const iox::RuntimeName_t RUNTIME_NAME_FOR_CLIENT_PORTS = {"ClientPort"};
@@ -64,20 +64,25 @@ T* createPortData()
 template <>
 BasePortData* createPortData()
 {
-    return new BasePortData();
+    return new BasePortData(SERVICE_DESCRIPTION, RUNTIME_NAME_FOR_BASE_PORTS, "", iox::roudi::DEFAULT_UNIQUE_ROUDI_ID);
 }
 template <>
 PublisherPortData* createPortData()
 {
     PublisherOptions options;
     options.historyCapacity = 1U;
-    return new PublisherPortData(SERVICE_DESCRIPTION, RUNTIME_NAME_FOR_PUBLISHER_PORTS, &m_memoryManager, options);
+    return new PublisherPortData(SERVICE_DESCRIPTION,
+                                 RUNTIME_NAME_FOR_PUBLISHER_PORTS,
+                                 iox::roudi::DEFAULT_UNIQUE_ROUDI_ID,
+                                 &m_memoryManager,
+                                 options);
 }
 template <>
 SubscriberPortData* createPortData()
 {
     return new SubscriberPortData(SERVICE_DESCRIPTION,
                                   RUNTIME_NAME_FOR_SUBSCRIBER_PORTS,
+                                  iox::roudi::DEFAULT_UNIQUE_ROUDI_ID,
                                   iox::popo::VariantQueueTypes::FiFo_MultiProducerSingleConsumer,
                                   SubscriberOptions());
 }
@@ -86,19 +91,28 @@ ClientPortData* createPortData()
 {
     ClientOptions options;
     options.responseQueueCapacity = 1U;
-    return new ClientPortData(SERVICE_DESCRIPTION, RUNTIME_NAME_FOR_CLIENT_PORTS, options, &m_memoryManager);
+    return new ClientPortData(SERVICE_DESCRIPTION,
+                              RUNTIME_NAME_FOR_CLIENT_PORTS,
+                              iox::roudi::DEFAULT_UNIQUE_ROUDI_ID,
+                              options,
+                              &m_memoryManager);
 }
 template <>
 ServerPortData* createPortData()
 {
     ServerOptions options;
     options.requestQueueCapacity = 13U;
-    return new ServerPortData(SERVICE_DESCRIPTION, RUNTIME_NAME_FOR_SERVER_PORTS, options, &m_memoryManager);
+    return new ServerPortData(SERVICE_DESCRIPTION,
+                              RUNTIME_NAME_FOR_SERVER_PORTS,
+                              iox::roudi::DEFAULT_UNIQUE_ROUDI_ID,
+                              options,
+                              &m_memoryManager);
 }
 template <>
 InterfacePortData* createPortData()
 {
-    return new InterfacePortData(RUNTIME_NAME_FOR_INTERFACE_PORTS, iox::capro::Interfaces::INTERNAL);
+    return new InterfacePortData(
+        RUNTIME_NAME_FOR_INTERFACE_PORTS, iox::roudi::DEFAULT_UNIQUE_ROUDI_ID, iox::capro::Interfaces::INTERNAL);
 }
 
 // expected ServiceDescription factories
@@ -106,7 +120,7 @@ InterfacePortData* createPortData()
 template <typename T>
 const ServiceDescription& expectedServiceDescription()
 {
-    return DEFAULT_SERVICE_DESCRIPTION;
+    return SERVICE_DESCRIPTION;
 }
 template <>
 const ServiceDescription& expectedServiceDescription<PublisherPortData>()
@@ -128,13 +142,18 @@ const ServiceDescription& expectedServiceDescription<ServerPortData>()
 {
     return SERVICE_DESCRIPTION;
 }
+template <>
+const ServiceDescription& expectedServiceDescription<InterfacePortData>()
+{
+    return DEFAULT_SERVICE_DESCRIPTION;
+}
 
 // expected ProcessName factories
 
 template <typename T>
 const iox::RuntimeName_t& expectedProcessName()
 {
-    return RUNTIME_NAME_EMPTY;
+    return RUNTIME_NAME_FOR_BASE_PORTS;
 }
 template <>
 const iox::RuntimeName_t& expectedProcessName<PublisherPortData>()

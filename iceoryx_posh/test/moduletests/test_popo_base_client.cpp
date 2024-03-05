@@ -92,7 +92,8 @@ class BaseClient_test : public Test
         // the default ctor is used in the getMiddlewareClient call
         PortConfigInfo portInfo;
         MemoryManager memoryManager;
-        ClientPortData portData{sd, runtimeName, options, &memoryManager, portInfo.memoryInfo};
+        ClientPortData portData{
+            sd, runtimeName, roudi::DEFAULT_UNIQUE_ROUDI_ID, options, &memoryManager, portInfo.memoryInfo};
         EXPECT_CALL(*mockRuntime, getMiddlewareClient(sd, options, portInfo)).WillOnce(Return(&portData));
 
         sut.emplace(sd, options);
@@ -129,7 +130,7 @@ TYPED_TEST(BaseClient_test, GetUidCallsUnderlyingPort)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4c1f401c-9ee2-40f9-8f97-2ae7dae594b3");
 
-    const UniquePortId uid;
+    const UniquePortId uid{roudi::DEFAULT_UNIQUE_ROUDI_ID};
     EXPECT_CALL(this->sut->port(), getUniqueID).WillOnce(Return(uid));
 
     EXPECT_THAT(this->sut->getUid(), Eq(uid));

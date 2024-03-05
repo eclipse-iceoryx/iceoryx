@@ -18,7 +18,7 @@
 #include "iox/detail/hoofs_error_reporting.hpp"
 
 #include "iceoryx_hoofs/testing/fatal_failure.hpp"
-#include "iceoryx_posh/roudi_env/minimal_roudi_config.hpp"
+#include "iceoryx_posh/roudi_env/minimal_iceoryx_config.hpp"
 #include "iceoryx_posh/testing/roudi_gtest.hpp"
 
 using namespace iox;
@@ -43,7 +43,7 @@ class iox_service_discovery_test : public RouDi_GTest
 {
   public:
     iox_service_discovery_test()
-        : RouDi_GTest(MinimalRouDiConfigBuilder().create())
+        : RouDi_GTest(MinimalIceoryxConfigBuilder().create())
     {
     }
     void SetUp() override

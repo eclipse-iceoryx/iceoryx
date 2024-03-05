@@ -80,7 +80,7 @@ Do the following to configure shared memory segments when building a custom RouD
 
 <!--[geoffrey][iceoryx_examples/ice_access_control/roudi_main_static_segments.cpp][config]-->
 ```cpp
-iox::RouDiConfig_t roudiConfig;
+iox::IceoryxConfig config;
 
 // Create Mempool Config
 iox::mepoo::MePooConfig mepooConfig;
@@ -88,13 +88,13 @@ iox::mepoo::MePooConfig mepooConfig;
 // We only send very small data, just one mempool per segment
 mepooConfig.addMemPool({128, 1000});
 
-// Create an entry for a new shared memory segment from the mempooConfig and add it to the roudiConfig
+// Create an entry for a new shared memory segment from the mempooConfig and add it to the iceoryx config
 // Parameters are {"ReaderGroup", "WriterGroup", MemoryPoolConfig}
-roudiConfig.m_sharedMemorySegments.push_back({"unprivileged", "privileged", mepooConfig});
-roudiConfig.m_sharedMemorySegments.push_back({"infotainment", "infotainment", mepooConfig});
+config.m_sharedMemorySegments.push_back({"unprivileged", "privileged", mepooConfig});
+config.m_sharedMemorySegments.push_back({"infotainment", "infotainment", mepooConfig});
 ```
 
-The `roudiConfig` is composed of a memory pool config called `mepooConfig`. When the segment is created, one needs to
+The `config` is composed of a memory pool config called `mepooConfig`. When the segment is created, one needs to
 specify the reader group (first string), writer group (second string) as well as the `mepooConfig` (last parameter).
 The access rights are solely based on user groups and not on users itself. All users in the reader group are allowed
 to read, but don't have write access. Users in the writer group have both read and write access.

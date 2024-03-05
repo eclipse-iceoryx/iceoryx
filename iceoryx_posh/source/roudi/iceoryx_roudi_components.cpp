@@ -22,8 +22,8 @@ namespace iox
 {
 namespace roudi
 {
-IceOryxRouDiComponents::IceOryxRouDiComponents(const RouDiConfig_t& roudiConfig) noexcept
-    : rouDiMemoryManager(roudiConfig)
+IceOryxRouDiComponents::IceOryxRouDiComponents(const IceoryxConfig& config) noexcept
+    : rouDiMemoryManager(config)
     , portManager([&]() -> IceOryxRouDiMemoryManager* {
         // this temporary object will create a roudi IPC channel
         // and close it immediatelly

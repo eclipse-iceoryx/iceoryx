@@ -112,6 +112,7 @@ class iox_notification_info_test : public Test
     SubscriberOptions m_subscriberOptions{MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY, 0U};
     iox::popo::SubscriberPortData m_portPtr{TEST_TheHoff_DESCRIPTION,
                                             "myApp",
+                                            roudi::DEFAULT_UNIQUE_ROUDI_ID,
                                             iox::popo::VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
                                             m_subscriberOptions};
     ChunkQueuePusher<SubscriberPortData::ChunkQueueData_t> m_chunkPusher{&m_portPtr.m_chunkReceiverData};

@@ -18,7 +18,7 @@
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/popo/untyped_subscriber.hpp"
-#include "iceoryx_posh/roudi_env/minimal_roudi_config.hpp"
+#include "iceoryx_posh/roudi_env/minimal_iceoryx_config.hpp"
 #include "iceoryx_posh/testing/roudi_gtest.hpp"
 
 #include "test.hpp"
@@ -45,7 +45,7 @@ class PubSubListener_IntegrationTest : public RouDi_GTest
 {
   public:
     PubSubListener_IntegrationTest()
-        : RouDi_GTest(MinimalRouDiConfigBuilder().create())
+        : RouDi_GTest(MinimalIceoryxConfigBuilder().create())
     {
     }
 

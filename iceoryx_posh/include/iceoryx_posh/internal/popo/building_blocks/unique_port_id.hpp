@@ -17,6 +17,7 @@
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_UNIQUE_PORT_ID_HPP
 #define IOX_POSH_POPO_BUILDING_BLOCKS_UNIQUE_PORT_ID_HPP
 
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iox/newtype.hpp"
 
@@ -57,9 +58,9 @@ class UniquePortId : public NewType<UniquePortId,
   public:
     using ThisType::ThisType;
 
-    /// @brief The constructor creates an id which is greater than the
-    ///         previous created id
-    UniquePortId() noexcept;
+    /// @brief The constructor creates an id which is greater than the previous created id
+    /// @param[in] uniqueRouDiId to tie the unique port id to
+    UniquePortId(const roudi::UniqueRouDiId uniqueRouDiId) noexcept;
 
     /// @brief Constructor which creates an invalid id
     UniquePortId(InvalidPortId_t) noexcept;
@@ -68,33 +69,15 @@ class UniquePortId : public NewType<UniquePortId,
     /// @return true if a valid id is present, false otherwise
     bool isValid() const noexcept;
 
-    /// @brief Has to be set on RouDi startup so that a unique RouDi id is set
-    ///        for all newly generated unique ids. If you call it when a unique
-    ///        id is already set, an fatal error is generated.
-    /// @param[in] id the unique id which you would like to set
-    static void setUniqueRouDiId(const uint16_t id) noexcept;
-
-    /// @brief Getter for the unique roudi id
-    /// @return value of the unique roudi id
-    static uint16_t getUniqueRouDiId() noexcept;
-
   private:
-    friend class roudi_env::RouDiEnv;
-    // since the RouDiEnv gets restarted multiple times within a process, this helps to
-    // reset the unique RouDi id during tests
-    static void rouDiEnvResetFinalizeUniqueRouDiId() noexcept;
-
-    // returns true if setUniqueRouDiId was already called or a non-invalid UniquePortId
-    // was created, otherwise false
-    static bool finalizeSetUniqueRouDiId() noexcept;
+    // NOTE must be 'delete' instead of just leaving it out else the 'gMocks' will create compile errors
+    UniquePortId() noexcept = delete;
 
   private:
     static constexpr ThisType::value_type INVALID_UNIQUE_ID = 0u;
     static constexpr ThisType::value_type ROUDI_ID_BIT_LENGTH = 16u;
     static constexpr ThisType::value_type UNIQUE_ID_BIT_LENGTH = 48u;
     static std::atomic<ThisType::value_type> globalIDCounter; // initialized in cpp file
-    static std::atomic<uint16_t> uniqueRouDiId;               // initialized in cpp file
-    static std::atomic<bool> uniqueRouDiIdFinalizeFlag;       // initialized in cpp file
 };
 
 } // namespace popo

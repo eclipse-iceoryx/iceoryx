@@ -142,6 +142,7 @@ class iox_listener_test : public Test
         m_subscriberPortData.resize(MAX_NUMBER_OF_EVENTS_PER_LISTENER + 1U,
                                     TEST_SERVICE_DESCRIPTION,
                                     "myApp",
+                                    roudi::DEFAULT_UNIQUE_ROUDI_ID,
                                     iox::popo::VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
                                     subscriberOptions);
         m_subscriber.resize(MAX_NUMBER_OF_EVENTS_PER_LISTENER + 1U);
@@ -211,10 +212,16 @@ class iox_listener_test : public Test
 
     iox::popo::SubscriberOptions subscriberOptions{MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY, 0U};
 
-    ServerPortData serverPortData{
-        {"ServiceA", "InstanceA", "EventA"}, "der_wilde_bert", ServerOptions(), &m_memoryManager};
-    ClientPortData clientPortData{
-        {"ServiceA", "InstanceA", "EventA"}, "rudi_ruessel", ClientOptions(), &m_memoryManager};
+    ServerPortData serverPortData{{"ServiceA", "InstanceA", "EventA"},
+                                  "der_wilde_bert",
+                                  roudi::DEFAULT_UNIQUE_ROUDI_ID,
+                                  ServerOptions(),
+                                  &m_memoryManager};
+    ClientPortData clientPortData{{"ServiceA", "InstanceA", "EventA"},
+                                  "rudi_ruessel",
+                                  roudi::DEFAULT_UNIQUE_ROUDI_ID,
+                                  ClientOptions(),
+                                  &m_memoryManager};
     vector<iox::popo::SubscriberPortData, MAX_NUMBER_OF_EVENTS_PER_LISTENER + 1> m_subscriberPortData;
     vector<cpp2c_Subscriber, MAX_NUMBER_OF_EVENTS_PER_LISTENER + 1> m_subscriber;
     vector<ChunkQueuePusher<SubscriberPortData::ChunkQueueData_t>, MAX_NUMBER_OF_EVENTS_PER_LISTENER + 1> m_chunkPusher;

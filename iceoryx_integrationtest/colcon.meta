@@ -2,12 +2,12 @@
     "names": {
         "iceoryx_posh": {
             "cmake-args": [
-                "-DIOX_EXPERIMENTAL=ON",
+                "-DIOX_EXPERIMENTAL_POSH=ON",
             ]
         },
         "iceoryx_integrationtest": {
             "cmake-args": [
-                "-DIOX_EXPERIMENTAL=ON",
+                "-DIOX_EXPERIMENTAL_POSH=ON",
             ]
         }
     }

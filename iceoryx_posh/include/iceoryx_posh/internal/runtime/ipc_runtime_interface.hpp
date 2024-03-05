@@ -40,10 +40,11 @@ class IpcRuntimeInterface
   public:
     /// @brief Creates an 'IpcRuntimeInterface' which tries to register at RouDi and delegates any error up in the stack
     /// @param[in] runtimeName is the name of the runtime to register at RouDi
+    /// @param[in] domainId to tie the interface to
     /// @param[in] roudiWaitingTimeout is the time to wait for RouDi to start if it is nor running
     /// @return an IPC interface to communicate with RouDi or a IpcRuntimeInterfaceError
-    static expected<IpcRuntimeInterface, IpcRuntimeInterfaceError>
-    create(const RuntimeName_t& runtimeName, const units::Duration roudiWaitingTimeout) noexcept;
+    static expected<IpcRuntimeInterface, IpcRuntimeInterfaceError> create(
+        const RuntimeName_t& runtimeName, const DomainId domainId, const units::Duration roudiWaitingTimeout) noexcept;
 
     ~IpcRuntimeInterface() noexcept = default;
 
@@ -66,7 +67,7 @@ class IpcRuntimeInterface
 
     /// @brief get the size of the management shared memory object
     /// @return size in bytes
-    size_t getShmTopicSize() noexcept;
+    uint64_t getShmTopicSize() noexcept;
 
     /// @brief get the segment id of the shared memory object
     /// @return segment id

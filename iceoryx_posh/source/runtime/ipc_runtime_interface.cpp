@@ -30,8 +30,8 @@ namespace iox
 {
 namespace runtime
 {
-expected<IpcRuntimeInterface, IpcRuntimeInterfaceError>
-IpcRuntimeInterface::create(const RuntimeName_t& runtimeName, const units::Duration roudiWaitingTimeout) noexcept
+expected<IpcRuntimeInterface, IpcRuntimeInterfaceError> IpcRuntimeInterface::create(
+    const RuntimeName_t& runtimeName, const DomainId domainId, const units::Duration roudiWaitingTimeout) noexcept
 {
     if (runtimeName.empty())
     {
@@ -41,9 +41,9 @@ IpcRuntimeInterface::create(const RuntimeName_t& runtimeName, const units::Durat
 
     MgmtShmCharacteristics mgmtShmCharacteristics;
 
-    auto roudiIpcInterface = IpcInterfaceUser(roudi::IPC_CHANNEL_ROUDI_NAME, ResourceType::ICEORYX_DEFINED);
+    auto roudiIpcInterface = IpcInterfaceUser(roudi::IPC_CHANNEL_ROUDI_NAME, domainId, ResourceType::ICEORYX_DEFINED);
 
-    auto appIpcInterface = IpcInterfaceCreator::create(runtimeName, ResourceType::USER_DEFINED);
+    auto appIpcInterface = IpcInterfaceCreator::create(runtimeName, domainId, ResourceType::USER_DEFINED);
     if (appIpcInterface.has_error() || !appIpcInterface->isInitialized())
     {
         return err(IpcRuntimeInterfaceError::CANNOT_CREATE_APPLICATION_CHANNEL);
@@ -185,7 +185,7 @@ bool IpcRuntimeInterface::sendRequestToRouDi(const IpcMessage& msg, IpcMessage& 
     return true;
 }
 
-size_t IpcRuntimeInterface::getShmTopicSize() noexcept
+uint64_t IpcRuntimeInterface::getShmTopicSize() noexcept
 {
     return m_mgmtShmCharacteristics.shmTopicSize;
 }

@@ -65,6 +65,7 @@ class SubscriberPortSingleProducer_test : public Test
     iox::popo::SubscriberPortData m_subscriberPortDataSingleProducer{
         TEST_SERVICE_DESCRIPTION,
         "myApp",
+        iox::roudi::DEFAULT_UNIQUE_ROUDI_ID,
         iox::popo::VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
         m_noSubscribeOnCreateOptions};
     iox::popo::SubscriberPortUser m_sutUserSideSingleProducer{&m_subscriberPortDataSingleProducer};
@@ -74,6 +75,7 @@ class SubscriberPortSingleProducer_test : public Test
     iox::popo::SubscriberPortData m_subscriberPortDataDefaultOptions{
         TEST_SERVICE_DESCRIPTION,
         "myApp",
+        iox::roudi::DEFAULT_UNIQUE_ROUDI_ID,
         iox::popo::VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
         m_defaultSubscriberOptions};
     iox::popo::SubscriberPortUser m_sutUserSideDefaultOptions{&m_subscriberPortDataDefaultOptions};
@@ -381,6 +383,7 @@ class SubscriberPortMultiProducer_test : public Test
     iox::popo::SubscriberPortData m_subscriberPortDataMultiProducer{
         SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION,
         "myApp",
+        iox::roudi::DEFAULT_UNIQUE_ROUDI_ID,
         iox::popo::VariantQueueTypes::SoFi_MultiProducerSingleConsumer,
         iox::popo::SubscriberOptions()};
     iox::popo::SubscriberPortUser m_sutUserSideMultiProducer{&m_subscriberPortDataMultiProducer};

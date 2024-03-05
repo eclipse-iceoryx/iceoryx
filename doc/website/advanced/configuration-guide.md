@@ -187,7 +187,7 @@ is **not** linking against `iceoryx_posh_config` to ensure using the static conf
 ```cpp
 int main(int argc, char* argv[])
 {
-    iox::RouDiConfig_t roudiConfig;
+    iox::IceoryxConfig config;
 
     // create mempools
     iox::mepoo::MePooConfig mepooConfig;
@@ -195,17 +195,17 @@ int main(int argc, char* argv[])
     mepooConfig.addMemPool({265, 10000});
 
     auto currentGroup = iox::PosixGroup::getGroupOfCurrentProcess();
-    roudiConfig.m_sharedMemorySegments.push_back({currentGroup.getName(), currentGroup.getName(), mepooConfig});
+    config.m_sharedMemorySegments.push_back({currentGroup.getName(), currentGroup.getName(), mepooConfig});
 
     // configure the chunk count for the introspection; each introspection topic gets this number of chunks
-    roudiConfig.introspectionChunkCount = 10;
+    config.introspectionChunkCount = 10;
 
     // configure the chunk count for the service discovery
-    roudiConfig.discoveryChunkCount = 10;
+    config.discoveryChunkCount = 10;
 
     // create a roudi instance
     iox::config::CmdLineParserConfigFileOption cmdLineParser;
-    IceOryxRouDiApp roudi(cmdLineParser.parse(argc, argv).expect("Valid CLI parameter"), roudiConfig);
+    IceOryxRouDiApp roudi(cmdLineParser.parse(argc, argv).expect("Valid CLI parameter"), config);
 
     // run roudi
     return roudi.run();

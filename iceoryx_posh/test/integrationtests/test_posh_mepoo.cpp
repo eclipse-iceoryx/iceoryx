@@ -77,9 +77,9 @@ class Mepoo_IntegrationTest : public Test
         CUSTOM,
     };
 
-    iox::RouDiConfig_t createRouDiConfig(MemPoolInfoContainer& memPoolTestContainer,
-                                         std::vector<TestMemPoolConfig>& testMempoolConfig,
-                                         const configType defaultconf = configType::DEFAULT)
+    iox::IceoryxConfig createIceoryxConfig(MemPoolInfoContainer& memPoolTestContainer,
+                                           std::vector<TestMemPoolConfig>& testMempoolConfig,
+                                           const configType defaultconf = configType::DEFAULT)
     {
         if (defaultconf == configType::CUSTOM)
         {
@@ -100,14 +100,13 @@ class Mepoo_IntegrationTest : public Test
             }
 
             auto currentGroup = iox::PosixGroup::getGroupOfCurrentProcess();
-            iox::RouDiConfig_t roudiConfig;
-            roudiConfig.m_sharedMemorySegments.push_back(
-                {currentGroup.getName(), currentGroup.getName(), mempoolConfig});
-            return roudiConfig;
+            iox::IceoryxConfig config;
+            config.m_sharedMemorySegments.push_back({currentGroup.getName(), currentGroup.getName(), mempoolConfig});
+            return config;
         }
         else
         {
-            return iox::RouDiConfig_t().setDefaults();
+            return iox::IceoryxConfig().setDefaults();
         }
     }
 
@@ -115,7 +114,7 @@ class Mepoo_IntegrationTest : public Test
                std::vector<TestMemPoolConfig>& testMempoolConfig,
                const configType defaultconf = configType::DEFAULT)
     {
-        auto config = createRouDiConfig(memPoolTestContainer, testMempoolConfig, defaultconf);
+        auto config = createIceoryxConfig(memPoolTestContainer, testMempoolConfig, defaultconf);
         m_roudiEnv.emplace(config);
 
         ASSERT_THAT(m_roudiEnv.has_value(), Eq(true));
@@ -133,7 +132,7 @@ class Mepoo_IntegrationTest : public Test
                         std::vector<TestMemPoolConfig>& testMempoolConfig,
                         const configType defaultconf = configType::DEFAULT)
     {
-        auto config = createRouDiConfig(memPoolTestContainer, testMempoolConfig, defaultconf);
+        auto config = createIceoryxConfig(memPoolTestContainer, testMempoolConfig, defaultconf);
         m_roudiEnv.emplace(config);
 
         ASSERT_THAT(m_roudiEnv.has_value(), Eq(true));

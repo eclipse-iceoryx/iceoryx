@@ -29,50 +29,27 @@ using namespace ::testing;
 using namespace iox::popo;
 using namespace iox;
 
-TEST(UniquePortId_test, SettingTheRouDiIdWorks)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "473467bf-1a6f-4cd2-acd8-447a623a5301");
-
-    GTEST_SKIP() << "This test is already performed in "
-                    "IceoryxRoudiApp_test::ConstructorCalledWithArgUniqueIdTwoTimesReturnError";
-}
-
-TEST(UniquePortId_test, SettingTheRouDiIdTwiceFails)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "fe468314-cd38-4363-bbf9-f106bf9ec1f4");
-
-    GTEST_SKIP() << "This test is already performed in "
-                    "IceoryxRoudiApp_test::ConstructorCalledWithArgUniqueIdTwoTimesReturnError";
-}
-
-TEST(UniquePortId_test, GettingTheRouDiIdWithoutSettingReturnsDefaultId)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "68de213f-7009-4573-8791-9f09f8ba413c");
-
-    GTEST_SKIP() << "The static variable containing the unique RouDi ID will be set in other tests and therefore this "
-                    "test does not have a meaningful result.";
-
-    EXPECT_THAT(iox::popo::UniquePortId::getUniqueRouDiId(), Eq(iox::roudi::DEFAULT_UNIQUE_ROUDI_ID));
-}
-
 TEST(UniquePortId_test, DefaultConstructorIncrementsID)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2912c5bb-fd6d-46b4-ab32-97cfb7018860");
-    UniquePortId a, b;
+    UniquePortId a{roudi::DEFAULT_UNIQUE_ROUDI_ID};
+    UniquePortId b{roudi::DEFAULT_UNIQUE_ROUDI_ID};
     EXPECT_THAT(static_cast<uint64_t>(a) + 1, Eq(static_cast<uint64_t>(b)));
 }
 
 TEST(UniquePortId_test, CopyConstructorSetsSameID)
 {
     ::testing::Test::RecordProperty("TEST_ID", "dbe1a4fd-f4fe-47e5-83ef-38a9e59afd94");
-    UniquePortId a, b(a);
+    UniquePortId a{roudi::DEFAULT_UNIQUE_ROUDI_ID};
+    UniquePortId b{a};
     EXPECT_THAT(static_cast<uint64_t>(a), Eq(static_cast<uint64_t>(b)));
 }
 
 TEST(UniquePortId_test, CopyConstructorAssignmentSetsSameID)
 {
     ::testing::Test::RecordProperty("TEST_ID", "31dfad29-0da0-41b8-b78f-dbeda0d7e684");
-    UniquePortId a, b;
+    UniquePortId a{roudi::DEFAULT_UNIQUE_ROUDI_ID};
+    UniquePortId b{roudi::DEFAULT_UNIQUE_ROUDI_ID};
     a = b;
     EXPECT_THAT(a, Eq(b));
 }
@@ -80,7 +57,7 @@ TEST(UniquePortId_test, CopyConstructorAssignmentSetsSameID)
 TEST(UniquePortId_test, MoveConstructorSetsSameID)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2abb1afa-094a-4d28-a3cc-328212ad2f7b");
-    UniquePortId a;
+    UniquePortId a{roudi::DEFAULT_UNIQUE_ROUDI_ID};
     auto id = static_cast<uint64_t>(a);
     decltype(a) b(std::move(a));
     EXPECT_THAT(static_cast<uint64_t>(b), Eq(id));
@@ -89,7 +66,8 @@ TEST(UniquePortId_test, MoveConstructorSetsSameID)
 TEST(UniquePortId_test, MoveAssignmentSetsSameID)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5d8a8771-be7a-45d2-b2bb-be89938241b6");
-    UniquePortId a, b;
+    UniquePortId a{roudi::DEFAULT_UNIQUE_ROUDI_ID};
+    UniquePortId b{roudi::DEFAULT_UNIQUE_ROUDI_ID};
     auto id = static_cast<uint64_t>(a);
     b = std::move(a);
     EXPECT_THAT(static_cast<uint64_t>(b), Eq(id));
@@ -98,7 +76,8 @@ TEST(UniquePortId_test, MoveAssignmentSetsSameID)
 TEST(UniquePortId_test, SameIDsAreEqual)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4040fe82-3220-402d-8618-b152f6c1042e");
-    UniquePortId a, b(a);
+    UniquePortId a{roudi::DEFAULT_UNIQUE_ROUDI_ID};
+    UniquePortId b{a};
     EXPECT_TRUE(a == b);
     EXPECT_TRUE(a <= b);
     EXPECT_FALSE(a != b);
@@ -108,7 +87,8 @@ TEST(UniquePortId_test, SameIDsAreEqual)
 TEST(UniquePortId_test, DifferentIDsAreNotEqual)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ca8c7eae-d2af-4560-9bb7-c2e876103a62");
-    UniquePortId a, b;
+    UniquePortId a{roudi::DEFAULT_UNIQUE_ROUDI_ID};
+    UniquePortId b{roudi::DEFAULT_UNIQUE_ROUDI_ID};
     EXPECT_FALSE(a == b);
     EXPECT_TRUE(a <= b);
     EXPECT_TRUE(a != b);
@@ -118,7 +98,8 @@ TEST(UniquePortId_test, DifferentIDsAreNotEqual)
 TEST(UniquePortId_test, LatestIDIsGreatestID)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1327e92a-bc07-4ec9-8bc5-ee5a935ccd66");
-    UniquePortId a, b;
+    UniquePortId a{roudi::DEFAULT_UNIQUE_ROUDI_ID};
+    UniquePortId b{roudi::DEFAULT_UNIQUE_ROUDI_ID};
     EXPECT_TRUE(a < b);
     EXPECT_TRUE(a <= b);
     EXPECT_FALSE(a > b);
@@ -128,7 +109,8 @@ TEST(UniquePortId_test, LatestIDIsGreatestID)
 TEST(UniquePortId_test, FirstIDIsSmallestID)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6951e91f-0112-4c97-b972-34ddeada4191");
-    UniquePortId a, b;
+    UniquePortId a{roudi::DEFAULT_UNIQUE_ROUDI_ID};
+    UniquePortId b{roudi::DEFAULT_UNIQUE_ROUDI_ID};
     EXPECT_FALSE(b < a);
     EXPECT_FALSE(b <= a);
     EXPECT_TRUE(b > a);
@@ -138,7 +120,8 @@ TEST(UniquePortId_test, FirstIDIsSmallestID)
 TEST(UniquePortId_test, ConversionToUint64)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c1c58736-9755-4736-b163-3c8cc26db80d");
-    UniquePortId a, b;
+    UniquePortId a{roudi::DEFAULT_UNIQUE_ROUDI_ID};
+    UniquePortId b{roudi::DEFAULT_UNIQUE_ROUDI_ID};
     uint64_t id = static_cast<uint64_t>(a);
     b = a;
     EXPECT_EQ(id, static_cast<uint64_t>(b));
@@ -147,7 +130,7 @@ TEST(UniquePortId_test, ConversionToUint64)
 TEST(UniquePortId_test, CreatingAnUniqueIdWithDefaultCTorIsValid)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0d810ee1-8ddd-48b3-8b53-d4430dd4bbe6");
-    UniquePortId a;
+    UniquePortId a{roudi::DEFAULT_UNIQUE_ROUDI_ID};
     EXPECT_TRUE(a.isValid());
 }
 

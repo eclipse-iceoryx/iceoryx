@@ -38,8 +38,11 @@ TEST_F(CaproMessage_test, CTorSetsParametersCorrectly)
     IdString_t testEventID{"2"};
     IdString_t testInstanceID{"3"};
     ServiceDescription sd(testServiceID, testEventID, testInstanceID);
-    iox::popo::SubscriberPortData recData{
-        sd, "foo", iox::popo::VariantQueueTypes::FiFo_MultiProducerSingleConsumer, iox::popo::SubscriberOptions()};
+    iox::popo::SubscriberPortData recData{sd,
+                                          "foo",
+                                          iox::roudi::DEFAULT_UNIQUE_ROUDI_ID,
+                                          iox::popo::VariantQueueTypes::FiFo_MultiProducerSingleConsumer,
+                                          iox::popo::SubscriberOptions()};
 
     CaproMessage testObj(CaproMessageType::OFFER, sd, CaproServiceType::PUBLISHER, &recData);
 

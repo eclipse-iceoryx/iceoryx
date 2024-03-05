@@ -25,8 +25,10 @@ namespace iox
 {
 namespace roudi
 {
-MemPoolSegmentManagerMemoryBlock::MemPoolSegmentManagerMemoryBlock(const mepoo::SegmentConfig& segmentConfig) noexcept
+MemPoolSegmentManagerMemoryBlock::MemPoolSegmentManagerMemoryBlock(const mepoo::SegmentConfig& segmentConfig,
+                                                                   const DomainId domainId) noexcept
     : m_segmentConfig(segmentConfig)
+    , m_domainId(domainId)
 {
 }
 
@@ -53,7 +55,7 @@ void MemPoolSegmentManagerMemoryBlock::onMemoryAvailable(not_null<void*> memory)
     BumpAllocator allocator(memory, size());
     auto* segmentManager = allocator.allocate(sizeof(mepoo::SegmentManager<>), alignof(mepoo::SegmentManager<>))
                                .expect("There should be enough memory for the 'SegmentManager'");
-    m_segmentManager = new (segmentManager) mepoo::SegmentManager<>(m_segmentConfig, &allocator);
+    m_segmentManager = new (segmentManager) mepoo::SegmentManager<>(m_segmentConfig, m_domainId, &allocator);
 }
 
 void MemPoolSegmentManagerMemoryBlock::destroy() noexcept

@@ -29,7 +29,7 @@ namespace roudi
 struct DefaultRouDiMemory
 {
   public:
-    DefaultRouDiMemory(const RouDiConfig_t& roudiConfig) noexcept;
+    DefaultRouDiMemory(const IceoryxConfig& config) noexcept;
     virtual ~DefaultRouDiMemory() noexcept = default;
 
     DefaultRouDiMemory(DefaultRouDiMemory&&) = delete;

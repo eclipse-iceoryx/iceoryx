@@ -97,7 +97,6 @@ TEST(NewType, CopyConstructableDoesCompile)
     IOX_NEW_TYPE(SutType, uint64_t, newtype::ConstructByValueCopy, newtype::CopyConstructable, newtype::Comparable);
 
     SutType a(91);
-    SutType b(92);
     // NOLINTNEXTLINE(performance-unnecessary-copy-initialization) copy constructor shall be tested
     SutType c(a);
     EXPECT_TRUE(a == c);
@@ -106,10 +105,9 @@ TEST(NewType, CopyConstructableDoesCompile)
 TEST(NewType, CopyConstructableComplexTypeDoesCompile)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c73499b8-c8b0-4cc1-b097-44a18f571d34");
-    IOX_NEW_TYPE(SutType, uint64_t, newtype::ConstructByValueCopy, newtype::CopyConstructable, newtype::Comparable);
+    IOX_NEW_TYPE(SutType, ComplexType, newtype::ConstructByValueCopy, newtype::CopyConstructable, newtype::Comparable);
 
     SutType a(91);
-    SutType b(92);
     // NOLINTNEXTLINE(performance-unnecessary-copy-initialization) copy constructor shall be tested
     SutType c(a);
     EXPECT_TRUE(a == c);

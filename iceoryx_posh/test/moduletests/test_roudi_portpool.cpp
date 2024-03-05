@@ -86,7 +86,7 @@ class PortPool_test : public Test
     }
 
   public:
-    roudi::PortPoolData m_portPoolData;
+    roudi::PortPoolData m_portPoolData{roudi::DEFAULT_UNIQUE_ROUDI_ID};
     roudi::PortPool sut{m_portPoolData};
 
     ServiceDescription m_serviceDescription{"service1", "instance1", "event1"};

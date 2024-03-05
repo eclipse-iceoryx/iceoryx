@@ -23,6 +23,7 @@
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
 #include "iceoryx_posh/roudi/iceoryx_roudi_components.hpp"
 #include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
+#include "iceoryx_posh/roudi_env/minimal_iceoryx_config.hpp"
 #include "iceoryx_posh/roudi_env/runtime_test_interface.hpp"
 #include "iox/duration.hpp"
 
@@ -39,9 +40,9 @@ namespace roudi_env
 class RouDiEnv
 {
   public:
-    RouDiEnv(const RouDiConfig_t& roudiConfig = RouDiConfig_t().setDefaults(),
-             roudi::MonitoringMode monitoringMode = roudi::MonitoringMode::OFF,
-             const uint16_t uniqueRouDiId = roudi::DEFAULT_UNIQUE_ROUDI_ID) noexcept;
+    RouDiEnv(const DomainId domainId, const IceoryxConfig& config = MinimalIceoryxConfigBuilder().create()) noexcept;
+
+    RouDiEnv(const IceoryxConfig& config = MinimalIceoryxConfigBuilder().create()) noexcept;
     virtual ~RouDiEnv() noexcept;
 
     RouDiEnv(RouDiEnv&& rhs) noexcept = default;
@@ -63,12 +64,12 @@ class RouDiEnv
     {
     };
     /// @brief for implementations on top of RouDiEnv
-    RouDiEnv(MainCTor, const uint16_t uniqueRouDiId = roudi::DEFAULT_UNIQUE_ROUDI_ID) noexcept;
+    RouDiEnv(MainCTor) noexcept;
 
     void cleanupRuntimes() noexcept;
 
   private:
-    RuntimeTestInterface m_runtimes;
+    optional<RuntimeTestInterface> m_runtimes;
 #if defined(__APPLE__)
     iox::units::Duration m_discoveryLoopWaitToFinishTimeout{iox::units::Duration::fromMilliseconds(1000)};
 #else

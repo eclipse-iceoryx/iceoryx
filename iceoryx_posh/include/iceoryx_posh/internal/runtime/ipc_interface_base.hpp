@@ -144,9 +144,10 @@ std::string IpcMessageErrorTypeToString(const IpcMessageErrorType msg) noexcept;
 using InterfaceName_t = string<MAX_IPC_CHANNEL_NAME_LENGTH>;
 /// @brief Transforms an IPC channel name to a prefixed interface name
 /// @param[in] channelName the name of the channel without the 'iox1_#_' prefix
+/// @param[in] domainId to tie the interface to
 /// @param[in] resourceType to be used for the resource prefix
 /// @return the interface name with the 'iox1_#_' prefix
-InterfaceName_t ipcChannelNameToInterfaceName(RuntimeName_t channelName, ResourceType resourceType);
+InterfaceName_t ipcChannelNameToInterfaceName(RuntimeName_t channelName, DomainId domainId, ResourceType resourceType);
 
 class IpcInterfaceUser;
 class IpcInterfaceCreator;
@@ -239,6 +240,7 @@ class IpcInterface
     IpcInterface() = delete;
 
     IpcInterface(const RuntimeName_t& runtimeName,
+                 const DomainId domainId,
                  const ResourceType resourceType,
                  const uint64_t maxMessages,
                  const uint64_t messageSize) noexcept;

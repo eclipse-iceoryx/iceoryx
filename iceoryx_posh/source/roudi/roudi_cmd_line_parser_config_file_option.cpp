@@ -72,7 +72,7 @@ expected<CmdLineArgs_t, CmdLineParserResult> CmdLineParserConfigFileOption::pars
             auto result = CmdLineParser::parse(argc, argv, CmdLineArgumentParsingMode::ONE);
             if (result.has_error())
             {
-                return err(result.error());
+                return result;
             }
         }
         };

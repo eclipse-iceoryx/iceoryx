@@ -80,31 +80,43 @@ class PublisherPort_test : public Test
     // publisher port w/o offer on create
     iox::popo::PublisherOptions m_noOfferOnCreatePublisherOptions{
         0U, iox::NodeName_t{""}, false, iox::popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA};
-    iox::popo::PublisherPortData m_publisherPortDataNoOfferOnCreate{
-        iox::capro::ServiceDescription("a", "b", "c"), "myApp", &m_memoryManager, m_noOfferOnCreatePublisherOptions};
+    iox::popo::PublisherPortData m_publisherPortDataNoOfferOnCreate{iox::capro::ServiceDescription("a", "b", "c"),
+                                                                    "myApp",
+                                                                    iox::roudi::DEFAULT_UNIQUE_ROUDI_ID,
+                                                                    &m_memoryManager,
+                                                                    m_noOfferOnCreatePublisherOptions};
     iox::popo::PublisherPortRouDi m_sutNoOfferOnCreateRouDiSide{&m_publisherPortDataNoOfferOnCreate};
     iox::popo::PublisherPortUser m_sutNoOfferOnCreateUserSide{&m_publisherPortDataNoOfferOnCreate};
 
     // publisher port that waits for subscriber when queue is full
     iox::popo::PublisherOptions m_waitForSubscriberPublisherOptions{
         0U, iox::NodeName_t{""}, false, iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER};
-    iox::popo::PublisherPortData m_publisherPortDataWaitForSubscriber{
-        iox::capro::ServiceDescription("a", "b", "c"), "myApp", &m_memoryManager, m_waitForSubscriberPublisherOptions};
+    iox::popo::PublisherPortData m_publisherPortDataWaitForSubscriber{iox::capro::ServiceDescription("a", "b", "c"),
+                                                                      "myApp",
+                                                                      iox::roudi::DEFAULT_UNIQUE_ROUDI_ID,
+                                                                      &m_memoryManager,
+                                                                      m_waitForSubscriberPublisherOptions};
     iox::popo::PublisherPortRouDi m_sutWaitForSubscriberRouDiSide{&m_publisherPortDataWaitForSubscriber};
     iox::popo::PublisherPortUser m_sutWaitForSubscriberUserSide{&m_publisherPortDataWaitForSubscriber};
 
     // publisher port w/ history
     iox::popo::PublisherOptions m_withHistoryPublisherOptions{
         iox::MAX_PUBLISHER_HISTORY, iox::NodeName_t{""}, true, iox::popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA};
-    iox::popo::PublisherPortData m_publisherPortDataHistory{
-        iox::capro::ServiceDescription("x", "y", "z"), "myApp", &m_memoryManager, m_withHistoryPublisherOptions};
+    iox::popo::PublisherPortData m_publisherPortDataHistory{iox::capro::ServiceDescription("x", "y", "z"),
+                                                            "myApp",
+                                                            iox::roudi::DEFAULT_UNIQUE_ROUDI_ID,
+                                                            &m_memoryManager,
+                                                            m_withHistoryPublisherOptions};
     iox::popo::PublisherPortUser m_sutWithHistoryUserSide{&m_publisherPortDataHistory};
     iox::popo::PublisherPortRouDi m_sutWithHistoryRouDiSide{&m_publisherPortDataHistory};
 
     // publisher port w/ default options
     iox::popo::PublisherOptions m_withDefaultPublisherOptions{};
-    iox::popo::PublisherPortData m_publisherPortDataDefault{
-        iox::capro::ServiceDescription("x", "y", "z"), "myApp", &m_memoryManager, m_withDefaultPublisherOptions};
+    iox::popo::PublisherPortData m_publisherPortDataDefault{iox::capro::ServiceDescription("x", "y", "z"),
+                                                            "myApp",
+                                                            iox::roudi::DEFAULT_UNIQUE_ROUDI_ID,
+                                                            &m_memoryManager,
+                                                            m_withDefaultPublisherOptions};
     iox::popo::PublisherPortUser m_sutWithDefaultOptionsUserSide{&m_publisherPortDataDefault};
     iox::popo::PublisherPortRouDi m_sutWithDefaultOptionsRouDiSide{&m_publisherPortDataDefault};
 };
@@ -494,8 +506,11 @@ TEST_F(PublisherPort_test, subscribeWithHistoryLikeTheARAField)
     ::testing::Test::RecordProperty("TEST_ID", "12ea9650-c928-4185-8519-be949e2afcf7");
     iox::popo::PublisherOptions options;
     options.historyCapacity = 1U;
-    iox::popo::PublisherPortData publisherPortDataHistory{
-        iox::capro::ServiceDescription("x", "y", "z"), "myApp", &m_memoryManager, options};
+    iox::popo::PublisherPortData publisherPortDataHistory{iox::capro::ServiceDescription("x", "y", "z"),
+                                                          "myApp",
+                                                          iox::roudi::DEFAULT_UNIQUE_ROUDI_ID,
+                                                          &m_memoryManager,
+                                                          options};
     iox::popo::PublisherPortUser sutWithHistoryUseriSide{&publisherPortDataHistory};
     iox::popo::PublisherPortRouDi sutWithHistoryRouDiSide{&publisherPortDataHistory};
     // do it the ara field like way

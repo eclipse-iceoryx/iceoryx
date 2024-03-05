@@ -26,6 +26,7 @@
 #include "iceoryx_posh/roudi/memory/roudi_memory_interface.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
 #include "iceoryx_posh/roudi/roudi_app.hpp"
+#include "iceoryx_posh/roudi/roudi_config.hpp"
 #include "iox/posix_user.hpp"
 #include "iox/relative_pointer.hpp"
 #include "iox/scope_guard.hpp"
@@ -43,46 +44,12 @@ using namespace iox::units::duration_literals;
 class RouDi
 {
   public:
-    /// @brief Indicate whether the thread processing messages from the runtimes will start directly or deferred
-    /// this is important for derived classes which may need to initialize their members before the thread starts
-    enum class RuntimeMessagesThreadStart
-    {
-        IMMEDIATE,
-        DEFER_START
-    };
-
-    struct RoudiStartupParameters
-    {
-        RoudiStartupParameters(
-            const roudi::MonitoringMode monitoringMode = roudi::MonitoringMode::ON,
-            const bool killProcessesInDestructor = true,
-            const RuntimeMessagesThreadStart RuntimeMessagesThreadStart = RuntimeMessagesThreadStart::IMMEDIATE,
-            const version::CompatibilityCheckLevel compatibilityCheckLevel = version::CompatibilityCheckLevel::PATCH,
-            const units::Duration processKillDelay = roudi::PROCESS_DEFAULT_KILL_DELAY,
-            const units::Duration processTerminationDelay = roudi::PROCESS_DEFAULT_TERMINATION_DELAY) noexcept
-            : m_monitoringMode(monitoringMode)
-            , m_killProcessesInDestructor(killProcessesInDestructor)
-            , m_runtimesMessagesThreadStart(RuntimeMessagesThreadStart)
-            , m_compatibilityCheckLevel(compatibilityCheckLevel)
-            , m_processKillDelay(processKillDelay)
-            , m_processTerminationDelay(processTerminationDelay)
-        {
-        }
-
-        const roudi::MonitoringMode m_monitoringMode;
-        const bool m_killProcessesInDestructor;
-        const RuntimeMessagesThreadStart m_runtimesMessagesThreadStart;
-        const version::CompatibilityCheckLevel m_compatibilityCheckLevel;
-        const units::Duration m_processKillDelay;
-        const units::Duration m_processTerminationDelay;
-    };
-
     RouDi& operator=(const RouDi& other) = delete;
     RouDi(const RouDi& other) = delete;
 
     RouDi(RouDiMemoryInterface& roudiMemoryInterface,
           PortManager& portManager,
-          RoudiStartupParameters roudiStartupParameters) noexcept;
+          const config::RouDiConfig& roudiConfig) noexcept;
 
     virtual ~RouDi() noexcept;
 
@@ -136,7 +103,7 @@ class RouDi
     void monitorAndDiscoveryUpdate() noexcept;
 
     ScopeGuard m_unregisterRelativePtr{[] { UntypedRelativePointer::unregisterAll(); }};
-    bool m_killProcessesInDestructor;
+    const config::RouDiConfig m_roudiConfig;
     std::atomic_bool m_runMonitoringAndDiscoveryThread;
     std::atomic_bool m_runHandleRuntimeMessageThread;
 
@@ -166,11 +133,6 @@ class RouDi
   protected:
     ProcessIntrospectionType m_processIntrospection;
     MemPoolIntrospectionType m_mempoolIntrospection;
-
-  private:
-    roudi::MonitoringMode m_monitoringMode{roudi::MonitoringMode::ON};
-    units::Duration m_processTerminationDelay;
-    units::Duration m_processKillDelay;
 };
 
 } // namespace roudi

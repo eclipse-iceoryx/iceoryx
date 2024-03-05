@@ -34,6 +34,7 @@ int main()
         // open a new scope to destroy the node before the sleep
         {
             auto node_result = iox::posh::experimental::NodeBuilder(APP_NAME)
+                                   .domain_id_from_env_or_default()
                                    .roudi_registration_timeout(iox::units::Duration::fromSeconds(1))
                                    .create();
             if (node_result.has_error())

@@ -23,6 +23,7 @@ namespace mepoo
 {
 SegmentConfig& SegmentConfig::setDefaults() noexcept
 {
+    m_sharedMemorySegments.clear();
     auto groupName = PosixGroup::getGroupOfCurrentProcess().getName();
     m_sharedMemorySegments.push_back({groupName, groupName, MePooConfig().setDefaults()});
     return *this;

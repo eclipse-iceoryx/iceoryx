@@ -22,8 +22,8 @@ namespace iox
 namespace testing
 {
 
-RouDi_GTest::RouDi_GTest(const iox::RouDiConfig_t& roudiConfig) noexcept
-    : iox::roudi_env::RouDiEnv(roudiConfig)
+RouDi_GTest::RouDi_GTest(const iox::IceoryxConfig& config) noexcept
+    : iox::roudi_env::RouDiEnv(config)
 {
 }
 

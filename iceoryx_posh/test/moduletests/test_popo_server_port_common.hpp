@@ -46,7 +46,8 @@ class ServerPort_test : public Test
                       const iox::RuntimeName_t& runtimeName,
                       const ServerOptions& serverOptions,
                       MemoryManager& memoryManager)
-            : portData(serviceDescription, runtimeName, serverOptions, &memoryManager)
+            : portData(
+                serviceDescription, runtimeName, iox::roudi::DEFAULT_UNIQUE_ROUDI_ID, serverOptions, &memoryManager)
         {
         }
 

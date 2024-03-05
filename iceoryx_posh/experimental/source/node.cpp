@@ -24,23 +24,92 @@ NodeBuilder::NodeBuilder(const NodeName_t& name) noexcept
 {
 }
 
+NodeBuilder&& NodeBuilder::domain_id(const DomainId domainId) && noexcept
+{
+    m_domain_id.emplace(domainId);
+    return std::move(*this);
+}
+
+NodeBuilder&& NodeBuilder::domain_id_from_env() && noexcept
+{
+    m_domain_id.reset();
+    // JUSTIFICATION getenv is required for the functionality of this function; see also declaration in header
+    // NOLINTNEXTLINE(concurrency-mt-unsafe)
+    if (const auto* domain_id_string = std::getenv("IOX_DOMAIN_ID"))
+    {
+        iox::convert::from_string<uint16_t>(domain_id_string)
+            .and_then([this](const auto& env_domain_id) { m_domain_id.emplace(env_domain_id); })
+            .or_else([&domain_id_string]() {
+                IOX_LOG(INFO, "Invalid value for 'IOX_DOMAIN_ID' environment variable!'");
+                IOX_LOG(INFO, "Found: '" << domain_id_string << "'! Allowed are integer from '0' to '65535'!");
+            });
+    }
+    return std::move(*this);
+}
+
+NodeBuilder&& NodeBuilder::domain_id_from_env_or(const DomainId domainId) && noexcept
+{
+    std::move(*this).domain_id_from_env();
+    if (!m_domain_id.has_value())
+    {
+        IOX_LOG(INFO,
+                "Could not get domain ID from 'IOX_DOMAIN_ID' and using '"
+                    << static_cast<DomainId::value_type>(domainId) << "' as fallback!");
+        m_domain_id.emplace(domainId);
+    }
+    return std::move(*this);
+}
+
+NodeBuilder&& NodeBuilder::domain_id_from_env_or_default() && noexcept
+{
+    return std::move(*this).domain_id_from_env_or(DEFAULT_DOMAIN_ID);
+}
+
 expected<Node, NodeBuilderError> NodeBuilder::create() noexcept
 {
-    auto location = m_shares_address_space_with_roudi ? runtime::RuntimeLocation::SAME_PROCESS_LIKE_ROUDI
-                                                      : runtime::RuntimeLocation::SEPARATE_PROCESS_FROM_ROUDI;
-    auto ipcRuntimeIterface = runtime::IpcRuntimeInterface::create(m_name, m_roudi_registration_timeout);
-    if (ipcRuntimeIterface.has_error())
+    if (!m_domain_id.has_value())
     {
-        return err(into<NodeBuilderError>(ipcRuntimeIterface.error()));
+        return err(NodeBuilderError::INVALID_OR_NO_DOMAIN_ID);
     }
-    return ok(Node{m_name, location, std::move(ipcRuntimeIterface.value())});
+    auto domain_id = m_domain_id.value();
+
+    auto ipcRuntimeInterfaceResult =
+        runtime::IpcRuntimeInterface::create(m_name, domain_id, m_roudi_registration_timeout);
+    if (ipcRuntimeInterfaceResult.has_error())
+    {
+        return err(into<NodeBuilderError>(ipcRuntimeInterfaceResult.error()));
+    }
+
+    auto& ipcRuntimeInterface = ipcRuntimeInterfaceResult.value();
+
+    optional<runtime::SharedMemoryUser> shmInterface;
+
+    // in case the runtime is located in the same process as RouDi the shm segments are already opened;
+    // also in case of the RouDiEnv this would close the shm on destruction of the runtime which is also
+    // not desired; therefore open the shm segments only when the runtime lives in a different process from RouDi
+    if (!m_shares_address_space_with_roudi)
+    {
+        auto shmInterfaceResult =
+            runtime::SharedMemoryUser::create(domain_id,
+                                              ipcRuntimeInterface.getSegmentId(),
+                                              ipcRuntimeInterface.getShmTopicSize(),
+                                              ipcRuntimeInterface.getSegmentManagerAddressOffset())
+                .and_then([&shmInterface](auto& value) { shmInterface.emplace(std::move(value)); });
+        if (shmInterfaceResult.has_error())
+        {
+            return err(into<NodeBuilderError>(shmInterfaceResult.error()));
+        }
+    }
+
+    return ok(Node{m_name, std::move(ipcRuntimeInterface), std::move(shmInterface)});
 }
 
 Node::Node(const NodeName_t& name,
-           const runtime::RuntimeLocation location,
-           runtime::IpcRuntimeInterface&& runtime_interface) noexcept
+           runtime::IpcRuntimeInterface&& runtime_interface,
+           optional<runtime::SharedMemoryUser>&& ipc_interface) noexcept
     : m_runtime(unique_ptr<runtime::PoshRuntime>{
-        new runtime::PoshRuntimeImpl{make_optional<const NodeName_t*>(&name), location, std::move(runtime_interface)},
+        new runtime::PoshRuntimeImpl{make_optional<const NodeName_t*>(&name),
+                                     {std::move(runtime_interface), std::move(ipc_interface)}},
         [&](auto* const rt) { delete rt; }})
 {
 }

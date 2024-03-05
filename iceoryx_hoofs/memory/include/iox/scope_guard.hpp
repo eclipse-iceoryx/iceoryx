@@ -45,16 +45,18 @@ template <uint64_t CleanupCapacity = DEFAULT_FUNCTION_CAPACITY>
 class ScopeGuardWithVariableCapacity final
 {
   public:
+    using InitFunction = function_ref<void()>;
+    using CleanupFunction = function<void(), CleanupCapacity>;
+
     /// @brief constructor which creates ScopeGuard that calls only the cleanupFunction on destruction
     /// @param[in] cleanupFunction callable which will be called in the destructor
-    explicit ScopeGuardWithVariableCapacity(const function<void(), CleanupCapacity>& cleanupFunction) noexcept;
+    explicit ScopeGuardWithVariableCapacity(const CleanupFunction& cleanupFunction) noexcept;
 
     /// @brief constructor which calls initFunction and stores the cleanupFunction which will be
     ///           called in the destructor
     /// @param[in] initFunction callable which will be called in the constructor
     /// @param[in] cleanupFunction callable which will be called in the destructor
-    ScopeGuardWithVariableCapacity(const function_ref<void()> initFunction,
-                                   const function<void(), CleanupCapacity>& cleanupFunction) noexcept;
+    ScopeGuardWithVariableCapacity(const InitFunction initFunction, const CleanupFunction& cleanupFunction) noexcept;
 
     /// @brief calls m_cleanupFunction callable if it was set in the constructor
     ~ScopeGuardWithVariableCapacity() noexcept;
@@ -67,6 +69,11 @@ class ScopeGuardWithVariableCapacity final
 
     /// @brief move assignment which moves a ScopeGuard object without calling the cleanupFunction
     ScopeGuardWithVariableCapacity& operator=(ScopeGuardWithVariableCapacity&& rhs) noexcept;
+
+    /// @brief releases the cleanup function without calling it
+    /// @param[in] scopeGuard to release the cleanup function
+    /// @return the cleanup function set in the ctor
+    static CleanupFunction release(ScopeGuardWithVariableCapacity&& scopeGuard) noexcept;
 
   private:
     void destroy() noexcept;

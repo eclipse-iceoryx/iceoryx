@@ -63,6 +63,7 @@ class iox_server_test : public Test
                                            IdString_t(TruncateToCapacity, INSTANCE),
                                            IdString_t(TruncateToCapacity, EVENT)},
                         RUNTIME_NAME,
+                        roudi::DEFAULT_UNIQUE_ROUDI_ID,
                         options,
                         &memoryManager);
         return &*sutPort;

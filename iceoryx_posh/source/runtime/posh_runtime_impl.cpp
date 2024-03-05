@@ -33,21 +33,10 @@ namespace iox
 namespace runtime
 {
 PoshRuntimeImpl::PoshRuntimeImpl(optional<const RuntimeName_t*> name,
-                                 const RuntimeLocation location,
-                                 IpcRuntimeInterface&& ipcRuntimeInterface) noexcept
+                                 std::pair<IpcRuntimeInterface, optional<SharedMemoryUser>>&& interfaces) noexcept
     : PoshRuntime(name)
-    , m_ipcChannelInterface(concurrent::ForwardArgsToCTor, std::move(ipcRuntimeInterface))
-    , m_ShmInterface([&] {
-        // in case the runtime is located in the same process like RouDi the shm is already opened;
-        // also in case of the RouDiEnvironment this would close the shm on destruction of the runstime which is also
-        // not desired
-        auto ipcInterface = m_ipcChannelInterface.get_scope_guard();
-        return location == RuntimeLocation::SAME_PROCESS_LIKE_ROUDI
-                   ? nullopt
-                   : optional<SharedMemoryUser>({ipcInterface->getShmTopicSize(),
-                                                 ipcInterface->getSegmentId(),
-                                                 ipcInterface->getSegmentManagerAddressOffset()});
-    }())
+    , m_ipcChannelInterface(concurrent::ForwardArgsToCTor, std::move(interfaces.first))
+    , m_ShmInterface(std::move(interfaces.second))
 {
     auto ipcInterface = m_ipcChannelInterface.get_scope_guard();
     auto heartbeatAddressOffset = ipcInterface->getHeartbeatAddressOffset();
@@ -65,12 +54,15 @@ PoshRuntimeImpl::PoshRuntimeImpl(optional<const RuntimeName_t*> name,
                             &PoshRuntimeImpl::sendKeepAliveAndHandleShutdownPreparation);
 }
 
-PoshRuntimeImpl::PoshRuntimeImpl(optional<const RuntimeName_t*> name, const RuntimeLocation location) noexcept
-    : PoshRuntimeImpl(name, location, [&name] {
-        auto runtimeInterface = IpcRuntimeInterface::create(*name.value(), runtime::PROCESS_WAITING_FOR_ROUDI_TIMEOUT);
-        if (runtimeInterface.has_error())
+PoshRuntimeImpl::PoshRuntimeImpl(optional<const RuntimeName_t*> name,
+                                 const DomainId domainId,
+                                 const RuntimeLocation location) noexcept
+    : PoshRuntimeImpl(name, [&name, &domainId, &location] {
+        auto runtimeInterfaceResult =
+            IpcRuntimeInterface::create(*name.value(), domainId, runtime::PROCESS_WAITING_FOR_ROUDI_TIMEOUT);
+        if (runtimeInterfaceResult.has_error())
         {
-            switch (runtimeInterface.error())
+            switch (runtimeInterfaceResult.error())
             {
             case IpcRuntimeInterfaceError::CANNOT_CREATE_APPLICATION_CHANNEL:
                 IOX_REPORT_FATAL(PoshError::IPC_INTERFACE__UNABLE_TO_CREATE_APPLICATION_CHANNEL);
@@ -85,7 +77,40 @@ PoshRuntimeImpl::PoshRuntimeImpl(optional<const RuntimeName_t*> name, const Runt
 
             IOX_UNREACHABLE();
         }
-        return std::move(runtimeInterface.value());
+        auto& runtimeInterface = runtimeInterfaceResult.value();
+
+        optional<SharedMemoryUser> shmInterface;
+
+        // in case the runtime is located in the same process as RouDi the shm segments are already opened;
+        // also in case of the RouDiEnv this would close the shm on destruction of the runtime which is also
+        // not desired; therefore open the shm segments only when the runtime lives in a different process from RouDi
+        if (location == RuntimeLocation::SEPARATE_PROCESS_FROM_ROUDI)
+        {
+            auto shmInterfaceResult = SharedMemoryUser::create(domainId,
+                                                               runtimeInterface.getSegmentId(),
+                                                               runtimeInterface.getShmTopicSize(),
+                                                               runtimeInterface.getSegmentManagerAddressOffset());
+
+            if (shmInterfaceResult.has_error())
+            {
+                switch (shmInterfaceResult.error())
+                {
+                case runtime::SharedMemoryUserError::SHM_MAPPING_ERROR:
+                    IOX_REPORT_FATAL(PoshError::POSH__SHM_APP_MAPP_ERR);
+                case runtime::SharedMemoryUserError::RELATIVE_POINTER_MAPPING_ERROR:
+                    IOX_REPORT_FATAL(PoshError::POSH__SHM_APP_COULD_NOT_REGISTER_PTR_WITH_GIVEN_SEGMENT_ID);
+                case runtime::SharedMemoryUserError::TOO_MANY_SHM_SEGMENTS:
+                    IOX_REPORT_FATAL(PoshError::POSH__SHM_APP_SEGMENT_COUNT_OVERFLOW);
+                }
+
+                IOX_UNREACHABLE();
+            }
+
+            shmInterface.emplace(std::move(shmInterfaceResult.value()));
+        }
+
+        return std::pair<IpcRuntimeInterface, optional<SharedMemoryUser>>{std::move(runtimeInterface),
+                                                                          std::move(shmInterface)};
     }())
 {
 }

@@ -26,9 +26,8 @@ class IceOryxRouDiApp : public RouDiApp
 {
   public:
     /// @brief constructor to create the RouDi daemon with a given config
-    /// @param[in] Command liner parser object, that provides the settings
-    /// @param[in] RouDi config for mempool configuration
-    IceOryxRouDiApp(const config::CmdLineArgs_t& cmdLineArgs, const RouDiConfig_t& roudiConfig) noexcept;
+    /// @param[in] config for shm segment configuration and RouDi
+    IceOryxRouDiApp(const IceoryxConfig& config) noexcept;
 
     /// @brief starts the execution of the RouDi daemon
     /// @return Return code for programm execution

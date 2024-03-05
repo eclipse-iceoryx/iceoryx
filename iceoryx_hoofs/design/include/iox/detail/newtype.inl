@@ -24,7 +24,7 @@ namespace iox
 template <typename Derived, typename T, template <typename, typename> class... Policies>
 // AXIVION Next Construct AutosarC++19_03-A12.6.1 : m_value is initialized by the default constructor of T; the code
 // will not compile, if the default constructor of T does not exist or the DefaultConstructable policy is not added
-inline NewType<Derived, T, Policies...>::NewType() noexcept
+inline constexpr NewType<Derived, T, Policies...>::NewType() noexcept
 {
     static_assert(algorithm::doesContainType<newtype::DefaultConstructable<Derived, T>, Policies<Derived, T>...>(),
                   "This type is not default constructable, please add the newtype::DefaultConstructable policy.");
@@ -33,7 +33,8 @@ inline NewType<Derived, T, Policies...>::NewType() noexcept
 template <typename Derived, typename T, template <typename, typename> class... Policies>
 // AXIVION Next Construct AutosarC++19_03-A12.1.5 : delegating wanted only to "ProtectedConstructByValueCopy"
 // constructor of T
-inline NewType<Derived, T, Policies...>::NewType(newtype::internal::ProtectedConstructor_t, const T& rhs) noexcept
+inline constexpr NewType<Derived, T, Policies...>::NewType(newtype::internal::ProtectedConstructor_t,
+                                                           const T& rhs) noexcept
     : m_value(rhs)
 {
     static_assert(
@@ -43,7 +44,7 @@ inline NewType<Derived, T, Policies...>::NewType(newtype::internal::ProtectedCon
 }
 
 template <typename Derived, typename T, template <typename, typename> class... Policies>
-inline NewType<Derived, T, Policies...>::NewType(const T& rhs) noexcept
+inline constexpr NewType<Derived, T, Policies...>::NewType(const T& rhs) noexcept
     : m_value(rhs)
 {
     static_assert(
@@ -52,7 +53,7 @@ inline NewType<Derived, T, Policies...>::NewType(const T& rhs) noexcept
 }
 
 template <typename Derived, typename T, template <typename, typename> class... Policies>
-inline NewType<Derived, T, Policies...>::NewType(const NewType& rhs) noexcept
+inline constexpr NewType<Derived, T, Policies...>::NewType(const NewType& rhs) noexcept
     : m_value(rhs.m_value)
 {
     static_assert(algorithm::doesContainType<newtype::CopyConstructable<Derived, T>, Policies<Derived, T>...>(),
@@ -60,7 +61,7 @@ inline NewType<Derived, T, Policies...>::NewType(const NewType& rhs) noexcept
 }
 
 template <typename Derived, typename T, template <typename, typename> class... Policies>
-inline NewType<Derived, T, Policies...>::NewType(NewType&& rhs) noexcept
+inline constexpr NewType<Derived, T, Policies...>::NewType(NewType&& rhs) noexcept
     : m_value(std::move(rhs.m_value))
 {
     static_assert(algorithm::doesContainType<newtype::MoveConstructable<Derived, T>, Policies<Derived, T>...>(),
@@ -68,7 +69,8 @@ inline NewType<Derived, T, Policies...>::NewType(NewType&& rhs) noexcept
 }
 
 template <typename Derived, typename T, template <typename, typename> class... Policies>
-inline NewType<Derived, T, Policies...>& NewType<Derived, T, Policies...>::operator=(const NewType& rhs) noexcept
+inline constexpr NewType<Derived, T, Policies...>&
+NewType<Derived, T, Policies...>::operator=(const NewType& rhs) noexcept
 {
     if (this != &rhs)
     {
@@ -80,7 +82,7 @@ inline NewType<Derived, T, Policies...>& NewType<Derived, T, Policies...>::opera
 }
 
 template <typename Derived, typename T, template <typename, typename> class... Policies>
-inline NewType<Derived, T, Policies...>& NewType<Derived, T, Policies...>::operator=(NewType&& rhs) noexcept
+inline constexpr NewType<Derived, T, Policies...>& NewType<Derived, T, Policies...>::operator=(NewType&& rhs) noexcept
 {
     if (this != &rhs)
     {
@@ -92,7 +94,7 @@ inline NewType<Derived, T, Policies...>& NewType<Derived, T, Policies...>::opera
 }
 
 template <typename Derived, typename T, template <typename, typename> class... Policies>
-inline NewType<Derived, T, Policies...>& NewType<Derived, T, Policies...>::operator=(const T& rhs) noexcept
+inline constexpr NewType<Derived, T, Policies...>& NewType<Derived, T, Policies...>::operator=(const T& rhs) noexcept
 {
     m_value = rhs;
     static_assert(algorithm::doesContainType<newtype::AssignByValueCopy<Derived, T>, Policies<Derived, T>...>(),
@@ -101,7 +103,7 @@ inline NewType<Derived, T, Policies...>& NewType<Derived, T, Policies...>::opera
 }
 
 template <typename Derived, typename T, template <typename, typename> class... Policies>
-inline NewType<Derived, T, Policies...>& NewType<Derived, T, Policies...>::operator=(T&& rhs) noexcept
+inline constexpr NewType<Derived, T, Policies...>& NewType<Derived, T, Policies...>::operator=(T&& rhs) noexcept
 {
     m_value = std::move(rhs);
     static_assert(algorithm::doesContainType<newtype::AssignByValueMove<Derived, T>, Policies<Derived, T>...>(),
@@ -110,7 +112,7 @@ inline NewType<Derived, T, Policies...>& NewType<Derived, T, Policies...>::opera
 }
 
 template <typename Derived, typename T, template <typename, typename> class... Policies>
-inline NewType<Derived, T, Policies...>::operator T() const noexcept
+inline constexpr NewType<Derived, T, Policies...>::operator T() const noexcept
 {
     static_assert(algorithm::doesContainType<newtype::Convertable<Derived, T>, Policies<Derived, T>...>(),
                   "This type is not convertable, please add the newtype::Convertable policy.");

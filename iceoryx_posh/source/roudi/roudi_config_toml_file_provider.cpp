@@ -40,6 +40,7 @@ TomlRouDiConfigFileProvider::TomlRouDiConfigFileProvider(config::CmdLineArgs_t& 
     /// don't print additional output if not running
     if (cmdLineArgs.run)
     {
+        m_roudiConfig = cmdLineArgs.roudiConfig;
         if (cmdLineArgs.configFilePath.empty())
         {
             FileReader configFile(defaultConfigFilePath, "", FileReader::ErrorMode::Ignore);
@@ -62,13 +63,14 @@ TomlRouDiConfigFileProvider::TomlRouDiConfigFileProvider(config::CmdLineArgs_t& 
     }
 }
 
-iox::expected<iox::RouDiConfig_t, iox::roudi::RouDiConfigFileParseError> TomlRouDiConfigFileProvider::parse() noexcept
+iox::expected<iox::IceoryxConfig, iox::roudi::RouDiConfigFileParseError> TomlRouDiConfigFileProvider::parse() noexcept
 {
     // Early exit in case no config file path was provided
     if (m_customConfigFilePath.empty())
     {
-        iox::RouDiConfig_t defaultConfig;
+        iox::IceoryxConfig defaultConfig;
         defaultConfig.setDefaults();
+        static_cast<RouDiConfig&>(defaultConfig) = m_roudiConfig;
         return iox::ok(defaultConfig);
     }
 
@@ -79,11 +81,13 @@ iox::expected<iox::RouDiConfig_t, iox::roudi::RouDiConfigFileParseError> TomlRou
         return iox::err(iox::roudi::RouDiConfigFileParseError::FILE_OPEN_FAILED);
     }
 
-    return TomlRouDiConfigFileProvider::parse(fileStream);
+    return TomlRouDiConfigFileProvider::parse(fileStream).and_then([this](auto& config) {
+        static_cast<RouDiConfig&>(config) = m_roudiConfig;
+    });
 }
 
 
-iox::expected<iox::RouDiConfig_t, iox::roudi::RouDiConfigFileParseError>
+iox::expected<iox::IceoryxConfig, iox::roudi::RouDiConfigFileParseError>
 TomlRouDiConfigFileProvider::parse(std::istream& stream) noexcept
 {
     std::shared_ptr<cpptoml::table> parsedFile{nullptr};
@@ -125,7 +129,7 @@ TomlRouDiConfigFileProvider::parse(std::istream& stream) noexcept
     }
 
     auto groupOfCurrentProcess = PosixGroup::getGroupOfCurrentProcess().getName();
-    iox::RouDiConfig_t parsedConfig;
+    iox::IceoryxConfig parsedConfig;
     for (auto segment : *segments)
     {
         auto writer = segment->get_as<std::string>("writer").value_or(into<std::string>(groupOfCurrentProcess));

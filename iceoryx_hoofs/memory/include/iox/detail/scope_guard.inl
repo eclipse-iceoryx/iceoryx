@@ -24,14 +24,14 @@ namespace iox
 {
 template <uint64_t CleanupCapacity>
 inline ScopeGuardWithVariableCapacity<CleanupCapacity>::ScopeGuardWithVariableCapacity(
-    const function<void(), CleanupCapacity>& cleanupFunction) noexcept
+    const CleanupFunction& cleanupFunction) noexcept
     : m_cleanupFunction(cleanupFunction)
 {
 }
 
 template <uint64_t CleanupCapacity>
 inline ScopeGuardWithVariableCapacity<CleanupCapacity>::ScopeGuardWithVariableCapacity(
-    const function_ref<void()> initFunction, const function<void(), CleanupCapacity>& cleanupFunction) noexcept
+    const InitFunction initFunction, const CleanupFunction& cleanupFunction) noexcept
     : ScopeGuardWithVariableCapacity(cleanupFunction)
 {
     initFunction();
@@ -61,6 +61,18 @@ inline ScopeGuardWithVariableCapacity<CleanupCapacity>& ScopeGuardWithVariableCa
         rhs.m_cleanupFunction.reset();
     }
     return *this;
+}
+
+template <uint64_t CleanupCapacity>
+inline typename ScopeGuardWithVariableCapacity<CleanupCapacity>::CleanupFunction
+ScopeGuardWithVariableCapacity<CleanupCapacity>::release(
+    ScopeGuardWithVariableCapacity<CleanupCapacity>&& scopeGuard) noexcept
+{
+    IOX_ENFORCE(scopeGuard.m_cleanupFunction.has_value(),
+                "Cleanup function must always have a value if the 'ScopeGuard' is not a moved from object.");
+    CleanupFunction cleanupFunction = std::move(scopeGuard.m_cleanupFunction.value());
+    scopeGuard.m_cleanupFunction.reset();
+    return cleanupFunction;
 }
 
 template <uint64_t CleanupCapacity>

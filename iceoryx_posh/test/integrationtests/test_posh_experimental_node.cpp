@@ -25,6 +25,7 @@
 #include "iceoryx_posh/roudi_env/roudi_env_node_builder.hpp"
 #include "test.hpp"
 
+#include <cstdlib>
 #include <optional>
 
 namespace
@@ -105,6 +106,115 @@ TEST(Node_test, CreatingNodeWithInvalidNameLeadsToError)
         .or_else([](const auto error) { EXPECT_THAT(error, Eq(NodeBuilderError::IPC_CHANNEL_CREATION_FAILED)); });
 }
 
+// NOTE there is no 'unsetenv' and 'setenv' on Windows and the corresponding 'SetEnvironmentVariableA' does not update
+// the buffer 'getenv' accesses ('getenv' is used in 'domain_id_from_env*' methods)
+#if !defined(_WIN32)
+TEST(Node_test, CreatingNodeWithDomainIdFromEnvFailsIfDomainIdIsNotSet)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "b1268403-2b76-4713-a4f6-5f62a9ce9e57");
+
+    IOX_POSIX_CALL(unsetenv)
+    ("IOX_DOMAIN_ID").failureReturnValue(-1).evaluate().expect("Unsetting environment variable works!");
+    auto node_result = RouDiEnvNodeBuilder("foo").domain_id_from_env().create();
+
+    ASSERT_TRUE(node_result.has_error());
+    EXPECT_THAT(node_result.error(), Eq(NodeBuilderError::INVALID_OR_NO_DOMAIN_ID));
+}
+
+TEST(Node_test, CreatingNodeWithDomainIdFromEnvFailsIfDomainIdIsInvalid)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "07bc4bf6-cb06-40cb-b3d4-761e95e82e4b");
+
+    constexpr int32_t OVERWRITE_ENV_VARIABLE{1};
+    IOX_POSIX_CALL(setenv)
+    ("IOX_DOMAIN_ID", "1234567", OVERWRITE_ENV_VARIABLE)
+        .failureReturnValue(-1)
+        .evaluate()
+        .expect("Setting environment variable works!");
+    auto node_result = RouDiEnvNodeBuilder("foo").domain_id_from_env().create();
+
+    ASSERT_TRUE(node_result.has_error());
+    EXPECT_THAT(node_result.error(), Eq(NodeBuilderError::INVALID_OR_NO_DOMAIN_ID));
+}
+
+TEST(Node_test, CreatingNodeWithDomainIdFromEnvWorksIfDomainIdIsSet)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "dcf02c88-8c7a-4327-8ba2-0f71dc7b0ff1");
+
+    RouDiEnv roudi{DomainId{42}};
+
+    constexpr int32_t OVERWRITE_ENV_VARIABLE{1};
+    IOX_POSIX_CALL(setenv)
+    ("IOX_DOMAIN_ID", "42", OVERWRITE_ENV_VARIABLE)
+        .failureReturnValue(-1)
+        .evaluate()
+        .expect("Setting environment variable works!");
+    auto node_result = RouDiEnvNodeBuilder("foo").domain_id_from_env().create();
+
+    EXPECT_FALSE(node_result.has_error());
+}
+
+TEST(Node_test, CreatingNodeWithDomainIdFromEnvOrAlternativeValueWorksIfDomainIdIsSet)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "ba16d5cc-46b8-4450-8c77-16081a52f38c");
+
+    RouDiEnv roudi{DomainId{42}};
+
+    constexpr int32_t OVERWRITE_ENV_VARIABLE{1};
+    IOX_POSIX_CALL(setenv)
+    ("IOX_DOMAIN_ID", "42", OVERWRITE_ENV_VARIABLE)
+        .failureReturnValue(-1)
+        .evaluate()
+        .expect("Setting environment variable works!");
+    auto node_result = RouDiEnvNodeBuilder("foo").domain_id_from_env_or(DomainId{13}).create();
+
+    EXPECT_FALSE(node_result.has_error());
+}
+
+TEST(Node_test, CreatingNodeWithDomainIdFromEnvOrAlternativeValueWorksIfDomainIdIsNotSet)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "b071843a-a821-43b4-ac1a-e76ccafd35e0");
+
+    RouDiEnv roudi{DomainId{13}};
+
+    IOX_POSIX_CALL(unsetenv)
+    ("IOX_DOMAIN_ID").failureReturnValue(-1).evaluate().expect("Unsetting environment variable works!");
+    auto node_result = RouDiEnvNodeBuilder("foo").domain_id_from_env_or(DomainId{13}).create();
+
+    EXPECT_FALSE(node_result.has_error());
+}
+
+TEST(Node_test, CreatingNodeWithDomainIdFromEnvOrDefaultWorksIfDomainIdIsSet)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "35f422ec-3723-4c8f-93ae-ce1c8dfaca76");
+
+    RouDiEnv roudi{DomainId{42}};
+
+    constexpr int32_t OVERWRITE_ENV_VARIABLE{1};
+    IOX_POSIX_CALL(setenv)
+    ("IOX_DOMAIN_ID", "42", OVERWRITE_ENV_VARIABLE)
+        .failureReturnValue(-1)
+        .evaluate()
+        .expect("Setting environment variable works!");
+    auto node_result = RouDiEnvNodeBuilder("foo").domain_id_from_env_or_default().create();
+
+    EXPECT_FALSE(node_result.has_error());
+}
+
+TEST(Node_test, CreatingNodeWithDomainIdFromEnvOrDefaultWorksIfDomainIdIsNotSet)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "363dfb49-75fa-4486-b8b1-0f31c16bf37c");
+
+    RouDiEnv roudi{DEFAULT_DOMAIN_ID};
+
+    IOX_POSIX_CALL(unsetenv)
+    ("IOX_DOMAIN_ID").failureReturnValue(-1).evaluate().expect("Unsetting environment variable works!");
+    auto node_result = RouDiEnvNodeBuilder("foo").domain_id_from_env_or_default().create();
+
+    EXPECT_FALSE(node_result.has_error());
+}
+#endif
+
 TEST(Node_test, ReRegisteringNodeWithRunningRouDiWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2ce9d5f0-6989-4302-92b7-458fe1412111");
@@ -173,6 +283,18 @@ TEST(Node_test, RegisteringNodeWithDelayedRouDiStartWorks)
     node_result = RouDiEnvNodeBuilder("foo").create();
 
     EXPECT_FALSE(node_result.has_error());
+}
+
+TEST(Node_test, RegisteringNodeWithRunningRouDiWithNonMatchingDomainIdResultsInTimeout)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "c61390ac-3245-4cf7-ba13-608a07ea5ffa");
+
+    RouDiEnv roudi{DomainId{42}};
+
+    auto node_result = RouDiEnvNodeBuilder("foo").domain_id(DomainId{13}).create();
+
+    ASSERT_TRUE(node_result.has_error());
+    EXPECT_THAT(node_result.error(), Eq(NodeBuilderError::TIMEOUT));
 }
 
 TEST(Node_test, CreatingTypedPublisherWithoutUserHeaderWorks)
@@ -386,6 +508,52 @@ TEST(Node_test, NodeAndEndpointsAreContinuouslyRecreated)
             .and_then([&](const auto& sample) { EXPECT_THAT(*sample, Eq(DATA + i)); })
             .or_else([](const auto) { GTEST_FAIL() << "Expected to receive data"; });
     }
+}
+
+TEST(Node_test, MultipleNodeAndEndpointsAreRegisteredWithSeparateRouDiRunningInParallel)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "1e527815-28d1-4a99-a9a3-cc4084018cf3");
+
+    NodeName_t node_name{"hypnotoad"};
+    ServiceDescription service_description{"all", "glory", "hypnotoad"};
+
+    constexpr uint16_t domain_id_a{13};
+    constexpr uint16_t domain_id_b{42};
+
+    RouDiEnv roudi_a{DomainId{domain_id_a}};
+    RouDiEnv roudi_b{DomainId{domain_id_b}};
+
+    auto node_a = RouDiEnvNodeBuilder(node_name)
+                      .domain_id(DomainId{domain_id_a})
+                      .create()
+                      .expect("Creating a node should not fail!");
+    auto node_b = RouDiEnvNodeBuilder(node_name)
+                      .domain_id(DomainId{domain_id_b})
+                      .create()
+                      .expect("Creating a node should not fail!");
+
+    auto publisher_a = node_a.publisher(service_description).create<uint16_t>().expect("Getting publisher");
+    auto publisher_b = node_b.publisher(service_description).create<uint16_t>().expect("Getting publisher");
+
+    auto subscriber_a = node_a.subscriber(service_description).create<uint16_t>().expect("Getting subscriber");
+    auto subscriber_b = node_b.subscriber(service_description).create<uint16_t>().expect("Getting subscriber");
+
+    publisher_a->publishCopyOf(domain_id_a).or_else([](const auto) { GTEST_FAIL() << "Expected to send data"; });
+    publisher_b->publishCopyOf(domain_id_b).or_else([](const auto) { GTEST_FAIL() << "Expected to send data"; });
+
+    subscriber_a->take()
+        .and_then([&](const auto& sample) { EXPECT_THAT(*sample, Eq(domain_id_a)); })
+        .or_else([](const auto) { GTEST_FAIL() << "Expected to receive data"; });
+    subscriber_a->take()
+        .and_then([&](const auto& sample) { GTEST_FAIL() << "Expected to receive no data but got: " << *sample; })
+        .or_else([](const auto) { GTEST_SUCCEED() << "Successfully received no data"; });
+
+    subscriber_b->take()
+        .and_then([&](const auto& sample) { EXPECT_THAT(*sample, Eq(domain_id_b)); })
+        .or_else([](const auto) { GTEST_FAIL() << "Expected to receive data"; });
+    subscriber_b->take()
+        .and_then([&](const auto& sample) { GTEST_FAIL() << "Expected to receive no data but got: " << *sample; })
+        .or_else([](const auto) { GTEST_SUCCEED() << "Successfully received no data"; });
 }
 
 } // namespace

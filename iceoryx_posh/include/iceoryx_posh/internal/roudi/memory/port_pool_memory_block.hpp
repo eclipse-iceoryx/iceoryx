@@ -34,7 +34,8 @@ class PortPoolMemoryBlock : public MemoryBlock
   public:
     /// @todo iox-#1709 the PortPool needs to be refactored to use a typed MemPool
     /// once that is done, the cTor needs a configuration similar to MemPoolCollectionMemoryProvider
-    PortPoolMemoryBlock() noexcept = default;
+    /// @param[in] uniqueRouDiId to tie the ports to
+    PortPoolMemoryBlock(const roudi::UniqueRouDiId uniqueRouDiId) noexcept;
     ~PortPoolMemoryBlock() noexcept;
 
     PortPoolMemoryBlock(const PortPoolMemoryBlock&) = delete;
@@ -65,6 +66,7 @@ class PortPoolMemoryBlock : public MemoryBlock
 
   private:
     PortPoolData* m_portPoolData{nullptr};
+    const roudi::UniqueRouDiId m_uniqueRouDiId;
 };
 
 } // namespace roudi

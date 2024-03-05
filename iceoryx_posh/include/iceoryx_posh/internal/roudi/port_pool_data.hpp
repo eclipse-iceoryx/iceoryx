@@ -35,6 +35,11 @@ namespace roudi
 {
 struct PortPoolData
 {
+    PortPoolData(const roudi::UniqueRouDiId uniqueRouDiId) noexcept
+        : m_uniqueRouDiId(uniqueRouDiId)
+    {
+    }
+
     using InterfaceContainer = FixedPositionContainer<popo::InterfacePortData, MAX_INTERFACE_NUMBER>;
     InterfaceContainer m_interfacePortMembers;
 
@@ -55,6 +60,8 @@ struct PortPoolData
 
     using ClientContainer = FixedPositionContainer<iox::popo::ClientPortData, MAX_CLIENTS>;
     ClientContainer m_clientPortMembers;
+
+    const roudi::UniqueRouDiId m_uniqueRouDiId;
 };
 
 } // namespace roudi

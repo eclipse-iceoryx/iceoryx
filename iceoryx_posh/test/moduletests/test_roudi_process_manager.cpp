@@ -22,7 +22,7 @@
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_interface.hpp"
-#include "iceoryx_posh/roudi_env/minimal_roudi_config.hpp"
+#include "iceoryx_posh/roudi_env/minimal_iceoryx_config.hpp"
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
 #include "iox/posix_user.hpp"
 #include "iox/string.hpp"
@@ -43,11 +43,11 @@ class ProcessManager_test : public Test
   public:
     void SetUp() override
     {
-        m_roudiMemoryManager = std::make_unique<IceOryxRouDiMemoryManager>(MinimalRouDiConfigBuilder().create());
+        m_roudiMemoryManager = std::make_unique<IceOryxRouDiMemoryManager>(MinimalIceoryxConfigBuilder().create());
         EXPECT_FALSE(m_roudiMemoryManager->createAndAnnounceMemory().has_error());
         m_portManager = std::make_unique<PortManager>(m_roudiMemoryManager.get());
         CompatibilityCheckLevel m_compLevel{CompatibilityCheckLevel::OFF};
-        m_sut = std::make_unique<ProcessManager>(*m_roudiMemoryManager, *m_portManager, m_compLevel);
+        m_sut = std::make_unique<ProcessManager>(*m_roudiMemoryManager, *m_portManager, DEFAULT_DOMAIN_ID, m_compLevel);
         m_sut->initIntrospection(&m_processIntrospection);
     }
 
@@ -62,7 +62,8 @@ class ProcessManager_test : public Test
     VersionInfo m_versionInfo{42U, 42U, 42U, 42U, "Foo", "Bar"};
 
     IpcInterfaceCreator m_processIpcInterface{
-        IpcInterfaceCreator::create(m_processname, ResourceType::USER_DEFINED).expect("This should never fail")};
+        IpcInterfaceCreator::create(m_processname, DEFAULT_DOMAIN_ID, ResourceType::USER_DEFINED)
+            .expect("This should never fail")};
     ProcessIntrospectionType m_processIntrospection;
 
     std::unique_ptr<IceOryxRouDiMemoryManager> m_roudiMemoryManager{nullptr};

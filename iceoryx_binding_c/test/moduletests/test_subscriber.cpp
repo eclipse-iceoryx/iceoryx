@@ -27,7 +27,7 @@
 #include "iox/detail/hoofs_error_reporting.hpp"
 
 #include "iceoryx_hoofs/testing/fatal_failure.hpp"
-#include "iceoryx_posh/roudi_env/minimal_roudi_config.hpp"
+#include "iceoryx_posh/roudi_env/minimal_iceoryx_config.hpp"
 #include "iceoryx_posh/roudi_env/roudi_env.hpp"
 #include "mocks/wait_set_mock.hpp"
 
@@ -110,6 +110,7 @@ class iox_sub_test : public Test
     iox::popo::SubscriberOptions subscriberOptions{MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY, 0U};
     iox::popo::SubscriberPortData m_portPtr{TEST_SERVICE_DESCRIPTION,
                                             "myApp",
+                                            roudi::DEFAULT_UNIQUE_ROUDI_ID,
                                             iox::popo::VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
                                             subscriberOptions};
     ChunkQueuePusher<SubscriberPortData::ChunkQueueData_t> m_chunkPusher{&m_portPtr.m_chunkReceiverData};
@@ -144,7 +145,7 @@ TEST_F(iox_sub_test, initSubscriberWithNotInitializedSubscriberOptionsTerminates
 TEST_F(iox_sub_test, initSubscriberWithDefaultOptionsWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "40eaa006-4781-46cd-bde3-40fa7d572f29");
-    RouDiEnv roudiEnv{MinimalRouDiConfigBuilder().create()};
+    RouDiEnv roudiEnv;
 
     iox_runtime_init("hypnotoad");
 
@@ -401,7 +402,7 @@ TEST_F(iox_sub_test, hasDataTriggersWaitSetWithCorrectCallback)
 TEST_F(iox_sub_test, deinitSubscriberDetachesTriggerFromWaitSet)
 {
     ::testing::Test::RecordProperty("TEST_ID", "93e350fb-5430-43ff-982b-b43c6ae9b890");
-    RouDiEnv roudiEnv{MinimalRouDiConfigBuilder().create()};
+    RouDiEnv roudiEnv;
     iox_runtime_init("hypnotoad");
 
     iox_sub_storage_t storage;

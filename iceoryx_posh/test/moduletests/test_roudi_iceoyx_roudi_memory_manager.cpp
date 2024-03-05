@@ -18,7 +18,7 @@
 #include "test.hpp"
 
 #include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
-#include "iceoryx_posh/roudi_env/minimal_roudi_config.hpp"
+#include "iceoryx_posh/roudi_env/minimal_iceoryx_config.hpp"
 
 namespace
 {
@@ -37,7 +37,7 @@ class IceoryxRoudiMemoryManager_test : public Test
     void SetUp() override
     {
         m_roudiMemoryManagerTest = std::unique_ptr<IceOryxRouDiMemoryManager>(
-            new IceOryxRouDiMemoryManager(MinimalRouDiConfigBuilder().create()));
+            new IceOryxRouDiMemoryManager(MinimalIceoryxConfigBuilder().create()));
     }
 
     void TearDown() override

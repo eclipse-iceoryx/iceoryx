@@ -31,29 +31,25 @@ iox::log::Logger::init(iox::log::LogLevel::INFO);
 ```
 
  2. To start RouDi we have to create a configuration for him. We are choosing the
-    default config. Additionally, RouDi needs some other components like a memory
-    management unit which handles how the memory is created in which the transmission
-    data is stored. The `IceOryxRouDiComponents` class is handling them for us
+    default config but set the `sharesAddressSpaceWithApplications` to tell RouDi to not
+    terminate all registered processes when RouDi goes out of scope. If we would not set it,
+    our application would self terminate in the destructor of `roudi`. Additionally, RouDi
+    needs some other components like a memory management unit which handles how the memory
+    is created in which the transmission data is stored. The `IceOryxRouDiComponents` class
+    is handling them for us.
 
 <!--[geoffrey][iceoryx_examples/singleprocess/single_process.cpp][roudi config]-->
 ```cpp
-iox::RouDiConfig_t defaultRouDiConfig = iox::RouDiConfig_t().setDefaults();
-iox::roudi::IceOryxRouDiComponents roudiComponents(defaultRouDiConfig);
+iox::IceoryxConfig config = iox::IceoryxConfig().setDefaults();
+config.sharesAddressSpaceWithApplications = true;
+iox::roudi::IceOryxRouDiComponents roudiComponents(config);
 ```
 
- 3. We are starting RouDi, provide the required components and
-    disable monitoring. The last bool parameter `TERMINATE_APP_IN_ROUDI_DTOR_FLAG`
-    states that RouDi does not
-    terminate all registered processes when RouDi goes out of scope. If we would set it
-    to `true`, our application would self terminate in the destructor of `roudi`.
+ 3. We are starting RouDi by providing the required components and config.
 
 <!--[geoffrey][iceoryx_examples/singleprocess/single_process.cpp][roudi]-->
 ```cpp
-constexpr bool TERMINATE_APP_IN_ROUDI_DTOR_FLAG = false;
-iox::roudi::RouDi roudi(
-    roudiComponents.rouDiMemoryManager,
-    roudiComponents.portManager,
-    iox::roudi::RouDi::RoudiStartupParameters{iox::roudi::MonitoringMode::OFF, TERMINATE_APP_IN_ROUDI_DTOR_FLAG});
+iox::roudi::RouDi roudi(roudiComponents.rouDiMemoryManager, roudiComponents.portManager, config);
 ```
 
  4. Here comes a key difference to an inter-process application. If you would like

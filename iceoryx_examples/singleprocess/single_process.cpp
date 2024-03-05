@@ -116,16 +116,13 @@ int main()
     //! [log level]
 
     //! [roudi config]
-    iox::RouDiConfig_t defaultRouDiConfig = iox::RouDiConfig_t().setDefaults();
-    iox::roudi::IceOryxRouDiComponents roudiComponents(defaultRouDiConfig);
+    iox::IceoryxConfig config = iox::IceoryxConfig().setDefaults();
+    config.sharesAddressSpaceWithApplications = true;
+    iox::roudi::IceOryxRouDiComponents roudiComponents(config);
     //! [roudi config]
 
     //! [roudi]
-    constexpr bool TERMINATE_APP_IN_ROUDI_DTOR_FLAG = false;
-    iox::roudi::RouDi roudi(
-        roudiComponents.rouDiMemoryManager,
-        roudiComponents.portManager,
-        iox::roudi::RouDi::RoudiStartupParameters{iox::roudi::MonitoringMode::OFF, TERMINATE_APP_IN_ROUDI_DTOR_FLAG});
+    iox::roudi::RouDi roudi(roudiComponents.rouDiMemoryManager, roudiComponents.portManager, config);
     //! [roudi]
 
     // create a single process runtime for inter thread communication

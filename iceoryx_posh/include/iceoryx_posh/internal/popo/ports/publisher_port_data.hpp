@@ -39,6 +39,7 @@ struct PublisherPortData : public BasePortData
 {
     PublisherPortData(const capro::ServiceDescription& serviceDescription,
                       const RuntimeName_t& runtimeName,
+                      const roudi::UniqueRouDiId uniqueRouDiId,
                       mepoo::MemoryManager* const memoryManager,
                       const PublisherOptions& publisherOptions,
                       const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;

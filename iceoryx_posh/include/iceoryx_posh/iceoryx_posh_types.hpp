@@ -24,7 +24,9 @@
 #include "iox/detail/convert.hpp"
 #include "iox/duration.hpp"
 #include "iox/function.hpp"
+#include "iox/into.hpp"
 #include "iox/log/logstream.hpp"
+#include "iox/newtype.hpp"
 #include "iox/optional.hpp"
 #include "iox/posix_ipc_channel.hpp"
 #include "iox/string.hpp"
@@ -205,6 +207,20 @@ struct DefaultChunkQueueConfig
     static constexpr uint64_t MAX_QUEUE_CAPACITY = MAX_SUBSCRIBER_QUEUE_CAPACITY;
 };
 
+// Domain ID
+IOX_NEW_TYPE(DomainId,
+             uint16_t,
+             newtype::ConstructByValueCopy,
+             newtype::MoveConstructable,
+             newtype::CopyConstructable,
+             newtype::MoveAssignable,
+             newtype::CopyAssignable,
+             newtype::Comparable,
+             newtype::Convertable,
+             newtype::Sortable);
+
+constexpr DomainId DEFAULT_DOMAIN_ID{0};
+
 constexpr const char ICEORYX_RESOURCE_PREFIX[] = "iox1";
 
 /// @brief The resource type is used to customize the resource prefix by adding an 'i' or 'u' depending whether the
@@ -218,8 +234,16 @@ enum class ResourceType
 
 using ResourcePrefix_t = string<RESOURCE_PREFIX_LENGTH>;
 /// @brief Returns the prefix string used for resources
-/// @param[in] uniqueRouDiID to use for the prefix string
-inline ResourcePrefix_t iceoryxResourcePrefix(uint16_t uniqueRouDiID, ResourceType resourceType);
+/// @param[in] domainId to use for the prefix string
+/// @param[in] resourceType to specify whether the resource is defined by iceoryx internals or by user input
+ResourcePrefix_t iceoryxResourcePrefix(const DomainId domainId, const ResourceType resourceType) noexcept;
+
+namespace experimental
+{
+/// @brief Should only be used in internal iceoryx tests to enable experimental posh features in tests without setting
+/// the compiler flag
+bool hasExperimentalPoshFeaturesEnabled(const optional<bool>& newValue = nullopt) noexcept;
+} // namespace experimental
 
 // alias for string
 using RuntimeName_t = string<MAX_RUNTIME_NAME_LENGTH>;
@@ -245,8 +269,20 @@ constexpr const char IPC_CHANNEL_ROUDI_NAME[] = "roudi";
 /// shared memory segment for the iceoryx management data
 constexpr const char SHM_NAME[] = "management";
 
+// Unique RouDi ID
+IOX_NEW_TYPE(UniqueRouDiId,
+             uint16_t,
+             newtype::ConstructByValueCopy,
+             newtype::MoveConstructable,
+             newtype::CopyConstructable,
+             newtype::MoveAssignable,
+             newtype::CopyAssignable,
+             newtype::Comparable,
+             newtype::Convertable,
+             newtype::Sortable);
+
 // this is used by the UniquePortId
-constexpr uint16_t DEFAULT_UNIQUE_ROUDI_ID{0U};
+constexpr UniqueRouDiId DEFAULT_UNIQUE_ROUDI_ID{0U};
 
 // Timeout
 using namespace units::duration_literals;
