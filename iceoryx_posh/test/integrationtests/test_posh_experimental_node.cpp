@@ -285,6 +285,18 @@ TEST(Node_test, RegisteringNodeWithDelayedRouDiStartWorks)
     EXPECT_FALSE(node_result.has_error());
 }
 
+TEST(Node_test, RegisteringNodeWithRunningRouDiWithNonMatchingDomainIdResultsInTimeout)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "c61390ac-3245-4cf7-ba13-608a07ea5ffa");
+
+    RouDiEnv roudi{DomainId{42}};
+
+    auto node_result = RouDiEnvNodeBuilder("foo").domain_id(DomainId{13}).create();
+
+    ASSERT_TRUE(node_result.has_error());
+    EXPECT_THAT(node_result.error(), Eq(NodeBuilderError::TIMEOUT));
+}
+
 TEST(Node_test, CreatingTypedPublisherWithoutUserHeaderWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c98d1cb6-8990-4f91-a24b-d845d2dc37e1");
