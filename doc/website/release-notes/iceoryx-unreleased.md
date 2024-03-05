@@ -1448,3 +1448,5 @@
     // after
     auto logLevel = cmdArgs.roudiConfig.logLevel;
     ```
+
+64. The non-functional `iox::popo::Node` was removed
