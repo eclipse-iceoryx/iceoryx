@@ -16,6 +16,7 @@
 
 #include "iox/posh/experimental/node.hpp"
 
+#include "iceoryx_platform/stdlib.hpp"
 #include "iox/deadline_timer.hpp"
 #include "iox/duration.hpp"
 #include "iox/vector.hpp"
@@ -25,7 +26,6 @@
 #include "iceoryx_posh/roudi_env/roudi_env_node_builder.hpp"
 #include "test.hpp"
 
-#include <cstdlib>
 #include <optional>
 
 namespace
@@ -106,14 +106,11 @@ TEST(Node_test, CreatingNodeWithInvalidNameLeadsToError)
         .or_else([](const auto error) { EXPECT_THAT(error, Eq(NodeBuilderError::IPC_CHANNEL_CREATION_FAILED)); });
 }
 
-// NOTE there is no 'unsetenv' and 'setenv' on Windows and the corresponding 'SetEnvironmentVariableA' does not update
-// the buffer 'getenv' accesses ('getenv' is used in 'domain_id_from_env*' methods)
-#if !defined(_WIN32)
 TEST(Node_test, CreatingNodeWithDomainIdFromEnvFailsIfDomainIdIsNotSet)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b1268403-2b76-4713-a4f6-5f62a9ce9e57");
 
-    IOX_POSIX_CALL(unsetenv)
+    IOX_POSIX_CALL(iox_unsetenv)
     ("IOX_DOMAIN_ID").failureReturnValue(-1).evaluate().expect("Unsetting environment variable works!");
     auto node_result = RouDiEnvNodeBuilder("foo").domain_id_from_env().create();
 
@@ -126,7 +123,7 @@ TEST(Node_test, CreatingNodeWithDomainIdFromEnvFailsIfDomainIdIsInvalid)
     ::testing::Test::RecordProperty("TEST_ID", "07bc4bf6-cb06-40cb-b3d4-761e95e82e4b");
 
     constexpr int32_t OVERWRITE_ENV_VARIABLE{1};
-    IOX_POSIX_CALL(setenv)
+    IOX_POSIX_CALL(iox_setenv)
     ("IOX_DOMAIN_ID", "1234567", OVERWRITE_ENV_VARIABLE)
         .failureReturnValue(-1)
         .evaluate()
@@ -144,7 +141,7 @@ TEST(Node_test, CreatingNodeWithDomainIdFromEnvWorksIfDomainIdIsSet)
     RouDiEnv roudi{DomainId{42}};
 
     constexpr int32_t OVERWRITE_ENV_VARIABLE{1};
-    IOX_POSIX_CALL(setenv)
+    IOX_POSIX_CALL(iox_setenv)
     ("IOX_DOMAIN_ID", "42", OVERWRITE_ENV_VARIABLE)
         .failureReturnValue(-1)
         .evaluate()
@@ -161,7 +158,7 @@ TEST(Node_test, CreatingNodeWithDomainIdFromEnvOrAlternativeValueWorksIfDomainId
     RouDiEnv roudi{DomainId{42}};
 
     constexpr int32_t OVERWRITE_ENV_VARIABLE{1};
-    IOX_POSIX_CALL(setenv)
+    IOX_POSIX_CALL(iox_setenv)
     ("IOX_DOMAIN_ID", "42", OVERWRITE_ENV_VARIABLE)
         .failureReturnValue(-1)
         .evaluate()
@@ -177,7 +174,7 @@ TEST(Node_test, CreatingNodeWithDomainIdFromEnvOrAlternativeValueWorksIfDomainId
 
     RouDiEnv roudi{DomainId{13}};
 
-    IOX_POSIX_CALL(unsetenv)
+    IOX_POSIX_CALL(iox_unsetenv)
     ("IOX_DOMAIN_ID").failureReturnValue(-1).evaluate().expect("Unsetting environment variable works!");
     auto node_result = RouDiEnvNodeBuilder("foo").domain_id_from_env_or(DomainId{13}).create();
 
@@ -191,7 +188,7 @@ TEST(Node_test, CreatingNodeWithDomainIdFromEnvOrDefaultWorksIfDomainIdIsSet)
     RouDiEnv roudi{DomainId{42}};
 
     constexpr int32_t OVERWRITE_ENV_VARIABLE{1};
-    IOX_POSIX_CALL(setenv)
+    IOX_POSIX_CALL(iox_setenv)
     ("IOX_DOMAIN_ID", "42", OVERWRITE_ENV_VARIABLE)
         .failureReturnValue(-1)
         .evaluate()
@@ -207,13 +204,12 @@ TEST(Node_test, CreatingNodeWithDomainIdFromEnvOrDefaultWorksIfDomainIdIsNotSet)
 
     RouDiEnv roudi{DEFAULT_DOMAIN_ID};
 
-    IOX_POSIX_CALL(unsetenv)
+    IOX_POSIX_CALL(iox_unsetenv)
     ("IOX_DOMAIN_ID").failureReturnValue(-1).evaluate().expect("Unsetting environment variable works!");
     auto node_result = RouDiEnvNodeBuilder("foo").domain_id_from_env_or_default().create();
 
     EXPECT_FALSE(node_result.has_error());
 }
-#endif
 
 TEST(Node_test, ExhaustingNodesLeadsToError)
 {
