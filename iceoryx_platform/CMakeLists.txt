@@ -61,6 +61,7 @@ set(ICEORYX_PLATFORM ${ICEORYX_PLATFORM} CACHE PATH "" FORCE)
 
 # this must be recurse since every platform has potentially different cpp files
 file ( GLOB_RECURSE ICEORYX_PLATFORM_FILES
+    generic/source/*.cpp
     ${ICEORYX_PLATFORM}/source/*.cpp
 )
 

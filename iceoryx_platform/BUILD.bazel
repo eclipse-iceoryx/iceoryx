@@ -70,12 +70,30 @@ configure_version(
 cc_library(
     name = "iceoryx_platform",
     srcs = select({
-        ":linux": glob(["linux/source/**"]),
-        ":mac": glob(["mac/source/**"]),
-        ":qnx": glob(["qnx/source/**"]),
-        ":unix": glob(["unix/source/**"]),
-        ":win": glob(["win/source/**"]),
-        "//conditions:default": glob(["linux/source/**"]),
+        ":linux": glob([
+            "generic/source/**",
+            "linux/source/**",
+        ]),
+        ":mac": glob([
+            "generic/source/**",
+            "mac/source/**",
+        ]),
+        ":qnx": glob([
+            "generic/source/**",
+            "qnx/source/**",
+        ]),
+        ":unix": glob([
+            "generic/source/**",
+            "unix/source/**",
+        ]),
+        ":win": glob([
+            "generic/source/**",
+            "win/source/**",
+        ]),
+        "//conditions:default": glob([
+            "generic/source/**",
+            "linux/source/**",
+        ]),
     }),
     hdrs = select({
         ":linux": glob(["linux/include/**"]),
