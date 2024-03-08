@@ -90,3 +90,7 @@ install(
     DESTINATION ${DESTINATION_CONFIGDIR}
     COMPONENT dev
 )
+
+if(BUILD_TEST)
+    add_subdirectory(test)
+endif()
