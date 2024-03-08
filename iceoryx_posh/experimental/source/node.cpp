@@ -47,7 +47,7 @@ NodeBuilder&& NodeBuilder::domain_id_from_env() && noexcept
         if (result.has_error() && result.error().errnum == ERANGE)
         {
             IOX_LOG(INFO,
-                    "Invalid value for 'IOX_DOMAIN_ID' environment variable! Must be in the rage of '0' to '65535'!");
+                    "Invalid value for 'IOX_DOMAIN_ID' environment variable! Must be in the range of '0' to '65535'!");
         }
 
         size_t actual_size{0};
