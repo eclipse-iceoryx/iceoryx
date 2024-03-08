@@ -106,6 +106,21 @@ TEST(Node_test, CreatingNodeWithInvalidNameLeadsToError)
         .or_else([](const auto error) { EXPECT_THAT(error, Eq(NodeBuilderError::IPC_CHANNEL_CREATION_FAILED)); });
 }
 
+TEST(Node_test, CreatingSameNodeTwiceLeadsToError)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "5627075d-4537-4bd1-95de-136549fc02a7");
+
+    RouDiEnv roudi;
+
+    auto node1_result = RouDiEnvNodeBuilder("foo").create();
+    auto node2_result = RouDiEnvNodeBuilder("foo").create();
+
+    ASSERT_FALSE(node1_result.has_error());
+    ASSERT_TRUE(node2_result.has_error());
+
+    EXPECT_THAT(node2_result.error(), Eq(NodeBuilderError::IPC_CHANNEL_CREATION_FAILED));
+}
+
 TEST(Node_test, CreatingNodeWithDomainIdFromEnvFailsIfDomainIdIsNotSet)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b1268403-2b76-4713-a4f6-5f62a9ce9e57");
