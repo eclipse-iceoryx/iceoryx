@@ -47,3 +47,35 @@ cc_test(
         "//iceoryx_posh:iceoryx_posh_testing",
     ],
 )
+
+cc_test(
+    name = "binding_c_integrationtests",
+    srcs = glob([
+        "integrationtests/*.cpp",
+        "integrationtests/*.hpp",
+        "mocks/*.hpp",
+        "*.hpp",
+    ]),
+    includes = [
+        ".",
+        "integrationtests",
+        "mocks",
+    ],
+    linkopts = select({
+        "//iceoryx_platform:linux": ["-ldl"],
+        "//iceoryx_platform:mac": ["-ldl"],
+        "//iceoryx_platform:qnx": [],
+        "//iceoryx_platform:unix": [],
+        "//iceoryx_platform:win": [],
+        "//conditions:default": ["-ldl"],
+    }),
+    tags = ["exclusive"],
+    visibility = ["//visibility:private"],
+    deps = [
+        "//iceoryx_binding_c",
+        "//iceoryx_hoofs:iceoryx_hoofs_testing",
+        "//iceoryx_posh",
+        "//iceoryx_posh:iceoryx_posh_roudi_env",
+        "//iceoryx_posh:iceoryx_posh_testing",
+    ],
+)

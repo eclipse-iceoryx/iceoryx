@@ -25,6 +25,7 @@ set(PROJECT_PREFIX "binding_c")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_PREFIX}/test)
 
 file(GLOB_RECURSE MODULETESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/moduletests/*.cpp")
+file(GLOB_RECURSE INTEGRATIONTESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/integrationtests/*.cpp")
 
 set(TEST_LINK_LIBS
     ${CODE_COVERAGE_LIBS}
@@ -42,6 +43,15 @@ set(TEST_LINK_LIBS
 iox_add_executable( TARGET                  ${PROJECT_PREFIX}_moduletests
                     INCLUDE_DIRECTORIES     .
                     FILES                   ${MODULETESTS_SRC}
+                    LIBS                    ${TEST_LINK_LIBS}
+                    LIBS_APPLE              dl
+                    LIBS_LINUX              acl dl rt
+)
+
+# not used in the platform, only added to make the scripts happy
+iox_add_executable( TARGET                  ${PROJECT_PREFIX}_integrationtests
+                    INCLUDE_DIRECTORIES     .
+                    FILES                   ${INTEGRATIONTESTS_SRC}
                     LIBS                    ${TEST_LINK_LIBS}
                     LIBS_APPLE              dl
                     LIBS_LINUX              acl dl rt

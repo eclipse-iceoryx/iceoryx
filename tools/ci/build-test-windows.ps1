@@ -47,6 +47,7 @@ if ($?) { cmake --build build -j $NumCPUs }
 switch ($toolchain ) {
     "MSVC" {
         if ($?) { Write-Host "## Copy test binaries to common location" }
+        if ($?) { Copy-Item -Force build\platform\test\Debug\*.exe build\platfrom\test\ }
         if ($?) { Copy-Item -Force build\hoofs\test\Debug\*.exe build\hoofs\test\ }
         if ($?) { Copy-Item -Force build\posh\test\Debug\*.exe build\posh\test\ }
         if ($?) { Copy-Item -Force build\binding_c\test\Debug\*.exe build\binding_c\test\ }
@@ -60,6 +61,8 @@ if ($?) { Write-Host "## Running tests (excluding timing_tests)" }
 # until the windows support is fully implemented and we can use the windows cmake targets
 # we have to exclude the tests explicitly until everyone is running
 
+if ($?) { build\platform\test\platform_moduletests.exe }
+if ($?) { build\platform\test\platform_integrationtests.exe }
 if ($?) { build\hoofs\test\hoofs_mocktests.exe }
 if ($?) { build\hoofs\test\hoofs_moduletests.exe --gtest_filter="-*TimingTest*:AdaptiveWait*" }
 if ($?) { build\hoofs\test\hoofs_integrationtests.exe }
@@ -68,5 +71,6 @@ if ($?) { build\posh\test\posh_moduletests.exe --gtest_filter="-ChunkHeader_test
 if ($?) { build\posh\test\posh_moduletests.exe --gtest_filter="PoshRuntimeSingleProcess_test*" }
 if ($?) { build\posh\test\posh_integrationtests.exe --gtest_filter="-ChunkBuildingBlocks_IntegrationTest.TwoHopsThreeThreadsNoSoFi:*TimingTest*" }
 if ($?) { build\binding_c\test\binding_c_moduletests.exe --gtest_filter="-BindingC_Runtime_test.RuntimeNameLengthIsOutOfLimit:BindingC_Runtime_test.RuntimeNameIsNullptr:*TimingTest*" }
+if ($?) { build\binding_c\test\binding_c_integrationtests.exe }
 
 exit $LASTEXITCODE
