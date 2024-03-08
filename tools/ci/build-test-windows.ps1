@@ -47,7 +47,7 @@ if ($?) { cmake --build build -j $NumCPUs }
 switch ($toolchain ) {
     "MSVC" {
         if ($?) { Write-Host "## Copy test binaries to common location" }
-        if ($?) { Copy-Item -Force build\platform\test\Debug\*.exe build\platfrom\test\ }
+        if ($?) { Copy-Item -Force build\platform\test\Debug\*.exe build\platform\test\ }
         if ($?) { Copy-Item -Force build\hoofs\test\Debug\*.exe build\hoofs\test\ }
         if ($?) { Copy-Item -Force build\posh\test\Debug\*.exe build\posh\test\ }
         if ($?) { Copy-Item -Force build\binding_c\test\Debug\*.exe build\binding_c\test\ }

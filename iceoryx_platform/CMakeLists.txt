@@ -55,7 +55,12 @@ set(PREFIX iceoryx/v${CMAKE_PROJECT_VERSION})
 include(cmake/iceoryxversions.cmake)
 
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPackageHelper.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPlatform.cmake")
 include("${ICEORYX_PLATFORM}/IceoryxPlatformSettings.cmake")
+
+if(CMAKE_SYSTEM_NAME MATCHES Linux OR CMAKE_SYSTEM_NAME MATCHES Darwin)
+    option(BUILD_SHARED_LIBS "Create shared libraries by default" ON)
+endif()
 
 set(ICEORYX_PLATFORM ${ICEORYX_PLATFORM} CACHE PATH "" FORCE)
 
@@ -75,6 +80,8 @@ iox_add_library(
     PUBLIC_LIBS_UNIX            rt pthread
     PRIVATE_LIBS_QNX            socket
     PUBLIC_LIBS_FREERTOS        freertos_sdk::FreeRTOS_POSIX
+    PRIVATE_LIBS                ${ICEORYX_SANITIZER_FLAGS}
+                                ${ICEORYX_GRCOV_FLAGS}
     BUILD_INTERFACE             ${PROJECT_SOURCE_DIR}/generic/include/
                                 ${ICEORYX_PLATFORM}/include/
                                 ${CMAKE_BINARY_DIR}/generated/iceoryx_platform/include
@@ -85,6 +92,7 @@ iox_add_library(
 install(
     FILES
         cmake/IceoryxPackageHelper.cmake
+        cmake/IceoryxPlatform.cmake
         cmake/IceoryxVersion.cmake
         ${ICEORYX_PLATFORM}/IceoryxPlatformSettings.cmake
     DESTINATION ${DESTINATION_CONFIGDIR}

@@ -94,8 +94,8 @@ This should be used only rarely and only in coordination with an iceoryx maintai
 
 !!! note
     iceoryx needs to be built as a static library to work with sanitizer flags, which is automatically achieved when using
-    the script. If you want to use the ${ICEORYX_CXX_WARNINGS} then you have to call `find_package(iceoryx_hoofs)` and `include(IceoryxPlatform)`
-    to make use of the ${ICEORYX_SANITIZER_FLAGS}.
+    the script. If you want to use the ${ICEORYX_CXX_WARNINGS} then you have to call `find_package(iceoryx_platform)` and
+    `include(IceoryxPlatformSettings)` into your cmake project and `include(IceoryxPlatform)` to make use of the ${ICEORYX_SANITIZER_FLAGS}.
 
 ## iceoryx library build
 
