@@ -20,7 +20,8 @@
 #include <cstdlib>
 
 /// @brief Implementation of 'getenv_s'
-/// @param[out] actual_size_with_null of the value of the env variable including null-termination
+/// @param[out] actual_size_with_null of the value of the env variable including null-termination or 0 if the
+/// environment variable does not exist
 /// @param[out] buffer to store the value of the env variable
 /// @param[in] buffer_capacity of the buffer to store the env variable
 /// @param[in] name of the env variable

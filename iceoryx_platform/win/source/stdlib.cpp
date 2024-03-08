@@ -42,20 +42,34 @@ int iox_getenv_s(size_t* env_var_size_with_null, char* buffer, size_t buffer_cap
     }
 
     size_t actual_size_platform_adaption{0};
-    size_t* actual_size_ptr =
+    size_t* actual_size_with_null_ptr =
         (env_var_size_with_null != nullptr) ? env_var_size_with_null : &actual_size_platform_adaption;
 
-    char buffer_platform_adaption[1];
-    char* buffer_ptr = (buffer != nullptr) ? buffer : buffer_platform_adaption;
+    auto ret_val = getenv_s(actual_size_with_null_ptr, buffer, buffer_capacity, name);
 
-    size_t capacity = (buffer != nullptr) ? buffer_capacity : 0;
+    if (ret_val == 0 && *actual_size_with_null_ptr > buffer_capacity)
+    {
+        return ERANGE;
+    }
 
-    return getenv_s(actual_size_ptr, buffer_ptr, capacity, name);
+    return ret_val;
 }
 
 int iox_setenv(const char* name, const char* value, int overwrite)
 {
     std::lock_guard<std::mutex> lock(env_mutex());
+
+    if (name == nullptr)
+    {
+        errno = EINVAL;
+        return -1;
+    }
+
+    if (value == nullptr)
+    {
+        errno = EINVAL;
+        return -1;
+    }
 
     if (overwrite == 0 && getenv(name) != nullptr)
     {
@@ -67,6 +81,12 @@ int iox_setenv(const char* name, const char* value, int overwrite)
 int iox_unsetenv(const char* name)
 {
     std::lock_guard<std::mutex> lock(env_mutex());
+
+    if (name == nullptr)
+    {
+        errno = EINVAL;
+        return -1;
+    }
 
     return _putenv_s(name, "");
 }
