@@ -1,4 +1,5 @@
-// Copyright (c) 2023 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,14 +14,21 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_QNX_PLATFORM_STDIO_HPP
-#define IOX_HOOFS_QNX_PLATFORM_STDIO_HPP
 
-#include <cstdio>
+#include "iceoryx_hoofs/testing/error_reporting/testing_error_handler.hpp"
+#include "iceoryx_hoofs/testing/testing_logger.hpp"
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 
-inline int iox_remove(const char* pathname)
+#include "test.hpp"
+
+int main(int argc, char* argv[])
 {
-    return remove(pathname);
-}
+    ::testing::InitGoogleTest(&argc, argv);
 
-#endif
+    iox::experimental::hasExperimentalPoshFeaturesEnabled(true);
+
+    iox::testing::TestingLogger::init();
+    iox::testing::TestingErrorHandler::init();
+
+    return RUN_ALL_TESTS();
+}

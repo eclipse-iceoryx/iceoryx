@@ -19,7 +19,7 @@ if (BUILD_TEST)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/googletest ${CMAKE_BINARY_DIR}/dependencies/googletest/prebuild)
 
     ### create component list
-    set(COMPONENTS "hoofs" "posh")
+    set(COMPONENTS "platform" "hoofs" "posh")
 
     ### possible place for more extensions
     if (BINDING_C)
@@ -36,9 +36,7 @@ if (BUILD_TEST)
     endforeach()
 
     foreach(cmp IN ITEMS ${COMPONENTS})
-        if(NOT (cmp STREQUAL "binding_c"))
-            list(APPEND INTEGRATIONTEST_CMD COMMAND ./${cmp}/test/${cmp}_integrationtests --gtest_filter=-*.TimingTest_* --gtest_output=xml:${CMAKE_BINARY_DIR}/testresults/${cmp}_IntegrationTestResults.xml)
-        endif()
+        list(APPEND INTEGRATIONTEST_CMD COMMAND ./${cmp}/test/${cmp}_integrationtests --gtest_filter=-*.TimingTest_* --gtest_output=xml:${CMAKE_BINARY_DIR}/testresults/${cmp}_IntegrationTestResults.xml)
     endforeach()
 
     add_custom_target( all_tests
@@ -71,9 +69,7 @@ if (BUILD_TEST)
     ### create test target with Timing tests
     foreach(cmp IN ITEMS ${COMPONENTS})
         list(APPEND TIMING_MODULETEST_CMD COMMAND ./${cmp}/test/${cmp}_moduletests --gtest_filter=*.TimingTest_* --gtest_output=xml:${CMAKE_BINARY_DIR}/testresults/${cmp}_TimingModuleTestResults.xml)
-        if(NOT (cmp STREQUAL "binding_c"))
-            list(APPEND TIMING_INTEGRATIONTEST_CMD COMMAND ./${cmp}/test/${cmp}_integrationtests --gtest_filter=*.TimingTest_* --gtest_output=xml:${CMAKE_BINARY_DIR}/testresults/${cmp}_TimingIntegrationTestResults.xml)
-        endif()
+        list(APPEND TIMING_INTEGRATIONTEST_CMD COMMAND ./${cmp}/test/${cmp}_integrationtests --gtest_filter=*.TimingTest_* --gtest_output=xml:${CMAKE_BINARY_DIR}/testresults/${cmp}_TimingIntegrationTestResults.xml)
     endforeach()
 
     add_custom_target( timing_module_tests

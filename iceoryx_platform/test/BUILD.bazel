@@ -1,4 +1,4 @@
-# Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+# Copyright (c) 2024 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,21 +17,20 @@
 load("@rules_cc//cc:defs.bzl", "cc_test")
 
 cc_test(
-    name = "binding_c_moduletests",
+    name = "platform_moduletests",
     srcs = glob([
         "moduletests/*.cpp",
         "moduletests/*.hpp",
-        "mocks/*.hpp",
         "*.hpp",
     ]),
+    data = glob(["input/**"]),
     includes = [
         ".",
-        "mocks",
         "moduletests",
     ],
     linkopts = select({
         "//iceoryx_platform:linux": ["-ldl"],
-        "//iceoryx_platform:mac": ["-ldl"],
+        "//iceoryx_platform:mac": [],
         "//iceoryx_platform:qnx": [],
         "//iceoryx_platform:unix": [],
         "//iceoryx_platform:win": [],
@@ -40,30 +39,26 @@ cc_test(
     tags = ["exclusive"],
     visibility = ["//visibility:private"],
     deps = [
-        "//iceoryx_binding_c",
-        "//iceoryx_hoofs:iceoryx_hoofs_testing",
-        "//iceoryx_posh",
-        "//iceoryx_posh:iceoryx_posh_roudi_env",
-        "//iceoryx_posh:iceoryx_posh_testing",
+        "//iceoryx_platform",
+        "@googletest//:gtest",
     ],
 )
 
 cc_test(
-    name = "binding_c_integrationtests",
+    name = "platform_integrationtests",
     srcs = glob([
         "integrationtests/*.cpp",
         "integrationtests/*.hpp",
-        "mocks/*.hpp",
         "*.hpp",
     ]),
+    data = glob(["input/**"]),
     includes = [
         ".",
         "integrationtests",
-        "mocks",
     ],
     linkopts = select({
         "//iceoryx_platform:linux": ["-ldl"],
-        "//iceoryx_platform:mac": ["-ldl"],
+        "//iceoryx_platform:mac": [],
         "//iceoryx_platform:qnx": [],
         "//iceoryx_platform:unix": [],
         "//iceoryx_platform:win": [],
@@ -72,10 +67,7 @@ cc_test(
     tags = ["exclusive"],
     visibility = ["//visibility:private"],
     deps = [
-        "//iceoryx_binding_c",
-        "//iceoryx_hoofs:iceoryx_hoofs_testing",
-        "//iceoryx_posh",
-        "//iceoryx_posh:iceoryx_posh_roudi_env",
-        "//iceoryx_posh:iceoryx_posh_testing",
+        "//iceoryx_platform",
+        "@googletest//:gtest",
     ],
 )

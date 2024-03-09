@@ -16,7 +16,7 @@
 #ifndef IOX_HOOFS_FREERTOS_PLATFORM_STDIO_HPP
 #define IOX_HOOFS_FREERTOS_PLATFORM_STDIO_HPP
 
-int iox_remove(const char*)
+inline int iox_remove(const char*)
 {
     return 0;
 }

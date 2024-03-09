@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iox/posh/experimental/node.hpp"
+#include "iceoryx_platform/stdlib.hpp"
 #include "iceoryx_posh/internal/runtime/posh_runtime_impl.hpp"
 
 namespace iox::posh::experimental
@@ -35,9 +36,33 @@ NodeBuilder&& NodeBuilder::domain_id_from_env() && noexcept
     m_domain_id.reset();
     // JUSTIFICATION getenv is required for the functionality of this function; see also declaration in header
     // NOLINTNEXTLINE(concurrency-mt-unsafe)
-    if (const auto* domain_id_string = std::getenv("IOX_DOMAIN_ID"))
+
+
+    iox::string<10> domain_id_string;
+    domain_id_string.unsafe_raw_access([](auto* buffer, const auto info) {
+        size_t actual_size_with_null{0};
+        auto result = IOX_POSIX_CALL(iox_getenv_s)(&actual_size_with_null, buffer, info.total_size, "IOX_DOMAIN_ID")
+                          .failureReturnValue(-1)
+                          .evaluate();
+        if (result.has_error() && result.error().errnum == ERANGE)
+        {
+            IOX_LOG(INFO,
+                    "Invalid value for 'IOX_DOMAIN_ID' environment variable! Must be in the range of '0' to '65535'!");
+        }
+
+        size_t actual_size{0};
+        constexpr size_t NULL_TERMINATOR_SIZE{1};
+        if (actual_size_with_null > 0)
+        {
+            actual_size = actual_size_with_null - NULL_TERMINATOR_SIZE;
+        }
+        buffer[actual_size] = 0;
+        return actual_size;
+    });
+
+    if (domain_id_string.size() > 0)
     {
-        iox::convert::from_string<uint16_t>(domain_id_string)
+        iox::convert::from_string<uint16_t>(domain_id_string.c_str())
             .and_then([this](const auto& env_domain_id) { m_domain_id.emplace(env_domain_id); })
             .or_else([&domain_id_string]() {
                 IOX_LOG(INFO, "Invalid value for 'IOX_DOMAIN_ID' environment variable!'");

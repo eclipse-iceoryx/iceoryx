@@ -18,7 +18,7 @@
 
 #include <cstdio>
 
-int iox_remove(const char* pathname)
+inline int iox_remove(const char* pathname)
 {
     return remove(pathname);
 }

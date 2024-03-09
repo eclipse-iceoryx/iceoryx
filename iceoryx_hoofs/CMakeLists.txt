@@ -24,11 +24,10 @@ project(iceoryx_hoofs VERSION ${IOX_VERSION_STRING})
 find_package(iceoryx_platform REQUIRED)
 
 include(IceoryxPackageHelper)
+include(IceoryxPlatform)
 include(IceoryxPlatformSettings)
 
 include(cmake/IceoryxHoofsDeployment.cmake)
-
-include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPlatform.cmake")
 
 if(CMAKE_SYSTEM_NAME MATCHES Linux OR CMAKE_SYSTEM_NAME MATCHES Darwin)
     option(BUILD_SHARED_LIBS "Create shared libraries by default" ON)
@@ -44,7 +43,6 @@ iox_add_library(
     NAMESPACE                   iceoryx_hoofs
     PROJECT_PREFIX              ${PREFIX}
     PUBLIC_LIBS                 iceoryx_platform::iceoryx_platform
-    PRIVATE_LIBS                ${ICEORYX_SANITIZER_FLAGS}
     PRIVATE_LIBS_LINUX          acl atomic ${CODE_COVERAGE_LIBS}
     BUILD_INTERFACE             ${PROJECT_SOURCE_DIR}/buffer/include
                                 ${PROJECT_SOURCE_DIR}/cli/include
@@ -175,9 +173,3 @@ if(GTest_FOUND)
         add_subdirectory(test)
     endif()
 endif()
-
-install(
-    FILES
-        cmake/IceoryxPlatform.cmake
-    DESTINATION ${DESTINATION_CONFIGDIR}
-)

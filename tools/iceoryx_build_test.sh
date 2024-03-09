@@ -54,7 +54,7 @@ EXPERIMENTAL_FLAG="OFF"
 BUILD_ALL_FLAG="OFF"
 BUILD_SHARED="OFF"
 TOML_FLAG="ON"
-COMPONENTS="iceoryx_posh iceoryx_hoofs iceoryx_introspection iceoryx_binding_c iceoryx_component"
+COMPONENTS="iceoryx_platform iceoryx_hoofs iceoryx_posh iceoryx_introspection iceoryx_binding_c iceoryx_component"
 TOOLCHAIN_FILE=""
 CMAKE_CXX_FLAGS=""
 

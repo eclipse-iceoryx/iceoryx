@@ -71,24 +71,33 @@ class NodeBuilder
 
     /// @brief Determines which domain to use to register to a RouDi instance by using the one specified by
     /// 'IOX_DOMAIN_ID'. If the environment variable is not set or invalid, the creation of the 'Node' will fail.
-    /// @note The function uses 'getenv' which is not thread safe and can result in undefined behavior when it is called
-    /// from multiple threads or the env variable is changed while the function holds a pointer to the data. For this
-    /// reason the function should only be used in the startup phase of the application and only in the main thread.
+    /// @note The function uses 'iox_getenv_s' which is only conditionally thread safe as long as only 'iox_getenv',
+    /// 'iox_setenv' and 'iox_unsetenv' are used and none of 'getenv', 'setenv', 'unsetenv' and 'putenv' directly.
+    /// Using the POSIX functions directly can result in undefined behavior when it is called from multiple threads
+    /// or the env variable is changed while the function holds a pointer to the data. For this reason only the 'iox_*'
+    /// function should be used or if one does not have full control of the environment, these functions should only
+    /// be used in the startup phase of the application and only in the main thread.
     NodeBuilder&& domain_id_from_env() && noexcept;
 
     /// @brief Determines which domain to use to register to a RouDi instance by using the one specified by
     /// 'IOX_DOMAIN_ID' or the one by 'value' if the environment variable is not set or invalid.
     /// @param[in] domain_id to be used as domain ID if the 'IOX_DOMAIN_ID' environment variable is not set or invalid
-    /// @note The function uses 'getenv' which is not thread safe and can result in undefined behavior when it is called
-    /// from multiple threads or the env variable is changed while the function holds a pointer to the data. For this
-    /// reason the function should only be used in the startup phase of the application and only in the main thread.
+    /// @note The function uses 'iox_getenv_s' which is only conditionally thread safe as long as only 'iox_getenv',
+    /// 'iox_setenv' and 'iox_unsetenv' are used and none of 'getenv', 'setenv', 'unsetenv' and 'putenv' directly.
+    /// Using the POSIX functions directly can result in undefined behavior when it is called from multiple threads
+    /// or the env variable is changed while the function holds a pointer to the data. For this reason only the 'iox_*'
+    /// function should be used or if one does not have full control of the environment, these functions should only
+    /// be used in the startup phase of the application and only in the main thread.
     NodeBuilder&& domain_id_from_env_or(const DomainId domainId) && noexcept;
 
     /// @brief Determines which domain to use to register to a RouDi instance using the one specified by
     /// 'IOX_DOMAIN_ID' or the the default Domain ID if the environment variable is not set
-    /// @note The function uses 'getenv' which is not thread safe and can result in undefined behavior when it is called
-    /// from multiple threads or the env variable is changed while the function holds a pointer to the data. For this
-    /// reason the function should only be used in the startup phase of the application and only in the main thread.
+    /// @note The function uses 'iox_getenv_s' which is only conditionally thread safe as long as only 'iox_getenv',
+    /// 'iox_setenv' and 'iox_unsetenv' are used and none of 'getenv', 'setenv', 'unsetenv' and 'putenv' directly.
+    /// Using the POSIX functions directly can result in undefined behavior when it is called from multiple threads
+    /// or the env variable is changed while the function holds a pointer to the data. For this reason only the 'iox_*'
+    /// function should be used or if one does not have full control of the environment, these functions should only
+    /// be used in the startup phase of the application and only in the main thread.
     NodeBuilder&& domain_id_from_env_or_default() && noexcept;
 
     expected<Node, NodeBuilderError> create() noexcept;
