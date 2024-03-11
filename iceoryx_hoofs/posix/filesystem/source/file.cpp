@@ -55,7 +55,7 @@ expected<File, FileCreationError> FileBuilder::open(const FilePath& name) noexce
         const auto perms = file.get_permissions();
         if (perms.has_error())
         {
-            IOX_LOG(ERROR, "Unable to acquire the permissions of the file.");
+            IOX_LOG(ERROR, "Unable to acquire the permissions of '" << name.as_string() << "'.");
             return err(FileCreationError::PermissionDenied);
         }
 
@@ -63,7 +63,8 @@ expected<File, FileCreationError> FileBuilder::open(const FilePath& name) noexce
         {
             if ((perms->value() & perms::owner_read.value()) == 0)
             {
-                IOX_LOG(ERROR, "Unable to open/create file due to insufficient read permissions.");
+                IOX_LOG(ERROR,
+                        "Unable to open/create '" << name.as_string() << "' due to insufficient read permissions.");
                 return err(FileCreationError::PermissionDenied);
             }
         }
@@ -72,7 +73,8 @@ expected<File, FileCreationError> FileBuilder::open(const FilePath& name) noexce
         {
             if ((perms->value() & perms::owner_write.value()) == 0)
             {
-                IOX_LOG(ERROR, "Unable to open/create file due to insufficient write permissions.");
+                IOX_LOG(ERROR,
+                        "Unable to open/create '" << name.as_string() << "' due to insufficient write permissions.");
                 return err(FileCreationError::PermissionDenied);
             }
         }
@@ -83,43 +85,50 @@ expected<File, FileCreationError> FileBuilder::open(const FilePath& name) noexce
     switch (result.error().errnum)
     {
     case EACCES:
-        IOX_LOG(ERROR, "Unable to open/create file due to insufficient permissions.");
+        IOX_LOG(ERROR, "Unable to open/create '" << name.as_string() << "' due to insufficient permissions.");
         return err(FileCreationError::PermissionDenied);
     case EPERM:
-        IOX_LOG(ERROR, "Unable to open/create file due to insufficient permissions.");
+        IOX_LOG(ERROR, "Unable to open/create '" << name.as_string() << "' due to insufficient permissions.");
         return err(FileCreationError::PermissionDenied);
     case EINTR:
-        IOX_LOG(ERROR, "Unable to open/create file since an interrupt signal was received.");
+        IOX_LOG(ERROR, "Unable to open/create '" << name.as_string() << "' since an interrupt signal was received.");
         return err(FileCreationError::Interrupt);
     case EISDIR:
-        IOX_LOG(ERROR, "Unable to open/create file since it is actually a directory.");
+        IOX_LOG(ERROR, "Unable to open/create '" << name.as_string() << "' since it is actually a directory.");
         return err(FileCreationError::IsDirectory);
     case ELOOP:
-        IOX_LOG(ERROR, "Unable to open/create file since too many symbolic links were encountered.");
+        IOX_LOG(ERROR,
+                "Unable to open/create '" << name.as_string() << "' since too many symbolic links were encountered.");
         return err(FileCreationError::TooManySymbolicLinksEncountered);
     case EMFILE:
-        IOX_LOG(ERROR, "Unable to open/create file since the process limit of open file descriptors was reached.");
+        IOX_LOG(ERROR,
+                "Unable to open/create '" << name.as_string()
+                                          << "' since the process limit of open file descriptors was reached.");
         return err(FileCreationError::ProcessLimitOfOpenFileDescriptorsReached);
     case ENFILE:
-        IOX_LOG(ERROR, "Unable to open/create file since the system limit of open file descriptors was reached.");
+        IOX_LOG(ERROR,
+                "Unable to open/create '" << name.as_string()
+                                          << "' since the system limit of open file descriptors was reached.");
         return err(FileCreationError::SystemLimitOfOpenFileDescriptorsReached);
     case ENOENT:
-        IOX_LOG(ERROR, "Unable to open file since the file does not exist.");
+        IOX_LOG(ERROR, "Unable to open '" << name.as_string() << "' since the file does not exist.");
         return err(FileCreationError::DoesNotExist);
     case ENOMEM:
-        IOX_LOG(ERROR, "Unable to open/create file due to insufficient memory.");
+        IOX_LOG(ERROR, "Unable to open/create '" << name.as_string() << "' due to insufficient memory.");
         return err(FileCreationError::InsufficientMemory);
     case EOVERFLOW:
-        IOX_LOG(ERROR, "Unable to open/create file since it is too large.");
+        IOX_LOG(ERROR, "Unable to open/create '" << name.as_string() << "' since it is too large.");
         return err(FileCreationError::FileTooLarge);
     case ETXTBSY:
-        IOX_LOG(ERROR, "Unable to open/create file since it is currently in use.");
+        IOX_LOG(ERROR, "Unable to open/create '" << name.as_string() << "' since it is currently in use.");
         return err(FileCreationError::CurrentlyInUse);
     case EEXIST:
-        IOX_LOG(ERROR, "Unable to create file since it already exists.");
+        IOX_LOG(ERROR, "Unable to create '" << name.as_string() << "' since it already exists.");
         return err(FileCreationError::AlreadyExists);
     default:
-        IOX_LOG(ERROR, "Unable to open/create file since an unknown error occurred (" << result.error().errnum << ").");
+        IOX_LOG(ERROR,
+                "Unable to open/create '" << name.as_string() << "' since an unknown error occurred ("
+                                          << result.error().errnum << ").");
         return err(FileCreationError::UnknownError);
     }
 }
@@ -204,23 +213,23 @@ expected<bool, FileAccessError> File::does_exist(const FilePath& file) noexcept
     switch (result.error().errnum)
     {
     case EACCES:
-        IOX_LOG(ERROR, "Unable to determine if file exists due to insufficient permissions.");
+        IOX_LOG(ERROR, "Unable to determine if '" << file.as_string() << "' exists due to insufficient permissions.");
         return err(FileAccessError::InsufficientPermissions);
     case ENOENT:
         return ok(false);
     case ELOOP:
-        IOX_LOG(ERROR, "Unable to determine if file exists due to too many symbolic links.");
+        IOX_LOG(ERROR, "Unable to determine if '" << file.as_string() << "' exists due to too many symbolic links.");
         return err(FileAccessError::TooManySymbolicLinksEncountered);
     case EIO:
-        IOX_LOG(ERROR, "Unable to determine if file exists due to an IO failure.");
+        IOX_LOG(ERROR, "Unable to determine if '" << file.as_string() << "' exists due to an IO failure.");
         return err(FileAccessError::IoFailure);
     case ENOMEM:
-        IOX_LOG(ERROR, "Unable to determine if file exists due insufficient kernel memory.");
+        IOX_LOG(ERROR, "Unable to determine if '" << file.as_string() << "' exists due insufficient kernel memory.");
         return err(FileAccessError::InsufficientKernelMemory);
     default:
         IOX_LOG(ERROR,
-                "Unable to determine if file exists since an unknown error occurred (" << result.error().errnum
-                                                                                       << ").");
+                "Unable to determine if '" << file.as_string() << "' exists since an unknown error occurred ("
+                                           << result.error().errnum << ").");
         return err(FileAccessError::UnknownError);
     }
 }
@@ -244,28 +253,30 @@ expected<bool, FileRemoveError> File::remove(const FilePath& file) noexcept
     case EPERM:
         [[fallthrough]];
     case EACCES:
-        IOX_LOG(ERROR, "Unable to remove file due to insufficient permissions.");
+        IOX_LOG(ERROR, "Unable to remove '" << file.as_string() << "' due to insufficient permissions.");
         return err(FileRemoveError::PermissionDenied);
     case EBUSY:
-        IOX_LOG(ERROR, "Unable to remove file since it is currently in use.");
+        IOX_LOG(ERROR, "Unable to remove '" << file.as_string() << "' since it is currently in use.");
         return err(FileRemoveError::CurrentlyInUse);
     case EIO:
-        IOX_LOG(ERROR, "Unable to remove file due to an IO failure.");
+        IOX_LOG(ERROR, "Unable to remove '" << file.as_string() << "' due to an IO failure.");
         return err(FileRemoveError::IoFailure);
     case ELOOP:
-        IOX_LOG(ERROR, "Unable to remove file due to too many symbolic links.");
+        IOX_LOG(ERROR, "Unable to remove '" << file.as_string() << "' due to too many symbolic links.");
         return err(FileRemoveError::TooManySymbolicLinksEncountered);
     case ENOMEM:
-        IOX_LOG(ERROR, "Unable to remove file due to insufficient kernel memory.");
+        IOX_LOG(ERROR, "Unable to remove '" << file.as_string() << "' due to insufficient kernel memory.");
         return err(FileRemoveError::InsufficientKernelMemory);
     case EISDIR:
-        IOX_LOG(ERROR, "Unable to remove file since it is a directory.");
+        IOX_LOG(ERROR, "Unable to remove '" << file.as_string() << "' since it is a directory.");
         return err(FileRemoveError::IsDirectory);
     case EROFS:
-        IOX_LOG(ERROR, "Unable to remove file since it resides on a read-only file system.");
+        IOX_LOG(ERROR, "Unable to remove '" << file.as_string() << "' since it resides on a read-only file system.");
         return err(FileRemoveError::ReadOnlyFilesystem);
     default:
-        IOX_LOG(ERROR, "Unable to remove file since an unknown error occurred (" << result.error().errnum << ").");
+        IOX_LOG(ERROR,
+                "Unable to remove '" << file.as_string() << "' since an unknown error occurred ("
+                                     << result.error().errnum << ").");
         return err(FileRemoveError::UnknownError);
     }
 }

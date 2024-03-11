@@ -15,6 +15,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 load("@rules_cc//cc:defs.bzl", "cc_library")
+load("//bazel:configure_file.bzl", "configure_file")
 load("//bazel:configure_version.bzl", "configure_version")
 
 #
@@ -64,6 +65,37 @@ configure_version(
     version_from = "//:VERSION",
 )
 
+configure_file(
+    name = "platform_settings_hpp",
+    src = select({
+        ":linux": "linux/cmake/platform_settings.hpp.in",
+        ":mac": "mac/cmake/platform_settings.hpp.in",
+        ":qnx": "qnx/cmake/platform_settings.hpp.in",
+        ":unix": "unix/cmake/platform_settings.hpp.in",
+        ":win": "win/cmake/platform_settings.hpp.in",
+        "//conditions:default": "linux/cmake/platform_settings.hpp.in",
+    }),
+    out = "generated/include/iceoryx_platform/platform_settings.hpp",
+    config = select({
+        ":qnx": {
+            "IOX_PLATFORM_LOCK_FILE_PATH_PREFIX": "/var/lock/",
+            "IOX_PLATFORM_TEMP_DIR": "/tmp/",
+            "IOX_PLATFORM_UDS_SOCKET_PATH_PREFIX": "/tmp/",
+        },
+        ":win": {
+            # use "/" as separator to circumvent the cruelty "C:\\\\\\\\Windows"
+            "IOX_PLATFORM_LOCK_FILE_PATH_PREFIX": "C:/Windows/Temp/",
+            "IOX_PLATFORM_TEMP_DIR": "C:/Windows/Temp/",
+            "IOX_PLATFORM_UDS_SOCKET_PATH_PREFIX": "",
+        },
+        "//conditions:default": {
+            "IOX_PLATFORM_LOCK_FILE_PATH_PREFIX": "/tmp/",
+            "IOX_PLATFORM_TEMP_DIR": "/tmp/",
+            "IOX_PLATFORM_UDS_SOCKET_PATH_PREFIX": "/tmp/",
+        },
+    }),
+)
+
 #
 # Library: iceoryx_platform
 #
@@ -71,30 +103,24 @@ cc_library(
     name = "iceoryx_platform",
     srcs = select({
         ":linux": glob([
-            "generic/source/**",
             "linux/source/**",
         ]),
         ":mac": glob([
-            "generic/source/**",
             "mac/source/**",
         ]),
         ":qnx": glob([
-            "generic/source/**",
             "qnx/source/**",
         ]),
         ":unix": glob([
-            "generic/source/**",
             "unix/source/**",
         ]),
         ":win": glob([
-            "generic/source/**",
             "win/source/**",
         ]),
         "//conditions:default": glob([
-            "generic/source/**",
             "linux/source/**",
         ]),
-    }),
+    }) + glob(["generic/source/**"]),
     hdrs = select({
         ":linux": glob(["linux/include/**"]),
         ":mac": glob(["mac/include/**"]),
@@ -104,6 +130,7 @@ cc_library(
         "//conditions:default": glob(["linux/include/**"]),
     }) + glob(["generic/include/**"]) + [
         ":iceoryx_versions_h",
+        ":platform_settings_hpp",
     ],
     includes = select({
         ":linux": ["linux/include"],

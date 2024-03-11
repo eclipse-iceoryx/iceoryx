@@ -24,12 +24,19 @@ and build iceoryx as usual.
         * must contain all of the headers which you can find in
          `iceoryx_platform/linux/include/iceoryx_platform`
         * the headers must declare the same functions
-        * every header must provide a - not necessary valid - implementation for the all the
+        * every header must provide a - not necessary valid - implementation for all the
           declared functions. If certain functionalities are not implemented one can identify
           the broken feature by executing the hoofs and posh module and integrationtests
      * `source/` - directory where the implementation must be stored
-     * `IceoryxPlatformSettings.cmake` - file which contains the platform compile configuration
-        * `ICEORYX_CXX_STANDARD` - must be at least `14`
+     * `cmake/IceoryxPlatformDeployment.cmake` - file which contains the platform compile time options
+        * `IOX_PLATFORM_TEMP_DIR` - path to the temp dir
+        * `IOX_PLATFORM_LOCK_FILE_PATH_PREFIX` - path to the dir which will be populated with the lock files
+        * `IOX_PLATFORM_UDS_SOCKET_PATH_PREFIX` - path to the dir which will be populated with the UDS socket files
+     * `cmake/platform_settings.hpp.in` - file which is used as template to generate the `platform_settings.hpp`
+        * contains the values defined in `cmake/IceoryxPlatformDeployment.cmake`
+        * contains additional constants not exposed as compile time option
+     * `cmake/IceoryxPlatformSettings.cmake` - file which contains the platform compile configuration
+        * `ICEORYX_CXX_STANDARD` - must be at least `17`
         * `ICEORYX_PLATFORM_STRING` - the name of the platform
         * `ICEORYX_C_WARNINGS` - [optional] a list of flags to enable c compiler warnings
         * `ICEORYX_CXX_WARNINGS` - [optional] a list of flags to enable c++ compiler warnings
