@@ -160,7 +160,7 @@ int iox_sem_destroy(iox_sem_t* sem)
     return 0;
 }
 
-static HANDLE sem_create_win32_semaphore(LONG value, LPCSTR name)
+static Win32CallReturn<HANDLE> sem_create_win32_semaphore(LONG value, LPCSTR name)
 {
     SECURITY_ATTRIBUTES securityAttribute;
     SECURITY_DESCRIPTOR securityDescriptor;
@@ -180,8 +180,7 @@ static HANDLE sem_create_win32_semaphore(LONG value, LPCSTR name)
     securityAttribute.lpSecurityDescriptor = &securityDescriptor;
     securityAttribute.bInheritHandle = FALSE;
 
-    HANDLE returnValue = Win32Call(CreateSemaphoreA, &securityAttribute, value, IOX_SEM_VALUE_MAX, name).value;
-    return returnValue;
+    return Win32Call(CreateSemaphoreA, &securityAttribute, value, IOX_SEM_VALUE_MAX, name);
 }
 
 int iox_sem_init(iox_sem_t* sem, int pshared, unsigned int value)
@@ -189,7 +188,7 @@ int iox_sem_init(iox_sem_t* sem, int pshared, unsigned int value)
     sem->isInterprocessSemaphore = (pshared == 1);
     if (sem->isInterprocessSemaphore)
     {
-        sem->handle = sem_create_win32_semaphore(value, generateSemaphoreName(sem->uniqueId).c_str());
+        sem->handle = sem_create_win32_semaphore(value, generateSemaphoreName(sem->uniqueId).c_str()).value;
         if (sem->handle != nullptr)
         {
             IpcHandleManager::getInstance().addHandle(sem->uniqueId, OwnerShip::OWN, sem->handle);
@@ -197,7 +196,7 @@ int iox_sem_init(iox_sem_t* sem, int pshared, unsigned int value)
     }
     else
     {
-        sem->handle = sem_create_win32_semaphore(value, nullptr);
+        sem->handle = sem_create_win32_semaphore(value, nullptr).value;
     }
 
     return (sem->handle != nullptr) ? 0 : -1;
@@ -229,8 +228,9 @@ iox_sem_t* iox_sem_open_impl(const char* name, int oflag, ...) // mode_t mode, u
         unsigned int value = va_arg(va, unsigned int);
         va_end(va);
 
-        sem->handle = sem_create_win32_semaphore(value, name);
-        if (oflag & O_EXCL && GetLastError() == ERROR_ALREADY_EXISTS)
+        auto result = sem_create_win32_semaphore(value, name);
+        sem->handle = result.value;
+        if (oflag & O_EXCL && result.error == ERROR_ALREADY_EXISTS)
         {
             errno = EEXIST;
             iox_sem_close(sem);
