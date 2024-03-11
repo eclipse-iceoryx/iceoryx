@@ -111,6 +111,7 @@ inline void Logger<BaseLogger>::initLoggerInternal(const LogLevel logLevel) noex
     {
         BaseLogger::setLogLevel(logLevel);
         BaseLogger::initLogger(logLevel);
+        iox_platform_set_log_backend(&platform_log_backend);
         m_isFinalized.store(true, std::memory_order_relaxed);
     }
     else
