@@ -78,18 +78,19 @@ configure_file(
     out = "generated/include/iceoryx_platform/platform_settings.hpp",
     config = select({
         ":qnx": {
-            "IOX_PLATFORM_TEMP_DIR": "/tmp/",
             "IOX_PLATFORM_LOCK_FILE_PATH_PREFIX": "/var/lock/",
+            "IOX_PLATFORM_TEMP_DIR": "/tmp/",
             "IOX_PLATFORM_UDS_SOCKET_PATH_PREFIX": "/tmp/",
         },
         ":win": {
-            "IOX_PLATFORM_TEMP_DIR": "C:\\Windows\\Temp\\",
-            "IOX_PLATFORM_LOCK_FILE_PATH_PREFIX": "C:\\Windows\\Temp\\",
+            # use "/" as separator to circumvent the cruelty "C:\\\\\\\\Windows"
+            "IOX_PLATFORM_LOCK_FILE_PATH_PREFIX": "C:/Windows/Temp/",
+            "IOX_PLATFORM_TEMP_DIR": "C:/Windows/Temp/",
             "IOX_PLATFORM_UDS_SOCKET_PATH_PREFIX": "",
         },
         "//conditions:default": {
-            "IOX_PLATFORM_TEMP_DIR": "/tmp/",
             "IOX_PLATFORM_LOCK_FILE_PATH_PREFIX": "/tmp/",
+            "IOX_PLATFORM_TEMP_DIR": "/tmp/",
             "IOX_PLATFORM_UDS_SOCKET_PATH_PREFIX": "/tmp/",
         },
     }),

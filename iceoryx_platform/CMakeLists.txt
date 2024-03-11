@@ -103,6 +103,7 @@ install(
 
 install(
     FILES
+        cmake/IceoryxConfigureOptionMacro.cmake
         cmake/IceoryxPackageHelper.cmake
         cmake/IceoryxPlatform.cmake
         cmake/IceoryxVersion.cmake

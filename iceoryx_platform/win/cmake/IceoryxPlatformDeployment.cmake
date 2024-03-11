@@ -19,14 +19,15 @@
 
 message(STATUS "[i] <<<<<<<<<<<<< Start iceoryx_platform configuration: >>>>>>>>>>>>>")
 
+# use "/" as separator to circumvent the cruelty "C:\\\\\\\\Windows"
 configure_option(
     NAME IOX_PLATFORM_TEMP_DIR
-    DEFAULT_VALUE "C:\\Windows\\Temp\\"
+    DEFAULT_VALUE "C:/Windows/Temp/"
 )
 
 configure_option(
     NAME IOX_PLATFORM_LOCK_FILE_PATH_PREFIX
-    DEFAULT_VALUE "C:\\Windows\\Temp\\"
+    DEFAULT_VALUE "C:/Windows/Temp/"
 )
 
 configure_option(
