@@ -16,12 +16,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_platform/semaphore.hpp"
+#include "iceoryx_platform/logging.hpp"
 #include "iceoryx_platform/time.hpp"
 
 #include <chrono>
 #include <cstdarg>
 #include <cstdlib>
-#include <iostream>
 #include <thread>
 
 iox_sem_t::iox_sem_t() noexcept
@@ -54,9 +54,9 @@ int iox_sem_getvalue(iox_sem_t* sem, int* sval)
 {
     if (sem->m_hasPosixHandle)
     {
-        std::cerr
-            << "\"sem_getvalue\" is not supported for named semaphores on MacOS and always returns 0, do not use it!"
-            << std::endl;
+        IOX_PLATFORM_LOG(
+            IOX_PLATFORM_LOG_LEVEL_ERROR,
+            "\"sem_getvalue\" is not supported for named semaphores on MacOS and always returns 0, do not use it!");
         return 0;
     }
     *sval = static_cast<int>(sem->m_value.load(std::memory_order_relaxed));
@@ -245,14 +245,14 @@ int iox_sem_init(iox_sem_t* sem, int, unsigned int value)
     pthread_mutexattr_t mutexAttr;
     if (pthread_mutexattr_init(&mutexAttr) != 0)
     {
-        printf("failed to initialize mutexattr\n");
+        IOX_PLATFORM_LOG(IOX_PLATFORM_LOG_LEVEL_ERROR, "failed to initialize mutexattr");
         return -1;
     }
 
     if (pthread_mutexattr_setpshared(&mutexAttr, PTHREAD_PROCESS_SHARED) != 0)
     {
         pthread_mutexattr_destroy(&mutexAttr);
-        printf("unable to set the shared process mutex attribute\n");
+        IOX_PLATFORM_LOG(IOX_PLATFORM_LOG_LEVEL_ERROR, "unable to set the shared process mutex attribute\n");
         return -1;
     }
 
@@ -261,7 +261,7 @@ int iox_sem_init(iox_sem_t* sem, int, unsigned int value)
     if (pthread_condattr_init(&condAttr) != 0)
     {
         pthread_mutexattr_destroy(&mutexAttr);
-        printf("failed to initialize condattr\n");
+        IOX_PLATFORM_LOG(IOX_PLATFORM_LOG_LEVEL_ERROR, "failed to initialize condattr\n");
         return -1;
     }
 
@@ -269,7 +269,8 @@ int iox_sem_init(iox_sem_t* sem, int, unsigned int value)
     {
         pthread_condattr_destroy(&condAttr);
         pthread_mutexattr_destroy(&mutexAttr);
-        printf("unable to set the shared process condition variable attribute\n");
+        IOX_PLATFORM_LOG(IOX_PLATFORM_LOG_LEVEL_ERROR,
+                         "unable to set the shared process condition variable attribute\n");
         return -1;
     }
 
@@ -277,7 +278,7 @@ int iox_sem_init(iox_sem_t* sem, int, unsigned int value)
     {
         pthread_condattr_destroy(&condAttr);
         pthread_mutexattr_destroy(&mutexAttr);
-        printf("failed to initialize inter process mutex\n");
+        IOX_PLATFORM_LOG(IOX_PLATFORM_LOG_LEVEL_ERROR, "failed to initialize inter process mutex\n");
         return -1;
     }
 
@@ -286,7 +287,7 @@ int iox_sem_init(iox_sem_t* sem, int, unsigned int value)
         pthread_mutex_destroy(&sem->m_handle.condition.mtx);
         pthread_condattr_destroy(&condAttr);
         pthread_mutexattr_destroy(&mutexAttr);
-        printf("failed to initialize inter process condition variable\n");
+        IOX_PLATFORM_LOG(IOX_PLATFORM_LOG_LEVEL_ERROR, "failed to initialize inter process condition variable\n");
         return -1;
     }
 
