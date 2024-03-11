@@ -52,7 +52,8 @@ void iox_platform_detail_log(
 /// @param[in] log_level is the log level to be used for the log message
 /// @param[in] msg is the message to be logged
 #define IOX_PLATFORM_LOG(log_level, msg)                                                                               \
-    iox_platform_detail_log(__FILE__, __LINE__, static_cast<const char*>(__FUNCTION__), log_level, msg)
+    iox_platform_detail_log(                                                                                           \
+        __FILE__, __LINE__, static_cast<const char*>(__FUNCTION__), IceoryxPlatformLogLevel::log_level, msg)
 // NOLINTEND(cppcoreguidelines-macro-usage)
 
 #endif // IOX_PLATFORM_LOGGING_HPP
