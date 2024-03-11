@@ -1,0 +1,21 @@
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
+
+cc_binary(
+    name = "simple_publisher",
+    srcs = [
+        "simple_publisher.cpp",
+    ],
+    deps = [
+        "//iceoryx_posh",
+    ],
+)
+
+cc_binary(
+    name = "buffering_subscriber",
+    srcs = [
+        "buffering_subscriber.cpp",
+    ],
+    deps = [
+        "//iceoryx_posh",
+    ],
+)
