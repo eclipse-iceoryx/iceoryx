@@ -54,9 +54,12 @@ endif()
 set(PREFIX iceoryx/v${CMAKE_PROJECT_VERSION})
 include(cmake/iceoryxversions.cmake)
 
+include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxConfigureOptionMacro.cmake")
+include("${ICEORYX_PLATFORM}/cmake/IceoryxPlatformDeployment.cmake")
+
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPackageHelper.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPlatform.cmake")
-include("${ICEORYX_PLATFORM}/IceoryxPlatformSettings.cmake")
+include("${ICEORYX_PLATFORM}/cmake/IceoryxPlatformSettings.cmake")
 
 if(CMAKE_SYSTEM_NAME MATCHES Linux OR CMAKE_SYSTEM_NAME MATCHES Darwin)
     option(BUILD_SHARED_LIBS "Create shared libraries by default" ON)
@@ -89,12 +92,21 @@ iox_add_library(
     FILES                       ${ICEORYX_PLATFORM_FILES}
 )
 
+configure_file("${ICEORYX_PLATFORM}/cmake/platform_settings.hpp.in"
+  "${CMAKE_BINARY_DIR}/generated/iceoryx_platform/include/iceoryx_platform/platform_settings.hpp" @ONLY)
+
+install(
+    FILES ${CMAKE_BINARY_DIR}/generated/iceoryx_platform/include/iceoryx_platform/platform_settings.hpp
+    DESTINATION include/${PREFIX}/iceoryx_platform/
+    COMPONENT dev
+)
+
 install(
     FILES
         cmake/IceoryxPackageHelper.cmake
         cmake/IceoryxPlatform.cmake
         cmake/IceoryxVersion.cmake
-        ${ICEORYX_PLATFORM}/IceoryxPlatformSettings.cmake
+        ${ICEORYX_PLATFORM}/cmake/IceoryxPlatformSettings.cmake
     DESTINATION ${DESTINATION_CONFIGDIR}
     COMPONENT dev
 )

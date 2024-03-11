@@ -16,16 +16,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# define macro for option configuration
-macro(configure_option)
-    set(ONE_VALUE_ARGS NAME DEFAULT_VALUE)
-    cmake_parse_arguments(CONFIGURE_OPTION "" "${ONE_VALUE_ARGS}" "" ${ARGN})
-
-    if(NOT ${CONFIGURE_OPTION_NAME})
-        set(${CONFIGURE_OPTION_NAME} ${CONFIGURE_OPTION_DEFAULT_VALUE})
-    endif()
-    message(STATUS "[i] ${CONFIGURE_OPTION_NAME}: " ${${CONFIGURE_OPTION_NAME}})
-endmacro()
+include(IceoryxConfigureOptionMacro)
 
 # configure deployment
 message(STATUS "[i] <<<<<<<<<<<<< Start iceoryx_posh configuration: >>>>>>>>>>>>>")
