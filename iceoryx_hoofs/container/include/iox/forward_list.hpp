@@ -21,6 +21,7 @@
 #include "iox/assertions.hpp"
 #include "iox/uninitialized_array.hpp"
 
+#include <cstddef>
 #include <cstdint>
 #include <iostream>
 
@@ -65,7 +66,11 @@ class forward_list
     using iterator = IteratorBase<false>;
     using const_iterator = IteratorBase<true>;
     using value_type = T;
+    using reference = T&;
+    using const_reference = const T&;
+    using difference_type = std::ptrdiff_t;
     using size_type = decltype(Capacity);
+    using index_type = size_type;
 
     /// @brief constructor for an empty list (of T-types elements)
     forward_list() noexcept;
