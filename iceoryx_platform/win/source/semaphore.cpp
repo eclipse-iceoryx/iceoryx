@@ -17,8 +17,10 @@
 
 #include "iceoryx_platform/semaphore.hpp"
 #include "iceoryx_platform/ipc_handle_manager.hpp"
+#include "iceoryx_platform/logging.hpp"
 
 #include <cstdarg>
+#include <sstream>
 
 static std::string generateSemaphoreName(const UniqueSystemId& id)
 {
@@ -42,9 +44,12 @@ static HANDLE acquireSemaphoreHandle(iox_sem_t* sem)
         Win32Call(OpenSemaphoreA, SEMAPHORE_ALL_ACCESS, false, generateSemaphoreName(sem->uniqueId).c_str()).value;
     if (newHandle == nullptr)
     {
-        fprintf(stderr,
-                "interprocess semaphore %s is corrupted - segmentation fault immenent\n",
-                generateSemaphoreName(sem->uniqueId).c_str());
+        std::stringstream stream;
+        stream << "interprocess semaphore '" << generateSemaphoreName(sem->uniqueId)
+               << "' is corrupted - segmentation fault immenent";
+        IOX_PLATFORM_LOG(IOX_PLATFORM_LOG_LEVEL_ERROR, stream.str().c_str());
+
+
         return nullptr;
     }
 

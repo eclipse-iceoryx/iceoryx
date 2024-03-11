@@ -16,13 +16,14 @@
 
 #include "iceoryx_platform/mman.hpp"
 #include "iceoryx_platform/handle_translator.hpp"
+#include "iceoryx_platform/logging.hpp"
 #include "iceoryx_platform/platform_settings.hpp"
 #include "iceoryx_platform/win32_errorHandling.hpp"
 
-#include <iostream>
 #include <map>
 #include <mutex>
 #include <set>
+#include <sstream>
 #include <string>
 
 static std::map<int, std::string> handle2segment;
@@ -37,10 +38,12 @@ void* mmap(void* addr, size_t length, int prot, int flags, int fd, off_t offset)
     DWORD numberOfBytesToMap = length;
 
     auto printErrorMessage = [&] {
-        std::cerr << "Failed to map file mapping into process space with mmap( addr = " << std::hex << addr << std::dec
-                  << ", length = " << length << ", [always assume PROT_READ | PROT_WRITE] prot = " << prot
-                  << ", [always assume MAP_SHARED] flags = " << flags << ", fd = " << fd
-                  << ", [always assume 0] offset = " << offset << ")" << std::endl;
+        std::stringstream stream;
+        stream << "Failed to map file mapping into process space with mmap( addr = " << std::hex << addr << std::dec
+               << ", length = " << length << ", [always assume PROT_READ | PROT_WRITE] prot = " << prot
+               << ", [always assume MAP_SHARED] flags = " << flags << ", fd = " << fd
+               << ", [always assume 0] offset = " << offset << ")";
+        IOX_PLATFORM_LOG(IOX_PLATFORM_LOG_LEVEL_ERROR, stream.str().c_str());
     };
 
     void* mappedObject = Win32Call(MapViewOfFile,
@@ -77,8 +80,10 @@ int munmap(void* addr, size_t length)
     }
     else
     {
-        std::cerr << "Failed to unmap memory region with munmap( addr = " << std::hex << addr << std::dec
-                  << ", length = " << length << ")" << std::endl;
+        std::stringstream stream;
+        stream << "Failed to unmap memory region with munmap( addr = " << std::hex << addr << std::dec
+               << ", length = " << length << ")";
+        IOX_PLATFORM_LOG(IOX_PLATFORM_LOG_LEVEL_ERROR, stream.str().c_str());
     }
 
     return -1;
@@ -89,9 +94,11 @@ int iox_shm_open(const char* name, int oflag, mode_t mode)
     HANDLE sharedMemoryHandle{nullptr};
 
     auto printErrorMessage = [&] {
-        std::cerr << "Failed to create shared memory with iox_shm_open( name = " << name
-                  << ", [only consider O_CREAT and O_EXCL] oflag = " << oflag
-                  << ", [always assume read, write, execute for everyone] mode = " << mode << ")" << std::endl;
+        std::stringstream stream;
+        stream << "Failed to create shared memory with iox_shm_open( name = " << name
+               << ", [only consider O_CREAT and O_EXCL] oflag = " << oflag
+               << ", [always assume read, write, execute for everyone] mode = " << mode << ")";
+        IOX_PLATFORM_LOG(IOX_PLATFORM_LOG_LEVEL_ERROR, stream.str().c_str());
     };
 
     bool hasCreatedShm = false;
@@ -219,7 +226,9 @@ void internal_iox_shm_set_size(int fd, off_t length)
     auto iter = handle2segment.find(fd);
     if (iter == handle2segment.end())
     {
-        std::cerr << "Unable to set shared memory size since the file descriptor is invalid." << std::endl;
+        std::stringstream stream;
+        stream << "Unable to set shared memory size since the file descriptor is invalid.";
+        IOX_PLATFORM_LOG(IOX_PLATFORM_LOG_LEVEL_ERROR, stream.str().c_str());
         return;
     }
 
@@ -227,7 +236,9 @@ void internal_iox_shm_set_size(int fd, off_t length)
     FILE* shm_state = fopen(name.c_str(), "wb");
     if (shm_state == NULL)
     {
-        std::cerr << "Unable create shared memory state file \"" << name << "\"" << std::endl;
+        std::stringstream stream;
+        stream << "Unable create shared memory state file \"" << name << "\"";
+        IOX_PLATFORM_LOG(IOX_PLATFORM_LOG_LEVEL_ERROR, stream.str().c_str());
         return;
     }
     uint64_t shm_size = length;

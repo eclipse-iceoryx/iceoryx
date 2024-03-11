@@ -19,7 +19,6 @@
 #include "iceoryx_platform/logging.hpp"
 
 #include <cstdio>
-#include <iostream>
 #include <mutex>
 
 int __PrintLastErrorToConsole(const char* functionName, const char* file, const int line) noexcept
