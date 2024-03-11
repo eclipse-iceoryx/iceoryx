@@ -23,43 +23,43 @@
 namespace iox
 {
 template <typename T, typename>
-detail::ok<void> ok()
+inline detail::ok<void> ok()
 {
     return detail::ok<void>{};
 }
 
 template <typename T, typename>
-detail::ok<T> ok(const T& value)
+inline detail::ok<T> ok(const T& value)
 {
     return detail::ok<T>{value};
 }
 
 template <typename T, typename, typename>
-detail::ok<T> ok(T&& value)
+inline detail::ok<T> ok(T&& value)
 {
     return detail::ok<T>{std::forward<T>(value)};
 }
 
 template <typename T, typename... Targs, typename>
-detail::ok<T> ok(Targs&&... args)
+inline detail::ok<T> ok(Targs&&... args)
 {
     return detail::ok<T>{std::forward<Targs>(args)...};
 }
 
 template <typename T>
-detail::err<T> err(const T& error)
+inline detail::err<T> err(const T& error)
 {
     return detail::err<T>{error};
 }
 
 template <typename T, typename>
-detail::err<T> err(T&& error)
+inline detail::err<T> err(T&& error)
 {
     return detail::err<T>{std::forward<T>(error)};
 }
 
 template <typename T, typename... Targs>
-detail::err<T> err(Targs&&... args)
+inline detail::err<T> err(Targs&&... args)
 {
     return detail::err<T>{std::forward<Targs>(args)...};
 }
@@ -106,6 +106,18 @@ template <typename... Targs>
 inline expected<ValueType, ErrorType>::expected(unexpect_t, Targs&&... args) noexcept
     : m_store(unexpect, std::forward<Targs>(args)...)
 {
+}
+
+template <typename ValueType, typename ErrorType>
+inline expected<ValueType, ErrorType>&
+expected<ValueType, ErrorType>::operator=(const expected<ValueType, ErrorType>& rhs) noexcept
+{
+    // AXIVION Next Construct AutosarC++19_03-M0.1.2, AutosarC++19_03-M0.1.9, FaultDetection-DeadBranches : False positive. Check needed to avoid self assignment.
+    if (this != &rhs)
+    {
+        m_store = rhs.m_store;
+    }
+    return *this;
 }
 
 template <typename ValueType, typename ErrorType>
