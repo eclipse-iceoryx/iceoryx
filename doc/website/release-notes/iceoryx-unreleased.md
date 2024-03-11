@@ -123,6 +123,8 @@
 - Wrong memory order in `MpmcLoFFLi` fence synchronization [#2196](https://github.com/eclipse-iceoryx/iceoryx/issues/2196)
 - Race condition in `PoshRuntime` during shutdown [#2192](https://github.com/eclipse-iceoryx/iceoryx/issues/2192)
 - Fix wrong memory orders in SpscFiFo [#2167](https://github.com/eclipse-iceoryx/iceoryx/issues/2167)
+- Implement missing copy assignment for expected [#2216](https://github.com/eclipse-iceoryx/iceoryx/issues/2216)
+
 **Refactoring:**
 
 - Separate module specific errors from `iceoryx_hoofs` [\#1099](https://github.com/eclipse-iceoryx/iceoryx/issues/1099)

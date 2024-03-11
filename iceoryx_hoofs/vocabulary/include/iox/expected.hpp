@@ -17,13 +17,10 @@
 #ifndef IOX_HOOFS_VOCABULARY_EXPECTED_HPP
 #define IOX_HOOFS_VOCABULARY_EXPECTED_HPP
 
-#include "iox/attributes.hpp"
 #include "iox/detail/deprecation_marker.hpp"
 #include "iox/detail/expected_helper.hpp"
 #include "iox/functional_interface.hpp"
 #include "iox/optional.hpp"
-
-#include <utility>
 
 namespace iox
 {
