@@ -24,6 +24,7 @@
 #include "iox/uninitialized_array.hpp"
 
 #include <algorithm>
+#include <cstddef>
 #include <cstdint>
 
 namespace iox
@@ -40,7 +41,12 @@ class vector final
   public:
     using value_type = T;
     using iterator = T*;
+    using reference = T&;
     using const_iterator = const T*;
+    using const_reference = const T&;
+    using difference_type = std::ptrdiff_t;
+    using size_type = decltype(Capacity);
+    using index_type = size_type;
 
     /// @brief creates an empty vector
     vector() noexcept = default;

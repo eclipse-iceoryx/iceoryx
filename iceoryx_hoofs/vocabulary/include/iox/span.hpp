@@ -26,6 +26,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cstddef>
 #include <cstdint>
 #include <cstdio>
 #include <limits>
@@ -224,6 +225,10 @@ class span final : public detail::span_storage<Extent>
     using reference = T&;
     using iterator = span_iterator<T>;
     using reverse_iterator = std::reverse_iterator<iterator>;
+    using const_iterator = const T*;
+    using const_reference = const T&;
+    using size_type = decltype(Extent);
+    using index_type = size_type;
     static constexpr uint64_t extent = Extent;
 
     // constructors, copy, assignment, and destructor

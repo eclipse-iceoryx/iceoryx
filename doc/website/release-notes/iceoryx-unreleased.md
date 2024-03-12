@@ -124,6 +124,7 @@
 - Race condition in `PoshRuntime` during shutdown [#2192](https://github.com/eclipse-iceoryx/iceoryx/issues/2192)
 - Fix wrong memory orders in SpscFiFo [#2167](https://github.com/eclipse-iceoryx/iceoryx/issues/2167)
 - Implement missing copy assignment for expected [#2216](https://github.com/eclipse-iceoryx/iceoryx/issues/2216)
+- Add missing type aliases that conform with STL container types [#2220](https://github.com/eclipse-iceoryx/iceoryx/issues/2220)
 
 **Refactoring:**
 
