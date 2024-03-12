@@ -46,6 +46,10 @@ void iox_platform_set_log_backend(IceoryxPlatformLogBackend log_backend);
 void iox_platform_detail_log(
     const char* file, int line, const char* function, IceoryxPlatformLogLevel log_level, const char* msg);
 
+/// @note Implementation detail! Do not use directly
+void iox_platform_detail_default_log_backend(
+    const char* file, int line, const char* function, IceoryxPlatformLogLevel log_level, const char* msg);
+
 // NOLINTJUSTIFICATION The functionality of the macro (obtaining the source location) cannot be achieved with C++17
 // NOLINTBEGIN(cppcoreguidelines-macro-usage)
 /// @brief Frontend for logging in the iceoryx platform

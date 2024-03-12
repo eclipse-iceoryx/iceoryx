@@ -22,11 +22,9 @@
 #include <sstream>
 #include <thread>
 
-namespace
-{
 // NOLINTJUSTIFICATION only used in this file; should be fine
 // NOLINTNEXTLINE(readability-function-size)
-void default_log_backend(
+void iox_platform_detail_default_log_backend(
     const char* file, int line, const char* function, IceoryxPlatformLogLevel log_level, const char* msg)
 {
     if (log_level == IceoryxPlatformLogLevel::IOX_PLATFORM_LOG_LEVEL_OFF)
@@ -35,7 +33,6 @@ void default_log_backend(
     }
 
     std::stringstream stream;
-    stream << file << ":" << line << " (" << function << ") ";
 
     switch (log_level)
     {
@@ -62,13 +59,15 @@ void default_log_backend(
         break;
     }
 
-    stream << " " << msg;
+    stream << " " << file << ":" << line << " { " << function << " } " << msg;
 
     // NOLINTJUSTIFICATION We want to flush the line with each log output; if performance matters a custom log backend can be used, e.g. the logger in hoofs
     // NOLINTNEXTLINE(performance-avoid-endl)
     std::cout << stream.str() << std::endl;
 }
 
+namespace
+{
 enum class LoggerExchangeState : uint8_t
 {
     DEFAULT,
@@ -78,7 +77,7 @@ enum class LoggerExchangeState : uint8_t
 
 struct IceoryxPlatformLogger
 {
-    std::atomic<IceoryxPlatformLogBackend> log_backend{&default_log_backend};
+    std::atomic<IceoryxPlatformLogBackend> log_backend{&iox_platform_detail_default_log_backend};
     std::atomic<LoggerExchangeState> logger_exchange_state{LoggerExchangeState::DEFAULT};
 };
 
