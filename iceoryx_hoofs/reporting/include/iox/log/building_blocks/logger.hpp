@@ -18,6 +18,7 @@
 #ifndef IOX_HOOFS_REPORTING_LOG_BUILDING_BLOCKS_LOGGER_HPP
 #define IOX_HOOFS_REPORTING_LOG_BUILDING_BLOCKS_LOGGER_HPP
 
+#include "iceoryx_platform/logging.hpp"
 #include "iox/iceoryx_hoofs_types.hpp"
 
 #include <atomic>
@@ -52,6 +53,12 @@ LogLevel logLevelFromEnvOr(const LogLevel logLevel) noexcept;
 
 namespace internal
 {
+/// @brief The backend for the platform logging frontend
+/// @copydoc IceoryxPlatformLogBackend
+/// @note Needs to be implemented in 'logging.cpp' in order to use the high level log API
+void platform_log_backend(
+    const char* file, int line, const char* function, IceoryxPlatformLogLevel log_level, const char* msg);
+
 /// @brief This class acts as common interface for the Logger. It provides the common functionality and inherits from
 /// the BaseLogger which is provided as template parameter. Please have a look at the design document for more details.
 /// @tparam[in] BaseLogger is the actual implementation

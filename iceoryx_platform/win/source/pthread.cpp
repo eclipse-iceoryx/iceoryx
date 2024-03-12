@@ -16,10 +16,12 @@
 
 #include "iceoryx_platform/pthread.hpp"
 #include "iceoryx_platform/ipc_handle_manager.hpp"
+#include "iceoryx_platform/logging.hpp"
 #include "iceoryx_platform/win32_errorHandling.hpp"
 #include "iceoryx_platform/windows.hpp"
 
 #include <cwchar>
+#include <sstream>
 #include <vector>
 
 HRESULT GetThreadDescription(HANDLE hThread, PWSTR* ppszThreadDescription);
@@ -192,9 +194,10 @@ static HANDLE acquireMutexHandle(iox_pthread_mutex_t* mutex)
     newHandle = Win32Call(OpenMutexA, MUTEX_ALL_ACCESS, false, generateMutexName(mutex->uniqueId).c_str()).value;
     if (newHandle == nullptr)
     {
-        fprintf(stderr,
-                "interprocess mutex %s is corrupted - segmentation fault immenent\n",
-                generateMutexName(mutex->uniqueId).c_str());
+        std::stringstream stream;
+        stream << "interprocess mutex '" << generateMutexName(mutex->uniqueId)
+               << "' is corrupted - segmentation fault immenent";
+        IOX_PLATFORM_LOG(IOX_PLATFORM_LOG_LEVEL_ERROR, stream.str().c_str());
         return nullptr;
     }
 

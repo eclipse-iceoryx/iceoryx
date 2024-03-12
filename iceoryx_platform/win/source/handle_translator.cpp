@@ -15,8 +15,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_platform/handle_translator.hpp"
+#include "iceoryx_platform/logging.hpp"
 
 #include <iostream>
+#include <sstream>
 
 constexpr int HandleTranslator::INVALID_LINUX_FD;
 
@@ -81,8 +83,9 @@ void HandleTranslator::remove(const int linuxFd) noexcept
     auto iter = m_linuxToWindows.find(linuxFd);
     if (iter == m_linuxToWindows.end())
     {
-        std::cerr << "Unable to release not registered file handle " << linuxFd << " since it was not acquired"
-                  << std::endl;
+        std::stringstream stream;
+        stream << "Unable to release not registered file handle " << linuxFd << " since it was not acquired";
+        IOX_PLATFORM_LOG(IOX_PLATFORM_LOG_LEVEL_ERROR, stream.str().c_str());
         return;
     }
 

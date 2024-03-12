@@ -16,29 +16,32 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_platform/win32_errorHandling.hpp"
+#include "iceoryx_platform/logging.hpp"
 
-#include <iostream>
+#include <cstdio>
 #include <mutex>
 
 int __PrintLastErrorToConsole(const char* functionName, const char* file, const int line) noexcept
 {
-    static std::mutex coutMutex;
     constexpr uint64_t BUFFER_SIZE{2048u};
     int lastError = GetLastError();
     if (lastError != 0)
     {
         char buffer[BUFFER_SIZE];
-        FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+        sprintf(buffer, "< Win32API Error > [%d] ::: ", lastError);
+        size_t used_buffer_size = strlen(buffer);
+        constexpr size_t NULL_TERMINATOR_SIZE{1};
+        size_t remaining_buffer_size = BUFFER_SIZE - used_buffer_size - NULL_TERMINATOR_SIZE;
+
+        FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_MAX_WIDTH_MASK,
                       NULL,
                       lastError,
                       MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                      buffer,
-                      BUFFER_SIZE - 1,
+                      &buffer[used_buffer_size],
+                      remaining_buffer_size,
                       NULL);
 
-        coutMutex.lock();
-        fprintf(stderr, "< Win32API Error > %s:%d { %s } [ %d ] ::: %s", file, line, functionName, lastError, buffer);
-        coutMutex.unlock();
+        iox_platform_detail_log(file, line, functionName, IOX_PLATFORM_LOG_LEVEL_ERROR, buffer);
     }
     return lastError;
 }

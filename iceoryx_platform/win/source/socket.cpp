@@ -15,47 +15,48 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_platform/socket.hpp"
+#include "iceoryx_platform/logging.hpp"
 #include <cstdio>
 
 int iox_bind(int sockfd, const struct sockaddr* addr, socklen_t addrlen)
 {
-    fprintf(stderr, "%s is not implemented in windows!\n", __PRETTY_FUNCTION__);
+    IOX_PLATFORM_LOG(IOX_PLATFORM_LOG_LEVEL_ERROR, "'iox_bind' is not implemented in windows!");
     return 0;
 }
 
 int iox_socket(int domain, int type, int protocol)
 {
-    fprintf(stderr, "%s is not implemented in windows!\n", __PRETTY_FUNCTION__);
+    IOX_PLATFORM_LOG(IOX_PLATFORM_LOG_LEVEL_ERROR, "'iox_socket' is not implemented in windows!");
     return 0;
 }
 
 int iox_setsockopt(int sockfd, int level, int optname, const void* optval, socklen_t optlen)
 {
-    fprintf(stderr, "%s is not implemented in windows!\n", __PRETTY_FUNCTION__);
+    IOX_PLATFORM_LOG(IOX_PLATFORM_LOG_LEVEL_ERROR, "'iox_setsockopt' is not implemented in windows!");
     return 0;
 }
 
 ssize_t
 iox_sendto(int sockfd, const void* buf, size_t len, int flags, const struct sockaddr* dest_addr, socklen_t addrlen)
 {
-    fprintf(stderr, "%s is not implemented in windows!\n", __PRETTY_FUNCTION__);
+    IOX_PLATFORM_LOG(IOX_PLATFORM_LOG_LEVEL_ERROR, "'iox_sendto' is not implemented in windows!");
     return 0;
 }
 
 ssize_t iox_recvfrom(int sockfd, void* buf, size_t len, int flags, struct sockaddr* src_addr, socklen_t* addrlen)
 {
-    fprintf(stderr, "%s is not implemented in windows!\n", __PRETTY_FUNCTION__);
+    IOX_PLATFORM_LOG(IOX_PLATFORM_LOG_LEVEL_ERROR, "'iox_recvfrom' is not implemented in windows!");
     return 0;
 }
 
 int iox_connect(int sockfd, const struct sockaddr* addr, socklen_t addrlen)
 {
-    fprintf(stderr, "%s is not implemented in windows!\n", __PRETTY_FUNCTION__);
+    IOX_PLATFORM_LOG(IOX_PLATFORM_LOG_LEVEL_ERROR, "'iox_connect' is not implemented in windows!");
     return 0;
 }
 
 int iox_closesocket(int sockfd)
 {
-    fprintf(stderr, "%s is not implemented in windows!\n", __PRETTY_FUNCTION__);
+    IOX_PLATFORM_LOG(IOX_PLATFORM_LOG_LEVEL_ERROR, "'iox_closesocket' is not implemented in windows!");
     return 0;
 }
