@@ -15,9 +15,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_platform/logging.hpp"
 #include "iox/logging.hpp"
 
-#include "iceoryx_hoofs/testing/mocks/logger_mock.hpp"
 #include "iceoryx_hoofs/testing/testing_logger.hpp"
 #include "test.hpp"
 
@@ -25,7 +25,8 @@ namespace
 {
 using namespace ::testing;
 
-void testLogLevelThreshold(const iox::log::LogLevel loggerLogLevel)
+void testLogLevelThreshold(const iox::log::LogLevel loggerLogLevel,
+                           const std::function<void(iox::log::LogLevel)>& loggerCall)
 {
     iox::log::Logger::setLogLevel(loggerLogLevel);
 
@@ -47,7 +48,6 @@ void testLogLevelThreshold(const iox::log::LogLevel loggerLogLevel)
                                                             {iox::log::LogLevel::DEBUG, "Debug"},
                                                             {iox::log::LogLevel::TRACE, "Trace"}};
 
-    iox::testing::Logger_Mock loggerMock;
     for (const auto& logEntryLogLevel : logEntryLogLevels)
     {
         if (!iox::testing::TestingLogger::doesLoggerSupportLogLevel(logEntryLogLevel.value))
@@ -56,7 +56,7 @@ void testLogLevelThreshold(const iox::log::LogLevel loggerLogLevel)
         }
 
         dynamic_cast<iox::testing::TestingLogger&>(iox::log::Logger::get()).clearLogBuffer();
-        IOX_LOG_INTERNAL("", 0, "", logEntryLogLevel.value, "");
+        loggerCall(logEntryLogLevel.value);
 
         if (logEntryLogLevel.value <= loggerLogLevel)
         {
@@ -87,7 +87,26 @@ TEST(LoggingLogLevelThreshold_test, LogLevel)
     {
         SCOPED_TRACE(std::string("Logger LogLevel: ") + iox::log::asStringLiteral(loggerLogLevel));
 
-        testLogLevelThreshold(loggerLogLevel);
+        testLogLevelThreshold(loggerLogLevel, [](auto logLevel) { IOX_LOG_INTERNAL("", 0, "", logLevel, ""); });
+    }
+}
+
+TEST(LoggingLogLevelThreshold_test, LogLevelForPlatform)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "574007ac-62ed-4cd1-95e8-e18a9f20e1e1");
+    for (const auto loggerLogLevel : {iox::log::LogLevel::OFF,
+                                      iox::log::LogLevel::FATAL,
+                                      iox::log::LogLevel::ERROR,
+                                      iox::log::LogLevel::WARN,
+                                      iox::log::LogLevel::INFO,
+                                      iox::log::LogLevel::DEBUG,
+                                      iox::log::LogLevel::TRACE})
+    {
+        SCOPED_TRACE(std::string("Logger LogLevel: ") + iox::log::asStringLiteral(loggerLogLevel));
+
+        testLogLevelThreshold(loggerLogLevel, [](auto logLevel) {
+            iox_platform_detail_log("", 0, "", static_cast<IceoryxPlatformLogLevel>(logLevel), "");
+        });
     }
 }
 
