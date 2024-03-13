@@ -793,7 +793,7 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriod,
         {
             prettyPrint("### MemPool Status ###\n\n", PrettyOptions::highlight);
 
-            memPoolSubscriber->take().and_then([&](auto& sample) { memPoolSample = sample; });
+            memPoolSubscriber->take().and_then([&](auto& sample) { memPoolSample = std::move(sample); });
 
             if (memPoolSample)
             {
@@ -812,7 +812,7 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriod,
         if (introspectionSelection.process == true)
         {
             prettyPrint("### Processes ###\n\n", PrettyOptions::highlight);
-            processSubscriber->take().and_then([&](auto& sample) { processSample = sample; });
+            processSubscriber->take().and_then([&](auto& sample) { processSample = std::move(sample); });
 
             if (processSample)
             {
@@ -827,12 +827,12 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriod,
         // print port information
         if (introspectionSelection.port == true)
         {
-            portSubscriber->take().and_then([&](auto& sample) { portSample = sample; });
+            portSubscriber->take().and_then([&](auto& sample) { portSample = std::move(sample); });
 
-            portThroughputSubscriber->take().and_then([&](auto& sample) { portThroughputSample = sample; });
+            portThroughputSubscriber->take().and_then([&](auto& sample) { portThroughputSample = std::move(sample); });
 
             subscriberPortChangingDataSubscriber->take().and_then(
-                [&](auto& sample) { subscriberPortChangingDataSamples = sample; });
+                [&](auto& sample) { subscriberPortChangingDataSamples = std::move(sample); });
 
             if (portSample && portThroughputSample && subscriberPortChangingDataSamples)
             {
