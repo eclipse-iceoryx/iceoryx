@@ -38,17 +38,8 @@ namespace concurrent
 /// a full SpscSoFi.
 /// SpscSoFi is especially designed to provide fixed capacity storage.
 /// SpscSoFi only allocates memory when created, capacity can be adjusted explicitly.
-/// @example
 /// It's an expected behavior that when push/pop are called concurrently and SpscSoFi is full, as
 /// many elements as specified with 'CapacityValue' can be removed
-/// 0: Initial situation:
-///    |--A--|--B--|
-/// 1. Thread 1 pushes a new element. Since it is an overflowing situation, the overwritten value is
-/// removed and returned to the caller
-///    |--A--|--B--|
-/// 2. Right before push() returns, pop() detects that an element is about to be removed, and remove
-/// the next element
-///    |--C--|----|
 /// @param[in] ValueType        DataType to be stored, must be trivially copyable
 /// @param[in] CapacityValue    Capacity of the SpscSofi
 template <class ValueType, uint64_t CapacityValue>
@@ -71,42 +62,43 @@ class SpscSofi
     //    |--A--|--B--|
     //    ^
     //    w=2, r=0
-    // 2. We want to push a new element
-    // 3. Advance the read position (this effectively reduces the capacity and is the reason the internal capacity
-    // needs to be larger; the consumer cannot pop out CAPACITY amount of samples even though the queue is full if
-    // the push thread is suspended right after this operation)
+    // 2. The producer thread pushes a new element
+    // 3. Increment the read position (this effectively reduces the capacity and is the reason the internal capacity
+    // needs to be larger;
     //    |--A--|--B--|
     //    ^     ^
     //    w=2  r=1
-    // 4. Take overflow data
-    //    |-----|--B--|
-    //    ^     ^
-    //    w=2  r=1
-    // 5. Write new data
-    //    |--C--|--B--|
-    //    ^     ^
-    //    w=2  r=1
-    // 6. Advance next write position
-    //    |--C--|--B--|
-    //          ^
-    //       w=3, r=1
+    // 4. The producer thread is suspended, the consumer thread pops a value
+    //    |--A--|-----|
+    //    ^
+    //    w=2, r=2
+    // 5. The consumer tries to pop another value but the queue looks empty as
+    //    write position == read position: the consumer cannot pop
+    //    out CAPACITY amount of samples even though the queue was full
     // ========================================================================
     // With "capacity add-on"
     // 1. CapacityValue = 2, InternalCapacity = 3
     //    |--A--|--B--|----|
     //    ^           ^
     //    r=0        w=2
-    // 2. We want to push a new element
-    // 3. We first write at index 2 % capacity
+    // 2. The producer threads pushes a new element
+    // 3. First write the element at index 2 % capacity and increment the write index
     //    |--A--|--B--|--C--|
     //    ^
     //   w=3, r=0,
-    // 2. We want to push a new element:
-    // 4. We detect that the queue if full so we retrieve the value pointed by the read pointer: the value A is
-    // returned
-    //   |-(A)-|--B--|--C--|
+    // 4. Then increment the read position
+    //   |--A--|--B--|--C--|
     //   ^     ^
     //   w=3  r=1
+    // 5. The producer thread is suspended, the consumer thread pops a value
+    //   |--A--|-----|--C--|
+    //   ^           ^
+    //   w=3        r=2
+    // 6. The consumer thread pops another value
+    //   |--A--|-----|-----|
+    //   ^
+    //   w=3, r=3
+    // 7. Now, write position == read position so we cannot pop another element: the queue looks empty. We managed to pop CapacityValue elements
     // ========================================================================
     static constexpr uint32_t INTERNAL_CAPACITY_ADDON = 1;
 

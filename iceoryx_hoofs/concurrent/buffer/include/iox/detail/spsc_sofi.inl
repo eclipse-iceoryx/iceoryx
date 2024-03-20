@@ -115,7 +115,7 @@ inline bool SpscSofi<ValueType, CapacityValue>::pop(ValueType& valueOut) noexcep
     // r=3        w=5
     // 3. The consumer thread loads m_readPosition => 3. The pop method returns false
     // => Whereas the queue was full, pop returned false giving the impression that the queue if empty
-    // TODO: To which release/store statement does it correspond?
+    // TODO(@albtam): Explain yo which release/store statement it corresponds
     uint64_t currentReadPos = m_readPosition.load(std::memory_order_acquire);
 
     do
@@ -151,12 +151,10 @@ inline bool SpscSofi<ValueType, CapacityValue>::push(const ValueType& valueIn, V
 {
     constexpr bool SOFI_OVERFLOW{false};
 
-    // SYNC POINT READ: m_data
-    // We need to synchronize data to avoid the following scenario:
-    // 1. A thread calls push() and updates data with a new value
-    // 2. Another thread calls push() and enters the overflow case. The data could be read before
-    // any synchronization
-    uint64_t currentWritePos = m_writePosition.load(std::memory_order_acquire);
+    // Memory order relaxed is enough since:
+    // - no synchronization needed as we are loading a value only modified in this method and this method cannot be accessed concurrently
+    // - the operation cannot move below without observable changes
+    uint64_t currentWritePos = m_writePosition.load(std::memory_order_relaxed);
     uint64_t nextWritePos = currentWritePos + 1U;
 
     m_data[currentWritePos % m_size] = valueIn;
