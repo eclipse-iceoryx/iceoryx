@@ -44,4 +44,5 @@ cp -rf ./build/lcov/ ./lcov_results/unittest/
 cp -rf ./build/lcov/ ./lcov_results/unittest_timing/
 
 msg "docs"
+./tools/scripts/markdownlint.sh
 ./tools/iceoryx_build_test.sh clean doc
