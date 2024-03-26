@@ -169,11 +169,11 @@ optional<T>::operator=(U&& newValue) noexcept
 {
     if (m_hasValue)
     {
-        value() = std::forward<T>(newValue);
+        value() = std::forward<U>(newValue);
     }
     else
     {
-        construct_value(std::forward<T>(newValue));
+        construct_value(std::forward<U>(newValue));
     }
     return *this;
 }

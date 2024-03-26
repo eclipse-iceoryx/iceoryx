@@ -280,6 +280,30 @@ TEST_F(Optional_test, CopyAssignmentFromNoValueToNoValue)
     ASSERT_THAT(sut2.has_value(), Eq(false));
 }
 
+TEST_F(Optional_test, DirectCopyAssignmentWithNoValue)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "8dddd1c5-e59b-4f3c-9e6c-6fa9ac1daa86");
+    iox::optional<TestClass> sut;
+    const TestClass value{4711, 1337};
+
+    sut = value;
+    ASSERT_THAT(sut.has_value(), Eq(true));
+    EXPECT_THAT(sut->value, Eq(4711));
+    EXPECT_THAT(sut->secondValue, Eq(1337));
+}
+
+TEST_F(Optional_test, DirectCopyAssignmentWithValue)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "66fa19ab-0a08-48d3-824c-7b259e6f15b0");
+    iox::optional<TestClass> sut{TestClass{7474, 33331}};
+    TestClass value{4711, 1337};
+
+    sut = value;
+    ASSERT_THAT(sut.has_value(), Eq(true));
+    EXPECT_THAT(sut->value, Eq(4711));
+    EXPECT_THAT(sut->secondValue, Eq(1337));
+}
+
 TEST_F(Optional_test, MoveCTorWithValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a7694c42-fb4d-4c53-930b-f0be78127027");
