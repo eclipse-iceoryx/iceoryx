@@ -1,6 +1,8 @@
+## Notes for Reviewer
+<!-- Items in addition to the checklist below that the reviewer should look for -->
+
 ## Pre-Review Checklist for the PR Author
 
-1. [ ] Add a second reviewer for complex new features or larger refactorings
 1. [ ] Code follows the coding style of [CONTRIBUTING.md][contributing]
 1. [ ] Tests follow the [best practice for testing][testing]
 1. [ ] Changelog updated [in the unreleased section][changelog] including API breaking changes
@@ -14,7 +16,6 @@
 1. [ ] Relevant issues are linked
 1. [ ] Add sensible notes for the reviewer
 1. [ ] All checks have passed (except `task-list-completed`)
-1. [ ] All touched (C/C++) source code files from `iceoryx_hoofs` are added to `./clang-tidy-diff-scans.txt`
 1. [ ] Assign PR to reviewer
 
 [commit-guidelines]: https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
@@ -23,11 +24,9 @@
 [testing]: https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/website/concepts/best-practice-for-testing.md
 [changelog]: https://github.com/eclipse-iceoryx/iceoryx/blob/master/doc/website/release-notes/iceoryx-unreleased.md
 
-## Notes for Reviewer
-<!-- Items in addition to the checklist below that the reviewer should look for -->
-
 ## Checklist for the PR Reviewer
 
+- [ ] Consider a second reviewer for complex new features or larger refactorings
 - [ ] Commits are properly organized and messages are according to the guideline
 - [ ] Code according to our coding style and naming conventions
 - [ ] Unit tests have been written for new behavior
@@ -41,5 +40,7 @@
 1. [ ] All open points are addressed and tracked via issues
 
 ## References
+
+<!-- Use either 'Closes #123' or 'Relates to #123' to reference the corresponding issue. -->
 
 - Closes **TBD**
