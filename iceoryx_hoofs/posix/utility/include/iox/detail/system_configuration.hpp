@@ -17,6 +17,8 @@
 #ifndef IOX_HOOFS_POSIX_UTILITY_SYSTEM_CONFIGURATION_HPP
 #define IOX_HOOFS_POSIX_UTILITY_SYSTEM_CONFIGURATION_HPP
 
+#include "iox/iceoryx_hoofs_deployment.hpp"
+
 #include <cstdint>
 
 namespace iox
@@ -30,6 +32,10 @@ uint64_t pageSize() noexcept;
 /// @return True if called on 32-bit, false if not 32-bit system
 constexpr bool isCompiledOn32BitSystem() noexcept
 {
+    static_assert(build::IOX_IGNORE_32_BIT_CHECK_FLAG || INTPTR_MAX > INT32_MAX,
+                  "iceoryx is only supported on 64-bit systems. Using it on 32-bit will result in race conditions in "
+                  "the lock-free constructs!");
+
     return INTPTR_MAX == INT32_MAX;
 }
 } // namespace detail
