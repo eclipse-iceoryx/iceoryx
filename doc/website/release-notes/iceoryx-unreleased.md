@@ -1454,3 +1454,5 @@
     ```
 
 64. The non-functional `iox::popo::Node` was removed
+
+65. 32-bit support is disabled by default. For development purposes iceoryx can be build with the `-DIOX_IGNORE_32_BIT_CHECK=ON`
