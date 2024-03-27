@@ -98,7 +98,8 @@ class SpscSofi
     //   |--A--|-----|-----|
     //   ^
     //   w=3, r=3
-    // 7. Now, write position == read position so we cannot pop another element: the queue looks empty. We managed to pop CapacityValue elements
+    // 7. Now, write position == read position so we cannot pop another element: the queue looks empty. We managed to
+    // pop CapacityValue elements
     // ========================================================================
     static constexpr uint32_t INTERNAL_CAPACITY_ADDON = 1;
 
@@ -106,22 +107,22 @@ class SpscSofi
     static constexpr uint32_t INTERNAL_SPSC_SOFI_CAPACITY = CapacityValue + INTERNAL_CAPACITY_ADDON;
 
   public:
-    /// @brief default constructor which constructs an empty sofi
+    /// @brief default constructor which constructs an empty SpscSofi
     SpscSofi() noexcept = default;
 
-    /// @brief push an element into sofi. if sofi is full the oldest data will be
+    /// @brief push an element into SpscSofi. if SpscSofi is full the oldest data will be
     ///         returned and the pushed element is stored in its place instead.
     /// @param[in] value_in value which should be stored
-    /// @param[out] value_out if sofi is overflowing  the value of the overridden value
+    /// @param[out] value_out if SpscSofi is overflowing  the value of the overridden value
     ///                      is stored here
     /// @note restricted thread safe: can only be called from one thread. The authorization to push into the
     /// SpscSofi can be transferred to another thread if appropriate synchronization mechanisms are used.
     /// @return return true if push was successful else false.
     /// @code
-    /// 1. sofi is empty    |-----|-----|
+    /// 1. SpscSofi is empty    |-----|-----|
     /// 2. push an element  |--A--|-----|
     /// 3. push an element  |--A--|--B--|
-    /// 5. sofi is full
+    /// 5. SpscSofi is full
     /// 6. push an element  |--C--|--B--| -> value_out is set to 'A'
     bool push(const ValueType& valueIn, ValueType& valueOut) noexcept;
 
