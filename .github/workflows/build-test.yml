@@ -60,7 +60,7 @@ jobs:
           # gcc 8.3 is compiler used in QNX 7.1
           version: 8
           platform: x64
-      - uses: jwlawson/actions-setup-cmake@v1.13
+      - uses: jwlawson/actions-setup-cmake@v2.0
         with:
           cmake-version: '3.16.3' # version used in Ubuntu 20.04 LTS
       - run: ./tools/ci/build-test-ubuntu.sh
@@ -175,7 +175,7 @@ jobs:
       - run: ./tools/ci/coverage-and-docs.sh
 
       - name: Archive generated doxygen
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: iceoryx-pdf
           path: |
