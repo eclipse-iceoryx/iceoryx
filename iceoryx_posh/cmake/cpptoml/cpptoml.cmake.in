@@ -29,4 +29,7 @@ ExternalProject_Add(ext_cpptoml
   BUILD_COMMAND     ""
   INSTALL_COMMAND   ""
   TEST_COMMAND      ""
+  PATCH_COMMAND
+    ${CMAKE_COMMAND} -E chdir <SOURCE_DIR> git apply -p1 --ignore-space-change --whitespace=nowarn
+      ${CMAKE_CURRENT_SOURCE_DIR}/cpptoml-cmake-3.5.patch
 )
