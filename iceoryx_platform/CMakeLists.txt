@@ -52,9 +52,9 @@ else()
 endif()
 
 set(PREFIX iceoryx/v${CMAKE_PROJECT_VERSION})
-include(cmake/iceoryxversions.cmake)
-
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxConfigureOptionMacro.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/cmake/iceoryxversions.cmake")
+
 include("${ICEORYX_PLATFORM}/cmake/IceoryxPlatformDeployment.cmake")
 
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPackageHelper.cmake")

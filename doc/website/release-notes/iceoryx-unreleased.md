@@ -126,6 +126,7 @@
 - Implement missing copy assignment for expected [#2216](https://github.com/eclipse-iceoryx/iceoryx/issues/2216)
 - Add missing type aliases that conform with STL container types [#2220](https://github.com/eclipse-iceoryx/iceoryx/issues/2220)
 - Fix `const` value assignment in `iox::optional` [\#2224](https://github.com/eclipse-iceoryx/iceoryx/issues/2224)
+- Generated files cause recompilation even without any changes [#2210](https://github.com/eclipse-iceoryx/iceoryx/issues/2210)
 
 **Refactoring:**
 
