@@ -66,6 +66,7 @@ constexpr uint32_t IOX_MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY =
  constexpr uint32_t IOX_MAX_REQUEST_QUEUE_CAPACITY = static_cast<uint32_t>(@IOX_MAX_REQUEST_QUEUE_CAPACITY@);
  constexpr uint32_t IOX_MAX_CLIENTS_PER_SERVER = static_cast<uint32_t>(@IOX_MAX_CLIENTS_PER_SERVER@);
  constexpr bool IOX_EXPERIMENTAL_POSH_FLAG = @IOX_EXPERIMENTAL_POSH_FLAG@;
+ constexpr uint32_t IOX_MAX_REQUESTS_PROCESSED_SIMULTANEOUSLY = static_cast<uint32_t>(@IOX_MAX_REQUESTS_PROCESSED_SIMULTANEOUSLY@);
 // clang-format on
 } // namespace build
 } // namespace iox
