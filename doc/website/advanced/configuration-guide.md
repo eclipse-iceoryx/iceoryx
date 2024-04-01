@@ -19,6 +19,7 @@ in the shared memory segment called `iceoryx_mgmt` when RouDi is started.
  | `IOX_MAX_SUBSCRIBERS` | Maximum number of subscribers in one iceoryx system |
  | `IOX_MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY` | Maximum number of chunks a subscriber can take in parallel|
  | `IOX_MAX_INTERFACE_NUMBER` | Maximum number of interface ports which are used by gateways |
+ | `IOX_MAX_REQUESTS_PROCESSED_SIMULTANEOUSLY` | Maximum number of server can process request in parallel |
 
 Have a look at [IceoryxHoofsDeployment.cmake](../../../iceoryx_hoofs/cmake/IceoryxHoofsDeployment.cmake) and
 [IceoryxPoshDeployment.cmake](../../../iceoryx_posh/cmake/IceoryxPoshDeployment.cmake) for the default values of the constants.
