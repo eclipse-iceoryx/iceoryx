@@ -35,7 +35,10 @@ cc_test(
         "//iceoryx_platform:win": [],
         "//conditions:default": ["-ldl"],
     }),
-    tags = ["exclusive"],
+    tags = [
+        "exclusive",
+        "requires-fakeroot",
+    ],
     visibility = ["//visibility:private"],
     deps = ["//iceoryx_hoofs:iceoryx_hoofs_testing"],
 )
