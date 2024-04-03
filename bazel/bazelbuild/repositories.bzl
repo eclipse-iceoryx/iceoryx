@@ -46,13 +46,13 @@ def load_com_github_bazelbuild_buildtools_repositories():
         ],
     )
 
-IO_BAZEL_RULES_GO_VERSION = "0.29.0"
+IO_BAZEL_RULES_GO_VERSION = "0.45.1"
 
 def load_io_bazel_rules_go_repositories():
     maybe(
         name = "io_bazel_rules_go",
         repo_rule = http_archive,
-        sha256 = "2b1641428dff9018f9e85c0384f03ec6c10660d935b750e3fa1492a281a53b0f",
+        sha256 = "6734a719993b1ba4ebe9806e853864395a8d3968ad27f9dd759c196b3eb3abe8",
         urls = [
             "https://mirror.bazel.build/github.com/bazelbuild/rules_go/releases/download/v{version}/rules_go-v{version}.zip".format(version = IO_BAZEL_RULES_GO_VERSION),
             "https://github.com/bazelbuild/rules_go/releases/download/v{version}/rules_go-v{version}.zip".format(version = IO_BAZEL_RULES_GO_VERSION),
