@@ -52,7 +52,7 @@ class span_iterator final
         , m_current(current)
     {
         assert(m_begin <= m_end);
-        assert(m_begin <= m_current && m_current < m_end);
+        assert(m_begin <= m_current && m_current <= m_end);
     }
 
     explicit constexpr operator span_iterator<const T>() const noexcept

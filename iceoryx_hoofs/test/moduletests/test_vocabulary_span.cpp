@@ -382,4 +382,19 @@ TEST(span_test, GetSpanDataAsWritableBytes)
     EXPECT_EQ(0, vec[0]);
 }
 
+TEST(span_test, IterateOverSpan)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "87924274-b774-467e-8ffc-a66a46596cbe");
+    std::vector<int32_t> vector = {1, 1, 13, 3, 5, 8};
+    span<int32_t, 6> static_sut(vector.data(), vector.size());
+
+    // Sum the values in the span as a simple test
+    int32_t sum{0U};
+    for (const auto& val : static_sut)
+    {
+        sum += val;
+    }
+    EXPECT_EQ(sum, 31);
+}
+
 } // namespace
