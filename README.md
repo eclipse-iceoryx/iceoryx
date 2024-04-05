@@ -1,9 +1,3 @@
-# iceoryx - true zero-copy inter-process-communication
-
-<p align="center">
-<img src="https://user-images.githubusercontent.com/8661268/114321508-64a6b000-9b1b-11eb-95ef-b84c91387cff.png" width="50%">
-</p>
-
 [![Build & Test](https://github.com/eclipse-iceoryx/iceoryx/workflows/Build%20&%20Test/badge.svg?branch=master)](https://github.com/eclipse-iceoryx/iceoryx/actions)
 [![Integrationtests](https://github.com/eclipse-iceoryx/iceoryx/workflows/Iceoryx%20Integrationtests/badge.svg?branch=master)](https://github.com/eclipse-iceoryx/iceoryx/actions)
 [![Cirrus CI](https://img.shields.io/cirrus/github/eclipse-iceoryx/iceoryx/master?label=Cirrus%20CI)](https://cirrus-ci.com/github/eclipse-iceoryx/iceoryx)
@@ -11,6 +5,27 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![Codecov](https://codecov.io/gh/eclipse-iceoryx/iceoryx/branch/master/graph/badge.svg?branch=master)](https://codecov.io/gh/eclipse-iceoryx/iceoryx?branch=master)
 [![Sanitize](https://github.com/eclipse/iceoryx/workflows/Sanitize/badge.svg?branch=master)](https://github.com/eclipse/iceoryx/actions?query=workflow%3ASanitize)
+
+<p align="center">
+<img src="https://user-images.githubusercontent.com/8661268/114321508-64a6b000-9b1b-11eb-95ef-b84c91387cff.png" width="50%">
+</p>
+
+# iceoryx - true zero-copy inter-process-communication
+
+1. [Introduction](#introduction)
+   1. [Supported Platforms](#supported-platforms)
+   2. [Where is Eclipse iceoryx used](#where-is-eclipse-iceoryx-used)
+2. [Build and install](#build-and-install)
+3. [Examples](#examples)
+4. [Build and run in a Docker environment](#build-and-run-in-a-docker-environment)
+5. [Documentation](#documentation)
+6. [Quality levels and platforms](#quality-levels-and-platforms)
+7. [Contribute](#contribute)
+8. [Planned features](#planned-features)
+9. [Bindings and innovations enabled by iceoryx](#bindings-and-innovations-enabled-by-iceoryx)
+10. [Frequently Asked Questions](#frequently-asked-questions)
+11. [Commercial Support](#commercial-support)
+12. [Governance and maintainers](#governance-and-maintainers)
 
 ## Introduction
 
@@ -63,7 +78,7 @@ Modification or addition of new platforms is described in the
 
 In general unix platforms should work with iceoryx but we only test FreeBSD on our CI.
 
-### Where is Eclipse iceoryx used?
+### Where is Eclipse iceoryx used
 
 |Framework | Description |
 |---|---|
@@ -94,7 +109,7 @@ Please see the dedicated [README.md](tools/docker/README.md) for information on 
 * [Installation Guide](doc/website/getting-started/installation.md)
 * [iceoryx Hoofs Hacker Guide](iceoryx_hoofs/README.md)
 
-### Quality levels & platforms
+### Quality levels and platforms
 
 > [Quality level](./CONTRIBUTING.md#quality-levels) are 5 to 1+, where 1+ is the highest level.
 
@@ -129,10 +144,40 @@ Get to know the upcoming features and the project scope in [PLANNED_FEATURES.md]
 | [iceray](https://github.com/elBoberido/iceray)                                      | An iceoryx introspection client written in Rust                  | Rust         |
 | [Larry.Robotics](https://gitlab.com/larry.robotics)                                 | An iceoryx demonstrator for tinker, thinker and toddler          | Demonstrator |
 
-## Frequently Asked Questions (FAQ)
+## Frequently Asked Questions
 
 [FAQ.md](./doc/website/FAQ.md)
 
-## Governance & maintainers
+## Commercial Support
+
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+
+<table width="100%">
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="33%">
+        <a href="https://ekxide.io">
+        <img src="https://github.com/eclipse-iceoryx/iceoryx/assets/56729169/23ebd670-45ce-4d41-885c-afd1c1835709" alt="ekxide IO GmbH"/><br />
+        </a>
+        <a href="mailto:info@ekxide.io">info@ekxide.io</a>
+      </td>
+      <td>
+        <ul>
+          <li>commercial extensions and tooling</li>
+          <li>custom feature development</li>
+          <li>training and consulting</li>
+          <li>integration support</li>
+          <li>engineering services around the iceoryx ecosystem</li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+## Governance and maintainers
 
 Please have a look at the [GOVERNANCE.md](./GOVERNANCE.md).
