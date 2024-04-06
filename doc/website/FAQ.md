@@ -149,3 +149,30 @@ To avoid undefined behavior of iceoryx posh it is recommended to terminate RouDi
 processes with SIGINT or SIGTERM. In RouDi, we have integrated a sighandler that catches the signals and gives RouDi
 the chance to exit and clean-up everything. This also applies for processes. Therefore, we recommend adding a signalhandler
 to your process (see [this example](../../iceoryx_examples/icedelivery/iox_publisher_untyped.cpp)).
+
+## How to use iceoryx as external dependency with bazel
+
+Define iceoryx repository information in your [WORKSPACE](https://bazel.build/concepts/build-ref#workspace)
+then calling bazel macro from [load_repositories.bzl](https://github.com/eclipse-iceoryx/iceoryx/blob/master/bazel/load_repositories.bzl)
+and [setup_repositories.bzl](https://github.com/eclipse-iceoryx/iceoryx/blob/master/bazel/setup_repositories.bzl) for loading transitive dependencies.
+
+```
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+IOX_COMMIT = "....."
+
+http_archive(
+    name = "eclipse_iceoryx",
+    sha256 = <sha256 sum of z>,
+    strip_prefix = "iceoryx-" + IOX_COMMIT,
+    url = "https://github.com/eclipse-iceoryx/iceoryx/archive/" + IOX_COMMIT + ".zip",
+)
+
+# load iceoryx transitive dependencies
+
+load("@eclipse_iceoryx//bazel:load_repositories.bzl", "load_repositories")
+load("@eclipse_iceoryx//bazel:setup_repositories.bzl", "setup_repositories")
+load_repositories()
+setup_repositories()
+
+```
