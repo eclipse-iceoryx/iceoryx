@@ -72,6 +72,15 @@ if(DEFINED CMAKE_TOOLCHAIN_FILE)
     set(cpptoml_DIR ${cpptoml_DIR} CACHE PATH "" FORCE)
 endif()
 
+execute_process(
+    COMMAND git apply -p1 --ignore-space-change --whitespace=nowarn
+    INPUT_FILE "${CMAKE_CURRENT_LIST_DIR}/0001-cpptoml-cmake-version.patch"
+    WORKING_DIRECTORY "${SOURCE_DIR}"
+    RESULT_VARIABLE result)
+if(result)
+    message(WARNING "CMake step [patch] for '${PROJECT_NAME}' failed! Error code: ${result}! Build of '${PROJECT_NAME}' might fail")
+endif()
+
 execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" "-DENABLE_LIBCXX=off" "-DCPPTOML_BUILD_EXAMPLES=off" "-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}" "${SOURCE_DIR}" ${CMAKE_ADDITIONAL_OPTIONS}
     RESULT_VARIABLE result
     WORKING_DIRECTORY ${BUILD_DIR} )

@@ -1,0 +1,8 @@
+--- a/CMakeLists.txt	2024-03-26 12:09:54.921829374 +0000
++++ b/CMakeLists.txt	2024-03-26 12:09:59.552800904 +0000
+@@ -1,4 +1,4 @@
+-cmake_minimum_required(VERSION 3.1.0)
++cmake_minimum_required(VERSION 3.16)
+ project(cpptoml)
+
+ set(cpptoml_VERSION 0.4.0)
