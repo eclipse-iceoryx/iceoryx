@@ -101,20 +101,6 @@ inline bool SpscSofi<ValueType, CapacityValue>::pop(ValueType& valueOut) noexcep
 {
     // Memory synchronization is not needed but we need to prevent operation reordering to avoid the following scenario
     // where the CPU reorder the load of m_readPosition and m_writePosition:
-    // 0. Initial situation (the queue is full)
-    // |----|--B--|--C--|
-    // ^     ^
-    // w=3  r=1
-    // 1. The consumer thread loads m_writePosition => 3
-    // |----|--B--|--C--|
-    // ^     ^
-    // w=3  r=1
-    // 2. The producer thread pushes two times
-    // |--D--|--E--|-----|
-    // ^           ^
-    // r=3        w=5
-    // 3. The consumer thread loads m_readPosition => 3. The pop method returns false
-    // => Whereas the queue was full, pop returned false giving the impression that the queue if empty
     uint64_t currentReadPosition = m_readPosition.load(std::memory_order_acquire);
     uint64_t nextReadPosition{0};
 
@@ -128,6 +114,21 @@ inline bool SpscSofi<ValueType, CapacityValue>::pop(ValueType& valueOut) noexcep
         {
             nextReadPosition = currentReadPosition;
             popWasSuccessful = false;
+            // We cannot just return false (i.e. we need to continue the loop) to avoid the following situation:
+            // 0. Initial situation (the queue is full)
+            // |----|--B--|--C--|
+            // ^    ^
+            // w=3 r=1
+            // 1. The consumer thread loads m_writePosition => 3
+            // |----|--B--|--C--|
+            // ^     ^
+            // w=3  r=1
+            // 2. The producer thread pushes two times
+            // |--D--|--E--|-----|
+            // ^           ^
+            // r=3        w=5
+            // 3. The consumer thread loads m_readPosition => 3 The pop method returns false
+            // => Whereas the queue was full, pop returned false giving the impression that the queue if empty
         }
         else
         {
@@ -138,9 +139,9 @@ inline bool SpscSofi<ValueType, CapacityValue>::pop(ValueType& valueOut) noexcep
         }
 
         // We need to check if m_readPosition hasn't changed otherwise valueOut might be corrupted
-        // While memory synchronization is not needed for m_readPosition we need to have a
-        // corresponding m_readPosition.store(release) to the m_readPosition.load(acquire) in the
-        //  push method
+        // While memory synchronization is not needed for m_readPosition, we need to ensure that the
+        // 'memcpy' happens before the CAS operation.
+        // Corresponding m_readPosition.load(acquire) is in the push method
         // =============================================
         // ABA problem: m_readPosition is an uint64_t. Assuming a thread is pushing at a rate of 1 GHz
         // while this thread is blocked, we would still need more than 500 years to overflow
@@ -185,7 +186,7 @@ inline bool SpscSofi<ValueType, CapacityValue>::push(const ValueType& valueIn, V
     m_writePosition.store(nextWritePosition, std::memory_order_release);
 
     // While memory synchronization is not needed with m_readPosition, we need
-    // memory_order_acquire to avoid the reordering of the operation
+    // memory_order_acquire to avoid the reordering of the operation.
     uint64_t currentReadPosition = m_readPosition.load(std::memory_order_acquire);
 
     // Check if queue is full: since we have an extra element (INTERNAL_CAPACITY_ADD_ON), we need to

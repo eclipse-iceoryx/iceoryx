@@ -31,13 +31,12 @@ namespace iox
 {
 namespace concurrent
 {
-/// @brief Thread safe (without locks) single producer and single consumer queue with a safe
+/// @brief Thread safe lock-free single producer and single consumer queue with a safe
 /// overflowing behavior
 /// @note When SpscSoFi is full and a sender tries to push, the data at the current read pos will be
 /// returned. This behavior mimics a FiFo queue but prevents resource leaks when pushing into
 /// a full SpscSoFi.
 /// SpscSoFi is especially designed to provide fixed capacity storage.
-/// SpscSoFi only allocates memory when created, capacity can be adjusted explicitly.
 /// It's an expected behavior that when push/pop are called concurrently and SpscSoFi is full, as
 /// many elements as specified with 'CapacityValue' can be removed
 /// @param[in] ValueType        DataType to be stored, must be trivially copyable
@@ -45,9 +44,8 @@ namespace concurrent
 template <class ValueType, uint64_t CapacityValue>
 class SpscSofi
 {
-    // We need to make sure that the copy operation doesn't have any logic
     static_assert(std::is_trivially_copyable<ValueType>::value,
-                  "SpscSofi can handle only trivially copyable data types");
+                  "SpscSofi can only handle trivially copyable data types since 'memcpy' is used internally");
     /// @brief Check if Atomic integer is lockfree on platform
     /// ATOMIC_INT_LOCK_FREE = 2 - is always lockfree
     /// ATOMIC_INT_LOCK_FREE = 1 - is sometimes lockfree
@@ -86,8 +84,8 @@ class SpscSofi
     //    |--A--|--B--|--C--|
     //    ^
     //   w=3, r=0,
-    // 4. Then increment the read position
-    //   |--A--|--B--|--C--|
+    // 4. Then increment the read position and return the overflowing 'A'
+    //   |-----|--B--|--C--|
     //   ^     ^
     //   w=3  r=1
     // 5. The producer thread is suspended, the consumer thread pops a value
@@ -118,7 +116,7 @@ class SpscSofi
     /// @note restricted thread safe: can only be called from one thread. The authorization to push into the
     /// SpscSofi can be transferred to another thread if appropriate synchronization mechanisms are used.
     /// @return return true if push was successful else false.
-    /// @code
+    /// @remarks
     /// 1. SpscSofi is empty    |-----|-----|
     /// 2. push an element  |--A--|-----|
     /// 3. push an element  |--A--|--B--|
