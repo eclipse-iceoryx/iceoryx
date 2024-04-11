@@ -42,7 +42,7 @@ jobs:
         ref: 'master'
     - name: Unix (FreeBSD) test
       id: Test
-      uses: vmactions/freebsd-vm@v0
+      uses: vmactions/freebsd-vm@v1
       with:
         usesh: true
         copyback: false
