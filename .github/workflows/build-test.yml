@@ -13,15 +13,15 @@ jobs:
   pre-flight-check:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - run: ./tools/scripts/clang_format.sh check
 
   build-test-ubuntu:
     runs-on: ubuntu-20.04
     needs: pre-flight-check
     steps:
-      - uses: actions/checkout@v2
-      - uses: egor-tensin/setup-gcc@v1
+      - uses: actions/checkout@v4
+      - uses: egor-tensin/setup-gcc@v1.3
         with:
           version: 9
           platform: x64
@@ -30,33 +30,30 @@ jobs:
           cmake-version: '3.16.3' # version used in Ubuntu 20.04 LTS
       - run: ./tools/ci/build-test-ubuntu.sh
 
-  # uses macos to run freebsd in a virtualbox
+  # uses ubuntu to run freebsd in a virtualbox
   build-test-unix-with-freebsd:
-    # prevent stuck jobs consuming macos runners for 6 hours
+    # prevent stuck jobs consuming runners for 6 hours
     timeout-minutes: 60
     needs: pre-flight-check
-    runs-on: macos-12
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-      with:
-        ref: 'master'
+    - uses: actions/checkout@v4
     - name: Unix (FreeBSD) test
       id: Test
       uses: vmactions/freebsd-vm@v1
       with:
-        usesh: true
+        release: "13.2"
         copyback: false
-        mem: 4096
         prepare: pkg install -y cmake git ncurses bash wget bison
         run: |
-         git config --global --add safe.directory /Users/runner/work/iceoryx/iceoryx
+         git config --global --add safe.directory /home/runner/work/iceoryx/iceoryx
          ./tools/ci/build-test-freebsd.sh
 
   build-test-windows:
     runs-on: windows-2019
     needs: pre-flight-check
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - run: ./tools/ci/build-test-windows.ps1
         shell: powershell
 
@@ -68,18 +65,18 @@ jobs:
         uses: ros-tooling/setup-ros@v0.7
         with:
           required-ros-distributions: humble
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - run: ./tools/ci/run-integration-test.sh
 
   build-test-ubuntu-with-sanitizers-gcc-latest:
     runs-on: ubuntu-20.04
     needs: pre-flight-check
     steps:
-      - uses: egor-tensin/setup-gcc@v1.2
+      - uses: egor-tensin/setup-gcc@v1.3
         with:
           version: 11
           platform: x64
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - run: ./tools/ci/build-test-ubuntu-with-sanitizers.sh gcc
 
   build-test-ubuntu-with-sanitizers-clang-latest:
@@ -90,7 +87,7 @@ jobs:
         with:
           version: 13
           platform: x64
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - run: ./tools/ci/build-test-ubuntu-with-sanitizers.sh clang
 
   build-test-macos-with-sanitizers:
@@ -99,18 +96,18 @@ jobs:
     timeout-minutes: 60
     needs: pre-flight-check
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - run: ./tools/ci/build-test-macos-with-sanitizers.sh
 
   coverage-and-docs:
     runs-on: ubuntu-20.04
     needs: pre-flight-check
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - run: ./tools/ci/coverage-and-docs.sh
 
       - name: Archive generated doxygen
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: iceoryx-pdf
           path: |
@@ -118,17 +115,19 @@ jobs:
           retention-days: 30
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v4
         with:
           file: ./lcov_results/unittest/lcov/iceoryx_lcov_result_unit.info
           name: iceoryx
           flags: unittests
-          fail_ci_if_error: true
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v4
         with:
           file: ./lcov_results/unittest_timing/lcov/iceoryx_lcov_result_unit-timing.info
           name: iceoryx
           flags: unittests_timing
-          fail_ci_if_error: true
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
