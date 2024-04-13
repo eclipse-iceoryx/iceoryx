@@ -75,6 +75,12 @@ In iceoryx are also custom tags used for extended documentation like errors.
  - `/// @min` , use a type safe implementation if possible!
  - `/// @max` , use a type safe implementation if possible!
 
+### Include Additional Header Into Documentation
+
+In some cases, the implementation of a component is is placed in an internal folder and the header in the public folder acts as a trampoline with some using declarations.
+The iceoryx endpoints like `Publisher`, `Subscriber`, etc. are such examples where the public header only includes a using declaration to the actual implementation.
+In order to include the documentation of these components, the header containing the documentation can be added to the `INCLUDE_DIR_AND_ADDITIONAL_FILES` list in the CMakeLists.txt.
+
 ### Doxygen Generation
 For generating the documentation out of the code is CMake in combination with doxygen used.
 In iceoryx_meta is a build flag `BUILD_DOC` defined which generates for you the html, xml and latex documentation. There is no need to build iceoryx beforehand.
@@ -92,6 +98,7 @@ The generated pdf files are generated into `build/doc`. Please note that iceoryx
 Generally, you will not find any Doxygen file in our repo because we let CMake generate it.
 In [Cmake](CMakeLists.txt) is the command `doxygen_add_docs` which does the job.
 There, we are also setting some parameters and the aliases for the custom tags. Aliases with an `xrefitem` create a page where all occurrences of the corresponding tag are collected.
+
 ### file header
 Please see [Header](../../CONTRIBUTING.md#header).
 
