@@ -165,8 +165,8 @@ void heartbeatCallback(iox::popo::UserTrigger*)
 }
 ```
 
-The `onSampleReceivedCallback` is more complex. We first acquires all the received
-samples and checks which subscriber signaled the event by acquiring the subscriber's
+The `onSampleReceivedCallback` is more complex. We first acquire all the received
+samples and check which subscriber signaled the event by acquiring the subscriber's
 service description. If the instance is equal to `FrontLeft` we store the sample
 in the `leftCache` otherwise in the `rightCache`.
 

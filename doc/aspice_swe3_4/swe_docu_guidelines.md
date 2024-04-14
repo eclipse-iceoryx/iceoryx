@@ -77,7 +77,7 @@ In iceoryx are also custom tags used for extended documentation like errors.
 
 ### Include Additional Header Into Documentation
 
-In some cases, the implementation of a component is is placed in an internal folder and the header in the public folder acts as a trampoline with some using declarations.
+In some cases, the implementation of a component is placed in an internal folder, and the header in the public folder acts as a trampoline, with some using declarations.
 The iceoryx endpoints like `Publisher`, `Subscriber`, etc. are such examples where the public header only includes a using declaration to the actual implementation.
 In order to include the documentation of these components, the header containing the documentation can be added to the `INCLUDE_DIR_AND_ADDITIONAL_FILES` list in the CMakeLists.txt.
 
