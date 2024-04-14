@@ -220,6 +220,7 @@
 - Remove hash from the branch names [\#1530](https://github.com/eclipse-iceoryx/iceoryx/issues/1530)
 - Automate check for test cases to have UUIDs [\#1540](https://github.com/eclipse-iceoryx/iceoryx/issues/1540)
 - Add Thread Sanitizer to build and test workflow [\#692](https://github.com/eclipse-iceoryx/iceoryx/issues/692)
+- Document workaround for documentation in internal headers [#1293](https://github.com/eclipse-iceoryx/iceoryx/issues/1293)
 
 **New API features:**
 
