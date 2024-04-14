@@ -76,7 +76,8 @@ inline string<POSIX_CALL_ERROR_STRING_SIZE> PosixCallResult<T>::getHumanReadable
     /// NOLINTJUSTIFICATION needed by POSIX function which is wrapped here
     /// NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     char buffer[POSIX_CALL_ERROR_STRING_SIZE];
-    return detail::errorLiteralToString(strerror_r(errnum, &buffer[0], POSIX_CALL_ERROR_STRING_SIZE), &buffer[0]);
+    return string<POSIX_CALL_ERROR_STRING_SIZE>(TruncateToCapacity,
+                                                iox_gnu_strerror_r(errnum, &buffer[0], POSIX_CALL_ERROR_STRING_SIZE));
 }
 
 template <typename ReturnType, typename... FunctionArguments>
