@@ -56,11 +56,11 @@ inline constexpr span<T, Extent>::span(It first, uint64_t count) noexcept
 }
 
 template <typename T, uint64_t Extent>
-template <typename It, typename End, typename>
-inline constexpr span<T, Extent>::span(It begin, End end) noexcept
+template <typename It, typename>
+inline constexpr span<T, Extent>::span(It begin, It end) noexcept
     : span(begin, static_cast<uint64_t>(end - begin))
 {
-    assert(begin == nullptr || end == nullptr || begin <= end);
+    assert(begin <= end);
 }
 
 template <typename T, uint64_t Extent>

@@ -37,7 +37,7 @@ TEST(span_test, NewEmptySpanCreatedFromIteratorContainsSameData)
     EXPECT_EQ(nullptr, empty_sut.data());
 }
 
-TEST(span_test, NewDynSpanCreatedFromIteratorContainsSameData)
+TEST(span_test, NewDynSpanCreatedFromIteratorAndSizeContainsSameData)
 {
     ::testing::Test::RecordProperty("TEST_ID", "05db30c2-e13d-4116-ba05-668b30ba4a23");
     const std::vector<int32_t> expected_data = {1, 1, 2, 3, 5, 8};
@@ -53,12 +53,44 @@ TEST(span_test, NewDynSpanCreatedFromIteratorContainsSameData)
     }
 }
 
-TEST(span_test, NewStaticSpanCreatedFromIteratorContainsSameData)
+TEST(span_test, NewStaticSpanCreatedFromIteratorAndSizeContainsSameData)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fdc6a3fe-3971-4326-b6b2-1967afbc9726");
     std::vector<int32_t> vector = {8, 2, 2, 4, 5, 8};
 
     span<int32_t, 6> static_sut(vector.begin(), vector.size());
+
+    EXPECT_EQ(vector.data(), static_sut.data());
+    EXPECT_EQ(vector.size(), static_sut.size());
+
+    for (size_t i = 0; i < static_sut.size(); ++i)
+    {
+        EXPECT_EQ(vector[i], static_sut[i]);
+    }
+}
+
+TEST(span_test, NewDynSpanCreatedFromIteratorsContainsSameData)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "6f7224c9-b500-43f1-acb7-b64c5d407fce");
+    const std::vector<int32_t> expected_data = {1, 1, 2, 3, 5, 8};
+    std::vector<int32_t> vector = expected_data;
+
+    span<int32_t> dyn_sut(vector.begin(), vector.end());
+
+    EXPECT_EQ(vector.data(), dyn_sut.data());
+    EXPECT_EQ(vector.size(), dyn_sut.size());
+    for (size_t i = 0; i < dyn_sut.size(); ++i)
+    {
+        EXPECT_EQ(vector[i], dyn_sut[i]);
+    }
+}
+
+TEST(span_test, NewStaticSpanCreatedFromIteratorsContainsSameData)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "ff3f731e-9fa2-4584-a6a4-090ba5aad5f4");
+    std::vector<int32_t> vector = {8, 2, 2, 4, 5, 8};
+
+    span<int32_t, 6> static_sut(vector.begin(), vector.end());
 
     EXPECT_EQ(vector.data(), static_sut.data());
     EXPECT_EQ(vector.size(), static_sut.size());
@@ -324,12 +356,64 @@ TEST(span_test, NewStaticSpanFromConstIoxUninitializedArrayContainsSameData)
     }
 }
 
+TEST(span_test, NewStaticSpanCopyConstructed)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "88da307d-ed51-42a0-a587-784f29be7905");
+    static constexpr std::array<int32_t, 5> arr = {1, 6, 2, 8, 0};
+    const span<const int32_t, 5> original_span(arr.begin(), arr.size());
+    span<const int32_t, 5> new_static_span(original_span);
+    EXPECT_EQ(arr.data(), new_static_span.data());
+    EXPECT_EQ(arr.size(), new_static_span.size());
+}
+
+TEST(span_test, NewDynamicSpanCopyConstructed)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "9c9e897b-2755-44f9-9075-dc224d0e72ac");
+    static constexpr std::array<int32_t, 5> arr = {1, 6, 2, 8, 0};
+    const span<const int32_t> original_span(arr);
+    span<const int32_t> new_static_span(original_span);
+    EXPECT_EQ(arr.data(), new_static_span.data());
+    EXPECT_EQ(arr.size(), new_static_span.size());
+}
+
+TEST(span_test, NewStaticSpanMoveConstructed)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "9e8c6cea-e005-41c2-9bc3-ebfb968b3674");
+    static constexpr std::array<int32_t, 5> arr = {1, 6, 2, 8, 0};
+    span<const int32_t, 5> original_span(arr.begin(), arr.size());
+    span<const int32_t, 5> new_static_span(std::move(original_span));
+    EXPECT_EQ(arr.data(), new_static_span.data());
+    EXPECT_EQ(arr.size(), new_static_span.size());
+}
+
+TEST(span_test, NewDynamicSpanMoveConstructed)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "e58c41f5-4ea8-40e9-8131-0f8e7a93644c");
+    static constexpr std::array<int32_t, 5> arr = {1, 6, 2, 8, 0};
+    span<const int32_t> original_span(arr);
+    span<const int32_t> new_static_span(std::move(original_span));
+    EXPECT_EQ(arr.data(), new_static_span.data());
+    EXPECT_EQ(arr.size(), new_static_span.size());
+}
+
 TEST(span_test, CheckFrontOfSpanIfItReturnsTheElementAtIndex0)
 {
     ::testing::Test::RecordProperty("TEST_ID", "57b2f67f-79c1-4c1e-a305-f4665283c474");
     static constexpr std::array<int32_t, 5> arr = {1, 6, 2, 8, 0};
     constexpr span<const int32_t> span(arr);
     static_assert(arr.data() == &span.front(), "span.front() does not refer to the same element as arr[0]");
+    // Also check at runtime to show in coverage reports
+    EXPECT_EQ(arr[0], span.front());
+}
+
+TEST(span_test, CheckBackOfSpanIfItReturnsTheElementAtLastIndex)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "2b9fa3d2-e57b-4c17-b8ef-541de8b3f9f9");
+    static constexpr std::array<int32_t, 5> arr = {1, 6, 2, 8, 0};
+    constexpr span<const int32_t> span(arr);
+    static_assert(arr.data() + 4 == &span.back(), "span.back() does not refer to the same element as arr[N-1]");
+    // Also check at runtime to show in coverage reports
+    EXPECT_EQ(arr[4], span.back());
 }
 
 TEST(span_test, CheckIterOfSpan)
@@ -395,6 +479,118 @@ TEST(span_test, IterateOverSpan)
         sum += val;
     }
     EXPECT_EQ(sum, 31);
+}
+
+TEST(span_test, IterateOverSpanInReverse)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "2994f138-41ec-4a51-8266-c4c461454411");
+    std::vector<int32_t> vector = {1, 1, 13, 3, 5, 8};
+    span<int32_t, 6> static_sut(vector.data(), vector.size());
+
+    // Sum the values in the span as a simple test
+    int32_t sum{0U};
+    for (auto it = static_sut.rbegin(); it != static_sut.rend(); ++it)
+    {
+        sum += *it;
+    }
+    EXPECT_EQ(sum, 31);
+}
+
+TEST(span_test, CreateStaticSubspan)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "bd1983a4-3e73-4f1f-8bca-7613fa2a0b43");
+    constexpr std::array<int32_t, 6> array = {1, 1, 13, 3, 5, 8};
+    const span<const int32_t, 6> static_sut(array.begin(), array.end());
+
+    // Create subspan
+    const span<const int32_t, 3> subspan = static_sut.subspan<2U, 3U>();
+
+    EXPECT_EQ(subspan.size(), 3);
+    EXPECT_EQ(subspan.data(), &array[2]);
+    EXPECT_EQ(subspan[0], 13);
+    EXPECT_EQ(subspan[1], 3);
+    EXPECT_EQ(subspan[2], 5);
+}
+
+TEST(span_test, CreateDynSubspan)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "45595686-ed6e-47e1-9523-7312052187ec");
+    constexpr std::array<int32_t, 6> array = {1, 1, 13, 3, 5, 8};
+    const span<const int32_t, 6> static_sut(array.begin(), array.end());
+
+    // Create subspan
+    const span<const int32_t> subspan = static_sut.subspan(1U, 2U);
+
+    EXPECT_EQ(subspan.size(), 2);
+    EXPECT_EQ(subspan.data(), &array[1]);
+    EXPECT_EQ(subspan[0], 1);
+    EXPECT_EQ(subspan[1], 13);
+}
+
+TEST(span_test, CreateStaticSubspanFirstN)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "4a0d421c-f308-4ef8-a3b1-dd795e8920b0");
+    constexpr std::array<int32_t, 6> array = {1, 1, 13, 3, 5, 8};
+    const span<const int32_t, 6> static_sut(array.begin(), array.end());
+
+    // Create subspan
+    const span<const int32_t, 3> subspan = static_sut.first<3U>();
+
+    EXPECT_EQ(subspan.size(), 3);
+    EXPECT_EQ(subspan.data(), array.data());
+    EXPECT_EQ(subspan[0], 1);
+    EXPECT_EQ(subspan[1], 1);
+    EXPECT_EQ(subspan[2], 13);
+}
+
+TEST(span_test, CreateDynSubspanFirstN)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "bc1df89d-e727-42a2-9d1f-20055883e605");
+    constexpr std::array<int32_t, 6> array = {1, 1, 13, 3, 5, 8};
+    const span<const int32_t, 6> static_sut(array.begin(), array.end());
+
+    // Create subspan
+    const span<const int32_t> subspan = static_sut.first(3U);
+
+    EXPECT_EQ(subspan.size(), 3);
+    EXPECT_EQ(subspan.data(), array.data());
+    EXPECT_EQ(subspan[0], 1);
+    EXPECT_EQ(subspan[1], 1);
+    EXPECT_EQ(subspan[2], 13);
+}
+
+TEST(span_test, CreateStaticSubspanLastN)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "e1ae58ef-e4c5-4ea9-88b0-af0701f5cebe");
+    constexpr std::array<int32_t, 6> array = {1, 1, 13, 3, 5, 8};
+    const span<const int32_t, 6> static_sut(array.begin(), array.end());
+
+    // Create subspan
+    const span<const int32_t, 4> subspan = static_sut.last<4U>();
+
+    EXPECT_EQ(subspan.size(), 4);
+    EXPECT_EQ(subspan.data(), &array[2]);
+    EXPECT_EQ(subspan[0], 13);
+    EXPECT_EQ(subspan[1], 3);
+    EXPECT_EQ(subspan[2], 5);
+    EXPECT_EQ(subspan[3], 8);
+}
+
+TEST(span_test, CreateDynSubspanLastN)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "4948e802-3134-45f7-89fa-3d51bfe0e3eb");
+    constexpr std::array<int32_t, 6> array = {1, 1, 13, 3, 5, 8};
+    const span<const int32_t, 6> static_sut(array.begin(), array.end());
+
+    // Create subspan
+    const span<const int32_t> subspan = static_sut.last(4U);
+
+    EXPECT_EQ(subspan.size(), 4);
+    EXPECT_EQ(subspan.data(), &array[2]);
+    EXPECT_EQ(subspan[0], 13);
+    EXPECT_EQ(subspan[1], 3);
+    EXPECT_EQ(subspan[2], 5);
+    EXPECT_EQ(subspan[3], 8);
 }
 
 } // namespace
