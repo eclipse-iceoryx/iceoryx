@@ -213,6 +213,7 @@
 - Activate clang-tidy for all the code in iceoryx_hoofs [#2184](https://github.com/eclipse-iceoryx/iceoryx/issues/2184)
 - Split `iceoryx_hoofs` into logical modules [#1391](https://github.com/eclipse-iceoryx/iceoryx/issues/1391)
 - Create a flat include structure for `iceoryx_hoofs` [#1593](https://github.com/eclipse-iceoryx/iceoryx/issues/1593)
+- Handle 'strerror_r' idiosyncrasies in the platform layer [#1616](https://github.com/eclipse-iceoryx/iceoryx/issues/1616)
 
 **Workflow:**
 
