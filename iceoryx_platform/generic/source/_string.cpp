@@ -14,9 +14,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-// NOTE: This file is called 'string_.cpp' due to issues with clang-tidy. When the file is called 'string.cpp'
-// clang-tidy assumes to be the translation unit for 'iox/string.hpp' tries to check that header with the wrong
-// translation unit which leads to an error not finding the includes in 'iox/string.hpp'
+// NOTE: This file is called '_string.cpp' due to issues with clang-tidy. When the file is called 'string.cpp',
+// clang-tidy assumes it to be the translation unit for 'iox/string.hpp' and tries to check that header with the wrong
+// translation unit which leads to an error not finding the includes from 'iox/string.hpp' and 'iox/detail/string.inl'
 
 #include "iceoryx_platform/string.hpp"
 
