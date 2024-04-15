@@ -165,8 +165,8 @@ void heartbeatCallback(iox::popo::UserTrigger*)
 }
 ```
 
-The `onSampleReceivedCallback` is more complex. We first acquire the received
-sample and check which subscriber signaled the event by acquiring the subscriber's
+The `onSampleReceivedCallback` is more complex. We first acquire all the received
+samples and check which subscriber signaled the event by acquiring the subscriber's
 service description. If the instance is equal to `FrontLeft` we store the sample
 in the `leftCache` otherwise in the `rightCache`.
 
@@ -174,7 +174,8 @@ in the `leftCache` otherwise in the `rightCache`.
 ```cpp
 void onSampleReceivedCallback(iox::popo::Subscriber<CounterTopic>* subscriber)
 {
-    subscriber->take().and_then([subscriber](auto& sample) {
+    // take all samples from the subscriber queue
+    while (subscriber->take().and_then([subscriber](auto& sample) {
         auto instanceString = subscriber->getServiceDescription().getInstanceIDString();
 
         // store the sample in the corresponding cache
@@ -188,7 +189,9 @@ void onSampleReceivedCallback(iox::popo::Subscriber<CounterTopic>* subscriber)
         }
 
         std::cout << "received: " << sample->counter << std::endl;
-    });
+    }))
+    {
+    }
     // ...
 }
 ```
@@ -304,7 +307,8 @@ argument, the pointer to the object itself, called `self`.
 ```cpp
 static void onSampleReceivedCallback(iox::popo::Subscriber<CounterTopic>* subscriber, CounterService* self)
 {
-    subscriber->take().and_then([subscriber, self](auto& sample) {
+    // take all samples from the subscriber queue
+    while (subscriber->take().and_then([subscriber, self](auto& sample) {
         auto instanceString = subscriber->getServiceDescription().getInstanceIDString();
 
         // store the sample in the corresponding cache
@@ -318,7 +322,9 @@ static void onSampleReceivedCallback(iox::popo::Subscriber<CounterTopic>* subscr
         }
 
         std::cout << "received: " << sample->counter << std::endl;
-    });
+    }))
+    {
+    }
 
     // if both caches are filled we can process them
     if (self->m_leftCache && self->m_rightCache)

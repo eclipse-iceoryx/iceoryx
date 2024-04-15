@@ -68,7 +68,8 @@ class CounterService
     //! [callback]
     static void onSampleReceivedCallback(iox::popo::Subscriber<CounterTopic>* subscriber, CounterService* self)
     {
-        subscriber->take().and_then([subscriber, self](auto& sample) {
+        // take all samples from the subscriber queue
+        while (subscriber->take().and_then([subscriber, self](auto& sample) {
             auto instanceString = subscriber->getServiceDescription().getInstanceIDString();
 
             // store the sample in the corresponding cache
@@ -82,7 +83,9 @@ class CounterService
             }
 
             std::cout << "received: " << sample->counter << std::endl;
-        });
+        }))
+        {
+        }
 
         // if both caches are filled we can process them
         if (self->m_leftCache && self->m_rightCache)

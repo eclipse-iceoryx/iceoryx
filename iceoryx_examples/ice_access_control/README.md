@@ -81,6 +81,8 @@ Do the following to configure shared memory segments when building a custom RouD
 <!--[geoffrey][iceoryx_examples/ice_access_control/roudi_main_static_segments.cpp][config]-->
 ```cpp
 iox::IceoryxConfig config;
+static_cast<iox::config::RouDiConfig&>(config) = cmdLineArgs.value().roudiConfig;
+
 
 // Create Mempool Config
 iox::mepoo::MePooConfig mepooConfig;
