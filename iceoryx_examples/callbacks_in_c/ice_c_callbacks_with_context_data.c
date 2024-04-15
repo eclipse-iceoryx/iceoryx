@@ -63,7 +63,8 @@ void onSampleReceivedCallback(iox_sub_t subscriber, void* contextData)
 
     //! [get data]
     const struct CounterTopic* userPayload;
-    if (iox_sub_take_chunk(subscriber, (const void**)&userPayload) == ChunkReceiveResult_SUCCESS)
+    // take all samples from the subscriber queue
+    while (iox_sub_take_chunk(subscriber, (const void**)&userPayload) == ChunkReceiveResult_SUCCESS)
     {
         iox_service_description_t serviceDescription = iox_sub_get_service_description(subscriber);
         if (strcmp(serviceDescription.instanceString, "FrontLeft") == 0)

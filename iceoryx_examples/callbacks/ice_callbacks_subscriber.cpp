@@ -42,7 +42,8 @@ void heartbeatCallback(iox::popo::UserTrigger*)
 void onSampleReceivedCallback(iox::popo::Subscriber<CounterTopic>* subscriber)
 {
     //! [get data]
-    subscriber->take().and_then([subscriber](auto& sample) {
+    // take all samples from the subscriber queue
+    while (subscriber->take().and_then([subscriber](auto& sample) {
         auto instanceString = subscriber->getServiceDescription().getInstanceIDString();
 
         // store the sample in the corresponding cache
@@ -56,7 +57,9 @@ void onSampleReceivedCallback(iox::popo::Subscriber<CounterTopic>* subscriber)
         }
 
         std::cout << "received: " << sample->counter << std::endl;
-    });
+    }))
+    {
+    }
     //! [get data]
 
     //! [process data]

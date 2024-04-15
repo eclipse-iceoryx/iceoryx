@@ -41,6 +41,16 @@ A possible alternative is
   * If 256 is not enough, increase the maximum value `IOX_MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY`
   via [the CMake switch](advanced/configuration-guide.md)
 
+## Missing samples with a Listener
+
+In case the subscriber is used in combination with a listener, some samples might just wait in receiver queue to be taken.
+The `Listener` uses events, which are faster than states of the `WaitSet` but this also means that if the publisher e.g.
+fires 5 events while the subscriber is executing the `onSampleReceivedCallback` it will be triggered only once after it
+leaves the callback. If you do not take care of taking all the data out of the queue, they will just stay there and fill
+up the queue. The default queue size is 256 samples. This means the samples need to be taken out in a loop in the
+`onSampleReceivedCallback` until `take` reports an empty queue. Alternatively the `WaitSet` can be used instead of the `Listener`.
+The `WaitSet` supports states as well as events and if used with states it will fire as long as there are data in the queue.
+
 ## Solving the error `MEPOO__MEMPOOL_GETCHUNK_POOL_IS_RUNNING_OUT_OF_CHUNKS`
 
 Possible solutions are one of the following:

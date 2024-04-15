@@ -158,8 +158,8 @@ void heartbeatCallback(iox_user_trigger_t userTrigger)
 }
 ```
 
-The `onSampleReceivedCallback` is a little bit more complex. First we acquire
-the chunk and then we have to find out which subscriber received the chunk. For that
+The `onSampleReceivedCallback` is a little bit more complex. First we acquire all
+the chunks and also have to find out which subscriber received the chunk. For that
 we acquire the service description of the subscriber and if its instance equals
 `FrontLeft` we store the chunk value in the `leftCache` otherwise in the `rightCache`.
 
@@ -167,8 +167,9 @@ we acquire the service description of the subscriber and if its instance equals
 ```c
 void onSampleReceivedCallback(iox_sub_t subscriber)
 {
+    // take all samples from the subscriber queue
     const struct CounterTopic* userPayload;
-    if (iox_sub_take_chunk(subscriber, (const void**)&userPayload) == ChunkReceiveResult_SUCCESS)
+    while (iox_sub_take_chunk(subscriber, (const void**)&userPayload) == ChunkReceiveResult_SUCCESS)
     {
         iox_service_description_t serviceDescription = iox_sub_get_service_description(subscriber);
         if (strcmp(serviceDescription.instanceString, "FrontLeft") == 0)

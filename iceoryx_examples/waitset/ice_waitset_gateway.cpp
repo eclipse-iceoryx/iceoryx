@@ -90,8 +90,8 @@ int main()
         subscriberVector.emplace_back(iox::capro::ServiceDescription{"Radar", "FrontLeft", "Counter"});
         auto& subscriber = subscriberVector.back();
 
-        /// important: the user has to ensure that the contextData (sumOfAllSamples) lives as long as
-        ///            the subscriber with its callback is attached to the listener
+        /// important: the user has to ensure that the 'contextData' (here 'sumOfAllSamples') lives as long as
+        ///            the subscriber with its callback when attached to the 'waitset'
         waitset
             .attachEvent(subscriber,
                          iox::popo::SubscriberEvent::DATA_RECEIVED,

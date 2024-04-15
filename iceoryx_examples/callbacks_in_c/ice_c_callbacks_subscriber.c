@@ -75,8 +75,9 @@ void* cyclicHeartbeatTrigger(void* dontCare)
 void onSampleReceivedCallback(iox_sub_t subscriber)
 {
     //! [get data]
+    // take all samples from the subscriber queue
     const struct CounterTopic* userPayload;
-    if (iox_sub_take_chunk(subscriber, (const void**)&userPayload) == ChunkReceiveResult_SUCCESS)
+    while (iox_sub_take_chunk(subscriber, (const void**)&userPayload) == ChunkReceiveResult_SUCCESS)
     {
         iox_service_description_t serviceDescription = iox_sub_get_service_description(subscriber);
         if (strcmp(serviceDescription.instanceString, "FrontLeft") == 0)
