@@ -183,7 +183,7 @@ jobs:
           retention-days: 30
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           file: ./lcov_results/unittest/lcov/iceoryx_lcov_result_unit.info
           name: iceoryx
@@ -191,9 +191,10 @@ jobs:
           fail_ci_if_error: false
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           file: ./lcov_results/unittest_timing/lcov/iceoryx_lcov_result_unit-timing.info
           name: iceoryx
           flags: unittests_timing
           fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
