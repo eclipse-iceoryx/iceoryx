@@ -128,6 +128,7 @@
 - Fix `const` value assignment in `iox::optional` [\#2224](https://github.com/eclipse-iceoryx/iceoryx/issues/2224)
 - Generated files cause recompilation even without any changes [#2210](https://github.com/eclipse-iceoryx/iceoryx/issues/2210)
 - Fix span_iterator constructor to prevent assertion when iterating over spans [#2216](https://github.com/eclipse-iceoryx/iceoryx/issues/2216)
+- Fix span span constructor assert when using begin/end constructor [#2253](https://github.com/eclipse-iceoryx/iceoryx/issues/2253)
 - Listener examples need to take all samples in the callback [#2251](https://github.com/eclipse-iceoryx/iceoryx/issues/2251)
 
 **Refactoring:**

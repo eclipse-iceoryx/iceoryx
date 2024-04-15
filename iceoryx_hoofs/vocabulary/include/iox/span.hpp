@@ -243,12 +243,11 @@ class span final : public detail::span_storage<Extent>
     constexpr span(It first, uint64_t count) noexcept;
 
     /// @brief Constructs a span that is a view over the range [first, last);
-    /// @tparam It Type of the start iterator
-    /// @tparam End Type of the end iterator
+    /// @tparam It Type of the start/end iterators
     /// @param begin iterator of where to start creating the span
     /// @param end iterator of where to stop
-    template <typename It, typename End, typename = std::enable_if_t<!std::is_convertible<End, uint64_t>::value>>
-    constexpr span(It begin, End end) noexcept;
+    template <typename It, typename = std::enable_if_t<!std::is_convertible<It, uint64_t>::value>>
+    constexpr span(It begin, It end) noexcept;
 
     /// @brief Constructs a span that is a view over the array arr; the resulting span has size() == N and data() ==
     /// std::data(arr)
