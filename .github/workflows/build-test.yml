@@ -89,6 +89,25 @@ jobs:
       - run: ./tools/ci/build-test-windows.ps1 -toolchain MinGW
         shell: powershell
 
+  # uses ubuntu to run freebsd in a virtualbox
+  build-test-unix-with-freebsd:
+    # prevent stuck jobs consuming runners for 6 hours
+    timeout-minutes: 60
+    needs: pre-flight-check
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Unix (FreeBSD) test
+      id: Test
+      uses: vmactions/freebsd-vm@v1
+      with:
+        release: "14.0"
+        copyback: false
+        prepare: pkg install -y cmake git ncurses bash wget bison
+        run: |
+         git config --global --add safe.directory /home/runner/work/iceoryx/iceoryx
+         ./tools/ci/build-test-freebsd.sh
+
   run-integration-test:
     # prevent stuck jobs consuming runners for 6 hours
     timeout-minutes: 60
@@ -189,6 +208,7 @@ jobs:
           name: iceoryx
           flags: unittests
           fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
