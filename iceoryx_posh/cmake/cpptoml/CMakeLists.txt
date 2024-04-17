@@ -73,12 +73,21 @@ if(DEFINED CMAKE_TOOLCHAIN_FILE)
 endif()
 
 execute_process(
-    COMMAND git apply -p1 --ignore-space-change --whitespace=nowarn
+    COMMAND git apply -R -p1 --ignore-space-change --whitespace=nowarn --quiet --check
     INPUT_FILE "${CMAKE_CURRENT_LIST_DIR}/0001-cpptoml-cmake-version.patch"
     WORKING_DIRECTORY "${SOURCE_DIR}"
     RESULT_VARIABLE result)
 if(result)
-    message(WARNING "CMake step [patch] for '${PROJECT_NAME}' failed! Error code: ${result}! Build of '${PROJECT_NAME}' might fail")
+    message(STATUS "Applying patch for minimal cmake version to cpptoml")
+
+    execute_process(
+        COMMAND git apply -p1 --ignore-space-change --whitespace=nowarn
+        INPUT_FILE "${CMAKE_CURRENT_LIST_DIR}/0001-cpptoml-cmake-version.patch"
+        WORKING_DIRECTORY "${SOURCE_DIR}"
+        RESULT_VARIABLE result)
+    if(result)
+        message(FATAL_ERROR "CMake step [patch] for '${PROJECT_NAME}' failed! Error code: ${result}!")
+    endif()
 endif()
 
 execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" "-DENABLE_LIBCXX=off" "-DCPPTOML_BUILD_EXAMPLES=off" "-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}" "${SOURCE_DIR}" ${CMAKE_ADDITIONAL_OPTIONS}
