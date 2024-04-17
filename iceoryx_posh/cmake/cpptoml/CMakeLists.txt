@@ -73,9 +73,11 @@ if(DEFINED CMAKE_TOOLCHAIN_FILE)
 endif()
 
 execute_process(
-    COMMAND git apply -R -p1 --ignore-space-change --whitespace=nowarn --quiet --check
+    COMMAND git apply -R -p1 --ignore-space-change --whitespace=nowarn --check
     INPUT_FILE "${CMAKE_CURRENT_LIST_DIR}/0001-cpptoml-cmake-version.patch"
     WORKING_DIRECTORY "${SOURCE_DIR}"
+    OUTPUT_QUIET
+    ERROR_QUIET
     RESULT_VARIABLE result)
 if(result)
     message(STATUS "Applying patch for minimal cmake version to cpptoml")
