@@ -100,11 +100,8 @@ iox::config::TomlGatewayConfigParser::validate(const cpptoml::table& parsedToml)
             TomlGatewayConfigParseError::MAXIMUM_NUMBER_OF_ENTRIES_EXCEEDED);
     }
 
-    uint8_t count = 0;
     for (const auto& service : *serviceArray)
     {
-        ++count;
-
         auto serviceName = service->get_as<std::string>(GATEWAY_CONFIG_SERVICE_NAME);
         auto instance = service->get_as<std::string>(GATEWAY_CONFIG_SERVICE_INSTANCE_NAME);
         auto event = service->get_as<std::string>(GATEWAY_CONFIG_SERVICE_EVENT_NAME);
