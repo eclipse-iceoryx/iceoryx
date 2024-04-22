@@ -143,7 +143,7 @@ constexpr const char SERVICE_DISCOVERY_INSTANCE_NAME[] = "RouDi_ID";
 constexpr const char SERVICE_DISCOVERY_EVENT_NAME[] = "ServiceRegistry";
 
 // Resource prefix
-constexpr uint32_t RESOURCE_PREFIX_LENGTH = 13; // 'iox1_' + MAX_UINT16_SIZE + '_' + optional 'x_'
+constexpr uint32_t RESOURCE_PREFIX_LENGTH = 13; // 'iox1_' + MAX_UINT16_SIZE + '_i_'/'_u_'
 
 // Nodes
 constexpr uint32_t MAX_NODE_NAME_LENGTH = build::IOX_MAX_NODE_NAME_LENGTH;
@@ -221,7 +221,7 @@ IOX_NEW_TYPE(DomainId,
 
 constexpr DomainId DEFAULT_DOMAIN_ID{0};
 
-constexpr const char ICEORYX_RESOURCE_PREFIX[] = "iox1";
+using build::IOX_DEFAULT_RESOURCE_PREFIX;
 
 /// @brief The resource type is used to customize the resource prefix by adding an 'i' or 'u' depending whether the
 /// resource is defined by iceoryx, e.g. the roudi IPC channel, or by the user, e.g. the runtime name. This shall

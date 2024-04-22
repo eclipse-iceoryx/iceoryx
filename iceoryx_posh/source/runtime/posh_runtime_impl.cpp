@@ -52,6 +52,8 @@ PoshRuntimeImpl::PoshRuntimeImpl(optional<const RuntimeName_t*> name,
                             "KeepAlive",
                             *this,
                             &PoshRuntimeImpl::sendKeepAliveAndHandleShutdownPreparation);
+
+    IOX_LOG(DEBUG, "Resource prefix: " << IOX_DEFAULT_RESOURCE_PREFIX);
 }
 
 PoshRuntimeImpl::PoshRuntimeImpl(optional<const RuntimeName_t*> name,
@@ -113,6 +115,7 @@ PoshRuntimeImpl::PoshRuntimeImpl(optional<const RuntimeName_t*> name,
                                                                           std::move(shmInterface)};
     }())
 {
+    IOX_LOG(INFO, "Domain ID: " << static_cast<DomainId::value_type>(domainId));
 }
 
 PoshRuntimeImpl::~PoshRuntimeImpl() noexcept

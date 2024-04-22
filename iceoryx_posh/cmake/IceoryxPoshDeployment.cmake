@@ -132,6 +132,11 @@ configure_option(
     DEFAULT_VALUE 4
 )
 
+configure_option(
+    NAME IOX_DEFAULT_RESOURCE_PREFIX
+    DEFAULT_VALUE "iox1"
+)
+
 if(IOX_EXPERIMENTAL_POSH)
      set(IOX_EXPERIMENTAL_POSH_FLAG true)
 else()

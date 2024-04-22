@@ -249,6 +249,8 @@ void RouDi::processRuntimeMessages(runtime::IpcInterfaceCreator&& roudiIpcInterf
 
     setThreadName("IPC-msg-process");
 
+    IOX_LOG(INFO, "Resource prefix: " << IOX_DEFAULT_RESOURCE_PREFIX);
+    IOX_LOG(INFO, "Domain ID: " << static_cast<DomainId::value_type>(m_roudiConfig.domainId));
     IOX_LOG(INFO, "RouDi is ready for clients");
     fflush(stdout); // explicitly flush 'stdout' for 'launch_testing'
 

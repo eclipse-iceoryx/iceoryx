@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iox/size.hpp"
 
 #include <atomic>
 
@@ -23,6 +24,8 @@ namespace iox
 
 ResourcePrefix_t iceoryxResourcePrefix(const DomainId domainId, const ResourceType resourceType) noexcept
 {
+    static_assert(iox::size(IOX_DEFAULT_RESOURCE_PREFIX) <= 5,
+                  "The 'IOX_DEFAULT_RESOURCE_PREFIX' must not have more than 4 characters + the null-termination!");
     static_assert(std::is_same_v<uint16_t, DomainId::value_type>,
                   "Please adjust 'MAX_UINT16_WIDTH' to the new fixed width type to have enough space for the "
                   "stringified Domain ID");
@@ -37,7 +40,7 @@ ResourcePrefix_t iceoryxResourcePrefix(const DomainId domainId, const ResourceTy
                                                        iox::convert::toString(usedDomainId).c_str()};
 
     auto resourceTypeString{resourceType == ResourceType::ICEORYX_DEFINED ? iox::string<1>{"i"} : iox::string<1>{"u"}};
-    return concatenate(ICEORYX_RESOURCE_PREFIX, "_", uniqueDomainIdString, "_", resourceTypeString, "_");
+    return concatenate(IOX_DEFAULT_RESOURCE_PREFIX, "_", uniqueDomainIdString, "_", resourceTypeString, "_");
 }
 
 namespace experimental
