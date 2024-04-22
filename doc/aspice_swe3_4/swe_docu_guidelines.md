@@ -128,7 +128,7 @@ For good examples on PlantUML checkout https://plantuml.com.
 
 In iceoryx Pull-Requests are pdf files generated and uploaded to the Github artifact store.
 
-If you want to download the pdf files from the Pull-Requests or master build you can do it by the following way:
+If you want to download the pdf files from the Pull-Requests or `main` build you can do it by the following way:
 
  * Open the "Checks" view in the PR
  * Open the "Details" link for the check `iceoryx-coverage-doxygen-ubuntu` in `Test Coverage + Doxygen Documentation`

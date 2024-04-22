@@ -424,5 +424,5 @@ iox_server_deinit(server);
 ```
 
 <center>
-[Check out request response in c on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/request_response_in_c){ .md-button } <!--NOLINT github url required for website-->
+[Check out request response in c on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/main/iceoryx_examples/request_response_in_c){ .md-button } <!--NOLINT github url required for website-->
 </center>

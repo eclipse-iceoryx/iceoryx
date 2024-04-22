@@ -519,5 +519,5 @@ iox_user_trigger_deinit(cyclicTrigger);
 ```
 
 <center>
-[Check out waitset_in_c on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/waitset_in_c){ .md-button } <!--NOLINT github url required for website-->
+[Check out waitset_in_c on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/main/iceoryx_examples/waitset_in_c){ .md-button } <!--NOLINT github url required for website-->
 </center>

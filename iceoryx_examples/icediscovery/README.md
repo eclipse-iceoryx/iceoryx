@@ -441,5 +441,5 @@ As before we built on an `iox::runtime::ServiceDiscovery` by composition and def
 which returns a `std::vector`.
 
 <center>
-[Check out icediscovery on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icediscovery){ .md-button } <!--NOLINT github url required for website-->
+[Check out icediscovery on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/main/iceoryx_examples/icediscovery){ .md-button } <!--NOLINT github url required for website-->
 </center>

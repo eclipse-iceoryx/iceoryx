@@ -157,5 +157,5 @@ while (!iox::hasTerminationRequested())
 ```
 
 <center>
-[Check out singleprocess on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/singleprocess){ .md-button } <!--NOLINT github url required for website-->
+[Check out singleprocess on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/main/iceoryx_examples/singleprocess){ .md-button } <!--NOLINT github url required for website-->
 </center>

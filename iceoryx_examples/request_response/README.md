@@ -256,5 +256,5 @@ listener.detachEvent(server, iox::popo::ServerEvent::REQUEST_RECEIVED);
 ```
 
 <center>
-[Check out request_response on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/request_response){ .md-button } <!--NOLINT github url required for website-->
+[Check out request_response on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/main/iceoryx_examples/request_response){ .md-button } <!--NOLINT github url required for website-->
 </center>

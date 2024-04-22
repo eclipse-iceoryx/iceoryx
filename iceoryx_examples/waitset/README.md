@@ -1005,5 +1005,5 @@ std::thread triggerThread([&] {
 ```
 
 <center>
-[Check out waitset on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/waitset){ .md-button } <!--NOLINT github url required for website-->
+[Check out waitset on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/main/iceoryx_examples/waitset){ .md-button } <!--NOLINT github url required for website-->
 </center>

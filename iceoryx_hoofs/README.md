@@ -197,5 +197,5 @@ setTimeout(5_ms); // 5 milliseconds
 |`cli_definition`       |          | Classes and macros to create command line interfaces.                                                                                                                                                                                                 |
 
 <center>
-[Check out iceoryx_hoofs on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_hoofs/){ .md-button } <!--NOLINT required only for the website, github URL required-->
+[Check out iceoryx_hoofs on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/main/iceoryx_hoofs/){ .md-button } <!--NOLINT required only for the website, github URL required-->
 </center>

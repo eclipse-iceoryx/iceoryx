@@ -31,7 +31,7 @@ The project maintains the following source code repositories:
 ## Third-party Dependencies
 
 This project leverages the following third party content.
-The corresponding license files can be found at <https://github.com/eclipse-iceoryx/iceoryx/tree/master/doc/3rd_party_licenses> or in the folder `share/doc/iceoryx/3rd_party_licenses` of your local iceoryx installation.
+The corresponding license files can be found at <https://github.com/eclipse-iceoryx/iceoryx/tree/main/doc/3rd_party_licenses> or in the folder `share/doc/iceoryx/3rd_party_licenses` of your local iceoryx installation.
 
 ### System Libraries
 

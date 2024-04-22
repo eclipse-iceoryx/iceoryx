@@ -16,7 +16,7 @@ E.g. Ubuntu 18.04 LTS
 E.g. GCC 7.4.0
 
 **Eclipse iceoryx version:**
-E.g. `v1.2.3` or `master` branch
+E.g. `v1.2.3` or `main` branch
 
 **Observed result or behaviour:**
 A clear and precise description of the observed result.

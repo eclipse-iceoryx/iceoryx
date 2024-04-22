@@ -461,5 +461,5 @@ void IcePerfFollower::doMeasurement(IcePerfBase& ipcTechnology) noexcept
 ```
 
 <center>
-[Check out iceperf on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/iceperf){ .md-button } <!--NOLINT github url required for website-->
+[Check out iceperf on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/main/iceoryx_examples/iceperf){ .md-button } <!--NOLINT github url required for website-->
 </center>

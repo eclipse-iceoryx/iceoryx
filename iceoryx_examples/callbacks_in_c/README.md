@@ -268,5 +268,5 @@ iox_listener_attach_subscriber_event_with_context_data(
 ```
 
 <center>
-[Check out callbacks_in_c on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/callbacks_in_c){ .md-button } <!--NOLINT github url required for website-->
+[Check out callbacks_in_c on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/main/iceoryx_examples/callbacks_in_c){ .md-button } <!--NOLINT github url required for website-->
 </center>

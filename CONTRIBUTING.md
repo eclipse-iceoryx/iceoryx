@@ -55,7 +55,7 @@ Please make sure you have:
 5. All commits have been signed with `git commit -s`
 6. The `iceoryx-unreleased.md` in `doc/website/release-notes` is updated with the GitHub issue
    that is closed by the Pull-Request
-7. You open your pull request towards the base branch `master`
+7. You open your pull request towards the base branch `main`
 8. Link the pull request to the according GitHub issue and set the label accordingly
 
 **NOTE:** For support while developing you can use little helper scripts, see [git-hooks](./tools/git-hooks/Readme.md).
@@ -76,7 +76,7 @@ will be no community support and they might be removed at a later stage.
 
 ## Branching strategy
 
-`master`
+`main`
 
 * Main development branch
 * Open for external contributions
@@ -91,7 +91,7 @@ will be no community support and they might be removed at a later stage.
 As depicted below, after the release branch has been created the stabilization phase will begin. After finishing the release, a git tag will be created to point to `HEAD` of the release branch. Follow-up releases will be branched off from the git tag.
 
 ```console
-o---o---o---o---o  master
+o---o---o---o---o  main
      \
       \      v1.0.0      v1.0.1
        \        |           |
