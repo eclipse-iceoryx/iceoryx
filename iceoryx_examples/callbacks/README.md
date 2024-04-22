@@ -339,5 +339,5 @@ static void onSampleReceivedCallback(iox::popo::Subscriber<CounterTopic>* subscr
 ```
 
 <center>
-[Check out callbacks on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/callbacks){ .md-button } <!--NOLINT github url required for website-->
+[Check out callbacks on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/main/iceoryx_examples/callbacks){ .md-button } <!--NOLINT github url required for website-->
 </center>

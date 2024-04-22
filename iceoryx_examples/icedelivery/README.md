@@ -349,5 +349,5 @@ In case of the typed `Subscriber`, `auto` is deduced to `iox::popo::Sample<const
 `UntypedSubscriber` the parameter is `const void*` as no type information is available.
 
 <center>
-[Check out icedelivery on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icedelivery){ .md-button } <!--NOLINT github url for website-->
+[Check out icedelivery on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/main/iceoryx_examples/icedelivery){ .md-button } <!--NOLINT github url for website-->
 </center>

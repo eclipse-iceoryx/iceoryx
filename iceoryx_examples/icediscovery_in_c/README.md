@@ -133,5 +133,5 @@ void searchFrontDevices(const iox_service_description_t service, void* count)
 ```
 
 <center>
-[Check out icediscovery on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/icediscovery_in_c){ .md-button } <!--NOLINT github url required for website-->
+[Check out icediscovery on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/main/iceoryx_examples/icediscovery_in_c){ .md-button } <!--NOLINT github url required for website-->
 </center>

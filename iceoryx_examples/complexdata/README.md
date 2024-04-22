@@ -209,5 +209,5 @@ for (const auto& i : sample->variantVector)
 ```
 
 <center>
-[Check out complexdata on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_examples/complexdata){ .md-button } <!--NOLINT github url required for website-->
+[Check out complexdata on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/main/iceoryx_examples/complexdata){ .md-button } <!--NOLINT github url required for website-->
 </center>

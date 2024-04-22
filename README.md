@@ -1,10 +1,10 @@
-[![Build & Test](https://github.com/eclipse-iceoryx/iceoryx/workflows/Build%20&%20Test/badge.svg?branch=master)](https://github.com/eclipse-iceoryx/iceoryx/actions)
-[![Integrationtests](https://github.com/eclipse-iceoryx/iceoryx/workflows/Iceoryx%20Integrationtests/badge.svg?branch=master)](https://github.com/eclipse-iceoryx/iceoryx/actions)
-[![Cirrus CI](https://img.shields.io/cirrus/github/eclipse-iceoryx/iceoryx/master?label=Cirrus%20CI)](https://cirrus-ci.com/github/eclipse-iceoryx/iceoryx)
+[![Build & Test](https://github.com/eclipse-iceoryx/iceoryx/workflows/Build%20&%20Test/badge.svg?branch=main)](https://github.com/eclipse-iceoryx/iceoryx/actions)
+[![Integrationtests](https://github.com/eclipse-iceoryx/iceoryx/workflows/Iceoryx%20Integrationtests/badge.svg?branch=main)](https://github.com/eclipse-iceoryx/iceoryx/actions)
+[![Cirrus CI](https://img.shields.io/cirrus/github/eclipse-iceoryx/iceoryx/main?label=Cirrus%20CI)](https://cirrus-ci.com/github/eclipse-iceoryx/iceoryx)
 [![Gitter](https://badges.gitter.im/eclipse-iceoryx/iceoryx.svg)](https://gitter.im/eclipse/iceoryx)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
-[![Codecov](https://codecov.io/gh/eclipse-iceoryx/iceoryx/branch/master/graph/badge.svg?branch=master)](https://codecov.io/gh/eclipse-iceoryx/iceoryx?branch=master)
-[![Sanitize](https://github.com/eclipse/iceoryx/workflows/Sanitize/badge.svg?branch=master)](https://github.com/eclipse/iceoryx/actions?query=workflow%3ASanitize)
+[![Codecov](https://codecov.io/gh/eclipse-iceoryx/iceoryx/branch/main/graph/badge.svg?branch=main)](https://codecov.io/gh/eclipse-iceoryx/iceoryx?branch=main)
+[![Sanitize](https://github.com/eclipse/iceoryx/workflows/Sanitize/badge.svg?branch=main)](https://github.com/eclipse/iceoryx/actions?query=workflow%3ASanitize)
 
 <p align="center">
 <img src="https://user-images.githubusercontent.com/8661268/114321508-64a6b000-9b1b-11eb-95ef-b84c91387cff.png" width="50%">

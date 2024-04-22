@@ -163,8 +163,8 @@ to your process (see [this example](../../iceoryx_examples/icedelivery/iox_publi
 ## How to use iceoryx as external dependency with bazel
 
 Define iceoryx repository information in your [WORKSPACE](https://bazel.build/concepts/build-ref#workspace)
-then calling bazel macro from [load_repositories.bzl](https://github.com/eclipse-iceoryx/iceoryx/blob/master/bazel/load_repositories.bzl)
-and [setup_repositories.bzl](https://github.com/eclipse-iceoryx/iceoryx/blob/master/bazel/setup_repositories.bzl) for loading transitive dependencies.
+then calling bazel macro from [load_repositories.bzl](https://github.com/eclipse-iceoryx/iceoryx/blob/main/bazel/load_repositories.bzl)
+and [setup_repositories.bzl](https://github.com/eclipse-iceoryx/iceoryx/blob/main/bazel/setup_repositories.bzl) for loading transitive dependencies.
 
 ```
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")

@@ -41,7 +41,7 @@ Taking into account that iceoryx is integrated as a shared-memory transport laye
 ### ABI Stability Within a Released ROS Distribution [1.v]/[1.vi]
 
 iceoryx aims to be ABI/API-stable for MINOR and PATCH releases for maintaining ROS releases.
-For ROS integration are release branches with the same policies like the `master` branch maintained for long-term support.
+For ROS integration are release branches with the same policies like the `main` branch maintained for long-term support.
 
 ## Change Control Process [2]
 
@@ -72,7 +72,7 @@ Check [Eclipse Developer Process](https://www.eclipse.org/projects/dev_process/)
 ### Continuous Integration [2.iv]
 
 Pull requests are required to pass all jobs in the CI system before merging even when it is approved.
-Additionally, the CI builds always the latest master branch to ensure functionality.
+Additionally, the CI builds always the latest main branch to ensure functionality.
 
 The results of the CI are made public and cover x64 platforms running Linux, macOS, and Windows:
 
@@ -120,7 +120,7 @@ A CI job ensures by checking with `ament_copyright` that all files comply with t
 
 ## Testing [4]
 
-Every iceoryx package has a `test` folder that contains subfolders for [module- and/or integrationtests](./CONTRIBUTING.md#testing) written based on the Google test framework. All tests are running on the CI for every Pull-Request for all supported platforms and are contained in the master branch.
+Every iceoryx package has a `test` folder that contains subfolders for [module- and/or integrationtests](./CONTRIBUTING.md#testing) written based on the Google test framework. All tests are running on the CI for every Pull-Request for all supported platforms and are contained in the main branch.
 Currently, due to limited support on Windows, there are some exclusions for testing on the CI.
 
 ### Feature Testing [4.i]
@@ -141,7 +141,7 @@ The Eclipse iceoryx project use [gcov](https://gcc.gnu.org/onlinedocs/gcc/Gcov.h
 - Function Coverage
 - Branch Coverage
 
-The coverage results of every Pull-Request and master branch are publicly available on [codecov.io](https://app.codecov.io/gh/eclipse-iceoryx/iceoryx).
+The coverage results of every Pull-Request and main branch are publicly available on [codecov.io](https://app.codecov.io/gh/eclipse-iceoryx/iceoryx).
 A detailed report (e.g. the coverage in different packages) can be obtained by following [this](./CONTRIBUTING.md#coverage-scan) guide.
 
 ### Performance [4.iv]
