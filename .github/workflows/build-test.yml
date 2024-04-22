@@ -2,12 +2,12 @@
 
 name: Build & Test
 
-# Triggers the workflow on push or pull request events but only for the master branch
+# Triggers the workflow on push or pull request events but only for the main branch
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
-    branches: [ master, release*, iox-* ]
+    branches: [ main, release*, iox-* ]
 
 jobs:
   pre-flight-check:
