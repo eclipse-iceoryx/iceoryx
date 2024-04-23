@@ -90,8 +90,9 @@ inline const T* unique_ptr<T>::get() const noexcept
 template <typename T>
 inline T* unique_ptr<T>::release(unique_ptr&& ptrToBeReleased) noexcept
 {
-    auto* const ptr{ptrToBeReleased.m_ptr};
-    ptrToBeReleased.m_ptr = nullptr;
+    auto owned = std::move(ptrToBeReleased);
+    auto* const ptr{owned.m_ptr};
+    owned.m_ptr = nullptr;
     return ptr;
 }
 

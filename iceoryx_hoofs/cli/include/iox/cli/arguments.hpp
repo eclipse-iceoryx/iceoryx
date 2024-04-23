@@ -37,7 +37,7 @@ namespace cli
 class Arguments
 {
   public:
-    enum class Error
+    enum class Error : uint8_t
     {
         UNABLE_TO_CONVERT_VALUE,
         NO_SUCH_VALUE

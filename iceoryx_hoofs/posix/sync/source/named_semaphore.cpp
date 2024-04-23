@@ -96,11 +96,11 @@ tryOpenExistingSemaphore(optional<NamedSemaphore>& uninitializedSemaphore, const
     return ok(false);
 }
 
-/// NOLINTJUSTIFICATION used only internally in this file. Furthermore the problem cannot be avoided since
-///                     those arguments are required by the posix function sem_open. One could call it
-///                     before this function and provide the result but this would increase code complexity
-///                     even further. The cognitive complexity results from the expanded log macro
-/// NOLINTNEXTLINE(readability-function-size,readability-function-cognitive-complexity)
+// NOLINTJUSTIFICATION used only internally in this file. Furthermore the problem cannot be avoided since
+//                     those arguments are required by the posix function sem_open. One could call it
+//                     before this function and provide the result but this would increase code complexity
+//                     even further. The cognitive complexity results from the expanded log macro
+// NOLINTNEXTLINE(readability-function-size,readability-function-cognitive-complexity)
 static expected<void, SemaphoreError> createSemaphore(optional<NamedSemaphore>& uninitializedSemaphore,
                                                       const NamedSemaphore::Name_t& name,
                                                       const OpenMode openMode,

@@ -25,10 +25,10 @@
 namespace iox
 {
 /// @brief A unnamed posix semaphore.
-/// NOLINTJUSTIFICATION m_handle is always initialized during create in the UnnamedSemaphoreBuilder
-///                     hence it is impossible to create a UnnamedSemaphore without an initialized
-///                     m_handle
-/// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
+// NOLINTJUSTIFICATION m_handle is always initialized during create in the UnnamedSemaphoreBuilder
+//                     hence it is impossible to create a UnnamedSemaphore without an initialized
+//                     m_handle
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 class UnnamedSemaphore final : public detail::SemaphoreInterface<UnnamedSemaphore>
 {
   public:

@@ -88,8 +88,8 @@ inline iox::optional<char> convert::from_string<char>(const char* v) noexcept
         return iox::nullopt;
     }
 
-    /// @NOLINTJUSTIFICATION encapsulated in abstraction
-    /// @NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    // NOLINTJUSTIFICATION encapsulated in abstraction
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     return iox::optional<char>(v[0]);
 }
 

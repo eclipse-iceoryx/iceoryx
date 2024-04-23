@@ -50,8 +50,8 @@ class NamedPipe
     static constexpr uint64_t NULL_TERMINATOR_SIZE = 0U;
     static constexpr units::Duration CYCLE_TIME = units::Duration::fromMilliseconds(10);
 
-    /// NOLINTJUSTIFICATION used as safe compile time string literal
-    /// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
+    // NOLINTJUSTIFICATION used as safe compile time string literal
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     static constexpr const char NAMED_PIPE_PREFIX[] = "iox_np_";
 
     using Builder_t = NamedPipeBuilder;

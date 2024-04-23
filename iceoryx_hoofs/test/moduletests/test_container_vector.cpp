@@ -1340,11 +1340,8 @@ TEST_F(vector_test, SizeIncreaseWithResizeAndDefaultCTorWorks)
     class DefaultCTor
     {
       public:
-        DefaultCTor()
-            : m_a{1231}
-        {
-        }
-        int m_a;
+        DefaultCTor() = default;
+        int m_a{1231};
     };
     vector<DefaultCTor, 10U> sut;
 

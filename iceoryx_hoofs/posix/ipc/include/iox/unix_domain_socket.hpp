@@ -146,7 +146,7 @@ class UnixDomainSocket
                                                                     const sockaddr_un& sockAddr,
                                                                     PosixIpcChannelSide channelSide) noexcept;
 
-    enum class Termination
+    enum class Termination : uint8_t
     {
         NONE,
         NULL_TERMINATOR

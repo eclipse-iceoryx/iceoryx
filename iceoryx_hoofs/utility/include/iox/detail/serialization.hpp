@@ -108,7 +108,7 @@ class Serialization
     bool getNth(const unsigned int index, T& t) const noexcept;
 
     /// @brief This is an error which can be used for 'iox::expected' on a custom deserialization when 'extract' fails
-    enum class Error
+    enum class Error : uint8_t
     {
         DESERIALIZATION_FAILED, ///< indicates a failed deserialization
     };

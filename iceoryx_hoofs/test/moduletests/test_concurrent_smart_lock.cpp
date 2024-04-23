@@ -177,8 +177,8 @@ TEST_F(smart_lock_test, MoveConstructionOfUnderlyinObjectWorks)
     SmartLockTester tester(CTOR_VALUE);
     m_sut.emplace(ForwardArgsToCTor, std::move(tester));
     EXPECT_THAT((*m_sut)->getA(), Eq(CTOR_VALUE));
-    /// NOLINTJUSTIFICATION we want to test defined behavior of a moved smart_lock
-    /// NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
+    // NOLINTJUSTIFICATION we want to test defined behavior of a moved smart_lock
+    // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     EXPECT_TRUE(tester.isMoved());
 }
 
@@ -331,7 +331,7 @@ void threadSafeOperationTest(smart_lock_test* test, const std::function<void()> 
 TEST_F(smart_lock_test, ThreadSafeAccessThroughArrowOperator)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e6cfd20a-4450-46f7-80ca-b87f75a0462e");
-    threadSafeOperationTest(this, [=] { (*m_sut)->incrementA(); });
+    threadSafeOperationTest(this, [this] { (*m_sut)->incrementA(); });
 
     EXPECT_THAT((*m_sut)->getA(), Eq(NUMBER_OF_RUNS_PER_THREAD * NUMBER_OF_THREADS));
 }
@@ -340,14 +340,14 @@ TEST_F(smart_lock_test, ThreadSafeAccessThroughConstArrowOperator)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c0dedded-cf07-47dc-9032-e5de3db859d2");
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) used to explitly test const arrow operator
-    threadSafeOperationTest(this, [=] { (const_cast<const SutType_t&>(*m_sut))->constIncrementA(); });
+    threadSafeOperationTest(this, [this] { (const_cast<const SutType_t&>(*m_sut))->constIncrementA(); });
     EXPECT_THAT((*m_sut)->getA(), Eq(NUMBER_OF_RUNS_PER_THREAD * NUMBER_OF_THREADS));
 }
 
 TEST_F(smart_lock_test, ThreadSafeAccessThroughScopedGuard)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2ffb9ba4-4df3-4851-8976-20f15a3bfa4b");
-    threadSafeOperationTest(this, [=] {
+    threadSafeOperationTest(this, [this] {
         auto guard = (*m_sut).get_scope_guard();
         guard->incrementA();
     });
@@ -357,7 +357,7 @@ TEST_F(smart_lock_test, ThreadSafeAccessThroughScopedGuard)
 TEST_F(smart_lock_test, ThreadSafeAccessThroughConstScopedGuard)
 {
     ::testing::Test::RecordProperty("TEST_ID", "dc2efd41-4c0a-4ac0-93ed-f8e9195e0dfd");
-    threadSafeOperationTest(this, [=] {
+    threadSafeOperationTest(this, [this] {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) used to explitly test const get_scope_guard()
         auto guard = const_cast<const SutType_t&>(*m_sut).get_scope_guard();
         guard->incrementA();
@@ -368,21 +368,21 @@ TEST_F(smart_lock_test, ThreadSafeAccessThroughConstScopedGuard)
 TEST_F(smart_lock_test, ThreadSafeCopyCTor)
 {
     ::testing::Test::RecordProperty("TEST_ID", "23b27eda-17de-42b9-bdbc-81e7bae15fd6");
-    threadSafeOperationTest(this, [=] { SutType_t someCopy(*m_sut); });
+    threadSafeOperationTest(this, [this] { SutType_t someCopy(*m_sut); });
     EXPECT_THAT((*m_sut)->getB(), Eq(NUMBER_OF_RUNS_PER_THREAD * NUMBER_OF_THREADS));
 }
 
 TEST_F(smart_lock_test, ThreadSafeMoveCTor)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e7368392-ff41-44a7-ad58-9d3b17637dd6");
-    threadSafeOperationTest(this, [=] { SutType_t movedSut(std::move(*m_sut)); });
+    threadSafeOperationTest(this, [this] { SutType_t movedSut(std::move(*m_sut)); });
     EXPECT_THAT((*m_sut)->getB(), Eq(NUMBER_OF_RUNS_PER_THREAD * NUMBER_OF_THREADS));
 }
 
 TEST_F(smart_lock_test, ThreadSafeCopyAssignment)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a9964501-9c88-4250-a1d5-e266171a670c");
-    threadSafeOperationTest(this, [=] {
+    threadSafeOperationTest(this, [this] {
         SutType_t someCopy;
         someCopy = *m_sut;
     });
@@ -392,7 +392,7 @@ TEST_F(smart_lock_test, ThreadSafeCopyAssignment)
 TEST_F(smart_lock_test, ThreadSafeMoveAssignment)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3f89e951-bf93-4230-b749-ec91416785ae");
-    threadSafeOperationTest(this, [=] {
+    threadSafeOperationTest(this, [this] {
         SutType_t someMovedSut;
         someMovedSut = std::move(*m_sut);
     });

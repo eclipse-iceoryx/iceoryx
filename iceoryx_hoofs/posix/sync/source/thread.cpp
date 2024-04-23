@@ -80,7 +80,6 @@ expected<void, ThreadError> ThreadBuilder::create(optional<Thread>& uninitialize
 Thread::Thread(const ThreadName_t& name, const callable_t& callable) noexcept
     : m_threadHandle{}
     , m_callable{callable}
-    , m_isThreadConstructed{false}
     , m_threadName{name}
 {
 }

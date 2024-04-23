@@ -27,8 +27,8 @@
 
 namespace iox
 {
-/// NOLINTJUSTIFICATION see declaration
-/// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
+// NOLINTJUSTIFICATION see declaration
+// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
 constexpr const char FileLock::LOCK_FILE_SUFFIX[];
 
 expected<FileLock, FileLockError> FileLockBuilder::create() noexcept

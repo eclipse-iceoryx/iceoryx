@@ -37,8 +37,11 @@ inline expected<unique_ptr<Publisher<T, H>>, PublisherBuilderError> PublisherBui
     {
         return err(PublisherBuilderError::OUT_OF_RESOURCES);
     }
-    return ok(unique_ptr<Publisher<T, H>>{new Publisher<T, H>{iox::PublisherPortUserType{publisher_port_data}},
-                                          [&](auto* const pub) { delete pub; }});
+    return ok(unique_ptr<Publisher<T, H>>{
+        new (std::nothrow) Publisher<T, H>{iox::PublisherPortUserType{publisher_port_data}}, [&](auto* const pub) {
+            // NOLINTNEXTLINE(cppcoreguidelines-owning-memory) raw pointer is required by the unique_ptr API
+            delete pub;
+        }});
 }
 
 inline expected<unique_ptr<UntypedPublisher>, PublisherBuilderError> PublisherBuilder::create() noexcept
@@ -49,8 +52,11 @@ inline expected<unique_ptr<UntypedPublisher>, PublisherBuilderError> PublisherBu
     {
         return err(PublisherBuilderError::OUT_OF_RESOURCES);
     }
-    return ok(unique_ptr<UntypedPublisher>{new UntypedPublisher{iox::PublisherPortUserType{publisher_port_data}},
-                                           [&](auto* const pub) { delete pub; }});
+    return ok(unique_ptr<UntypedPublisher>{
+        new (std::nothrow) UntypedPublisher{iox::PublisherPortUserType{publisher_port_data}}, [&](auto* const pub) {
+            // NOLINTNEXTLINE(cppcoreguidelines-owning-memory) raw pointer is required by the unique_ptr API
+            delete pub;
+        }});
 }
 
 } // namespace iox::posh::experimental

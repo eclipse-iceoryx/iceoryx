@@ -19,8 +19,8 @@
 namespace iox
 {
 // start with 1, just in case we want to use 0 for a special purpose later on
-/// @NOLINTJUSTIFICATION see argument in header
-/// @NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
+// NOLINTJUSTIFICATION see argument in header
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
 std::atomic<uint64_t> UniqueId::m_IdCounter{1U};
 
 UniqueId::UniqueId() noexcept

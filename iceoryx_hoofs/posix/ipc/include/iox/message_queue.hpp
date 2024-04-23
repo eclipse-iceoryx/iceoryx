@@ -143,7 +143,7 @@ class MessageQueue
     sanitizeIpcChannelName(const PosixIpcChannelName_t& name) noexcept;
     expected<void, PosixIpcChannelError> destroy() noexcept;
 
-    enum class Termination
+    enum class Termination : uint8_t
     {
         NONE,
         NULL_TERMINATOR
@@ -175,9 +175,9 @@ class MessageQueue
     static constexpr int TIMEOUT_ERRNO = ETIMEDOUT;
 #endif
     // read/write permissions
-    /// NOLINTJUSTIFICATION used inside the wrapper so that the user does not have to use this
-    ///                     construct from outside
-    /// NOLINTNEXTLINE(hicpp-signed-bitwise)
+    // NOLINTJUSTIFICATION used inside the wrapper so that the user does not have to use this
+    //                     construct from outside
+    // NOLINTNEXTLINE(hicpp-signed-bitwise)
     static constexpr mode_t FILE_MODE{S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH};
 };
 

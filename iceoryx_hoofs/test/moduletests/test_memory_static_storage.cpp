@@ -33,8 +33,8 @@ using namespace iox;
 template <uint32_t Size, uint32_t Align = 1U>
 struct alignas(Align) Bytes
 {
-    /// @NOLINTJUSTIFICATION required to provide raw memory in tests
-    /// @NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
+    // NOLINTJUSTIFICATION required to provide raw memory in tests
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     uint8_t data[Size] = {};
 
     void set(uint8_t value)
@@ -46,8 +46,8 @@ struct alignas(Align) Bytes
     {
         for (uint32_t i = 0; i < Size; ++i)
         {
-            /// @NOLINTJUSTIFICATION verify content of memory
-            /// @NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
+            // NOLINTJUSTIFICATION verify content of memory
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
             if (data[i] != value)
             {
                 return false;
@@ -207,8 +207,8 @@ TEST(static_storage_test, AllocationIsAligned)
 {
     ::testing::Test::RecordProperty("TEST_ID", "645c0194-7aea-4f9c-b379-212fbcaa05f7");
     static_storage<17, 2> sut;
-    /// @NOLINTJUSTIFICATION required for testing
-    /// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    // NOLINTJUSTIFICATION required for testing
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     auto p = reinterpret_cast<uintptr_t>(sut.allocate(16, 4));
     EXPECT_EQ(p % 4, 0);
 }
@@ -218,8 +218,8 @@ TEST(static_storage_test, TypedAllocationIsAligned)
     ::testing::Test::RecordProperty("TEST_ID", "bb990529-2721-4db8-8b17-02719021210e");
     using Data = Bytes<4, 8>;
     static_storage<17, 2> sut;
-    /// @NOLINTJUSTIFICATION required for testing
-    /// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    // NOLINTJUSTIFICATION required for testing
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     auto p = reinterpret_cast<uintptr_t>(sut.allocate<Data>());
     EXPECT_EQ(p % 8, 0);
 }

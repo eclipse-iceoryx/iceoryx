@@ -37,9 +37,9 @@ namespace iox
 ///       optimized_storage would have a dynamic memory fallback when static memory is
 ///       insufficent.
 template <uint64_t Capacity, uint64_t Align = 1>
-/// @NOLINTJUSTIFICATION static_storage provides uninitialized memory, correct initialization is the users
-///                      responsibility whenever memory with "allocate" is acquired
-/// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
+// NOLINTJUSTIFICATION static_storage provides uninitialized memory, correct initialization is the users
+//                     responsibility whenever memory with "allocate" is acquired
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 class static_storage final
 {
   public:
@@ -96,8 +96,8 @@ class static_storage final
     static constexpr uint64_t allocation_size() noexcept;
 
   private:
-    /// AXIVION Next Construct AutosarC++19_03-A18.1.1 : safe access is guaranteed since the c-array is wrapped inside the static_storage
-    /// @NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
+    // AXIVION Next Construct AutosarC++19_03-A18.1.1 : safe access is guaranteed since the c-array is wrapped inside the static_storage
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     alignas(Align) uint8_t m_bytes[Capacity];
     void* m_ptr{nullptr};
 

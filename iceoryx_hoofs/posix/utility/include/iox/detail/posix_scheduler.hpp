@@ -26,6 +26,7 @@ namespace iox
 namespace detail
 {
 /// @brief Defines all supported scheduler
+// NOLINTNEXTLINE(performance-enum-size) int32_t required for POSIX API
 enum class Scheduler : int32_t
 {
     FIFO = SCHED_FIFO

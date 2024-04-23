@@ -40,7 +40,7 @@ constexpr char ASCII_UNDERSCORE{'_'};
 } // namespace internal
 // AXIVION ENABLE STYLE AutosarC++19_03-A3.9.1
 
-enum class RelativePathComponents : std::uint32_t
+enum class RelativePathComponents : uint8_t
 {
     REJECT,
     ACCEPT
@@ -91,7 +91,7 @@ template <uint64_t StringCapacity>
 bool doesEndWithPathSeparator(const string<StringCapacity>& name) noexcept;
 
 
-enum class AccessMode : uint64_t
+enum class AccessMode : uint8_t
 {
     READ_ONLY = 0U,
     READ_WRITE = 1U,
@@ -99,7 +99,7 @@ enum class AccessMode : uint64_t
 };
 
 /// @brief describes how the shared memory is opened or created
-enum class OpenMode : uint64_t
+enum class OpenMode : uint8_t
 {
     /// @brief creates the shared memory, if it exists already the construction will fail
     EXCLUSIVE_CREATE = 0U,

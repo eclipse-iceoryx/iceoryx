@@ -34,7 +34,7 @@ using iox::popo::ConsumerTooSlowPolicy;
 using iox::popo::Publisher;
 using iox::popo::UntypedPublisher;
 
-enum class PublisherBuilderError
+enum class PublisherBuilderError : uint8_t
 {
     OUT_OF_RESOURCES,
 };

@@ -62,6 +62,7 @@ namespace er
 // note that Message is generic as the logger technically accepts more general loggable constructs
 // beyond const char*
 template <class Message>
+// NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward) false positive, this is used as a universal reference
 [[noreturn]] inline void panic(const SourceLocation& location, Message&& msg)
 {
     IOX_ERROR_INTERNAL_LOG_PANIC(location, "[PANIC] " << msg);

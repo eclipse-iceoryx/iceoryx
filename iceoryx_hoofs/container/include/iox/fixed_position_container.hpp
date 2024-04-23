@@ -38,7 +38,7 @@ template <typename T, uint64_t CAPACITY>
 class FixedPositionContainer final
 {
   private:
-    enum class IterMutability
+    enum class IterMutability : uint8_t
     {
         ITER_MUT,
         ITER_CONST

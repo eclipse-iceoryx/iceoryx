@@ -53,8 +53,10 @@ inline bool MpmcResizeableLockFreeQueue<ElementType, MaxCapacity>::setCapacity(c
 
 template <typename ElementType, uint64_t MaxCapacity>
 template <typename Function, typename>
-inline bool MpmcResizeableLockFreeQueue<ElementType, MaxCapacity>::setCapacity(const uint64_t newCapacity,
-                                                                               Function&& removeHandler) noexcept
+inline bool MpmcResizeableLockFreeQueue<ElementType, MaxCapacity>::setCapacity(
+    const uint64_t newCapacity,
+    // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward) false positive, this is used as a universal reference
+    Function&& removeHandler) noexcept
 {
     if (newCapacity > MAX_CAPACITY)
     {
@@ -121,9 +123,10 @@ MpmcResizeableLockFreeQueue<ElementType, MaxCapacity>::increaseCapacity(const ui
 
 template <typename ElementType, uint64_t MaxCapacity>
 template <typename Function>
-inline uint64_t
-MpmcResizeableLockFreeQueue<ElementType, MaxCapacity>::decreaseCapacity(const uint64_t toDecrease,
-                                                                        Function&& removeHandler) noexcept
+inline uint64_t MpmcResizeableLockFreeQueue<ElementType, MaxCapacity>::decreaseCapacity(
+    const uint64_t toDecrease,
+    // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward) false positive, this is used as a universal reference
+    Function&& removeHandler) noexcept
 {
     uint64_t decreased = 0U;
     while (decreased < toDecrease)
@@ -191,6 +194,7 @@ iox::optional<ElementType> inline MpmcResizeableLockFreeQueue<ElementType, MaxCa
 
 template <typename ElementType, uint64_t MaxCapacity>
 inline iox::optional<ElementType>
+// NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved) perfect forwarding is used
 MpmcResizeableLockFreeQueue<ElementType, MaxCapacity>::push(ElementType&& value) noexcept
 {
     return pushImpl(std::forward<ElementType>(value));

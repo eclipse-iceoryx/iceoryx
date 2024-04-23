@@ -30,7 +30,7 @@ namespace iox
 namespace detail
 {
 
-enum class PosixMemoryMapError
+enum class PosixMemoryMapError : uint8_t
 {
     ACCESS_FAILED,
     UNABLE_TO_LOCK,
@@ -47,6 +47,7 @@ enum class PosixMemoryMapError
 };
 
 /// @brief Flags defining how the mapped data should be handled
+// NOLINTNEXTLINE(performance-enum-size) int32_t required for POSIX API
 enum class PosixMemoryMapFlags : int32_t
 {
     /// @brief changes are shared

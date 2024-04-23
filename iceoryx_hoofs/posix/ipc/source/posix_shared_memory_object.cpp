@@ -34,14 +34,14 @@ namespace detail
 {
 constexpr uint64_t SIGBUS_ERROR_MESSAGE_LENGTH = 1024U + platform::IOX_MAX_SHM_NAME_LENGTH;
 
-/// NOLINTJUSTIFICATION global variables are only accessible from within this compilation unit
-/// NOLINTBEGIN(cppcoreguidelines-avoid-non-const-global-variables)
-///
-/// NOLINTJUSTIFICATION c array required to print a signal safe error message in memsetSigbusHandler
-/// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
+// NOLINTJUSTIFICATION global variables are only accessible from within this compilation unit
+// NOLINTBEGIN(cppcoreguidelines-avoid-non-const-global-variables)
+//
+// NOLINTJUSTIFICATION c array required to print a signal safe error message in memsetSigbusHandler
+// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
 static char sigbusErrorMessage[SIGBUS_ERROR_MESSAGE_LENGTH];
 static std::mutex sigbusHandlerMutex;
-/// NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)
+// NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)
 
 static void memsetSigbusHandler(int) noexcept
 {

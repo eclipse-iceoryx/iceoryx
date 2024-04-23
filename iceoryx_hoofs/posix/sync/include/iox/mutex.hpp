@@ -25,7 +25,7 @@
 
 namespace iox
 {
-enum class MutexCreationError
+enum class MutexCreationError : uint8_t
 {
     MUTEX_ALREADY_INITIALIZED,
     INSUFFICIENT_MEMORY,
@@ -38,7 +38,7 @@ enum class MutexCreationError
     UNKNOWN_ERROR
 };
 
-enum class MutexLockError
+enum class MutexLockError : uint8_t
 {
     PRIORITY_MISMATCH,
     MAXIMUM_NUMBER_OF_RECURSIVE_LOCKS_EXCEEDED,
@@ -47,13 +47,13 @@ enum class MutexLockError
     UNKNOWN_ERROR
 };
 
-enum class MutexUnlockError
+enum class MutexUnlockError : uint8_t
 {
     NOT_OWNED_BY_THREAD,
     UNKNOWN_ERROR
 };
 
-enum class MutexTryLockError
+enum class MutexTryLockError : uint8_t
 {
     PRIORITY_MISMATCH,
     MAXIMUM_NUMBER_OF_RECURSIVE_LOCKS_EXCEEDED,
@@ -61,7 +61,7 @@ enum class MutexTryLockError
     UNKNOWN_ERROR
 };
 
-enum class MutexTryLock
+enum class MutexTryLock : uint8_t
 {
     LOCK_SUCCEEDED,
     FAILED_TO_ACQUIRE_LOCK
@@ -144,6 +144,7 @@ class mutex
 };
 
 /// @brief Describes the type of mutex.
+// NOLINTNEXTLINE(performance-enum-size) int32_t required for POSIX API
 enum class MutexType : int32_t
 {
     /// @brief Behavior without error detection and multiple locks from within
@@ -163,6 +164,7 @@ enum class MutexType : int32_t
 
 /// @brief Describes how the priority of a mutex owning thread changes when another thread
 ///        with an higher priority would like to acquire the mutex.
+// NOLINTNEXTLINE(performance-enum-size) int32_t required for POSIX API
 enum class MutexPriorityInheritance : int32_t
 {
     /// @brief No priority setting.
@@ -178,6 +180,7 @@ enum class MutexPriorityInheritance : int32_t
 };
 
 /// @brief Defines the behavior when a mutex owning thread is terminated
+// NOLINTNEXTLINE(performance-enum-size) int32_t required for POSIX API
 enum class MutexThreadTerminationBehavior : int32_t
 {
     /// @brief The mutex stays locked, is unlockable and no longer usable.

@@ -21,7 +21,7 @@ concurrency-*,
 performance-*,
 hicpp-*,
 
--cppcoreguidelines-avoid-do-while
+-cppcoreguidelines-avoid-do-while,
 -cppcoreguidelines-non-private-member-variables-in-classes,
 
 -hicpp-named-parameter,
@@ -30,13 +30,16 @@ hicpp-*,
 -readability-identifier-length,
 -readability-redundant-access-specifiers,
 -readability-redundant-declaration,
+-readability-redundant-inline-specifier,
 -readability-static-accessed-through-instance,
 
 -readability-identifier-naming,
 -readability-use-anyofallof,
 -readability-named-parameter,
 
--cert-dcl21-cpp
+-performance-avoid-endl,
+
+-cert-dcl21-cpp,
 
 '
 
@@ -98,6 +101,9 @@ hicpp-*,
 #        // in cpp file
 #        void bar(Foo& foo) {...}
 #
+# * rule: readability-redundant-inline-specifier
+#   justicfication: there are many false positives
+#
 # * rule: readability-use-anyofallof
 #   justification: requires C++20 and std::ranges but we only use C++17
 #
@@ -131,6 +137,12 @@ hicpp-*,
 #       // dispatch site
 #       Tag1 tag;
 #       foo(tag); // calls (1)
+#
+# * rule: performance-avoid-endl
+#   justification: 'iostream' is only used in a few places where the logger either cannot be used, likt the platform layer, or
+#                  we want to print immediatelly something on the screen like the command line parser or the examples. In this
+#                  cases we would immediatelly after the '\n' calls 'std::flush'. Therefore we keep using 'std::endl' in this
+#                  limited places.
 #
 ## Those warnings should be enabled
 ## They are disabled since they require a heavy API refactoring and when we enable it we clutter the code with // NOLINT comments

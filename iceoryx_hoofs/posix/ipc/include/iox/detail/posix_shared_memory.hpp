@@ -34,7 +34,7 @@ using shm_handle_t = int;
 namespace detail
 {
 
-enum class PosixSharedMemoryError
+enum class PosixSharedMemoryError : uint8_t
 {
     EMPTY_NAME,
     INVALID_FILE_NAME,

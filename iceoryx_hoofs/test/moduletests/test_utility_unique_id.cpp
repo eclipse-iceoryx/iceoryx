@@ -71,8 +71,8 @@ TEST(UniqueId_test, CopyConstructingUniqueIdsWorks)
     auto id = UniqueId();
     auto idValue = static_cast<UniqueId::value_type>(id);
 
-    /// @NOLINTJUSTIFICATION we test the copy constructor here
-    /// @NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
+    // NOLINTJUSTIFICATION we test the copy constructor here
+    // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
     auto sut{id};
     auto sutValue = static_cast<UniqueId::value_type>(sut);
 

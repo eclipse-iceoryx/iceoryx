@@ -81,8 +81,8 @@ TEST_F(SignalWatcher_test, SignalIsTriggeredWhenSIGTERMWasTriggeredBefore)
 }
 
 void unblocksWhenSignalWasRaisedForWaiters(SignalWatcher_test& test,
-                                           /// NOLINTJUSTIFICATION only used inside this test
-                                           /// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
+                                           // NOLINTJUSTIFICATION only used inside this test
+                                           // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
                                            const int signal,
                                            const uint32_t numberOfWaiters,
                                            const std::function<void()>& wait)

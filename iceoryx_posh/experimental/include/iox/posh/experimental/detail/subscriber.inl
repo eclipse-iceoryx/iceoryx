@@ -42,8 +42,11 @@ inline expected<unique_ptr<Subscriber<T, H>>, SubscriberBuilderError> Subscriber
     {
         return err(SubscriberBuilderError::OUT_OF_RESOURCES);
     }
-    return ok(unique_ptr<Subscriber<T, H>>{new Subscriber<T, H>{iox::SubscriberPortUserType{subscriber_port_data}},
-                                           [&](auto* const sub) { delete sub; }});
+    return ok(unique_ptr<Subscriber<T, H>>{
+        new (std::nothrow) Subscriber<T, H>{iox::SubscriberPortUserType{subscriber_port_data}}, [&](auto* const sub) {
+            // NOLINTNEXTLINE(cppcoreguidelines-owning-memory) raw pointer is required by the unique_ptr API
+            delete sub;
+        }});
 }
 
 inline expected<unique_ptr<UntypedSubscriber>, SubscriberBuilderError> SubscriberBuilder::create() noexcept
@@ -59,8 +62,11 @@ inline expected<unique_ptr<UntypedSubscriber>, SubscriberBuilderError> Subscribe
     {
         return err(SubscriberBuilderError::OUT_OF_RESOURCES);
     }
-    return ok(unique_ptr<UntypedSubscriber>{new UntypedSubscriber{iox::SubscriberPortUserType{subscriber_port_data}},
-                                            [&](auto* const sub) { delete sub; }});
+    return ok(unique_ptr<UntypedSubscriber>{
+        new (std::nothrow) UntypedSubscriber{iox::SubscriberPortUserType{subscriber_port_data}}, [&](auto* const sub) {
+            // NOLINTNEXTLINE(cppcoreguidelines-owning-memory) raw pointer is required by the unique_ptr API
+            delete sub;
+        }});
 }
 
 } // namespace iox::posh::experimental

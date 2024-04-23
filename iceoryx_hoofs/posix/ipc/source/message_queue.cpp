@@ -207,8 +207,8 @@ expected<mqd_t, PosixIpcChannelError> MessageQueue::open(const PosixIpcChannelNa
         int32_t openFlags = O_RDWR;
         if (channelSide == PosixIpcChannelSide::SERVER)
         {
-            /// NOLINTJUSTIFICATION used in internal implementation which wraps the posix functionality
-            /// NOLINTNEXTLINE(hicpp-signed-bitwise)
+            // NOLINTJUSTIFICATION used in internal implementation which wraps the posix functionality
+            // NOLINTNEXTLINE(hicpp-signed-bitwise)
             openFlags |= O_CREAT;
         }
 

@@ -56,9 +56,9 @@ PosixCallBuilder<ReturnType, FunctionArguments...> createPosixCallBuilder(Return
 } // namespace internal
 
 /// @deprecated use 'IOX_POSIX_CALL' from 'iox/posix_call.hpp' instead of 'iox::posix::posixCall'
-/// NOLINTJUSTIFICATION a template or constexpr function does not have access to source code origin file, line, function
-///                     name
-/// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+// NOLINTJUSTIFICATION a template or constexpr function does not have access to source code origin file, line, function
+//                     name
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define posixCall(f)                                                                                                   \
     internal::createPosixCallBuilder(                                                                                  \
         &(f),                                                                                                          \

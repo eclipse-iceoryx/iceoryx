@@ -26,6 +26,7 @@ using SignalHandlerCallback_t = void (*)(int);
 
 /// @brief Corresponds to the SIG* macros defined in signal.h. The integer values
 ///        are equal to the corresponding macro value.
+// NOLINTNEXTLINE(performance-enum-size) int required for POSIX API
 enum class PosixSignal : int
 {
     BUS = SIGBUS,
@@ -37,7 +38,7 @@ enum class PosixSignal : int
     ///            and sigaction returns the errno EINVAL
 };
 
-enum class SignalGuardError
+enum class SignalGuardError : uint8_t
 {
     INVALID_SIGNAL_ENUM_VALUE,
     UNDEFINED_ERROR_IN_SYSTEM_CALL

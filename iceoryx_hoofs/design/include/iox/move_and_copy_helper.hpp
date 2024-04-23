@@ -17,13 +17,14 @@
 #ifndef IOX_HOOFS_DESIGN_MOVE_AND_COPY_HELPER_HPP
 #define IOX_HOOFS_DESIGN_MOVE_AND_COPY_HELPER_HPP
 
+#include <cstdint>
 #include <functional>
 #include <utility>
 
 namespace iox
 {
 
-enum class MoveAndCopyOperations
+enum class MoveAndCopyOperations : uint8_t
 {
     CopyConstructor,
     CopyAssignment,

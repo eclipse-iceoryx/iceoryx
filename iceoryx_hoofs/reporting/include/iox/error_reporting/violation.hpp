@@ -34,7 +34,8 @@ namespace er
 // By default, there are only error codes and violations.
 // Custom errors can be added but must satisfy the minimal interface.
 
-enum class ViolationErrorCode : uint32_t
+// NOLINTNEXTLINE(performance-enum-size) the type is required for error handling
+enum class ViolationErrorCode : iox::er::ErrorCode::type
 {
     ASSERT_VIOLATION,
     ENFORCE_VIOLATION

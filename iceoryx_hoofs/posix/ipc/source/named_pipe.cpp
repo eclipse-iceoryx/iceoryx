@@ -27,8 +27,8 @@
 
 namespace iox
 {
-/// NOLINTJUSTIFICATION see declaration in header
-/// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
+// NOLINTJUSTIFICATION see declaration in header
+// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
 constexpr const char NamedPipe::NAMED_PIPE_PREFIX[];
 constexpr units::Duration NamedPipe::CYCLE_TIME;
 constexpr units::Duration NamedPipe::NamedPipeData::WAIT_FOR_INIT_SLEEP_TIME;

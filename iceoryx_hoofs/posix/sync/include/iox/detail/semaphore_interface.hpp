@@ -23,7 +23,7 @@
 
 namespace iox
 {
-enum class SemaphoreError
+enum class SemaphoreError : uint8_t
 {
     INVALID_NAME,
     INVALID_SEMAPHORE_HANDLE,
@@ -37,7 +37,7 @@ enum class SemaphoreError
     UNDEFINED
 };
 
-enum class SemaphoreWaitState
+enum class SemaphoreWaitState : uint8_t
 {
     TIMEOUT,
     NO_TIMEOUT,

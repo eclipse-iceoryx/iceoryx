@@ -65,7 +65,6 @@ class variant_Test : public Test
     {
       public:
         DoubleDelete()
-            : doDtorCall{true}
         {
             ctorCalls++;
         }
@@ -116,7 +115,7 @@ class variant_Test : public Test
         static int ctorCalls;
 
       private:
-        bool doDtorCall;
+        bool doDtorCall{true};
     };
 
     iox::variant<int, float, ComplexClass> sut;

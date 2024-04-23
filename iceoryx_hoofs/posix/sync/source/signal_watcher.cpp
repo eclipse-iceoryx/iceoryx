@@ -31,8 +31,8 @@ void internalSignalHandler(int) noexcept
         {
             // we use write since internalSignalHandler can be called from within a
             // signal handler and write is signal safe
-            /// NOLINTJUSTIFICATION used as safe and null terminated compile time string literal
-            /// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
+            // NOLINTJUSTIFICATION used as safe and null terminated compile time string literal
+            // NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
             constexpr const char MSG[] = "Unable to increment semaphore in signal handler";
             auto result = write(STDERR_FILENO, &MSG[0], strlen(&MSG[0]));
             IOX_DISCARD_RESULT(result);

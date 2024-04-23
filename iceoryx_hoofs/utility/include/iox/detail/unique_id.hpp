@@ -44,9 +44,9 @@ class UniqueId : public NewType<UniqueId,
     UniqueId() noexcept;
 
   private:
-    /// @NOLINTJUSTIFICATION only accessible by this class. the global variable is required to
-    ///                      generate a unique id from it incrementing value
-    /// @NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
+    // NOLINTJUSTIFICATION only accessible by this class. the global variable is required to
+    //                     generate a unique id from it incrementing value
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
     static std::atomic<value_type> m_IdCounter; // initialized in corresponding cpp file
 };
 

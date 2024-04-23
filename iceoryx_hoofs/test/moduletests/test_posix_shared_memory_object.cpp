@@ -81,7 +81,7 @@ TEST_F(SharedMemoryObject_Test, AllocateMemoryInSharedMemoryAndReadIt)
 
     for (uint64_t i = 0; i < MEMORY_SIZE; ++i)
     {
-        /// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
         data_ptr[i] = static_cast<uint8_t>(i * 2 + 1);
     }
 
@@ -96,7 +96,7 @@ TEST_F(SharedMemoryObject_Test, AllocateMemoryInSharedMemoryAndReadIt)
 
     for (uint64_t i = 0; i < MEMORY_SIZE; ++i)
     {
-        /// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
         EXPECT_THAT(data_ptr2[i], Eq(static_cast<uint8_t>(i) * 2 + 1));
     }
 }
@@ -141,7 +141,7 @@ TEST_F(SharedMemoryObject_Test, OpenSutMapsAllMemoryIntoProcess)
 
     for (uint64_t i = 0; i < MEMORY_SIZE; ++i)
     {
-        /// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
         data_ptr[i] = i * 2 + 1;
     }
 
@@ -158,7 +158,7 @@ TEST_F(SharedMemoryObject_Test, OpenSutMapsAllMemoryIntoProcess)
 
     for (uint64_t i = 0; i < MEMORY_SIZE; ++i)
     {
-        /// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
         EXPECT_THAT(data_ptr2[i], Eq(i * 2 + 1));
     }
 }

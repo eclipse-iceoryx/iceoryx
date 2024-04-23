@@ -275,9 +275,9 @@ class list
 
         /// @brief construct a const_iterator from an iterator
         /// @param[in] iter is the iterator which will deliver list and index info for the const_iterator
-        /// @NOLINTJUSTIFICATION conversion from non const iterator to const iterator follows the
-        ///                      STL behavior and should be allowed
-        /// @NOLINTNEXTLINE(hicpp-explicit-conversions)
+        // NOLINTJUSTIFICATION conversion from non const iterator to const iterator follows the
+        //                     STL behavior and should be allowed
+        // NOLINTNEXTLINE(hicpp-explicit-conversions)
         IteratorBase(const IteratorBase<false>& iter) noexcept;
 
         /// @brief assigns a const_iterator from an iterator; needs to be implemented because the copy c'tor is also
