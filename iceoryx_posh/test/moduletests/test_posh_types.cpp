@@ -25,27 +25,44 @@ TEST(PoshTypes_test, IceoryxResourcePrefixWithDefaultDomainIdWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "35f1d638-8efa-41dd-859b-bcc23450844f");
 
-    EXPECT_THAT(iceoryxResourcePrefix(DEFAULT_DOMAIN_ID, ResourceType::ICEORYX_DEFINED).c_str(), StrEq("iox1_0_i_"));
+    const auto expected_prefix = iox::concatenate(IOX_DEFAULT_RESOURCE_PREFIX, "_0_i_");
+
+    EXPECT_THAT(iceoryxResourcePrefix(DEFAULT_DOMAIN_ID, ResourceType::ICEORYX_DEFINED).c_str(),
+                StrEq(expected_prefix.c_str()));
 }
 
 TEST(PoshTypes_test, IceoryxResourcePrefixWithMaxDomainIdWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "049e79d7-d0ca-4951-8d44-c80aebab7a88");
 
-    const char* EXPECTED_PREFIX = experimental::hasExperimentalPoshFeaturesEnabled() ? "iox1_65535_i_" : "iox1_0_i_";
+    constexpr uint64_t CAPACITY{100};
+    char expected_prefix[CAPACITY];
+    snprintf(expected_prefix,
+             CAPACITY,
+             "%s_%s_i_",
+             IOX_DEFAULT_RESOURCE_PREFIX,
+             experimental::hasExperimentalPoshFeaturesEnabled() ? "65535" : "0");
+    expected_prefix[CAPACITY - 1] = 0;
 
     EXPECT_THAT(
         iceoryxResourcePrefix(DomainId{std::numeric_limits<uint16_t>::max()}, ResourceType::ICEORYX_DEFINED).c_str(),
-        StrEq(EXPECTED_PREFIX));
+        StrEq(expected_prefix));
 }
 
 TEST(PoshTypes_test, IceoryxResourcePrefixWithMaxDomainIdAndUserDefinedResourceTypeWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b63bbdca-ff19-41bc-9f8a-c657b0ee8009");
 
-    const char* EXPECTED_PREFIX = experimental::hasExperimentalPoshFeaturesEnabled() ? "iox1_65535_u_" : "iox1_0_u_";
+    constexpr uint64_t CAPACITY{100};
+    char expected_prefix[CAPACITY];
+    snprintf(expected_prefix,
+             CAPACITY,
+             "%s_%s_u_",
+             IOX_DEFAULT_RESOURCE_PREFIX,
+             experimental::hasExperimentalPoshFeaturesEnabled() ? "65535" : "0");
+    expected_prefix[CAPACITY - 1] = 0;
 
     EXPECT_THAT(
         iceoryxResourcePrefix(DomainId{std::numeric_limits<uint16_t>::max()}, ResourceType::USER_DEFINED).c_str(),
-        StrEq(EXPECTED_PREFIX));
+        StrEq(expected_prefix));
 }
