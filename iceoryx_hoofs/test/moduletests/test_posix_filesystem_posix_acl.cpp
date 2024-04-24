@@ -55,8 +55,8 @@ struct PwUidResult
 {
     static constexpr uint64_t BUFFER_SIZE{2048U};
     passwd pwd;
-    /// NOLINTJUSTIFICATION required as memory buffer for the getpwuid_r result
-    /// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
+    // NOLINTJUSTIFICATION required as memory buffer for the getpwuid_r result
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     char buff[BUFFER_SIZE];
 };
 
@@ -256,7 +256,6 @@ TEST_F(PosixAcl_test, addNameInWrongPlace)
     ::testing::Test::RecordProperty("TEST_ID", "2d2dbb0d-1fb6-4569-8651-d341a4525ea6");
     auto name = iox_getpwuid(geteuid());
     ASSERT_TRUE(name);
-    std::string currentUserName(name->pwd.pw_name);
 
     m_accessController.addPermissionEntry(PosixAcl::Category::GROUP, PosixAcl::Permission::READ);
     m_accessController.addPermissionEntry(PosixAcl::Category::OTHERS, PosixAcl::Permission::NONE);

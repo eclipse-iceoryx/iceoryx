@@ -157,7 +157,8 @@ variant<Types...>::operator=(T&& rhs) noexcept
     if (!has_bad_variant_element_access<T>())
     {
         // AXIVION Next Construct AutosarC++19_03-M5.2.8: conversion to typed pointer is intentional, it is correctly aligned and points to sufficient memory for a T by design
-        auto storage = static_cast<T*>(static_cast<void*>(&m_storage));
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+        auto storage = reinterpret_cast<T*>(&m_storage);
         *storage = std::forward<T>(rhs);
     }
     else
@@ -216,7 +217,8 @@ variant<Types...>::unsafe_get_at_index_unchecked() noexcept
     using T = typename internal::get_type_at_index<0, TypeIndex, Types...>::type;
 
     // AXIVION Next Construct AutosarC++19_03-M5.2.8 : conversion to typed pointer is intentional, it is correctly aligned and points to sufficient memory for a T by design
-    return static_cast<T*>(static_cast<void*>(&m_storage));
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    return reinterpret_cast<T*>(&m_storage);
 }
 
 template <typename... Types>
@@ -250,7 +252,8 @@ inline const T* variant<Types...>::get() const noexcept
         return nullptr;
     }
     // AXIVION Next Construct AutosarC++19_03-M5.2.8 : conversion to typed pointer is intentional, it is correctly aligned and points to sufficient memory for a T by design
-    return static_cast<const T*>(static_cast<const void*>(&m_storage));
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    return reinterpret_cast<const T*>(&m_storage);
 }
 
 template <typename... Types>

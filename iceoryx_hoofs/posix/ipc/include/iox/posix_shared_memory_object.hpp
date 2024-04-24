@@ -32,7 +32,7 @@
 namespace iox
 {
 
-enum class PosixSharedMemoryObjectError
+enum class PosixSharedMemoryObjectError : uint8_t
 {
     SHARED_MEMORY_CREATION_FAILED,
     MAPPING_SHARED_MEMORY_FAILED,
@@ -41,7 +41,7 @@ enum class PosixSharedMemoryObjectError
     INTERNAL_LOGIC_FAILURE,
 };
 
-enum class PosixSharedMemoryAllocationError
+enum class PosixSharedMemoryAllocationError : uint8_t
 {
     REQUESTED_MEMORY_AFTER_FINALIZED_ALLOCATION,
     NOT_ENOUGH_MEMORY,

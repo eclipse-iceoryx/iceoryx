@@ -33,7 +33,7 @@ using iox::popo::QueueFullPolicy;
 using iox::popo::Subscriber;
 using iox::popo::UntypedSubscriber;
 
-enum class SubscriberBuilderError
+enum class SubscriberBuilderError : uint8_t
 {
     OUT_OF_RESOURCES,
 };

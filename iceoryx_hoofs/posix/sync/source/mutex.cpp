@@ -165,6 +165,11 @@ struct MutexAttributes
                                                   << "] of the Scheduler::FIFO.");
                 return err(MutexCreationError::INVALID_PRIORITY_CEILING_VALUE);
             }
+            default:
+                IOX_LOG(
+                    ERROR,
+                    "This should never happen. An unknown error occurred while setting up the mutex priority ceiling.");
+                return err(MutexCreationError::UNKNOWN_ERROR);
             }
         }
 

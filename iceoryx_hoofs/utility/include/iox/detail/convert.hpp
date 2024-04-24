@@ -25,6 +25,7 @@
 
 #include <climits>
 #include <cmath>
+#include <cstdint>
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
@@ -49,7 +50,7 @@ namespace iox
 class convert
 {
   public:
-    enum class NumberType
+    enum class NumberType : uint8_t
     {
         INTEGER,
         UNSIGNED_INTEGER,

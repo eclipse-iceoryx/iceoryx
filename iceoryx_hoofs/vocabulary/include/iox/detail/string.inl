@@ -338,6 +338,7 @@ inline string<Capacity>& string<Capacity>::copy(const string<N>& rhs) noexcept
 
 template <uint64_t Capacity>
 template <uint64_t N>
+// NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved) false positive, the underlying data is moved
 inline string<Capacity>& string<Capacity>::move(string<N>&& rhs) noexcept
 {
     static_assert(N <= Capacity,

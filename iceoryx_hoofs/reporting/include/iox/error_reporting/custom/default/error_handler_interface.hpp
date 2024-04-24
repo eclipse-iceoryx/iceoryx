@@ -46,8 +46,8 @@ struct ErrorDescriptor
 };
 
 /// @brief Defines the dynamic error handling interface (i.e. changeable at runtime).
-/// NOLINTJUSTIFICATION abstract interface
-/// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
+// NOLINTJUSTIFICATION abstract interface
+// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 class ErrorHandlerInterface
 {
   public:

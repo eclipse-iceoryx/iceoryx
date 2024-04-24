@@ -59,6 +59,7 @@ inline bool MpmcLockFreeQueue<ElementType, Capacity>::tryPush(const ElementType&
 }
 
 template <typename ElementType, uint64_t Capacity>
+// NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved) perfect forwarding is used
 inline bool MpmcLockFreeQueue<ElementType, Capacity>::tryPush(ElementType&& value) noexcept
 {
     uint64_t index{0};
@@ -120,6 +121,7 @@ inline iox::optional<ElementType> MpmcLockFreeQueue<ElementType, Capacity>::push
 }
 
 template <typename ElementType, uint64_t Capacity>
+// NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved) perfect forwarding is used
 inline iox::optional<ElementType> MpmcLockFreeQueue<ElementType, Capacity>::push(ElementType&& value) noexcept
 {
     return pushImpl(std::forward<ElementType>(value));

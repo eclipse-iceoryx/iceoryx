@@ -78,7 +78,7 @@ class NewType : public Policies<Derived, NewType<Derived, T, Policies...>>...
 {
   protected:
     /// 'ProtectedConstructor_t' is a compile time variable to select the correct constructors
-    /// @NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
+    // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
     constexpr NewType(newtype::internal::ProtectedConstructor_t, const T& rhs) noexcept;
 
     /// @brief copy constructor
@@ -156,7 +156,7 @@ class NewType : public Policies<Derived, NewType<Derived, T, Policies...>>...
 // AXIVION Next Construct AutosarC++19_03-M16.0.6 : brackets around macro parameter would lead in this case to compile
 // time failures
 // AXIVION Next Construct AutosarC++19_03-A16.0.1 : macro is used to reduce boilerplate code for 'NewType'
-/// @NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define IOX_NEW_TYPE(TypeName, Type, ...)                                                                              \
     struct TypeName : public iox::NewType<TypeName, Type, __VA_ARGS__>                                                 \
     {                                                                                                                  \

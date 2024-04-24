@@ -37,7 +37,7 @@ using capro::ServiceDescription;
 
 class Node;
 
-enum class NodeBuilderError
+enum class NodeBuilderError : uint8_t
 {
     INVALID_OR_NO_DOMAIN_ID,
     IPC_CHANNEL_CREATION_FAILED,

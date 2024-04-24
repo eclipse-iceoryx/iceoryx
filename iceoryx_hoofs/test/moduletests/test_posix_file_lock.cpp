@@ -24,11 +24,11 @@ namespace
 using namespace ::testing;
 using namespace iox;
 
-/// NOLINTJUSTIFICATION compile time string literal used only in tests
-/// NOLINTBEGIN(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
+// NOLINTJUSTIFICATION compile time string literal used only in tests
+// NOLINTBEGIN(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
 constexpr char TEST_NAME[] = "TestProcess";
 constexpr char ANOTHER_TEST_NAME[] = "AnotherTestProcess";
-/// NOLINTEND(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
+// NOLINTEND(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
 
 
 /// @req

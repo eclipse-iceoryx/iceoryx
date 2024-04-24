@@ -45,6 +45,7 @@ namespace iox
 
 // DO NOT TOUCH THE ENUM, you can doodle around with the lines above!!!
 
+// NOLINTNEXTLINE(performance-enum-size) the type is required for error handling
 enum class HoofsError : iox::er::ErrorCode::type
 {
     IOX_HOOFS_ERRORS(IOX_CREATE_ERROR_ENUM)

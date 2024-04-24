@@ -56,6 +56,7 @@ class PosixAcl
 #if defined(QNX) || defined(QNX__) || defined(__QNX__)
     enum class Category : std::underlying_type<acl_tag_t>::type
 #else
+    // NOLINTNEXTLINE(performance-enum-size) required for compatibility with ACL API
     enum class Category : acl_tag_t
 #endif
     {
@@ -72,6 +73,7 @@ class PosixAcl
 #if defined(QNX) || defined(QNX__) || defined(__QNX__)
     enum class Permission : std::underlying_type<acl_perm_t>::type
 #else
+    // NOLINTNEXTLINE(performance-enum-size) required for compatibility with ACL API
     enum class Permission : acl_perm_t
 #endif
     {

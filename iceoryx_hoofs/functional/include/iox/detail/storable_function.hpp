@@ -58,14 +58,14 @@ class storable_function<Capacity, signature<ReturnType, Args...>> final
     // the storable function should implicitly behave like any generic constructor, adding
     // explicit would require a static_cast. Furthermore, the storable_functor stores a copy
     // which avoids implicit misbehaviors or ownership problems caused by implicit conversion.
-    /// @NOLINTNEXTLINE(hicpp-explicit-conversions)
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
     storable_function(const Functor& functor) noexcept;
 
     /// @brief construct from function pointer (including static functions)
-    /// @NOLINTJUSTIFICATION the storable function should implicitly behave like any generic constructor, adding
-    ///                      explicit would require a static_cast. Furthermore, the storable_functor stores a copy
-    ///                      which avoids implicit misbehaviors or ownership problems caused by implicit conversion.
-    /// @NOLINTNEXTLINE(hicpp-explicit-conversions)
+    // NOLINTJUSTIFICATION the storable function should implicitly behave like any generic constructor, adding
+    //                     explicit would require a static_cast. Furthermore, the storable_functor stores a copy
+    //                     which avoids implicit misbehaviors or ownership problems caused by implicit conversion.
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
     storable_function(ReturnType (*function)(Args...)) noexcept;
 
     /// @brief construct from object reference and member function

@@ -71,6 +71,7 @@ inline expected<ValueType, ErrorType>::expected(const detail::ok<ValueType>& suc
 }
 
 template <typename ValueType, typename ErrorType>
+// NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved) the underlying value is moved
 inline expected<ValueType, ErrorType>::expected(detail::ok<ValueType>&& successValue) noexcept
     : m_store(in_place, std::move(successValue.value))
 {
@@ -83,6 +84,7 @@ inline expected<ValueType, ErrorType>::expected(const detail::err<ErrorType>& er
 }
 
 template <typename ValueType, typename ErrorType>
+// NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved) the underlying value is moved
 inline expected<ValueType, ErrorType>::expected(detail::err<ErrorType>&& errorValue) noexcept
     : m_store(unexpect, std::move(errorValue.value))
 {

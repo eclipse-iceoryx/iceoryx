@@ -18,6 +18,7 @@
 #ifndef IOX_HOOFS_FILESYSTEM_FILE_READER_HPP
 #define IOX_HOOFS_FILESYSTEM_FILE_READER_HPP
 
+#include <cstdint>
 #include <fstream>
 
 namespace iox
@@ -40,7 +41,7 @@ class FileReader
   public:
     /// Error handling strategy. Ignore continues execution as if nothing happened. Inform continues, but prints an
     /// error message. Terminate causes the process to exit.
-    enum class ErrorMode
+    enum class ErrorMode : uint8_t
     {
         Ignore,
         Inform,

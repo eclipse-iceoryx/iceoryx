@@ -29,7 +29,7 @@
 namespace iox
 {
 /// @brief Describes failures when acquiring details about a file.
-enum class FileStatError
+enum class FileStatError : uint8_t
 {
     IoFailure,
     FileTooLarge,
@@ -38,7 +38,7 @@ enum class FileStatError
 };
 
 /// @brief Describes failures when setting the owner of a file
-enum class FileSetOwnerError
+enum class FileSetOwnerError : uint8_t
 {
     IoFailure,
     Interrupt,
@@ -50,7 +50,7 @@ enum class FileSetOwnerError
 };
 
 /// @brief Describes failures when setting the permissions of a file
-enum class FileSetPermissionError
+enum class FileSetPermissionError : uint8_t
 {
     PermissionDenied,
     ReadOnlyFilesystem,

@@ -1,7 +1,7 @@
 ./iceoryx_hoofs/**/*
 
-./iceoryx_posh/include/iox/**/*
-./iceoryx_posh/source/posh/**/*
+./iceoryx_posh/experimental/include/iox/**/*
+./iceoryx_posh/experimental/source/**/*
 
 # IMPORTANT:
 #    after the first # everything is considered a comment, add new files and

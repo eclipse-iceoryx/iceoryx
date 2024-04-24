@@ -30,7 +30,7 @@ namespace iox::posh::experimental
 template <uint64_t Capacity = MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET>
 using WaitSet = iox::popo::WaitSet<Capacity>;
 
-enum class WaitSetBuilderError
+enum class WaitSetBuilderError : uint8_t
 {
     OUT_OF_RESOURCES,
 };

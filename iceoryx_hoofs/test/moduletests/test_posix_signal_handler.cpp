@@ -62,8 +62,8 @@ class SignalHandler_test : public Test
     {
         struct sigaction action = {};
         sigemptyset(&action.sa_mask);
-        /// NOLINTJUSTIFICATION sigaction is a posix system construct, no other way to assign members
-        /// NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access)
+        // NOLINTJUSTIFICATION sigaction is a posix system construct, no other way to assign members
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access)
         action.sa_handler = callback;
         action.sa_flags = 0;
 

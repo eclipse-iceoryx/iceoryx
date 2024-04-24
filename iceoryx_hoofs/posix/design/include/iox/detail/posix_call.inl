@@ -27,8 +27,8 @@ namespace detail
 {
 template <typename ReturnType, typename... FunctionArguments>
 inline PosixCallBuilder<ReturnType, FunctionArguments...>
-/// NOLINTJUSTIFICATION this function is never used directly, only be the macro IOX_POSIX_CALL
-/// NOLINTNEXTLINE(readability-function-size)
+// NOLINTJUSTIFICATION this function is never used directly, only be the macro IOX_POSIX_CALL
+// NOLINTNEXTLINE(readability-function-size)
 createPosixCallBuilder(ReturnType (*IOX_POSIX_CALL)(FunctionArguments...),
                        const char* posixFunctionName,
                        const char* file,
@@ -40,9 +40,9 @@ createPosixCallBuilder(ReturnType (*IOX_POSIX_CALL)(FunctionArguments...),
 }
 
 template <typename ReturnType>
-/// NOLINTJUSTIFICATION used only internally, the function and file name are provided by
-///                     compiler macros and are of type char*
-/// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
+// NOLINTJUSTIFICATION used only internally, the function and file name are provided by
+//                     compiler macros and are of type char*
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 inline PosixCallDetails<ReturnType>::PosixCallDetails(const char* posixFunctionName,
                                                       const char* file,
                                                       int line,
@@ -73,8 +73,8 @@ inline string<POSIX_CALL_ERROR_STRING_SIZE> errorLiteralToString(const char* msg
 template <typename T>
 inline string<POSIX_CALL_ERROR_STRING_SIZE> PosixCallResult<T>::getHumanReadableErrnum() const noexcept
 {
-    /// NOLINTJUSTIFICATION needed by POSIX function which is wrapped here
-    /// NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
+    // NOLINTJUSTIFICATION needed by POSIX function which is wrapped here
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     char buffer[POSIX_CALL_ERROR_STRING_SIZE];
     return string<POSIX_CALL_ERROR_STRING_SIZE>(TruncateToCapacity,
                                                 iox_gnu_strerror_r(errnum, &buffer[0], POSIX_CALL_ERROR_STRING_SIZE));

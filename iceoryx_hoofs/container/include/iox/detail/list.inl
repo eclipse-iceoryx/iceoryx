@@ -24,18 +24,18 @@
 
 namespace iox
 {
-/// @NOLINTJUSTIFICATION m_data fields are explicitly initialized whenever a new element is inserted
-/// into the list
-/// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
+// NOLINTJUSTIFICATION m_data fields are explicitly initialized whenever a new element is inserted
+// into the list
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 template <typename T, uint64_t Capacity>
 inline list<T, Capacity>::list() noexcept
 {
     init();
 }
 
-/// @NOLINTJUSTIFICATION m_data fields are explicitly initialized whenever a new element is inserted
-/// into the list
-/// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
+// NOLINTJUSTIFICATION m_data fields are explicitly initialized whenever a new element is inserted
+// into the list
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 template <typename T, uint64_t Capacity>
 inline list<T, Capacity>::list(const list& rhs) noexcept
 {
@@ -43,9 +43,9 @@ inline list<T, Capacity>::list(const list& rhs) noexcept
     *this = rhs;
 }
 
-/// @NOLINTJUSTIFICATION m_data fields are explicitly initialized whenever a new element is inserted
-/// into the list
-/// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
+// NOLINTJUSTIFICATION m_data fields are explicitly initialized whenever a new element is inserted
+// into the list
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 template <typename T, uint64_t Capacity>
 inline list<T, Capacity>::list(list&& rhs) noexcept
 {
@@ -371,6 +371,7 @@ inline bool list<T, Capacity>::push_front(const T& data) noexcept
 }
 
 template <typename T, uint64_t Capacity>
+// NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved) perfect forwarding is used
 inline bool list<T, Capacity>::push_front(T&& data) noexcept
 {
     auto sizeBeforePush = m_size;
@@ -394,6 +395,7 @@ inline bool list<T, Capacity>::push_back(const T& data) noexcept
 }
 
 template <typename T, uint64_t Capacity>
+// NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved) perfect forwarding is used
 inline bool list<T, Capacity>::push_back(T&& data) noexcept
 {
     auto sizeBeforePush = m_size;
@@ -427,6 +429,7 @@ inline typename list<T, Capacity>::iterator list<T, Capacity>::insert(const_iter
 }
 
 template <typename T, uint64_t Capacity>
+// NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved) perfect forwarding is used
 inline typename list<T, Capacity>::iterator list<T, Capacity>::insert(const_iterator citer, T&& data) noexcept
 {
     return emplace(citer, std::forward<T>(data));
@@ -466,9 +469,9 @@ template <bool IsConstIterator>
 inline typename list<T, Capacity>::template IteratorBase<IsConstIterator>&
 list<T, Capacity>::IteratorBase<IsConstIterator>::operator=(const IteratorBase<false>& rhs) noexcept
 {
-    /// @NOLINTJUSTIFICATION ensure that this and rhs are not the same object without taking the type into account
-    ///                      required since it is possible to assign a non const iterator to a const iterator
-    /// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    // NOLINTJUSTIFICATION ensure that this and rhs are not the same object without taking the type into account
+    //                      required since it is possible to assign a non const iterator to a const iterator
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     if (reinterpret_cast<const void*>(this) != reinterpret_cast<const void*>(&rhs))
     {
         m_list = rhs.m_list;
@@ -594,9 +597,9 @@ inline const typename list<T, Capacity>::size_type& list<T, Capacity>::getPrevId
 template <typename T, uint64_t Capacity>
 inline typename list<T, Capacity>::size_type& list<T, Capacity>::getPrevIdx(const size_type idx) noexcept
 {
-    /// @NOLINTJUSTIFICATION const_cast avoids code duplication, is safe since the constness of the return value is
-    /// restored
-    /// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+    // NOLINTJUSTIFICATION const_cast avoids code duplication, is safe since the constness of the return value is
+    // restored
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     return const_cast<size_type&>(const_cast<const list<T, Capacity>*>(this)->getPrevIdx(idx));
 }
 
@@ -608,9 +611,9 @@ inline const typename list<T, Capacity>::size_type& list<T, Capacity>::getNextId
 template <typename T, uint64_t Capacity>
 inline typename list<T, Capacity>::size_type& list<T, Capacity>::getNextIdx(const size_type idx) noexcept
 {
-    /// @NOLINTJUSTIFICATION const_cast avoids code duplication, is safe since the constness of the return value is
-    /// restored
-    /// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+    // NOLINTJUSTIFICATION const_cast avoids code duplication, is safe since the constness of the return value is
+    // restored
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     return const_cast<size_type&>(const_cast<const list<T, Capacity>*>(this)->getNextIdx(idx));
 }
 
@@ -656,17 +659,17 @@ inline const T* list<T, Capacity>::getDataPtrFromIdx(const size_type idx) const 
 {
     IOX_ENFORCE(isValidElementIdx(idx), "invalid list element");
 
-    /// @NOLINTJUSTIFICATION provide type safe access to the encapsulated untyped m_data array
-    /// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    // NOLINTJUSTIFICATION provide type safe access to the encapsulated untyped m_data array
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     return &(reinterpret_cast<const T*>(&m_data)[idx]);
 }
 
 template <typename T, uint64_t Capacity>
 inline T* list<T, Capacity>::getDataPtrFromIdx(const size_type idx) noexcept
 {
-    /// @NOLINTJUSTIFICATION const_cast avoids code duplication, is safe since the constness of the return value is
-    /// restored
-    /// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+    // NOLINTJUSTIFICATION const_cast avoids code duplication, is safe since the constness of the return value is
+    // restored
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     return const_cast<T*>(const_cast<const list<T, Capacity>*>(this)->getDataPtrFromIdx(idx));
 }
 

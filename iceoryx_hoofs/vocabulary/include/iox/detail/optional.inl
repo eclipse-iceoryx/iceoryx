@@ -43,6 +43,7 @@ inline optional<T>::optional() noexcept
 // m_data is set inside construct_value
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
 template <typename T>
+// NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved) perfect forwarding is used
 inline optional<T>::optional(T&& value) noexcept
 {
     // AXIVION Next Construct AutosarC++19_03-A18.9.2 : Perfect forwarding is intended here and
@@ -244,7 +245,8 @@ inline T& optional<T>::value() & noexcept
     // during compile time and the type is unchangeable during the lifetime of the object.
     // All accesses to the underlying data is done via the same static type and therefore the
     // casts are always valid
-    return *static_cast<T*>(static_cast<void*>(&m_data));
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    return *reinterpret_cast<T*>(&m_data);
 }
 
 template <typename T>
@@ -263,7 +265,8 @@ inline T&& optional<T>::value() && noexcept
     // during compile time and the type is unchangeable during the lifetime of the object.
     // All accesses to the underlying data is done via the same static type and therefore the
     // casts are always valid
-    return std::move(*static_cast<T*>(static_cast<void*>(&m_data)));
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    return std::move(*reinterpret_cast<T*>(&m_data));
 }
 
 template <typename T>

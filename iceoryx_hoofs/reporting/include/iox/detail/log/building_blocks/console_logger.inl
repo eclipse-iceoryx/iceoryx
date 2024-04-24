@@ -35,6 +35,7 @@ inline constexpr uint32_t ConsoleLogger::bufferSize(const char (&)[N]) noexcept
 }
 
 template <typename T>
+// NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward) intended for this function
 inline constexpr void ConsoleLogger::unused(T&&) noexcept
 {
 }

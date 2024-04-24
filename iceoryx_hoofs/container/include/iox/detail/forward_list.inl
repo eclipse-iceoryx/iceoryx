@@ -354,6 +354,7 @@ inline bool forward_list<T, Capacity>::push_front(const T& data) noexcept
 }
 
 template <typename T, uint64_t Capacity>
+// NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved) perfect forwarding is used
 inline bool forward_list<T, Capacity>::push_front(T&& data) noexcept
 {
     auto sizeBeforePush = m_size;
@@ -380,8 +381,10 @@ inline typename forward_list<T, Capacity>::iterator forward_list<T, Capacity>::i
 }
 
 template <typename T, uint64_t Capacity>
-inline typename forward_list<T, Capacity>::iterator forward_list<T, Capacity>::insert_after(const_iterator citer,
-                                                                                            T&& data) noexcept
+inline typename forward_list<T, Capacity>::iterator forward_list<T, Capacity>::insert_after(
+    const_iterator citer,
+    // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved) perfect forwarding is used
+    T&& data) noexcept
 {
     return emplace_after(citer, std::forward<T>(data));
 }

@@ -1525,8 +1525,8 @@ TEST_F(list_test, CopyConstructorWithEmptyList)
 {
     ::testing::Test::RecordProperty("TEST_ID", "65409af0-bd13-4011-bdd7-e1b6aa0d4703");
     list<TestListElement, TESTLISTCAPACITY> sut11;
-    /// @NOLINTJUSTIFICATION the test should explicitly test the copy constructor
-    /// @NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
+    // NOLINTJUSTIFICATION the test should explicitly test the copy constructor
+    // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
     list<TestListElement, TESTLISTCAPACITY> sut12(sut11);
     EXPECT_THAT(stats.copyCTor, Eq(0U));
     EXPECT_THAT(sut12.size(), Eq(0U));
@@ -2319,8 +2319,8 @@ TEST_F(list_test, ListIsCopyableViaMemcpy)
     ::testing::Test::RecordProperty("TEST_ID", "ce16f50e-8da5-497c-abd5-a3af4ebd78d2");
     uint64_t i = 0U;
     using TestFwdList = list<TestListElement, TESTLISTCAPACITY>;
-    /// @NOLINTJUSTIFICATION required temporary memory buffer for the memcpy test
-    /// @NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
+    // NOLINTJUSTIFICATION required temporary memory buffer for the memcpy test
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     alignas(TestFwdList) uint8_t otherSutBuffer[sizeof(TestFwdList)];
     uint8_t* otherSutPtr = &otherSutBuffer[0];
 
@@ -2333,8 +2333,8 @@ TEST_F(list_test, ListIsCopyableViaMemcpy)
             sut1.emplace_front(static_cast<int64_t>(j));
         }
 
-        /// @NOLINTJUSTIFICATION the list is trivially copyable and this test verifies this with memcpy
-        /// @NOLINTNEXTLINE(bugprone-undefined-memory-manipulation)
+        // NOLINTJUSTIFICATION the list is trivially copyable and this test verifies this with memcpy
+        // NOLINTNEXTLINE(bugprone-undefined-memory-manipulation)
         memcpy(otherSutPtr, &sut1, sizeof(sut1));
 
         // overwrite copied-from list before it's being destroyed
@@ -2346,9 +2346,9 @@ TEST_F(list_test, ListIsCopyableViaMemcpy)
         }
     }
 
-    /// @NOLINTJUSTIFICATION we need to verify that list is in fact trivially copyable and stored in otherSubBuffer
-    /// therefore we need to cast it
-    /// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    // NOLINTJUSTIFICATION we need to verify that list is in fact trivially copyable and stored in otherSubBuffer
+    // therefore we need to cast it
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     for (auto& listElement : *reinterpret_cast<TestFwdList*>(otherSutPtr))
     {
         --i;

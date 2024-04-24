@@ -36,6 +36,25 @@ namespace iox
 // constants
 constexpr uint64_t DYNAMIC_EXTENT = std::numeric_limits<uint64_t>::max();
 
+namespace detail
+{
+template <uint64_t Offset, uint64_t Count, uint64_t Extent>
+static constexpr uint64_t subspan_capacity()
+{
+    if (Count != DYNAMIC_EXTENT)
+    {
+        return Count;
+    }
+
+    if (Extent != DYNAMIC_EXTENT)
+    {
+        return Extent - Offset;
+    }
+
+    return DYNAMIC_EXTENT;
+}
+} // namespace detail
+
 // Specialization/ implementation of C++17's std::size() and std::data()
 
 /// @brief Returns a pointer to the block of memory containing the elements of the range.
@@ -343,8 +362,7 @@ class span final : public detail::span_storage<Extent>
     /// @tparam Count number of elements in the returned span
     /// @return the subspan
     template <uint64_t Offset, uint64_t Count = DYNAMIC_EXTENT>
-    constexpr span<T, (Count != DYNAMIC_EXTENT ? Count : (Extent != DYNAMIC_EXTENT ? Extent - Offset : DYNAMIC_EXTENT))>
-    subspan() const noexcept;
+    constexpr span<T, detail::subspan_capacity<Offset, Count, Extent>()> subspan() const noexcept;
 
     /// @brief obtains a subspan with dynamic extend
     /// @param offset in the returned span

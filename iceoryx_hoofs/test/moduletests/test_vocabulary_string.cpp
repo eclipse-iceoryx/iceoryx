@@ -1423,8 +1423,6 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentStringWithDifferentSiz
     }
     testCharArray[STRINGCAP] = '\0';
 
-    const std::string testStdString = &testCharArray[0];
-
     // compare with greater string
     std::string temp1(STRINGCAP + 5U, 'M');
     string<STRINGCAP + 5U> sutGreater;
@@ -2399,7 +2397,6 @@ TYPED_TEST(stringTyped_test, AppendStringContainingNullWorks)
 
     string<RESULT_CAPACITY> sut("i");
     const string<RESULT_CAPACITY> testCxxString(TruncateToCapacity, expectedString.substr(1).c_str(), 6U);
-    const std::string testStdString = expectedString.substr(1);
 
     // append iox::string
     sut.append(TruncateToCapacity, testCxxString);
@@ -3267,11 +3264,11 @@ TEST(stringTyped_test, NonCxxStringsAreIdentifiedCorrectly)
     ::testing::Test::RecordProperty("TEST_ID", "898fdeb7-2b35-4d33-8db4-ed3b9447a1da");
 
     EXPECT_FALSE(is_iox_string<int>::value);
-    /// @NOLINTJUSTIFICATION we want test explicitly the c arrays case
-    /// @NOLINTBEGIN(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
+    // NOLINTJUSTIFICATION we want test explicitly the c arrays case
+    // NOLINTBEGIN(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     EXPECT_FALSE(is_iox_string<int[10]>::value);
     EXPECT_FALSE(is_iox_string<char[11]>::value);
-    /// @NOLINTEND(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
+    // NOLINTEND(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     EXPECT_FALSE(is_iox_string<char>::value);
 }
 
@@ -3296,8 +3293,8 @@ TYPED_TEST(stringTyped_test, UncheckedAtWorks)
     for (uint64_t i = 0; i < this->testSubject.size(); ++i)
     {
         EXPECT_THAT(this->testSubject.unchecked_at(i), Eq(static_cast<char>('a' + i % 3)));
-        /// @NOLINTJUSTIFICATION we explicitly test the const version
-        /// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+        // NOLINTJUSTIFICATION we explicitly test the const version
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
         EXPECT_THAT(const_cast<const decltype(this->testSubject)&>(this->testSubject).unchecked_at(i),
                     Eq(static_cast<char>('a' + i % 3)));
     }

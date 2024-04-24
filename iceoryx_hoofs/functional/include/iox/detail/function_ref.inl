@@ -29,6 +29,7 @@ template <class ReturnType, class... ArgTypes>
 template <typename CallableType, typename>
 // AXIVION Next Construct AutosarC++19_03-A12.1.5 : Other c'tors can't be used as delegating c'tor
 // AXIVION Next Construct AutosarC++19_03-A8.4.6 : Only ArgTypes needs to be forwarded
+// NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
 inline function_ref<ReturnType(ArgTypes...)>::function_ref(CallableType&& callable) noexcept
     // AXIVION Next Construct AutosarC++19_03-A5.2.4, AutosarC++19_03-A5.2.3, CertC++-EXP55 : Type-safety ensured by
     // casting back on call

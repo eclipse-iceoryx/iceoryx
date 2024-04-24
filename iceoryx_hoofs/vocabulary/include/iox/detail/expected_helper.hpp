@@ -58,6 +58,7 @@ struct ok
 
     // AXIVION Next Construct AutosarC++19_03-A18.9.2 : For universal references std::forward must be used
     template <typename U = T, typename = enable_if_not_lvalue_referece_t<U>>
+    // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved) perfect forwarding is used
     explicit ok(T&& t) noexcept
         : value(std::forward<T>(t))
     {
@@ -94,6 +95,7 @@ struct err
 
     // AXIVION Next Construct AutosarC++19_03-A18.9.2 : For universal references std::forward must be used
     template <typename U = T, typename = enable_if_not_lvalue_referece_t<U>>
+    // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved) perfect forwarding is used
     explicit err(T&& t) noexcept
         : value(std::forward<T>(t))
     {
@@ -122,6 +124,7 @@ class expected_storage
     }
 
     template <typename... Targs>
+    // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved) perfect forwarding is used
     explicit expected_storage(unexpect_t, Targs&&... args)
         : data(in_place_index<ERROR_INDEX>(), std::forward<Targs>(args)...)
     {
@@ -172,6 +175,7 @@ class expected_storage<void, ErrorType>
     expected_storage() noexcept = delete;
 
     template <typename... Targs>
+    // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward) Targs is not used but required for template meta-programming
     explicit expected_storage(in_place_t, Targs&&...)
         : data(in_place_index<VALUE_INDEX>(), DUMMY_VALUE)
     {

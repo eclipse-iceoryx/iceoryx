@@ -20,13 +20,13 @@
 
 namespace
 {
-enum class A
+enum class A : uint8_t
 {
     A1 = 13,
     A2
 };
 
-enum class B
+enum class B : uint8_t
 {
     B1 = 42,
     B2

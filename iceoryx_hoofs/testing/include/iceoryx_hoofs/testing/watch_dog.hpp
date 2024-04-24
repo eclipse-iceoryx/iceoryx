@@ -64,7 +64,7 @@ class Watchdog
     {
         reset();
 
-        m_watchdog = std::thread([=] {
+        m_watchdog = std::thread([this, actionOnFailure] {
             m_watchdogSemaphore->timedWait(m_timeToWait)
                 .and_then([&](auto& result) {
                     if (result == iox::SemaphoreWaitState::TIMEOUT)

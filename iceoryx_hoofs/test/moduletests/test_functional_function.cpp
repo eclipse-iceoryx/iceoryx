@@ -307,8 +307,8 @@ TEST_F(function_test, CopyCtorCopiesStoredFunctor)
     test_function f(functor);
     Functor::resetCounts();
 
-    /// @NOLINTJUSTIFICATION the copy constructor is tested here
-    /// @NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
+    // NOLINTJUSTIFICATION the copy constructor is tested here
+    // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
     test_function sut(f);
 
     EXPECT_EQ(Functor::numCopied, 1U);
@@ -364,8 +364,8 @@ TEST_F(function_test, CopyCtorCopiesStoredFreeFunction)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8f95a82a-c879-48b1-aa56-316bf15b983a");
     test_function f(freeFunction);
-    /// @NOLINTJUSTIFICATION the copy constructor is tested here
-    /// @NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
+    // NOLINTJUSTIFICATION the copy constructor is tested here
+    // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
     test_function sut(f);
 
     EXPECT_EQ(sut(1), f(1));
@@ -539,8 +539,8 @@ TEST_F(function_test, CallWithValueArgumentsWorks)
     const int32_t initial = 73;
     Arg arg(initial);
 
-    /// @NOLINTJUSTIFICATION value argument is tested here
-    /// @NOLINTNEXTLINE(performance-unnecessary-value-param)
+    // NOLINTJUSTIFICATION value argument is tested here
+    // NOLINTNEXTLINE(performance-unnecessary-value-param)
     auto lambda = [](const Arg a) { return a.value + 1; };
     function<int32_t(Arg&), 128> sut(lambda);
 
@@ -555,6 +555,7 @@ TEST_F(function_test, CallWithRValueReferenceArgumentsWorks)
     const int32_t initial = 73;
     Arg arg(initial);
 
+    // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved) this is okay for this test
     auto lambda = [](Arg&& a) { return a.value + 1; };
     function<int32_t(Arg &&), 128> sut(lambda);
 
@@ -573,8 +574,8 @@ TEST_F(function_test, CallWithMixedArgumentsWorks)
 
     constexpr int32_t sum = 10;
 
-    /// @NOLINTJUSTIFICATION value argument is tested here
-    /// @NOLINTNEXTLINE(performance-unnecessary-value-param)
+    // NOLINTJUSTIFICATION value argument is tested here
+    // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved, performance-unnecessary-value-param)
     auto lambda = [](Arg& a1, const Arg& a2, Arg&& a3, Arg a4) { return a1.value + a2.value + a3.value + a4.value; };
     function<int32_t(Arg&, const Arg&, Arg&&, Arg), 128> sut(lambda);
 

@@ -18,8 +18,8 @@
 
 namespace iox
 {
-/// NOLINTJUSTIFICATION See definitions in header file.
-/// NOLINTBEGIN(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
+// NOLINTJUSTIFICATION See definitions in header file.
+// NOLINTBEGIN(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
 constexpr const char TypeInfo<int8_t>::NAME[];
 constexpr const char TypeInfo<int16_t>::NAME[];
 constexpr const char TypeInfo<int32_t>::NAME[];
@@ -33,5 +33,5 @@ constexpr const char TypeInfo<char>::NAME[];
 constexpr const char TypeInfo<float>::NAME[];
 constexpr const char TypeInfo<double>::NAME[];
 constexpr const char TypeInfo<long double>::NAME[];
-/// NOLINTEND(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
+// NOLINTEND(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
 } // namespace iox

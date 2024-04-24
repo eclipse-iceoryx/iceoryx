@@ -66,6 +66,7 @@ inline ScopeGuardWithVariableCapacity<CleanupCapacity>& ScopeGuardWithVariableCa
 template <uint64_t CleanupCapacity>
 inline typename ScopeGuardWithVariableCapacity<CleanupCapacity>::CleanupFunction
 ScopeGuardWithVariableCapacity<CleanupCapacity>::release(
+    // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved) false positive
     ScopeGuardWithVariableCapacity<CleanupCapacity>&& scopeGuard) noexcept
 {
     IOX_ENFORCE(scopeGuard.m_cleanupFunction.has_value(),

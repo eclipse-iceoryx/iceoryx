@@ -247,6 +247,7 @@ inline bool vector<T, Capacity>::push_back(const T& value) noexcept
 }
 
 template <typename T, uint64_t Capacity>
+// NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved) perfect forwarding is used
 inline bool vector<T, Capacity>::push_back(T&& value) noexcept
 {
     // AXIVION Next Construct AutosarC++19_03-A18.9.2: we use idiomatic perfect forwarding

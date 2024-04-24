@@ -26,7 +26,7 @@ namespace iox
 {
 /// @brief Defines errors which can occur when modifying or creating a
 ///         SemanticString
-enum class SemanticStringError
+enum class SemanticStringError : uint8_t
 {
     ContainsInvalidCharacters,
     ContainsInvalidContent,

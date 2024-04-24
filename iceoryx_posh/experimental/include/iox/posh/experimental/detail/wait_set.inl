@@ -35,8 +35,11 @@ inline expected<unique_ptr<WaitSet<Capacity>>, WaitSetBuilderError> WaitSetBuild
     {
         return err(WaitSetBuilderError::OUT_OF_RESOURCES);
     }
-    return ok(unique_ptr<WaitSet<Capacity>>{new WaitSet<Capacity>{*condition_variable_data},
-                                            [&](auto* const ws) { delete ws; }});
+    return ok(unique_ptr<WaitSet<Capacity>>{new (std::nothrow) WaitSet<Capacity>{*condition_variable_data},
+                                            [&](auto* const ws) {
+                                                // NOLINTNEXTLINE(cppcoreguidelines-owning-memory) raw pointer is required by the unique_ptr API
+                                                delete ws;
+                                            }});
 }
 
 } // namespace iox::posh::experimental

@@ -47,6 +47,7 @@ inline stack<T, Capacity>& stack<T, Capacity>::copy(const stack& rhs) noexcept
 }
 
 template <typename T, uint64_t Capacity>
+// NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved) false positive, the elements are moved
 inline stack<T, Capacity>& stack<T, Capacity>::move(stack&& rhs) noexcept
 {
     uint64_t i{0};

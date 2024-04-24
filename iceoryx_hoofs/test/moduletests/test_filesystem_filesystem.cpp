@@ -601,8 +601,10 @@ TEST(filesystem_test_isValidPathEntry, StringWithRelativeComponentsIsInvalidWhen
 
 // BEGIN AccessMode and OpenMode tests
 
-constexpr AccessMode INVALID_ACCESS_MODE = static_cast<AccessMode>(std::numeric_limits<uint64_t>::max());
-constexpr OpenMode INVALID_OPEN_MODE = static_cast<OpenMode>(std::numeric_limits<uint64_t>::max());
+constexpr AccessMode INVALID_ACCESS_MODE =
+    static_cast<AccessMode>(std::numeric_limits<std::underlying_type_t<AccessMode>>::max());
+constexpr OpenMode INVALID_OPEN_MODE =
+    static_cast<OpenMode>(std::numeric_limits<std::underlying_type_t<OpenMode>>::max());
 
 TEST(TypesTest, ConvertToOflagFromAccessModeWorks)
 {

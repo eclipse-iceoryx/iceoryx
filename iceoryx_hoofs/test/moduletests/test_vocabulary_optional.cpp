@@ -549,6 +549,7 @@ struct TestStructForInPlaceConstruction
     {
     }
 
+    // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved) intended for the test
     explicit TestStructForInPlaceConstruction(int8_t&& val)
         : val(static_cast<int8_t>(DEFAULT_MULTIPLICATOR * val))
     {

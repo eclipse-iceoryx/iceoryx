@@ -159,9 +159,7 @@ inline constexpr span<T, DYNAMIC_EXTENT> span<T, Extent>::last(uint64_t count) c
 
 template <typename T, uint64_t Extent>
 template <uint64_t Offset, uint64_t Count>
-inline constexpr span<T,
-                      (Count != DYNAMIC_EXTENT ? Count : (Extent != DYNAMIC_EXTENT ? Extent - Offset : DYNAMIC_EXTENT))>
-span<T, Extent>::subspan() const noexcept
+inline constexpr span<T, detail::subspan_capacity<Offset, Count, Extent>()> span<T, Extent>::subspan() const noexcept
 {
     static_assert(Offset <= Extent, "Offset must not exceed Extent");
     static_assert(Count == DYNAMIC_EXTENT || Count <= Extent - Offset, "Count must not exceed Extent - Offset");

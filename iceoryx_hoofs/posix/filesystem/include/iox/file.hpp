@@ -25,7 +25,7 @@
 namespace iox
 {
 /// @brief Describes failures which can occur when a file is opened or created.
-enum class FileCreationError
+enum class FileCreationError : uint8_t
 {
     PermissionDenied,
     Interrupt,
@@ -43,7 +43,7 @@ enum class FileCreationError
 };
 
 /// @brief Describes failures which can occur when a file is read.
-enum class FileReadError
+enum class FileReadError : uint8_t
 {
     OffsetFailure,
     Interrupt,
@@ -56,7 +56,7 @@ enum class FileReadError
 };
 
 /// @brief Describes failures which can occur when a file is written to.
-enum class FileWriteError
+enum class FileWriteError : uint8_t
 {
     OffsetFailure,
     OperationWouldBlock,
@@ -72,7 +72,7 @@ enum class FileWriteError
 };
 
 /// @brief Describes failures which can occur when the files metadata is accessed.
-enum class FileAccessError
+enum class FileAccessError : uint8_t
 {
     InsufficientPermissions,
     TooManySymbolicLinksEncountered,
@@ -82,7 +82,7 @@ enum class FileAccessError
 };
 
 /// @brief Describes failures which can occur when a file is removed.
-enum class FileRemoveError
+enum class FileRemoveError : uint8_t
 {
     PermissionDenied,
     CurrentlyInUse,
@@ -95,7 +95,7 @@ enum class FileRemoveError
 };
 
 /// @brief Describes failures which can occur when a file offset is changed.
-enum class FileOffsetError
+enum class FileOffsetError : uint8_t
 {
     FileOffsetOverflow,
     OffsetBeyondFileLimits,

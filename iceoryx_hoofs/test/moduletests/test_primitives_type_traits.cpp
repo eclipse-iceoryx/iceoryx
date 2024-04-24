@@ -258,8 +258,8 @@ TEST(TypeTraitsTest, NonCharArraysAreIdentifiedCorrectly)
     ::testing::Test::RecordProperty("TEST_ID", "40359de0-2ccd-422a-b1d4-da4b4f12a172");
 
     EXPECT_FALSE(is_char_array<int>::value);
-    /// @NOLINTJUSTIFICATION we want test explicitly the c arrays case
-    /// @NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
+    // NOLINTJUSTIFICATION we want test explicitly the c arrays case
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     EXPECT_FALSE(is_char_array<int[10]>::value);
     EXPECT_FALSE(is_char_array<iox::string<11>>::value);
     EXPECT_FALSE(is_char_array<char>::value);
@@ -269,10 +269,10 @@ TEST(TypeTraitsTest, CharArraysAreIdentifiedCorrectly)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e1c115d9-80c4-4bc9-97d0-338112dfe1d3");
 
-    /// @NOLINTJUSTIFICATION we want test explicitly the c arrays case
-    /// @NOLINTBEGIN(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
+    // NOLINTJUSTIFICATION we want test explicitly the c arrays case
+    // NOLINTBEGIN(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     EXPECT_TRUE(is_char_array<char[1]>::value);
     EXPECT_TRUE(is_char_array<char[10]>::value);
-    /// @NOLINTEND(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
+    // NOLINTEND(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
 }
 } // namespace
