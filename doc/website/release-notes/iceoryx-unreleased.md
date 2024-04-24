@@ -218,6 +218,7 @@
 - Create a flat include structure for `iceoryx_hoofs` [#1593](https://github.com/eclipse-iceoryx/iceoryx/issues/1593)
 - Handle 'strerror_r' idiosyncrasies in the platform layer [#1616](https://github.com/eclipse-iceoryx/iceoryx/issues/1616)
 - Fix new clang-tidy-18 warnings [#2274](https://github.com/eclipse-iceoryx/iceoryx/issues/2274)
+- Adding `[[nodiscard]]` to iox containers which may fail and return false if at capacity [#2277](https://github.com/eclipse-iceoryx/iceoryx/issues/2277)
 
 **Workflow:**
 

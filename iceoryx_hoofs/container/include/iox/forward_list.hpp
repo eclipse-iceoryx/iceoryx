@@ -179,12 +179,12 @@ class forward_list
     /// @brief add element to the beginning of the list
     /// @param[in] data reference to data element
     /// @return successful insertion (true), otherwise no element could be added to list (e.g. full -> false)
-    bool push_front(const T& data) noexcept;
+    [[nodiscard]] bool push_front(const T& data) noexcept;
 
     /// @brief add element to the beginning of the list via move
     /// @param[in] data universal reference perfectly forwarded to client class
     /// @return successful insertion (true), otherwise no element could be added to list (e.g. full -> false)
-    bool push_front(T&& data) noexcept;
+    [[nodiscard]] bool push_front(T&& data) noexcept;
 
     /// @brief remove the first element from the begining of the list
     ///         element destructor will be invoked
