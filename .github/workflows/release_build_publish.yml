@@ -12,19 +12,19 @@ on:
 jobs:
   build-ubuntu-release:
     if: github.actor == 'budrus' || github.actor == 'MatthiasKillat' || github.actor == 'mossmaurice' ||
-        github.actor == 'elfenpfiff' || github.actor == 'elboberido' || github.actor == 'marthtz' ||
+        github.actor == 'elfenpfiff' || github.actor == 'elBoberido' || github.actor == 'marthtz' ||
         github.actor == 'ariexi' || github.actor == 'ithier' || github.actor == 'dkroenke'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-18.04]
+        os: [ubuntu-22.04]
     steps:
       - name: Install iceoryx dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libacl1-dev libncurses5-dev doxygen graphviz texlive-font-utils
-          sudo apt-get install -y plantuml texlive-latex-base texlive-latex-extra texlive-latex-recommended texlive-fonts-recommended
+          sudo apt update
+          sudo apt install -y libacl1-dev libncurses5-dev doxygen graphviz texlive-font-utils
+          sudo apt install -y plantuml texlive-latex-base texlive-latex-extra texlive-latex-recommended texlive-fonts-recommended
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -47,7 +47,7 @@ jobs:
           $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh clean package
 
       - name: Upload release artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: release_artifacts
           path: ./build_package/iceoryx*.deb
@@ -56,10 +56,10 @@ jobs:
   release:
     name: Create Release
     needs: build-ubuntu-release
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Download release artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: release_artifacts
 
