@@ -30,10 +30,8 @@
 class ShutdownManager
 {
   public:
-    static void scheduleShutdown(int num)
+    static void scheduleShutdown(int)
     {
-        char reason;
-        psignal(num, &reason);
         s_semaphore.post().or_else([](auto) {
             std::cerr << "failed to call post on shutdown semaphore" << std::endl;
             std::terminate();

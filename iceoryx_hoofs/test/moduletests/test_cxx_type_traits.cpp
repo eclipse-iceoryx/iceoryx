@@ -46,7 +46,7 @@ using namespace iox::cxx;
 TEST(TypeTraitsTest, IsInvocableResolvesToTrue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "802f0044-ee40-47b7-9b83-519866c63508");
-    auto lambda = [](int foo) -> void { foo++; };
+    auto lambda = [](int) -> void {};
     auto sut = is_invocable<decltype(lambda), int>::value;
     EXPECT_TRUE(sut);
 }

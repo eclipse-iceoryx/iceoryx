@@ -9,3 +9,4 @@
 - Patch cpptoml to use cmake 3.16 [#2011](https://github.com/eclipse-iceoryx/iceoryx/issues/2011)
 - Update github actions [#2011](https://github.com/eclipse-iceoryx/iceoryx/issues/2011)
 - Remove warning in toml gateway config parser [#2266](https://github.com/eclipse-iceoryx/iceoryx/issues/2266)
+- Fix warnings on macOS [#2284](https://github.com/eclipse-iceoryx/iceoryx/issues/2266)

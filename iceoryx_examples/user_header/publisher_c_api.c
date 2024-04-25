@@ -46,7 +46,7 @@ static void sigHandler(int signalValue)
 }
 //! [signal handling]
 
-int main()
+int main(void)
 {
     //! [register sigHandler]
     signal(SIGINT, sigHandler);

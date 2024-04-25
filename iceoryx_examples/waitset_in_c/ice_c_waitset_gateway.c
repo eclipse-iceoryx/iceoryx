@@ -76,7 +76,7 @@ void subscriberCallback(iox_sub_t const subscriber, void* const contextData)
 }
 //! [subscriber callback]
 
-int main()
+int main(void)
 {
     //! [initialization and shutdown handling]
     iox_runtime_init("iox-c-waitset-gateway");

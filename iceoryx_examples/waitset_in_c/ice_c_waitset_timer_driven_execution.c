@@ -87,7 +87,7 @@ int joinThread(pthread_t threadHandle)
 #endif
 }
 
-int main()
+int main(void)
 {
 #if defined(_WIN32)
     printf("This example does not work on Windows. But you can easily adapt it for now by starting a windows thread "

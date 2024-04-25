@@ -35,7 +35,7 @@ void sigHandler(int signalValue)
     keepRunning = false;
 }
 
-int main()
+int main(void)
 {
     //! [register signal handler and init runtime]
     signal(SIGINT, sigHandler);
