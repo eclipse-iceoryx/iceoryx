@@ -35,6 +35,6 @@ uint64_t iox_runtime_get_instance_name(char* const name, const uint64_t nameLeng
 
 /// @brief initiates the shutdown of the runtime to unblock all potentially blocking producer
 /// with the iox_ConsumerTooSlowPolicy::ConsumerTooSlowPolicy_WAIT_FOR_CONSUMER option set
-void iox_runtime_shutdown();
+void iox_runtime_shutdown(void);
 
 #endif

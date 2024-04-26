@@ -8,12 +8,20 @@
 
 **Bugfixes:**
 
-**Refactoring:**
+- Foo Bar [\#000](https://github.com/eclipse-iceoryx/iceoryx/issues/000)
 
-- Patch cpptoml to use cmake 3.16 [#2011](https://github.com/eclipse-iceoryx/iceoryx/issues/2011)
-- Update github actions [#2011](https://github.com/eclipse-iceoryx/iceoryx/issues/2011)
+**Refactoring:**
 
 **New API features:**
 
 **API Breaking Changes:**
 
+1. Some API change.
+
+    ```cpp
+    // before
+    #include "old/include.hpp"
+
+    // after
+    #include "new/include.hpp"
+    ```
