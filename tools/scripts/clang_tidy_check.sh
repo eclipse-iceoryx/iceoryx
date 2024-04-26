@@ -167,7 +167,9 @@ function scan() {
         FILE_COUNTER=$((FILE_COUNTER + 1))
 
         if test -f "$FILE"; then
-            ${CLANG_TIDY_CMD} ${WARN_MODE_PARAM} --quiet -p build ${FILE} &
+            SECONDS_START=${SECONDS}
+            $(${CLANG_TIDY_CMD} ${WARN_MODE_PARAM} --quiet -p build ${FILE} ; \
+            echo echo -e "${COLOR_YELLOW} $((${SECONDS}-${SECONDS_START}))s${COLOR_OFF} to scan '${FILE}'") &
             CURRENT_CONCURRENT_EXECUTIONS=$((CURRENT_CONCURRENT_EXECUTIONS + 1))
         else
             echo -e "${COLOR_RED}File does not exist! Aborting!${COLOR_OFF}"
