@@ -1,6 +1,6 @@
 # iceoryx v2.0.6
 
-## [v2.0.6](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.6) (2024-04-25)
+## [v2.0.6](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.6) (2024-04-26)
 
 [Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/v2.0.5...v2.0.6)
 
