@@ -114,5 +114,6 @@ if [ "$TYPE" == "publish" ]; then
         git clone $WEBREPO
     fi
     cd "$WORKSPACE"/../iceoryx-web
-    mike deploy --branch main --config-file ../iceoryx/mkdocs.yml --push --update-aliases "$VERSION" latest
+    mike deploy --branch main --config-file ../iceoryx/mkdocs.yml --update-aliases "$VERSION" latest
+    echo "you need to push the changes to upstream"
 fi
