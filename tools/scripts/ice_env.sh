@@ -87,6 +87,7 @@ start_docker() {
     docker run --name $CONTAINER_NAME \
                --mount type=bind,source=${ICEORYX_PATH},target=/iceoryx \
                --hostname ${OS_VERSION} \
+               --network host \
                -dt --memory $CONTAINER_MEMORY_SIZE \
                --shm-size $CONTAINER_SHM_MEMORY_SIZE ${OS_VERSION}
     echo iceoryx development environment started
