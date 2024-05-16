@@ -6,6 +6,10 @@ In this document are tips and hints documented which can help for troubleshootin
 
 Yes. Take a look at the [icedocker example](../../iceoryx_examples/icedocker/)
 
+## iceoryx crashes with SIGABRT when reserving shared memory in a docker envirnonment
+
+Check the `--shm-size` flag of the docker container. Does the container provide the shared memory size required for the segment?
+
 ## How can I find out if RouDi is running?
 
 RouDi uses a file locking machanism to ensure that only one RouDi instance is running at a time. For that RouDi
