@@ -270,7 +270,7 @@ void RouDi::processRuntimeMessages(runtime::IpcInterfaceCreator&& roudiIpcInterf
 
 version::VersionInfo RouDi::parseRegisterMessage(const runtime::IpcMessage& message,
                                                  uint32_t& pid,
-                                                 uid_t& userId,
+                                                 iox_uid_t& userId,
                                                  int64_t& transmissionTimestamp) noexcept
 {
     convert::from_string<uint32_t>(message.getElementAtIndex(2).c_str()).and_then([&pid](const auto value) {
@@ -319,7 +319,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
         else
         {
             uint32_t pid{0U};
-            uid_t userId{0};
+            iox_uid_t userId{0};
             int64_t transmissionTimestamp{0};
             version::VersionInfo versionInfo = parseRegisterMessage(message, pid, userId, transmissionTimestamp);
 

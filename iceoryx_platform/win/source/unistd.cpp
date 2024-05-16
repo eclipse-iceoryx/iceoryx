@@ -20,7 +20,7 @@
 #include "iceoryx_platform/mman.hpp"
 #include "iceoryx_platform/win32_errorHandling.hpp"
 
-int ftruncate(int fildes, off_t length)
+int iox_ftruncate(int fildes, off_t length)
 {
     internal_iox_shm_set_size(fildes, length);
     return 0;
@@ -36,9 +36,9 @@ int iox_unlink(const char* pathname)
     return _unlink(pathname);
 }
 
-long sysconf(int name)
+long iox_sysconf(int name)
 {
-    if (name == _SC_PAGESIZE)
+    if (name == IOX_SC_PAGESIZE)
     {
         SYSTEM_INFO systemInfo;
         GetSystemInfo(&systemInfo);
@@ -69,7 +69,7 @@ int iox_ext_close(int fd)
     return 0;
 }
 
-int iox_fchown(int fd, uid_t owner, gid_t group)
+int iox_fchown(int fd, iox_uid_t owner, iox_gid_t group)
 {
     return 0;
 }
@@ -89,7 +89,12 @@ iox_ssize_t iox_write(int fd, const void* buf, size_t count)
     return _write(fd, buf, count);
 }
 
-gid_t getgid()
+iox_gid_t iox_getgid(void)
+{
+    return 0;
+}
+
+iox_uid_t iox_geteuid(void)
 {
     return 0;
 }

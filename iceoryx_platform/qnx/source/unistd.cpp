@@ -17,6 +17,16 @@
 
 #include "iceoryx_platform/unistd.hpp"
 
+int iox_ftruncate(int fildes, off_t length)
+{
+    return ftruncate(fildes, length);
+}
+
+long iox_sysconf(int name)
+{
+    return sysconf(name);
+}
+
 int iox_close(int fd)
 {
     return close(fd);
@@ -27,7 +37,7 @@ int iox_ext_close(int fd)
     return close(fd);
 }
 
-int iox_fchown(int fd, uid_t owner, gid_t group)
+int iox_fchown(int fd, iox_uid_t owner, iox_gid_t group)
 {
     return fchown(fd, owner, group);
 }
@@ -55,4 +65,14 @@ iox_ssize_t iox_read(int fd, void* buf, size_t count)
 iox_ssize_t iox_write(int fd, const void* buf, size_t count)
 {
     return write(fd, buf, count);
+}
+
+iox_gid_t iox_getgid(void)
+{
+    return getgid();
+}
+
+iox_uid_t iox_geteuid(void)
+{
+    return geteuid();
 }

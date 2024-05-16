@@ -29,7 +29,7 @@ uint64_t pageSize() noexcept
 {
     // sysconf fails when one provides an invalid name parameter. _SC_PAGESIZE
     // is a valid name parameter therefore it should never fail.
-    return static_cast<uint64_t>(IOX_POSIX_CALL(sysconf)(_SC_PAGESIZE)
+    return static_cast<uint64_t>(IOX_POSIX_CALL(iox_sysconf)(IOX_SC_PAGESIZE)
                                      .failureReturnValue(-1)
                                      .evaluate()
                                      .or_else([](auto& r) {

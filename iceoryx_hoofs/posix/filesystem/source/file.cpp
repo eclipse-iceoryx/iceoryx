@@ -203,7 +203,7 @@ void File::close_fd() noexcept
 
 expected<bool, FileAccessError> File::does_exist(const FilePath& file) noexcept
 {
-    auto result = IOX_POSIX_CALL(iox_access)(file.as_string().c_str(), F_OK).failureReturnValue(-1).evaluate();
+    auto result = IOX_POSIX_CALL(iox_access)(file.as_string().c_str(), IOX_F_OK).failureReturnValue(-1).evaluate();
 
     if (!result.has_error())
     {

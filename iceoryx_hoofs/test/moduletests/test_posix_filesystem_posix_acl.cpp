@@ -60,7 +60,7 @@ struct PwUidResult
     char buff[BUFFER_SIZE];
 };
 
-std::unique_ptr<PwUidResult> iox_getpwuid(const uid_t uid)
+std::unique_ptr<PwUidResult> iox_getpwuid(const iox_uid_t uid)
 {
     passwd* resultPtr = nullptr;
     std::unique_ptr<PwUidResult> result = std::make_unique<PwUidResult>();
@@ -126,7 +126,7 @@ TEST_F(PosixAcl_test, writeSpecialUserPermissions)
     // no name specified
     EXPECT_FALSE(entryAdded);
 
-    auto name = iox_getpwuid(geteuid());
+    auto name = iox_getpwuid(iox_geteuid());
     ASSERT_TRUE(name);
     PosixUser::userName_t currentUserName(iox::TruncateToCapacity, name->pwd.pw_name);
 
@@ -209,11 +209,11 @@ TEST_F(PosixAcl_test, writeSpecialPermissionsWithID)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ef0c7e17-de0e-4cfb-aafa-3e68580660e5");
 
-    auto name = iox_getpwuid(geteuid());
+    auto name = iox_getpwuid(iox_geteuid());
     ASSERT_TRUE(name);
     std::string currentUserName(name->pwd.pw_name);
-    uid_t currentUserId(name->pwd.pw_uid);
-    gid_t groupId = 0; // root
+    iox_uid_t currentUserId(name->pwd.pw_uid);
+    iox_gid_t groupId = 0; // root
 
     bool entryAdded = m_accessController.addPermissionEntry(
         PosixAcl::Category::SPECIFIC_USER, PosixAcl::Permission::READWRITE, currentUserId);
@@ -254,7 +254,7 @@ TEST_F(PosixAcl_test, writeSpecialPermissionsWithID)
 TEST_F(PosixAcl_test, addNameInWrongPlace)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2d2dbb0d-1fb6-4569-8651-d341a4525ea6");
-    auto name = iox_getpwuid(geteuid());
+    auto name = iox_getpwuid(iox_geteuid());
     ASSERT_TRUE(name);
 
     m_accessController.addPermissionEntry(PosixAcl::Category::GROUP, PosixAcl::Permission::READ);

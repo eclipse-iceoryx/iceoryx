@@ -19,11 +19,13 @@
 #ifndef IOX_HOOFS_FREERTOS_PLATFORM_GRP_HPP
 #define IOX_HOOFS_FREERTOS_PLATFORM_GRP_HPP
 
+#include "iceoryx_platform/types.hpp"
+
 struct group
 {
     const char* gr_name;
     const char* gr_passwd;
-    gid_t gr_gid;
+    iox_gid_t gr_gid;
     const char** gr_mem;
 };
 
@@ -39,7 +41,7 @@ inline struct group* getgrnam(const char*)
     return &dummy;
 }
 
-inline struct group* getgrgid(gid_t)
+inline struct group* getgrgid(iox_gid_t)
 {
     static const char* groupName = "iceoryx_freertos_group";
     static const char* groupPasswd = "iceoryx_freertos_passwd";
@@ -51,7 +53,7 @@ inline struct group* getgrgid(gid_t)
     return &dummy;
 }
 
-inline int iox_getgrouplist(const char*, gid_t, gid_t* groups, int* ngroups)
+inline int iox_getgrouplist(const char*, iox_gid_t, iox_gid_t* groups, int* ngroups)
 {
     groups[0] = 0;
     *ngroups = 1;

@@ -37,22 +37,22 @@ class PosixUser
 
     using userName_t = string<platform::MAX_USER_NAME_LENGTH>;
 
-    explicit PosixUser(const uid_t id) noexcept;
+    explicit PosixUser(const iox_uid_t id) noexcept;
     explicit PosixUser(const userName_t& name) noexcept;
 
     groupVector_t getGroups() const noexcept;
     userName_t getName() const noexcept;
-    uid_t getID() const noexcept;
+    iox_uid_t getID() const noexcept;
 
     bool doesExist() const noexcept;
 
     static PosixUser getUserOfCurrentProcess() noexcept;
 
-    static optional<uid_t> getUserID(const userName_t& name) noexcept;
-    static optional<userName_t> getUserName(uid_t id) noexcept;
+    static optional<iox_uid_t> getUserID(const userName_t& name) noexcept;
+    static optional<userName_t> getUserName(iox_uid_t id) noexcept;
 
   private:
-    uid_t m_id;
+    iox_uid_t m_id;
     bool m_doesExist{false};
 };
 

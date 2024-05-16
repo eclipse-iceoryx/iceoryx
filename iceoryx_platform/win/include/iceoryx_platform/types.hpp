@@ -19,8 +19,8 @@
 
 #include <sys/types.h>
 
-using gid_t = int;
-using uid_t = int;
+using iox_gid_t = int;
+using iox_uid_t = int;
 #if defined(_MSC_VER)
 using mode_t = int;
 using ssize_t = size_t;

@@ -20,6 +20,8 @@
 #include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iceoryx_posh/popo/notification_info.hpp"
 
+#include <typeinfo>
+
 namespace iox
 {
 namespace popo

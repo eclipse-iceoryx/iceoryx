@@ -76,7 +76,7 @@ class RouDi
 
     version::VersionInfo parseRegisterMessage(const runtime::IpcMessage& message,
                                               uint32_t& pid,
-                                              uid_t& userId,
+                                              iox_uid_t& userId,
                                               int64_t& transmissionTimestamp) noexcept;
 
     /// @brief Handles the registration request from process

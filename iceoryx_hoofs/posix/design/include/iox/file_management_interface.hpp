@@ -61,7 +61,7 @@ enum class FileSetPermissionError : uint8_t
 namespace details
 {
 expected<iox_stat, FileStatError> get_file_status(const int fildes) noexcept;
-expected<void, FileSetOwnerError> set_owner(const int fildes, const uid_t uid, const gid_t gid) noexcept;
+expected<void, FileSetOwnerError> set_owner(const int fildes, const iox_uid_t uid, const iox_gid_t gid) noexcept;
 expected<void, FileSetPermissionError> set_permissions(const int fildes, const access_rights perms) noexcept;
 } // namespace details
 
@@ -71,16 +71,16 @@ class Ownership
   public:
     /// @brief Acquire the user id
     /// @returns uid
-    uid_t uid() const noexcept;
+    iox_uid_t uid() const noexcept;
 
     /// @brief Acquire the group id
     /// @returns gid
-    gid_t gid() const noexcept;
+    iox_gid_t gid() const noexcept;
 
     /// @brief Constructs a ownership object from a uid and a gid.
     /// @returns If the user or group does not exist it returns 'iox::nullopt' otherwise an Ownership object
     ///             with existing user and group
-    static optional<Ownership> from_user_and_group(const uid_t uid, const gid_t gid) noexcept;
+    static optional<Ownership> from_user_and_group(const iox_uid_t uid, const iox_gid_t gid) noexcept;
 
     /// @brief Constructs a ownership object from a user name and a group name.
     /// @returns If the user or group does not exist it returns 'iox::nullopt' otherwise an Ownership object
@@ -93,11 +93,11 @@ class Ownership
   private:
     template <typename>
     friend struct FileManagementInterface;
-    Ownership(const uid_t uid, const gid_t gid) noexcept;
+    Ownership(const iox_uid_t uid, const iox_gid_t gid) noexcept;
 
   private:
-    uid_t m_uid{std::numeric_limits<uid_t>::max()};
-    gid_t m_gid{std::numeric_limits<gid_t>::max()};
+    iox_uid_t m_uid{std::numeric_limits<iox_uid_t>::max()};
+    iox_gid_t m_gid{std::numeric_limits<iox_gid_t>::max()};
 };
 
 /// @brief Abstract implementation to manage things common to all file descriptor

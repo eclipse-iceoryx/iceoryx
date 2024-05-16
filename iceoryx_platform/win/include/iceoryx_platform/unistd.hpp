@@ -26,7 +26,7 @@
 #include <vector>
 
 #define IOX_SEEK_SET SEEK_SET
-#define _SC_PAGESIZE 1
+#define IOX_SC_PAGESIZE 1
 #ifndef STDOUT_FILENO
 #define STDOUT_FILENO 1
 #endif
@@ -34,25 +34,25 @@
 #define STDERR_FILENO 2
 #endif
 
-using uid_t = int;
-using gid_t = int;
 using iox_off_t = long;
 using iox_ssize_t = int;
 
-#define F_OK 0
-#define W_OK 2
-#define R_OK 4
+#define IOX_F_OK 0
+#define IOX_X_OK 1
+#define IOX_W_OK 2
+#define IOX_R_OK 4
 
-int ftruncate(int fildes, off_t length);
-long sysconf(int name);
+int iox_ftruncate(int fildes, off_t length);
+long iox_sysconf(int name);
 int iox_close(int fd);
 int iox_ext_close(int fd);
-int iox_fchown(int fd, uid_t owner, gid_t group);
+int iox_fchown(int fd, iox_uid_t owner, iox_gid_t group);
 int iox_access(const char* pathname, int mode);
 int iox_unlink(const char* pathname);
 iox_off_t iox_lseek(int fd, iox_off_t offset, int whence);
 iox_ssize_t iox_read(int fd, void* buf, size_t count);
 iox_ssize_t iox_write(int fd, const void* buf, size_t count);
-gid_t getgid();
+iox_gid_t iox_getgid(void);
+iox_uid_t iox_geteuid(void);
 
 #endif // IOX_HOOFS_WIN_PLATFORM_UNISTD_HPP

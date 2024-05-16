@@ -23,8 +23,8 @@ struct passwd
 {
     const char* pw_name;
     const char* pw_passwd;
-    uid_t pw_uid;
-    gid_t pw_gid;
+    iox_uid_t pw_uid;
+    iox_gid_t pw_gid;
     const char* pw_gecos;
     const char* pw_dir;
     const char* pw_shell;
@@ -45,7 +45,7 @@ inline struct passwd* getpwnam(const char* name)
     return &dummy;
 }
 
-inline struct passwd* getpwuid(uid_t uid)
+inline struct passwd* getpwuid(iox_uid_t uid)
 {
     static const char* value = "iceoryx_windows_dummy";
     static struct passwd dummy;
@@ -57,11 +57,6 @@ inline struct passwd* getpwuid(uid_t uid)
     dummy.pw_dir = value;
     dummy.pw_shell = value;
     return &dummy;
-}
-
-inline uid_t geteuid()
-{
-    return 0;
 }
 
 #endif // IOX_HOOFS_WIN_PLATFORM_PWD_HPP

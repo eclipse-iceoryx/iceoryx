@@ -17,20 +17,15 @@
 #ifndef IOX_HOOFS_WIN_PLATFORM_GRP_HPP
 #define IOX_HOOFS_WIN_PLATFORM_GRP_HPP
 
-#include "iceoryx_platform/grp.hpp"
+#include "iceoryx_platform/types.hpp"
 
 struct group
 {
     const char* gr_name;
     const char* gr_passwd;
-    gid_t gr_gid;
+    iox_gid_t gr_gid;
     const char** gr_mem;
 };
-
-inline gid_t getegid(void)
-{
-    return 0;
-}
 
 inline struct group* getgrnam(const char* name)
 {
@@ -44,7 +39,7 @@ inline struct group* getgrnam(const char* name)
     return &dummy;
 }
 
-inline struct group* getgrgid(gid_t gid)
+inline struct group* getgrgid(iox_gid_t gid)
 {
     static const char* groupName = "iceoryx_windows_group";
     static const char* groupPasswd = "iceoryx_windows_passwd";
@@ -56,7 +51,7 @@ inline struct group* getgrgid(gid_t gid)
     return &dummy;
 }
 
-inline int iox_getgrouplist(const char* user, gid_t group, gid_t* groups, int* ngroups)
+inline int iox_getgrouplist(const char* user, iox_gid_t group, iox_gid_t* groups, int* ngroups)
 {
     groups[0] = 0;
     *ngroups = 1;

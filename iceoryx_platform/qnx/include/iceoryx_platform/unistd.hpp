@@ -17,19 +17,32 @@
 #ifndef IOX_HOOFS_QNX_PLATFORM_UNISTD_HPP
 #define IOX_HOOFS_QNX_PLATFORM_UNISTD_HPP
 
+#include "iceoryx_platform/types.hpp"
+
 #include <unistd.h>
 
 #define IOX_SEEK_SET SEEK_SET
+#define IOX_SC_PAGESIZE _SC_PAGESIZE
+
 using iox_off_t = off_t;
 using iox_ssize_t = ssize_t;
 
+#define IOX_F_OK F_OK
+#define IOX_X_OK X_OK
+#define IOX_W_OK W_OK
+#define IOX_R_OK R_OK
+
+int iox_ftruncate(int fildes, off_t length);
+long iox_sysconf(int name);
 int iox_close(int fd);
 int iox_ext_close(int fd);
-int iox_fchown(int fd, uid_t owner, gid_t group);
+int iox_fchown(int fd, iox_uid_t owner, iox_gid_t group);
 int iox_access(const char* pathname, int mode);
 int iox_unlink(const char* pathname);
 iox_off_t iox_lseek(int fd, iox_off_t offset, int whence);
 iox_ssize_t iox_read(int fd, void* buf, size_t count);
 iox_ssize_t iox_write(int fd, const void* buf, size_t count);
+iox_gid_t iox_getgid(void);
+iox_uid_t iox_geteuid(void);
 
 #endif // IOX_HOOFS_QNX_PLATFORM_UNISTD_HPP

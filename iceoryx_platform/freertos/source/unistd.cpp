@@ -35,7 +35,7 @@ int iox_ext_close(int)
     return 0;
 }
 
-int ftruncate(int fd, off_t length)
+int iox_ftruncate(int fd, off_t length)
 {
     std::lock_guard<std::mutex> lock{ShmFile::openFilesMutex};
     const auto iter = std::find_if(
@@ -44,32 +44,14 @@ int ftruncate(int fd, off_t length)
     return iter->ftruncate(length) ? 0 : -1;
 }
 
-gid_t getgid(void)
-{
-    // Lets just say that on FreeRTOS, all group IDs are 1
-    return 1;
-}
-
-gid_t getegid(void)
-{
-    // Lets just say that on FreeRTOS, all effective group IDs are 1
-    return 1;
-}
-
-uid_t geteuid(void)
-{
-    // Lets just say that on FreeRTOS, all user IDs are 1
-    return 1;
-}
-
-long sysconf(int)
+long iox_sysconf(int)
 {
     // This is only ever used to find the page size. Lets just return 4 kB as usual, even though there is no paging on
     // FreeRTOS
     return 4096;
 }
 
-int iox_fchown(int, uid_t, gid_t)
+int iox_fchown(int, iox_uid_t, iox_gid_t)
 {
     return 0;
 }
@@ -97,4 +79,16 @@ iox_ssize_t iox_read(int, void*, size_t)
 iox_ssize_t iox_write(int, const void*, size_t)
 {
     return 0;
+}
+
+iox_gid_t iox_getgid(void)
+{
+    // Lets just say that on FreeRTOS, all group IDs are 1
+    return 1;
+}
+
+iox_uid_t iox_geteuid(void)
+{
+    // Lets just say that on FreeRTOS, all user IDs are 1
+    return 1;
 }

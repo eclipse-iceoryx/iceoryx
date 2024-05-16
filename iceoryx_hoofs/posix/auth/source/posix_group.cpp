@@ -27,7 +27,7 @@
 
 namespace iox
 {
-PosixGroup::PosixGroup(gid_t id) noexcept
+PosixGroup::PosixGroup(iox_gid_t id) noexcept
     : m_id(id)
     , m_doesExist(getGroupName(id).has_value())
 {
@@ -43,7 +43,7 @@ PosixGroup::PosixGroup(const PosixGroup::groupName_t& name) noexcept
     else
     {
         IOX_LOG(ERROR, "Error: Group name not found");
-        m_id = std::numeric_limits<gid_t>::max();
+        m_id = std::numeric_limits<iox_gid_t>::max();
     }
 }
 
@@ -54,10 +54,10 @@ bool PosixGroup::operator==(const PosixGroup& other) const noexcept
 
 PosixGroup PosixGroup::getGroupOfCurrentProcess() noexcept
 {
-    return PosixGroup(getgid());
+    return PosixGroup(iox_getgid());
 }
 
-optional<gid_t> PosixGroup::getGroupID(const PosixGroup::groupName_t& name) noexcept
+optional<iox_gid_t> PosixGroup::getGroupID(const PosixGroup::groupName_t& name) noexcept
 {
     auto getgrnamCall = IOX_POSIX_CALL(getgrnam)(name.c_str()).failureReturnValue(nullptr).evaluate();
 
@@ -67,10 +67,10 @@ optional<gid_t> PosixGroup::getGroupID(const PosixGroup::groupName_t& name) noex
         return nullopt_t();
     }
 
-    return make_optional<gid_t>(getgrnamCall->value->gr_gid);
+    return make_optional<iox_gid_t>(getgrnamCall->value->gr_gid);
 }
 
-optional<PosixGroup::groupName_t> PosixGroup::getGroupName(gid_t id) noexcept
+optional<PosixGroup::groupName_t> PosixGroup::getGroupName(iox_gid_t id) noexcept
 {
     auto getgrgidCall = IOX_POSIX_CALL(getgrgid)(id).failureReturnValue(nullptr).evaluate();
 
@@ -94,7 +94,7 @@ PosixGroup::groupName_t PosixGroup::getName() const noexcept
     return groupName_t();
 }
 
-gid_t PosixGroup::getID() const noexcept
+iox_gid_t PosixGroup::getID() const noexcept
 {
     return m_id;
 }

@@ -20,6 +20,7 @@
 #include "iceoryx_platform/platform_correction.hpp"
 #include "iceoryx_platform/pwd.hpp"
 #include "iceoryx_platform/types.hpp"
+#include "iceoryx_platform/unistd.hpp"
 #include "iox/logging.hpp"
 #include "iox/posix_call.hpp"
 #include "iox/uninitialized_array.hpp"
@@ -28,7 +29,7 @@
 
 namespace iox
 {
-optional<uid_t> PosixUser::getUserID(const userName_t& name) noexcept
+optional<iox_uid_t> PosixUser::getUserID(const userName_t& name) noexcept
 {
     auto getpwnamCall = IOX_POSIX_CALL(getpwnam)(name.c_str()).failureReturnValue(nullptr).evaluate();
 
@@ -37,10 +38,10 @@ optional<uid_t> PosixUser::getUserID(const userName_t& name) noexcept
         IOX_LOG(ERROR, "Error: Could not find user '" << name << "'.");
         return nullopt_t();
     }
-    return make_optional<uid_t>(getpwnamCall->value->pw_uid);
+    return make_optional<iox_uid_t>(getpwnamCall->value->pw_uid);
 }
 
-optional<PosixUser::userName_t> PosixUser::getUserName(uid_t id) noexcept
+optional<PosixUser::userName_t> PosixUser::getUserName(iox_uid_t id) noexcept
 {
     auto getpwuidCall = IOX_POSIX_CALL(getpwuid)(id).failureReturnValue(nullptr).evaluate();
 
@@ -67,8 +68,8 @@ PosixUser::groupVector_t PosixUser::getGroups() const noexcept
         return groupVector_t();
     }
 
-    gid_t userDefaultGroup = getpwnamCall->value->pw_gid;
-    UninitializedArray<gid_t, MAX_NUMBER_OF_GROUPS> groups{}; // groups is initialized in iox_getgrouplist
+    iox_gid_t userDefaultGroup = getpwnamCall->value->pw_gid;
+    UninitializedArray<iox_gid_t, MAX_NUMBER_OF_GROUPS> groups{}; // groups is initialized in iox_getgrouplist
     int numGroups = MAX_NUMBER_OF_GROUPS;
 
     auto getgrouplistCall =
@@ -96,7 +97,7 @@ PosixUser::groupVector_t PosixUser::getGroups() const noexcept
     return vec;
 }
 
-PosixUser::PosixUser(uid_t id) noexcept
+PosixUser::PosixUser(iox_uid_t id) noexcept
     : m_id(id)
     , m_doesExist(getUserName(id).has_value())
 {
@@ -112,7 +113,7 @@ PosixUser::PosixUser(const PosixUser::userName_t& name) noexcept
     else
     {
         IOX_LOG(ERROR, "Error: User name not found");
-        m_id = std::numeric_limits<gid_t>::max();
+        m_id = std::numeric_limits<iox_gid_t>::max();
     }
 }
 
@@ -127,7 +128,7 @@ PosixUser::userName_t PosixUser::getName() const noexcept
     return userName_t();
 }
 
-uid_t PosixUser::getID() const noexcept
+iox_uid_t PosixUser::getID() const noexcept
 {
     return m_id;
 }
@@ -139,7 +140,7 @@ bool PosixUser::doesExist() const noexcept
 
 PosixUser PosixUser::getUserOfCurrentProcess() noexcept
 {
-    return PosixUser(geteuid());
+    return PosixUser(iox_geteuid());
 }
 
 } // namespace iox
