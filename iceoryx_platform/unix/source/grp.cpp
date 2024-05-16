@@ -15,10 +15,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_platform/grp.hpp"
+
 #include <unistd.h>
 
 // NOLINTNEXTLINE(readability-function-size,readability-identifier-naming)
-int iox_getgrouplist(const char* user, gid_t group, gid_t* groups, int* ngroups)
+int iox_getgrouplist(const char* user, iox_gid_t group, iox_gid_t* groups, int* ngroups)
 {
     return getgrouplist(user, group, groups, ngroups);
 }

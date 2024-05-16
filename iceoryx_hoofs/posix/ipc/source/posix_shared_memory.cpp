@@ -129,7 +129,7 @@ expected<PosixSharedMemory, PosixSharedMemoryError> PosixSharedMemoryBuilder::cr
 
     if (hasOwnership)
     {
-        auto result = IOX_POSIX_CALL(ftruncate)(sharedMemoryFileHandle, static_cast<int64_t>(m_size))
+        auto result = IOX_POSIX_CALL(iox_ftruncate)(sharedMemoryFileHandle, static_cast<int64_t>(m_size))
                           .failureReturnValue(PosixSharedMemory::INVALID_HANDLE)
                           .evaluate();
         if (result.has_error())

@@ -52,7 +52,7 @@ expected<iox_stat, FileStatError> get_file_status(const int fildes) noexcept
     return ok(file_status);
 }
 
-expected<void, FileSetOwnerError> set_owner(const int fildes, const uid_t uid, const gid_t gid) noexcept
+expected<void, FileSetOwnerError> set_owner(const int fildes, const iox_uid_t uid, const iox_gid_t gid) noexcept
 {
     auto result = IOX_POSIX_CALL(iox_fchown)(fildes, uid, gid).failureReturnValue(-1).evaluate();
 
@@ -118,17 +118,17 @@ expected<void, FileSetPermissionError> set_permissions(const int fildes, const a
 
 } // namespace details
 
-uid_t Ownership::uid() const noexcept
+iox_uid_t Ownership::uid() const noexcept
 {
     return m_uid;
 }
 
-gid_t Ownership::gid() const noexcept
+iox_gid_t Ownership::gid() const noexcept
 {
     return m_gid;
 }
 
-optional<Ownership> Ownership::from_user_and_group(const uid_t uid, const gid_t gid) noexcept
+optional<Ownership> Ownership::from_user_and_group(const iox_uid_t uid, const iox_gid_t gid) noexcept
 {
     if (!PosixUser(uid).doesExist() || !PosixGroup(gid).doesExist())
     {
@@ -156,7 +156,7 @@ Ownership Ownership::from_process() noexcept
     return Ownership(PosixUser::getUserOfCurrentProcess().getID(), PosixGroup::getGroupOfCurrentProcess().getID());
 }
 
-Ownership::Ownership(const uid_t uid, const gid_t gid) noexcept
+Ownership::Ownership(const iox_uid_t uid, const iox_gid_t gid) noexcept
     : m_uid{uid}
     , m_gid{gid}
 {

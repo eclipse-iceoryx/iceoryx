@@ -17,9 +17,10 @@
 #ifndef IOX_HOOFS_MAC_PLATFORM_GRP_HPP
 #define IOX_HOOFS_MAC_PLATFORM_GRP_HPP
 
-#include <grp.h>
-#include <unistd.h>
+#include "iceoryx_platform/types.hpp"
 
-int iox_getgrouplist(const char* user, gid_t group, gid_t* groups, int* ngroups);
+#include <grp.h>
+
+int iox_getgrouplist(const char* user, iox_gid_t group, iox_gid_t* groups, int* ngroups);
 
 #endif // IOX_HOOFS_MAC_PLATFORM_GRP_HPP

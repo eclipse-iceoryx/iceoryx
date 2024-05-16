@@ -31,23 +31,23 @@ class PosixGroup
 {
   public:
     using groupName_t = string<platform::MAX_GROUP_NAME_LENGTH>;
-    explicit PosixGroup(const gid_t id) noexcept;
+    explicit PosixGroup(const iox_gid_t id) noexcept;
     explicit PosixGroup(const groupName_t& name) noexcept;
 
     bool operator==(const PosixGroup& other) const noexcept;
 
     groupName_t getName() const noexcept;
-    gid_t getID() const noexcept;
+    iox_gid_t getID() const noexcept;
 
     bool doesExist() const noexcept;
 
     static PosixGroup getGroupOfCurrentProcess() noexcept;
 
-    static optional<uid_t> getGroupID(const groupName_t& name) noexcept;
-    static optional<groupName_t> getGroupName(gid_t id) noexcept;
+    static optional<iox_uid_t> getGroupID(const groupName_t& name) noexcept;
+    static optional<groupName_t> getGroupName(iox_gid_t id) noexcept;
 
   private:
-    gid_t m_id;
+    iox_gid_t m_id;
     bool m_doesExist{false};
 };
 

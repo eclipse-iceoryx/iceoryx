@@ -19,4 +19,9 @@
 #ifndef IOX_HOOFS_FREERTOS_PLATFORM_TYPES_HPP
 #define IOX_HOOFS_FREERTOS_PLATFORM_TYPES_HPP
 
+#include <sys/types.h>
+
+using iox_gid_t = gid_t;
+using iox_uid_t = uid_t;
+
 #endif // IOX_HOOFS_FREERTOS_PLATFORM_TYPES_HPP

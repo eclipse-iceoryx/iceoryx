@@ -32,7 +32,7 @@ struct passwd* getpwnam(const char*)
     return &dummy;
 }
 
-struct passwd* getpwuid(uid_t)
+struct passwd* getpwuid(iox_uid_t)
 {
     static char value[] = "iceoryx_freertos_dummy";
     static struct passwd dummy;
