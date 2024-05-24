@@ -17,6 +17,7 @@
 #ifndef IOX_HOOFS_CXX_VARIANT_QUEUE_INL
 #define IOX_HOOFS_CXX_VARIANT_QUEUE_INL
 
+#include "iceoryx_hoofs/cxx/variant_queue.hpp"
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
 
 namespace iox
@@ -48,6 +49,11 @@ inline VariantQueue<ValueType, Capacity>::VariantQueue(const VariantQueueTypes t
     }
     }
 }
+
+#if (defined(__GNUC__) && __GNUC__ >= 13 && !defined(__clang__))
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
+#endif
 
 template <typename ValueType, uint64_t Capacity>
 optional<ValueType> VariantQueue<ValueType, Capacity>::push(const ValueType& value) noexcept
@@ -89,6 +95,10 @@ optional<ValueType> VariantQueue<ValueType, Capacity>::push(const ValueType& val
 
     return cxx::nullopt;
 }
+
+#if (defined(__GNUC__) && __GNUC__ >= 13 && !defined(__clang__))
+#pragma GCC diagnostic pop
+#endif
 
 template <typename ValueType, uint64_t Capacity>
 inline optional<ValueType> VariantQueue<ValueType, Capacity>::pop() noexcept
