@@ -132,6 +132,11 @@ inline bool ChunkDistributor<ChunkDistributorDataType>::hasStoredQueues() const 
     return !getMembers()->m_queues.empty();
 }
 
+#if (defined(__GNUC__) && __GNUC__ >= 13 && !defined(__clang__))
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
+
 template <typename ChunkDistributorDataType>
 inline uint64_t ChunkDistributor<ChunkDistributorDataType>::deliverToAllStoredQueues(mepoo::SharedChunk chunk) noexcept
 {
@@ -208,6 +213,10 @@ inline uint64_t ChunkDistributor<ChunkDistributorDataType>::deliverToAllStoredQu
 
     return numberOfQueuesTheChunkWasDeliveredTo;
 }
+
+#if (defined(__GNUC__) && __GNUC__ >= 13 && !defined(__clang__))
+#pragma GCC diagnostic pop
+#endif
 
 template <typename ChunkDistributorDataType>
 inline bool ChunkDistributor<ChunkDistributorDataType>::pushToQueue(cxx::not_null<ChunkQueueData_t* const> queue,
