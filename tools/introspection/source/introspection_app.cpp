@@ -340,7 +340,8 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
     constexpr int32_t scopeWidth{12};
     constexpr int32_t interfaceSourceWidth{8};
 
-    prettyPrint("Publisher Ports\n", PrettyOptions::bold);
+    prettyPrint(std::string("Publisher Ports (") + std::to_string(publisherPortData.size()) + ")\n",
+                PrettyOptions::bold);
 
     wprintw(pad, " %*s |", serviceWidth, "Service");
     wprintw(pad, " %*s |", instanceWidth, "Instance");
@@ -445,7 +446,8 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
     }
     wprintw(pad, "\n");
 
-    prettyPrint("Subscriber Ports\n", PrettyOptions::bold);
+    prettyPrint(std::string("Subscriber Ports (") + std::to_string(subscriberPortData.size()) + ")\n",
+                PrettyOptions::bold);
 
     wprintw(pad, " %*s |", serviceWidth, "Service");
     wprintw(pad, " %*s |", instanceWidth, "Instance");
