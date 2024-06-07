@@ -8,6 +8,7 @@
 
 - The minimal supported GCC compiler is now 8.3
 - The required C++ standard is now C++17
+- Experimental 32-bit support for all platforms supporting 64-bit atomic operations
 
 **Features:**
 
@@ -1467,5 +1468,3 @@
     ```
 
 64. The non-functional `iox::popo::Node` was removed
-
-65. 32-bit support is disabled by default. For development purposes iceoryx can be build with the `-DIOX_IGNORE_32_BIT_CHECK=ON`

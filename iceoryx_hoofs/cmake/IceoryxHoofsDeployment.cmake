@@ -31,11 +31,6 @@ configure_option(
     DEFAULT_VALUE 10
 )
 
-if(IOX_IGNORE_32_BIT_CHECK)
-     set(IOX_IGNORE_32_BIT_CHECK_FLAG true)
-else()
-     set(IOX_IGNORE_32_BIT_CHECK_FLAG false)
-endif()
 message(STATUS "[i] IOX_EXPERIMENTAL_POSH_FLAG: ${IOX_EXPERIMENTAL_POSH_FLAG}")
 
 message(STATUS "[i] <<<<<<<<<<<<<< End iceoryx_hoofs configuration: >>>>>>>>>>>>>>")

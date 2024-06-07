@@ -123,7 +123,7 @@ PoshRuntime::PoshRuntime(optional<const RuntimeName_t*> name) noexcept
 {
     if (detail::isCompiledOn32BitSystem())
     {
-        IOX_LOG(WARN, "Running applications on 32-bit architectures is not supported! Use at your own risk!");
+        IOX_LOG(WARN, "Running applications on 32-bit architectures is experimental! Use at your own risk!");
     }
 }
 
