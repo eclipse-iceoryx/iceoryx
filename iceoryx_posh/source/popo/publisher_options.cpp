@@ -36,7 +36,7 @@ PublisherOptions::deserialize(const cxx::Serialization& serialized) noexcept
     using ConsumerTooSlowPolicyUT = std::underlying_type_t<ConsumerTooSlowPolicy>;
 
     PublisherOptions publisherOptions;
-    ConsumerTooSlowPolicyUT subscriberTooSlowPolicy;
+    ConsumerTooSlowPolicyUT subscriberTooSlowPolicy{0};
 
     auto deserializationSuccessful = serialized.extract(publisherOptions.historyCapacity,
                                                         publisherOptions.nodeName,
