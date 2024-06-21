@@ -1,5 +1,5 @@
-[![Build & Test](https://github.com/eclipse-iceoryx/iceoryx/workflows/Build%20&%20Test/badge.svg)](https://github.com/eclipse-iceoryx/iceoryx/actions)
-[![Cirrus CI](https://img.shields.io/cirrus/github/eclipse-iceoryx/iceoryx/main?label=Cirrus%20CI)](https://cirrus-ci.com/github/eclipse-iceoryx/iceoryx)
+[![Build & Test](https://github.com/eclipse-iceoryx/iceoryx/workflows/Build%20&%20Test/badge.svg)](https://github.com/eclipse-iceoryx/iceoryx/actions/workflows/build-test.yml?query=branch%3Amain++)
+[![Cirrus CI](https://img.shields.io/cirrus/github/eclipse-iceoryx/iceoryx/main?label=Cirrus%20CI)](https://cirrus-ci.com/github/eclipse-iceoryx/iceoryx/main)
 [![Gitter](https://badges.gitter.im/eclipse-iceoryx/iceoryx.svg)](https://gitter.im/eclipse/iceoryx)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![Codecov](https://codecov.io/gh/eclipse-iceoryx/iceoryx/branch/main/graph/badge.svg?branch=main)](https://codecov.io/gh/eclipse-iceoryx/iceoryx?branch=main)
@@ -9,6 +9,9 @@
 </p>
 
 # iceoryx - true zero-copy inter-process-communication
+
+This is the original implementation written in C++. For the Rust-based next-gen implementation, please have a
+look at [iceoryx2](https://github.com/eclipse-iceoryx/iceoryx2).
 
 1. [Introduction](#introduction)
    1. [Supported Platforms](#supported-platforms)
