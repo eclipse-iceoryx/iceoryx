@@ -10,6 +10,9 @@
 
 # iceoryx - true zero-copy inter-process-communication
 
+This is the original implementation written in C++. For the Rust-based next-gen implementation, please have a
+look at [iceoryx2](https://github.com/eclipse-iceoryx/iceoryx2).
+
 1. [Introduction](#introduction)
    1. [Supported Platforms](#supported-platforms)
    2. [Where is Eclipse iceoryx used](#where-is-eclipse-iceoryx-used)
