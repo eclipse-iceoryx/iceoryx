@@ -38,7 +38,7 @@ using Wildcard_t = iox::nullopt_t;
 constexpr Wildcard_t Wildcard;
 
 static constexpr int32_t MAX_NUMBER_OF_CHARS = 64;
-static constexpr size_t CLASS_HASH_ELEMENT_COUNT{4U};
+static constexpr size_t CLASS_HASH_ELEMENT_COUNT{ 4U };
 
 /// @brief Describes from which interface the service is coming from
 enum class Interfaces : uint16_t
@@ -65,8 +65,8 @@ enum class Interfaces : uint16_t
     INTERFACE_END
 };
 
-constexpr const char* INTERFACE_NAMES[] = {
-    "INTERNAL", "ESOC", "SOMEIP", "AMQP", "MQTT", "DDS", "SIGNAL", "MTA", "ROS1", "END"};
+constexpr const char* INTERFACE_NAMES[] = { "INTERNAL", "ESOC",   "SOMEIP", "AMQP", "MQTT",
+                                            "DDS",      "SIGNAL", "MTA",    "ROS1", "END" };
 
 /// @brief Scope of a service description
 enum class Scope : uint16_t
@@ -76,7 +76,7 @@ enum class Scope : uint16_t
     INVALID
 };
 
-constexpr char ScopeTypeString[][MAX_NUMBER_OF_CHARS] = {"WORLDWIDE", "INTERNAL", "INVALID"};
+constexpr char ScopeTypeString[][MAX_NUMBER_OF_CHARS] = { "WORLDWIDE", "INTERNAL", "INVALID" };
 
 /// @brief class for the identification of a communication event including information on the service, the service
 /// instance and the event id.
@@ -107,7 +107,7 @@ class ServiceDescription
     ServiceDescription(const IdString_t& service,
                        const IdString_t& instance,
                        const IdString_t& event,
-                       ClassHash m_classHash = {0U, 0U, 0U, 0U},
+                       ClassHash m_classHash = { 0U, 0U, 0U, 0U },
                        Interfaces interfaceSource = Interfaces::INTERNAL) noexcept;
 
     /// @brief compare operator.
@@ -163,13 +163,13 @@ class ServiceDescription
     IdString_t m_eventString;
 
     /// @brief 128-Bit class hash (32-Bit * 4)
-    ClassHash m_classHash{0, 0, 0, 0};
+    ClassHash m_classHash{ 0, 0, 0, 0 };
 
     /// @brief How far this service should be propagated
-    Scope m_scope{Scope::WORLDWIDE};
+    Scope m_scope{ Scope::WORLDWIDE };
 
     /// @brief If StopOffer or Offer message, this is set from which interface its coming
-    Interfaces m_interfaceSource{Interfaces::INTERNAL};
+    Interfaces m_interfaceSource{ Interfaces::INTERNAL };
 };
 
 /// @brief Compare two service descriptions via their values in member

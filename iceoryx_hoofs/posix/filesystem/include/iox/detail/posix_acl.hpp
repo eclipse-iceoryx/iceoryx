@@ -131,7 +131,7 @@ class PosixAcl
     static bool createACLEntry(const acl_t ACL, const PermissionEntry& entry) noexcept;
     static bool addAclPermission(acl_permset_t permset, acl_perm_t perm) noexcept;
 
-    bool m_useACLMask{false};
+    bool m_useACLMask{ false };
 };
 } // namespace detail
 } // namespace iox

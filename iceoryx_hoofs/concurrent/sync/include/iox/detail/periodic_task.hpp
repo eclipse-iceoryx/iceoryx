@@ -130,7 +130,7 @@ class PeriodicTask
   private:
     T m_callable;
     ThreadName_t m_taskName;
-    units::Duration m_interval{units::Duration::fromMilliseconds(0U)};
+    units::Duration m_interval{ units::Duration::fromMilliseconds(0U) };
     optional<UnnamedSemaphore> m_stop;
     std::thread m_taskExecutor;
 };

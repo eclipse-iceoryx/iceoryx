@@ -33,12 +33,12 @@ struct Incrementable
 {
     friend Derived operator++(T& self) noexcept
     {
-        return Derived{++internal::newTypeRefAccessor(self)};
+        return Derived{ ++internal::newTypeRefAccessor(self) };
     }
 
     friend Derived operator++(T& self, int) noexcept
     {
-        return Derived{internal::newTypeRefAccessor(self)++};
+        return Derived{ internal::newTypeRefAccessor(self)++ };
     }
 
   protected:

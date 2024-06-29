@@ -74,7 +74,7 @@ class ProcessIntrospection_test : public Test
         return chunkWasSent ? m_chunk.get() : nullptr;
     }
 
-    std::unique_ptr<ChunkMock<Topic>> m_chunk{new ChunkMock<Topic>()};
+    std::unique_ptr<ChunkMock<Topic>> m_chunk{ new ChunkMock<Topic>() };
     MockPublisherPortUser m_mockPublisherPortUserIntrospection;
 };
 
@@ -82,7 +82,7 @@ TEST_F(ProcessIntrospection_test, CTOR)
 {
     ::testing::Test::RecordProperty("TEST_ID", "74c1c79f-3c99-406b-8ccf-9e85defbd71b");
     {
-        std::unique_ptr<ProcessIntrospectionAccess> introspectionAccess{new ProcessIntrospectionAccess()};
+        std::unique_ptr<ProcessIntrospectionAccess> introspectionAccess{ new ProcessIntrospectionAccess() };
         EXPECT_THAT(introspectionAccess->getPublisherPort().has_value(), Eq(false));
     }
 }
@@ -91,7 +91,7 @@ TEST_F(ProcessIntrospection_test, registerPublisherPort)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fcacaa4a-7883-43d6-850f-04b78558e45b");
     {
-        std::unique_ptr<ProcessIntrospectionAccess> introspectionAccess{new ProcessIntrospectionAccess()};
+        std::unique_ptr<ProcessIntrospectionAccess> introspectionAccess{ new ProcessIntrospectionAccess() };
         introspectionAccess->registerPublisherPort(std::move(m_mockPublisherPortUserIntrospection));
         EXPECT_CALL(introspectionAccess->getPublisherPort().value(), stopOffer()).Times(1);
     }
@@ -101,7 +101,7 @@ TEST_F(ProcessIntrospection_test, send)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7faf7880-c9be-4893-8f68-15cc77a4583c");
     {
-        std::unique_ptr<ProcessIntrospectionAccess> introspectionAccess{new ProcessIntrospectionAccess()};
+        std::unique_ptr<ProcessIntrospectionAccess> introspectionAccess{ new ProcessIntrospectionAccess() };
         introspectionAccess->registerPublisherPort(std::move(m_mockPublisherPortUserIntrospection));
 
         auto chunk = createMemoryChunkAndSend(*introspectionAccess);
@@ -115,7 +115,7 @@ TEST_F(ProcessIntrospection_test, addRemoveProcess)
 {
     ::testing::Test::RecordProperty("TEST_ID", "50d5090f-c89e-400f-b400-313df15d4193");
     {
-        std::unique_ptr<ProcessIntrospectionAccess> introspectionAccess{new ProcessIntrospectionAccess()};
+        std::unique_ptr<ProcessIntrospectionAccess> introspectionAccess{ new ProcessIntrospectionAccess() };
         introspectionAccess->registerPublisherPort(std::move(m_mockPublisherPortUserIntrospection));
 
         const int PID = 42;
@@ -155,7 +155,7 @@ TEST_F(ProcessIntrospection_test, thread)
         const int PID = 42;
         const char PROCESS_NAME[] = "/chuck_norris";
 
-        std::unique_ptr<ProcessIntrospectionAccess> introspectionAccess{new ProcessIntrospectionAccess()};
+        std::unique_ptr<ProcessIntrospectionAccess> introspectionAccess{ new ProcessIntrospectionAccess() };
 
         introspectionAccess->registerPublisherPort(std::move(m_mockPublisherPortUserIntrospection));
 

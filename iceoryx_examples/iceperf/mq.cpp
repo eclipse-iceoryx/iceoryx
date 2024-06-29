@@ -154,7 +154,7 @@ void MQ::open(const std::string& name, const iox::PosixIpcChannelSide channelSid
         openFlags |= O_CREAT;
     }
 
-    constexpr bool TRY_TO_OPEN{true};
+    constexpr bool TRY_TO_OPEN{ true };
     while (TRY_TO_OPEN)
     {
         // the mask will be applied to the permissions, therefore we need to set it to 0
@@ -173,7 +173,7 @@ void MQ::open(const std::string& name, const iox::PosixIpcChannelSide channelSid
 
         if (mqCall->errnum == ENOENT)
         {
-            constexpr std::chrono::milliseconds RETRY_INTERVAL{10};
+            constexpr std::chrono::milliseconds RETRY_INTERVAL{ 10 };
             std::this_thread::sleep_for(RETRY_INTERVAL);
             continue;
         }

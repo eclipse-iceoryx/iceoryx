@@ -53,7 +53,7 @@ TEST(ClientOptions_test, SerializationRoundTripIsSuccessful)
             EXPECT_THAT(roundTripOptions.serverTooSlowPolicy, Eq(testOptions.serverTooSlowPolicy));
         })
         .or_else([&](auto&) {
-            constexpr bool DESERIALZATION_ERROR_OCCURED{true};
+            constexpr bool DESERIALZATION_ERROR_OCCURED{ true };
             EXPECT_FALSE(DESERIALZATION_ERROR_OCCURED);
         });
 }
@@ -64,11 +64,11 @@ TEST(ClientOptions_test, DeserializingBogusDataFails)
     const auto bogusSerialization = iox::Serialization::create("hypnotoad", "brain slug", "rock star");
     iox::popo::ClientOptions::deserialize(bogusSerialization)
         .and_then([&](auto&) {
-            constexpr bool DESERIALZATION_SUCCESSFUL{true};
+            constexpr bool DESERIALZATION_SUCCESSFUL{ true };
             EXPECT_FALSE(DESERIALZATION_SUCCESSFUL);
         })
         .or_else([&](auto&) {
-            constexpr bool DESERIALZATION_ERROR_OCCURED{true};
+            constexpr bool DESERIALZATION_ERROR_OCCURED{ true };
             EXPECT_TRUE(DESERIALZATION_ERROR_OCCURED);
         });
 }
@@ -78,9 +78,9 @@ using ConsumerTooSlowPolicyUT = std::underlying_type_t<iox::popo::ConsumerTooSlo
 iox::Serialization enumSerialization(QueueFullPolicyUT responseQueueFullPolicy,
                                      ConsumerTooSlowPolicyUT serverTooSlowPolicy)
 {
-    constexpr uint64_t RESPONSE_QUEUE_CAPACITY{42U};
-    const iox::NodeName_t NODE_NAME{"harr-harr"};
-    constexpr bool CONNECT_ON_CREATE{true};
+    constexpr uint64_t RESPONSE_QUEUE_CAPACITY{ 42U };
+    const iox::NodeName_t NODE_NAME{ "harr-harr" };
+    constexpr bool CONNECT_ON_CREATE{ true };
 
     return iox::Serialization::create(
         RESPONSE_QUEUE_CAPACITY, NODE_NAME, CONNECT_ON_CREATE, responseQueueFullPolicy, serverTooSlowPolicy);
@@ -89,19 +89,19 @@ iox::Serialization enumSerialization(QueueFullPolicyUT responseQueueFullPolicy,
 TEST(ClientOptions_test, DeserializingValidResponseQueueFullAndServerTooSlowPolicyIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "877ad373-eb51-4613-9b68-b93baa4c6eae");
-    constexpr QueueFullPolicyUT RESPONSE_QUEUE_FULL_POLICY{
-        static_cast<QueueFullPolicyUT>(iox::popo::QueueFullPolicy::BLOCK_PRODUCER)};
-    constexpr ConsumerTooSlowPolicyUT SERVER_TOO_SLOW_POLICY{
-        static_cast<ConsumerTooSlowPolicyUT>(iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER)};
+    constexpr QueueFullPolicyUT RESPONSE_QUEUE_FULL_POLICY{ static_cast<QueueFullPolicyUT>(
+        iox::popo::QueueFullPolicy::BLOCK_PRODUCER) };
+    constexpr ConsumerTooSlowPolicyUT SERVER_TOO_SLOW_POLICY{ static_cast<ConsumerTooSlowPolicyUT>(
+        iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER) };
 
     const auto serialized = enumSerialization(RESPONSE_QUEUE_FULL_POLICY, SERVER_TOO_SLOW_POLICY);
     iox::popo::ClientOptions::deserialize(serialized)
         .and_then([&](auto&) {
-            constexpr bool DESERIALZATION_SUCCESSFUL{true};
+            constexpr bool DESERIALZATION_SUCCESSFUL{ true };
             EXPECT_TRUE(DESERIALZATION_SUCCESSFUL);
         })
         .or_else([&](auto&) {
-            constexpr bool DESERIALZATION_ERROR_OCCURED{true};
+            constexpr bool DESERIALZATION_ERROR_OCCURED{ true };
             EXPECT_FALSE(DESERIALZATION_ERROR_OCCURED);
         });
 }
@@ -109,18 +109,18 @@ TEST(ClientOptions_test, DeserializingValidResponseQueueFullAndServerTooSlowPoli
 TEST(ClientOptions_test, DeserializingInvalidResponseQueueFullPolicyFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a5495324-67d0-4f0c-b979-f93d4b68adc5");
-    constexpr QueueFullPolicyUT RESPONSE_QUEUE_FULL_POLICY{111};
-    constexpr ConsumerTooSlowPolicyUT SERVER_TOO_SLOW_POLICY{
-        static_cast<ConsumerTooSlowPolicyUT>(iox::popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA)};
+    constexpr QueueFullPolicyUT RESPONSE_QUEUE_FULL_POLICY{ 111 };
+    constexpr ConsumerTooSlowPolicyUT SERVER_TOO_SLOW_POLICY{ static_cast<ConsumerTooSlowPolicyUT>(
+        iox::popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA) };
 
     const auto serialized = enumSerialization(RESPONSE_QUEUE_FULL_POLICY, SERVER_TOO_SLOW_POLICY);
     iox::popo::ClientOptions::deserialize(serialized)
         .and_then([&](auto&) {
-            constexpr bool DESERIALZATION_SUCCESSFUL{true};
+            constexpr bool DESERIALZATION_SUCCESSFUL{ true };
             EXPECT_FALSE(DESERIALZATION_SUCCESSFUL);
         })
         .or_else([&](auto&) {
-            constexpr bool DESERIALZATION_ERROR_OCCURED{true};
+            constexpr bool DESERIALZATION_ERROR_OCCURED{ true };
             EXPECT_TRUE(DESERIALZATION_ERROR_OCCURED);
         });
 }
@@ -128,18 +128,18 @@ TEST(ClientOptions_test, DeserializingInvalidResponseQueueFullPolicyFails)
 TEST(ClientOptions_test, DeserializingInvalidServerTooSlowPolicyFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6485377c-9a75-4aba-8045-8b129aa1c529");
-    constexpr QueueFullPolicyUT RESPONSE_QUEUE_FULL_POLICY{
-        static_cast<QueueFullPolicyUT>(iox::popo::QueueFullPolicy::BLOCK_PRODUCER)};
-    constexpr ConsumerTooSlowPolicyUT SERVER_TOO_SLOW_POLICY{111};
+    constexpr QueueFullPolicyUT RESPONSE_QUEUE_FULL_POLICY{ static_cast<QueueFullPolicyUT>(
+        iox::popo::QueueFullPolicy::BLOCK_PRODUCER) };
+    constexpr ConsumerTooSlowPolicyUT SERVER_TOO_SLOW_POLICY{ 111 };
 
     const auto serialized = enumSerialization(RESPONSE_QUEUE_FULL_POLICY, SERVER_TOO_SLOW_POLICY);
     iox::popo::ClientOptions::deserialize(serialized)
         .and_then([&](auto&) {
-            constexpr bool DESERIALZATION_SUCCESSFUL{true};
+            constexpr bool DESERIALZATION_SUCCESSFUL{ true };
             EXPECT_FALSE(DESERIALZATION_SUCCESSFUL);
         })
         .or_else([&](auto&) {
-            constexpr bool DESERIALZATION_ERROR_OCCURED{true};
+            constexpr bool DESERIALZATION_ERROR_OCCURED{ true };
             EXPECT_TRUE(DESERIALZATION_ERROR_OCCURED);
         });
 }

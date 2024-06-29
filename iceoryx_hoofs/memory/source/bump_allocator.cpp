@@ -42,14 +42,14 @@ expected<void*, BumpAllocatorError> BumpAllocator::allocate(const uint64_t size,
         return err(BumpAllocatorError::REQUESTED_ZERO_SIZED_MEMORY);
     }
 
-    const uint64_t currentAddress{m_startAddress + m_currentPosition};
-    uint64_t alignedPosition{align(currentAddress, alignment)};
+    const uint64_t currentAddress{ m_startAddress + m_currentPosition };
+    uint64_t alignedPosition{ align(currentAddress, alignment) };
 
     alignedPosition -= m_startAddress;
 
-    void* allocation{nullptr};
+    void* allocation{ nullptr };
 
-    const uint64_t nextPosition{alignedPosition + size};
+    const uint64_t nextPosition{ alignedPosition + size };
     if (m_length >= nextPosition)
     {
         // AXIVION Next Construct AutosarC++19_03-A5.2.4 : required for low level memory management

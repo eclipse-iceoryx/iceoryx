@@ -29,7 +29,7 @@ int main()
 
     // initialize publisher
     //! [create publisher]
-    iox::popo::Publisher<iox::vector<double, 5>> publisher({"Radar", "FrontRight", "VectorData"});
+    iox::popo::Publisher<iox::vector<double, 5>> publisher({ "Radar", "FrontRight", "VectorData" });
     //! [create publisher]
 
     uint64_t ct = 0;

@@ -31,7 +31,7 @@ struct ProtectedConstructor_t
 {
 };
 
-static constexpr ProtectedConstructor_t ProtectedConstructor{ProtectedConstructor_t()};
+static constexpr ProtectedConstructor_t ProtectedConstructor{ ProtectedConstructor_t() };
 
 template <typename T>
 inline typename T::value_type newTypeAccessor(const T& b) noexcept

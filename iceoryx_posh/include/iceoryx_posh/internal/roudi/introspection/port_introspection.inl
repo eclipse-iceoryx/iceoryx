@@ -537,7 +537,7 @@ PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(PortInt
 
     std::lock_guard<std::mutex> lock(m_mutex); // we need to lock the internal data structs
 
-    int32_t index{0};
+    int32_t index{ 0 };
     for (auto& pub : m_publisherMap)
     {
         auto& innerPublisherMap = pub.second;

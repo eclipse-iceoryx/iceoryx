@@ -104,7 +104,7 @@ class TestingLogger : public log::TestingLoggerBase
     struct LoggerData
     {
         std::vector<std::string> buffer;
-        bool allowLog{true};
+        bool allowLog{ true };
     };
 
     concurrent::smart_lock<LoggerData> m_loggerData;

@@ -47,7 +47,7 @@ void deadline_timer::reset(const iox::units::Duration timeToWait) noexcept
 
 iox::units::Duration deadline_timer::remainingTime() const noexcept
 {
-    const iox::units::Duration currentTime{getCurrentMonotonicTime()};
+    const iox::units::Duration currentTime{ getCurrentMonotonicTime() };
     if (m_endTime > currentTime)
     {
         return m_endTime - currentTime;
@@ -58,12 +58,12 @@ iox::units::Duration deadline_timer::remainingTime() const noexcept
 
 iox::units::Duration deadline_timer::getCurrentMonotonicTime() noexcept
 {
-    timespec time_since_epoch{0, 0};
+    timespec time_since_epoch{ 0, 0 };
     IOX_ENFORCE(!IOX_POSIX_CALL(iox_clock_gettime)(CLOCK_MONOTONIC, &time_since_epoch)
                      .failureReturnValue(-1)
                      .evaluate()
                      .has_error(),
                 "An error which should never happen occured during 'iox_clock_gettime'!");
-    return iox::units::Duration{time_since_epoch};
+    return iox::units::Duration{ time_since_epoch };
 }
 } // namespace iox

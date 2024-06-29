@@ -35,7 +35,7 @@ struct Integer
     {
     }
 
-    uint64_t value{0};
+    uint64_t value{ 0 };
 
     // so that it behaves like an int for comparison purposes
     // NOLINTNEXTLINE(hicpp-explicit-conversions) required for typed tests
@@ -51,7 +51,7 @@ class MpmcResizeableLockFreeQueueTest : public ::testing::Test
   public:
     void fillQueue(uint64_t start = 0)
     {
-        uint64_t element{start};
+        uint64_t element{ start };
         for (uint64_t i = 0; i < queue.capacity(); ++i)
         {
             queue.tryPush(element);

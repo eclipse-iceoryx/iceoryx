@@ -31,8 +31,8 @@ int main()
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
     // initialized subscriber
-    iox::popo::Subscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"});
-    iox::popo::Publisher<RadarObject> publisher({"Radar", "HMI-Display", "Object"});
+    iox::popo::Subscriber<RadarObject> subscriber({ "Radar", "FrontLeft", "Object" });
+    iox::popo::Publisher<RadarObject> publisher({ "Radar", "HMI-Display", "Object" });
 
     // run until interrupted by Ctrl-C
     while (!iox::hasTerminationRequested())

@@ -71,9 +71,9 @@ class RouDiEnv
   private:
     optional<RuntimeTestInterface> m_runtimes;
 #if defined(__APPLE__)
-    iox::units::Duration m_discoveryLoopWaitToFinishTimeout{iox::units::Duration::fromMilliseconds(1000)};
+    iox::units::Duration m_discoveryLoopWaitToFinishTimeout{ iox::units::Duration::fromMilliseconds(1000) };
 #else
-    iox::units::Duration m_discoveryLoopWaitToFinishTimeout{iox::units::Duration::fromMilliseconds(200)};
+    iox::units::Duration m_discoveryLoopWaitToFinishTimeout{ iox::units::Duration::fromMilliseconds(200) };
 #endif
     std::unique_ptr<roudi::IceOryxRouDiComponents> m_roudiComponents;
     std::unique_ptr<roudi::RouDi> m_roudiApp;

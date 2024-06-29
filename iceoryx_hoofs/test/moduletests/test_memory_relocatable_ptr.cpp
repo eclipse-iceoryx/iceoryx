@@ -527,8 +527,8 @@ TEST_F(Relocatable_ptr_test, relocationWorks)
     storage_t sourceStorage;
     storage_t destStorage;
 
-    constexpr uint32_t SOURCE_VALUE{37};
-    constexpr uint32_t NEW_VALUE{73};
+    constexpr uint32_t SOURCE_VALUE{ 37 };
+    constexpr uint32_t NEW_VALUE{ 73 };
 
     void* sourcePtr = new (&sourceStorage) T(SOURCE_VALUE);
     void* destPtr = &destStorage;

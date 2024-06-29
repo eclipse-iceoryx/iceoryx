@@ -27,16 +27,16 @@ namespace iox
 namespace internal
 {
 // AXIVION DISABLE STYLE AutosarC++19_03-A3.9.1: Not used as an integer but as actual character.
-constexpr char ASCII_A{'a'};
-constexpr char ASCII_Z{'z'};
-constexpr char ASCII_CAPITAL_A{'A'};
-constexpr char ASCII_CAPITAL_Z{'Z'};
-constexpr char ASCII_0{'0'};
-constexpr char ASCII_9{'9'};
-constexpr char ASCII_DASH{'-'};
-constexpr char ASCII_DOT{'.'};
-constexpr char ASCII_COLON{':'};
-constexpr char ASCII_UNDERSCORE{'_'};
+constexpr char ASCII_A{ 'a' };
+constexpr char ASCII_Z{ 'z' };
+constexpr char ASCII_CAPITAL_A{ 'A' };
+constexpr char ASCII_CAPITAL_Z{ 'Z' };
+constexpr char ASCII_0{ '0' };
+constexpr char ASCII_9{ '9' };
+constexpr char ASCII_DASH{ '-' };
+constexpr char ASCII_DOT{ '.' };
+constexpr char ASCII_COLON{ ':' };
+constexpr char ASCII_UNDERSCORE{ '_' };
 } // namespace internal
 // AXIVION ENABLE STYLE AutosarC++19_03-A3.9.1
 
@@ -172,7 +172,7 @@ class access_rights final
     {
         // the code cannot be moved to the '*.inl' file since the function is used in the 'perms' namespace to define
         // the 'access_rights' constants
-        return access_rights{static_cast<value_type>(value & detail::MASK)};
+        return access_rights{ static_cast<value_type>(value & detail::MASK) };
     }
 
     constexpr value_type value() const noexcept;
@@ -181,30 +181,30 @@ class access_rights final
     {
         // AXIVION DISABLE STYLE AutosarC++19_03-M2.13.2 : Filesystem permissions are defined in octal representation
 
-        static constexpr value_type NONE{0};
+        static constexpr value_type NONE{ 0 };
 
-        static constexpr value_type OWNER_READ{0400};
-        static constexpr value_type OWNER_WRITE{0200};
-        static constexpr value_type OWNER_EXEC{0100};
-        static constexpr value_type OWNER_ALL{0700};
+        static constexpr value_type OWNER_READ{ 0400 };
+        static constexpr value_type OWNER_WRITE{ 0200 };
+        static constexpr value_type OWNER_EXEC{ 0100 };
+        static constexpr value_type OWNER_ALL{ 0700 };
 
-        static constexpr value_type GROUP_READ{040};
-        static constexpr value_type GROUP_WRITE{020};
-        static constexpr value_type GROUP_EXEC{010};
-        static constexpr value_type GROUP_ALL{070};
+        static constexpr value_type GROUP_READ{ 040 };
+        static constexpr value_type GROUP_WRITE{ 020 };
+        static constexpr value_type GROUP_EXEC{ 010 };
+        static constexpr value_type GROUP_ALL{ 070 };
 
-        static constexpr value_type OTHERS_READ{04};
-        static constexpr value_type OTHERS_WRITE{02};
-        static constexpr value_type OTHERS_EXEC{01};
-        static constexpr value_type OTHERS_ALL{07};
+        static constexpr value_type OTHERS_READ{ 04 };
+        static constexpr value_type OTHERS_WRITE{ 02 };
+        static constexpr value_type OTHERS_EXEC{ 01 };
+        static constexpr value_type OTHERS_ALL{ 07 };
 
-        static constexpr value_type ALL{0777};
+        static constexpr value_type ALL{ 0777 };
 
-        static constexpr value_type SET_UID{04000};
-        static constexpr value_type SET_GID{02000};
-        static constexpr value_type STICKY_BIT{01000};
+        static constexpr value_type SET_UID{ 04000 };
+        static constexpr value_type SET_GID{ 02000 };
+        static constexpr value_type STICKY_BIT{ 01000 };
 
-        static constexpr value_type MASK{07777};
+        static constexpr value_type MASK{ 07777 };
 
         static constexpr access_rights unknown() noexcept
         {
@@ -213,8 +213,8 @@ class access_rights final
             // using bitwise AND may have an unexpected result, e.g. 'std::filesystem::perms::unknown &
             // std::filesystem::perms::mask' results in having all permission flags set to 1. By using '0x8000' only the
             // MSB is 1 and all permission bits are set to 0 and a bitwise AND will therefore also always result in a 0.
-            constexpr value_type UNKNOWN{0x8000U};
-            return access_rights{UNKNOWN};
+            constexpr value_type UNKNOWN{ 0x8000U };
+            return access_rights{ UNKNOWN };
         }
 
         // AXIVION ENABLE STYLE AutosarC++19_03-M2.13.2
@@ -238,7 +238,7 @@ class access_rights final
     }
 
   private:
-    value_type m_value{0};
+    value_type m_value{ 0 };
 };
 
 namespace perms
@@ -247,70 +247,70 @@ namespace perms
 
 /// @brief Deny everything
 /// @note the underlying value is '0'
-static constexpr auto none{access_rights::from_value_sanitized(access_rights::detail::NONE)};
+static constexpr auto none{ access_rights::from_value_sanitized(access_rights::detail::NONE) };
 
 /// @brief owner has read permission
 /// @note the underlying value is '0o400'
-static constexpr auto owner_read{access_rights::from_value_sanitized(access_rights::detail::OWNER_READ)};
+static constexpr auto owner_read{ access_rights::from_value_sanitized(access_rights::detail::OWNER_READ) };
 /// @brief owner has write permission
 /// @note the underlying value is '0o200'
-static constexpr auto owner_write{access_rights::from_value_sanitized(access_rights::detail::OWNER_WRITE)};
+static constexpr auto owner_write{ access_rights::from_value_sanitized(access_rights::detail::OWNER_WRITE) };
 /// @brief owner has execution permission
 /// @note the underlying value is '0o100'
-static constexpr auto owner_exec{access_rights::from_value_sanitized(access_rights::detail::OWNER_EXEC)};
+static constexpr auto owner_exec{ access_rights::from_value_sanitized(access_rights::detail::OWNER_EXEC) };
 /// @brief owner has all permissions
 /// @note the underlying value is '0o700'
-static constexpr auto owner_all{access_rights::from_value_sanitized(access_rights::detail::OWNER_ALL)};
+static constexpr auto owner_all{ access_rights::from_value_sanitized(access_rights::detail::OWNER_ALL) };
 
 /// @brief group has read permission
 /// @note the underlying value is '0o040'
-static constexpr auto group_read{access_rights::from_value_sanitized(access_rights::detail::GROUP_READ)};
+static constexpr auto group_read{ access_rights::from_value_sanitized(access_rights::detail::GROUP_READ) };
 /// @brief group has write permission
 /// @note the underlying value is '0o020'
-static constexpr auto group_write{access_rights::from_value_sanitized(access_rights::detail::GROUP_WRITE)};
+static constexpr auto group_write{ access_rights::from_value_sanitized(access_rights::detail::GROUP_WRITE) };
 /// @brief group has execution permission
 /// @note the underlying value is '0o010'
-static constexpr auto group_exec{access_rights::from_value_sanitized(access_rights::detail::GROUP_EXEC)};
+static constexpr auto group_exec{ access_rights::from_value_sanitized(access_rights::detail::GROUP_EXEC) };
 /// @brief group has all permissions
 /// @note the underlying value is '0o070'
-static constexpr auto group_all{access_rights::from_value_sanitized(access_rights::detail::GROUP_ALL)};
+static constexpr auto group_all{ access_rights::from_value_sanitized(access_rights::detail::GROUP_ALL) };
 
 /// @brief others have read permission
 /// @note the underlying value is '0o004'
-static constexpr auto others_read{access_rights::from_value_sanitized(access_rights::detail::OTHERS_READ)};
+static constexpr auto others_read{ access_rights::from_value_sanitized(access_rights::detail::OTHERS_READ) };
 /// @brief others have write permission
 /// @note the underlying value is '0o002'
-static constexpr auto others_write{access_rights::from_value_sanitized(access_rights::detail::OTHERS_WRITE)};
+static constexpr auto others_write{ access_rights::from_value_sanitized(access_rights::detail::OTHERS_WRITE) };
 /// @brief others have execution permission
 /// @note the underlying value is '0o001'
-static constexpr auto others_exec{access_rights::from_value_sanitized(access_rights::detail::OTHERS_EXEC)};
+static constexpr auto others_exec{ access_rights::from_value_sanitized(access_rights::detail::OTHERS_EXEC) };
 /// @brief others have all permissions
 /// @note the underlying value is '0o007'
-static constexpr auto others_all{access_rights::from_value_sanitized(access_rights::detail::OTHERS_ALL)};
+static constexpr auto others_all{ access_rights::from_value_sanitized(access_rights::detail::OTHERS_ALL) };
 
 /// @brief all permissions for everyone
 /// @note the underlying value is '0o777'
-static constexpr auto all{access_rights::from_value_sanitized(access_rights::detail::ALL)};
+static constexpr auto all{ access_rights::from_value_sanitized(access_rights::detail::ALL) };
 
 /// @brief set uid bit
 /// @note the underlying value is '0o4000'; introduction into setgit/setuid: https://en.wikipedia.org/wiki/Setuid
 // AXIVION Next Construct AutosarC++19_03-M2.10.1: The constant is in a namespace and mimics the C++17 STL equivalent
-static constexpr auto set_uid{access_rights::from_value_sanitized(access_rights::detail::SET_UID)};
+static constexpr auto set_uid{ access_rights::from_value_sanitized(access_rights::detail::SET_UID) };
 /// @brief set gid bit
 /// @note the underlying value is '0o2000'; introduction into setgit/setuid: https://en.wikipedia.org/wiki/Setuid
 // AXIVION Next Construct AutosarC++19_03-M2.10.1: The constant is in a namespace and mimics the C++17 STL equivalent
-static constexpr auto set_gid{access_rights::from_value_sanitized(access_rights::detail::SET_GID)};
+static constexpr auto set_gid{ access_rights::from_value_sanitized(access_rights::detail::SET_GID) };
 /// @brief set sticky bit
 /// @note the underlying value is '0o1000'; sticky bit introduction: https://en.wikipedia.org/wiki/Sticky_bit
-static constexpr auto sticky_bit{access_rights::from_value_sanitized(access_rights::detail::STICKY_BIT)};
+static constexpr auto sticky_bit{ access_rights::from_value_sanitized(access_rights::detail::STICKY_BIT) };
 
 /// @brief all permissions for everyone as well as uid, gid and sticky bit
 /// @note the underlying value is '0o7777'
-static constexpr auto mask{access_rights::from_value_sanitized(access_rights::detail::MASK)};
+static constexpr auto mask{ access_rights::from_value_sanitized(access_rights::detail::MASK) };
 
 /// @brief unknown permissions
 /// @note the underlying value is '0x8000'
-static constexpr auto unknown{access_rights::detail::unknown()};
+static constexpr auto unknown{ access_rights::detail::unknown() };
 
 // AXIVION ENABLE STYLE AutosarC++19_03-A2.10.5
 } // namespace perms

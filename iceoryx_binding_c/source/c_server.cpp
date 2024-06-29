@@ -75,9 +75,9 @@ iox_server_t iox_server_init(iox_server_storage_t* self,
         serverOptions.clientTooSlowPolicy = c2cpp::consumerTooSlowPolicy(options->clientTooSlowPolicy);
     }
 
-    auto* me = new UntypedServer(ServiceDescription{IdString_t(TruncateToCapacity, service),
-                                                    IdString_t(TruncateToCapacity, instance),
-                                                    IdString_t(TruncateToCapacity, event)},
+    auto* me = new UntypedServer(ServiceDescription{ IdString_t(TruncateToCapacity, service),
+                                                     IdString_t(TruncateToCapacity, instance),
+                                                     IdString_t(TruncateToCapacity, event) },
                                  serverOptions);
 
     self->do_not_touch_me[0] = reinterpret_cast<uint64_t>(me);

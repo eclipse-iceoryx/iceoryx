@@ -32,7 +32,7 @@ int iox_fstat(int fildes, iox_stat* buf)
     buf->st_gid = 0;
     buf->st_mode = 0777;
 
-    std::lock_guard<std::mutex> lock{ShmFile::openFilesMutex};
+    std::lock_guard<std::mutex> lock{ ShmFile::openFilesMutex };
     const auto iter = std::find_if(std::begin(ShmFile::openFiles),
                                    std::end(ShmFile::openFiles),
                                    [fildes](const ShmFile& f) { return f.fd() == fildes; });

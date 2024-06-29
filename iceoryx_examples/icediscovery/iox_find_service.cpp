@@ -45,15 +45,15 @@ int main()
 
         std::cout << "\nSearched for {'Radar', 'FrontLeft', 'Objects'}. Found the following services:" << std::endl;
         //! [search for unique service]
-        serviceDiscovery.findService(iox::capro::IdString_t{"Radar"},
-                                     iox::capro::IdString_t{"FrontLeft"},
-                                     iox::capro::IdString_t{"Objects"},
+        serviceDiscovery.findService(iox::capro::IdString_t{ "Radar" },
+                                     iox::capro::IdString_t{ "FrontLeft" },
+                                     iox::capro::IdString_t{ "Objects" },
                                      printSearchResult,
                                      iox::popo::MessagingPattern::PUB_SUB);
         //! [search for unique service]
 
         std::cout << "\nSearched for {'Radar', *, *}. Found the following services:" << std::endl;
-        serviceDiscovery.findService(iox::capro::IdString_t{"Radar"},
+        serviceDiscovery.findService(iox::capro::IdString_t{ "Radar" },
                                      iox::capro::Wildcard,
                                      iox::capro::Wildcard,
                                      printSearchResult,
@@ -61,21 +61,21 @@ int main()
 
         std::cout << "\nSearched for {*, 'FrontLeft', *}. Found the following services:" << std::endl;
         serviceDiscovery.findService(iox::capro::Wildcard,
-                                     iox::capro::IdString_t{"FrontLeft"},
+                                     iox::capro::IdString_t{ "FrontLeft" },
                                      iox::capro::Wildcard,
                                      printSearchResult,
                                      iox::popo::MessagingPattern::PUB_SUB);
 
         std::cout << "\nSearched for {*, 'FrontRight', 'Image'}. Found the following services:" << std::endl;
         serviceDiscovery.findService(iox::capro::Wildcard,
-                                     iox::capro::IdString_t{"FrontRight"},
-                                     iox::capro::IdString_t{"Image"},
+                                     iox::capro::IdString_t{ "FrontRight" },
+                                     iox::capro::IdString_t{ "Image" },
                                      printSearchResult,
                                      iox::popo::MessagingPattern::PUB_SUB);
 
         std::cout << "\nSearched for {'Camera', *, *}. Found the following services:" << std::endl;
         //! [search for all Camera services]
-        serviceDiscovery.findService(iox::capro::IdString_t{"Camera"},
+        serviceDiscovery.findService(iox::capro::IdString_t{ "Camera" },
                                      iox::capro::Wildcard,
                                      iox::capro::Wildcard,
                                      printSearchResult,

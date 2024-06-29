@@ -23,7 +23,7 @@
 
 std::mutex ShmFile::openFilesMutex;
 std::array<ShmFile, ShmFile::MAX_SHM_SEGMENTS> ShmFile::openFiles{};
-int ShmFile::s_fdCounter{0};
+int ShmFile::s_fdCounter{ 0 };
 
 ShmFile::ShmFile() noexcept
 {

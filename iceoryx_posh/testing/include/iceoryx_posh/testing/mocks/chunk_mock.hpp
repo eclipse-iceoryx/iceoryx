@@ -105,7 +105,7 @@ class ChunkMock
     ChunkMock& operator=(ChunkMock&&) = delete;
 
   private:
-    uint8_t* m_rawMemory{nullptr};
+    uint8_t* m_rawMemory{ nullptr };
     iox::mepoo::ChunkHeader* m_chunkHeader = nullptr;
     Topic* m_topic = nullptr;
 };

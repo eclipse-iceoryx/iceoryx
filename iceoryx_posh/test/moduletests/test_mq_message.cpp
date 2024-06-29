@@ -55,7 +55,7 @@ TEST_F(IpcMessage_test, DefaultCTor)
 TEST_F(IpcMessage_test, CTorWithInitializerList_validEntries)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a21483b7-be79-400d-beeb-571c017db42c");
-    IpcMessage message1({"abc", "def", "123123", ")(!*@&#^$)", "ABASDASD"});
+    IpcMessage message1({ "abc", "def", "123123", ")(!*@&#^$)", "ABASDASD" });
     EXPECT_THAT(message1.getNumberOfElements(), Eq(5u));
     EXPECT_THAT(message1.getMessage(), Eq("abc,def,123123,)(!*@&#^$),ABASDASD,"));
     EXPECT_THAT(message1.isValid(), Eq(true));
@@ -69,7 +69,7 @@ TEST_F(IpcMessage_test, CTorWithInitializerList_validEntries)
     EXPECT_THAT(message2.isValid(), Eq(true));
     EXPECT_THAT(message2.getNumberOfElements(), Eq(0u));
 
-    IpcMessage message3({"", "", ""});
+    IpcMessage message3({ "", "", "" });
     EXPECT_THAT(message3.isValid(), Eq(true));
     EXPECT_THAT(message3.getNumberOfElements(), Eq(3u));
     for (uint16_t i = 0; i < 3; ++i)
@@ -78,7 +78,7 @@ TEST_F(IpcMessage_test, CTorWithInitializerList_validEntries)
     }
     EXPECT_THAT(message3.getMessage(), Eq(",,,"));
 
-    IpcMessage message4({"", "", "a", ""});
+    IpcMessage message4({ "", "", "a", "" });
     EXPECT_THAT(message4.isValid(), Eq(true));
     EXPECT_THAT(message4.getNumberOfElements(), Eq(4u));
     EXPECT_THAT(message4.getElementAtIndex(2), Eq("a"));
@@ -88,13 +88,13 @@ TEST_F(IpcMessage_test, CTorWithInitializerList_validEntries)
 TEST_F(IpcMessage_test, CTorWithInitializerList_invalidEntries)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d0f96a86-d579-4959-8633-bb30ab8d654f");
-    IpcMessage message1({"abc", "def", "123i,123", ")(!*@&#^$)", "ABASDASD"});
+    IpcMessage message1({ "abc", "def", "123i,123", ")(!*@&#^$)", "ABASDASD" });
     EXPECT_THAT(message1.isValid(), Eq(false));
 
-    IpcMessage message2({"abc", "def", "123i123", ")(!*@&,#^$)", "ABASDASD"});
+    IpcMessage message2({ "abc", "def", "123i123", ")(!*@&,#^$)", "ABASDASD" });
     EXPECT_THAT(message1.isValid(), Eq(false));
 
-    IpcMessage message3({",,,"});
+    IpcMessage message3({ ",,," });
     EXPECT_THAT(message3.isValid(), Eq(false));
 }
 
@@ -130,7 +130,7 @@ TEST_F(IpcMessage_test, CTorWithString_invalidMessage)
 TEST_F(IpcMessage_test, CopyCTorValidEntries)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4a44de96-0441-42e5-b3a8-90dfcc3acce6");
-    IpcMessage* source = new IpcMessage({"fuu", "bar", "bla"});
+    IpcMessage* source = new IpcMessage({ "fuu", "bar", "bla" });
     IpcMessage destination(*source);
     delete source;
 
@@ -145,7 +145,7 @@ TEST_F(IpcMessage_test, CopyCTorValidEntries)
 TEST_F(IpcMessage_test, CopyCTorInvalidEntries)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1a5011bd-be96-4619-9384-563c0a5f4d11");
-    IpcMessage* source = new IpcMessage({"f,uu", "bar", "bla"});
+    IpcMessage* source = new IpcMessage({ "f,uu", "bar", "bla" });
     IpcMessage destination(*source);
     delete source;
 
@@ -155,7 +155,7 @@ TEST_F(IpcMessage_test, CopyCTorInvalidEntries)
 TEST_F(IpcMessage_test, MoveCTorValidEntries)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9980d693-eb2e-441f-a707-18a5901da020");
-    IpcMessage* source = new IpcMessage({"fuu", "bar", "bla"});
+    IpcMessage* source = new IpcMessage({ "fuu", "bar", "bla" });
     IpcMessage destination(std::move(*source));
     delete source;
 
@@ -170,7 +170,7 @@ TEST_F(IpcMessage_test, MoveCTorValidEntries)
 TEST_F(IpcMessage_test, MoveCTorInvalidEntries)
 {
     ::testing::Test::RecordProperty("TEST_ID", "65e0ac6d-ec3c-4eae-8f69-45784fc52016");
-    IpcMessage* source = new IpcMessage({"f,uu", "bar", "bla"});
+    IpcMessage* source = new IpcMessage({ "f,uu", "bar", "bla" });
     IpcMessage destination(std::move(*source));
     delete source;
 
@@ -180,7 +180,7 @@ TEST_F(IpcMessage_test, MoveCTorInvalidEntries)
 TEST_F(IpcMessage_test, CopyOperatorValidEntries)
 {
     ::testing::Test::RecordProperty("TEST_ID", "702fcd55-447b-4d20-8137-18931d002d6b");
-    IpcMessage* source = new IpcMessage({"fuu", "bar", "bla"});
+    IpcMessage* source = new IpcMessage({ "fuu", "bar", "bla" });
     IpcMessage destination;
     destination = *source;
     delete source;
@@ -196,7 +196,7 @@ TEST_F(IpcMessage_test, CopyOperatorValidEntries)
 TEST_F(IpcMessage_test, CopyOperatorInvalidEntries)
 {
     ::testing::Test::RecordProperty("TEST_ID", "133c5c9e-0880-4be4-b660-acb14fc445fe");
-    IpcMessage* source = new IpcMessage({"f,uu", "bar", "bla"});
+    IpcMessage* source = new IpcMessage({ "f,uu", "bar", "bla" });
     IpcMessage destination;
     destination = *source;
     delete source;
@@ -207,7 +207,7 @@ TEST_F(IpcMessage_test, CopyOperatorInvalidEntries)
 TEST_F(IpcMessage_test, MoveOperatorValidEntries)
 {
     ::testing::Test::RecordProperty("TEST_ID", "05b92b6a-2ac8-491b-a7b8-09b1c132eea6");
-    IpcMessage* source = new IpcMessage({"fuu", "bar", "bla"});
+    IpcMessage* source = new IpcMessage({ "fuu", "bar", "bla" });
     IpcMessage destination;
     destination = std::move(*source);
     delete source;
@@ -223,7 +223,7 @@ TEST_F(IpcMessage_test, MoveOperatorValidEntries)
 TEST_F(IpcMessage_test, MoveOperatorInvalidEntries)
 {
     ::testing::Test::RecordProperty("TEST_ID", "84a2f506-66b2-46d5-a154-45d375dc37c0");
-    IpcMessage* source = new IpcMessage({"f,uu", "bar", "bla"});
+    IpcMessage* source = new IpcMessage({ "f,uu", "bar", "bla" });
     IpcMessage destination;
     destination = std::move(*source);
     delete source;
@@ -234,7 +234,7 @@ TEST_F(IpcMessage_test, MoveOperatorInvalidEntries)
 TEST_F(IpcMessage_test, getElementAtIndex)
 {
     ::testing::Test::RecordProperty("TEST_ID", "554163c3-2119-462e-90f7-f3bd01421fad");
-    IpcMessage message1({"fuu", "bar", "bla"});
+    IpcMessage message1({ "fuu", "bar", "bla" });
 
     EXPECT_THAT(message1.getElementAtIndex(1), Eq("bar"));
     message1.addEntry(123.123f);
@@ -277,25 +277,25 @@ TEST_F(IpcMessage_test, IsValidWithCTorConstruction)
     IpcMessage message1;
     EXPECT_THAT(message1.isValid(), Eq(true));
 
-    IpcMessage message2({"asdasd"});
+    IpcMessage message2({ "asdasd" });
     EXPECT_THAT(message2.isValid(), Eq(true));
 
-    IpcMessage message3({"123123"});
+    IpcMessage message3({ "123123" });
     EXPECT_THAT(message3.isValid(), Eq(true));
 
-    IpcMessage message4({"~!@#$%^\\&&*()_+_|}{][''\"]}"});
+    IpcMessage message4({ "~!@#$%^\\&&*()_+_|}{][''\"]}" });
     EXPECT_THAT(message4.isValid(), Eq(true));
 
-    IpcMessage message5({","});
+    IpcMessage message5({ "," });
     EXPECT_THAT(message5.isValid(), Eq(false));
 
-    IpcMessage message6({"asdasdasd,"});
+    IpcMessage message6({ "asdasdasd," });
     EXPECT_THAT(message6.isValid(), Eq(false));
 
-    IpcMessage message7({",asdasss"});
+    IpcMessage message7({ ",asdasss" });
     EXPECT_THAT(message7.isValid(), Eq(false));
 
-    IpcMessage message8({"a8w9ej1,089sau;'1'"});
+    IpcMessage message8({ "a8w9ej1,089sau;'1'" });
     EXPECT_THAT(message8.isValid(), Eq(false));
 }
 
@@ -346,7 +346,7 @@ TEST_F(IpcMessage_test, getMessage)
     message1.addEntry("&*!_)(@)");
     EXPECT_THAT(message1.getMessage(), Eq("123,asd,&*!_)(@),"));
 
-    IpcMessage message2({"f812", "92-3kjd", "\"'s02'"});
+    IpcMessage message2({ "f812", "92-3kjd", "\"'s02'" });
     EXPECT_THAT(message2.getMessage(), Eq("f812,92-3kjd,\"'s02',"));
 }
 
@@ -367,7 +367,7 @@ TEST_F(IpcMessage_test, AddEntryWithValidEntries)
     EXPECT_THAT(message1.getNumberOfElements(), Eq(3u));
     EXPECT_THAT(message1.getElementAtIndex(2), Eq("x"));
 
-    IpcMessage message2({"fuu", "bar"});
+    IpcMessage message2({ "fuu", "bar" });
     message2.addEntry("aaaa");
     EXPECT_THAT(message2.getNumberOfElements(), Eq(3u));
     EXPECT_THAT(message2.getElementAtIndex(2), Eq("aaaa"));
@@ -392,7 +392,7 @@ TEST_F(IpcMessage_test, AddEntryWithInvalidEntries)
     message1.addEntry("aaa");
     EXPECT_THAT(message1.isValid(), Eq(false));
 
-    IpcMessage message2({"asd", "913u"});
+    IpcMessage message2({ "asd", "913u" });
 
     EXPECT_THAT(message2.isValid(), Eq(true));
     message2.addEntry("aaa");
@@ -411,7 +411,7 @@ TEST_F(IpcMessage_test, clearMessage)
     EXPECT_THAT(message1.getMessage(), Eq(""));
     EXPECT_THAT(message1.getNumberOfElements(), Eq(0u));
 
-    IpcMessage message2({"a", "asd", "asd", "aaaaa"});
+    IpcMessage message2({ "a", "asd", "asd", "aaaaa" });
     EXPECT_THAT(message2.isValid(), Eq(true));
     EXPECT_THAT(message2.getMessage(), Eq("a,asd,asd,aaaaa,"));
     EXPECT_THAT(message2.getNumberOfElements(), Eq(4u));
@@ -420,7 +420,7 @@ TEST_F(IpcMessage_test, clearMessage)
     EXPECT_THAT(message2.getMessage(), Eq(""));
     EXPECT_THAT(message2.getNumberOfElements(), Eq(0u));
 
-    IpcMessage message3({",,,a", "asd", "asd", "aaaaa"});
+    IpcMessage message3({ ",,,a", "asd", "asd", "aaaaa" });
     EXPECT_THAT(message3.isValid(), Eq(false));
     message3.clearMessage();
     EXPECT_THAT(message3.isValid(), Eq(true));

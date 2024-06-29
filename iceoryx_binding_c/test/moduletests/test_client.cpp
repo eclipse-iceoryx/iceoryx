@@ -50,15 +50,15 @@ class iox_client_test : public Test
 
     void SetUp() override
     {
-        memoryConfig.addMemPool({1024, 2});
+        memoryConfig.addMemPool({ 1024, 2 });
         memoryManager.configureMemoryManager(memoryConfig, mgmtAllocator, dataAllocator);
     }
 
     ClientPortData* createClientPortData(const ClientOptions& options)
     {
-        sutPort.emplace(ServiceDescription{IdString_t(TruncateToCapacity, SERVICE),
-                                           IdString_t(TruncateToCapacity, INSTANCE),
-                                           IdString_t(TruncateToCapacity, EVENT)},
+        sutPort.emplace(ServiceDescription{ IdString_t(TruncateToCapacity, SERVICE),
+                                            IdString_t(TruncateToCapacity, INSTANCE),
+                                            IdString_t(TruncateToCapacity, EVENT) },
                         RUNTIME_NAME,
                         roudi::DEFAULT_UNIQUE_ROUDI_ID,
                         options,
@@ -82,16 +82,16 @@ class iox_client_test : public Test
         new (chunk->getChunkHeader()->userHeader())
             ResponseHeader(iox::UniqueId(), RpcBaseHeader::UNKNOWN_CLIENT_QUEUE_INDEX, 0U);
         *static_cast<int64_t*>(chunk->getUserPayload()) = chunkValue;
-        iox::popo::ChunkQueuePusher<ClientChunkQueueData_t> pusher{&sutPort->m_chunkReceiverData};
+        iox::popo::ChunkQueuePusher<ClientChunkQueueData_t> pusher{ &sutPort->m_chunkReceiverData };
         pusher.push(*chunk);
     }
 
     void prepareClientInit(const ClientOptions& options = ClientOptions())
     {
         EXPECT_CALL(*runtimeMock,
-                    getMiddlewareClient(ServiceDescription{IdString_t(TruncateToCapacity, SERVICE),
-                                                           IdString_t(TruncateToCapacity, INSTANCE),
-                                                           IdString_t(TruncateToCapacity, EVENT)},
+                    getMiddlewareClient(ServiceDescription{ IdString_t(TruncateToCapacity, SERVICE),
+                                                            IdString_t(TruncateToCapacity, INSTANCE),
+                                                            IdString_t(TruncateToCapacity, EVENT) },
                                         options,
                                         _))
             .WillOnce(Return(createClientPortData(options)));
@@ -107,19 +107,19 @@ class iox_client_test : public Test
 
     static constexpr uint64_t MANAGEMENT_MEMORY_SIZE = 1024 * 1024;
     char managementMemory[MANAGEMENT_MEMORY_SIZE];
-    iox::BumpAllocator mgmtAllocator{managementMemory, MANAGEMENT_MEMORY_SIZE};
+    iox::BumpAllocator mgmtAllocator{ managementMemory, MANAGEMENT_MEMORY_SIZE };
     static constexpr uint64_t DATA_MEMORY_SIZE = 1024 * 1024;
     char dataMemory[DATA_MEMORY_SIZE];
-    iox::BumpAllocator dataAllocator{dataMemory, DATA_MEMORY_SIZE};
+    iox::BumpAllocator dataAllocator{ dataMemory, DATA_MEMORY_SIZE };
     iox::mepoo::MemoryManager memoryManager;
     iox::mepoo::MePooConfig memoryConfig;
 
     iox::optional<ClientPortData> sutPort;
     iox_client_storage_t sutStorage;
 
-    ServerChunkQueueData_t serverChunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
-                                                iox::popo::VariantQueueTypes::SoFi_MultiProducerSingleConsumer};
-    ChunkQueuePopper<ServerChunkQueueData_t> serverRequestQueue{&serverChunkQueueData};
+    ServerChunkQueueData_t serverChunkQueueData{ iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
+                                                 iox::popo::VariantQueueTypes::SoFi_MultiProducerSingleConsumer };
+    ChunkQueuePopper<ServerChunkQueueData_t> serverRequestQueue{ &serverChunkQueueData };
 
     static constexpr const char SERVICE[] = "allGlory";
     static constexpr const char INSTANCE[] = "ToThe";

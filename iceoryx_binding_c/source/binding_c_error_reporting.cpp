@@ -19,7 +19,7 @@
 
 namespace iox
 {
-const char* BINDING_C_ERROR_NAMES[] = {IOX_BINDING_C_ERRORS(IOX_CREATE_ERROR_STRING)};
+const char* BINDING_C_ERROR_NAMES[] = { IOX_BINDING_C_ERRORS(IOX_CREATE_ERROR_STRING) };
 
 const char* asStringLiteral(const CBindingError error) noexcept
 {

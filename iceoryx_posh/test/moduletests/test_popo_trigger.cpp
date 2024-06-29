@@ -73,8 +73,8 @@ class Trigger_test : public Test
         static uint64_t uniqueId = 0U;
         Trigger trigger(StateBasedTrigger,
                         &m_triggerClass,
-                        {m_triggerClass, &TriggerClass::hasTriggered},
-                        {m_triggerClass, &TriggerClass::resetCall},
+                        { m_triggerClass, &TriggerClass::hasTriggered },
+                        { m_triggerClass, &TriggerClass::resetCall },
                         eventId,
                         createNotificationCallback(TriggerClass::callback),
                         uniqueId++,
@@ -90,7 +90,7 @@ class Trigger_test : public Test
         static uint64_t uniqueId = 0U;
         Trigger trigger(EventBasedTrigger,
                         &m_triggerClass,
-                        {m_triggerClass, &TriggerClass::resetCall},
+                        { m_triggerClass, &TriggerClass::resetCall },
                         eventId,
                         createNotificationCallback(TriggerClass::callback),
                         uniqueId++,
@@ -100,7 +100,7 @@ class Trigger_test : public Test
         return trigger;
     }
 
-    ConditionVariableData m_condVar{"Horscht"};
+    ConditionVariableData m_condVar{ "Horscht" };
     TriggerClass m_triggerClass;
 };
 
@@ -125,7 +125,7 @@ TEST_F(Trigger_test, MovedConstructedValidTriggerIsValid)
     constexpr uint64_t originTypeHash = 40001U;
 
     Trigger trigger = createValidStateBasedTrigger(id, originType, originTypeHash);
-    Trigger sut{std::move(trigger)};
+    Trigger sut{ std::move(trigger) };
 
     EXPECT_TRUE(sut.isValid());
     EXPECT_TRUE(static_cast<bool>(sut));
@@ -175,8 +175,8 @@ TEST_F(Trigger_test, TriggerWithNullptrOriginIsValid)
 
     Trigger sut(StateBasedTrigger,
                 static_cast<TriggerClass*>(nullptr),
-                {m_triggerClass, &TriggerClass::hasTriggered},
-                {m_triggerClass, &TriggerClass::resetCall},
+                { m_triggerClass, &TriggerClass::hasTriggered },
+                { m_triggerClass, &TriggerClass::resetCall },
                 eventId,
                 createNotificationCallback(TriggerClass::callback),
                 uniqueTriggerId,
@@ -239,7 +239,7 @@ TEST_F(Trigger_test, TriggerWithEmptyResetInvalidatesTriggerWhenBeingResetted)
     Trigger sut(
         StateBasedTrigger,
         &m_triggerClass,
-        {m_triggerClass, &TriggerClass::hasTriggered},
+        { m_triggerClass, &TriggerClass::hasTriggered },
         [](auto) {},
         eventId,
         createNotificationCallback(TriggerClass::callback),
@@ -285,8 +285,8 @@ TEST_F(Trigger_test, TriggerIsLogicalEqualToItself)
     constexpr uint64_t originTypeHash = 1423123U;
     Trigger sut1(StateBasedTrigger,
                  &m_triggerClass,
-                 {m_triggerClass, &TriggerClass::hasTriggered},
-                 {m_triggerClass, &TriggerClass::resetCall},
+                 { m_triggerClass, &TriggerClass::hasTriggered },
+                 { m_triggerClass, &TriggerClass::resetCall },
                  USER_DEFINED_EVENT_ID,
                  createNotificationCallback(TriggerClass::callback),
                  uniqueTriggerId,
@@ -306,8 +306,8 @@ TEST_F(Trigger_test, TriggerIsNotLogicalEqualIfOriginTypeDiffers)
     constexpr uint64_t originTypeHash = 11423123U;
     Trigger sut1(StateBasedTrigger,
                  &m_triggerClass,
-                 {m_triggerClass, &TriggerClass::hasTriggered},
-                 {m_triggerClass, &TriggerClass::resetCall},
+                 { m_triggerClass, &TriggerClass::hasTriggered },
+                 { m_triggerClass, &TriggerClass::resetCall },
                  USER_DEFINED_EVENT_ID,
                  createNotificationCallback(TriggerClass::callback),
                  uniqueTriggerId1,
@@ -328,8 +328,8 @@ TEST_F(Trigger_test, TriggerIsNotLogicalEqualIfOriginAndOriginTypeHashDiffers)
     TriggerClass secondTriggerClass;
     Trigger sut1(StateBasedTrigger,
                  &m_triggerClass,
-                 {m_triggerClass, &TriggerClass::hasTriggered},
-                 {m_triggerClass, &TriggerClass::resetCall},
+                 { m_triggerClass, &TriggerClass::hasTriggered },
+                 { m_triggerClass, &TriggerClass::resetCall },
                  USER_DEFINED_EVENT_ID,
                  createNotificationCallback(TriggerClass::callback),
                  uniqueTriggerId1,
@@ -352,8 +352,8 @@ TEST_F(Trigger_test, TriggerIsNotLogicalEqualIfOriginTypeAndOriginTypeHashDiffer
     TriggerClass secondTriggerClass;
     Trigger sut1(StateBasedTrigger,
                  &m_triggerClass,
-                 {m_triggerClass, &TriggerClass::hasTriggered},
-                 {m_triggerClass, &TriggerClass::resetCall},
+                 { m_triggerClass, &TriggerClass::hasTriggered },
+                 { m_triggerClass, &TriggerClass::resetCall },
                  USER_DEFINED_EVENT_ID,
                  createNotificationCallback(TriggerClass::callback),
                  uniqueTriggerId1,
@@ -373,8 +373,8 @@ TEST_F(Trigger_test, TriggerIsNotLogicalEqualWhenInvalid)
 
     Trigger sut1(StateBasedTrigger,
                  &m_triggerClass,
-                 {m_triggerClass, &TriggerClass::hasTriggered},
-                 {m_triggerClass, &TriggerClass::resetCall},
+                 { m_triggerClass, &TriggerClass::hasTriggered },
+                 { m_triggerClass, &TriggerClass::resetCall },
                  USER_DEFINED_EVENT_ID,
                  createNotificationCallback(TriggerClass::callback),
                  uniqueTriggerId1,
@@ -476,7 +476,7 @@ TEST_F(Trigger_test, EventBasedMovedConstructedWithValidTriggerWorks)
     constexpr uint64_t originType = 7424598U;
     constexpr uint64_t originTypeHash = 6424883U;
     Trigger trigger = createValidEventBasedTrigger(id, originType, originTypeHash);
-    Trigger sut{std::move(trigger)};
+    Trigger sut{ std::move(trigger) };
 
     EXPECT_TRUE(sut.isValid());
     EXPECT_TRUE(static_cast<bool>(sut));
@@ -521,7 +521,7 @@ TEST_F(Trigger_test, EventBasedMovedConstructedWithInvalidTrigger)
     constexpr uint64_t originTypeHash = 99243U;
     Trigger trigger = createValidEventBasedTrigger(id, originType, originTypeHash);
     Trigger trigger1 = std::move(trigger);
-    Trigger sut{std::move(trigger)};
+    Trigger sut{ std::move(trigger) };
 
     EXPECT_FALSE(sut.isValid());
     EXPECT_FALSE(static_cast<bool>(sut));

@@ -32,31 +32,31 @@ template <typename T, typename H>
 inline expected<unique_ptr<Publisher<T, H>>, PublisherBuilderError> PublisherBuilder::create() noexcept
 {
     auto* publisher_port_data = m_runtime.getMiddlewarePublisher(
-        m_service_description, {m_history_capacity, "", m_offer_on_create, m_subscriber_too_slow_policy});
+        m_service_description, { m_history_capacity, "", m_offer_on_create, m_subscriber_too_slow_policy });
     if (publisher_port_data == nullptr)
     {
         return err(PublisherBuilderError::OUT_OF_RESOURCES);
     }
     return ok(unique_ptr<Publisher<T, H>>{
-        new (std::nothrow) Publisher<T, H>{iox::PublisherPortUserType{publisher_port_data}}, [&](auto* const pub) {
+        new (std::nothrow) Publisher<T, H>{ iox::PublisherPortUserType{ publisher_port_data } }, [&](auto* const pub) {
             // NOLINTNEXTLINE(cppcoreguidelines-owning-memory) raw pointer is required by the unique_ptr API
             delete pub;
-        }});
+        } });
 }
 
 inline expected<unique_ptr<UntypedPublisher>, PublisherBuilderError> PublisherBuilder::create() noexcept
 {
     auto* publisher_port_data = m_runtime.getMiddlewarePublisher(
-        m_service_description, {m_history_capacity, "", m_offer_on_create, m_subscriber_too_slow_policy});
+        m_service_description, { m_history_capacity, "", m_offer_on_create, m_subscriber_too_slow_policy });
     if (publisher_port_data == nullptr)
     {
         return err(PublisherBuilderError::OUT_OF_RESOURCES);
     }
     return ok(unique_ptr<UntypedPublisher>{
-        new (std::nothrow) UntypedPublisher{iox::PublisherPortUserType{publisher_port_data}}, [&](auto* const pub) {
+        new (std::nothrow) UntypedPublisher{ iox::PublisherPortUserType{ publisher_port_data } }, [&](auto* const pub) {
             // NOLINTNEXTLINE(cppcoreguidelines-owning-memory) raw pointer is required by the unique_ptr API
             delete pub;
-        }});
+        } });
 }
 
 } // namespace iox::posh::experimental

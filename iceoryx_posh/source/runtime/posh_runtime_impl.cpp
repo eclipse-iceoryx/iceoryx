@@ -42,7 +42,7 @@ PoshRuntimeImpl::PoshRuntimeImpl(optional<const RuntimeName_t*> name,
     auto heartbeatAddressOffset = ipcInterface->getHeartbeatAddressOffset();
     if (heartbeatAddressOffset.has_value())
     {
-        m_heartbeat = RelativePointer<Heartbeat>::getPtr(segment_id_t{ipcInterface->getSegmentId()},
+        m_heartbeat = RelativePointer<Heartbeat>::getPtr(segment_id_t{ ipcInterface->getSegmentId() },
                                                          heartbeatAddressOffset.value());
     }
 
@@ -111,8 +111,8 @@ PoshRuntimeImpl::PoshRuntimeImpl(optional<const RuntimeName_t*> name,
             shmInterface.emplace(std::move(shmInterfaceResult.value()));
         }
 
-        return std::pair<IpcRuntimeInterface, optional<SharedMemoryUser>>{std::move(runtimeInterface),
-                                                                          std::move(shmInterface)};
+        return std::pair<IpcRuntimeInterface, optional<SharedMemoryUser>>{ std::move(runtimeInterface),
+                                                                           std::move(shmInterface) };
     }())
 {
     IOX_LOG(INFO, "Domain ID: " << static_cast<DomainId::value_type>(domainId));
@@ -247,7 +247,7 @@ PoshRuntimeImpl::requestPublisherFromRoudi(const IpcMessage& sendBuffer) noexcep
 
             auto [segment_id, offset] = result.value();
 
-            auto ptr = UntypedRelativePointer::getPtr(segment_id_t{segment_id}, offset);
+            auto ptr = UntypedRelativePointer::getPtr(segment_id_t{ segment_id }, offset);
             return ok(reinterpret_cast<PublisherPortUserType::MemberType_t*>(ptr));
         }
     }
@@ -364,7 +364,7 @@ PoshRuntimeImpl::requestSubscriberFromRoudi(const IpcMessage& sendBuffer) noexce
 
             auto [segment_id, offset] = result.value();
 
-            auto ptr = UntypedRelativePointer::getPtr(segment_id_t{segment_id}, offset);
+            auto ptr = UntypedRelativePointer::getPtr(segment_id_t{ segment_id }, offset);
             return ok(reinterpret_cast<SubscriberPortUserType::MemberType_t*>(ptr));
         }
     }
@@ -477,7 +477,7 @@ PoshRuntimeImpl::requestClientFromRoudi(const IpcMessage& sendBuffer) noexcept
 
             auto [segment_id, offset] = result.value();
 
-            auto ptr = UntypedRelativePointer::getPtr(segment_id_t{segment_id}, offset);
+            auto ptr = UntypedRelativePointer::getPtr(segment_id_t{ segment_id }, offset);
             return ok(reinterpret_cast<popo::ClientPortUser::MemberType_t*>(ptr));
         }
     }
@@ -590,7 +590,7 @@ PoshRuntimeImpl::requestServerFromRoudi(const IpcMessage& sendBuffer) noexcept
 
             auto [segment_id, offset] = result.value();
 
-            auto ptr = UntypedRelativePointer::getPtr(segment_id_t{segment_id}, offset);
+            auto ptr = UntypedRelativePointer::getPtr(segment_id_t{ segment_id }, offset);
             return ok(reinterpret_cast<popo::ServerPortUser::MemberType_t*>(ptr));
         }
     }
@@ -639,7 +639,7 @@ popo::InterfacePortData* PoshRuntimeImpl::getMiddlewareInterface(const capro::In
 
             auto [segment_id, offset] = result.value();
 
-            auto ptr = UntypedRelativePointer::getPtr(segment_id_t{segment_id}, offset);
+            auto ptr = UntypedRelativePointer::getPtr(segment_id_t{ segment_id }, offset);
             return reinterpret_cast<popo::InterfacePortData*>(ptr);
         }
     }
@@ -673,7 +673,7 @@ PoshRuntimeImpl::requestConditionVariableFromRoudi(const IpcMessage& sendBuffer)
 
             auto [segment_id, offset] = result.value();
 
-            auto ptr = UntypedRelativePointer::getPtr(segment_id_t{segment_id}, offset);
+            auto ptr = UntypedRelativePointer::getPtr(segment_id_t{ segment_id }, offset);
             return ok(reinterpret_cast<popo::ConditionVariableData*>(ptr));
         }
     }

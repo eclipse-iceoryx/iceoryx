@@ -70,7 +70,7 @@
 #define TIMING_TEST_CONSTRUCT(name, testcase, repetition, test, GTestType)                                             \
     GTestType(name, TimingTest_##testcase)                                                                             \
     {                                                                                                                  \
-        std::atomic_bool timingTestResult{true};                                                                       \
+        std::atomic_bool timingTestResult{ true };                                                                     \
         std::string errorMessages;                                                                                     \
         bool testResult =                                                                                              \
             iox::utils::testing::performingTimingTest(test, iox::utils::testing::repetition, timingTestResult);        \
@@ -124,7 +124,7 @@ class Repeat
     uint64_t repetitions() const noexcept;
 
   private:
-    uint64_t m_repetitions{0};
+    uint64_t m_repetitions{ 0 };
 };
 
 bool performingTimingTest(const std::function<void()>& testCallback,

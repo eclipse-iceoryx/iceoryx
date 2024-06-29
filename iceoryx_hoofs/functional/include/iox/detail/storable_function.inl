@@ -64,7 +64,7 @@ template <typename T, typename>
 inline storable_function<Capacity, signature<ReturnType, Args...>>::storable_function(
     T& object, ReturnType (T::*method)(Args...)) noexcept
 {
-    T* const p{&object};
+    T* const p{ &object };
     const auto functor = [p, method](Args... args) noexcept -> ReturnType {
         return (*p.*method)(std::forward<Args>(args)...);
     };
@@ -79,7 +79,7 @@ inline storable_function<Capacity, signature<ReturnType, Args...>>::storable_fun
                                                                                       ReturnType (T::*method)(Args...)
                                                                                           const) noexcept
 {
-    const T* const p{&object};
+    const T* const p{ &object };
     const auto functor = [p, method](Args... args) noexcept -> ReturnType {
         return (*p.*method)(std::forward<Args>(args)...);
     };
@@ -174,7 +174,7 @@ inline ReturnType storable_function<Capacity, signature<ReturnType, Args...>>::o
 template <uint64_t Capacity, typename ReturnType, typename... Args>
 inline void storable_function<Capacity, signature<ReturnType, Args...>>::swap(storable_function& f) noexcept
 {
-    storable_function tmp{std::move(f)};
+    storable_function tmp{ std::move(f) };
     f = std::move(*this);
     *this = std::move(tmp);
 }
@@ -194,8 +194,8 @@ storable_function<Capacity, signature<ReturnType, Args...>>::safeAlign(void* sta
     // AXIVION DISABLE STYLE AutosarC++19_03-A5.2.4 : Cast required for low level pointer alignment
     // AXIVION DISABLE STYLE AutosarC++19_03-M5.2.9 : Conversion required for low level pointer alignment
     // NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast, performance-no-int-to-ptr)
-    const uint64_t alignment{alignof(T)};
-    const uint64_t alignedPosition{align(reinterpret_cast<uint64_t>(startAddress), alignment)};
+    const uint64_t alignment{ alignof(T) };
+    const uint64_t alignedPosition{ align(reinterpret_cast<uint64_t>(startAddress), alignment) };
     return reinterpret_cast<void*>(alignedPosition);
     // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast, performance-no-int-to-ptr)
     // AXIVION ENABLE STYLE AutosarC++19_03-M5.2.9
@@ -335,8 +335,8 @@ template <uint64_t Capacity, typename ReturnType, typename... Args>
 template <typename T>
 inline constexpr uint64_t storable_function<Capacity, signature<ReturnType, Args...>>::required_storage_size() noexcept
 {
-    const uint64_t size{sizeof(T)};
-    const uint64_t alignment{alignof(T)};
+    const uint64_t size{ sizeof(T) };
+    const uint64_t alignment{ alignof(T) };
     return (size + alignment) - 1;
 }
 

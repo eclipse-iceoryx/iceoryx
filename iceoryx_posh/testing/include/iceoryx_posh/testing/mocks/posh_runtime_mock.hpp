@@ -82,7 +82,7 @@ class PoshRuntimeMock : public iox::runtime::PoshRuntime
 
   private:
     PoshRuntimeMock(const iox::RuntimeName_t& name)
-        : iox::runtime::PoshRuntime(iox::optional<const iox::RuntimeName_t*>({&name}))
+        : iox::runtime::PoshRuntime(iox::optional<const iox::RuntimeName_t*>({ &name }))
     {
     }
 

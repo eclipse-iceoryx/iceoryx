@@ -163,8 +163,8 @@ TEST_F(FileReader_test, errorTerminateMode)
 {
     ::testing::Test::RecordProperty("TEST_ID", "146e3109-6d98-44ee-a3a9-5d151616a212");
 
-    const std::string fileName{"ISaidNo!"};
-    const std::string filePath{"InTheMiddleOfNowhere"};
+    const std::string fileName{ "ISaidNo!" };
+    const std::string filePath{ "InTheMiddleOfNowhere" };
 
     IOX_EXPECT_FATAL_FAILURE([&] { iox::FileReader reader(fileName, filePath, iox::FileReader::ErrorMode::Terminate); },
                              iox::er::FATAL);

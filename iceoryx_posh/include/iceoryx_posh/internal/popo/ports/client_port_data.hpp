@@ -41,12 +41,12 @@ struct ClientPortData : public BasePortData
                    mepoo::MemoryManager* const memoryManager,
                    const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
-    static constexpr uint64_t HISTORY_CAPACITY_ZERO{0U};
+    static constexpr uint64_t HISTORY_CAPACITY_ZERO{ 0U };
 
     ClientChunkSenderData_t m_chunkSenderData;
     ClientChunkReceiverData_t m_chunkReceiverData;
-    std::atomic_bool m_connectRequested{false};
-    std::atomic<ConnectionState> m_connectionState{ConnectionState::NOT_CONNECTED};
+    std::atomic_bool m_connectRequested{ false };
+    std::atomic<ConnectionState> m_connectionState{ ConnectionState::NOT_CONNECTED };
 };
 
 } // namespace popo

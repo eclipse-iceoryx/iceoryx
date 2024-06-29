@@ -71,7 +71,7 @@ class MemoryBlock
     virtual void onMemoryAvailable(not_null<void*> memory) noexcept;
 
   private:
-    void* m_memory{nullptr};
+    void* m_memory{ nullptr };
 };
 
 } // namespace roudi

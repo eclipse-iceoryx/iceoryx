@@ -64,7 +64,7 @@ class ChunkDistributor_test : public Test
         auto& chunkSettings = chunkSettingsResult.value();
 
         ChunkHeader* chunkHeader = new (chunk) ChunkHeader(mempool.getChunkSize(), chunkSettings);
-        new (chunkMgmt) ChunkManagement{chunkHeader, &mempool, &chunkMgmtPool};
+        new (chunkMgmt) ChunkManagement{ chunkHeader, &mempool, &chunkMgmtPool };
         *static_cast<uint64_t*>(chunkHeader->userPayload()) = value;
         return SharedChunk(chunkMgmt);
     }
@@ -73,16 +73,16 @@ class ChunkDistributor_test : public Test
         return *static_cast<uint32_t*>(chunk.getUserPayload());
     }
 
-    static constexpr uint32_t USER_PAYLOAD_SIZE{128U};
+    static constexpr uint32_t USER_PAYLOAD_SIZE{ 128U };
     static constexpr size_t MEGABYTE = 1U << 20U;
     static constexpr size_t MEMORY_SIZE = 1U * MEGABYTE;
     const uint64_t HISTORY_SIZE = 16U;
     static constexpr uint32_t MAX_NUMBER_QUEUES = 128U;
-    static constexpr uint32_t MEMPOOL_CHUNK_COUNT{iox::MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY * 2};
-    std::unique_ptr<uint8_t[]> memory{new uint8_t[MEMORY_SIZE]};
-    iox::BumpAllocator allocator{memory.get(), MEMORY_SIZE};
-    MemPool mempool{sizeof(ChunkHeader) + USER_PAYLOAD_SIZE, MEMPOOL_CHUNK_COUNT, allocator, allocator};
-    MemPool chunkMgmtPool{128U, MEMPOOL_CHUNK_COUNT, allocator, allocator};
+    static constexpr uint32_t MEMPOOL_CHUNK_COUNT{ iox::MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY * 2 };
+    std::unique_ptr<uint8_t[]> memory{ new uint8_t[MEMORY_SIZE] };
+    iox::BumpAllocator allocator{ memory.get(), MEMORY_SIZE };
+    MemPool mempool{ sizeof(ChunkHeader) + USER_PAYLOAD_SIZE, MEMPOOL_CHUNK_COUNT, allocator, allocator };
+    MemPool chunkMgmtPool{ 128U, MEMPOOL_CHUNK_COUNT, allocator, allocator };
 
     struct ChunkDistributorConfig
     {
@@ -121,10 +121,10 @@ class ChunkDistributor_test : public Test
         return std::make_shared<ChunkDistributorData_t>(policy, HISTORY_SIZE);
     }
 
-    static constexpr std::chrono::milliseconds BLOCKING_DURATION{100};
+    static constexpr std::chrono::milliseconds BLOCKING_DURATION{ 100 };
 
-    static constexpr iox::units::Duration DEADLOCK_TIMEOUT{2_s};
-    Watchdog deadlockWatchdog{DEADLOCK_TIMEOUT};
+    static constexpr iox::units::Duration DEADLOCK_TIMEOUT{ 2_s };
+    Watchdog deadlockWatchdog{ DEADLOCK_TIMEOUT };
 };
 template <typename PolicyType>
 constexpr std::chrono::milliseconds ChunkDistributor_test<PolicyType>::BLOCKING_DURATION;
@@ -245,7 +245,7 @@ TYPED_TEST(ChunkDistributor_test, RemoveAllQueuesWhenContainingMultipleQueues)
 TYPED_TEST(ChunkDistributor_test, GetQueueIndexWithoutAddedQueueReturnsNoIndex)
 {
     ::testing::Test::RecordProperty("TEST_ID", "92a9e4a8-3964-4d34-b144-10024914ab0d");
-    constexpr uint32_t UNKNOWN_QUEUE_INDEX{std::numeric_limits<uint32_t>::max()};
+    constexpr uint32_t UNKNOWN_QUEUE_INDEX{ std::numeric_limits<uint32_t>::max() };
 
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
@@ -260,7 +260,7 @@ TYPED_TEST(ChunkDistributor_test, GetQueueIndexWithoutAddedQueueReturnsNoIndex)
 TYPED_TEST(ChunkDistributor_test, GetQueueIndexWithAddedQueueReturnsIndex)
 {
     ::testing::Test::RecordProperty("TEST_ID", "31228aa0-d4b8-4f7d-98e4-ebdab8f0acd1");
-    constexpr uint32_t EXPECTED_QUEUE_INDEX{0U};
+    constexpr uint32_t EXPECTED_QUEUE_INDEX{ 0U };
 
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
@@ -276,9 +276,9 @@ TYPED_TEST(ChunkDistributor_test, GetQueueIndexWithAddedQueueReturnsIndex)
 TYPED_TEST(ChunkDistributor_test, GetQueueIndexWithMultipleAddedQueuesReturnsIndex)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0183bea6-6189-437c-b15c-0d9ade511975");
-    constexpr uint32_t EXPECTED_QUEUE_INDEX_1{0U};
-    constexpr uint32_t EXPECTED_QUEUE_INDEX_2{1U};
-    constexpr uint32_t EXPECTED_QUEUE_INDEX_3{2U};
+    constexpr uint32_t EXPECTED_QUEUE_INDEX_1{ 0U };
+    constexpr uint32_t EXPECTED_QUEUE_INDEX_2{ 1U };
+    constexpr uint32_t EXPECTED_QUEUE_INDEX_3{ 2U };
 
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
@@ -306,10 +306,10 @@ TYPED_TEST(ChunkDistributor_test, GetQueueIndexWithMultipleAddedQueuesReturnsInd
 TYPED_TEST(ChunkDistributor_test, GetQueueIndexWithMultipleAddedQueuesAndUnknownLastIndexReturnsIndex)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3870dd6b-535c-497a-85cf-54709e2edd46");
-    constexpr uint32_t UNKNOWN_QUEUE_INDEX{std::numeric_limits<uint32_t>::max()};
-    constexpr uint32_t EXPECTED_QUEUE_INDEX_1{0U};
-    constexpr uint32_t EXPECTED_QUEUE_INDEX_2{1U};
-    constexpr uint32_t EXPECTED_QUEUE_INDEX_3{2U};
+    constexpr uint32_t UNKNOWN_QUEUE_INDEX{ std::numeric_limits<uint32_t>::max() };
+    constexpr uint32_t EXPECTED_QUEUE_INDEX_1{ 0U };
+    constexpr uint32_t EXPECTED_QUEUE_INDEX_2{ 1U };
+    constexpr uint32_t EXPECTED_QUEUE_INDEX_3{ 2U };
 
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
@@ -337,7 +337,7 @@ TYPED_TEST(ChunkDistributor_test, GetQueueIndexWithMultipleAddedQueuesAndUnknown
 TYPED_TEST(ChunkDistributor_test, GetQueueIndexWithPreviouslyAddedQueueRemovedReturnsNoIndex)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7680b79d-8e72-4441-8038-fa5a3fdfd182");
-    constexpr uint32_t EXPECTED_QUEUE_INDEX{0U};
+    constexpr uint32_t EXPECTED_QUEUE_INDEX{ 0U };
 
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
@@ -538,7 +538,7 @@ TYPED_TEST(ChunkDistributor_test, addToHistoryWithoutDelivery)
 TYPED_TEST(ChunkDistributor_test, DeliverToQueueWithoutAddedQueueReturnsError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "168e0415-68fa-4a5c-902b-f0ff29b55dbf");
-    constexpr uint32_t UNKNOWN_QUEUE_INDEX{std::numeric_limits<uint32_t>::max()};
+    constexpr uint32_t UNKNOWN_QUEUE_INDEX{ std::numeric_limits<uint32_t>::max() };
 
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
@@ -554,7 +554,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToQueueWithoutAddedQueueReturnsError)
 TYPED_TEST(ChunkDistributor_test, DeliverToQueueWithAddedQueueDeliversChunkAndDoesNotAddToHistory)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4edaf3f4-5285-4a9d-b31d-8822f1e46b70");
-    constexpr uint32_t UNKNOWN_QUEUE_INDEX{std::numeric_limits<uint32_t>::max()};
+    constexpr uint32_t UNKNOWN_QUEUE_INDEX{ std::numeric_limits<uint32_t>::max() };
 
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
@@ -562,7 +562,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToQueueWithAddedQueueDeliversChunkAndDo
     auto queueData = this->getChunkQueueData();
     ASSERT_FALSE(sut.tryAddQueue(queueData.get()).has_error());
 
-    constexpr uint32_t DATA_TO_SEND{987};
+    constexpr uint32_t DATA_TO_SEND{ 987 };
     auto chunk = this->allocateChunk(DATA_TO_SEND);
     ASSERT_FALSE(sut.deliverToQueue(queueData->m_uniqueId, UNKNOWN_QUEUE_INDEX, chunk).has_error());
 
@@ -577,7 +577,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToQueueWithAddedQueueDeliversChunkAndDo
 TYPED_TEST(ChunkDistributor_test, DeliverToQueueWithMoreChunksThanCapacityLeadsToLostChunk)
 {
     ::testing::Test::RecordProperty("TEST_ID", "539e71d3-3ec5-4aeb-bcac-aa406e0e5828");
-    constexpr uint32_t EXPECTED_QUEUE_INDEX{0U};
+    constexpr uint32_t EXPECTED_QUEUE_INDEX{ 0U };
     using ChunkQueueData_t = typename TestFixture::ChunkQueueData_t;
 
     auto sutData = this->getChunkDistributorData();
@@ -603,7 +603,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToQueueWithMoreChunksThanCapacityLeadsT
 TYPED_TEST(ChunkDistributor_test, DeliverToQueueWithBlockingOptionBlocksDelivery)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9f594607-215e-4db5-bdae-433c185dbbcd");
-    constexpr uint32_t EXPECTED_QUEUE_INDEX{0U};
+    constexpr uint32_t EXPECTED_QUEUE_INDEX{ 0U };
     using ChunkQueueData_t = typename TestFixture::ChunkQueueData_t;
 
     auto sutData = this->getChunkDistributorData(ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER);
@@ -621,7 +621,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToQueueWithBlockingOptionBlocksDelivery
 
     Barrier isThreadStarted(1U);
     auto chunk = this->allocateChunk(7373);
-    std::atomic_bool wasChunkDelivered{false};
+    std::atomic_bool wasChunkDelivered{ false };
     std::thread t1([&] {
         isThreadStarted.notify();
         ASSERT_FALSE(sut.deliverToQueue(queueData->m_uniqueId, EXPECTED_QUEUE_INDEX, chunk).has_error());
@@ -738,7 +738,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToSingleQueueBlocksWhenOptionsAreSetToB
     sut.deliverToAllStoredQueues(this->allocateChunk(155U));
 
     Barrier isThreadStarted(1U);
-    std::atomic_bool wasChunkDelivered{false};
+    std::atomic_bool wasChunkDelivered{ false };
     std::thread t1([&] {
         isThreadStarted.notify();
         sut.deliverToAllStoredQueues(this->allocateChunk(152U));
@@ -785,7 +785,7 @@ TYPED_TEST(ChunkDistributor_test, MultipleBlockingQueuesWillBeFilledWhenThereBec
     sut.deliverToAllStoredQueues(this->allocateChunk(425U));
 
     Barrier isThreadStarted(1U);
-    std::atomic_bool wasChunkDelivered{false};
+    std::atomic_bool wasChunkDelivered{ false };
     std::thread t1([&] {
         isThreadStarted.notify();
         sut.deliverToAllStoredQueues(this->allocateChunk(1152U));

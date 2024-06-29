@@ -27,16 +27,16 @@ namespace mepoo
 /// different types of memory on e.g. different devices with different characteristics.
 struct MemoryInfo
 {
-    static constexpr uint32_t DEFAULT_DEVICE_ID{0U};
-    static constexpr uint32_t DEFAULT_MEMORY_TYPE{0U};
+    static constexpr uint32_t DEFAULT_DEVICE_ID{ 0U };
+    static constexpr uint32_t DEFAULT_MEMORY_TYPE{ 0U };
 
     // These are intentionally not defined as enum classes for flexibility and extendibility.
     // Currently only the defaults are used.
     // This will change when we support different devices (CPU, GPUs, ...)
     // and other properties that influence how memory is accessed.
 
-    uint32_t deviceId{DEFAULT_DEVICE_ID};
-    uint32_t memoryType{DEFAULT_MEMORY_TYPE};
+    uint32_t deviceId{ DEFAULT_DEVICE_ID };
+    uint32_t memoryType{ DEFAULT_MEMORY_TYPE };
 
     MemoryInfo(const MemoryInfo&) noexcept = default;
     MemoryInfo(MemoryInfo&&) noexcept = default;

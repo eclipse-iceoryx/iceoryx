@@ -55,24 +55,28 @@ struct TestValues
 template <>
 const uint64_t TestValues<UserName>::CAPACITY = platform::MAX_USER_NAME_LENGTH;
 template <>
-const std::vector<std::string> TestValues<UserName>::VALID_VALUES{{"some-user"}, {"user2"}};
+const std::vector<std::string> TestValues<UserName>::VALID_VALUES{ { "some-user" }, { "user2" } };
 template <>
 const std::vector<std::string> TestValues<UserName>::INVALID_CHARACTER_VALUES{
-    {"some-!user"}, {"*kasjd"}, {"_fuuuas"}, {"asd/asd"}, {";'1'fuuuu"}, {"argh/"}, {"fuu/arg/bla"}};
+    { "some-!user" }, { "*kasjd" }, { "_fuuuas" }, { "asd/asd" }, { ";'1'fuuuu" }, { "argh/" }, { "fuu/arg/bla" }
+};
 template <>
-const std::vector<std::string> TestValues<UserName>::INVALID_CONTENT_VALUES{
-    {""}, {"-do-not-start-with-dash"}, {"5do-not-start-with-a-number"}};
+const std::vector<std::string> TestValues<UserName>::INVALID_CONTENT_VALUES{ { "" },
+                                                                             { "-do-not-start-with-dash" },
+                                                                             { "5do-not-start-with-a-number" } };
 template <>
-const std::vector<std::string> TestValues<UserName>::TOO_LONG_CONTENT_VALUES{{"i-am-waaaaay-toooooooo-loooooooong"}};
+const std::vector<std::string> TestValues<UserName>::TOO_LONG_CONTENT_VALUES{
+    { "i-am-waaaaay-toooooooo-loooooooong" }
+};
 template <>
-const std::string TestValues<UserName>::GREATER_VALID_VALUE{"zebra-zusel"};
+const std::string TestValues<UserName>::GREATER_VALID_VALUE{ "zebra-zusel" };
 template <>
-const std::string TestValues<UserName>::SMALLER_VALID_VALUE{"alfons-alf"};
+const std::string TestValues<UserName>::SMALLER_VALID_VALUE{ "alfons-alf" };
 template <>
-const std::string TestValues<UserName>::MAX_CAPACITY_VALUE{"all-glory-to-the-incredible-and-legendary-hypno-toad"};
+const std::string TestValues<UserName>::MAX_CAPACITY_VALUE{ "all-glory-to-the-incredible-and-legendary-hypno-toad" };
 template <>
-const std::vector<std::string> TestValues<UserName>::ADD_VALID_CHARS_TO_CREATE_INVALID_CONTENT_AT_BEGIN{"-bla",
-                                                                                                        "81923"};
+const std::vector<std::string> TestValues<UserName>::ADD_VALID_CHARS_TO_CREATE_INVALID_CONTENT_AT_BEGIN{ "-bla",
+                                                                                                         "81923" };
 template <>
 const std::vector<std::string> TestValues<UserName>::ADD_VALID_CHARS_TO_CREATE_INVALID_CONTENT_AT_END{};
 ///////////////////
@@ -85,23 +89,28 @@ const std::vector<std::string> TestValues<UserName>::ADD_VALID_CHARS_TO_CREATE_I
 template <>
 const uint64_t TestValues<GroupName>::CAPACITY = platform::MAX_GROUP_NAME_LENGTH;
 template <>
-const std::vector<std::string> TestValues<GroupName>::VALID_VALUES{{"a-group"}, {"group2"}};
+const std::vector<std::string> TestValues<GroupName>::VALID_VALUES{ { "a-group" }, { "group2" } };
 template <>
-const std::vector<std::string> TestValues<GroupName>::INVALID_CHARACTER_VALUES{
-    {"se-!ur"}, {"*kad"}, {"_fus"}, {"a/sd"}, {";'1'fu"}, {"ah/"}, {"fuu/bla"}};
+const std::vector<std::string> TestValues<GroupName>::INVALID_CHARACTER_VALUES{ { "se-!ur" }, { "*kad" },   { "_fus" },
+                                                                                { "a/sd" },   { ";'1'fu" }, { "ah/" },
+                                                                                { "fuu/bla" } };
 template <>
-const std::vector<std::string> TestValues<GroupName>::INVALID_CONTENT_VALUES{{""}, {"-no-dash"}, {"5no-number"}};
+const std::vector<std::string> TestValues<GroupName>::INVALID_CONTENT_VALUES{ { "" },
+                                                                              { "-no-dash" },
+                                                                              { "5no-number" } };
 template <>
-const std::vector<std::string> TestValues<GroupName>::TOO_LONG_CONTENT_VALUES{{"i-am-waaaaay-toooooooo-loooooooong"}};
+const std::vector<std::string> TestValues<GroupName>::TOO_LONG_CONTENT_VALUES{
+    { "i-am-waaaaay-toooooooo-loooooooong" }
+};
 template <>
-const std::string TestValues<GroupName>::GREATER_VALID_VALUE{"zebra-zusel"};
+const std::string TestValues<GroupName>::GREATER_VALID_VALUE{ "zebra-zusel" };
 template <>
-const std::string TestValues<GroupName>::SMALLER_VALID_VALUE{"alfons-alf"};
+const std::string TestValues<GroupName>::SMALLER_VALID_VALUE{ "alfons-alf" };
 template <>
-const std::string TestValues<GroupName>::MAX_CAPACITY_VALUE{"all-glory-to-the-incredible-and-legendary-hypno-toad"};
+const std::string TestValues<GroupName>::MAX_CAPACITY_VALUE{ "all-glory-to-the-incredible-and-legendary-hypno-toad" };
 template <>
-const std::vector<std::string> TestValues<GroupName>::ADD_VALID_CHARS_TO_CREATE_INVALID_CONTENT_AT_BEGIN{"-fuu",
-                                                                                                         "8number"};
+const std::vector<std::string> TestValues<GroupName>::ADD_VALID_CHARS_TO_CREATE_INVALID_CONTENT_AT_BEGIN{ "-fuu",
+                                                                                                          "8number" };
 template <>
 const std::vector<std::string> TestValues<GroupName>::ADD_VALID_CHARS_TO_CREATE_INVALID_CONTENT_AT_END{};
 ///////////////////
@@ -115,21 +124,23 @@ template <>
 const uint64_t TestValues<FileName>::CAPACITY = platform::IOX_MAX_FILENAME_LENGTH;
 template <>
 const std::vector<std::string> TestValues<FileName>::VALID_VALUES{
-    {"file"}, {"another_file.bla"}, {"123.456"}, {".hidden_me"}};
+    { "file" }, { "another_file.bla" }, { "123.456" }, { ".hidden_me" }
+};
 template <>
 const std::vector<std::string> TestValues<FileName>::INVALID_CHARACTER_VALUES{
-    {"some-!user"}, {"*kasjd"}, {"$_fuuuas"}, {"asd/asd"}, {";'1'fuuuu"}, {"argh/"}, {"fuu/arg/bla"}};
+    { "some-!user" }, { "*kasjd" }, { "$_fuuuas" }, { "asd/asd" }, { ";'1'fuuuu" }, { "argh/" }, { "fuu/arg/bla" }
+};
 template <>
-const std::vector<std::string> TestValues<FileName>::INVALID_CONTENT_VALUES{{""}, {"."}, {".."}};
+const std::vector<std::string> TestValues<FileName>::INVALID_CONTENT_VALUES{ { "" }, { "." }, { ".." } };
 template <>
-const std::vector<std::string> TestValues<FileName>::TOO_LONG_CONTENT_VALUES{
-    std::string(platform::IOX_MAX_FILENAME_LENGTH + 2, 'a')};
+const std::vector<std::string> TestValues<FileName>::TOO_LONG_CONTENT_VALUES{ std::string(
+    platform::IOX_MAX_FILENAME_LENGTH + 2, 'a') };
 template <>
-const std::string TestValues<FileName>::GREATER_VALID_VALUE{"9-i-am-a-file"};
+const std::string TestValues<FileName>::GREATER_VALID_VALUE{ "9-i-am-a-file" };
 template <>
-const std::string TestValues<FileName>::SMALLER_VALID_VALUE{"0.me.too.be.file"};
+const std::string TestValues<FileName>::SMALLER_VALID_VALUE{ "0.me.too.be.file" };
 template <>
-const std::string TestValues<FileName>::MAX_CAPACITY_VALUE{std::string(platform::IOX_MAX_FILENAME_LENGTH, 'b')};
+const std::string TestValues<FileName>::MAX_CAPACITY_VALUE{ std::string(platform::IOX_MAX_FILENAME_LENGTH, 'b') };
 template <>
 const std::vector<std::string> TestValues<FileName>::ADD_VALID_CHARS_TO_CREATE_INVALID_CONTENT_AT_BEGIN{};
 template <>
@@ -144,35 +155,38 @@ const std::vector<std::string> TestValues<FileName>::ADD_VALID_CHARS_TO_CREATE_I
 template <>
 const uint64_t TestValues<FilePath>::CAPACITY = platform::IOX_MAX_PATH_LENGTH;
 template <>
-const std::vector<std::string> TestValues<FilePath>::VALID_VALUES{{"file"},
-                                                                  {"another_file.bla"},
-                                                                  {"123.456"},
-                                                                  {".hidden_me"},
-                                                                  {"/some/file/path"},
-                                                                  {"./relative/path"},
-                                                                  {"another/../../relative/path"},
-                                                                  {"another/../...bla"},
-                                                                  {"not/yet/another/path/../fuu"}};
+const std::vector<std::string> TestValues<FilePath>::VALID_VALUES{ { "file" },
+                                                                   { "another_file.bla" },
+                                                                   { "123.456" },
+                                                                   { ".hidden_me" },
+                                                                   { "/some/file/path" },
+                                                                   { "./relative/path" },
+                                                                   { "another/../../relative/path" },
+                                                                   { "another/../...bla" },
+                                                                   { "not/yet/another/path/../fuu" } };
 template <>
-const std::vector<std::string> TestValues<FilePath>::INVALID_CHARACTER_VALUES{{"some-!user"},
-                                                                              {"*kasjd"},
-                                                                              {"$_fuuuas"},
-                                                                              {";'1'fuuuu"},
-                                                                              {"so*me/path/to/."},
-                                                                              {"/some/pa)th/to/."},
-                                                                              {"another/relative/pa]th/at/the/end/.."}};
+const std::vector<std::string> TestValues<FilePath>::INVALID_CHARACTER_VALUES{
+    { "some-!user" },
+    { "*kasjd" },
+    { "$_fuuuas" },
+    { ";'1'fuuuu" },
+    { "so*me/path/to/." },
+    { "/some/pa)th/to/." },
+    { "another/relative/pa]th/at/the/end/.." }
+};
 template <>
 const std::vector<std::string> TestValues<FilePath>::INVALID_CONTENT_VALUES{
-    {""}, {"."}, {".."}, {"stop/with/relative/.."}, "another/relative/part/at/the/end/."};
+    { "" }, { "." }, { ".." }, { "stop/with/relative/.." }, "another/relative/part/at/the/end/."
+};
 template <>
-const std::vector<std::string> TestValues<FilePath>::TOO_LONG_CONTENT_VALUES{
-    std::string(platform::IOX_MAX_PATH_LENGTH + 2, 'a')};
+const std::vector<std::string> TestValues<FilePath>::TOO_LONG_CONTENT_VALUES{ std::string(
+    platform::IOX_MAX_PATH_LENGTH + 2, 'a') };
 template <>
-const std::string TestValues<FilePath>::GREATER_VALID_VALUE{"9-i-am-a-file"};
+const std::string TestValues<FilePath>::GREATER_VALID_VALUE{ "9-i-am-a-file" };
 template <>
-const std::string TestValues<FilePath>::SMALLER_VALID_VALUE{"0.me.too.be.file"};
+const std::string TestValues<FilePath>::SMALLER_VALID_VALUE{ "0.me.too.be.file" };
 template <>
-const std::string TestValues<FilePath>::MAX_CAPACITY_VALUE{std::string(platform::IOX_MAX_PATH_LENGTH, 'b')};
+const std::string TestValues<FilePath>::MAX_CAPACITY_VALUE{ std::string(platform::IOX_MAX_PATH_LENGTH, 'b') };
 template <>
 const std::vector<std::string> TestValues<FilePath>::ADD_VALID_CHARS_TO_CREATE_INVALID_CONTENT_AT_BEGIN{};
 template <>
@@ -187,37 +201,34 @@ const std::vector<std::string> TestValues<FilePath>::ADD_VALID_CHARS_TO_CREATE_I
 template <>
 const uint64_t TestValues<Path>::CAPACITY = platform::IOX_MAX_PATH_LENGTH;
 template <>
-const std::vector<std::string> TestValues<Path>::VALID_VALUES{{"file"},
-                                                              {"another_file.bla"},
-                                                              {"123.456"},
-                                                              {".hidden_me"},
-                                                              {"/some/file/path"},
-                                                              {"./relative/path"},
-                                                              {"another/../../relative/path"},
-                                                              {"another/../...bla"},
-                                                              {"not/yet/another/path/../fuu"},
-                                                              {"/slash/at/the/end/"},
-                                                              {"../relative/path/at/the/end/.."},
-                                                              "relative_path/at/end2/."};
+const std::vector<std::string> TestValues<Path>::VALID_VALUES{ { "file" },
+                                                               { "another_file.bla" },
+                                                               { "123.456" },
+                                                               { ".hidden_me" },
+                                                               { "/some/file/path" },
+                                                               { "./relative/path" },
+                                                               { "another/../../relative/path" },
+                                                               { "another/../...bla" },
+                                                               { "not/yet/another/path/../fuu" },
+                                                               { "/slash/at/the/end/" },
+                                                               { "../relative/path/at/the/end/.." },
+                                                               "relative_path/at/end2/." };
 template <>
 const std::vector<std::string> TestValues<Path>::INVALID_CHARACTER_VALUES{
-    {"some-!user"},
-    {"*kasjd"},
-    {"$_fuuuas"},
-    {";'1'fuuuu"},
-    {"so*me/path/to/.*"},
-    {"another/relative/character]th/at/the/end/#$!*"}};
+    { "some-!user" }, { "*kasjd" },           { "$_fuuuas" },
+    { ";'1'fuuuu" },  { "so*me/path/to/.*" }, { "another/relative/character]th/at/the/end/#$!*" }
+};
 template <>
 const std::vector<std::string> TestValues<Path>::INVALID_CONTENT_VALUES{};
 template <>
-const std::vector<std::string> TestValues<Path>::TOO_LONG_CONTENT_VALUES{
-    std::string(platform::IOX_MAX_PATH_LENGTH + 2, 'a')};
+const std::vector<std::string> TestValues<Path>::TOO_LONG_CONTENT_VALUES{ std::string(platform::IOX_MAX_PATH_LENGTH + 2,
+                                                                                      'a') };
 template <>
-const std::string TestValues<Path>::GREATER_VALID_VALUE{"9-i-am-a-file/blubb/di/whoop"};
+const std::string TestValues<Path>::GREATER_VALID_VALUE{ "9-i-am-a-file/blubb/di/whoop" };
 template <>
-const std::string TestValues<Path>::SMALLER_VALID_VALUE{"0.me.too.be.file/whoop/whoop"};
+const std::string TestValues<Path>::SMALLER_VALID_VALUE{ "0.me.too.be.file/whoop/whoop" };
 template <>
-const std::string TestValues<Path>::MAX_CAPACITY_VALUE{std::string(platform::IOX_MAX_PATH_LENGTH, 'b')};
+const std::string TestValues<Path>::MAX_CAPACITY_VALUE{ std::string(platform::IOX_MAX_PATH_LENGTH, 'b') };
 template <>
 const std::vector<std::string> TestValues<Path>::ADD_VALID_CHARS_TO_CREATE_INVALID_CONTENT_AT_BEGIN{};
 template <>

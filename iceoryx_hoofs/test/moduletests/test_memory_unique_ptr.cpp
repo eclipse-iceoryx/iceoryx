@@ -31,9 +31,9 @@ constexpr double_t Z_POS = 2.2;
 
 struct Position
 {
-    double_t x{X_POS};
-    double_t y{Y_POS};
-    double_t z{Z_POS};
+    double_t x{ X_POS };
+    double_t y{ Y_POS };
+    double_t z{ Z_POS };
 };
 
 class UniquePtrTest : public Test
@@ -45,8 +45,8 @@ class UniquePtrTest : public Test
         m_anotherDeleterCalled = false;
     }
 
-    bool m_deleterCalled{false};
-    bool m_anotherDeleterCalled{false};
+    bool m_deleterCalled{ false };
+    bool m_anotherDeleterCalled{ false };
     Position object;
     Position anotherObject;
 

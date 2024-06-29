@@ -41,7 +41,7 @@ int iox_getenv_s(size_t* env_var_size_with_null, char* buffer, size_t buffer_cap
         return EINVAL;
     }
 
-    size_t actual_size_platform_adaption{0};
+    size_t actual_size_platform_adaption{ 0 };
     size_t* actual_size_with_null_ptr =
         (env_var_size_with_null != nullptr) ? env_var_size_with_null : &actual_size_platform_adaption;
 

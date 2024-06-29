@@ -62,7 +62,7 @@ class Barrier
     }
 
   private:
-    uint32_t m_count{0};
+    uint32_t m_count{ 0 };
     std::mutex m_mutex;
     std::condition_variable m_condVar;
     uint32_t m_requiredCount;

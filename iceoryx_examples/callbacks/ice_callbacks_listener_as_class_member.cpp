@@ -33,8 +33,8 @@ class CounterService
   public:
     //! [ctor]
     CounterService()
-        : m_subscriberLeft({"Radar", "FrontLeft", "Counter"})
-        , m_subscriberRight({"Radar", "FrontRight", "Counter"})
+        : m_subscriberLeft({ "Radar", "FrontLeft", "Counter" })
+        , m_subscriberRight({ "Radar", "FrontRight", "Counter" })
     {
         /// Attach the static method onSampleReceivedCallback and provide this as additional argument
         /// to the callback to gain access to the object whenever the callback is called.

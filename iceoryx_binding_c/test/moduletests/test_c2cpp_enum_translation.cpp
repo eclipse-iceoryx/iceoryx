@@ -38,7 +38,8 @@ TEST(c2cpp_enum_translation_test, SubscriberState)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7f942bb1-be58-4aff-b05c-2e78c4648be3");
     constexpr EnumMapping<iox::popo::SubscriberState, iox_SubscriberState> SUBSCRIBER_STATES[]{
-        {iox::popo::SubscriberState::HAS_DATA, SubscriberState_HAS_DATA}};
+        { iox::popo::SubscriberState::HAS_DATA, SubscriberState_HAS_DATA }
+    };
 
     for (const auto subscriberState : SUBSCRIBER_STATES)
     {
@@ -68,7 +69,8 @@ TEST(c2cpp_enum_translation_test, SubscriberEvent)
 {
     ::testing::Test::RecordProperty("TEST_ID", "eac05952-7bb1-4265-bd96-1c9c2b5f7327");
     constexpr EnumMapping<iox::popo::SubscriberEvent, iox_SubscriberEvent> SUBSCRIBER_EVENTS[]{
-        {iox::popo::SubscriberEvent::DATA_RECEIVED, SubscriberEvent_DATA_RECEIVED}};
+        { iox::popo::SubscriberEvent::DATA_RECEIVED, SubscriberEvent_DATA_RECEIVED }
+    };
 
     for (const auto subscriberEvent : SUBSCRIBER_EVENTS)
     {
@@ -98,8 +100,9 @@ TEST(c2cpp_enum_translation_test, ConsumerTooSlowPolicy)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2984ede1-7ef3-412e-8b4d-d597d305ad41");
     constexpr EnumMapping<iox::popo::ConsumerTooSlowPolicy, iox_ConsumerTooSlowPolicy> STATES[]{
-        {iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER, ConsumerTooSlowPolicy_WAIT_FOR_CONSUMER},
-        {iox::popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA, ConsumerTooSlowPolicy_DISCARD_OLDEST_DATA}};
+        { iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER, ConsumerTooSlowPolicy_WAIT_FOR_CONSUMER },
+        { iox::popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA, ConsumerTooSlowPolicy_DISCARD_OLDEST_DATA }
+    };
 
     for (const auto state : STATES)
     {
@@ -133,8 +136,9 @@ TEST(c2cpp_enum_translation_test, QueueFullPolicy)
 {
     ::testing::Test::RecordProperty("TEST_ID", "741e6e92-43c5-4218-ba15-05b0a510f489");
     constexpr EnumMapping<iox::popo::QueueFullPolicy, iox_QueueFullPolicy> STATES[]{
-        {iox::popo::QueueFullPolicy::BLOCK_PRODUCER, QueueFullPolicy_BLOCK_PRODUCER},
-        {iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA, QueueFullPolicy_DISCARD_OLDEST_DATA}};
+        { iox::popo::QueueFullPolicy::BLOCK_PRODUCER, QueueFullPolicy_BLOCK_PRODUCER },
+        { iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA, QueueFullPolicy_DISCARD_OLDEST_DATA }
+    };
 
     for (const auto state : STATES)
     {
@@ -167,8 +171,8 @@ TEST(c2cpp_enum_translation_test, QueueFullPolicy)
 TEST(c2cpp_enum_translation_test, ClientState)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e1cbdde1-7ead-42e2-8ba3-f680629c7c09");
-    constexpr EnumMapping<iox::popo::ClientState, iox_ClientState> STATES[]{
-        {iox::popo::ClientState::HAS_RESPONSE, ClientState_HAS_RESPONSE}};
+    constexpr EnumMapping<iox::popo::ClientState, iox_ClientState> STATES[]{ { iox::popo::ClientState::HAS_RESPONSE,
+                                                                               ClientState_HAS_RESPONSE } };
 
     for (const auto state : STATES)
     {
@@ -198,7 +202,8 @@ TEST(c2cpp_enum_translation_test, ClientEvent)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2d0be79d-dd12-4195-bf11-079efeea51d9");
     constexpr EnumMapping<iox::popo::ClientEvent, iox_ClientEvent> EVENTS[]{
-        {iox::popo::ClientEvent::RESPONSE_RECEIVED, ClientEvent_RESPONSE_RECEIVED}};
+        { iox::popo::ClientEvent::RESPONSE_RECEIVED, ClientEvent_RESPONSE_RECEIVED }
+    };
 
     for (const auto event : EVENTS)
     {
@@ -227,8 +232,8 @@ TEST(c2cpp_enum_translation_test, ClientEvent)
 TEST(c2cpp_enum_translation_test, ServerState)
 {
     ::testing::Test::RecordProperty("TEST_ID", "eb66ed46-948c-4e99-a13e-696bd7484388");
-    constexpr EnumMapping<iox::popo::ServerState, iox_ServerState> STATES[]{
-        {iox::popo::ServerState::HAS_REQUEST, ServerState_HAS_REQUEST}};
+    constexpr EnumMapping<iox::popo::ServerState, iox_ServerState> STATES[]{ { iox::popo::ServerState::HAS_REQUEST,
+                                                                               ServerState_HAS_REQUEST } };
 
     for (const auto state : STATES)
     {
@@ -257,8 +262,8 @@ TEST(c2cpp_enum_translation_test, ServerState)
 TEST(c2cpp_enum_translation_test, ServerEvent)
 {
     ::testing::Test::RecordProperty("TEST_ID", "23c2f96a-a000-4f9d-8899-d763e98cc985");
-    constexpr EnumMapping<iox::popo::ServerEvent, iox_ServerEvent> EVENTS[]{
-        {iox::popo::ServerEvent::REQUEST_RECEIVED, ServerEvent_REQUEST_RECEIVED}};
+    constexpr EnumMapping<iox::popo::ServerEvent, iox_ServerEvent> EVENTS[]{ { iox::popo::ServerEvent::REQUEST_RECEIVED,
+                                                                               ServerEvent_REQUEST_RECEIVED } };
 
     for (const auto event : EVENTS)
     {
@@ -288,8 +293,9 @@ TEST(c2cpp_enum_translation_test, ServiceDiscoveryEvent)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9eb978fa-8fa9-452f-b0e3-cb26c0cecfbf");
     constexpr EnumMapping<iox::runtime::ServiceDiscoveryEvent, iox_ServiceDiscoveryEvent> EVENTS[]{
-        {iox::runtime::ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED,
-         ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED}};
+        { iox::runtime::ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED,
+          ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED }
+    };
 
     for (const auto event : EVENTS)
     {
@@ -319,8 +325,8 @@ TEST(c2cpp_enum_translation_test, MessagingPattern)
 {
     ::testing::Test::RecordProperty("TEST_ID", "934d1fa5-e345-4a3b-9730-5467ec03c281");
     constexpr EnumMapping<iox::popo::MessagingPattern, iox_MessagingPattern> VALUE[]{
-        {iox::popo::MessagingPattern::PUB_SUB, MessagingPattern_PUB_SUB},
-        {iox::popo::MessagingPattern::REQ_RES, MessagingPattern_REQ_RES},
+        { iox::popo::MessagingPattern::PUB_SUB, MessagingPattern_PUB_SUB },
+        { iox::popo::MessagingPattern::REQ_RES, MessagingPattern_REQ_RES },
     };
 
     for (const auto value : VALUE)

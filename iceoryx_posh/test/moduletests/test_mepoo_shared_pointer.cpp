@@ -32,12 +32,12 @@ class SharedPointer_Test : public Test
   public:
     struct counter_t
     {
-        uint64_t ctor{0};
-        uint64_t dtor{0};
-        uint64_t moveCtor{0};
-        uint64_t copyCtor{0};
-        uint64_t moveAssignment{0};
-        uint64_t copyAssignment{0};
+        uint64_t ctor{ 0 };
+        uint64_t dtor{ 0 };
+        uint64_t moveCtor{ 0 };
+        uint64_t copyCtor{ 0 };
+        uint64_t moveAssignment{ 0 };
+        uint64_t copyAssignment{ 0 };
     };
 
 
@@ -50,8 +50,8 @@ class SharedPointer_Test : public Test
         }
 
         TestClass(int a, int b)
-            : a{a}
-            , b{b}
+            : a{ a }
+            , b{ b }
         {
             counter.ctor++;
         }
@@ -124,7 +124,7 @@ class SharedPointer_Test : public Test
         auto& chunkSettings = chunkSettingsResult.value();
 
         ChunkHeader* chunkHeader = new (memoryChunk) ChunkHeader(mempool.getChunkSize(), chunkSettings);
-        new (v) ChunkManagement{chunkHeader, &mempool, &chunkMgmtPool};
+        new (v) ChunkManagement{ chunkHeader, &mempool, &chunkMgmtPool };
         return v;
     }
 
@@ -136,28 +136,28 @@ class SharedPointer_Test : public Test
 
     int resetCounter = ResetCounter();
 
-    static constexpr uint32_t USER_PAYLOAD_SIZE{64U};
+    static constexpr uint32_t USER_PAYLOAD_SIZE{ 64U };
 
     char memory[4096U];
-    iox::BumpAllocator allocator{memory, 4096U};
-    MemPool mempool{sizeof(ChunkHeader) + USER_PAYLOAD_SIZE, 10U, allocator, allocator};
-    MemPool chunkMgmtPool{64U, 10U, allocator, allocator};
+    iox::BumpAllocator allocator{ memory, 4096U };
+    MemPool mempool{ sizeof(ChunkHeader) + USER_PAYLOAD_SIZE, 10U, allocator, allocator };
+    MemPool chunkMgmtPool{ 64U, 10U, allocator, allocator };
 
-    void* memoryChunk{mempool.getChunk()};
+    void* memoryChunk{ mempool.getChunk() };
     ChunkManagement* chunkManagement = GetChunkManagement(memoryChunk);
-    SharedChunk chunk{chunkManagement};
+    SharedChunk chunk{ chunkManagement };
 
-    void* memoryChunk2{mempool.getChunk()};
+    void* memoryChunk2{ mempool.getChunk() };
     ChunkManagement* chunkManagement2 = GetChunkManagement(memoryChunk2);
-    SharedChunk chunk2{chunkManagement2};
+    SharedChunk chunk2{ chunkManagement2 };
 
-    void* memoryChunk3{mempool.getChunk()};
+    void* memoryChunk3{ mempool.getChunk() };
     ChunkManagement* chunkManagement3 = GetChunkManagement(memoryChunk3);
-    SharedChunk chunk3{chunkManagement3};
+    SharedChunk chunk3{ chunkManagement3 };
 
-    void* memoryChunk4{mempool.getChunk()};
+    void* memoryChunk4{ mempool.getChunk() };
     ChunkManagement* chunkManagement4 = GetChunkManagement(memoryChunk4);
-    SharedChunk chunk4{chunkManagement4};
+    SharedChunk chunk4{ chunkManagement4 };
 
     SharedPointer<int> sut = SharedPointer<int>::create(chunk, 42).value();
     SharedPointer<TestClass> sutComplex = SharedPointer<TestClass>::create(chunk2, 1337, 851).value();

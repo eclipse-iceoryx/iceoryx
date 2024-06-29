@@ -159,8 +159,8 @@ class SpscSofi
 
     /// @brief the write/read pointers are "atomic pointers" so that they are not
     /// reordered (read or written too late)
-    std::atomic<uint64_t> m_readPosition{0};
-    std::atomic<uint64_t> m_writePosition{0};
+    std::atomic<uint64_t> m_readPosition{ 0 };
+    std::atomic<uint64_t> m_writePosition{ 0 };
 };
 
 } // namespace concurrent

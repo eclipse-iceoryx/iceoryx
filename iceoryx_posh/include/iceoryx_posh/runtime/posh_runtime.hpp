@@ -181,7 +181,7 @@ class PoshRuntime
     const RuntimeName_t& verifyInstanceName(optional<const RuntimeName_t*> name) noexcept;
 
     const RuntimeName_t m_appName;
-    std::atomic<bool> m_shutdownRequested{false};
+    std::atomic<bool> m_shutdownRequested{ false };
 };
 
 } // namespace runtime

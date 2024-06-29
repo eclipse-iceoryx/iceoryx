@@ -127,7 +127,7 @@ jmp_buf exitJmpBuffer;
 
 static void sigHandler(int sig, siginfo_t*, void*)
 {
-    constexpr const char* COLOR_RESET{"\033[m"};
+    constexpr const char* COLOR_RESET{ "\033[m" };
 
     std::cout << iox::log::logLevelDisplayColor(iox::log::LogLevel::WARN)
               << "Catched signal: " << iox::log::logLevelDisplayColor(iox::log::LogLevel::FATAL);
@@ -157,7 +157,7 @@ static void sigHandler(int sig, siginfo_t*, void*)
               << COLOR_RESET << "\n"
               << std::flush;
 
-    constexpr int JMP_VALUE{1};
+    constexpr int JMP_VALUE{ 1 };
     // NOLINTNEXTLINE(cert-err52-cpp) exception cannot be used and longjmp/setjmp is a working fallback
     longjmp(&exitJmpBuffer[0], JMP_VALUE);
 }

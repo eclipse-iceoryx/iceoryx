@@ -135,14 +135,14 @@ expected<File, FileCreationError> FileBuilder::open(const FilePath& name) noexce
 // NOLINTEND(readability-function-size,readability-function-cognitive-complexity)
 
 File::File(const int file_descriptor, const AccessMode access_mode) noexcept
-    : m_file_descriptor{file_descriptor}
-    , m_access_mode{access_mode}
+    : m_file_descriptor{ file_descriptor }
+    , m_access_mode{ access_mode }
 {
 }
 
 File::File(File&& rhs) noexcept
-    : m_file_descriptor{rhs.m_file_descriptor}
-    , m_access_mode{rhs.m_access_mode}
+    : m_file_descriptor{ rhs.m_file_descriptor }
+    , m_access_mode{ rhs.m_access_mode }
 {
     rhs.m_file_descriptor = INVALID_FILE_DESCRIPTOR;
 }

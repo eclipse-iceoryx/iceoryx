@@ -29,7 +29,7 @@ int main()
     // Let the user define the runtime name via the first command line parameter
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
-    iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"});
+    iox::popo::Publisher<RadarObject> publisher({ "Radar", "FrontLeft", "Object" });
 
     double ct = 0.0;
     while (!iox::hasTerminationRequested())

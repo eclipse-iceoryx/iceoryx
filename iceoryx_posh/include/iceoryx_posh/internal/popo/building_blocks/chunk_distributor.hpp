@@ -146,7 +146,7 @@ class ChunkDistributor
     bool pushToQueue(not_null<ChunkQueueData_t* const> queue, mepoo::SharedChunk chunk) noexcept;
 
   private:
-    MemberType_t* m_chunkDistrubutorDataPtr{nullptr};
+    MemberType_t* m_chunkDistrubutorDataPtr{ nullptr };
 };
 
 } // namespace popo

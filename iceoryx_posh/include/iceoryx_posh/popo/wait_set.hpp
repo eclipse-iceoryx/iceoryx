@@ -246,7 +246,7 @@ class WaitSet
   private:
     /// needs to be a list since we return pointer to the underlying NotificationInfo class with wait
     TriggerArray m_triggerArray;
-    ConditionVariableData* m_conditionVariableDataPtr{nullptr};
+    ConditionVariableData* m_conditionVariableDataPtr{ nullptr };
     ConditionListener m_conditionListener;
 
     stack<uint64_t, Capacity> m_indexRepository;

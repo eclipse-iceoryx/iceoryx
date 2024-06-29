@@ -32,7 +32,7 @@ int main()
     //! [initialize runtime]
 
     //! [initialize subscriber]
-    iox::popo::Subscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"});
+    iox::popo::Subscriber<RadarObject> subscriber({ "Radar", "FrontLeft", "Object" });
     //! [initialize subscriber]
 
     // run until interrupted by Ctrl-C

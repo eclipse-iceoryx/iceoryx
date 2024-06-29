@@ -23,9 +23,9 @@ namespace iox
 template <typename T, uint64_t Capacity>
 inline stack<T, Capacity>& stack<T, Capacity>::copy(const stack& rhs) noexcept
 {
-    uint64_t i{0};
-    const uint64_t rhsSize{rhs.size()};
-    const uint64_t minSize{algorithm::minVal(m_size, rhsSize)};
+    uint64_t i{ 0 };
+    const uint64_t rhsSize{ rhs.size() };
+    const uint64_t minSize{ algorithm::minVal(m_size, rhsSize) };
 
     // copy assignment
     for (; i < minSize; i++)
@@ -50,9 +50,9 @@ template <typename T, uint64_t Capacity>
 // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved) false positive, the elements are moved
 inline stack<T, Capacity>& stack<T, Capacity>::move(stack&& rhs) noexcept
 {
-    uint64_t i{0};
-    const uint64_t rhsSize{rhs.size()};
-    const uint64_t minSize{algorithm::minVal(m_size, rhsSize)};
+    uint64_t i{ 0 };
+    const uint64_t rhsSize{ rhs.size() };
+    const uint64_t minSize{ algorithm::minVal(m_size, rhsSize) };
 
     // move assignment
     for (; i < minSize; i++)
@@ -142,7 +142,7 @@ inline optional<T> stack<T, Capacity>::pop() noexcept
         return nullopt;
     }
 
-    optional<T> element{std::move(m_data[--m_size])};
+    optional<T> element{ std::move(m_data[--m_size]) };
     m_data[m_size].~T();
     return element;
 }

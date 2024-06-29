@@ -102,7 +102,7 @@ class RouDi
 
     void monitorAndDiscoveryUpdate() noexcept;
 
-    ScopeGuard m_unregisterRelativePtr{[] { UntypedRelativePointer::unregisterAll(); }};
+    ScopeGuard m_unregisterRelativePtr{ [] { UntypedRelativePointer::unregisterAll(); } };
     const config::RouDiConfig m_roudiConfig;
     std::atomic_bool m_runMonitoringAndDiscoveryThread;
     std::atomic_bool m_runHandleRuntimeMessageThread;
@@ -110,20 +110,20 @@ class RouDi
     popo::UserTrigger m_discoveryLoopTrigger;
     optional<UnnamedSemaphore> m_discoveryFinishedSemaphore;
 
-    const units::Duration m_runtimeMessagesThreadTimeout{100_ms};
+    const units::Duration m_runtimeMessagesThreadTimeout{ 100_ms };
 
   protected:
-    RouDiMemoryInterface* m_roudiMemoryInterface{nullptr};
+    RouDiMemoryInterface* m_roudiMemoryInterface{ nullptr };
     /// @note destroy the memory right at the end of the dTor, since the memory is not needed anymore and we know that
     /// the lifetime of the MemoryBlocks must be at least as long as RouDi; this saves us from issues if the
     /// RouDiMemoryManager outlives some MemoryBlocks
-    ScopeGuard m_roudiMemoryManagerCleaner{[this]() {
+    ScopeGuard m_roudiMemoryManagerCleaner{ [this]() {
         if (this->m_roudiMemoryInterface->destroyMemory().has_error())
         {
             IOX_LOG(WARN, "unable to cleanup roudi memory interface");
         };
-    }};
-    PortManager* m_portManager{nullptr};
+    } };
+    PortManager* m_portManager{ nullptr };
     concurrent::smart_lock<ProcessManager> m_prcMgr;
 
   private:

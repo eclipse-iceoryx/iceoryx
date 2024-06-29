@@ -84,7 +84,7 @@ class CyclicIndex
     int64_t operator-(const CyclicIndex<CycleLength, ValueType>& rhs) const noexcept;
 
   private:
-    ValueType m_value{0U};
+    ValueType m_value{ 0U };
 };
 
 } // namespace concurrent

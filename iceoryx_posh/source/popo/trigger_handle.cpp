@@ -35,12 +35,12 @@ TriggerHandle::TriggerHandle(ConditionVariableData& conditionVariableData,
 }
 
 TriggerHandle::TriggerHandle(TriggerHandle&& rhs) noexcept
-    : m_conditionVariableDataPtr{[&] {
+    : m_conditionVariableDataPtr{ [&] {
         rhs.m_mutex.lock();
         return rhs.m_conditionVariableDataPtr;
-    }()}
-    , m_resetCallback{std::move(rhs.m_resetCallback)}
-    , m_uniqueTriggerId{rhs.m_uniqueTriggerId}
+    }() }
+    , m_resetCallback{ std::move(rhs.m_resetCallback) }
+    , m_uniqueTriggerId{ rhs.m_uniqueTriggerId }
 {
     rhs.invalidate();
     rhs.m_mutex.unlock();

@@ -27,9 +27,9 @@ using namespace discovery;
 
 constexpr char APP_NAME[] = "iox-monitor-discovery";
 
-iox::capro::IdString_t service{"Camera"};
-iox::capro::IdString_t instance{"FrontLeft"};
-iox::capro::IdString_t event{"Image"};
+iox::capro::IdString_t service{ "Camera" };
+iox::capro::IdString_t instance{ "FrontLeft" };
+iox::capro::IdString_t event{ "Image" };
 
 void printSearchResult(const discovery::ServiceContainer& result)
 {

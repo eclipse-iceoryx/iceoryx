@@ -136,7 +136,7 @@ class iox_listener_test : public Test
         g_serviceDiscoveryCallbackArgument = nullptr;
         g_contextData = nullptr;
 
-        m_mempoolconf.addMemPool({CHUNK_SIZE, NUM_CHUNKS_IN_POOL});
+        m_mempoolconf.addMemPool({ CHUNK_SIZE, NUM_CHUNKS_IN_POOL });
         m_memoryManager.configureMemoryManager(m_mempoolconf, m_memoryAllocator, m_memoryAllocator);
 
         m_subscriberPortData.resize(MAX_NUMBER_OF_EVENTS_PER_LISTENER + 1U,
@@ -193,8 +193,8 @@ class iox_listener_test : public Test
         }
     }
 
-    ConditionVariableData m_condVar{"hypnotoadKnueppeltRetour"};
-    TestListener m_sut{m_condVar};
+    ConditionVariableData m_condVar{ "hypnotoadKnueppeltRetour" };
+    TestListener m_sut{ m_condVar };
     std::unique_ptr<PoshRuntimeMock> runtimeMock = PoshRuntimeMock::create("long_live_lord_buckethead");
 
     iox_user_trigger_storage_t m_userTriggerStorage[MAX_NUMBER_OF_EVENTS_PER_LISTENER + 1U];
@@ -204,24 +204,24 @@ class iox_listener_test : public Test
     static constexpr uint64_t CHUNK_SIZE = 128U;
     static constexpr uint64_t MEMORY_SIZE = 1024U * 1024U * 100U;
     uint8_t m_memory[MEMORY_SIZE];
-    BumpAllocator m_memoryAllocator{m_memory, MEMORY_SIZE};
+    BumpAllocator m_memoryAllocator{ m_memory, MEMORY_SIZE };
     MePooConfig m_mempoolconf;
     MemoryManager m_memoryManager;
 
-    const iox::capro::ServiceDescription TEST_SERVICE_DESCRIPTION{"a", "b", "c"};
+    const iox::capro::ServiceDescription TEST_SERVICE_DESCRIPTION{ "a", "b", "c" };
 
-    iox::popo::SubscriberOptions subscriberOptions{MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY, 0U};
+    iox::popo::SubscriberOptions subscriberOptions{ MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY, 0U };
 
-    ServerPortData serverPortData{{"ServiceA", "InstanceA", "EventA"},
-                                  "der_wilde_bert",
-                                  roudi::DEFAULT_UNIQUE_ROUDI_ID,
-                                  ServerOptions(),
-                                  &m_memoryManager};
-    ClientPortData clientPortData{{"ServiceA", "InstanceA", "EventA"},
-                                  "rudi_ruessel",
-                                  roudi::DEFAULT_UNIQUE_ROUDI_ID,
-                                  ClientOptions(),
-                                  &m_memoryManager};
+    ServerPortData serverPortData{ { "ServiceA", "InstanceA", "EventA" },
+                                   "der_wilde_bert",
+                                   roudi::DEFAULT_UNIQUE_ROUDI_ID,
+                                   ServerOptions(),
+                                   &m_memoryManager };
+    ClientPortData clientPortData{ { "ServiceA", "InstanceA", "EventA" },
+                                   "rudi_ruessel",
+                                   roudi::DEFAULT_UNIQUE_ROUDI_ID,
+                                   ClientOptions(),
+                                   &m_memoryManager };
     vector<iox::popo::SubscriberPortData, MAX_NUMBER_OF_EVENTS_PER_LISTENER + 1> m_subscriberPortData;
     vector<cpp2c_Subscriber, MAX_NUMBER_OF_EVENTS_PER_LISTENER + 1> m_subscriber;
     vector<ChunkQueuePusher<SubscriberPortData::ChunkQueueData_t>, MAX_NUMBER_OF_EVENTS_PER_LISTENER + 1> m_chunkPusher;
@@ -513,7 +513,7 @@ TIMING_TEST_F(iox_listener_test, SubscriberCallbackIsCalledSampleIsReceived, Rep
                 Eq(iox_ListenerResult::ListenerResult_SUCCESS));
 
     Subscribe(m_subscriber[0U]);
-    constexpr uint64_t USER_PAYLOAD_SIZE{100U};
+    constexpr uint64_t USER_PAYLOAD_SIZE{ 100U };
 
     auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
     ASSERT_FALSE(chunkSettingsResult.has_error());
@@ -539,7 +539,7 @@ TIMING_TEST_F(iox_listener_test, SubscriberCallbackWithContextDataIsCalledSample
         Eq(iox_ListenerResult::ListenerResult_SUCCESS));
 
     Subscribe(m_subscriber[0U]);
-    constexpr uint64_t USER_PAYLOAD_SIZE{100U};
+    constexpr uint64_t USER_PAYLOAD_SIZE{ 100U };
 
     auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
     ASSERT_FALSE(chunkSettingsResult.has_error());
@@ -654,7 +654,7 @@ void notifyClient(ClientPortData& portData)
 {
     portData.m_connectRequested.store(true);
     portData.m_connectionState = iox::ConnectionState::CONNECTED;
-    iox::popo::ChunkQueuePusher<ClientChunkQueueData_t> pusher{&portData.m_chunkReceiverData};
+    iox::popo::ChunkQueuePusher<ClientChunkQueueData_t> pusher{ &portData.m_chunkReceiverData };
     pusher.push(iox::mepoo::SharedChunk());
     EXPECT_FALSE(portData.m_chunkReceiverData.m_conditionVariableDataPtr->m_semaphore->post().has_error());
 }
@@ -704,7 +704,7 @@ TIMING_TEST_F(iox_listener_test, NotifyingClientEventWithContextDataWorks, Repea
 
 void notifyServer(ServerPortData& portData)
 {
-    iox::popo::ChunkQueuePusher<ServerChunkQueueData_t> pusher{&portData.m_chunkReceiverData};
+    iox::popo::ChunkQueuePusher<ServerChunkQueueData_t> pusher{ &portData.m_chunkReceiverData };
     pusher.push(iox::mepoo::SharedChunk());
     EXPECT_FALSE(portData.m_chunkReceiverData.m_conditionVariableDataPtr->m_semaphore->post().has_error());
 }

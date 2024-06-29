@@ -29,11 +29,11 @@ namespace
 using namespace ::testing;
 using namespace iox::er;
 
-constexpr ErrorCode CODE1{73};
-constexpr ErrorCode CODE2{21};
-constexpr ModuleId ID1{666};
-constexpr ModuleId ID2{999};
-constexpr ModuleId ANY_ID{ModuleId::ANY};
+constexpr ErrorCode CODE1{ 73 };
+constexpr ErrorCode CODE2{ 21 };
+constexpr ModuleId ID1{ 666 };
+constexpr ModuleId ID2{ 999 };
+constexpr ModuleId ANY_ID{ ModuleId::ANY };
 
 struct Unknown
 {
@@ -53,7 +53,7 @@ class ErrorType_test : public Test
 
     using Sut = T;
 
-    Sut sut{CODE1, ID1};
+    Sut sut{ CODE1, ID1 };
 };
 
 // We can extend this easily for other error types as they have to conform to the same interface
@@ -205,7 +205,7 @@ TEST(Violation_test, createEnforceViolationWorks)
     ::testing::Test::RecordProperty("TEST_ID", "9a2f9d1c-41dc-4a7e-a0dc-aa40047ae9a0");
 
     auto sut = Violation::createEnforceViolation();
-    auto exp = Violation{iox::er::ViolationErrorCode::ENFORCE_VIOLATION};
+    auto exp = Violation{ iox::er::ViolationErrorCode::ENFORCE_VIOLATION };
 
     EXPECT_EQ(sut, exp);
 }
@@ -215,7 +215,7 @@ TEST(Violation_test, createAssertViolationWorks)
     ::testing::Test::RecordProperty("TEST_ID", "2a5f24a7-4d82-4c27-bc45-57d9f1c759fa");
 
     auto sut = Violation::createAssertViolation();
-    auto exp = Violation{iox::er::ViolationErrorCode::ASSERT_VIOLATION};
+    auto exp = Violation{ iox::er::ViolationErrorCode::ASSERT_VIOLATION };
 
     EXPECT_EQ(sut, exp);
 }

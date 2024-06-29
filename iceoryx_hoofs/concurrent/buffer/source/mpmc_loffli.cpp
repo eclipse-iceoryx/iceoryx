@@ -26,7 +26,7 @@ namespace concurrent
 void MpmcLoFFLi::init(not_null<Index_t*> freeIndicesMemory, const uint32_t capacity) noexcept
 {
     IOX_ENFORCE(capacity > 0, "A capacity of 0 is not supported!");
-    constexpr uint32_t INTERNALLY_RESERVED_INDICES{1U};
+    constexpr uint32_t INTERNALLY_RESERVED_INDICES{ 1U };
     IOX_ENFORCE(capacity < (std::numeric_limits<Index_t>::max() - INTERNALLY_RESERVED_INDICES),
                 "Requested capacity exceeds limits!");
     IOX_ENFORCE(m_head.is_lock_free(), "std::atomic<MpmcLoFFLi::Node> must be lock-free!");

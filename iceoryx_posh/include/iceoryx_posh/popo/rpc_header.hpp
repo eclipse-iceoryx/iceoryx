@@ -52,10 +52,10 @@ class RpcBaseHeader
     ///            - members are rearranged
     ///            - semantic meaning of a member changes
     ///        in any of RpcBaseHeader, RequestHeader or ResponseHeader!
-    static constexpr uint8_t RPC_HEADER_VERSION{1U};
+    static constexpr uint8_t RPC_HEADER_VERSION{ 1U };
 
-    static constexpr uint32_t UNKNOWN_CLIENT_QUEUE_INDEX{std::numeric_limits<uint32_t>::max()};
-    static constexpr int64_t START_SEQUENCE_ID{0};
+    static constexpr uint32_t UNKNOWN_CLIENT_QUEUE_INDEX{ std::numeric_limits<uint32_t>::max() };
+    static constexpr int64_t START_SEQUENCE_ID{ 0 };
 
     /// @brief The RpcBaseHeader version is used to detect incompatibilities for record&replay functionality
     /// @return the RpcBaseHeader version
@@ -84,10 +84,10 @@ class RpcBaseHeader
     friend class ServerPortUser;
 
   protected:
-    uint8_t m_rpcHeaderVersion{RPC_HEADER_VERSION};
-    uint32_t m_lastKnownClientQueueIndex{UNKNOWN_CLIENT_QUEUE_INDEX};
+    uint8_t m_rpcHeaderVersion{ RPC_HEADER_VERSION };
+    uint32_t m_lastKnownClientQueueIndex{ UNKNOWN_CLIENT_QUEUE_INDEX };
     UniqueId m_uniqueClientQueueId;
-    int64_t m_sequenceId{0};
+    int64_t m_sequenceId{ 0 };
 };
 
 class RequestHeader : public RpcBaseHeader
@@ -145,7 +145,7 @@ class ResponseHeader : public RpcBaseHeader
     static const ResponseHeader* fromPayload(const void* const payload) noexcept;
 
   private:
-    bool m_hasServerError{false};
+    bool m_hasServerError{ false };
 };
 
 } // namespace popo

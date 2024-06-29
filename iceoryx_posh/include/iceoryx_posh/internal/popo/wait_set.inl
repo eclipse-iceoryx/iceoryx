@@ -30,10 +30,10 @@ uniqueMergeSortedNotificationVector(const ConditionListener::NotificationVector_
                                     const ConditionListener::NotificationVector_t& v2) noexcept
 {
     ConditionListener::NotificationVector_t mergedVector;
-    uint64_t indexV1{0U};
-    uint64_t indexV2{0U};
-    const uint64_t v1Size{v1.size()};
-    const uint64_t v2Size{v2.size()};
+    uint64_t indexV1{ 0U };
+    uint64_t indexV2{ 0U };
+    const uint64_t v1Size{ v1.size() };
+    const uint64_t v2Size{ v2.size() };
 
     // Return value of 'emplace_back' is discarded as no overflow can happen since the notification vector stores only
     // indices that represent active notifications
@@ -173,7 +173,7 @@ WaitSet<Capacity>::attachEvent(T& eventOrigin,
         .and_then([&](auto& uniqueId) {
             NotificationAttorney::enableEvent(
                 eventOrigin,
-                TriggerHandle(*m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId),
+                TriggerHandle(*m_conditionVariableDataPtr, { *this, &WaitSet::removeTrigger }, uniqueId),
                 eventType);
         });
 }
@@ -199,7 +199,7 @@ inline expected<void, WaitSetError> WaitSet<Capacity>::attachEvent(
                       typeid(NoEventEnumUsed).hash_code())
         .and_then([&](auto& uniqueId) {
             NotificationAttorney::enableEvent(
-                eventOrigin, TriggerHandle(*m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId));
+                eventOrigin, TriggerHandle(*m_conditionVariableDataPtr, { *this, &WaitSet::removeTrigger }, uniqueId));
         });
 }
 
@@ -231,7 +231,7 @@ WaitSet<Capacity>::attachState(T& stateOrigin,
         .and_then([&](auto& uniqueId) {
             NotificationAttorney::enableState(
                 stateOrigin,
-                TriggerHandle(*m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId),
+                TriggerHandle(*m_conditionVariableDataPtr, { *this, &WaitSet::removeTrigger }, uniqueId),
                 stateType);
 
             auto& trigger = m_triggerArray[uniqueId];
@@ -264,7 +264,7 @@ inline expected<void, WaitSetError> WaitSet<Capacity>::attachState(
                       typeid(NoStateEnumUsed).hash_code())
         .and_then([&](auto& uniqueId) {
             NotificationAttorney::enableState(
-                stateOrigin, TriggerHandle(*m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId));
+                stateOrigin, TriggerHandle(*m_conditionVariableDataPtr, { *this, &WaitSet::removeTrigger }, uniqueId));
 
             auto& trigger = m_triggerArray[uniqueId];
             if (trigger->isStateConditionSatisfied())

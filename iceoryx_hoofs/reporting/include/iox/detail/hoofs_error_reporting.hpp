@@ -87,7 +87,7 @@ class HoofsErrorType
         return "iceoryx_hoofs";
     }
 
-    static constexpr iox::er::ModuleId MODULE_ID{iox::er::ModuleId::HOOFS};
+    static constexpr iox::er::ModuleId MODULE_ID{ iox::er::ModuleId::HOOFS };
 
   protected:
     iox::er::ErrorCode m_code;

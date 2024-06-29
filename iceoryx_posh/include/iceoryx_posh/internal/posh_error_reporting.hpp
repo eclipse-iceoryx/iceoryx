@@ -214,7 +214,7 @@ class PoshErrorType
         return "iceoryx_posh";
     }
 
-    static constexpr iox::er::ModuleId MODULE_ID{iox::er::ModuleId::POSH};
+    static constexpr iox::er::ModuleId MODULE_ID{ iox::er::ModuleId::POSH };
 
   protected:
     iox::er::ErrorCode m_code;

@@ -55,7 +55,7 @@ TEST_F(TomlGatewayConfigParserTest, ParsingFileIsSuccessful)
     auto tempFilePath = std::filesystem::temp_directory_path();
     tempFilePath.append("test_gateway_config.toml");
 
-    std::fstream tempFile{tempFilePath, std::ios_base::trunc | std::ios_base::out};
+    std::fstream tempFile{ tempFilePath, std::ios_base::trunc | std::ios_base::out };
     ASSERT_TRUE(tempFile.is_open());
     tempFile << R"([[services]]
         event = "dr"
@@ -64,7 +64,7 @@ TEST_F(TomlGatewayConfigParserTest, ParsingFileIsSuccessful)
     )";
     tempFile.close();
 
-    iox::roudi::ConfigFilePathString_t configFilePath{iox::TruncateToCapacity, tempFilePath.u8string().c_str()};
+    iox::roudi::ConfigFilePathString_t configFilePath{ iox::TruncateToCapacity, tempFilePath.u8string().c_str() };
 
     TomlGatewayConfigParser::parse(configFilePath)
         .and_then([](const auto&) { GTEST_SUCCEED() << "We got a config!"; })
@@ -82,15 +82,15 @@ class TomlGatewayConfigParserSuiteTest : public TestWithParam<CheckCharactersVal
 
 INSTANTIATE_TEST_SUITE_P(ValidTest,
                          TomlGatewayConfigParserSuiteTest,
-                         ::testing::Values(CheckCharactersValidity_t{"validcharacters", false},
-                                           CheckCharactersValidity_t{"UPPERCASECHARACTERS", false},
-                                           CheckCharactersValidity_t{"lowercasecharacters", false},
-                                           CheckCharactersValidity_t{"Number1234567890", false},
-                                           CheckCharactersValidity_t{"Under_score_Characters", false},
-                                           CheckCharactersValidity_t{"_BeginsWithUnderscore", false},
-                                           CheckCharactersValidity_t{"Hyphen-InService", true},
-                                           CheckCharactersValidity_t{"1234567890", true},
-                                           CheckCharactersValidity_t{"這場考試_!*#:", true}));
+                         ::testing::Values(CheckCharactersValidity_t{ "validcharacters", false },
+                                           CheckCharactersValidity_t{ "UPPERCASECHARACTERS", false },
+                                           CheckCharactersValidity_t{ "lowercasecharacters", false },
+                                           CheckCharactersValidity_t{ "Number1234567890", false },
+                                           CheckCharactersValidity_t{ "Under_score_Characters", false },
+                                           CheckCharactersValidity_t{ "_BeginsWithUnderscore", false },
+                                           CheckCharactersValidity_t{ "Hyphen-InService", true },
+                                           CheckCharactersValidity_t{ "1234567890", true },
+                                           CheckCharactersValidity_t{ "這場考試_!*#:", true }));
 
 
 TEST_P(TomlGatewayConfigParserSuiteTest, CheckCharactersUsedInServiceDescription)
@@ -130,7 +130,7 @@ TEST_P(TomlGatewayConfigParserSuiteTest, CheckCharactersUsedForServiceDescriptio
     serializedConfig.append("instance = \"" + stringentry + "\"\n");
     serializedConfig.append("event = \"" + stringentry + "\"\n");
 
-    std::istringstream stream{serializedConfig};
+    std::istringstream stream{ serializedConfig };
 
     auto result = TomlGatewayConfigParser::parse(stream);
 
@@ -245,7 +245,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest,
     serializedConfig.append("instance = \"instance\"\n");
     serializedConfig.append("event = \"event\"\n");
 
-    std::istringstream stream{serializedConfig};
+    std::istringstream stream{ serializedConfig };
 
     auto result = TomlGatewayConfigParser::parse(stream);
 
@@ -263,7 +263,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest,
     serializedConfig.append("service = \"service\"\n");
     serializedConfig.append("event = \"event\"\n");
 
-    std::istringstream stream{serializedConfig};
+    std::istringstream stream{ serializedConfig };
 
     auto result = TomlGatewayConfigParser::parse(stream);
 
@@ -281,7 +281,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest,
     serializedConfig.append("service = \"service\"\n");
     serializedConfig.append("instance = \"instance\"\n");
 
-    std::istringstream stream{serializedConfig};
+    std::istringstream stream{ serializedConfig };
 
     auto result = TomlGatewayConfigParser::parse(stream);
 
@@ -294,7 +294,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest,
 {
     ::testing::Test::RecordProperty("TEST_ID", "e2a712d9-7f8b-45e2-a6a0-e16e8990c844");
 
-    std::istringstream stream{""};
+    std::istringstream stream{ "" };
 
     auto result = TomlGatewayConfigParser::parse(stream);
 
@@ -319,7 +319,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest, DuplicatedServicesDescriptionInTomlFile
     serializedConfig.append("instance = \"instance\"\n");
     serializedConfig.append("event = \"event\"\n");
 
-    std::istringstream stream{serializedConfig};
+    std::istringstream stream{ serializedConfig };
 
     auto result = TomlGatewayConfigParser::parse(stream);
 
@@ -343,7 +343,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest, ParseValidConfigFileWithMaximumAllowedN
         serializedConfig.append("event = \"" + stringentry + "\"\n");
     }
 
-    std::istringstream stream{serializedConfig};
+    std::istringstream stream{ serializedConfig };
 
     auto result = TomlGatewayConfigParser::parse(stream);
 
@@ -380,7 +380,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest,
         serializedConfig.append("event = \"" + stringentry + "\"\n");
     }
 
-    std::istringstream stream{serializedConfig};
+    std::istringstream stream{ serializedConfig };
 
     auto result = TomlGatewayConfigParser::parse(stream);
 
@@ -400,10 +400,10 @@ constexpr const char* CONFIG_EXCEPTION_IN_PARSER = R"(🐔)";
 INSTANTIATE_TEST_SUITE_P(
     ParseAllMalformedInputConfigFiles,
     TomlGatewayConfigParserTest,
-    Values(ParseErrorInputFile_t{iox::config::TomlGatewayConfigParseError::INVALID_SERVICE_DESCRIPTION,
-                                 CONFIG_INVALID_SERVICE_DESCRIPTION},
-           ParseErrorInputFile_t{iox::config::TomlGatewayConfigParseError::EXCEPTION_IN_PARSER,
-                                 CONFIG_EXCEPTION_IN_PARSER}));
+    Values(ParseErrorInputFile_t{ iox::config::TomlGatewayConfigParseError::INVALID_SERVICE_DESCRIPTION,
+                                  CONFIG_INVALID_SERVICE_DESCRIPTION },
+           ParseErrorInputFile_t{ iox::config::TomlGatewayConfigParseError::EXCEPTION_IN_PARSER,
+                                  CONFIG_EXCEPTION_IN_PARSER }));
 
 TEST_P(TomlGatewayConfigParserTest, ParseMalformedInputFileCausesError)
 {

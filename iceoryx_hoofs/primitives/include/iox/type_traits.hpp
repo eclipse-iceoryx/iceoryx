@@ -55,7 +55,7 @@ using add_const_conditionally_t = typename add_const_conditionally<T, C>::type;
 /// @endcode
 ///
 template <typename>
-constexpr bool always_false_v{false};
+constexpr bool always_false_v{ false };
 
 ///
 /// @brief Verifies whether the passed Callable type is in fact invocable with the given arguments
@@ -81,7 +81,7 @@ struct is_invocable
     }
 
     // Test with nullptr as this can stand in for a pointer to any type.
-    static constexpr bool value{decltype(test<Callable, ArgTypes...>(nullptr))::value};
+    static constexpr bool value{ decltype(test<Callable, ArgTypes...>(nullptr))::value };
 };
 
 ///
@@ -109,7 +109,7 @@ struct is_invocable_r
     }
 
     // Test with nullptr as this can stand in for a pointer to any type.
-    static constexpr bool value{decltype(test<Callable, ArgTypes...>(nullptr))::value};
+    static constexpr bool value{ decltype(test<Callable, ArgTypes...>(nullptr))::value };
 };
 
 ///

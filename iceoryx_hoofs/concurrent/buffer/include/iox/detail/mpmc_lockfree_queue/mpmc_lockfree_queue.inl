@@ -44,7 +44,7 @@ inline constexpr uint64_t MpmcLockFreeQueue<ElementType, Capacity>::capacity() c
 template <typename ElementType, uint64_t Capacity>
 inline bool MpmcLockFreeQueue<ElementType, Capacity>::tryPush(const ElementType& value) noexcept
 {
-    uint64_t index{0};
+    uint64_t index{ 0 };
 
     if (!m_freeIndices.pop(index))
     {
@@ -62,7 +62,7 @@ template <typename ElementType, uint64_t Capacity>
 // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved) perfect forwarding is used
 inline bool MpmcLockFreeQueue<ElementType, Capacity>::tryPush(ElementType&& value) noexcept
 {
-    uint64_t index{0};
+    uint64_t index{ 0 };
 
     if (!m_freeIndices.pop(index))
     {
@@ -82,7 +82,7 @@ inline iox::optional<ElementType> MpmcLockFreeQueue<ElementType, Capacity>::push
 {
     optional<ElementType> evictedValue;
 
-    uint64_t index{0};
+    uint64_t index{ 0 };
 
     while (!m_freeIndices.pop(index))
     {
@@ -130,7 +130,7 @@ inline iox::optional<ElementType> MpmcLockFreeQueue<ElementType, Capacity>::push
 template <typename ElementType, uint64_t Capacity>
 inline iox::optional<ElementType> MpmcLockFreeQueue<ElementType, Capacity>::pop() noexcept
 {
-    uint64_t index{0};
+    uint64_t index{ 0 };
 
     if (!m_usedIndices.pop(index))
     {

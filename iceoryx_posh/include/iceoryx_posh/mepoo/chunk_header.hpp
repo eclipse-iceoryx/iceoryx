@@ -61,12 +61,12 @@ struct ChunkHeader
     ///            - data width of members changes
     ///            - members are rearranged
     ///            - semantic meaning of a member changes
-    static constexpr uint8_t CHUNK_HEADER_VERSION{2U};
+    static constexpr uint8_t CHUNK_HEADER_VERSION{ 2U };
 
     /// @brief User-Header id for no user-header
-    static constexpr uint16_t NO_USER_HEADER{0x0000};
+    static constexpr uint16_t NO_USER_HEADER{ 0x0000 };
     /// @brief User-Header id for an unknown user-header
-    static constexpr uint16_t UNKNOWN_USER_HEADER{0xFFFF};
+    static constexpr uint16_t UNKNOWN_USER_HEADER{ 0xFFFF };
 
     /// @brief The ChunkHeader version is used to detect incompatibilities for record&replay functionality
     /// @return the ChunkHeader version
@@ -156,19 +156,19 @@ struct ChunkHeader
     // or record&replay, m_chunkHeaderVersion should therefore neither changed the type,
     // nor the position (offset from the beginning)
 
-    uint32_t m_userHeaderSize{0U};
-    uint8_t m_chunkHeaderVersion{CHUNK_HEADER_VERSION};
+    uint32_t m_userHeaderSize{ 0U };
+    uint8_t m_chunkHeaderVersion{ CHUNK_HEADER_VERSION };
     // reserved for future functionality and used to indicate the padding bytes; currently not used and set to '0'
-    uint8_t m_reserved{0};
+    uint8_t m_reserved{ 0 };
     // currently just a placeholder
-    uint16_t m_userHeaderId{NO_USER_HEADER};
-    popo::UniquePortId m_originId{popo::InvalidPortId};
-    uint64_t m_sequenceNumber{0U};
+    uint16_t m_userHeaderId{ NO_USER_HEADER };
+    popo::UniquePortId m_originId{ popo::InvalidPortId };
+    uint64_t m_sequenceNumber{ 0U };
     // size of the whole chunk, including the header
-    uint64_t m_chunkSize{0U};
-    uint64_t m_userPayloadSize{0U};
-    uint32_t m_userPayloadAlignment{1U};
-    UserPayloadOffset_t m_userPayloadOffset{sizeof(ChunkHeader)};
+    uint64_t m_chunkSize{ 0U };
+    uint64_t m_userPayloadSize{ 0U };
+    uint32_t m_userPayloadAlignment{ 1U };
+    UserPayloadOffset_t m_userPayloadOffset{ sizeof(ChunkHeader) };
 };
 
 } // namespace mepoo

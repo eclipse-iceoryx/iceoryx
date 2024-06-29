@@ -52,8 +52,8 @@ class ServiceRegistry
 
         // note that we can have publishers and servers with the same ServiceDescription
         // and using the counters we save space
-        ReferenceCounter_t publisherCount{0U};
-        ReferenceCounter_t serverCount{0U};
+        ReferenceCounter_t publisherCount{ 0U };
+        ReferenceCounter_t serverCount{ 0U };
     };
 
     /// @brief Adds a given publisher service description to registry
@@ -111,9 +111,9 @@ class ServiceRegistry
     // store the last known free Index (if any is known)
     // we could use a queue (or stack) here since they are not optimal
     // for the filling pattern of a vector (prefer entries close to the front)
-    uint32_t m_freeIndex{NO_INDEX};
+    uint32_t m_freeIndex{ NO_INDEX };
 
-    bool m_dataChanged{true}; // initially true in order to also get notified of the empty registry
+    bool m_dataChanged{ true }; // initially true in order to also get notified of the empty registry
 
   private:
     uint32_t findIndex(const capro::ServiceDescription& serviceDescription) const noexcept;

@@ -112,9 +112,9 @@ struct NonTrivialTestClass
         return *this;
     }
 
-    int m_a{0};
-    int m_b{0};
-    bool m_moved{false};
+    int m_a{ 0 };
+    int m_b{ 0 };
+    bool m_moved{ false };
 };
 
 struct ClassWithMoveCtorAndNoMoveAssignment
@@ -314,10 +314,10 @@ TEST_F(expected_test, ConstCreateLValueAndGetValueResultsInCorrectValue)
 TEST_F(expected_test, CreateWithValueAndMoveCtorLeadsToMovedSource)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8da72983-3046-4dde-8de5-5eed89de0ccf");
-    constexpr int A{177};
-    constexpr int B{188};
+    constexpr int A{ 177 };
+    constexpr int B{ 188 };
     auto sutSource = expected<NonTrivialTestClass, int>(in_place, A, B);
-    auto sutDestination{std::move(sutSource)};
+    auto sutDestination{ std::move(sutSource) };
 
     // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved expected
     // NOLINTBEGIN(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
@@ -333,10 +333,10 @@ TEST_F(expected_test, CreateWithValueAndMoveCtorLeadsToMovedSource)
 TEST_F(expected_test, CreateWithErrorAndMoveCtorLeadsToMovedSource)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d7784813-458b-40f3-b6db-01521e57175e");
-    constexpr int A{22};
-    constexpr int B{33};
+    constexpr int A{ 22 };
+    constexpr int B{ 33 };
     auto sutSource = expected<int, NonTrivialTestClass>(unexpect, A, B);
-    auto sutDestination{std::move(sutSource)};
+    auto sutDestination{ std::move(sutSource) };
 
     // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved expected
     // NOLINTBEGIN(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
@@ -352,8 +352,8 @@ TEST_F(expected_test, CreateWithErrorAndMoveCtorLeadsToMovedSource)
 TEST_F(expected_test, CreateWithValueAndMoveAssignmentLeadsToMovedSource)
 {
     ::testing::Test::RecordProperty("TEST_ID", "eb5f326b-8446-4914-bdca-8d6ba20103fe");
-    constexpr int A{73};
-    constexpr int B{37};
+    constexpr int A{ 73 };
+    constexpr int B{ 37 };
     auto sutSource = expected<NonTrivialTestClass, int>(in_place, A, B);
     auto sutDestination = std::move(sutSource);
 
@@ -371,8 +371,8 @@ TEST_F(expected_test, CreateWithValueAndMoveAssignmentLeadsToMovedSource)
 TEST_F(expected_test, CreateWithErrorAndMoveAssignmentLeadsToMovedSource)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ef2a799d-982e-447d-8f93-f7ad63c091e0");
-    constexpr int A{44};
-    constexpr int B{55};
+    constexpr int A{ 44 };
+    constexpr int B{ 55 };
     auto sutSource = expected<int, NonTrivialTestClass>(unexpect, A, B);
     auto sutDestination = std::move(sutSource);
 
@@ -406,9 +406,9 @@ TEST_F(expected_test, CreateWithOkFreeFunctionByCopyIsSuccessful)
 TEST_F(expected_test, CreateWithOkFreeFunctionByMoveIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b1320e1f-3613-4085-8125-fc95d584681c");
-    constexpr int A{44};
-    constexpr int B{55};
-    NonTrivialTestClass value{A, B};
+    constexpr int A{ 44 };
+    constexpr int B{ 55 };
+    NonTrivialTestClass value{ A, B };
     expected<NonTrivialTestClass, TestError> sut = ok(std::move(value));
     ASSERT_THAT(sut.has_value(), Eq(true));
     EXPECT_THAT(sut.value().m_a, Eq(A));
@@ -418,8 +418,8 @@ TEST_F(expected_test, CreateWithOkFreeFunctionByMoveIsSuccessful)
 TEST_F(expected_test, CreateWithOkFreeFunctionByForwardingIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a3d41181-f4ad-4431-9441-7dfaeb8d6f7f");
-    constexpr int A{44};
-    constexpr int B{55};
+    constexpr int A{ 44 };
+    constexpr int B{ 55 };
     expected<NonTrivialTestClass, TestError> sut = ok<NonTrivialTestClass>(A, B);
     ASSERT_THAT(sut.has_value(), Eq(true));
     EXPECT_THAT(sut.value().m_a, Eq(A));
@@ -438,9 +438,9 @@ TEST_F(expected_test, CreateWithErrFreeFunctionByCopyIsSuccessful)
 TEST_F(expected_test, CreateWithErrFreeFunctionByMoveIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f99af97a-16b2-41e6-a808-2d58bfe0fc57");
-    constexpr int A{666};
-    constexpr int B{73};
-    NonTrivialTestClass error{A, B};
+    constexpr int A{ 666 };
+    constexpr int B{ 73 };
+    NonTrivialTestClass error{ A, B };
     expected<int, NonTrivialTestClass> sut = err(std::move(error));
     ASSERT_THAT(sut.has_error(), Eq(true));
     EXPECT_THAT(sut.error().m_a, Eq(A));
@@ -450,8 +450,8 @@ TEST_F(expected_test, CreateWithErrFreeFunctionByMoveIsSuccessful)
 TEST_F(expected_test, CreateWithErrFreeFunctionByForwardingIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "08411afa-e1d3-4a28-9680-f89796f86340");
-    constexpr int A{44};
-    constexpr int B{55};
+    constexpr int A{ 44 };
+    constexpr int B{ 55 };
     expected<int, NonTrivialTestClass> sut = err<NonTrivialTestClass>(A, B);
     ASSERT_THAT(sut.has_error(), Eq(true));
     EXPECT_THAT(sut.error().m_a, Eq(A));
@@ -461,7 +461,7 @@ TEST_F(expected_test, CreateWithErrFreeFunctionByForwardingIsSuccessful)
 TEST_F(expected_test, CopyConstructorWorksWithValueContent)
 {
     ::testing::Test::RecordProperty("TEST_ID", "71ce4717-bf77-47ea-8ed9-3a890b13ce88");
-    constexpr int VALUE{455171};
+    constexpr int VALUE{ 455171 };
 
     expected<int, NonTrivialTestClass> sut = ok(VALUE);
     expected<int, NonTrivialTestClass> sut_copy(sut);
@@ -476,8 +476,8 @@ TEST_F(expected_test, CopyConstructorWorksWithValueContent)
 TEST_F(expected_test, CopyConstructorWorksWithErrorContent)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e0be66c3-05fc-4030-92d0-8ad84111e86f");
-    constexpr int A{719122};
-    constexpr int B{700012};
+    constexpr int A{ 719122 };
+    constexpr int B{ 700012 };
 
     expected<int, NonTrivialTestClass> sut = err<NonTrivialTestClass>(A, B);
     expected<int, NonTrivialTestClass> sut_copy(sut);
@@ -494,7 +494,7 @@ TEST_F(expected_test, CopyConstructorWorksWithErrorContent)
 TEST_F(expected_test, MoveConstructorWorksWithValueContent)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8f188c06-6675-4e9b-bd72-28ea813cb149");
-    constexpr int VALUE{919155171};
+    constexpr int VALUE{ 919155171 };
 
     expected<int, NonTrivialTestClass> sut = ok(VALUE);
     expected<int, NonTrivialTestClass> sut_move(std::move(sut));
@@ -506,8 +506,8 @@ TEST_F(expected_test, MoveConstructorWorksWithValueContent)
 TEST_F(expected_test, MoveConstructorWorksWithErrorContent)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c8eb14d0-fee4-474b-ab9a-33e834a47f19");
-    constexpr int A{7331};
-    constexpr int B{73391};
+    constexpr int A{ 7331 };
+    constexpr int B{ 73391 };
 
     expected<int, NonTrivialTestClass> sut = err<NonTrivialTestClass>(A, B);
     expected<int, NonTrivialTestClass> sut_move(std::move(sut));
@@ -520,7 +520,7 @@ TEST_F(expected_test, MoveConstructorWorksWithErrorContent)
 TEST_F(expected_test, CopyAssignmentWorksWithValueContent)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e16679e7-91cb-4e3c-869a-bdca338c4963");
-    constexpr int VALUE{333195171};
+    constexpr int VALUE{ 333195171 };
 
     expected<int, NonTrivialTestClass> sut = ok(VALUE);
     expected<int, NonTrivialTestClass> sut_copy = err<NonTrivialTestClass>(1, 2);
@@ -537,8 +537,8 @@ TEST_F(expected_test, CopyAssignmentWorksWithValueContent)
 TEST_F(expected_test, CopyAssignmentWorksWithErrorContent)
 {
     ::testing::Test::RecordProperty("TEST_ID", "66db5dea-8543-4ad0-9705-1c23ed316463");
-    constexpr int A{557331};
-    constexpr int B{5573391};
+    constexpr int A{ 557331 };
+    constexpr int B{ 5573391 };
 
     expected<int, NonTrivialTestClass> sut = err<NonTrivialTestClass>(A, B);
     expected<int, NonTrivialTestClass> sut_copy = ok(1231);
@@ -557,7 +557,7 @@ TEST_F(expected_test, CopyAssignmentWorksWithErrorContent)
 TEST_F(expected_test, MoveAssignmentWorksWithValueContent)
 {
     ::testing::Test::RecordProperty("TEST_ID", "87ca60fe-7b29-4144-91fe-80ebfed644bd");
-    constexpr int VALUE{910001};
+    constexpr int VALUE{ 910001 };
 
     expected<int, NonTrivialTestClass> sut = ok(VALUE);
     expected<int, NonTrivialTestClass> sut_move = err<NonTrivialTestClass>(1, 2);
@@ -571,8 +571,8 @@ TEST_F(expected_test, MoveAssignmentWorksWithValueContent)
 TEST_F(expected_test, MoveAssignmentWorksWithErrorContent)
 {
     ::testing::Test::RecordProperty("TEST_ID", "82691fe2-fd18-4b43-b926-e9e67699760e");
-    constexpr int A{9557431};
-    constexpr int B{95574391};
+    constexpr int A{ 9557431 };
+    constexpr int B{ 95574391 };
 
     expected<int, NonTrivialTestClass> sut = err<NonTrivialTestClass>(A, B);
     expected<int, NonTrivialTestClass> sut_move = ok(121);
@@ -678,7 +678,7 @@ TEST_F(expected_test, ConstDereferencingOperatorWorks)
 TEST_F(expected_test, CreateFromInPlaceTypeLeadsToValidVoidValueTypeSut)
 {
     ::testing::Test::RecordProperty("TEST_ID", "91a8ad7f-4843-4bd9-a56b-0561ae6b56cb");
-    expected<void, TestError> sut{in_place};
+    expected<void, TestError> sut{ in_place };
     ASSERT_THAT(sut.has_value(), Eq(true));
 }
 
@@ -686,7 +686,7 @@ TEST_F(expected_test, CreateFromInPlaceTypeLeadsToValidSut)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3a527c62-aaea-44ae-9b99-027c19d032b5");
     constexpr int VALUE = 42;
-    expected<int, TestError> sut{in_place, VALUE};
+    expected<int, TestError> sut{ in_place, VALUE };
     ASSERT_THAT(sut.has_value(), Eq(true));
     EXPECT_THAT(sut.value(), Eq(VALUE));
 }
@@ -695,7 +695,7 @@ TEST_F(expected_test, CreateFromUnexpectTypeLeadsToValidSutWithError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "20ddbfc0-2235-46c3-9618-dd75e9d3c699");
     constexpr TestError ERROR = TestError::ERROR3;
-    expected<int, TestError> sut{unexpect, ERROR};
+    expected<int, TestError> sut{ unexpect, ERROR };
     ASSERT_THAT(sut.has_error(), Eq(true));
     EXPECT_THAT(sut.error(), Eq(ERROR));
 }
@@ -703,7 +703,7 @@ TEST_F(expected_test, CreateFromUnexpectTypeLeadsToValidSutWithError)
 TEST_F(expected_test, CreateFromEmptySuccessTypeLeadsToValidSut)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0204f08f-fb6d-45bb-aac7-fd14152ab1bf");
-    expected<void, TestError> sut{ok()};
+    expected<void, TestError> sut{ ok() };
     ASSERT_THAT(sut.has_error(), Eq(false));
 }
 
@@ -711,7 +711,7 @@ TEST_F(expected_test, CreateFromSuccessTypeLeadsToValidSut)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fb83b62e-4e17-480b-8425-72181e6dd55d");
     constexpr int VALUE = 55;
-    expected<int, TestError> sut{ok(VALUE)};
+    expected<int, TestError> sut{ ok(VALUE) };
     ASSERT_THAT(sut.has_value(), Eq(true));
     EXPECT_THAT(sut.value(), Eq(VALUE));
 }
@@ -719,7 +719,7 @@ TEST_F(expected_test, CreateFromSuccessTypeLeadsToValidSut)
 TEST_F(expected_test, CreateFromErrorLeadsToCorrectError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "cb7e783d-0a79-45ce-9ea7-3b6e28631ceb");
-    expected<int, TestError> sut{err(TestError::ERROR2)};
+    expected<int, TestError> sut{ err(TestError::ERROR2) };
     ASSERT_THAT(sut.has_error(), Eq(true));
     EXPECT_THAT(sut.error(), Eq(TestError::ERROR2));
 }
@@ -728,7 +728,7 @@ TEST_F(expected_test, ConvertNonEmptySuccessResultToVoidValueTypeResultIsSuccess
 {
     ::testing::Test::RecordProperty("TEST_ID", "b14f4aaa-abd0-4b99-84df-d644506712fa");
     constexpr int VALUE = 91823;
-    expected<int, TestError> sut{ok(VALUE)};
+    expected<int, TestError> sut{ ok(VALUE) };
     expected<void, TestError> sut2 = sut;
     EXPECT_THAT(sut2.has_value(), Eq(true));
 }
@@ -736,7 +736,7 @@ TEST_F(expected_test, ConvertNonEmptySuccessResultToVoidValueTypeResultIsSuccess
 TEST_F(expected_test, ConvertConstNonEmptySuccessResultToVoidValueTypeResultIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6ccaf1cf-1b09-4930-ad33-8f961aca4c2e");
-    const expected<int, TestError> sut{ok(123)};
+    const expected<int, TestError> sut{ ok(123) };
     expected<void, TestError> sut2 = sut;
     EXPECT_THAT(sut2.has_value(), Eq(true));
 }
@@ -744,7 +744,7 @@ TEST_F(expected_test, ConvertConstNonEmptySuccessResultToVoidValueTypeResultIsSu
 TEST_F(expected_test, ConvertNonEmptyErrorResultVoidValueTypeResultIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5907d318-cf1a-46f1-9016-07096153d7d9");
-    expected<int, TestError> sut{err(TestError::ERROR2)};
+    expected<int, TestError> sut{ err(TestError::ERROR2) };
     expected<void, TestError> sut2 = sut;
     EXPECT_THAT(sut2.has_error(), Eq(true));
     EXPECT_THAT(sut2.error(), Eq(TestError::ERROR2));
@@ -754,7 +754,7 @@ TEST_F(expected_test, ExpectedWithValueConvertsToOptionalWithValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a877f9bd-5793-437f-8dee-a109aed9f647");
     constexpr int VALUE = 4711;
-    expected<int, TestError> sut{ok(VALUE)};
+    expected<int, TestError> sut{ ok(VALUE) };
     optional<int> value = sut.to_optional();
 
     ASSERT_THAT(value.has_value(), Eq(true));
@@ -764,7 +764,7 @@ TEST_F(expected_test, ExpectedWithValueConvertsToOptionalWithValue)
 TEST_F(expected_test, ExpectedWithErrorConvertsToOptionalWithoutValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fe161275-8fa2-43c9-86e7-0a20d79eb44f");
-    expected<int, TestError> sut{err(TestError::ERROR1)};
+    expected<int, TestError> sut{ err(TestError::ERROR1) };
     optional<int> value = sut.to_optional();
 
     ASSERT_THAT(value.has_value(), Eq(false));
@@ -776,7 +776,7 @@ TEST_F(expected_test, MoveAssignmentIsNotEnforcedInMoveConstructor)
     {
         auto sut = expected<ClassWithMoveCtorAndNoMoveAssignment, int>(in_place);
         /// this should compile, if not then we enforce move assignment hidden in the implementation
-        expected<ClassWithMoveCtorAndNoMoveAssignment, int> destination{std::move(sut)};
+        expected<ClassWithMoveCtorAndNoMoveAssignment, int> destination{ std::move(sut) };
         ASSERT_THAT(destination.has_value(), Eq(true));
     }
 
@@ -784,7 +784,7 @@ TEST_F(expected_test, MoveAssignmentIsNotEnforcedInMoveConstructor)
     {
         auto sut = expected<void, ClassWithMoveCtorAndNoMoveAssignment>(unexpect);
         /// this should compile, if not then we enforce move assignment hidden in the implementation
-        expected<void, ClassWithMoveCtorAndNoMoveAssignment> destination{std::move(sut)};
+        expected<void, ClassWithMoveCtorAndNoMoveAssignment> destination{ std::move(sut) };
         ASSERT_THAT(destination.has_error(), Eq(true));
     }
 }
@@ -856,7 +856,7 @@ TEST_F(expected_test, AccessingErrorOfLValueExpectedWhichContainsValueLeadsToErr
 {
     ::testing::Test::RecordProperty("TEST_ID", "aee85ead-e066-49fd-99fe-6f1a6045756d");
 
-    constexpr int VALID_VALUE{42};
+    constexpr int VALID_VALUE{ 42 };
     expected<TestClass, TestError> sut = ok<TestClass>(VALID_VALUE, VALID_VALUE);
 
     IOX_EXPECT_FATAL_FAILURE([&] { sut.error(); }, iox::er::ENFORCE_VIOLATION);
@@ -866,7 +866,7 @@ TEST_F(expected_test, AccessingErrorOfConstLValueExpectedWhichContainsValueLeads
 {
     ::testing::Test::RecordProperty("TEST_ID", "a49cf02e-b165-4fd6-9c24-65cedc6cddb9");
 
-    constexpr int VALID_VALUE{42};
+    constexpr int VALID_VALUE{ 42 };
     const expected<TestClass, TestError> sut = ok<TestClass>(VALID_VALUE, VALID_VALUE);
 
     IOX_EXPECT_FATAL_FAILURE([&] { sut.error(); }, iox::er::ENFORCE_VIOLATION);
@@ -876,7 +876,7 @@ TEST_F(expected_test, AccessingErrorOfRValueExpectedWhichContainsValueLeadsToErr
 {
     ::testing::Test::RecordProperty("TEST_ID", "0ea90b5d-1af6-494a-b35c-da103bed2331");
 
-    constexpr int VALID_VALUE{42};
+    constexpr int VALID_VALUE{ 42 };
     expected<TestClass, TestError> sut = ok<TestClass>(VALID_VALUE, VALID_VALUE);
 
     IOX_EXPECT_FATAL_FAILURE([&] { std::move(sut).error(); }, iox::er::ENFORCE_VIOLATION);
@@ -945,8 +945,8 @@ TEST_F(expected_test, TwoExpectedsWithUnequalErrorAreUnequal)
 TEST_F(expected_test, TwoExpectedWithEqualValueAreEqual)
 {
     ::testing::Test::RecordProperty("TEST_ID", "278c2fd5-2b48-49d1-a8a4-8ca52b99de41");
-    constexpr int VAL_1{42};
-    constexpr int VAL_2{73};
+    constexpr int VAL_1{ 42 };
+    constexpr int VAL_2{ 73 };
     expected<TestClass, TestError> sut1 = ok<TestClass>(VAL_1, VAL_2);
     expected<TestClass, TestError> sut2 = ok<TestClass>(VAL_1, VAL_2);
 
@@ -957,8 +957,8 @@ TEST_F(expected_test, TwoExpectedWithEqualValueAreEqual)
 TEST_F(expected_test, TwoExpectedWithUnequalValueAreUnequal)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5f6a8760-6fdf-4ab8-a7d5-d751390aa672");
-    constexpr int VAL_1{42};
-    constexpr int VAL_2{73};
+    constexpr int VAL_1{ 42 };
+    constexpr int VAL_2{ 73 };
     expected<TestClass, TestError> sut1 = ok<TestClass>(VAL_1, VAL_1);
     expected<TestClass, TestError> sut2 = ok<TestClass>(VAL_2, VAL_2);
 
@@ -969,7 +969,7 @@ TEST_F(expected_test, TwoExpectedWithUnequalValueAreUnequal)
 TEST_F(expected_test, TwoExpectedWithErrorAndValueAreUnequal)
 {
     ::testing::Test::RecordProperty("TEST_ID", "aa912753-09af-46d5-92d5-52cad69795ad");
-    constexpr int VAL{42};
+    constexpr int VAL{ 42 };
     expected<TestClass, TestError> sut1 = err(TestError::ERROR1);
     expected<TestClass, TestError> sut2 = ok<TestClass>(VAL, VAL);
 

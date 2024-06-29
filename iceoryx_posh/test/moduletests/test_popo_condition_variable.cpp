@@ -40,13 +40,13 @@ class ConditionVariable_test : public Test
   public:
     using NotificationVector_t = ConditionListener::NotificationVector_t;
     using Type_t = iox::BestFittingType_t<iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER>;
-    const iox::RuntimeName_t m_runtimeName{"Ferdinand"};
+    const iox::RuntimeName_t m_runtimeName{ "Ferdinand" };
     const iox::units::Duration m_timeToWait = 2_s;
     const iox::units::Duration m_timingTestTime = 100_ms;
 
-    ConditionVariableData m_condVarData{m_runtimeName};
-    ConditionListener m_waiter{m_condVarData};
-    ConditionNotifier m_signaler{m_condVarData, 0U};
+    ConditionVariableData m_condVarData{ m_runtimeName };
+    ConditionListener m_waiter{ m_condVarData };
+    ConditionNotifier m_signaler{ m_condVarData, 0U };
     iox::vector<ConditionNotifier, iox::MAX_NUMBER_OF_NOTIFIERS> m_notifiers;
 
     void SetUp() override
@@ -58,7 +58,7 @@ class ConditionVariable_test : public Test
         m_watchdog.watchAndActOnFailure([&] { std::terminate(); });
     }
 
-    Watchdog m_watchdog{m_timeToWait};
+    Watchdog m_watchdog{ m_timeToWait };
 };
 
 TEST_F(ConditionVariable_test, ConditionListenerIsNeitherCopyNorMovable)
@@ -100,7 +100,7 @@ TEST_F(ConditionVariable_test, WaitResetsAllNotificationsInWait)
     m_signaler.notify();
     m_waiter.wait();
 
-    std::atomic_bool isThreadFinished{false};
+    std::atomic_bool isThreadFinished{ false };
     std::thread t([&] {
         m_waiter.wait();
         isThreadFinished = true;
@@ -116,7 +116,7 @@ TEST_F(ConditionVariable_test, WaitResetsAllNotificationsInWait)
 TEST_F(ConditionVariable_test, WaitAndNotifyResultsInImmediateTriggerMultiThreaded)
 {
     ::testing::Test::RecordProperty("TEST_ID", "39b40c73-3dcc-4af6-9682-b62816c69854");
-    std::atomic<int> counter{0};
+    std::atomic<int> counter{ 0 };
     Barrier isThreadStarted(1U);
     std::thread waiter([&] {
         EXPECT_THAT(counter, Eq(0));
@@ -237,7 +237,7 @@ TIMING_TEST_F(ConditionVariable_test, TimedWaitBlocksUntilTimeout, Repeat(5), [&
     ::testing::Test::RecordProperty("TEST_ID", "c755aec9-43c3-4bf4-bec4-5672c76561ef");
     ConditionListener listener(m_condVarData);
     NotificationVector_t activeNotifications;
-    std::atomic_bool hasWaited{false};
+    std::atomic_bool hasWaited{ false };
 
     std::thread waiter([&] {
         activeNotifications = listener.timedWait(m_timingTestTime);
@@ -256,7 +256,7 @@ TIMING_TEST_F(ConditionVariable_test, TimedWaitBlocksUntilNotification, Repeat(5
     ::testing::Test::RecordProperty("TEST_ID", "b2999ddd-d072-4c9f-975e-fc8acc31397d");
     ConditionListener listener(m_condVarData);
     NotificationVector_t activeNotifications;
-    std::atomic_bool hasWaited{false};
+    std::atomic_bool hasWaited{ false };
 
     std::thread waiter([&] {
         activeNotifications = listener.timedWait(m_timingTestTime);
@@ -370,7 +370,7 @@ TIMING_TEST_F(ConditionVariable_test, WaitBlocks, Repeat(5), [&] {
     ConditionListener listener(m_condVarData);
     NotificationVector_t activeNotifications;
     Barrier isThreadStarted(1U);
-    std::atomic_bool hasWaited{false};
+    std::atomic_bool hasWaited{ false };
 
     std::thread waiter([&] {
         isThreadStarted.notify();
@@ -397,7 +397,7 @@ TIMING_TEST_F(ConditionVariable_test, SecondWaitBlocksUntilNewNotification, Repe
     ConditionNotifier notifier1(m_condVarData, FIRST_EVENT_INDEX);
     ConditionNotifier notifier2(m_condVarData, SECOND_EVENT_INDEX);
     ConditionListener listener(m_condVarData);
-    std::atomic_bool hasWaited{false};
+    std::atomic_bool hasWaited{ false };
 
     Watchdog watchdogFirstWait(m_timeToWait);
     watchdogFirstWait.watchAndActOnFailure([&] { listener.destroy(); });

@@ -557,7 +557,7 @@ TYPED_TEST(stringTyped_test, AppendStringContainingNullWorks)
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     constexpr auto RESULT_CAPACITY = STRINGCAP + 10U;
-    const std::string expectedString{"ice\0ryx", 7};
+    const std::string expectedString{ "ice\0ryx", 7 };
 
     string<RESULT_CAPACITY> sut("i");
     const string<RESULT_CAPACITY> testCxxString(TruncateToCapacity, expectedString.substr(1).c_str(), 6U);

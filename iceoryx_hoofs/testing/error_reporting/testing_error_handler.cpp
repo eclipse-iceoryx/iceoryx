@@ -82,7 +82,7 @@ bool TestingErrorHandler::hasError() const noexcept
 
 bool TestingErrorHandler::hasError(ErrorCode code, iox::er::ModuleId module) const noexcept
 {
-    constexpr iox::er::ModuleId ANY_MODULE{iox::er::ModuleId::ANY};
+    constexpr iox::er::ModuleId ANY_MODULE{ iox::er::ModuleId::ANY };
     std::lock_guard<std::mutex> g(m_mutex);
     for (auto desc : m_errors)
     {

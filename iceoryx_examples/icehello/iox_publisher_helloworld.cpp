@@ -38,7 +38,7 @@ int main()
     //! [initialize runtime]
 
     //! [create publisher]
-    iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"});
+    iox::popo::Publisher<RadarObject> publisher({ "Radar", "FrontLeft", "Object" });
     //! [create publisher]
 
     double ct = 0.0;

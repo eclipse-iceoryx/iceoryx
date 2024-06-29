@@ -45,7 +45,7 @@ template <typename OriginType, typename ContextDataType>
 inline NotificationCallback<OriginType, ContextDataType>
 createNotificationCallback(void (&callback)(OriginType* const)) noexcept
 {
-    return NotificationCallback<OriginType, popo::internal::NoType_t>{&callback};
+    return NotificationCallback<OriginType, popo::internal::NoType_t>{ &callback };
 }
 
 template <typename OriginType, typename ContextDataType>
@@ -53,7 +53,7 @@ inline NotificationCallback<OriginType, ContextDataType>
 createNotificationCallback(void (&callback)(OriginType* const, ContextDataType* const),
                            ContextDataType& userValue) noexcept
 {
-    return NotificationCallback<OriginType, ContextDataType>{&callback, &userValue};
+    return NotificationCallback<OriginType, ContextDataType>{ &callback, &userValue };
 }
 } // namespace popo
 } // namespace iox

@@ -79,7 +79,7 @@ template <>
 struct ok<void>
 {
     // dummy value
-    bool value{true};
+    bool value{ true };
 };
 
 /// @brief helper struct to create an expected which is signalling an error more easily
@@ -161,8 +161,8 @@ class expected_storage
     }
 
   private:
-    static constexpr uint64_t VALUE_INDEX{0};
-    static constexpr uint64_t ERROR_INDEX{1};
+    static constexpr uint64_t VALUE_INDEX{ 0 };
+    static constexpr uint64_t ERROR_INDEX{ 1 };
 
     iox::variant<ValueType, ErrorType> data;
 };
@@ -213,11 +213,11 @@ class expected_storage<void, ErrorType>
     }
 
   private:
-    static constexpr uint64_t VALUE_INDEX{0};
-    static constexpr uint64_t ERROR_INDEX{1};
+    static constexpr uint64_t VALUE_INDEX{ 0 };
+    static constexpr uint64_t ERROR_INDEX{ 1 };
 
     using DummyValueType = bool;
-    static constexpr DummyValueType DUMMY_VALUE{true};
+    static constexpr DummyValueType DUMMY_VALUE{ true };
 
     iox::variant<DummyValueType, ErrorType> data;
 };

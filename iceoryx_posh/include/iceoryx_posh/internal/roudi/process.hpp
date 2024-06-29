@@ -75,11 +75,11 @@ class Process
     bool isMonitored() const noexcept;
 
   private:
-    const uint32_t m_pid{0U};
+    const uint32_t m_pid{ 0U };
     runtime::IpcInterfaceUser m_ipcChannel;
     HeartbeatPoolIndexType m_heartbeatPoolIndex;
     PosixUser m_user;
-    std::atomic<uint64_t> m_sessionId{0U};
+    std::atomic<uint64_t> m_sessionId{ 0U };
 };
 
 } // namespace roudi

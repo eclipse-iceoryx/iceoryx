@@ -79,7 +79,7 @@ class ServiceDiscoveryBase_test : public RouDi_GTest
     };
 
 
-    iox::runtime::PoshRuntime* runtime{&iox::runtime::PoshRuntime::initRuntime("Runtime")};
+    iox::runtime::PoshRuntime* runtime{ &iox::runtime::PoshRuntime::initRuntime("Runtime") };
     ServiceDiscovery sut;
 };
 
@@ -115,7 +115,7 @@ class ServiceDiscovery_test : public ServiceDiscoveryBase_test
     // timeouts or potential deadlocks.
     iox::popo::WaitSet<1U> m_waitset;
     const iox::units::Duration m_fatalTimeout = 10_s;
-    Watchdog m_watchdog{m_fatalTimeout};
+    Watchdog m_watchdog{ m_fatalTimeout };
 };
 
 class ServiceDiscoveryNotification_test : public ServiceDiscoveryBase_test
@@ -144,19 +144,19 @@ class ServiceDiscoveryNotification_test : public ServiceDiscoveryBase_test
     }
 
     const iox::units::Duration m_fatalTimeout = 10_s;
-    Watchdog m_watchdog{m_fatalTimeout};
+    Watchdog m_watchdog{ m_fatalTimeout };
 };
 
 struct PubSub
 {
     using Producer = iox::popo::UntypedPublisher;
-    static constexpr MessagingPattern PATTERN{MessagingPattern::PUB_SUB};
+    static constexpr MessagingPattern PATTERN{ MessagingPattern::PUB_SUB };
 };
 
 struct ReqRes
 {
     using Producer = iox::popo::UntypedServer;
-    static constexpr MessagingPattern PATTERN{MessagingPattern::REQ_RES};
+    static constexpr MessagingPattern PATTERN{ MessagingPattern::REQ_RES };
 };
 
 using CommunicationKind = Types<PubSub, ReqRes>;
@@ -501,8 +501,8 @@ class ServiceDiscoveryFindService_test : public ServiceDiscoveryBase_test
     iox::vector<iox::popo::UntypedPublisher, MAX_PUBLISHERS> publishers;
     iox::vector<iox::popo::UntypedServer, MAX_SERVERS> servers;
 
-    ReferenceDiscovery publisherDiscovery{MessagingPattern::PUB_SUB};
-    ReferenceDiscovery serverDiscovery{MessagingPattern::REQ_RES};
+    ReferenceDiscovery publisherDiscovery{ MessagingPattern::PUB_SUB };
+    ReferenceDiscovery serverDiscovery{ MessagingPattern::REQ_RES };
 
     ServiceContainer expectedResult;
 
@@ -640,20 +640,20 @@ ServiceDescription randomService()
     auto service = randomString();
     auto instance = randomString();
     auto event = randomString();
-    return {service, instance, event};
+    return { service, instance, event };
 }
 
 ServiceDescription randomService(const string_t& service)
 {
     auto instance = randomString();
     auto event = randomString();
-    return {service, instance, event};
+    return { service, instance, event };
 }
 
 ServiceDescription randomService(const string_t& service, const string_t& instance)
 {
     auto event = randomString();
-    return {service, instance, event};
+    return { service, instance, event };
 }
 
 // define all 8 test variations to search for a service
@@ -810,104 +810,104 @@ TYPED_TEST(ServiceDiscoveryFindService_test, FindWhenNothingOffered)
     // findService({"a"}, {"b"}, {"c"}).
     // In this case they both should find nothing (with any parameterization of findService)
     // since nothing was offered.
-    this->testFindService({"a"}, {"b"}, {"c"});
+    this->testFindService({ "a" }, { "b" }, { "c" });
 }
 
 TYPED_TEST(ServiceDiscoveryFindService_test, FindWhenSingleServiceOffered)
 {
     ::testing::Test::RecordProperty("TEST_ID", "aab09c10-8b1e-4f25-8f72-bd762b69f2cb");
-    this->add({"a", "b", "c"});
+    this->add({ "a", "b", "c" });
 
     this->triggerDiscoveryLoopAndWaitToFinish();
 
-    this->testFindService({"a"}, {"b"}, {"c"});
+    this->testFindService({ "a" }, { "b" }, { "c" });
 }
 
 TYPED_TEST(ServiceDiscoveryFindService_test, FindWhenSingleServiceIsOfferedMultipleTimes)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8c5625d3-49f6-4b8b-a118-6ad850d181ed");
-    this->add({"a", "b", "c"});
-    this->add({"a", "b", "c"});
+    this->add({ "a", "b", "c" });
+    this->add({ "a", "b", "c" });
 
     this->triggerDiscoveryLoopAndWaitToFinish();
 
-    this->testFindService({"a"}, {"b"}, {"c"});
+    this->testFindService({ "a" }, { "b" }, { "c" });
 }
 
 TYPED_TEST(ServiceDiscoveryFindService_test, FindWhenMultipleServicesAreOffered)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ea19b805-8572-4891-b3b8-aa988358418e");
-    this->add({"a", "b", "c"});
-    this->add({"a", "b", "aa"});
-    this->add({"aa", "a", "c"});
-    this->add({"a", "ab", "a"});
+    this->add({ "a", "b", "c" });
+    this->add({ "a", "b", "aa" });
+    this->add({ "aa", "a", "c" });
+    this->add({ "a", "ab", "a" });
 
     this->triggerDiscoveryLoopAndWaitToFinish();
 
-    this->testFindService({"aa"}, {"a"}, {"c"});
+    this->testFindService({ "aa" }, { "a" }, { "c" });
 }
 
 TYPED_TEST(ServiceDiscoveryFindService_test, FindWhenMultipleInstancesOfTheSameServiceAreOffered)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b026a02b-25b5-481c-9958-57c22bbc20c0");
-    this->add({"a", "b", "c"});
-    this->add({"a", "d", "c"});
+    this->add({ "a", "b", "c" });
+    this->add({ "a", "d", "c" });
 
     this->triggerDiscoveryLoopAndWaitToFinish();
 
-    this->testFindService({"a"}, {"d"}, {"c"});
+    this->testFindService({ "a" }, { "d" }, { "c" });
 }
 
 TYPED_TEST(ServiceDiscoveryFindService_test, RepeatedSearchYieldsSameResult)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f1ee22fb-dc40-4011-b054-35a31d7ee5ee");
-    this->add({"a", "b", "c"});
-    this->add({"a", "b", "aa"});
-    this->add({"aa", "a", "c"});
-    this->add({"a", "ab", "a"});
+    this->add({ "a", "b", "c" });
+    this->add({ "a", "b", "aa" });
+    this->add({ "aa", "a", "c" });
+    this->add({ "a", "ab", "a" });
 
     this->triggerDiscoveryLoopAndWaitToFinish();
 
-    this->testFindService({"a"}, {"b"}, {"aa"});
+    this->testFindService({ "a" }, { "b" }, { "aa" });
     auto previousResult = serviceContainer;
 
-    this->testFindService({"a"}, {"b"}, {"aa"});
+    this->testFindService({ "a" }, { "b" }, { "aa" });
     sortAndCompare(previousResult, serviceContainer);
 }
 
 TYPED_TEST(ServiceDiscoveryFindService_test, FindNonExistingService)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6f953d0d-bae3-45a1-82e7-c78a32b6d365");
-    this->add({"a", "b", "c"});
+    this->add({ "a", "b", "c" });
 
     this->triggerDiscoveryLoopAndWaitToFinish();
 
     // those are all representatives of equivalence classes of mismatches
     // that hould not be found
-    this->testFindService({"x"}, {"b"}, {"c"});
-    this->testFindService({"a"}, {"x"}, {"c"});
-    this->testFindService({"a"}, {"b"}, {"x"});
-    this->testFindService({"x"}, {"x"}, {"c"});
-    this->testFindService({"a"}, {"x"}, {"x"});
-    this->testFindService({"x"}, {"b"}, {"x"});
-    this->testFindService({"x"}, {"x"}, {"x"});
+    this->testFindService({ "x" }, { "b" }, { "c" });
+    this->testFindService({ "a" }, { "x" }, { "c" });
+    this->testFindService({ "a" }, { "b" }, { "x" });
+    this->testFindService({ "x" }, { "x" }, { "c" });
+    this->testFindService({ "a" }, { "x" }, { "x" });
+    this->testFindService({ "x" }, { "b" }, { "x" });
+    this->testFindService({ "x" }, { "x" }, { "x" });
 }
 
 TYPED_TEST(ServiceDiscoveryFindService_test, FindNonExistingServiceAmongMultipleNearMatches)
 {
     ::testing::Test::RecordProperty("TEST_ID", "86b4977f-53c6-495c-add3-524c9f3e0f27");
     // add multiple near matches
-    this->add({"x", "b", "c"});
-    this->add({"a", "x", "c"});
-    this->add({"a", "b", "x"});
-    this->add({"x", "x", "c"});
-    this->add({"a", "x", "x"});
-    this->add({"x", "b", "x"});
-    this->add({"x", "x", "x"});
+    this->add({ "x", "b", "c" });
+    this->add({ "a", "x", "c" });
+    this->add({ "a", "b", "x" });
+    this->add({ "x", "x", "c" });
+    this->add({ "a", "x", "x" });
+    this->add({ "x", "b", "x" });
+    this->add({ "x", "x", "x" });
 
     this->triggerDiscoveryLoopAndWaitToFinish();
 
-    this->testFindService({"a"}, {"b"}, {"c"});
+    this->testFindService({ "a" }, { "b" }, { "c" });
 }
 
 // Limit test of one kind (MessagingPattern) of service:
@@ -933,7 +933,7 @@ TYPED_TEST(ServiceDiscoveryFindService_test, FindInMaximumServices)
     }
 
     // create a unique service presented by Umlaut (hence unique)
-    ServiceDescription s2{"Ferdinand", "Spitz", "Schnüffler"};
+    ServiceDescription s2{ "Ferdinand", "Spitz", "Schnüffler" };
     this->add(s2);
     ++created;
 
@@ -971,23 +971,23 @@ TYPED_TEST(ServiceDiscoveryFindService_test, FindInMaximumServices)
 TYPED_TEST(ServiceDiscoveryFindService_test, SameServerAndPublisherCanBeFound)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d75ce3c2-861e-4ae6-8d05-244950a99e8c");
-    this->add({"Ferdinand", "Schnüffel", "Spitz"});
-    this->addOther({"Ferdinand", "Schnüffel", "Spitz"});
+    this->add({ "Ferdinand", "Schnüffel", "Spitz" });
+    this->addOther({ "Ferdinand", "Schnüffel", "Spitz" });
 
     this->triggerDiscoveryLoopAndWaitToFinish();
 
-    this->testFindService({"Ferdinand"}, {"Schnüffel"}, {"Spitz"});
+    this->testFindService({ "Ferdinand" }, { "Schnüffel" }, { "Spitz" });
 }
 
 TYPED_TEST(ServiceDiscoveryFindService_test, OtherServiceKindWithMatchingNameIsNotFound)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e182e255-b17e-445a-ad1b-a05b643b30fd");
-    this->add({"Schnüffel", "Ferdinand", "Spitz"});
-    this->addOther({"Ferdinand", "Schnüffel", "Spitz"});
+    this->add({ "Schnüffel", "Ferdinand", "Spitz" });
+    this->addOther({ "Ferdinand", "Schnüffel", "Spitz" });
 
     this->triggerDiscoveryLoopAndWaitToFinish();
 
-    this->testFindService({"Ferdinand"}, {"Schnüffel"}, {"Spitz"});
+    this->testFindService({ "Ferdinand" }, { "Schnüffel" }, { "Spitz" });
 }
 
 // Limit test of both kinds (MessagingPattern) of service
@@ -1019,7 +1019,7 @@ TYPED_TEST(ServiceDiscoveryFindService_test, FindInMaximumMixedServices)
     }
 
     // create a unique service presented by Umlaut (hence unique)
-    ServiceDescription s2{"Ferdinand", "Spitz", "Schnüffler"};
+    ServiceDescription s2{ "Ferdinand", "Spitz", "Schnüffler" };
     this->add(s2);
     ++created;
 

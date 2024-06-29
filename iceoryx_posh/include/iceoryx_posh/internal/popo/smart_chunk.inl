@@ -46,7 +46,7 @@ template <typename TransmissionInterface, typename T, typename H>
 template <typename S, typename>
 inline SmartChunk<TransmissionInterface, T, H>::SmartChunk(iox::unique_ptr<T>&& smartChunkUniquePtr,
                                                            TransmissionInterface& producer) noexcept
-    : m_members({std::move(smartChunkUniquePtr), producer})
+    : m_members({ std::move(smartChunkUniquePtr), producer })
 {
 }
 

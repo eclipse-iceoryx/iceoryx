@@ -50,7 +50,7 @@ struct BasePortData
     capro::ServiceDescription m_serviceDescription;
     RuntimeName_t m_runtimeName;
     UniquePortId m_uniqueId;
-    std::atomic_bool m_toBeDestroyed{false};
+    std::atomic_bool m_toBeDestroyed{ false };
 };
 
 } // namespace popo

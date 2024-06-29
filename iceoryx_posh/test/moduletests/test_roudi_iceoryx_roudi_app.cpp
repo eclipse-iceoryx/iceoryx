@@ -87,13 +87,13 @@ class IceoryxRoudiApp_test : public Test
         optind = 0;
     };
 
-    const std::regex colorCode{"\\x1B\\[([0-9]*;?)*m"};
+    const std::regex colorCode{ "\\x1B\\[([0-9]*;?)*m" };
 };
 
 TEST_F(IceoryxRoudiApp_test, VerifyConstructorIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "530346f1-7405-4640-9f5f-37e45073f95d");
-    constexpr uint8_t NUMBER_OF_ARGS{1U};
+    constexpr uint8_t NUMBER_OF_ARGS{ 1U };
     char* args[NUMBER_OF_ARGS];
     char appName[] = "./foo";
     args[0] = &appName[0];
@@ -164,7 +164,7 @@ TEST_F(IceoryxRoudiApp_test, VerifyConstructorUsingConfigWithSegmentWithoutMemPo
 
     iox::IceoryxConfig config;
 
-    config.m_sharedMemorySegments.push_back({currentGroup.getName(), currentGroup.getName(), mempoolConfig});
+    config.m_sharedMemorySegments.push_back({ currentGroup.getName(), currentGroup.getName(), mempoolConfig });
 
     IceoryxRoudiApp_Child roudi(config);
 

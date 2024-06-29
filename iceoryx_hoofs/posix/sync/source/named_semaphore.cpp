@@ -220,9 +220,9 @@ NamedSemaphoreBuilder::create(optional<NamedSemaphore>& uninitializedSemaphore) 
 }
 
 NamedSemaphore::NamedSemaphore(iox_sem_t* handle, const Name_t& name, const bool hasOwnership) noexcept
-    : m_handle{handle}
-    , m_name{name}
-    , m_hasOwnership{hasOwnership}
+    : m_handle{ handle }
+    , m_name{ name }
+    , m_hasOwnership{ hasOwnership }
 {
 }
 

@@ -29,8 +29,8 @@ struct CmdArgs
     char** argv = nullptr;
 
     explicit CmdArgs(const std::vector<std::string>& arguments)
-        : argc{static_cast<int>(arguments.size())}
-        , argv{new char*[static_cast<uint64_t>(argc)]}
+        : argc{ static_cast<int>(arguments.size()) }
+        , argv{ new char*[static_cast<uint64_t>(argc)] }
     {
         contents = std::make_unique<std::vector<std::string>>(arguments);
         for (uint64_t i = 0; i < static_cast<uint64_t>(argc); ++i)
@@ -72,7 +72,7 @@ class OutBuffer
     }
 
   private:
-    std::streambuf* m_originalOutBuffer{std::cout.rdbuf()};
+    std::streambuf* m_originalOutBuffer{ std::cout.rdbuf() };
     std::stringstream m_capture;
 };
 

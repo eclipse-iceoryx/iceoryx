@@ -41,10 +41,10 @@ TEST_F(MePooConfig_Test, AddMemPoolMethodAddsTheCorrespondingMempoolInTheMemPool
 {
     ::testing::Test::RecordProperty("TEST_ID", "e2e10dcf-039a-4865-a8fa-5a716994f213");
     MePooConfig sut;
-    constexpr uint64_t SIZE{128U};
-    constexpr uint32_t CHUNK_COUNT{100U};
+    constexpr uint64_t SIZE{ 128U };
+    constexpr uint32_t CHUNK_COUNT{ 100U };
 
-    sut.addMemPool({SIZE, CHUNK_COUNT});
+    sut.addMemPool({ SIZE, CHUNK_COUNT });
 
     ASSERT_EQ(sut.m_mempoolConfig.size(), 1U);
     EXPECT_EQ(sut.m_mempoolConfig[0].m_size, SIZE);
@@ -55,16 +55,16 @@ TEST_F(MePooConfig_Test, AddingMempoolWhenTheMemPoolConfigContainerIsFullReturns
 {
     ::testing::Test::RecordProperty("TEST_ID", "67227cee-44e2-445f-ba6b-5066e7348757");
     MePooConfig sut;
-    constexpr uint64_t SIZE{128U};
-    constexpr uint32_t CHUNK_COUNT{100U};
+    constexpr uint64_t SIZE{ 128U };
+    constexpr uint32_t CHUNK_COUNT{ 100U };
 
     for (size_t i = 0U; i < iox::MAX_NUMBER_OF_MEMPOOLS; i++)
     {
-        sut.addMemPool({SIZE, CHUNK_COUNT});
+        sut.addMemPool({ SIZE, CHUNK_COUNT });
     }
     IOX_EXPECT_FATAL_FAILURE(
         [&] {
-            sut.addMemPool({SIZE, CHUNK_COUNT});
+            sut.addMemPool({ SIZE, CHUNK_COUNT });
         },
         iox::PoshError::MEPOO__MAXIMUM_NUMBER_OF_MEMPOOLS_REACHED);
 }
@@ -73,13 +73,9 @@ TEST_F(MePooConfig_Test, SetDefaultMethodAddsTheDefaultMemPoolConfigurationToThe
 {
     ::testing::Test::RecordProperty("TEST_ID", "744b4d55-9782-421d-aafb-4464ec00d2a1");
     MePooConfig sut;
-    MePooConfig::Entry defaultEntry[7] = {{128U, 10000U},
-                                          {1024U, 5000U},
-                                          {1024U * 16U, 1000U},
-                                          {1024U * 128U, 200U},
-                                          {1024U * 512U, 50U},
-                                          {1024 * 1024, 30U},
-                                          {1024U * 1024U * 4U, 10U}};
+    MePooConfig::Entry defaultEntry[7] = { { 128U, 10000U },           { 1024U, 5000U },      { 1024U * 16U, 1000U },
+                                           { 1024U * 128U, 200U },     { 1024U * 512U, 50U }, { 1024 * 1024, 30U },
+                                           { 1024U * 1024U * 4U, 10U } };
 
     sut.setDefaults();
 
@@ -95,9 +91,9 @@ TEST_F(MePooConfig_Test, GetMemoryConfigMethodReturnsTheMemPoolConfigContainerWi
 {
     ::testing::Test::RecordProperty("TEST_ID", "45abbd55-9d30-4fdc-abf8-4dd85c2d48b4");
     MePooConfig sut;
-    constexpr uint32_t CHUNK_COUNT{100U};
-    constexpr uint64_t SIZE{128U};
-    sut.addMemPool({SIZE, CHUNK_COUNT});
+    constexpr uint32_t CHUNK_COUNT{ 100U };
+    constexpr uint64_t SIZE{ 128U };
+    sut.addMemPool({ SIZE, CHUNK_COUNT });
 
     const MePooConfig::MePooConfigContainerType* mempoolconfptr = sut.getMemPoolConfig();
 
@@ -110,10 +106,10 @@ TEST_F(MePooConfig_Test, OptimizeMethodCombinesTwoMempoolWithSameSizeAndDoublesT
 {
     ::testing::Test::RecordProperty("TEST_ID", "b39e5bc5-4352-4427-be72-deeed45d937d");
     MePooConfig sut;
-    constexpr uint32_t CHUNK_COUNT{100U};
-    constexpr uint64_t SIZE{100U};
-    sut.addMemPool({SIZE, CHUNK_COUNT});
-    sut.addMemPool({SIZE, CHUNK_COUNT});
+    constexpr uint32_t CHUNK_COUNT{ 100U };
+    constexpr uint64_t SIZE{ 100U };
+    sut.addMemPool({ SIZE, CHUNK_COUNT });
+    sut.addMemPool({ SIZE, CHUNK_COUNT });
 
     sut.optimize();
 
@@ -125,13 +121,13 @@ TEST_F(MePooConfig_Test, OptimizeMethodRemovesTheMempoolWithSizeZeroInTheMemPool
 {
     ::testing::Test::RecordProperty("TEST_ID", "56209c3e-8b69-45cd-8ea5-ef347152ff7c");
     MePooConfig sut;
-    constexpr uint32_t CHUNK_COUNT{100U};
-    constexpr uint64_t SIZE_1{64U};
-    constexpr uint64_t SIZE_2{0U};
-    constexpr uint64_t SIZE_3{128U};
-    sut.addMemPool({SIZE_1, CHUNK_COUNT});
-    sut.addMemPool({SIZE_2, CHUNK_COUNT});
-    sut.addMemPool({SIZE_3, CHUNK_COUNT});
+    constexpr uint32_t CHUNK_COUNT{ 100U };
+    constexpr uint64_t SIZE_1{ 64U };
+    constexpr uint64_t SIZE_2{ 0U };
+    constexpr uint64_t SIZE_3{ 128U };
+    sut.addMemPool({ SIZE_1, CHUNK_COUNT });
+    sut.addMemPool({ SIZE_2, CHUNK_COUNT });
+    sut.addMemPool({ SIZE_3, CHUNK_COUNT });
 
     sut.optimize();
 
@@ -144,13 +140,13 @@ TEST_F(MePooConfig_Test, OptimizeMethodSortsTheAddedMempoolsInTheMemPoolConfigCo
 {
     ::testing::Test::RecordProperty("TEST_ID", "c9034d02-9fa9-404f-955c-12f647b3a946");
     MePooConfig sut;
-    constexpr uint32_t CHUNK_COUNT{100U};
-    constexpr uint64_t SIZE_1{512U};
-    constexpr uint64_t SIZE_2{128U};
-    constexpr uint64_t SIZE_3{256U};
-    sut.addMemPool({SIZE_1, CHUNK_COUNT});
-    sut.addMemPool({SIZE_2, CHUNK_COUNT});
-    sut.addMemPool({SIZE_3, CHUNK_COUNT});
+    constexpr uint32_t CHUNK_COUNT{ 100U };
+    constexpr uint64_t SIZE_1{ 512U };
+    constexpr uint64_t SIZE_2{ 128U };
+    constexpr uint64_t SIZE_3{ 256U };
+    sut.addMemPool({ SIZE_1, CHUNK_COUNT });
+    sut.addMemPool({ SIZE_2, CHUNK_COUNT });
+    sut.addMemPool({ SIZE_3, CHUNK_COUNT });
 
     sut.optimize();
 

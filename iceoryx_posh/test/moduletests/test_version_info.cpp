@@ -63,13 +63,11 @@ TEST_F(VersionInfo_test, CompareUnequalVersions)
 {
     ::testing::Test::RecordProperty("TEST_ID", "539cd77f-e55b-4907-9a89-3f2941b9b435");
     const int versionInfosSize = 7;
-    VersionInfo versionInfos[versionInfosSize] = {{11u, 22u, 33u, 44u, "abc", "efg"},
-                                                  {0u, 22u, 33u, 44u, "abc", "efg"},
-                                                  {11u, 0u, 33u, 44u, "abc", "efg"},
-                                                  {11u, 22u, 0u, 44u, "abc", "efg"},
-                                                  {11u, 22u, 33u, 0u, "abc", "efg"},
-                                                  {11u, 22u, 33u, 44u, "abc", "0"},
-                                                  {11u, 22u, 33u, 44u, "0", "efg"}};
+    VersionInfo versionInfos[versionInfosSize] = {
+        { 11u, 22u, 33u, 44u, "abc", "efg" }, { 0u, 22u, 33u, 44u, "abc", "efg" }, { 11u, 0u, 33u, 44u, "abc", "efg" },
+        { 11u, 22u, 0u, 44u, "abc", "efg" },  { 11u, 22u, 33u, 0u, "abc", "efg" }, { 11u, 22u, 33u, 44u, "abc", "0" },
+        { 11u, 22u, 33u, 44u, "0", "efg" }
+    };
 
     // all versions are different
     for (int i = 0; i < versionInfosSize; i++)

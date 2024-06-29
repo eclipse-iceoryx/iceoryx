@@ -132,7 +132,8 @@ iox_WaitSetResult iox_ws_attach_subscriber_state(iox_ws_t const self,
     IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
     IOX_ENFORCE(subscriber != nullptr, "'subscriver' must not be a 'nullptr'");
 
-    auto result = self->attachState(*subscriber, c2cpp::subscriberState(subscriberState), eventId, {callback, nullptr});
+    auto result =
+        self->attachState(*subscriber, c2cpp::subscriberState(subscriberState), eventId, { callback, nullptr });
     return (result.has_error()) ? cpp2c::waitSetResult(result.error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
 }
 
@@ -164,7 +165,8 @@ iox_WaitSetResult iox_ws_attach_subscriber_event(iox_ws_t const self,
     IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
     IOX_ENFORCE(subscriber != nullptr, "'subscriver' must not be a 'nullptr'");
 
-    auto result = self->attachEvent(*subscriber, c2cpp::subscriberEvent(subscriberEvent), eventId, {callback, nullptr});
+    auto result =
+        self->attachEvent(*subscriber, c2cpp::subscriberEvent(subscriberEvent), eventId, { callback, nullptr });
     return (result.has_error()) ? cpp2c::waitSetResult(result.error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
 }
 
@@ -195,7 +197,7 @@ iox_WaitSetResult iox_ws_attach_user_trigger_event(iox_ws_t const self,
     IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
     IOX_ENFORCE(userTrigger != nullptr, "'userTrigger' must not be a 'nullptr'");
 
-    auto result = self->attachEvent(*userTrigger, eventId, {callback, nullptr});
+    auto result = self->attachEvent(*userTrigger, eventId, { callback, nullptr });
     return (result.has_error()) ? cpp2c::waitSetResult(result.error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
 }
 
@@ -253,7 +255,7 @@ iox_WaitSetResult iox_ws_attach_client_event(const iox_ws_t self,
     IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
     IOX_ENFORCE(client != nullptr, "'client' must not be a 'nullptr'");
 
-    auto result = self->attachEvent(*client, c2cpp::clientEvent(clientEvent), eventId, {callback, nullptr});
+    auto result = self->attachEvent(*client, c2cpp::clientEvent(clientEvent), eventId, { callback, nullptr });
     return (result.has_error()) ? cpp2c::waitSetResult(result.error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
 }
 
@@ -284,7 +286,7 @@ iox_WaitSetResult iox_ws_attach_client_state(const iox_ws_t self,
     IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
     IOX_ENFORCE(client != nullptr, "'client' must not be a 'nullptr'");
 
-    auto result = self->attachState(*client, c2cpp::clientState(clientState), eventId, {callback, nullptr});
+    auto result = self->attachState(*client, c2cpp::clientState(clientState), eventId, { callback, nullptr });
     return (result.has_error()) ? cpp2c::waitSetResult(result.error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
 }
 
@@ -331,7 +333,7 @@ iox_WaitSetResult iox_ws_attach_server_event(const iox_ws_t self,
     IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
     IOX_ENFORCE(server != nullptr, "'server' must not be a 'nullptr'");
 
-    auto result = self->attachEvent(*server, c2cpp::serverEvent(serverEvent), eventId, {callback, nullptr});
+    auto result = self->attachEvent(*server, c2cpp::serverEvent(serverEvent), eventId, { callback, nullptr });
     return (result.has_error()) ? cpp2c::waitSetResult(result.error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
 }
 
@@ -362,7 +364,7 @@ iox_WaitSetResult iox_ws_attach_server_state(const iox_ws_t self,
     IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
     IOX_ENFORCE(server != nullptr, "'server' must not be a 'nullptr'");
 
-    auto result = self->attachState(*server, c2cpp::serverState(serverState), eventId, {callback, nullptr});
+    auto result = self->attachState(*server, c2cpp::serverState(serverState), eventId, { callback, nullptr });
     return (result.has_error()) ? cpp2c::waitSetResult(result.error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
 }
 
@@ -410,7 +412,7 @@ iox_WaitSetResult iox_ws_attach_service_discovery_event(const iox_ws_t self,
     IOX_ENFORCE(serviceDiscovery != nullptr, "'serviceDiscovery' must not be a 'nullptr'");
 
     auto result = self->attachEvent(
-        *serviceDiscovery, c2cpp::serviceDiscoveryEvent(serviceDiscoveryEvent), eventId, {callback, nullptr});
+        *serviceDiscovery, c2cpp::serviceDiscoveryEvent(serviceDiscoveryEvent), eventId, { callback, nullptr });
     return (result.has_error()) ? cpp2c::waitSetResult(result.error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
 }
 

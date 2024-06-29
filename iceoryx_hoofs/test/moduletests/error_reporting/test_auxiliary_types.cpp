@@ -39,12 +39,12 @@ class RegularType_test : public Test
     using Sut = T;
     using V = typename Sut::type;
 
-    static constexpr V VALUE{73};
+    static constexpr V VALUE{ 73 };
     // could be constexpr but is more cumbersome to access
-    V value{VALUE};
-    V differentValue{VALUE + 1};
+    V value{ VALUE };
+    V differentValue{ VALUE + 1 };
 
-    Sut sut{VALUE};
+    Sut sut{ VALUE };
 };
 
 using TestTypes = Types<ErrorCode, ModuleId>;

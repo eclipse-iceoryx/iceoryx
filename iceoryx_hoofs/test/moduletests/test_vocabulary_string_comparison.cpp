@@ -89,8 +89,8 @@ TEST(String100, CompareStringsInclNullCharacterWorks)
     ::testing::Test::RecordProperty("TEST_ID", "a6c1b983-a88c-46bb-a38f-33947e52f209");
     constexpr uint64_t STRING_CAPACITY = 100U;
     constexpr uint64_t STRING_SIZE = 7U;
-    std::string testString1{"ice\0ryx", STRING_SIZE};
-    std::string testString2{"ice\0rYx", STRING_SIZE};
+    std::string testString1{ "ice\0ryx", STRING_SIZE };
+    std::string testString2{ "ice\0rYx", STRING_SIZE };
     string<STRING_CAPACITY> testSubject1(TruncateToCapacity, testString1.c_str(), STRING_SIZE);
     string<STRING_CAPACITY> testSubject2(TruncateToCapacity, testString2.c_str(), STRING_SIZE);
     EXPECT_THAT(testSubject1.compare(testSubject2), Gt(0));
@@ -148,8 +148,8 @@ TEST(String100, CompareStringsWithDifferentCapaInclNullCharacterWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fe260cb6-5d77-42b1-89b8-073c9ea9593d");
     constexpr uint64_t STRING_SIZE = 7U;
-    std::string testString1{"ice\0ryx", STRING_SIZE};
-    std::string testString2{"ice\0rYx", STRING_SIZE};
+    std::string testString1{ "ice\0ryx", STRING_SIZE };
+    std::string testString2{ "ice\0rYx", STRING_SIZE };
     string<200> testSubject1(TruncateToCapacity, testString1.c_str(), STRING_SIZE);
     string<100> testSubject2(TruncateToCapacity, testString2.c_str(), STRING_SIZE);
     EXPECT_THAT(testSubject1.compare(testSubject2), Gt(0));
@@ -498,7 +498,7 @@ TYPED_TEST(stringTyped_test, CompareWithEmptyCharArrayResultsInPositive)
 
     // required to verify string literal functionality of iox::string
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-    char testCharArray[STRINGCAP + 1U] = {'\0'};
+    char testCharArray[STRINGCAP + 1U] = { '\0' };
     EXPECT_THAT(this->testSubject.compare(testCharArray), Gt(0));
 }
 
@@ -575,7 +575,7 @@ TYPED_TEST(stringTyped_test, CompareWithEmptyCharArrayOfDifferentCapaResultsInPo
 
     // required to verify string literal functionality of iox::string
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-    char testCharArray[STRINGCAP] = {'\0'};
+    char testCharArray[STRINGCAP] = { '\0' };
     EXPECT_THAT(sut.compare(testCharArray), Gt(0));
 }
 
@@ -593,7 +593,7 @@ TYPED_TEST(stringTyped_test, CheckForEqualityWithEqualStringsWorks)
 
     // required to verify string literal functionality of iox::string
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-    const char testCharArray[STRINGCAP + 1U] = {'M'};
+    const char testCharArray[STRINGCAP + 1U] = { 'M' };
     EXPECT_THAT(this->testSubject == testCharArray, Eq(true));
     EXPECT_THAT(testCharArray == this->testSubject, Eq(true));
     EXPECT_THAT(this->testSubject != testCharArray, Eq(false));
@@ -609,7 +609,7 @@ TYPED_TEST(stringTyped_test, CheckForEqualityWithUnequalStringsWorks)
 
     // required to verify string literal functionality of iox::string
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-    char testCharArray[STRINGCAP + 1U] = {'L'};
+    char testCharArray[STRINGCAP + 1U] = { 'L' };
     EXPECT_THAT(this->testSubject == testCharArray, Eq(false));
     EXPECT_THAT(testCharArray == this->testSubject, Eq(false));
     EXPECT_THAT(this->testSubject != testCharArray, Eq(true));
@@ -625,7 +625,7 @@ TYPED_TEST(stringTyped_test, CheckForEqualityWithEqualStringWithDifferentCapaWor
 
     // required to verify string literal functionality of iox::string
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-    char testCharArray[STRINGCAP + 5U] = {'M'};
+    char testCharArray[STRINGCAP + 5U] = { 'M' };
     EXPECT_THAT(this->testSubject == testCharArray, Eq(true));
     EXPECT_THAT(testCharArray == this->testSubject, Eq(true));
     EXPECT_THAT(this->testSubject != testCharArray, Eq(false));
@@ -633,7 +633,7 @@ TYPED_TEST(stringTyped_test, CheckForEqualityWithEqualStringWithDifferentCapaWor
 
     // required to verify string literal functionality of iox::string
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-    const char test[] = {'M'};
+    const char test[] = { 'M' };
     EXPECT_THAT(test == this->testSubject, Eq(true));
 }
 
@@ -646,7 +646,7 @@ TYPED_TEST(stringTyped_test, CheckForEqualityWithUnequalStringWithDifferentSizeW
 
     // required to verify string literal functionality of iox::string
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-    char testCharArray[STRINGCAP + 3U] = {'M', 'L'};
+    char testCharArray[STRINGCAP + 3U] = { 'M', 'L' };
     EXPECT_THAT(this->testSubject == testCharArray, Eq(false));
     EXPECT_THAT(testCharArray == this->testSubject, Eq(false));
     EXPECT_THAT(this->testSubject != testCharArray, Eq(true));
@@ -670,7 +670,7 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentStrings)
 
     // required to verify string literal functionality of iox::string
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-    char testCharArray[STRINGCAP + 1U] = {'L'};
+    char testCharArray[STRINGCAP + 1U] = { 'L' };
 
     // compare with greater string
     string<STRINGCAP> sutGreater("M");
@@ -706,7 +706,7 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithEqualStrings)
 
     // required to verify string literal functionality of iox::string
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-    char testCharArray[STRINGCAP + 1U] = {'M'};
+    char testCharArray[STRINGCAP + 1U] = { 'M' };
     EXPECT_THAT(this->testSubject < testCharArray, Eq(false));
     EXPECT_THAT(this->testSubject <= testCharArray, Eq(true));
     EXPECT_THAT(this->testSubject > testCharArray, Eq(false));

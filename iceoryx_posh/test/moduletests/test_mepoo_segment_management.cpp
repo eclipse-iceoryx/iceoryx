@@ -64,24 +64,24 @@ class SegmentManager_test : public Test
     MePooConfig getMempoolConfig()
     {
         MePooConfig config;
-        config.addMemPool({128, 5});
-        config.addMemPool({256, 7});
+        config.addMemPool({ 128, 5 });
+        config.addMemPool({ 256, 7 });
         return config;
     }
 
     SegmentConfig getSegmentConfig()
     {
         SegmentConfig config;
-        config.m_sharedMemorySegments.push_back({"iox_roudi_test1", "iox_roudi_test2", mepooConfig});
-        config.m_sharedMemorySegments.push_back({"iox_roudi_test2", "iox_roudi_test3", mepooConfig});
+        config.m_sharedMemorySegments.push_back({ "iox_roudi_test1", "iox_roudi_test2", mepooConfig });
+        config.m_sharedMemorySegments.push_back({ "iox_roudi_test2", "iox_roudi_test3", mepooConfig });
         return config;
     }
 
     SegmentConfig getInvalidSegmentConfig()
     {
         SegmentConfig config;
-        config.m_sharedMemorySegments.push_back({"iox_roudi_test1", "iox_roudi_test1", mepooConfig});
-        config.m_sharedMemorySegments.push_back({"iox_roudi_test3", "iox_roudi_test1", mepooConfig});
+        config.m_sharedMemorySegments.push_back({ "iox_roudi_test1", "iox_roudi_test1", mepooConfig });
+        config.m_sharedMemorySegments.push_back({ "iox_roudi_test3", "iox_roudi_test1", mepooConfig });
         return config;
     }
 
@@ -90,14 +90,14 @@ class SegmentManager_test : public Test
         SegmentConfig config;
         for (uint64_t i = 0U; i < iox::MAX_SHM_SEGMENTS; ++i)
         {
-            config.m_sharedMemorySegments.push_back({"iox_roudi_test1", "iox_roudi_test1", mepooConfig});
+            config.m_sharedMemorySegments.push_back({ "iox_roudi_test1", "iox_roudi_test1", mepooConfig });
         }
         return config;
     }
 
-    static constexpr size_t MEM_SIZE{20000};
+    static constexpr size_t MEM_SIZE{ 20000 };
     char memory[MEM_SIZE];
-    iox::BumpAllocator allocator{memory, MEM_SIZE};
+    iox::BumpAllocator allocator{ memory, MEM_SIZE };
     MePooConfig mepooConfig = getMempoolConfig();
     SegmentConfig segmentConfig = getSegmentConfig();
 
@@ -114,7 +114,7 @@ TEST_F(SegmentManager_test, getSegmentMappingsForReadUser)
     GTEST_SKIP_FOR_ADDITIONAL_USER() << "This test requires the -DTEST_WITH_ADDITIONAL_USER=ON cmake argument";
 
     auto sut = createSut();
-    auto mapping = sut->getSegmentMappings(PosixUser{"iox_roudi_test1"});
+    auto mapping = sut->getSegmentMappings(PosixUser{ "iox_roudi_test1" });
     ASSERT_THAT(mapping.size(), Eq(1u));
     EXPECT_THAT(mapping[0].m_isWritable, Eq(false));
 }
@@ -125,7 +125,7 @@ TEST_F(SegmentManager_test, getSegmentMappingsForWriteUser)
     GTEST_SKIP_FOR_ADDITIONAL_USER() << "This test requires the -DTEST_WITH_ADDITIONAL_USER=ON cmake argument";
 
     auto sut = createSut();
-    auto mapping = sut->getSegmentMappings(PosixUser{"iox_roudi_test2"});
+    auto mapping = sut->getSegmentMappings(PosixUser{ "iox_roudi_test2" });
     ASSERT_THAT(mapping.size(), Eq(2u));
     EXPECT_THAT(mapping[0].m_isWritable == mapping[1].m_isWritable, Eq(false));
 }
@@ -136,7 +136,7 @@ TEST_F(SegmentManager_test, getSegmentMappingsEmptyForNonRegisteredUser)
     GTEST_SKIP_FOR_ADDITIONAL_USER() << "This test requires the -DTEST_WITH_ADDITIONAL_USER=ON cmake argument";
 
     auto sut = createSut();
-    auto mapping = sut->getSegmentMappings(PosixUser{"roudi_test4"});
+    auto mapping = sut->getSegmentMappings(PosixUser{ "roudi_test4" });
     ASSERT_THAT(mapping.size(), Eq(0u));
 }
 
@@ -146,7 +146,7 @@ TEST_F(SegmentManager_test, getSegmentMappingsEmptyForNonExistingUser)
     GTEST_SKIP_FOR_ADDITIONAL_USER() << "This test requires the -DTEST_WITH_ADDITIONAL_USER=ON cmake argument";
 
     auto sut = createSut();
-    auto mapping = sut->getSegmentMappings(PosixUser{"no_user"});
+    auto mapping = sut->getSegmentMappings(PosixUser{ "no_user" });
     ASSERT_THAT(mapping.size(), Eq(0u));
 }
 
@@ -156,7 +156,8 @@ TEST_F(SegmentManager_test, getMemoryManagerForUserWithWriteUser)
     GTEST_SKIP_FOR_ADDITIONAL_USER() << "This test requires the -DTEST_WITH_ADDITIONAL_USER=ON cmake argument";
 
     auto sut = createSut();
-    auto memoryManager = sut->getSegmentInformationWithWriteAccessForUser(PosixUser{"iox_roudi_test2"}).m_memoryManager;
+    auto memoryManager =
+        sut->getSegmentInformationWithWriteAccessForUser(PosixUser{ "iox_roudi_test2" }).m_memoryManager;
     ASSERT_TRUE(memoryManager.has_value());
     ASSERT_THAT(memoryManager.value().get().getNumberOfMemPools(), Eq(2u));
 
@@ -173,7 +174,7 @@ TEST_F(SegmentManager_test, getMemoryManagerForUserFailWithReadOnlyUser)
 
     auto sut = createSut();
     EXPECT_FALSE(
-        sut->getSegmentInformationWithWriteAccessForUser(PosixUser{"iox_roudi_test1"}).m_memoryManager.has_value());
+        sut->getSegmentInformationWithWriteAccessForUser(PosixUser{ "iox_roudi_test1" }).m_memoryManager.has_value());
 }
 
 TEST_F(SegmentManager_test, getMemoryManagerForUserFailWithNonExistingUser)
@@ -182,7 +183,7 @@ TEST_F(SegmentManager_test, getMemoryManagerForUserFailWithNonExistingUser)
     GTEST_SKIP_FOR_ADDITIONAL_USER() << "This test requires the -DTEST_WITH_ADDITIONAL_USER=ON cmake argument";
 
     auto sut = createSut();
-    EXPECT_FALSE(sut->getSegmentInformationWithWriteAccessForUser(PosixUser{"no_user"}).m_memoryManager.has_value());
+    EXPECT_FALSE(sut->getSegmentInformationWithWriteAccessForUser(PosixUser{ "no_user" }).m_memoryManager.has_value());
 }
 
 TEST_F(SegmentManager_test, addingMoreThanOneWriterGroupFails)
@@ -191,7 +192,7 @@ TEST_F(SegmentManager_test, addingMoreThanOneWriterGroupFails)
     GTEST_SKIP_FOR_ADDITIONAL_USER() << "This test requires the -DTEST_WITH_ADDITIONAL_USER=ON cmake argument";
 
     SegmentConfig segmentConfig = getInvalidSegmentConfig();
-    SUT sut{segmentConfig, DEFAULT_DOMAIN_ID, &allocator};
+    SUT sut{ segmentConfig, DEFAULT_DOMAIN_ID, &allocator };
 
 
     IOX_EXPECT_FATAL_FAILURE([&] { sut.getSegmentMappings(PosixUser("iox_roudi_test1")); },
@@ -204,7 +205,7 @@ TEST_F(SegmentManager_test, addingMaximumNumberOfSegmentsWorks)
     GTEST_SKIP_FOR_ADDITIONAL_USER() << "This test requires the -DTEST_WITH_ADDITIONAL_USER=ON cmake argument";
 
     SegmentConfig segmentConfig = getSegmentConfigWithMaximumNumberOfSegements();
-    SegmentManager<MePooSegmentMock> sut{segmentConfig, DEFAULT_DOMAIN_ID, &allocator};
+    SegmentManager<MePooSegmentMock> sut{ segmentConfig, DEFAULT_DOMAIN_ID, &allocator };
 }
 
 } // namespace

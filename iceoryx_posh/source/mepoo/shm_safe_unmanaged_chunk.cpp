@@ -42,7 +42,7 @@ ShmSafeUnmanagedChunk::ShmSafeUnmanagedChunk(mepoo::SharedChunk chunk) noexcept
     // this is only necessary if it's not an empty chunk
     if (chunk)
     {
-        RelativePointer<mepoo::ChunkManagement> ptr{chunk.release()};
+        RelativePointer<mepoo::ChunkManagement> ptr{ chunk.release() };
         auto id = ptr.getId();
         auto offset = ptr.getOffset();
         IOX_ENFORCE(id <= RelativePointerData::ID_RANGE, "RelativePointer id must fit into id type!");
@@ -59,7 +59,7 @@ SharedChunk ShmSafeUnmanagedChunk::releaseToSharedChunk() noexcept
         return SharedChunk();
     }
     auto chunkMgmt =
-        RelativePointer<mepoo::ChunkManagement>(m_chunkManagement.offset(), segment_id_t{m_chunkManagement.id()});
+        RelativePointer<mepoo::ChunkManagement>(m_chunkManagement.offset(), segment_id_t{ m_chunkManagement.id() });
     m_chunkManagement.reset();
     return SharedChunk(chunkMgmt.get());
 }
@@ -71,7 +71,7 @@ SharedChunk ShmSafeUnmanagedChunk::cloneToSharedChunk() noexcept
         return SharedChunk();
     }
     auto chunkMgmt =
-        RelativePointer<mepoo::ChunkManagement>(m_chunkManagement.offset(), segment_id_t{m_chunkManagement.id()});
+        RelativePointer<mepoo::ChunkManagement>(m_chunkManagement.offset(), segment_id_t{ m_chunkManagement.id() });
 #if (defined(__GNUC__) && __GNUC__ == 13 && !defined(__clang__))
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wstringop-overflow"
@@ -95,7 +95,7 @@ ChunkHeader* ShmSafeUnmanagedChunk::getChunkHeader() noexcept
         return nullptr;
     }
     auto chunkMgmt =
-        RelativePointer<mepoo::ChunkManagement>(m_chunkManagement.offset(), segment_id_t{m_chunkManagement.id()});
+        RelativePointer<mepoo::ChunkManagement>(m_chunkManagement.offset(), segment_id_t{ m_chunkManagement.id() });
     return chunkMgmt->m_chunkHeader.get();
 }
 
@@ -112,7 +112,7 @@ bool ShmSafeUnmanagedChunk::isNotLogicalNullptrAndHasNoOtherOwners() const noexc
     }
 
     auto chunkMgmt =
-        RelativePointer<mepoo::ChunkManagement>(m_chunkManagement.offset(), segment_id_t{m_chunkManagement.id()});
+        RelativePointer<mepoo::ChunkManagement>(m_chunkManagement.offset(), segment_id_t{ m_chunkManagement.id() });
     return chunkMgmt->m_referenceCounter.load(std::memory_order_relaxed) == 1U;
 }
 

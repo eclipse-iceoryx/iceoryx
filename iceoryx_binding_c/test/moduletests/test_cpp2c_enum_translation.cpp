@@ -38,11 +38,12 @@ TEST(cpp2c_enum_translation_test, SubscribeStateCorrectAndFullTranslation)
 {
     ::testing::Test::RecordProperty("TEST_ID", "47d1e613-b9cf-492f-af0a-7da9d46399ba");
     constexpr EnumMapping<iox::SubscribeState, iox_SubscribeState> SUBSCRIBE_STATES[]{
-        {iox::SubscribeState::NOT_SUBSCRIBED, SubscribeState_NOT_SUBSCRIBED},
-        {iox::SubscribeState::SUBSCRIBE_REQUESTED, SubscribeState_SUBSCRIBE_REQUESTED},
-        {iox::SubscribeState::SUBSCRIBED, SubscribeState_SUBSCRIBED},
-        {iox::SubscribeState::UNSUBSCRIBE_REQUESTED, SubscribeState_UNSUBSCRIBE_REQUESTED},
-        {iox::SubscribeState::WAIT_FOR_OFFER, SubscribeState_WAIT_FOR_OFFER}};
+        { iox::SubscribeState::NOT_SUBSCRIBED, SubscribeState_NOT_SUBSCRIBED },
+        { iox::SubscribeState::SUBSCRIBE_REQUESTED, SubscribeState_SUBSCRIBE_REQUESTED },
+        { iox::SubscribeState::SUBSCRIBED, SubscribeState_SUBSCRIBED },
+        { iox::SubscribeState::UNSUBSCRIBE_REQUESTED, SubscribeState_UNSUBSCRIBE_REQUESTED },
+        { iox::SubscribeState::WAIT_FOR_OFFER, SubscribeState_WAIT_FOR_OFFER }
+    };
 
     for (const auto subscribeState : SUBSCRIBE_STATES)
     {
@@ -76,9 +77,10 @@ TEST(cpp2c_enum_translation_test, ChunkReceiveResult)
 {
     ::testing::Test::RecordProperty("TEST_ID", "873adad3-9eb4-496f-9ecc-a941e225d0cb");
     constexpr EnumMapping<iox::popo::ChunkReceiveResult, iox_ChunkReceiveResult> CHUNK_RECEIVE_RESULTS[]{
-        {iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE, ChunkReceiveResult_NO_CHUNK_AVAILABLE},
-        {iox::popo::ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL,
-         ChunkReceiveResult_TOO_MANY_CHUNKS_HELD_IN_PARALLEL}};
+        { iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE, ChunkReceiveResult_NO_CHUNK_AVAILABLE },
+        { iox::popo::ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL,
+          ChunkReceiveResult_TOO_MANY_CHUNKS_HELD_IN_PARALLEL }
+    };
 
     for (const auto chunkReceiveResult : CHUNK_RECEIVE_RESULTS)
     {
@@ -103,15 +105,16 @@ TEST(cpp2c_enum_translation_test, AllocationResult)
 {
     ::testing::Test::RecordProperty("TEST_ID", "43296599-2b53-4b9d-8e37-2911bbd1b397");
     constexpr EnumMapping<iox::popo::AllocationError, iox_AllocationResult> ALLOCATION_ERRORS[]{
-        {iox::popo::AllocationError::UNDEFINED_ERROR, AllocationResult_UNDEFINED_ERROR},
-        {iox::popo::AllocationError::NO_MEMPOOLS_AVAILABLE, AllocationResult_NO_MEMPOOLS_AVAILABLE},
-        {iox::popo::AllocationError::RUNNING_OUT_OF_CHUNKS, AllocationResult_RUNNING_OUT_OF_CHUNKS},
-        {iox::popo::AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL,
-         AllocationResult_TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL},
-        {iox::popo::AllocationError::INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER,
-         AllocationResult_INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER},
-        {iox::popo::AllocationError::INVALID_PARAMETER_FOR_REQUEST_HEADER,
-         AllocationResult_INVALID_PARAMETER_FOR_REQUEST_HEADER}};
+        { iox::popo::AllocationError::UNDEFINED_ERROR, AllocationResult_UNDEFINED_ERROR },
+        { iox::popo::AllocationError::NO_MEMPOOLS_AVAILABLE, AllocationResult_NO_MEMPOOLS_AVAILABLE },
+        { iox::popo::AllocationError::RUNNING_OUT_OF_CHUNKS, AllocationResult_RUNNING_OUT_OF_CHUNKS },
+        { iox::popo::AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL,
+          AllocationResult_TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL },
+        { iox::popo::AllocationError::INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER,
+          AllocationResult_INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER },
+        { iox::popo::AllocationError::INVALID_PARAMETER_FOR_REQUEST_HEADER,
+          AllocationResult_INVALID_PARAMETER_FOR_REQUEST_HEADER }
+    };
 
     for (const auto allocationError : ALLOCATION_ERRORS)
     {
@@ -148,9 +151,10 @@ TEST(cpp2c_enum_translation_test, ClientSendResult)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f9ab6c2d-1801-4b8b-9915-2c3c2b4245b2");
     constexpr EnumMapping<ClientSendError, iox_ClientSendResult> CLIENT_SEND_ERRORR[]{
-        {ClientSendError::NO_CONNECT_REQUESTED, ClientSendResult_NO_CONNECT_REQUESTED},
-        {ClientSendError::SERVER_NOT_AVAILABLE, ClientSendResult_SERVER_NOT_AVAILABLE},
-        {ClientSendError::INVALID_REQUEST, ClientSendResult_INVALID_REQUEST}};
+        { ClientSendError::NO_CONNECT_REQUESTED, ClientSendResult_NO_CONNECT_REQUESTED },
+        { ClientSendError::SERVER_NOT_AVAILABLE, ClientSendResult_SERVER_NOT_AVAILABLE },
+        { ClientSendError::INVALID_REQUEST, ClientSendResult_INVALID_REQUEST }
+    };
 
     for (const auto clientSendError : CLIENT_SEND_ERRORR)
     {
@@ -178,9 +182,10 @@ TEST(cpp2c_enum_translation_test, ServerSendResult)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d1950346-26f0-4a61-9dac-f43f32ea6bd5");
     constexpr EnumMapping<ServerSendError, iox_ServerSendResult> SERVER_SEND_ERRORR[]{
-        {ServerSendError::NOT_OFFERED, ServerSendResult_NOT_OFFERED},
-        {ServerSendError::CLIENT_NOT_AVAILABLE, ServerSendResult_CLIENT_NOT_AVAILABLE},
-        {ServerSendError::INVALID_RESPONSE, ServerSendResult_INVALID_RESPONSE}};
+        { ServerSendError::NOT_OFFERED, ServerSendResult_NOT_OFFERED },
+        { ServerSendError::CLIENT_NOT_AVAILABLE, ServerSendResult_CLIENT_NOT_AVAILABLE },
+        { ServerSendError::INVALID_RESPONSE, ServerSendResult_INVALID_RESPONSE }
+    };
 
     for (const auto serverSendError : SERVER_SEND_ERRORR)
     {
@@ -208,8 +213,9 @@ TEST(cpp2c_enum_translation_test, WaitSetResult)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0b2fbd01-38b4-414d-be21-70d00d2d8fbf");
     constexpr EnumMapping<iox::popo::WaitSetError, iox_WaitSetResult> WAIT_SET_ERRORS[]{
-        {iox::popo::WaitSetError::WAIT_SET_FULL, WaitSetResult_WAIT_SET_FULL},
-        {iox::popo::WaitSetError::ALREADY_ATTACHED, WaitSetResult_ALREADY_ATTACHED}};
+        { iox::popo::WaitSetError::WAIT_SET_FULL, WaitSetResult_WAIT_SET_FULL },
+        { iox::popo::WaitSetError::ALREADY_ATTACHED, WaitSetResult_ALREADY_ATTACHED }
+    };
 
     for (const auto waitSetError : WAIT_SET_ERRORS)
     {
@@ -234,9 +240,10 @@ TEST(cpp2c_enum_translation_test, ListenerResult)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2e46311d-4579-4437-adf7-0f5c3adcd511");
     constexpr EnumMapping<iox::popo::ListenerError, iox_ListenerResult> LISTENER_ERRORS[]{
-        {iox::popo::ListenerError::LISTENER_FULL, ListenerResult_LISTENER_FULL},
-        {iox::popo::ListenerError::EVENT_ALREADY_ATTACHED, ListenerResult_EVENT_ALREADY_ATTACHED},
-        {iox::popo::ListenerError::EMPTY_EVENT_CALLBACK, ListenerResult_EMPTY_EVENT_CALLBACK}};
+        { iox::popo::ListenerError::LISTENER_FULL, ListenerResult_LISTENER_FULL },
+        { iox::popo::ListenerError::EVENT_ALREADY_ATTACHED, ListenerResult_EVENT_ALREADY_ATTACHED },
+        { iox::popo::ListenerError::EMPTY_EVENT_CALLBACK, ListenerResult_EMPTY_EVENT_CALLBACK }
+    };
 
     for (const auto listenerError : LISTENER_ERRORS)
     {

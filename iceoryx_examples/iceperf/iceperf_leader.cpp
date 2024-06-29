@@ -33,9 +33,9 @@
 #include <vector>
 
 //! [use constants instead of magic values]
-constexpr const char APP_NAME[]{"iceperf-bench-leader"};
-constexpr const char PUBLISHER[]{"Leader"};
-constexpr const char SUBSCRIBER[]{"Follower"};
+constexpr const char APP_NAME[]{ "iceperf-bench-leader" };
+constexpr const char PUBLISHER[]{ "Leader" };
+constexpr const char SUBSCRIBER[]{ "Follower" };
 //! [use constants instead of magic values]
 
 IcePerfLeader::IcePerfLeader(const PerfSettings settings) noexcept
@@ -55,13 +55,13 @@ void IcePerfLeader::doMeasurement(IcePerfBase& ipcTechnology) noexcept
     ipcTechnology.initLeader();
 
     auto humanReadableMemorySize = [](const uint64_t memorySize) {
-        constexpr const uint64_t UNIT_DIVIDER{1024};
+        constexpr const uint64_t UNIT_DIVIDER{ 1024 };
         auto humanReadalbeMemorySize = memorySize;
-        for (const auto& unit : {iox::string<2>("B"),
-                                 iox::string<2>("kB"),
-                                 iox::string<2>("MB"),
-                                 iox::string<2>("GB"),
-                                 iox::string<2>("TB")})
+        for (const auto& unit : { iox::string<2>("B"),
+                                  iox::string<2>("kB"),
+                                  iox::string<2>("MB"),
+                                  iox::string<2>("GB"),
+                                  iox::string<2>("TB") })
         {
             if (humanReadalbeMemorySize >= UNIT_DIVIDER)
             {
@@ -74,30 +74,30 @@ void IcePerfLeader::doMeasurement(IcePerfBase& ipcTechnology) noexcept
     };
 
     std::vector<std::tuple<uint32_t, iox::units::Duration>> latencyMeasurements;
-    const std::vector<uint32_t> payloadSizes{16,
-                                             32,
-                                             64,
-                                             128,
-                                             256,
-                                             512,
-                                             1 * IcePerfBase::ONE_KILOBYTE,
-                                             2 * IcePerfBase::ONE_KILOBYTE,
-                                             4 * IcePerfBase::ONE_KILOBYTE,
-                                             8 * IcePerfBase::ONE_KILOBYTE,
-                                             16 * IcePerfBase::ONE_KILOBYTE,
-                                             32 * IcePerfBase::ONE_KILOBYTE,
-                                             64 * IcePerfBase::ONE_KILOBYTE,
-                                             128 * IcePerfBase::ONE_KILOBYTE,
-                                             256 * IcePerfBase::ONE_KILOBYTE,
-                                             512 * IcePerfBase::ONE_KILOBYTE,
-                                             1024 * IcePerfBase::ONE_KILOBYTE,
-                                             2048 * IcePerfBase::ONE_KILOBYTE,
-                                             4096 * IcePerfBase::ONE_KILOBYTE};
+    const std::vector<uint32_t> payloadSizes{ 16,
+                                              32,
+                                              64,
+                                              128,
+                                              256,
+                                              512,
+                                              1 * IcePerfBase::ONE_KILOBYTE,
+                                              2 * IcePerfBase::ONE_KILOBYTE,
+                                              4 * IcePerfBase::ONE_KILOBYTE,
+                                              8 * IcePerfBase::ONE_KILOBYTE,
+                                              16 * IcePerfBase::ONE_KILOBYTE,
+                                              32 * IcePerfBase::ONE_KILOBYTE,
+                                              64 * IcePerfBase::ONE_KILOBYTE,
+                                              128 * IcePerfBase::ONE_KILOBYTE,
+                                              256 * IcePerfBase::ONE_KILOBYTE,
+                                              512 * IcePerfBase::ONE_KILOBYTE,
+                                              1024 * IcePerfBase::ONE_KILOBYTE,
+                                              2048 * IcePerfBase::ONE_KILOBYTE,
+                                              4096 * IcePerfBase::ONE_KILOBYTE };
     std::cout << "Measurement for:";
     const char* separator = " ";
     for (const auto payloadSize : payloadSizes)
     {
-        uint64_t humanReadablePayloadSize{0};
+        uint64_t humanReadablePayloadSize{ 0 };
         iox::string<2> memorySizeUnit{};
         std::tie(humanReadablePayloadSize, memorySizeUnit) = humanReadableMemorySize(payloadSize);
         std::cout << separator << humanReadablePayloadSize << " [" << memorySizeUnit << "]" << std::flush;
@@ -125,11 +125,11 @@ void IcePerfLeader::doMeasurement(IcePerfBase& ipcTechnology) noexcept
     std::cout << "|-------------:|---------------------:|" << std::endl;
     for (const auto& latencyMeasuement : latencyMeasurements)
     {
-        uint64_t humanReadablePayloadSize{0};
+        uint64_t humanReadablePayloadSize{ 0 };
         iox::string<2> memorySizeUnit{};
         std::tie(humanReadablePayloadSize, memorySizeUnit) = humanReadableMemorySize(std::get<0>(latencyMeasuement));
         auto latencyInMicroseconds = static_cast<double>(std::get<1>(latencyMeasuement).toNanoseconds()) / 1000.0;
-        iox::string<10> unitString{"["};
+        iox::string<10> unitString{ "[" };
         unitString.append(iox::TruncateToCapacity, memorySizeUnit);
         unitString.append(iox::TruncateToCapacity, "]");
         std::cout << "| " << std::setw(7) << humanReadablePayloadSize << " " << std::setw(4) << std::left << unitString
@@ -148,10 +148,10 @@ int IcePerfLeader::run() noexcept
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
     //! [send setting to follower application]
-    iox::capro::ServiceDescription serviceDescription{"IcePerf", "Settings", "Generic"};
+    iox::capro::ServiceDescription serviceDescription{ "IcePerf", "Settings", "Generic" };
     iox::popo::PublisherOptions options;
     options.historyCapacity = 1U;
-    iox::popo::Publisher<PerfSettings> settingsPublisher{serviceDescription, options};
+    iox::popo::Publisher<PerfSettings> settingsPublisher{ serviceDescription, options };
     if (!settingsPublisher.publishCopyOf(m_settings))
     {
         std::cerr << "Could not send settings to follower!" << std::endl;

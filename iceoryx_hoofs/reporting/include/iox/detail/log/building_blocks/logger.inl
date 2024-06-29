@@ -79,7 +79,7 @@ inline Logger<BaseLogger>& Logger<BaseLogger>::activeLogger(Logger<BaseLogger>* 
 
     // NOLINTJUSTIFICATION needed for the functionality
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
-    static Logger* logger{&defaultLogger};
+    static Logger* logger{ &defaultLogger };
 
     if (newLogger)
     {

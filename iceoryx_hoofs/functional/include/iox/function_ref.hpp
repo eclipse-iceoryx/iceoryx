@@ -103,8 +103,8 @@ class function_ref<ReturnType(ArgTypes...)> final
     void swap(function_ref& rhs) noexcept;
 
   private:
-    void* m_pointerToCallable{nullptr};
-    ReturnType (*m_functionPointer)(void*, ArgTypes...){nullptr};
+    void* m_pointerToCallable{ nullptr };
+    ReturnType (*m_functionPointer)(void*, ArgTypes...){ nullptr };
 };
 
 template <class ReturnType, class... ArgTypes>

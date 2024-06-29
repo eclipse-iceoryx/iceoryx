@@ -45,7 +45,7 @@ int main()
 
             auto node = std::move(node_result.value());
             auto publisher =
-                node.publisher({"Radar", "FrontLeft", "Object"}).create<RadarObject>().expect("Getting a publisher");
+                node.publisher({ "Radar", "FrontLeft", "Object" }).create<RadarObject>().expect("Getting a publisher");
 
             publisher->loan()
                 .and_then([&](auto& sample) {

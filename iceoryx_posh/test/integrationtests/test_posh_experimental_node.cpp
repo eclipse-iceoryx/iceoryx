@@ -137,7 +137,7 @@ TEST(Node_test, CreatingNodeWithDomainIdFromEnvFailsIfDomainIdIsInvalid)
 {
     ::testing::Test::RecordProperty("TEST_ID", "07bc4bf6-cb06-40cb-b3d4-761e95e82e4b");
 
-    constexpr int32_t OVERWRITE_ENV_VARIABLE{1};
+    constexpr int32_t OVERWRITE_ENV_VARIABLE{ 1 };
     IOX_POSIX_CALL(iox_setenv)
     ("IOX_DOMAIN_ID", "1234567", OVERWRITE_ENV_VARIABLE)
         .failureReturnValue(-1)
@@ -153,9 +153,9 @@ TEST(Node_test, CreatingNodeWithDomainIdFromEnvWorksIfDomainIdIsSet)
 {
     ::testing::Test::RecordProperty("TEST_ID", "dcf02c88-8c7a-4327-8ba2-0f71dc7b0ff1");
 
-    RouDiEnv roudi{DomainId{42}};
+    RouDiEnv roudi{ DomainId{ 42 } };
 
-    constexpr int32_t OVERWRITE_ENV_VARIABLE{1};
+    constexpr int32_t OVERWRITE_ENV_VARIABLE{ 1 };
     IOX_POSIX_CALL(iox_setenv)
     ("IOX_DOMAIN_ID", "42", OVERWRITE_ENV_VARIABLE)
         .failureReturnValue(-1)
@@ -170,15 +170,15 @@ TEST(Node_test, CreatingNodeWithDomainIdFromEnvOrAlternativeValueWorksIfDomainId
 {
     ::testing::Test::RecordProperty("TEST_ID", "ba16d5cc-46b8-4450-8c77-16081a52f38c");
 
-    RouDiEnv roudi{DomainId{42}};
+    RouDiEnv roudi{ DomainId{ 42 } };
 
-    constexpr int32_t OVERWRITE_ENV_VARIABLE{1};
+    constexpr int32_t OVERWRITE_ENV_VARIABLE{ 1 };
     IOX_POSIX_CALL(iox_setenv)
     ("IOX_DOMAIN_ID", "42", OVERWRITE_ENV_VARIABLE)
         .failureReturnValue(-1)
         .evaluate()
         .expect("Setting environment variable works!");
-    auto node_result = RouDiEnvNodeBuilder("foo").domain_id_from_env_or(DomainId{13}).create();
+    auto node_result = RouDiEnvNodeBuilder("foo").domain_id_from_env_or(DomainId{ 13 }).create();
 
     EXPECT_FALSE(node_result.has_error());
 }
@@ -187,11 +187,11 @@ TEST(Node_test, CreatingNodeWithDomainIdFromEnvOrAlternativeValueWorksIfDomainId
 {
     ::testing::Test::RecordProperty("TEST_ID", "b071843a-a821-43b4-ac1a-e76ccafd35e0");
 
-    RouDiEnv roudi{DomainId{13}};
+    RouDiEnv roudi{ DomainId{ 13 } };
 
     IOX_POSIX_CALL(iox_unsetenv)
     ("IOX_DOMAIN_ID").failureReturnValue(-1).evaluate().expect("Unsetting environment variable works!");
-    auto node_result = RouDiEnvNodeBuilder("foo").domain_id_from_env_or(DomainId{13}).create();
+    auto node_result = RouDiEnvNodeBuilder("foo").domain_id_from_env_or(DomainId{ 13 }).create();
 
     EXPECT_FALSE(node_result.has_error());
 }
@@ -200,9 +200,9 @@ TEST(Node_test, CreatingNodeWithDomainIdFromEnvOrDefaultWorksIfDomainIdIsSet)
 {
     ::testing::Test::RecordProperty("TEST_ID", "35f422ec-3723-4c8f-93ae-ce1c8dfaca76");
 
-    RouDiEnv roudi{DomainId{42}};
+    RouDiEnv roudi{ DomainId{ 42 } };
 
-    constexpr int32_t OVERWRITE_ENV_VARIABLE{1};
+    constexpr int32_t OVERWRITE_ENV_VARIABLE{ 1 };
     IOX_POSIX_CALL(iox_setenv)
     ("IOX_DOMAIN_ID", "42", OVERWRITE_ENV_VARIABLE)
         .failureReturnValue(-1)
@@ -217,7 +217,7 @@ TEST(Node_test, CreatingNodeWithDomainIdFromEnvOrDefaultWorksIfDomainIdIsNotSet)
 {
     ::testing::Test::RecordProperty("TEST_ID", "363dfb49-75fa-4486-b8b1-0f31c16bf37c");
 
-    RouDiEnv roudi{DEFAULT_DOMAIN_ID};
+    RouDiEnv roudi{ DEFAULT_DOMAIN_ID };
 
     IOX_POSIX_CALL(iox_unsetenv)
     ("IOX_DOMAIN_ID").failureReturnValue(-1).evaluate().expect("Unsetting environment variable works!");
@@ -230,7 +230,7 @@ TEST(Node_test, ExhaustingNodesLeadsToError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "540aa751-cf7b-43fb-800b-a05d3eacf68e");
 
-    bool run_ulimit_test{false};
+    bool run_ulimit_test{ false };
 
     if (const auto* run_ulimit_test_string = getenv("IOX_RUN_ULIMIT_TESTS"))
     {
@@ -298,7 +298,7 @@ TEST(Node_test, RegisteringNodeWithoutRunningRouDiWithZeroWaitTimeResultsInImmed
 {
     ::testing::Test::RecordProperty("TEST_ID", "f2041773-84d9-4c9b-9309-996af83d6ff0");
 
-    deadline_timer timer{20_ms};
+    deadline_timer timer{ 20_ms };
 
     auto node_result = RouDiEnvNodeBuilder("foo").create();
 
@@ -312,9 +312,9 @@ TEST(Node_test, RegisteringNodeWithoutRunningRouDiWithSomeWaitTimeResultsInTimeo
 {
     ::testing::Test::RecordProperty("TEST_ID", "ac069a39-6cdc-4f2e-8b88-984a7d1a5487");
 
-    units::Duration wait_for_roudi_test_timeout{100_ms};
-    units::Duration wait_for_roudi_timeout{2 * wait_for_roudi_test_timeout};
-    deadline_timer timer{wait_for_roudi_test_timeout};
+    units::Duration wait_for_roudi_test_timeout{ 100_ms };
+    units::Duration wait_for_roudi_timeout{ 2 * wait_for_roudi_test_timeout };
+    deadline_timer timer{ wait_for_roudi_test_timeout };
 
     auto node_result = RouDiEnvNodeBuilder("foo").roudi_registration_timeout(wait_for_roudi_timeout).create();
 
@@ -346,9 +346,9 @@ TEST(Node_test, RegisteringNodeWithRunningRouDiWithNonMatchingDomainIdResultsInT
 {
     ::testing::Test::RecordProperty("TEST_ID", "c61390ac-3245-4cf7-ba13-608a07ea5ffa");
 
-    RouDiEnv roudi{DomainId{42}};
+    RouDiEnv roudi{ DomainId{ 42 } };
 
-    auto node_result = RouDiEnvNodeBuilder("foo").domain_id(DomainId{13}).create();
+    auto node_result = RouDiEnvNodeBuilder("foo").domain_id(DomainId{ 13 }).create();
 
     ASSERT_TRUE(node_result.has_error());
     EXPECT_THAT(node_result.error(), Eq(NodeBuilderError::TIMEOUT));
@@ -362,7 +362,7 @@ TEST(Node_test, CreatingTypedPublisherWithoutUserHeaderWorks)
 
     auto node = RouDiEnvNodeBuilder("hypnotoad").create().expect("Creating a node should not fail!");
 
-    auto publisher_result = node.publisher({"all", "glory", "hypnotoad"}).create<Payload>();
+    auto publisher_result = node.publisher({ "all", "glory", "hypnotoad" }).create<Payload>();
     ASSERT_FALSE(publisher_result.has_error());
 
     auto publisher = std::move(publisher_result.value());
@@ -378,7 +378,7 @@ TEST(Node_test, CreatingTypedPublisherWithUserHeaderWorks)
 
     auto node = RouDiEnvNodeBuilder("hypnotoad").create().expect("Creating a node should not fail!");
 
-    auto publisher_result = node.publisher({"all", "glory", "hypnotoad"}).create<Payload, Header>();
+    auto publisher_result = node.publisher({ "all", "glory", "hypnotoad" }).create<Payload, Header>();
     ASSERT_FALSE(publisher_result.has_error());
 
     auto publisher = std::move(publisher_result.value());
@@ -395,7 +395,7 @@ TEST(Node_test, CreatingUntypedPublisherWithUserHeaderWorks)
 
     auto node = RouDiEnvNodeBuilder("hypnotoad").create().expect("Creating a node should not fail!");
 
-    auto publisher_result = node.publisher({"all", "glory", "hypnotoad"}).create();
+    auto publisher_result = node.publisher({ "all", "glory", "hypnotoad" }).create();
     ASSERT_FALSE(publisher_result.has_error());
 
     auto publisher = std::move(publisher_result.value());
@@ -411,7 +411,7 @@ TEST(Node_test, CreatingTypedSubscriberWithoutUserHeaderWorks)
 
     auto node = RouDiEnvNodeBuilder("hypnotoad").create().expect("Creating a node should not fail!");
 
-    auto subscriber_result = node.subscriber({"all", "glory", "hypnotoad"}).create<Payload>();
+    auto subscriber_result = node.subscriber({ "all", "glory", "hypnotoad" }).create<Payload>();
     ASSERT_FALSE(subscriber_result.has_error());
 
     auto subscriber = std::move(subscriber_result.value());
@@ -427,7 +427,7 @@ TEST(Node_test, CreatingTypedSubscriberWithUserHeaderWorks)
 
     auto node = RouDiEnvNodeBuilder("hypnotoad").create().expect("Creating a node should not fail!");
 
-    auto subscriber_result = node.subscriber({"all", "glory", "hypnotoad"}).create<Payload, Header>();
+    auto subscriber_result = node.subscriber({ "all", "glory", "hypnotoad" }).create<Payload, Header>();
     ASSERT_FALSE(subscriber_result.has_error());
 
 
@@ -445,7 +445,7 @@ TEST(Node_test, CreatingUntypedSubscriberWorks)
 
     auto node = RouDiEnvNodeBuilder("hypnotoad").create().expect("Creating a node should not fail!");
 
-    auto subscriber_result = node.subscriber({"all", "glory", "hypnotoad"}).create();
+    auto subscriber_result = node.subscriber({ "all", "glory", "hypnotoad" }).create();
     ASSERT_FALSE(subscriber_result.has_error());
 
     auto subscriber = std::move(subscriber_result.value());
@@ -477,7 +477,7 @@ TEST(Node_test, CreatingWaitSetWithCustomCapacityWorks)
 
     auto node = RouDiEnvNodeBuilder("hypnotoad").create().expect("Creating a node should not fail!");
 
-    constexpr uint64_t CAPACITY{42};
+    constexpr uint64_t CAPACITY{ 42 };
     auto ws_result = node.wait_set().create<CAPACITY>();
     ASSERT_FALSE(ws_result.has_error());
 
@@ -490,7 +490,7 @@ TEST(Node_test, ExhaustingPublisherSubscriberAndWaitSetLeadsToError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "794e5db8-8d08-428b-af21-e3934a29ea8f");
 
-    const ServiceDescription service_description{"all", "glory", "hypnotoad"};
+    const ServiceDescription service_description{ "all", "glory", "hypnotoad" };
 
     RouDiEnv roudi;
 
@@ -535,10 +535,10 @@ TEST(Node_test, PublisherAndSubscriberAreConnected)
 
     auto node = RouDiEnvNodeBuilder("hypnotoad").create().expect("Creating a node should not fail!");
 
-    auto publisher = node.publisher({"all", "glory", "hypnotoad"}).create<uint64_t>().expect("Getting publisher");
-    auto subscriber = node.subscriber({"all", "glory", "hypnotoad"}).create<uint64_t>().expect("Getting subscriber");
+    auto publisher = node.publisher({ "all", "glory", "hypnotoad" }).create<uint64_t>().expect("Getting publisher");
+    auto subscriber = node.subscriber({ "all", "glory", "hypnotoad" }).create<uint64_t>().expect("Getting subscriber");
 
-    constexpr uint64_t DATA{42};
+    constexpr uint64_t DATA{ 42 };
     publisher->publishCopyOf(DATA).or_else([](const auto) { GTEST_FAIL() << "Expected to send data"; });
     subscriber->take().and_then([&](const auto& sample) { EXPECT_THAT(*sample, Eq(DATA)); }).or_else([](const auto) {
         GTEST_FAIL() << "Expected to receive data";
@@ -555,11 +555,11 @@ TEST(Node_test, NodeAndEndpointsAreContinuouslyRecreated)
     {
         auto node = RouDiEnvNodeBuilder("hypnotoad").create().expect("Creating a node should not fail!");
 
-        auto publisher = node.publisher({"all", "glory", "hypnotoad"}).create<uint64_t>().expect("Getting publisher");
+        auto publisher = node.publisher({ "all", "glory", "hypnotoad" }).create<uint64_t>().expect("Getting publisher");
         auto subscriber =
-            node.subscriber({"all", "glory", "hypnotoad"}).create<uint64_t>().expect("Getting subscriber");
+            node.subscriber({ "all", "glory", "hypnotoad" }).create<uint64_t>().expect("Getting subscriber");
 
-        constexpr uint64_t DATA{42};
+        constexpr uint64_t DATA{ 42 };
         publisher->publishCopyOf(DATA + i).or_else([](const auto) { GTEST_FAIL() << "Expected to send data"; });
         subscriber->take()
             .and_then([&](const auto& sample) { EXPECT_THAT(*sample, Eq(DATA + i)); })
@@ -571,21 +571,21 @@ TEST(Node_test, MultipleNodeAndEndpointsAreRegisteredWithSeparateRouDiRunningInP
 {
     ::testing::Test::RecordProperty("TEST_ID", "1e527815-28d1-4a99-a9a3-cc4084018cf3");
 
-    NodeName_t node_name{"hypnotoad"};
-    ServiceDescription service_description{"all", "glory", "hypnotoad"};
+    NodeName_t node_name{ "hypnotoad" };
+    ServiceDescription service_description{ "all", "glory", "hypnotoad" };
 
-    constexpr uint16_t domain_id_a{13};
-    constexpr uint16_t domain_id_b{42};
+    constexpr uint16_t domain_id_a{ 13 };
+    constexpr uint16_t domain_id_b{ 42 };
 
-    RouDiEnv roudi_a{DomainId{domain_id_a}};
-    RouDiEnv roudi_b{DomainId{domain_id_b}};
+    RouDiEnv roudi_a{ DomainId{ domain_id_a } };
+    RouDiEnv roudi_b{ DomainId{ domain_id_b } };
 
     auto node_a = RouDiEnvNodeBuilder(node_name)
-                      .domain_id(DomainId{domain_id_a})
+                      .domain_id(DomainId{ domain_id_a })
                       .create()
                       .expect("Creating a node should not fail!");
     auto node_b = RouDiEnvNodeBuilder(node_name)
-                      .domain_id(DomainId{domain_id_b})
+                      .domain_id(DomainId{ domain_id_b })
                       .create()
                       .expect("Creating a node should not fail!");
 

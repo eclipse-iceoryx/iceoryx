@@ -43,8 +43,8 @@ constexpr const char* logLevelDisplayText(const LogLevel value) noexcept;
 /// @brief Provides access to the log buffer if direct access is required
 struct LogBuffer
 {
-    const char* buffer{nullptr};
-    uint64_t writeIndex{0};
+    const char* buffer{ nullptr };
+    uint64_t writeIndex{ 0 };
 };
 
 namespace internal
@@ -117,15 +117,15 @@ constexpr const char* logFormatOct<unsigned long long>() noexcept;
 
 /// @brief printf-like format string for decimal formatting of numbers
 template <typename T>
-static constexpr const char* LOG_FORMAT_DEC{internal::logFormatDec<T>()};
+static constexpr const char* LOG_FORMAT_DEC{ internal::logFormatDec<T>() };
 
 /// @brief printf-like format string for hexadecimal formatting of numbers
 template <typename T>
-static constexpr const char* LOG_FORMAT_HEX{internal::logFormatHex<T>()};
+static constexpr const char* LOG_FORMAT_HEX{ internal::logFormatHex<T>() };
 
 /// @brief printf-like format string for octal formatting of numbers
 template <typename T>
-static constexpr const char* LOG_FORMAT_OCT{internal::logFormatOct<T>()};
+static constexpr const char* LOG_FORMAT_OCT{ internal::logFormatOct<T>() };
 
 // AXIVION ENABLE STYLE AutosarC++19_03-A3.9.1
 

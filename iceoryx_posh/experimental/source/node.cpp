@@ -40,7 +40,7 @@ NodeBuilder&& NodeBuilder::domain_id_from_env() && noexcept
 
     iox::string<10> domain_id_string;
     domain_id_string.unsafe_raw_access([](auto* buffer, const auto info) {
-        size_t actual_size_with_null{0};
+        size_t actual_size_with_null{ 0 };
         auto result = IOX_POSIX_CALL(iox_getenv_s)(&actual_size_with_null, buffer, info.total_size, "IOX_DOMAIN_ID")
                           .failureReturnValue(-1)
                           .evaluate();
@@ -50,8 +50,8 @@ NodeBuilder&& NodeBuilder::domain_id_from_env() && noexcept
                     "Invalid value for 'IOX_DOMAIN_ID' environment variable! Must be in the range of '0' to '65535'!");
         }
 
-        size_t actual_size{0};
-        constexpr size_t NULL_TERMINATOR_SIZE{1};
+        size_t actual_size{ 0 };
+        constexpr size_t NULL_TERMINATOR_SIZE{ 1 };
         if (actual_size_with_null > 0)
         {
             actual_size = actual_size_with_null - NULL_TERMINATOR_SIZE;
@@ -126,32 +126,32 @@ expected<Node, NodeBuilderError> NodeBuilder::create() noexcept
         }
     }
 
-    return ok(Node{m_name, std::move(ipcRuntimeInterface), std::move(shmInterface)});
+    return ok(Node{ m_name, std::move(ipcRuntimeInterface), std::move(shmInterface) });
 }
 
 Node::Node(const NodeName_t& name,
            runtime::IpcRuntimeInterface&& runtime_interface,
            optional<runtime::SharedMemoryUser>&& ipc_interface) noexcept
     : m_runtime(unique_ptr<runtime::PoshRuntime>{
-        new runtime::PoshRuntimeImpl{make_optional<const NodeName_t*>(&name),
-                                     {std::move(runtime_interface), std::move(ipc_interface)}},
-        [&](auto* const rt) { delete rt; }})
+        new runtime::PoshRuntimeImpl{ make_optional<const NodeName_t*>(&name),
+                                      { std::move(runtime_interface), std::move(ipc_interface) } },
+        [&](auto* const rt) { delete rt; } })
 {
 }
 
 PublisherBuilder Node::publisher(const ServiceDescription& service_description) noexcept
 {
-    return PublisherBuilder{*m_runtime.get(), service_description};
+    return PublisherBuilder{ *m_runtime.get(), service_description };
 }
 
 SubscriberBuilder Node::subscriber(const ServiceDescription& service_description) noexcept
 {
-    return SubscriberBuilder{*m_runtime.get(), service_description};
+    return SubscriberBuilder{ *m_runtime.get(), service_description };
 }
 
 WaitSetBuilder Node::wait_set() noexcept
 {
-    return WaitSetBuilder{*m_runtime.get()};
+    return WaitSetBuilder{ *m_runtime.get() };
 }
 
 } // namespace iox::posh::experimental

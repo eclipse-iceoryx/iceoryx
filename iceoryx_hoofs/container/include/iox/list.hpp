@@ -371,14 +371,14 @@ class list
     //    members
     //***************************************
 
-    static constexpr size_type BEGIN_END_LINK_INDEX{size_type(Capacity)};
-    static constexpr size_type NODE_LINK_COUNT{size_type(Capacity) + 1U};
-    static constexpr size_type INVALID_INDEX{NODE_LINK_COUNT};
+    static constexpr size_type BEGIN_END_LINK_INDEX{ size_type(Capacity) };
+    static constexpr size_type NODE_LINK_COUNT{ size_type(Capacity) + 1U };
+    static constexpr size_type INVALID_INDEX{ NODE_LINK_COUNT };
 
     // unused/free elements are stored in an internal list (freeList), this freeList is accessed via the
     // member variable m_freeListHeadIdx; user insert- and erase- operations move elements between the freeList and
     // active list
-    size_type m_freeListHeadIdx{0U};
+    size_type m_freeListHeadIdx{ 0U };
 
     // m_links array is one element bigger than request element count. In this additional element links are stored
     // to the beginning and end of the list. This additional element (index position 'capacity' aka
@@ -386,7 +386,7 @@ class list
     // first used list element (begin())
     UninitializedArray<NodeLink, NODE_LINK_COUNT> m_links;
     UninitializedArray<T, Capacity> m_data;
-    size_type m_size{0U};
+    size_type m_size{ 0U };
 }; // list
 
 } // namespace iox

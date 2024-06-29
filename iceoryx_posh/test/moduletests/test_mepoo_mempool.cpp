@@ -33,12 +33,13 @@ using namespace iox::testing;
 class MemPool_test : public Test
 {
   public:
-    static constexpr uint32_t NUMBER_OF_CHUNKS{100U};
-    static constexpr uint64_t CHUNK_SIZE{64U};
+    static constexpr uint32_t NUMBER_OF_CHUNKS{ 100U };
+    static constexpr uint64_t CHUNK_SIZE{ 64U };
 
     using FreeListIndex_t = iox::mepoo::MemPool::freeList_t::Index_t;
     static constexpr FreeListIndex_t LOFFLI_MEMORY_REQUIREMENT{
-        iox::mepoo::MemPool::freeList_t::requiredIndexMemorySize(NUMBER_OF_CHUNKS) + 10000U};
+        iox::mepoo::MemPool::freeList_t::requiredIndexMemorySize(NUMBER_OF_CHUNKS) + 10000U
+    };
 
     MemPool_test()
         : allocator(m_rawMemory, NUMBER_OF_CHUNKS * CHUNK_SIZE + LOFFLI_MEMORY_REQUIREMENT)
@@ -60,10 +61,10 @@ TEST_F(MemPool_test, MempoolIndexToPointerConversionForIndexZeroWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "107222a6-7a48-44f1-93c5-9a1f56f3d319");
 
-    constexpr uint32_t INDEX{0};
-    constexpr uint64_t CHUNK_SIZE{128};
-    uint8_t* const RAW_MEMORY_PTR{reinterpret_cast<uint8_t*>(0x7f60d90c5000ULL)};
-    uint8_t* const EXPECTED_CHUNK_PTR{RAW_MEMORY_PTR};
+    constexpr uint32_t INDEX{ 0 };
+    constexpr uint64_t CHUNK_SIZE{ 128 };
+    uint8_t* const RAW_MEMORY_PTR{ reinterpret_cast<uint8_t*>(0x7f60d90c5000ULL) };
+    uint8_t* const EXPECTED_CHUNK_PTR{ RAW_MEMORY_PTR };
 
     const auto* chunk = MemPool::indexToPointer(INDEX, CHUNK_SIZE, RAW_MEMORY_PTR);
 
@@ -74,10 +75,10 @@ TEST_F(MemPool_test, MempoolIndexToPointerConversionForIndexOneWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fda231af-87a9-4292-be1e-e443aa7cff63");
 
-    constexpr uint32_t INDEX{1};
-    constexpr uint64_t CHUNK_SIZE{128};
-    uint8_t* const RAW_MEMORY_PTR{reinterpret_cast<uint8_t*>(0x7f60d90c5000ULL)};
-    uint8_t* const EXPECTED_CHUNK_PTR{RAW_MEMORY_PTR + CHUNK_SIZE};
+    constexpr uint32_t INDEX{ 1 };
+    constexpr uint64_t CHUNK_SIZE{ 128 };
+    uint8_t* const RAW_MEMORY_PTR{ reinterpret_cast<uint8_t*>(0x7f60d90c5000ULL) };
+    uint8_t* const EXPECTED_CHUNK_PTR{ RAW_MEMORY_PTR + CHUNK_SIZE };
 
     const auto* chunk = MemPool::indexToPointer(INDEX, CHUNK_SIZE, RAW_MEMORY_PTR);
 
@@ -88,13 +89,13 @@ TEST_F(MemPool_test, MempoolIndexToPointerConversionForMemoryOffsetsLargerThan4G
 {
     ::testing::Test::RecordProperty("TEST_ID", "2112326a-5ec3-4bc8-9aa3-500ffef202fd");
 
-    constexpr uint32_t INDEX{42};
-    constexpr uint64_t MB{1UL << 20};
-    constexpr uint64_t GB{1ULL << 30};
-    constexpr uint64_t CHUNK_SIZE{128 * MB};
-    constexpr uint64_t RAW_MEMORY_BASE{0x7f60d90c5000ULL};
-    uint8_t* const RAW_MEMORY_BASE_PTR{reinterpret_cast<uint8_t*>(RAW_MEMORY_BASE)};
-    uint8_t* const EXPECTED_CHUNK_PTR{RAW_MEMORY_BASE_PTR + static_cast<uint64_t>(INDEX) * CHUNK_SIZE};
+    constexpr uint32_t INDEX{ 42 };
+    constexpr uint64_t MB{ 1UL << 20 };
+    constexpr uint64_t GB{ 1ULL << 30 };
+    constexpr uint64_t CHUNK_SIZE{ 128 * MB };
+    constexpr uint64_t RAW_MEMORY_BASE{ 0x7f60d90c5000ULL };
+    uint8_t* const RAW_MEMORY_BASE_PTR{ reinterpret_cast<uint8_t*>(RAW_MEMORY_BASE) };
+    uint8_t* const EXPECTED_CHUNK_PTR{ RAW_MEMORY_BASE_PTR + static_cast<uint64_t>(INDEX) * CHUNK_SIZE };
 
     const auto* chunk = MemPool::indexToPointer(INDEX, CHUNK_SIZE, RAW_MEMORY_BASE_PTR);
 
@@ -106,10 +107,10 @@ TEST_F(MemPool_test, MempoolPointerToIndexConversionForIndexZeroWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "37b23350-b562-4e89-a452-2f3d328bc016");
 
-    constexpr uint64_t CHUNK_SIZE{128};
-    uint8_t* const RAW_MEMORY_PTR{reinterpret_cast<uint8_t*>(0x7f60d90c5000ULL)};
-    uint8_t* const CHUNK_PTR{RAW_MEMORY_PTR};
-    constexpr uint32_t EXPECTED_INDEX{0};
+    constexpr uint64_t CHUNK_SIZE{ 128 };
+    uint8_t* const RAW_MEMORY_PTR{ reinterpret_cast<uint8_t*>(0x7f60d90c5000ULL) };
+    uint8_t* const CHUNK_PTR{ RAW_MEMORY_PTR };
+    constexpr uint32_t EXPECTED_INDEX{ 0 };
 
     const auto index = MemPool::pointerToIndex(CHUNK_PTR, CHUNK_SIZE, RAW_MEMORY_PTR);
 
@@ -120,10 +121,10 @@ TEST_F(MemPool_test, MempoolPointerToIndexConversionForIndexOneWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "64349d9a-1a97-4ba0-a04f-07c929befe38");
 
-    constexpr uint64_t CHUNK_SIZE{128};
-    uint8_t* const RAW_MEMORY_PTR{reinterpret_cast<uint8_t*>(0x7f60d90c5000ULL)};
-    uint8_t* const CHUNK_PTR{RAW_MEMORY_PTR + CHUNK_SIZE};
-    constexpr uint32_t EXPECTED_INDEX{1};
+    constexpr uint64_t CHUNK_SIZE{ 128 };
+    uint8_t* const RAW_MEMORY_PTR{ reinterpret_cast<uint8_t*>(0x7f60d90c5000ULL) };
+    uint8_t* const CHUNK_PTR{ RAW_MEMORY_PTR + CHUNK_SIZE };
+    constexpr uint32_t EXPECTED_INDEX{ 1 };
 
     const auto index = MemPool::pointerToIndex(CHUNK_PTR, CHUNK_SIZE, RAW_MEMORY_PTR);
 
@@ -134,13 +135,13 @@ TEST_F(MemPool_test, MempoolPointeToIndexConversionForMemoryOffsetsLargerThan4GB
 {
     ::testing::Test::RecordProperty("TEST_ID", "45e09ada-97b9-435d-a59a-d377d4e4fb69");
 
-    constexpr uint64_t MB{1UL << 20};
-    constexpr uint64_t GB{1ULL << 30};
-    constexpr uint64_t CHUNK_SIZE{128 * MB};
-    constexpr uint64_t RAW_MEMORY_BASE{0x7f60d90c5000ULL};
-    uint8_t* const RAW_MEMORY_PTR{reinterpret_cast<uint8_t*>(RAW_MEMORY_BASE)};
-    constexpr uint32_t EXPECTED_INDEX{42};
-    uint8_t* const CHUNK_PTR{RAW_MEMORY_PTR + static_cast<uint64_t>(EXPECTED_INDEX) * CHUNK_SIZE};
+    constexpr uint64_t MB{ 1UL << 20 };
+    constexpr uint64_t GB{ 1ULL << 30 };
+    constexpr uint64_t CHUNK_SIZE{ 128 * MB };
+    constexpr uint64_t RAW_MEMORY_BASE{ 0x7f60d90c5000ULL };
+    uint8_t* const RAW_MEMORY_PTR{ reinterpret_cast<uint8_t*>(RAW_MEMORY_BASE) };
+    constexpr uint32_t EXPECTED_INDEX{ 42 };
+    uint8_t* const CHUNK_PTR{ RAW_MEMORY_PTR + static_cast<uint64_t>(EXPECTED_INDEX) * CHUNK_SIZE };
 
     const auto index = MemPool::pointerToIndex(CHUNK_PTR, CHUNK_SIZE, RAW_MEMORY_PTR);
 
@@ -152,7 +153,7 @@ TEST_F(MemPool_test, MempoolCtorInitialisesTheObjectWithValuesPassedToTheCtor)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b15b0da5-74e0-481b-87b6-53888b8a9890");
     char memory[8192];
-    iox::BumpAllocator allocator{memory, 8192U};
+    iox::BumpAllocator allocator{ memory, 8192U };
 
     iox::mepoo::MemPool sut(CHUNK_SIZE, NUMBER_OF_CHUNKS, allocator, allocator);
 
@@ -166,8 +167,8 @@ TEST_F(MemPool_test, MempoolCtorWhenChunkSizeIsNotAMultipleOfAlignmentReturnErro
 {
     ::testing::Test::RecordProperty("TEST_ID", "ee06090a-8e3c-4df2-b74e-ed50e29b84e6");
     char memory[8192U];
-    iox::BumpAllocator allocator{memory, 100U};
-    constexpr uint64_t NOT_ALLIGNED_CHUNKED_SIZE{33U};
+    iox::BumpAllocator allocator{ memory, 100U };
+    constexpr uint64_t NOT_ALLIGNED_CHUNKED_SIZE{ 33U };
 
     IOX_EXPECT_FATAL_FAILURE(
         [&] { iox::mepoo::MemPool sut(NOT_ALLIGNED_CHUNKED_SIZE, NUMBER_OF_CHUNKS, allocator, allocator); },
@@ -265,7 +266,7 @@ TEST_F(MemPool_test, FreeChunkMethodWhenSameChunkIsTriedToFreeTwiceReturnsError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0fc95552-4714-4a8a-9144-98aafbd37dc7");
     std::vector<uint8_t*> chunks;
-    constexpr uint32_t INDEX{0U};
+    constexpr uint32_t INDEX{ 0U };
     chunks.push_back(reinterpret_cast<uint8_t*>(sut.getChunk()));
     sut.freeChunk(chunks[INDEX]);
 
@@ -276,7 +277,7 @@ TEST_F(MemPool_test, FreeChunkMethodWhenTheChunkIndexIsInvalidReturnsError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fb68953e-d47a-4658-8109-6b1974a8baab");
     iox::vector<uint8_t*, 10> chunks;
-    constexpr uint32_t INVALID_INDEX{1U};
+    constexpr uint32_t INVALID_INDEX{ 1U };
     chunks.push_back(reinterpret_cast<uint8_t*>(sut.getChunk()));
 
     IOX_EXPECT_FATAL_FAILURE([&] { sut.freeChunk(chunks[INVALID_INDEX]); }, iox::er::ENFORCE_VIOLATION);

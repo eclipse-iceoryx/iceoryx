@@ -25,7 +25,7 @@ using namespace ::testing;
 TEST(STRING_test, strerror_r_of_known_erron_works)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1fbf88c9-07c4-4959-9127-18a78db27c22");
-    constexpr size_t BUFFER_SIZE{1024};
+    constexpr size_t BUFFER_SIZE{ 1024 };
     char buf[BUFFER_SIZE];
     buf[0] = 0;
 
@@ -37,7 +37,7 @@ TEST(STRING_test, strerror_r_of_known_erron_works)
 TEST(STRING_test, strerror_r_of_unknown_error_works_when_buffer_is_large_enough)
 {
     ::testing::Test::RecordProperty("TEST_ID", "92213d70-61b7-47dd-beac-c86ce25b6991");
-    constexpr size_t BUFFER_SIZE{1024};
+    constexpr size_t BUFFER_SIZE{ 1024 };
     char buf[BUFFER_SIZE];
     buf[0] = 0;
 
@@ -50,7 +50,7 @@ TEST(STRING_test, strerror_r_of_unknown_error_works_when_buffer_is_large_enough)
 TEST(STRING_test, strerror_r_of_unknown_error_is_truncated_when_buffer_is_too_small)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1dbba291-575f-495b-a174-0859b79980b1");
-    constexpr size_t BUFFER_SIZE{10};
+    constexpr size_t BUFFER_SIZE{ 10 };
     char buf[BUFFER_SIZE];
     buf[0] = 0;
 

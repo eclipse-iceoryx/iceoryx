@@ -39,8 +39,8 @@ TYPED_TEST_SUITE(stringTyped_test, StringImplementations, );
 TEST(string_test, CapacityReturnsSpecifiedCapacity)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6eed7f1a-c8d9-4902-ac22-405a3bd62d28");
-    constexpr uint16_t CAPACITY_ONE{1};
-    constexpr uint16_t CAPACITY_FOURTYTWO{42};
+    constexpr uint16_t CAPACITY_ONE{ 1 };
+    constexpr uint16_t CAPACITY_FOURTYTWO{ 42 };
 
     EXPECT_THAT(string<CAPACITY_ONE>::capacity(), Eq(CAPACITY_ONE));
     EXPECT_THAT(string<CAPACITY_FOURTYTWO>::capacity(), Eq(CAPACITY_FOURTYTWO));
@@ -350,7 +350,7 @@ TEST(String100, FindStringLiteralInNotEmptyStringWorks)
     EXPECT_THAT(res.value(), Eq(12U));
 
     constexpr uint64_t STRING_COUNT = 7U;
-    std::string testStdString{"ice\0ryx", STRING_COUNT};
+    std::string testStdString{ "ice\0ryx", STRING_COUNT };
     string<STRINGCAP> testString2(TruncateToCapacity, testStdString.c_str(), STRING_COUNT);
     res = testString2.find("e\0ry", 0U);
     ASSERT_THAT(res.has_value(), Eq(true));
@@ -463,7 +463,7 @@ TEST(String100, FindFirstOfForStringLiteralInNotEmptyStringWorks)
     EXPECT_THAT(res.value(), Eq(0U));
 
     constexpr uint64_t STRING_COUNT = 7U;
-    std::string testStdString{"ice\0ryx", STRING_COUNT};
+    std::string testStdString{ "ice\0ryx", STRING_COUNT };
     string<STRINGCAP> testString2(TruncateToCapacity, testStdString.c_str(), STRING_COUNT);
     res = testString2.find_first_of("e\0ry", 0U);
     ASSERT_THAT(res.has_value(), Eq(true));

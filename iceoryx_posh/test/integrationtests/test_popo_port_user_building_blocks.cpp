@@ -42,11 +42,11 @@ using namespace iox::mepoo;
 
 struct DummySample
 {
-    uint64_t m_dummy{42U};
+    uint64_t m_dummy{ 42U };
 };
 
 
-constexpr iox::units::Duration DEADLOCK_TIMEOUT{15_s};
+constexpr iox::units::Duration DEADLOCK_TIMEOUT{ 15_s };
 
 const ServiceDescription TEST_SERVICE_DESCRIPTION("x", "y", "z");
 const iox::RuntimeName_t TEST_SUBSCRIBER_RUNTIME_NAME("mySubscriberApp");
@@ -66,7 +66,7 @@ class PortUser_IntegrationTest : public Test
   public:
     PortUser_IntegrationTest()
     {
-        m_mempoolConfig.addMemPool({SMALL_CHUNK, NUM_CHUNKS_IN_POOL});
+        m_mempoolConfig.addMemPool({ SMALL_CHUNK, NUM_CHUNKS_IN_POOL });
         m_memoryManager.configureMemoryManager(m_mempoolConfig, m_memoryAllocator, m_memoryAllocator);
     }
 
@@ -110,14 +110,14 @@ class PortUser_IntegrationTest : public Test
         static_cast<void>(m_subscriberPortRouDiMultiProducer.tryGetCaProMessage());
     }
 
-    Watchdog m_deadlockWatchdog{DEADLOCK_TIMEOUT};
+    Watchdog m_deadlockWatchdog{ DEADLOCK_TIMEOUT };
 
-    std::atomic<uint64_t> m_receiveCounter{0U};
-    std::atomic<uint64_t> m_sendCounter{0U};
-    std::atomic<bool> m_publisherRunFinished{false};
+    std::atomic<uint64_t> m_receiveCounter{ 0U };
+    std::atomic<uint64_t> m_sendCounter{ 0U };
+    std::atomic<bool> m_publisherRunFinished{ false };
 
     // Memory objects
-    iox::BumpAllocator m_memoryAllocator{g_memory, MEMORY_SIZE};
+    iox::BumpAllocator m_memoryAllocator{ g_memory, MEMORY_SIZE };
     MePooConfig m_mempoolConfig;
     MemoryManager m_memoryManager;
 
@@ -126,22 +126,22 @@ class PortUser_IntegrationTest : public Test
     ConcurrentCaproMessageVector_t m_concurrentCaproMessageRx;
 
     // subscriber port for single producer
-    SubscriberPortData m_subscriberPortDataSingleProducer{TEST_SERVICE_DESCRIPTION,
-                                                          TEST_SUBSCRIBER_RUNTIME_NAME,
-                                                          roudi::DEFAULT_UNIQUE_ROUDI_ID,
-                                                          VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
-                                                          SubscriberOptions()};
-    SubscriberPortUser m_subscriberPortUserSingleProducer{&m_subscriberPortDataSingleProducer};
-    SubscriberPortSingleProducer m_subscriberPortRouDiSingleProducer{&m_subscriberPortDataSingleProducer};
+    SubscriberPortData m_subscriberPortDataSingleProducer{ TEST_SERVICE_DESCRIPTION,
+                                                           TEST_SUBSCRIBER_RUNTIME_NAME,
+                                                           roudi::DEFAULT_UNIQUE_ROUDI_ID,
+                                                           VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
+                                                           SubscriberOptions() };
+    SubscriberPortUser m_subscriberPortUserSingleProducer{ &m_subscriberPortDataSingleProducer };
+    SubscriberPortSingleProducer m_subscriberPortRouDiSingleProducer{ &m_subscriberPortDataSingleProducer };
 
     // subscriber port for multi producer
-    SubscriberPortData m_subscriberPortDataMultiProducer{TEST_SERVICE_DESCRIPTION,
-                                                         TEST_SUBSCRIBER_RUNTIME_NAME,
-                                                         roudi::DEFAULT_UNIQUE_ROUDI_ID,
-                                                         VariantQueueTypes::SoFi_MultiProducerSingleConsumer,
-                                                         SubscriberOptions()};
-    SubscriberPortUser m_subscriberPortUserMultiProducer{&m_subscriberPortDataMultiProducer};
-    SubscriberPortMultiProducer m_subscriberPortRouDiMultiProducer{&m_subscriberPortDataMultiProducer};
+    SubscriberPortData m_subscriberPortDataMultiProducer{ TEST_SERVICE_DESCRIPTION,
+                                                          TEST_SUBSCRIBER_RUNTIME_NAME,
+                                                          roudi::DEFAULT_UNIQUE_ROUDI_ID,
+                                                          VariantQueueTypes::SoFi_MultiProducerSingleConsumer,
+                                                          SubscriberOptions() };
+    SubscriberPortUser m_subscriberPortUserMultiProducer{ &m_subscriberPortDataMultiProducer };
+    SubscriberPortMultiProducer m_subscriberPortRouDiMultiProducer{ &m_subscriberPortDataMultiProducer };
 
     // publisher port
     vector<PublisherPortData, NUMBER_OF_PUBLISHERS> m_publisherPortDataVector;
@@ -153,7 +153,7 @@ class PortUser_IntegrationTest : public Test
     inline CaproMessage waitForCaproMessage(const ConcurrentCaproMessageVector_t& concurrentCaproMessageVector,
                                             const CaproMessageType& caproMessageType)
     {
-        bool finished{false};
+        bool finished{ false };
         CaproMessage caproMessage;
 
         // Wait until the expected CaPro message has arrived in the shared message vector between subscriber and the
@@ -183,7 +183,7 @@ class PortUser_IntegrationTest : public Test
     template <typename SubscriberPortType>
     void subscriberThread(SubscriberPortType& subscriberPortRouDi, SubscriberPortUser& subscriberPortUser)
     {
-        bool finished{false};
+        bool finished{ false };
 
         // Wait for publisher to be ready
         auto caproMessage = waitForCaproMessage(m_concurrentCaproMessageExchange, CaproMessageType::OFFER);

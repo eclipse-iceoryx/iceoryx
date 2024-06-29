@@ -106,13 +106,13 @@ class PoshRuntime_test : public Test
         EXPECT_EQ(portData->m_chunkSenderData.m_memoryInfo.memoryType, memoryInfo.memoryType);
     }
 
-    const iox::RuntimeName_t m_runtimeName{"publisher"};
+    const iox::RuntimeName_t m_runtimeName{ "publisher" };
     RouDiEnv m_roudiEnv;
-    PoshRuntime* m_runtime{&iox::runtime::PoshRuntime::initRuntime(m_runtimeName)};
+    PoshRuntime* m_runtime{ &iox::runtime::PoshRuntime::initRuntime(m_runtimeName) };
     IpcMessage m_sendBuffer;
     IpcMessage m_receiveBuffer;
-    const iox::NodeName_t m_nodeName{"testNode"};
-    const iox::NodeName_t m_invalidNodeName{"invalidNode,"};
+    const iox::NodeName_t m_nodeName{ "testNode" };
+    const iox::NodeName_t m_invalidNodeName{ "invalidNode," };
 };
 
 TEST_F(PoshRuntime_test, ValidAppName)
@@ -147,16 +147,16 @@ TEST(PoshRuntime, RuntimeFailsWhenAppNameIsNotAFileName)
 {
     ::testing::Test::RecordProperty("TEST_ID", "77542d11-6230-4c1e-94b2-6cf3b8fa9c6e");
 
-    for (auto i : {"/miau",
-                   "/fuu/bar",
-                   "plum/bus",
-                   ".",
-                   "..",
-                   "strawberriesWithMayonnaiseIs/..",
-                   "ohLookADot.",
-                   "amIADirectory/",
-                   "",
-                   "letsFlyInto "})
+    for (auto i : { "/miau",
+                    "/fuu/bar",
+                    "plum/bus",
+                    ".",
+                    "..",
+                    "strawberriesWithMayonnaiseIs/..",
+                    "ohLookADot.",
+                    "amIADirectory/",
+                    "",
+                    "letsFlyInto " })
     {
         const iox::RuntimeName_t invalidAppName(iox::TruncateToCapacity, i);
 
@@ -293,7 +293,7 @@ TEST_F(PoshRuntime_test, getMiddlewarePublisherPublisherlistOverflow)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f1f1a662-9580-40a1-a116-6ea1cb791516");
 
-    uint32_t i{0U};
+    uint32_t i{ 0U };
     for (; i < (iox::MAX_PUBLISHERS - iox::NUMBER_OF_INTERNAL_PUBLISHERS); ++i)
     {
         auto publisherPort = m_runtime->getMiddlewarePublisher(
@@ -343,8 +343,9 @@ TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithForbiddenServiceDescriptionsF
     ::testing::Test::RecordProperty("TEST_ID", "130541c9-94de-4bc4-9471-0a65de310232");
 
     iox::vector<iox::capro::ServiceDescription, iox::NUMBER_OF_INTERNAL_PUBLISHERS> internalServices;
-    const iox::capro::ServiceDescription serviceRegistry{
-        iox::SERVICE_DISCOVERY_SERVICE_NAME, iox::SERVICE_DISCOVERY_INSTANCE_NAME, iox::SERVICE_DISCOVERY_EVENT_NAME};
+    const iox::capro::ServiceDescription serviceRegistry{ iox::SERVICE_DISCOVERY_SERVICE_NAME,
+                                                          iox::SERVICE_DISCOVERY_INSTANCE_NAME,
+                                                          iox::SERVICE_DISCOVERY_EVENT_NAME };
 
     // Added by PortManager
     internalServices.push_back(serviceRegistry);
@@ -521,7 +522,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareSubscriberSubscriberlistOverflow)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d1281cbd-6520-424e-aace-fbd3aa5d73e9");
 
-    uint32_t i{0U};
+    uint32_t i{ 0U };
     for (; i < iox::MAX_SUBSCRIBERS; ++i)
     {
         auto subscriberPort = m_runtime->getMiddlewareSubscriber(
@@ -614,7 +615,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareSubscriberWithQueueFullPolicySetToBlockPub
 TEST_F(PoshRuntime_test, GetMiddlewareClientWithDefaultArgsIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2db35746-e402-443f-b374-3b6a239ab5fd");
-    const iox::capro::ServiceDescription sd{"moon", "light", "drive"};
+    const iox::capro::ServiceDescription sd{ "moon", "light", "drive" };
     iox::popo::ClientOptions defaultOptions;
     iox::runtime::PortConfigInfo defaultPortConfigInfo;
 
@@ -629,14 +630,14 @@ TEST_F(PoshRuntime_test, GetMiddlewareClientWithDefaultArgsIsSuccessful)
 TEST_F(PoshRuntime_test, GetMiddlewareClientWithCustomClientOptionsIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f61a81f4-f610-4e61-853b-ac114d9a801c");
-    const iox::capro::ServiceDescription sd{"my", "guitar", "weeps"};
+    const iox::capro::ServiceDescription sd{ "my", "guitar", "weeps" };
     iox::popo::ClientOptions clientOptions;
     clientOptions.responseQueueCapacity = 13U;
     clientOptions.nodeName = m_nodeName;
     clientOptions.connectOnCreate = false;
     clientOptions.responseQueueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PRODUCER;
     clientOptions.serverTooSlowPolicy = iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER;
-    const iox::runtime::PortConfigInfo portConfig{11U, 22U, 33U};
+    const iox::runtime::PortConfigInfo portConfig{ 11U, 22U, 33U };
 
     auto clientPort = m_runtime->getMiddlewareClient(sd, clientOptions, portConfig);
 
@@ -650,7 +651,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareClientWithQueueGreaterMaxCapacityClampsQue
 {
     ::testing::Test::RecordProperty("TEST_ID", "8e34f962-e7c9-40ac-9796-a12f92c4d674");
     constexpr uint64_t MAX_QUEUE_CAPACITY = iox::popo::ClientChunkQueueConfig::MAX_QUEUE_CAPACITY;
-    const iox::capro::ServiceDescription sd{"take", "guns", "down"};
+    const iox::capro::ServiceDescription sd{ "take", "guns", "down" };
     iox::popo::ClientOptions clientOptions;
     clientOptions.responseQueueCapacity = MAX_QUEUE_CAPACITY + 1U;
 
@@ -663,7 +664,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareClientWithQueueGreaterMaxCapacityClampsQue
 TEST_F(PoshRuntime_test, GetMiddlewareClientWithQueueCapacityZeroClampsQueueCapacityToOne)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7b6ffd68-46d4-4339-a0df-6fecb621f765");
-    const iox::capro::ServiceDescription sd{"rock", "and", "roll"};
+    const iox::capro::ServiceDescription sd{ "rock", "and", "roll" };
     iox::popo::ClientOptions clientOptions;
     clientOptions.responseQueueCapacity = 0U;
 
@@ -677,7 +678,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareClientWhenMaxClientsAreUsedResultsInClient
 {
     ::testing::Test::RecordProperty("TEST_ID", "6f2de2bf-5e7e-47b1-be42-92cf3fa71ba6");
 
-    uint32_t i{0U};
+    uint32_t i{ 0U };
     for (; i < iox::MAX_CLIENTS; ++i)
     {
         auto clientPort = m_runtime->getMiddlewareClient(
@@ -700,7 +701,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareClientWhenMaxClientsAreUsedResultsInClient
 TEST_F(PoshRuntime_test, GetMiddlewareClientWithInvalidNodeNameLeadsToErrorHandlerCall)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b4433dfd-d2f8-4567-9483-aed956275ce8");
-    const iox::capro::ServiceDescription sd{"great", "gig", "sky"};
+    const iox::capro::ServiceDescription sd{ "great", "gig", "sky" };
     iox::popo::ClientOptions clientOptions;
     clientOptions.nodeName = m_invalidNodeName;
 
@@ -712,7 +713,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareClientWithInvalidNodeNameLeadsToErrorHandl
 TEST_F(PoshRuntime_test, GetMiddlewareServerWithDefaultArgsIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "cb3c1b4d-0d81-494c-954d-c1de10c244d7");
-    const iox::capro::ServiceDescription sd{"ghouls", "night", "out"};
+    const iox::capro::ServiceDescription sd{ "ghouls", "night", "out" };
     iox::popo::ServerOptions defaultOptions;
     iox::runtime::PortConfigInfo defaultPortConfigInfo;
 
@@ -726,14 +727,14 @@ TEST_F(PoshRuntime_test, GetMiddlewareServerWithDefaultArgsIsSuccessful)
 TEST_F(PoshRuntime_test, GetMiddlewareServerWithCustomServerOptionsIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "881c342c-58b9-4094-9e77-b4e68ab9a52a");
-    const iox::capro::ServiceDescription sd{"take", "power", "back"};
+    const iox::capro::ServiceDescription sd{ "take", "power", "back" };
     iox::popo::ServerOptions serverOptions;
     serverOptions.requestQueueCapacity = 13U;
     serverOptions.nodeName = m_nodeName;
     serverOptions.offerOnCreate = false;
     serverOptions.requestQueueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PRODUCER;
     serverOptions.clientTooSlowPolicy = iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER;
-    const iox::runtime::PortConfigInfo portConfig{11U, 22U, 33U};
+    const iox::runtime::PortConfigInfo portConfig{ 11U, 22U, 33U };
 
     auto serverPort = m_runtime->getMiddlewareServer(sd, serverOptions, portConfig);
 
@@ -746,7 +747,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareServerWithQueueGreaterMaxCapacityClampsQue
 {
     ::testing::Test::RecordProperty("TEST_ID", "91b21e80-0f98-4ae3-982c-54deaab93d96");
     constexpr uint64_t MAX_QUEUE_CAPACITY = iox::popo::ServerChunkQueueConfig::MAX_QUEUE_CAPACITY;
-    const iox::capro::ServiceDescription sd{"stray", "cat", "blues"};
+    const iox::capro::ServiceDescription sd{ "stray", "cat", "blues" };
     iox::popo::ServerOptions serverOptions;
     serverOptions.requestQueueCapacity = MAX_QUEUE_CAPACITY + 1U;
 
@@ -759,7 +760,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareServerWithQueueGreaterMaxCapacityClampsQue
 TEST_F(PoshRuntime_test, GetMiddlewareServerWithQueueCapacityZeroClampsQueueCapacityToOne)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a28a30eb-f3be-43c9-a948-26c71c5f12c9");
-    const iox::capro::ServiceDescription sd{"she", "talks", "rainbow"};
+    const iox::capro::ServiceDescription sd{ "she", "talks", "rainbow" };
     iox::popo::ServerOptions serverOptions;
     serverOptions.requestQueueCapacity = 0U;
 
@@ -773,7 +774,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareServerWhenMaxServerAreUsedResultsInServerl
 {
     ::testing::Test::RecordProperty("TEST_ID", "8f679838-3332-440c-aa95-d5c82d53a7cd");
 
-    uint32_t i{0U};
+    uint32_t i{ 0U };
     for (; i < iox::MAX_SERVERS; ++i)
     {
         auto serverPort = m_runtime->getMiddlewareServer(
@@ -796,7 +797,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareServerWhenMaxServerAreUsedResultsInServerl
 TEST_F(PoshRuntime_test, GetMiddlewareServerWithInvalidNodeNameLeadsToErrorHandlerCall)
 {
     ::testing::Test::RecordProperty("TEST_ID", "95603ddc-1051-4dd7-a163-1c621f8a211a");
-    const iox::capro::ServiceDescription sd{"it's", "over", "now"};
+    const iox::capro::ServiceDescription sd{ "it's", "over", "now" };
     iox::popo::ServerOptions serverOptions;
     serverOptions.nodeName = m_invalidNodeName;
 
@@ -834,15 +835,17 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingPublisher)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c3a97770-ee9a-46a4-baf7-80ebbac74f4b");
     // get publisher and subscriber
-    iox::capro::ServiceDescription serviceDescription{"don't", "stop", "me"};
+    iox::capro::ServiceDescription serviceDescription{ "don't", "stop", "me" };
 
     iox::popo::PublisherOptions publisherOptions{
-        0U, iox::NodeName_t("node"), true, iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER};
+        0U, iox::NodeName_t("node"), true, iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER
+    };
     iox::popo::SubscriberOptions subscriberOptions{
-        1U, 0U, iox::NodeName_t("node"), true, iox::popo::QueueFullPolicy::BLOCK_PRODUCER};
+        1U, 0U, iox::NodeName_t("node"), true, iox::popo::QueueFullPolicy::BLOCK_PRODUCER
+    };
 
-    iox::popo::Publisher<uint8_t> publisher{serviceDescription, publisherOptions};
-    iox::popo::Subscriber<uint8_t> subscriber{serviceDescription, subscriberOptions};
+    iox::popo::Publisher<uint8_t> publisher{ serviceDescription, publisherOptions };
+    iox::popo::Subscriber<uint8_t> subscriber{ serviceDescription, subscriberOptions };
 
     ASSERT_TRUE(publisher.hasSubscribers());
     ASSERT_THAT(subscriber.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));
@@ -850,10 +853,10 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingPublisher)
     // send samples to fill subscriber queue
     ASSERT_FALSE(publisher.publishCopyOf(42U).has_error());
 
-    std::atomic_bool wasSampleSent{false};
+    std::atomic_bool wasSampleSent{ false };
 
-    constexpr iox::units::Duration DEADLOCK_TIMEOUT{5_s};
-    Watchdog deadlockWatchdog{DEADLOCK_TIMEOUT};
+    constexpr iox::units::Duration DEADLOCK_TIMEOUT{ 5_s };
+    Watchdog deadlockWatchdog{ DEADLOCK_TIMEOUT };
     deadlockWatchdog.watchAndActOnFailure([] { std::terminate(); });
 
     // block in a separate thread
@@ -866,7 +869,7 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingPublisher)
 
     // wait some time to check if the publisher is blocked
     isThreadStarted.wait();
-    constexpr std::chrono::milliseconds SLEEP_TIME{100U};
+    constexpr std::chrono::milliseconds SLEEP_TIME{ 100U };
     std::this_thread::sleep_for(SLEEP_TIME);
     EXPECT_THAT(wasSampleSent.load(), Eq(false));
 
@@ -880,7 +883,7 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingClient)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f67db1c5-8db9-4798-b73c-7175255c90fd");
     // get client and server
-    iox::capro::ServiceDescription serviceDescription{"stop", "and", "smell"};
+    iox::capro::ServiceDescription serviceDescription{ "stop", "and", "smell" };
 
     iox::popo::ClientOptions clientOptions;
     clientOptions.responseQueueCapacity = 10U;
@@ -892,16 +895,16 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingClient)
     serverOptions.requestQueueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PRODUCER;
     serverOptions.clientTooSlowPolicy = iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER;
 
-    iox::popo::UntypedClient client{serviceDescription, clientOptions};
-    iox::popo::UntypedServer server{serviceDescription, serverOptions};
+    iox::popo::UntypedClient client{ serviceDescription, clientOptions };
+    iox::popo::UntypedServer server{ serviceDescription, serverOptions };
 
     ASSERT_TRUE(server.hasClients());
     ASSERT_THAT(client.getConnectionState(), Eq(iox::ConnectionState::CONNECTED));
 
-    std::atomic_bool wasRequestSent{false};
+    std::atomic_bool wasRequestSent{ false };
 
-    constexpr iox::units::Duration DEADLOCK_TIMEOUT{5_s};
-    Watchdog deadlockWatchdog{DEADLOCK_TIMEOUT};
+    constexpr iox::units::Duration DEADLOCK_TIMEOUT{ 5_s };
+    Watchdog deadlockWatchdog{ DEADLOCK_TIMEOUT };
     deadlockWatchdog.watchAndActOnFailure([] { std::terminate(); });
 
     // block in a separate thread
@@ -921,19 +924,19 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingClient)
         // send request till queue is full
         for (uint64_t i = 0; i < serverOptions.requestQueueCapacity; ++i)
         {
-            constexpr bool EXPECT_ERROR_INDICATOR{false};
+            constexpr bool EXPECT_ERROR_INDICATOR{ false };
             sendRequest(EXPECT_ERROR_INDICATOR);
         }
 
         // signal that an blocking send is expected
         isThreadStarted.notify();
-        constexpr bool EXPECT_ERROR_INDICATOR{true};
+        constexpr bool EXPECT_ERROR_INDICATOR{ true };
         sendRequest(EXPECT_ERROR_INDICATOR);
         wasRequestSent = true;
     });
 
     // wait some time to check if the client is blocked
-    constexpr std::chrono::milliseconds SLEEP_TIME{100U};
+    constexpr std::chrono::milliseconds SLEEP_TIME{ 100U };
     isThreadStarted.wait();
     std::this_thread::sleep_for(SLEEP_TIME);
     EXPECT_THAT(wasRequestSent.load(), Eq(false));
@@ -948,7 +951,7 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingServer)
 {
     ::testing::Test::RecordProperty("TEST_ID", "82128975-04e4-4a12-9a47-b884ad6ca97f");
     // get client and server
-    iox::capro::ServiceDescription serviceDescription{"stop", "name", "love"};
+    iox::capro::ServiceDescription serviceDescription{ "stop", "name", "love" };
 
     iox::popo::ClientOptions clientOptions;
     clientOptions.responseQueueCapacity = 1U;
@@ -960,8 +963,8 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingServer)
     serverOptions.requestQueueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PRODUCER;
     serverOptions.clientTooSlowPolicy = iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER;
 
-    iox::popo::UntypedClient client{serviceDescription, clientOptions};
-    iox::popo::UntypedServer server{serviceDescription, serverOptions};
+    iox::popo::UntypedClient client{ serviceDescription, clientOptions };
+    iox::popo::UntypedServer server{ serviceDescription, serverOptions };
 
     ASSERT_TRUE(server.hasClients());
     ASSERT_THAT(client.getConnectionState(), Eq(iox::ConnectionState::CONNECTED));
@@ -974,10 +977,10 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingServer)
         EXPECT_FALSE(client.send(clientLoanResult.value()).has_error());
     }
 
-    std::atomic_bool wasResponseSent{false};
+    std::atomic_bool wasResponseSent{ false };
 
-    constexpr iox::units::Duration DEADLOCK_TIMEOUT{5_s};
-    Watchdog deadlockWatchdog{DEADLOCK_TIMEOUT};
+    constexpr iox::units::Duration DEADLOCK_TIMEOUT{ 5_s };
+    Watchdog deadlockWatchdog{ DEADLOCK_TIMEOUT };
     deadlockWatchdog.watchAndActOnFailure([] { std::terminate(); });
 
     // block in a separate thread
@@ -999,18 +1002,18 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingServer)
 
         for (uint64_t i = 0; i < clientOptions.responseQueueCapacity; ++i)
         {
-            constexpr bool EXPECT_ERROR_INDICATOR{false};
+            constexpr bool EXPECT_ERROR_INDICATOR{ false };
             processRequest(EXPECT_ERROR_INDICATOR);
         }
 
         isThreadStarted.notify();
-        constexpr bool EXPECT_ERROR_INDICATOR{true};
+        constexpr bool EXPECT_ERROR_INDICATOR{ true };
         processRequest(EXPECT_ERROR_INDICATOR);
         wasResponseSent = true;
     });
 
     // wait some time to check if the server is blocked
-    constexpr std::chrono::milliseconds SLEEP_TIME{100U};
+    constexpr std::chrono::milliseconds SLEEP_TIME{ 100U };
     isThreadStarted.wait();
     std::this_thread::sleep_for(SLEEP_TIME);
     EXPECT_THAT(wasResponseSent.load(), Eq(false));
@@ -1024,8 +1027,8 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingServer)
 TEST(PoshRuntimeFactory_test, SetValidRuntimeFactorySucceeds)
 {
     ::testing::Test::RecordProperty("TEST_ID", "59c4e1e6-36f6-4f6d-b4c2-e84fa891f014");
-    constexpr const char HYPNOTOAD[]{"hypnotoad"};
-    constexpr const char BRAIN_SLUG[]{"brain-slug"};
+    constexpr const char HYPNOTOAD[]{ "hypnotoad" };
+    constexpr const char BRAIN_SLUG[]{ "brain-slug" };
 
     auto mockRuntime = PoshRuntimeMock::create(HYPNOTOAD);
     EXPECT_THAT(PoshRuntime::getInstance().getInstanceName().c_str(), StrEq(HYPNOTOAD));

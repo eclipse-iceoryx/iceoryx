@@ -68,10 +68,10 @@ class SignalWatcher
 
   private:
     friend void internalSignalHandler(int) noexcept;
-    mutable std::atomic<uint64_t> m_numberOfWaiters{0U};
+    mutable std::atomic<uint64_t> m_numberOfWaiters{ 0U };
     mutable optional<UnnamedSemaphore> m_semaphore;
 
-    std::atomic_bool m_hasSignalOccurred{false};
+    std::atomic_bool m_hasSignalOccurred{ false };
     SignalGuard m_sigTermGuard;
     SignalGuard m_sigIntGuard;
 };

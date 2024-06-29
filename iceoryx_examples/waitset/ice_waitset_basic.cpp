@@ -26,10 +26,10 @@
 #include <iostream>
 
 //! [sig handler]
-volatile bool keepRunning{true};
+volatile bool keepRunning{ true };
 
 using WaitSet = iox::popo::WaitSet<>;
-volatile WaitSet* waitsetSigHandlerAccess{nullptr};
+volatile WaitSet* waitsetSigHandlerAccess{ nullptr };
 
 static void sigHandler(int sig [[maybe_unused]])
 {
@@ -58,7 +58,7 @@ int main()
     waitsetSigHandlerAccess = &waitset;
 
     // create subscriber
-    iox::popo::Subscriber<CounterTopic> subscriber({"Radar", "FrontLeft", "Counter"});
+    iox::popo::Subscriber<CounterTopic> subscriber({ "Radar", "FrontLeft", "Counter" });
 
     // attach subscriber to waitset
     waitset.attachState(subscriber, iox::popo::SubscriberState::HAS_DATA).or_else([](auto) {

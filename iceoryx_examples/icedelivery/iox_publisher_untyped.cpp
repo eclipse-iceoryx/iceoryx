@@ -35,7 +35,7 @@ int main()
     //! [runtime initialization]
 
     //! [create untyped publisher]
-    iox::popo::UntypedPublisher publisher({"Radar", "FrontLeft", "Object"});
+    iox::popo::UntypedPublisher publisher({ "Radar", "FrontLeft", "Object" });
     //! [create untyped publisher]
 
     double ct = 0.0;

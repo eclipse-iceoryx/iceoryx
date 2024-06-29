@@ -33,22 +33,22 @@ struct Arithmetic
 {
     friend Derived operator+(const T& lhs, const T& rhs) noexcept
     {
-        return Derived{internal::newTypeAccessor(lhs) + internal::newTypeAccessor(rhs)};
+        return Derived{ internal::newTypeAccessor(lhs) + internal::newTypeAccessor(rhs) };
     }
 
     friend Derived operator-(const T& lhs, const T& rhs) noexcept
     {
-        return Derived{internal::newTypeAccessor(lhs) - internal::newTypeAccessor(rhs)};
+        return Derived{ internal::newTypeAccessor(lhs) - internal::newTypeAccessor(rhs) };
     }
 
     friend Derived operator*(const T& lhs, const T& rhs) noexcept
     {
-        return Derived{internal::newTypeAccessor(lhs) * internal::newTypeAccessor(rhs)};
+        return Derived{ internal::newTypeAccessor(lhs) * internal::newTypeAccessor(rhs) };
     }
 
     friend Derived operator/(const T& lhs, const T& rhs) noexcept
     {
-        return Derived{internal::newTypeAccessor(lhs) / internal::newTypeAccessor(rhs)};
+        return Derived{ internal::newTypeAccessor(lhs) / internal::newTypeAccessor(rhs) };
     }
 
   protected:

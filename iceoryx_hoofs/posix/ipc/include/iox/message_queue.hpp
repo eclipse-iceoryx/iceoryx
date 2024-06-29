@@ -178,7 +178,7 @@ class MessageQueue
     // NOLINTJUSTIFICATION used inside the wrapper so that the user does not have to use this
     //                     construct from outside
     // NOLINTNEXTLINE(hicpp-signed-bitwise)
-    static constexpr mode_t FILE_MODE{S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH};
+    static constexpr mode_t FILE_MODE{ S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH };
 };
 
 class MessageQueueBuilder

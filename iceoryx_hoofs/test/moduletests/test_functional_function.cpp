@@ -128,7 +128,7 @@ class Functor : public Counter<Functor>
         return m_state + n;
     }
 
-    int32_t m_state{0};
+    int32_t m_state{ 0 };
 };
 
 int32_t freeFunction(int32_t n)
@@ -151,7 +151,7 @@ struct Arg : Counter<Arg>
     // Note that this is mainly an issue if the argument is passed by value.
     // The std::function also fails to compile in this case (gcc implementation).
 
-    int32_t value{0};
+    int32_t value{ 0 };
 };
 
 int32_t freeFunctionWithCopyableArg(const Arg& arg)

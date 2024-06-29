@@ -25,9 +25,9 @@ namespace roudi_env
 {
 using runtime::PoshRuntime;
 
-thread_local PoshRuntime* RuntimeTestInterface::t_activeRuntime{nullptr};
-thread_local std::atomic<uint64_t> RuntimeTestInterface::t_currentRouDiContext{0};
-std::atomic<uint64_t> RuntimeTestInterface::s_currentRouDiContext{0};
+thread_local PoshRuntime* RuntimeTestInterface::t_activeRuntime{ nullptr };
+thread_local std::atomic<uint64_t> RuntimeTestInterface::t_currentRouDiContext{ 0 };
+std::atomic<uint64_t> RuntimeTestInterface::s_currentRouDiContext{ 0 };
 
 std::mutex RuntimeTestInterface::s_runtimeAccessMutex;
 
@@ -100,7 +100,7 @@ PoshRuntime& RuntimeTestInterface::runtimeFactoryGetInstance(optional<const Runt
         RuntimeTestInterface::t_activeRuntime = nullptr;
     }
 
-    bool nameIsNullopt{!name.has_value()};
+    bool nameIsNullopt{ !name.has_value() };
     if (RuntimeTestInterface::t_activeRuntime == nullptr && nameIsNullopt)
     {
         IOX_PANIC("Invalid runtime access");
@@ -120,7 +120,7 @@ PoshRuntime& RuntimeTestInterface::runtimeFactoryGetInstance(optional<const Runt
     {
         auto runtimeImpl =
             new runtime::PoshRuntimeImpl(name, DEFAULT_DOMAIN_ID, runtime::RuntimeLocation::SAME_PROCESS_LIKE_ROUDI);
-        RuntimeTestInterface::s_runtimes.insert({*name.value(), runtimeImpl});
+        RuntimeTestInterface::s_runtimes.insert({ *name.value(), runtimeImpl });
 
         RuntimeTestInterface::t_activeRuntime = runtimeImpl;
     }

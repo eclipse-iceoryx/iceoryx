@@ -87,9 +87,9 @@ class StaticLifetimeGuard
         unsigned char data[sizeof(T)];
     };
 
-    static constexpr uint32_t UNINITIALIZED{0};
-    static constexpr uint32_t INITALIZING{1};
-    static constexpr uint32_t INITALIZED{2};
+    static constexpr uint32_t UNINITIALIZED{ 0 };
+    static constexpr uint32_t INITALIZING{ 1 };
+    static constexpr uint32_t INITALIZED{ 2 };
 
     // NOLINTJUSTIFICATION these static variables are private and mutability is required
     // NOLINTBEGIN (cppcoreguidelines-avoid-non-const-global-variables)

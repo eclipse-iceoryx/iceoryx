@@ -44,8 +44,8 @@ class Optional_test : public Test
     {
     }
 
-    iox::optional<int64_t> m_sutWithValue{0};
-    iox::optional<int64_t> m_sutNoValue{iox::nullopt_t()};
+    iox::optional<int64_t> m_sutWithValue{ 0 };
+    iox::optional<int64_t> m_sutNoValue{ iox::nullopt_t() };
 };
 
 TEST_F(Optional_test, DefaultCTorHasValue)
@@ -120,7 +120,7 @@ TEST_F(Optional_test, boolOperatorWithValue)
 TEST_F(Optional_test, ArrowOperator)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f0cad5c5-e032-454c-8934-3ba9aaf3c641");
-    iox::optional<TestClass> sut{{0, 0}};
+    iox::optional<TestClass> sut{ { 0, 0 } };
     sut->value = 1234;
     EXPECT_THAT(sut->value, Eq(1234));
 }
@@ -128,7 +128,7 @@ TEST_F(Optional_test, ArrowOperator)
 TEST_F(Optional_test, ConstArrowOperator)
 {
     ::testing::Test::RecordProperty("TEST_ID", "515aab10-cf10-4c56-b160-a7ef9d33937f");
-    iox::optional<TestClass> sut{{0, 0}};
+    iox::optional<TestClass> sut{ { 0, 0 } };
     sut->value = 12345;
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) const_cast to test const method
     EXPECT_THAT((*const_cast<const iox::optional<TestClass>*>(&sut))->value, Eq(12345));
@@ -153,7 +153,7 @@ TEST_F(Optional_test, UserDefinedTypeAssignment)
 {
     ::testing::Test::RecordProperty("TEST_ID", "bf37ae0d-9b7d-4878-a6d0-42ab1bd67633");
     iox::optional<TestClass> sut;
-    sut = TestClass{1234, 22};
+    sut = TestClass{ 1234, 22 };
     EXPECT_THAT(sut->value, Eq(1234));
 }
 
@@ -169,7 +169,7 @@ TEST_F(Optional_test, CompareWithEqualValue)
 TEST_F(Optional_test, CompareWithEqualNullopt)
 {
     ::testing::Test::RecordProperty("TEST_ID", "56a140fc-d850-4a7e-97d6-595afe48c1f7");
-    iox::optional<int64_t> sut{iox::nullopt_t()};
+    iox::optional<int64_t> sut{ iox::nullopt_t() };
     EXPECT_THAT(m_sutNoValue == sut, Eq(true));
 }
 
@@ -225,7 +225,7 @@ TEST_F(Optional_test, NotCompareWithNullopt)
 TEST_F(Optional_test, CopyCTorWithValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5a65a6dd-5442-4afa-8c78-6ad5d5ec10a6");
-    iox::optional<TestClass> sut{TestClass{4711, 1337}};
+    iox::optional<TestClass> sut{ TestClass{ 4711, 1337 } };
 
     iox::optional<TestClass> sut2(sut);
 
@@ -247,9 +247,9 @@ TEST_F(Optional_test, CopyCTorWithNoValue)
 TEST_F(Optional_test, CopyAssignmentWithValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "af7f0a3b-feef-49dc-9f4f-af1eb4af4ef1");
-    iox::optional<TestClass> sut2{TestClass{7474, 33331}};
+    iox::optional<TestClass> sut2{ TestClass{ 7474, 33331 } };
     {
-        iox::optional<TestClass> sut{TestClass{4711, 1337}};
+        iox::optional<TestClass> sut{ TestClass{ 4711, 1337 } };
         sut2 = sut;
     }
 
@@ -261,7 +261,7 @@ TEST_F(Optional_test, CopyAssignmentWithValue)
 TEST_F(Optional_test, CopyAssignmentNoValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8e6e5a06-91ec-4adb-aa99-58d7d9424410");
-    iox::optional<TestClass> sut2{TestClass{7474, 33331}};
+    iox::optional<TestClass> sut2{ TestClass{ 7474, 33331 } };
     {
         iox::optional<TestClass> sut = iox::nullopt_t();
         sut2 = sut;
@@ -284,7 +284,7 @@ TEST_F(Optional_test, DirectCopyAssignmentWithNoValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8dddd1c5-e59b-4f3c-9e6c-6fa9ac1daa86");
     iox::optional<TestClass> sut;
-    const TestClass value{4711, 1337};
+    const TestClass value{ 4711, 1337 };
 
     sut = value;
     ASSERT_THAT(sut.has_value(), Eq(true));
@@ -295,8 +295,8 @@ TEST_F(Optional_test, DirectCopyAssignmentWithNoValue)
 TEST_F(Optional_test, DirectCopyAssignmentWithValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "66fa19ab-0a08-48d3-824c-7b259e6f15b0");
-    iox::optional<TestClass> sut{TestClass{7474, 33331}};
-    TestClass value{4711, 1337};
+    iox::optional<TestClass> sut{ TestClass{ 7474, 33331 } };
+    TestClass value{ 4711, 1337 };
 
     sut = value;
     ASSERT_THAT(sut.has_value(), Eq(true));
@@ -307,7 +307,7 @@ TEST_F(Optional_test, DirectCopyAssignmentWithValue)
 TEST_F(Optional_test, MoveCTorWithValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a7694c42-fb4d-4c53-930b-f0be78127027");
-    iox::optional<TestClass> sut{TestClass{4711, 1337}};
+    iox::optional<TestClass> sut{ TestClass{ 4711, 1337 } };
 
     iox::optional<TestClass> sut2(std::move(sut));
 
@@ -335,9 +335,9 @@ TEST_F(Optional_test, MoveCTorWithNoValue)
 TEST_F(Optional_test, MoveAssignmentWithValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d671c710-c6e6-4f70-a05c-29134648f2df");
-    iox::optional<TestClass> sut2{TestClass{7718, 80091}};
+    iox::optional<TestClass> sut2{ TestClass{ 7718, 80091 } };
     {
-        iox::optional<TestClass> sut{TestClass{4711, 1337}};
+        iox::optional<TestClass> sut{ TestClass{ 4711, 1337 } };
         sut2 = std::move(sut);
     }
 
@@ -349,7 +349,7 @@ TEST_F(Optional_test, MoveAssignmentWithValue)
 TEST_F(Optional_test, MoveAssignmentWithNoValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "50435160-968f-4286-a1af-3a8ab42c50fb");
-    iox::optional<TestClass> sut2{{0, 0}};
+    iox::optional<TestClass> sut2{ { 0, 0 } };
     sut2->value = 7718;
     sut2->secondValue = 80091;
     {
@@ -388,7 +388,7 @@ TEST_F(Optional_test, Destructor)
     ::testing::Test::RecordProperty("TEST_ID", "41a225e4-6964-45da-9f94-ca9c79685814");
     {
         DTorTest::dtorCounter = 0;
-        iox::optional<DTorTest> sut{DTorTest()};
+        iox::optional<DTorTest> sut{ DTorTest() };
         EXPECT_THAT(DTorTest::dtorCounter, Eq(1)); // dtor of temporary object only
         DTorTest::dtorCounter = 0;
     }
@@ -399,12 +399,12 @@ TEST_F(Optional_test, DestructorOnCopyCTor)
 {
     ::testing::Test::RecordProperty("TEST_ID", "42a8d5f6-2d7f-4ad8-8433-f4e4b82b4eec");
     {
-        iox::optional<DTorTest> sut{DTorTest()};
+        iox::optional<DTorTest> sut{ DTorTest() };
         {
             DTorTest::dtorCounter = 0;
             // destructor on copy constructor shall be tested
             // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
-            iox::optional<DTorTest> sut2{sut};
+            iox::optional<DTorTest> sut2{ sut };
             EXPECT_THAT(DTorTest::dtorCounter, Eq(0));
         }
         EXPECT_THAT(DTorTest::dtorCounter, Eq(1)); // dtor of sut2
@@ -418,9 +418,9 @@ TEST_F(Optional_test, DestructorOnCopyAssignment)
 {
     ::testing::Test::RecordProperty("TEST_ID", "49aae157-ea1f-4998-b4bd-07e5ade6ce02");
     {
-        iox::optional<DTorTest> sut{DTorTest()};
+        iox::optional<DTorTest> sut{ DTorTest() };
         {
-            iox::optional<DTorTest> sut2{DTorTest()};
+            iox::optional<DTorTest> sut2{ DTorTest() };
             DTorTest::dtorCounter = 0;
             sut = sut2;
             EXPECT_THAT(DTorTest::dtorCounter, Eq(0));
@@ -436,10 +436,10 @@ TEST_F(Optional_test, DestructorOnMoveCTor)
 {
     ::testing::Test::RecordProperty("TEST_ID", "95126b4b-7700-4537-b15f-c9b4697b2d28");
     {
-        iox::optional<DTorTest> sut{DTorTest()};
+        iox::optional<DTorTest> sut{ DTorTest() };
         {
             DTorTest::dtorCounter = 0;
-            iox::optional<DTorTest> sut2{std::move(sut)};
+            iox::optional<DTorTest> sut2{ std::move(sut) };
             EXPECT_THAT(DTorTest::dtorCounter, Eq(1)); // dtor of sut
             // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved object
             // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
@@ -456,9 +456,9 @@ TEST_F(Optional_test, DestructorOnMoveAssignment)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c9071ba6-71eb-4926-bf7b-8348c6543e59");
     {
-        iox::optional<DTorTest> sut{DTorTest()};
+        iox::optional<DTorTest> sut{ DTorTest() };
         {
-            iox::optional<DTorTest> sut2{DTorTest()};
+            iox::optional<DTorTest> sut2{ DTorTest() };
             DTorTest::dtorCounter = 0;
             sut = std::move(sut2);
             EXPECT_THAT(DTorTest::dtorCounter, Eq(1)); // dtor of sut2
@@ -473,9 +473,9 @@ TEST_F(Optional_test, DestructorOnEmplace)
 {
     ::testing::Test::RecordProperty("TEST_ID", "974aa499-8dc2-4b7d-8ed8-fea66f3f3358");
     {
-        iox::optional<DTorTest> sut{DTorTest()};
+        iox::optional<DTorTest> sut{ DTorTest() };
         {
-            iox::optional<DTorTest> sut2{DTorTest()};
+            iox::optional<DTorTest> sut2{ DTorTest() };
             DTorTest::dtorCounter = 0;
             sut2.emplace(sut.value());
             EXPECT_THAT(DTorTest::dtorCounter, Eq(1)); // dtor of previous sut2 value
@@ -500,8 +500,8 @@ TEST_F(Optional_test, MakeOptional)
             , b(b)
         {
         }
-        int a{0};
-        int b{0};
+        int a{ 0 };
+        int b{ 0 };
     };
 
     auto sut1 = iox::make_optional<Make>(123, 456);
@@ -522,7 +522,7 @@ TEST_F(Optional_test, ReturningNulloptWithoutConstruction)
 TEST_F(Optional_test, CopyConstructionWithElementWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5839d59d-b564-4d82-acee-b324903cd4f9");
-    const TestClass testClass{5, 6};
+    const TestClass testClass{ 5, 6 };
     iox::optional<TestClass> sut(testClass);
 
     ASSERT_TRUE(sut.has_value());
@@ -530,9 +530,9 @@ TEST_F(Optional_test, CopyConstructionWithElementWorks)
     EXPECT_THAT(sut->secondValue, Eq(6));
 }
 
-const std::string DEFAULT_STRING{"Live long and prosper"};
-constexpr int8_t DEFAULT_INT{0};
-constexpr int8_t DEFAULT_MULTIPLICATOR{2};
+const std::string DEFAULT_STRING{ "Live long and prosper" };
+constexpr int8_t DEFAULT_INT{ 0 };
+constexpr int8_t DEFAULT_MULTIPLICATOR{ 2 };
 
 struct TestStructForInPlaceConstruction
 {
@@ -566,8 +566,8 @@ struct TestStructForInPlaceConstruction
     {
     }
 
-    int8_t val{DEFAULT_INT};
-    std::unique_ptr<std::string> ptr{new std::string(DEFAULT_STRING)};
+    int8_t val{ DEFAULT_INT };
+    std::unique_ptr<std::string> ptr{ new std::string(DEFAULT_STRING) };
 };
 
 TEST_F(Optional_test, InPlaceConstructionCtorCallsDefCtorWhenCalledWithoutArgs)
@@ -608,7 +608,7 @@ TEST_F(Optional_test, InPlaceConstructionCtorCallsCorrectCtorWhenCalledWithPodRV
 TEST_F(Optional_test, InPlaceConstructionCtorCallsCorrectCtorWhenCalledWithComplexTypeRVal)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2a43bdf4-dfdf-4b3b-908b-d162b13435a9");
-    const std::string NEW_STRING{"Without followers, evil cannot spread"};
+    const std::string NEW_STRING{ "Without followers, evil cannot spread" };
     std::unique_ptr<std::string> ptr(new std::string(NEW_STRING));
     iox::optional<TestStructForInPlaceConstruction> sut(iox::in_place, std::move(ptr));
     ASSERT_TRUE(sut.has_value());
@@ -621,7 +621,7 @@ TEST_F(Optional_test, InPlaceConstructionCtorCallsCorrectCtorWhenCalledWithMixed
 {
     ::testing::Test::RecordProperty("TEST_ID", "49f1376c-6723-4231-83da-4682e89f1b6e");
     constexpr int8_t VAL = 11;
-    const std::string NEW_STRING{"Insufficient facts always invite danger"};
+    const std::string NEW_STRING{ "Insufficient facts always invite danger" };
 
     std::unique_ptr<std::string> ptr(new std::string(NEW_STRING));
     iox::optional<TestStructForInPlaceConstruction> sut(iox::in_place, VAL, std::move(ptr));

@@ -37,7 +37,7 @@ class Size_test : public Test
 TEST_F(Size_test, ArrayCapacityReturnsCorrectValues)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8392b2ba-04ef-45e6-8b47-4c0c90d98f61");
-    constexpr uint64_t CAPACITY{42};
+    constexpr uint64_t CAPACITY{ 42 };
     // NOLINTJUSTIFICATION Used only for test purposes
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
     constexpr uint32_t SUT[CAPACITY]{};

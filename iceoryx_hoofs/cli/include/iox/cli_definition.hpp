@@ -102,7 +102,7 @@
 #define IOX_CLI_DEFINITION(Name)                                                                                       \
   private:                                                                                                             \
     Name(::iox::cli::OptionManager& optionManager, int argc, char** argv, const uint64_t argcOffset = 1U)              \
-        : m_optionManager{&optionManager}                                                                              \
+        : m_optionManager{ &optionManager }                                                                            \
     {                                                                                                                  \
         m_optionManager->populateDefinedOptions(m_binaryName, argc, argv, argcOffset);                                 \
     }                                                                                                                  \

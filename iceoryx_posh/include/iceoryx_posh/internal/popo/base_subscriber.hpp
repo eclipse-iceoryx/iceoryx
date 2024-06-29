@@ -164,7 +164,7 @@ class BaseSubscriber
     port_t& port() noexcept;
 
   protected:
-    port_t m_port{nullptr};
+    port_t m_port{ nullptr };
     TriggerHandle m_trigger;
 };
 

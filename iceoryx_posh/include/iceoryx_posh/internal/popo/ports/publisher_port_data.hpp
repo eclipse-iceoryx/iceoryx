@@ -54,8 +54,8 @@ struct PublisherPortData : public BasePortData
 
     PublisherOptions m_options;
 
-    std::atomic_bool m_offeringRequested{false};
-    std::atomic_bool m_offered{false};
+    std::atomic_bool m_offeringRequested{ false };
+    std::atomic_bool m_offered{ false };
 };
 
 } // namespace popo

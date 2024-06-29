@@ -179,8 +179,8 @@ void testStreamOperatorLogHexFloatingPoint(Logger_Mock& loggerMock, LogType logV
 {
     LogStreamSut(loggerMock) << iox::log::hex(logValue);
 
-    constexpr uint64_t BUFFER_SIZE{1000};
-    std::array<char, BUFFER_SIZE> buffer{0};
+    constexpr uint64_t BUFFER_SIZE{ 1000 };
+    std::array<char, BUFFER_SIZE> buffer{ 0 };
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg,hicpp-vararg) required to create a hex formatted float
     EXPECT_THAT(snprintf(buffer.data(), BUFFER_SIZE - 1, floatingPointFormatSpecifier<LogType>(), logValue), Gt(0));
 

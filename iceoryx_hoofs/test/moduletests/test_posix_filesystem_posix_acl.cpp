@@ -47,13 +47,13 @@ class PosixAcl_test : public ::testing::Test
     }
 
     PosixAcl m_accessController;
-    FILE* m_fileStream{nullptr};
-    int m_fileDescriptor{0};
+    FILE* m_fileStream{ nullptr };
+    int m_fileDescriptor{ 0 };
 };
 
 struct PwUidResult
 {
-    static constexpr uint64_t BUFFER_SIZE{2048U};
+    static constexpr uint64_t BUFFER_SIZE{ 2048U };
     passwd pwd;
     // NOLINTJUSTIFICATION required as memory buffer for the getpwuid_r result
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
@@ -269,7 +269,7 @@ TEST_F(PosixAcl_test, addManyPermissions)
     ::testing::Test::RecordProperty("TEST_ID", "998c828b-8b9e-4677-9c36-4a1251c11241");
     PosixGroup::groupName_t groupName = "root";
 
-    bool entryAdded{false};
+    bool entryAdded{ false };
     for (int i = 0; i < PosixAcl::MaxNumOfPermissions; ++i)
     {
         entryAdded = m_accessController.addGroupPermission(PosixAcl::Permission::READWRITE, groupName);

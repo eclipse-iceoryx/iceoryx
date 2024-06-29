@@ -31,14 +31,14 @@ using namespace iox;
 using namespace iox::concurrent::detail;
 using namespace iox::units::duration_literals;
 
-constexpr std::chrono::milliseconds SLEEP_TIME{100};
-constexpr units::Duration INTERVAL{10_ms};
+constexpr std::chrono::milliseconds SLEEP_TIME{ 100 };
+constexpr units::Duration INTERVAL{ 10_ms };
 #if defined(__APPLE__)
-constexpr uint64_t MIN_RUNS{3U};
-constexpr uint64_t MAX_RUNS{17U};
+constexpr uint64_t MIN_RUNS{ 3U };
+constexpr uint64_t MAX_RUNS{ 17U };
 #else
-constexpr uint64_t MIN_RUNS{5U};
-constexpr uint64_t MAX_RUNS{15U};
+constexpr uint64_t MIN_RUNS{ 5U };
+constexpr uint64_t MAX_RUNS{ 15U };
 #endif
 
 struct PeriodicTaskTestType
@@ -64,7 +64,7 @@ struct PeriodicTaskTestType
     static uint64_t callCounter;
 };
 
-uint64_t PeriodicTaskTestType::callCounter{0};
+uint64_t PeriodicTaskTestType::callCounter{ 0 };
 
 class PeriodicTask_test : public Test
 {
@@ -166,7 +166,7 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithObjectWithDefaultConstru
 
 TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithObjectWithConstructorWithArguments, Repeat(3), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "be2b7225-344d-4700-974d-830d7ade60e3");
-    constexpr uint64_t CALL_COUNTER_OFFSET{1000ULL * 1000ULL * 1000ULL * 1000ULL};
+    constexpr uint64_t CALL_COUNTER_OFFSET{ 1000ULL * 1000ULL * 1000ULL * 1000ULL };
     {
         PeriodicTask<PeriodicTaskTestType> sut(PeriodicTaskAutoStart, INTERVAL, "Test", CALL_COUNTER_OFFSET);
 
@@ -228,7 +228,7 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWhichIsActiveAppliesNewIntervalAfte
     ::testing::Test::RecordProperty("TEST_ID", "af749dd8-e1ac-4b66-88ab-8839ee639818");
     auto start = std::chrono::steady_clock::now();
     {
-        constexpr units::Duration WAY_TOO_LARGE_INTERVAL{10 * MAX_RUNS * INTERVAL};
+        constexpr units::Duration WAY_TOO_LARGE_INTERVAL{ 10 * MAX_RUNS * INTERVAL };
         PeriodicTask<PeriodicTaskTestType> sut(PeriodicTaskAutoStart, WAY_TOO_LARGE_INTERVAL, "Test");
 
         sut.start(INTERVAL);
@@ -236,7 +236,7 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWhichIsActiveAppliesNewIntervalAfte
         std::this_thread::sleep_for(SLEEP_TIME);
     }
     auto stop = std::chrono::steady_clock::now();
-    auto elapsedTime{std::chrono::duration_cast<std::chrono::milliseconds>(stop - start)};
+    auto elapsedTime{ std::chrono::duration_cast<std::chrono::milliseconds>(stop - start) };
 
     EXPECT_THAT(elapsedTime, Le(2 * SLEEP_TIME));
     EXPECT_THAT(PeriodicTaskTestType::callCounter, AllOf(Ge(MIN_RUNS), Le(MAX_RUNS)));
@@ -249,7 +249,7 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWhichIsExecutingTheCallableIsBlocki
         PeriodicTaskAutoStart, INTERVAL, "Test", [] { std::this_thread::sleep_for(SLEEP_TIME); });
     sut.stop();
     auto stop = std::chrono::steady_clock::now();
-    auto elapsedTime{std::chrono::duration_cast<std::chrono::milliseconds>(stop - start)};
+    auto elapsedTime{ std::chrono::duration_cast<std::chrono::milliseconds>(stop - start) };
 
     EXPECT_THAT(elapsedTime, Ge(SLEEP_TIME));
 })

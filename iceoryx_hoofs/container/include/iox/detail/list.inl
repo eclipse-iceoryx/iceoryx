@@ -145,7 +145,7 @@ inline list<T, Capacity>::~list() noexcept
 template <typename T, uint64_t Capacity>
 inline typename list<T, Capacity>::iterator list<T, Capacity>::begin() noexcept
 {
-    return iterator{this, getNextIdx(BEGIN_END_LINK_INDEX)};
+    return iterator{ this, getNextIdx(BEGIN_END_LINK_INDEX) };
 }
 template <typename T, uint64_t Capacity>
 inline typename list<T, Capacity>::const_iterator list<T, Capacity>::begin() const noexcept
@@ -155,14 +155,14 @@ inline typename list<T, Capacity>::const_iterator list<T, Capacity>::begin() con
 template <typename T, uint64_t Capacity>
 inline typename list<T, Capacity>::const_iterator list<T, Capacity>::cbegin() const noexcept
 {
-    return const_iterator{this, getNextIdx(BEGIN_END_LINK_INDEX)};
+    return const_iterator{ this, getNextIdx(BEGIN_END_LINK_INDEX) };
 }
 
 
 template <typename T, uint64_t Capacity>
 inline typename list<T, Capacity>::iterator list<T, Capacity>::end() noexcept
 {
-    return iterator{this, BEGIN_END_LINK_INDEX};
+    return iterator{ this, BEGIN_END_LINK_INDEX };
 }
 template <typename T, uint64_t Capacity>
 inline typename list<T, Capacity>::const_iterator list<T, Capacity>::end() const noexcept
@@ -172,7 +172,7 @@ inline typename list<T, Capacity>::const_iterator list<T, Capacity>::end() const
 template <typename T, uint64_t Capacity>
 inline typename list<T, Capacity>::const_iterator list<T, Capacity>::cend() const noexcept
 {
-    return const_iterator{this, BEGIN_END_LINK_INDEX};
+    return const_iterator{ this, BEGIN_END_LINK_INDEX };
 }
 
 
@@ -255,7 +255,7 @@ inline typename list<T, Capacity>::iterator list<T, Capacity>::emplace(const_ite
 
     ++m_size;
 
-    return iterator{this, toBeAddedIdx};
+    return iterator{ this, toBeAddedIdx };
 }
 
 
@@ -293,7 +293,7 @@ inline typename list<T, Capacity>::iterator list<T, Capacity>::erase(const_itera
     --m_size;
 
     // Iterator to the element following the erased one, or end() if no such element exists.
-    return iterator{this, retIdx};
+    return iterator{ this, retIdx };
 }
 
 template <typename T, uint64_t Capacity>

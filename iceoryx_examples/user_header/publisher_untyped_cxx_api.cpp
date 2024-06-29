@@ -35,7 +35,7 @@ int main()
     //! [initialize runtime]
 
     //! [create publisher]
-    iox::popo::UntypedPublisher publisher({"Example", "User-Header", "Timestamp"});
+    iox::popo::UntypedPublisher publisher({ "Example", "User-Header", "Timestamp" });
     //! [create publisher]
 
     //! [send samples in a loop]
@@ -71,7 +71,7 @@ int main()
             });
         //! [loan chunk]
 
-        constexpr uint64_t MILLISECONDS_SLEEP{1000U};
+        constexpr uint64_t MILLISECONDS_SLEEP{ 1000U };
         std::this_thread::sleep_for(std::chrono::milliseconds(MILLISECONDS_SLEEP));
         timestamp += MILLISECONDS_SLEEP;
     }

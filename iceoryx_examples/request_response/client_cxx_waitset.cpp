@@ -28,10 +28,10 @@
 #include <iostream>
 
 constexpr char APP_NAME[] = "iox-cpp-request-response-client-waitset";
-volatile bool keepRunning = {true};
+volatile bool keepRunning = { true };
 
 using WaitSet = iox::popo::WaitSet<>;
-volatile WaitSet* waitsetSigHandlerAccess{nullptr};
+volatile WaitSet* waitsetSigHandlerAccess{ nullptr };
 
 //! [context data to store Fibonacci numbers and sequence ids]
 struct ContextData
@@ -72,7 +72,7 @@ int main()
     //! [create client]
     iox::popo::ClientOptions options;
     options.responseQueueCapacity = 2U;
-    iox::popo::Client<AddRequest, AddResponse> client({"Example", "Request-Response", "Add"}, options);
+    iox::popo::Client<AddRequest, AddResponse> client({ "Example", "Request-Response", "Add" }, options);
     //! [create client]
 
     // attach client to waitset
@@ -132,7 +132,7 @@ int main()
             }
         }
         //! [wait and check if the client triggered]
-        constexpr std::chrono::milliseconds SLEEP_TIME{950U};
+        constexpr std::chrono::milliseconds SLEEP_TIME{ 950U };
         std::this_thread::sleep_for(SLEEP_TIME);
     }
     //! [mainloop]

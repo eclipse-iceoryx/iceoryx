@@ -67,17 +67,18 @@ class PortManagerTester : public PortManager
 class PortManager_test : public Test
 {
   public:
-    iox::mepoo::MemoryManager* m_payloadDataSegmentMemoryManager{nullptr};
-    IceOryxRouDiMemoryManager* m_roudiMemoryManager{nullptr};
-    PortManagerTester* m_portManager{nullptr};
+    iox::mepoo::MemoryManager* m_payloadDataSegmentMemoryManager{ nullptr };
+    IceOryxRouDiMemoryManager* m_roudiMemoryManager{ nullptr };
+    PortManagerTester* m_portManager{ nullptr };
 
     uint16_t m_instIdCounter, m_eventIdCounter, m_sIdCounter;
 
-    iox::RuntimeName_t m_runtimeName{"TestApp"};
+    iox::RuntimeName_t m_runtimeName{ "TestApp" };
 
     vector<iox::capro::ServiceDescription, NUMBER_OF_INTERNAL_PUBLISHERS> internalServices;
-    const capro::ServiceDescription serviceRegistry{
-        SERVICE_DISCOVERY_SERVICE_NAME, SERVICE_DISCOVERY_INSTANCE_NAME, SERVICE_DISCOVERY_EVENT_NAME};
+    const capro::ServiceDescription serviceRegistry{ SERVICE_DISCOVERY_SERVICE_NAME,
+                                                     SERVICE_DISCOVERY_INSTANCE_NAME,
+                                                     SERVICE_DISCOVERY_EVENT_NAME };
 
     void SetUp() override
     {
@@ -133,9 +134,9 @@ class PortManager_test : public Test
                 }
             }
         }
-        return {into<lossy<IdString_t>>(convert::toString(m_sIdCounter)),
-                into<lossy<IdString_t>>(convert::toString(m_eventIdCounter)),
-                into<lossy<IdString_t>>(convert::toString(m_instIdCounter))};
+        return { into<lossy<IdString_t>>(convert::toString(m_sIdCounter)),
+                 into<lossy<IdString_t>>(convert::toString(m_eventIdCounter)),
+                 into<lossy<IdString_t>>(convert::toString(m_instIdCounter)) };
     }
 
     void acquireMaxNumberOfInterfaces(
@@ -179,20 +180,20 @@ class PortManager_test : public Test
         return PublisherPortUser(
             m_portManager
                 ->acquirePublisherPortData(
-                    {"1", "1", "1"}, options, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
+                    { "1", "1", "1" }, options, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
                 .value());
     }
 
     SubscriberPortUser createSubscriber(const SubscriberOptions& options)
     {
         return SubscriberPortUser(
-            m_portManager->acquireSubscriberPortData({"1", "1", "1"}, options, "schlomo", PortConfigInfo()).value());
+            m_portManager->acquireSubscriberPortData({ "1", "1", "1" }, options, "schlomo", PortConfigInfo()).value());
     }
 
     ClientPortUser createClient(const ClientOptions& options)
     {
-        const ServiceDescription sd{"1", "1", "1"};
-        const RuntimeName_t runtimeName{"guiseppe"};
+        const ServiceDescription sd{ "1", "1", "1" };
+        const RuntimeName_t runtimeName{ "guiseppe" };
         return ClientPortUser(
             *m_portManager->acquireClientPortData(sd, options, runtimeName, m_payloadDataSegmentMemoryManager, {})
                  .value());
@@ -200,8 +201,8 @@ class PortManager_test : public Test
 
     ServerPortUser createServer(const ServerOptions& options)
     {
-        const ServiceDescription sd{"1", "1", "1"};
-        const RuntimeName_t runtimeName{"schlomo"};
+        const ServiceDescription sd{ "1", "1", "1" };
+        const RuntimeName_t runtimeName{ "schlomo" };
         return ServerPortUser(
             *m_portManager->acquireServerPortData(sd, options, runtimeName, m_payloadDataSegmentMemoryManager, {})
                  .value());

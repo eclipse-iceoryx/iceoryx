@@ -195,8 +195,8 @@ class PortManager
     const ServiceRegistry& serviceRegistry() const noexcept;
 
   private:
-    RouDiMemoryInterface* m_roudiMemoryInterface{nullptr};
-    PortPool* m_portPool{nullptr};
+    RouDiMemoryInterface* m_roudiMemoryInterface{ nullptr };
+    PortPool* m_portPool{ nullptr };
     ServiceRegistry m_serviceRegistry;
     PortIntrospectionType m_portIntrospection;
     vector<capro::ServiceDescription, NUMBER_OF_INTERNAL_PUBLISHERS> m_internalServices;

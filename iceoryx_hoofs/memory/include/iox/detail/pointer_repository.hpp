@@ -23,7 +23,7 @@
 
 namespace iox
 {
-constexpr uint64_t MAX_POINTER_REPO_CAPACITY{10000U};
+constexpr uint64_t MAX_POINTER_REPO_CAPACITY{ 10000U };
 
 /// @brief Allows registration of memory segments with their start pointers and size.
 /// This class is used to resolve relative pointers in the corresponding address space of the application.
@@ -36,12 +36,12 @@ class PointerRepository final
   private:
     struct Info
     {
-        ptr_t basePtr{nullptr};
-        ptr_t endPtr{nullptr};
+        ptr_t basePtr{ nullptr };
+        ptr_t endPtr{ nullptr };
     };
 
-    static constexpr id_t MIN_ID{1U};
-    static constexpr id_t MAX_ID{CAPACITY - 1U};
+    static constexpr id_t MIN_ID{ 1U };
+    static constexpr id_t MAX_ID{ CAPACITY - 1U };
 
     static_assert(MAX_ID >= MIN_ID, "MAX_ID must be greater or equal than MIN_ID!");
     static_assert(CAPACITY >= 2, "CAPACITY must be at least 2!");
@@ -50,7 +50,7 @@ class PointerRepository final
     /// @note 0 is a special purpose id and reserved
     /// id 0 is reserved to interpret the offset just as a raw pointer,
     /// i.e. its corresponding base ptr is 0
-    static constexpr id_t RAW_POINTER_BEHAVIOUR_ID{0};
+    static constexpr id_t RAW_POINTER_BEHAVIOUR_ID{ 0 };
 
     /// @brief default constructor
     PointerRepository() noexcept;
@@ -103,7 +103,7 @@ class PointerRepository final
     /// and each needs to initialize it via register calls above
 
     iox::vector<Info, CAPACITY> m_info;
-    uint64_t m_maxRegistered{0U};
+    uint64_t m_maxRegistered{ 0U };
 
     bool addPointerIfIdIsFree(const id_t id, const ptr_t ptr, const uint64_t size) noexcept;
 };

@@ -31,15 +31,15 @@ namespace runtime
 /// if e.g. different types of shared memory are used (e.g. on GPU).
 struct PortConfigInfo
 {
-    static constexpr uint32_t DEFAULT_PORT_TYPE{0U};
-    static constexpr uint32_t DEFAULT_DEVICE_ID{0U};
-    static constexpr uint32_t DEFAULT_MEMORY_TYPE{0U};
+    static constexpr uint32_t DEFAULT_PORT_TYPE{ 0U };
+    static constexpr uint32_t DEFAULT_DEVICE_ID{ 0U };
+    static constexpr uint32_t DEFAULT_MEMORY_TYPE{ 0U };
 
     // these are intentionally not defined as enum classes for flexibility and extendibility
     // with specific user defined codes used by custom ports
     // values will be resolved at lower level, (i.e. in the port creation factory)
 
-    uint32_t portType{DEFAULT_PORT_TYPE};
+    uint32_t portType{ DEFAULT_PORT_TYPE };
     iox::mepoo::MemoryInfo memoryInfo;
 
     PortConfigInfo(const PortConfigInfo&) noexcept = default;

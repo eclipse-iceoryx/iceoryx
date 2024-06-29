@@ -32,9 +32,9 @@ using namespace ::testing;
 using namespace iox::capro;
 using namespace iox;
 
-static constexpr uint32_t DEFAULT_DEVICE_ID{20U};
-static constexpr uint32_t DEFAULT_MEMORY_TYPE{100U};
-static constexpr uint32_t QUEUE_CAPACITY{10U};
+static constexpr uint32_t DEFAULT_DEVICE_ID{ 20U };
+static constexpr uint32_t DEFAULT_MEMORY_TYPE{ 100U };
+static constexpr uint32_t QUEUE_CAPACITY{ 10U };
 class PortPool_test : public Test
 {
   public:
@@ -47,7 +47,7 @@ class PortPool_test : public Test
         {
             std::string service = "service" + convert::toString(i);
             auto serviceId = into<lossy<IdString_t>>(service);
-            ServiceDescription sd{serviceId, "instance", "event"};
+            ServiceDescription sd{ serviceId, "instance", "event" };
             RuntimeName_t runtimeName = into<lossy<RuntimeName_t>>("AppName" + convert::toString(i));
 
             auto clientPortResult = sut.addClientPort(sd, &m_memoryManager, runtimeName, m_clientOptions, m_memoryInfo);
@@ -70,7 +70,7 @@ class PortPool_test : public Test
         {
             std::string service = "service" + convert::toString(i);
             auto serviceId = into<lossy<IdString_t>>(service);
-            ServiceDescription sd{serviceId, "instance", "event"};
+            ServiceDescription sd{ serviceId, "instance", "event" };
             RuntimeName_t runtimeName = into<lossy<RuntimeName_t>>("AppName" + convert::toString(i));
 
             auto serverPortResult = sut.addServerPort(sd, &m_memoryManager, runtimeName, m_serverOptions, m_memoryInfo);
@@ -85,21 +85,22 @@ class PortPool_test : public Test
     }
 
   public:
-    roudi::PortPoolData m_portPoolData{roudi::DEFAULT_UNIQUE_ROUDI_ID};
-    roudi::PortPool sut{m_portPoolData};
+    roudi::PortPoolData m_portPoolData{ roudi::DEFAULT_UNIQUE_ROUDI_ID };
+    roudi::PortPool sut{ m_portPoolData };
 
-    ServiceDescription m_serviceDescription{"service1", "instance1", "event1"};
-    RuntimeName_t m_applicationName{"AppName"};
-    RuntimeName_t m_runtimeName{"runtimeName"};
-    NodeName_t m_nodeName{"nodeName"};
+    ServiceDescription m_serviceDescription{ "service1", "instance1", "event1" };
+    RuntimeName_t m_applicationName{ "AppName" };
+    RuntimeName_t m_runtimeName{ "runtimeName" };
+    NodeName_t m_nodeName{ "nodeName" };
     const uint64_t m_nodeDeviceId = 999U;
     mepoo::MemoryManager m_memoryManager;
-    popo::PublisherOptions m_publisherOptions{10U, m_nodeName};
-    popo::SubscriberOptions m_subscriberOptions{
-        iox::popo::SubscriberPortData::ChunkQueueData_t::MAX_CAPACITY, 10U, m_nodeName};
-    popo::ClientOptions m_clientOptions{QUEUE_CAPACITY, m_nodeName};
-    popo::ServerOptions m_serverOptions{QUEUE_CAPACITY, m_nodeName};
-    iox::mepoo::MemoryInfo m_memoryInfo{DEFAULT_DEVICE_ID, DEFAULT_MEMORY_TYPE};
+    popo::PublisherOptions m_publisherOptions{ 10U, m_nodeName };
+    popo::SubscriberOptions m_subscriberOptions{ iox::popo::SubscriberPortData::ChunkQueueData_t::MAX_CAPACITY,
+                                                 10U,
+                                                 m_nodeName };
+    popo::ClientOptions m_clientOptions{ QUEUE_CAPACITY, m_nodeName };
+    popo::ServerOptions m_serverOptions{ QUEUE_CAPACITY, m_nodeName };
+    iox::mepoo::MemoryInfo m_memoryInfo{ DEFAULT_DEVICE_ID, DEFAULT_MEMORY_TYPE };
 };
 
 // BEGIN PublisherPort tests
@@ -146,7 +147,7 @@ TEST_F(PortPool_test, AddPublisherPortWhenPublisherListOverflowsReturnsError)
         RuntimeName_t applicationName = into<lossy<RuntimeName_t>>("AppName" + convert::toString(i));
 
         return sut
-            .addPublisherPort({into<lossy<IdString_t>>(service), into<lossy<IdString_t>>(instance), "foo"},
+            .addPublisherPort({ into<lossy<IdString_t>>(service), into<lossy<IdString_t>>(instance), "foo" },
                               &m_memoryManager,
                               applicationName,
                               m_publisherOptions)
@@ -193,11 +194,12 @@ TEST_F(PortPool_test, GetPublisherPortDataListCompletelyFilledSuccessfully)
         std::string instance = "instance" + convert::toString(i);
         RuntimeName_t applicationName = into<lossy<RuntimeName_t>>("AppName" + convert::toString(i));
 
-        ASSERT_FALSE(sut.addPublisherPort({into<lossy<IdString_t>>(service), into<lossy<IdString_t>>(instance), "foo"},
-                                          &m_memoryManager,
-                                          applicationName,
-                                          m_publisherOptions)
-                         .has_error());
+        ASSERT_FALSE(
+            sut.addPublisherPort({ into<lossy<IdString_t>>(service), into<lossy<IdString_t>>(instance), "foo" },
+                                 &m_memoryManager,
+                                 applicationName,
+                                 m_publisherOptions)
+                .has_error());
     }
 
     EXPECT_EQ(sut.getPublisherPortDataList().size(), MAX_PUBLISHERS);
@@ -264,7 +266,7 @@ TEST_F(PortPool_test, AddSubscriberPortWhenSubscriberListOverflowsReturnsError)
 
 
         auto publisherPort =
-            sut.addSubscriberPort({into<lossy<IdString_t>>(service), into<lossy<IdString_t>>(instance), "foo"},
+            sut.addSubscriberPort({ into<lossy<IdString_t>>(service), into<lossy<IdString_t>>(instance), "foo" },
                                   applicationName,
                                   m_subscriberOptions);
         return publisherPort.has_error();
@@ -308,7 +310,7 @@ TEST_F(PortPool_test, GetSubscriberPortDataListCompletelyFilledIsSuccessful)
         RuntimeName_t applicationName = into<lossy<RuntimeName_t>>("AppName" + convert::toString(i));
 
         auto publisherPort =
-            sut.addSubscriberPort({into<lossy<IdString_t>>(service), into<lossy<IdString_t>>(instance), "foo"},
+            sut.addSubscriberPort({ into<lossy<IdString_t>>(service), into<lossy<IdString_t>>(instance), "foo" },
                                   applicationName,
                                   m_subscriberOptions);
         EXPECT_FALSE(publisherPort.has_error());
@@ -334,7 +336,7 @@ TEST_F(PortPool_test, RemoveSubscriberPortIsSuccessful)
 TEST_F(PortPool_test, AddClientPortIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "47d9cd34-22a6-480a-8595-d4abf46df428");
-    constexpr uint32_t NUMBER_OF_CLIENTS_TO_ADD{1U};
+    constexpr uint32_t NUMBER_OF_CLIENTS_TO_ADD{ 1U };
     auto addSuccessful =
         addClientPorts(NUMBER_OF_CLIENTS_TO_ADD, [&](const auto& sd, const auto& runtimeName, const auto& clientPort) {
             EXPECT_EQ(clientPort.m_serviceDescription, sd);
@@ -355,7 +357,7 @@ TEST_F(PortPool_test, AddClientPortIsSuccessful)
 TEST_F(PortPool_test, AddClientPortToMaxCapacityIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f8ee6f26-fdac-4bfd-9e28-46362e4359e9");
-    constexpr uint32_t NUMBER_OF_CLIENTS_TO_ADD{MAX_CLIENTS};
+    constexpr uint32_t NUMBER_OF_CLIENTS_TO_ADD{ MAX_CLIENTS };
     auto addSuccessful =
         addClientPorts(NUMBER_OF_CLIENTS_TO_ADD, [&](const auto& sd, const auto&, const auto& clientPort) {
             EXPECT_EQ(clientPort.m_serviceDescription, sd);
@@ -368,13 +370,13 @@ TEST_F(PortPool_test, AddClientPortToMaxCapacityIsSuccessful)
 TEST_F(PortPool_test, AddClientPortWhenClientListOverflowsReturnsError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "98c47d42-5f75-42a3-84b5-b97e72a17992");
-    constexpr uint32_t NUMBER_OF_CLIENTS_TO_ADD{MAX_CLIENTS};
+    constexpr uint32_t NUMBER_OF_CLIENTS_TO_ADD{ MAX_CLIENTS };
     auto addSuccessful = addClientPorts(NUMBER_OF_CLIENTS_TO_ADD, [&](const auto&, const auto&, const auto&) {});
 
     EXPECT_TRUE(addSuccessful);
     IOX_TESTING_EXPECT_OK();
 
-    constexpr uint32_t ONE_MORE_CLIENT{1U};
+    constexpr uint32_t ONE_MORE_CLIENT{ 1U };
     auto additionalAddSuccessful = addClientPorts(ONE_MORE_CLIENT, [&](const auto&, const auto&, const auto&) {});
 
     EXPECT_FALSE(additionalAddSuccessful);
@@ -385,7 +387,7 @@ TEST_F(PortPool_test, AddClientPortWhenClientListOverflowsReturnsError)
 TEST_F(PortPool_test, GetClientPortDataListIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "39119f21-ca97-4320-a805-029927a79372");
-    constexpr uint32_t NUMBER_OF_CLIENTS_TO_ADD{1U};
+    constexpr uint32_t NUMBER_OF_CLIENTS_TO_ADD{ 1U };
     auto addSuccessful = addClientPorts(NUMBER_OF_CLIENTS_TO_ADD, [&](const auto&, const auto&, const auto&) {});
     EXPECT_TRUE(addSuccessful);
 
@@ -402,7 +404,7 @@ TEST_F(PortPool_test, GetClientPortDataListWhenEmptyIsSuccessful)
 TEST_F(PortPool_test, GetClientPortDataListCompletelyFilledIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "cdac1dca-f438-4816-90f9-ca976b6ccd88");
-    constexpr uint32_t NUMBER_OF_CLIENTS_TO_ADD{MAX_CLIENTS};
+    constexpr uint32_t NUMBER_OF_CLIENTS_TO_ADD{ MAX_CLIENTS };
     auto addSuccessful = addClientPorts(NUMBER_OF_CLIENTS_TO_ADD, [&](const auto&, const auto&, const auto&) {});
     EXPECT_TRUE(addSuccessful);
 
@@ -412,7 +414,7 @@ TEST_F(PortPool_test, GetClientPortDataListCompletelyFilledIsSuccessful)
 TEST_F(PortPool_test, RemoveClientPortIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d93ecaef-555a-4db4-a49d-390366457f97");
-    constexpr uint32_t NUMBER_OF_CLIENTS_TO_ADD{1U};
+    constexpr uint32_t NUMBER_OF_CLIENTS_TO_ADD{ 1U };
     auto addSuccessful =
         addClientPorts(NUMBER_OF_CLIENTS_TO_ADD,
                        [&](const auto&, const auto&, const auto& clientPort) { sut.removeClientPort(&clientPort); });
@@ -428,7 +430,7 @@ TEST_F(PortPool_test, RemoveClientPortIsSuccessful)
 TEST_F(PortPool_test, AddServerPortIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ff0a77a0-5a60-460e-ba3c-f9c5669b7086");
-    constexpr uint32_t NUMBER_OF_SERVERS_TO_ADD{1U};
+    constexpr uint32_t NUMBER_OF_SERVERS_TO_ADD{ 1U };
     auto addSuccessful =
         addServerPorts(NUMBER_OF_SERVERS_TO_ADD, [&](const auto& sd, const auto& runtimeName, const auto& serverPort) {
             EXPECT_EQ(serverPort.m_serviceDescription, sd);
@@ -449,7 +451,7 @@ TEST_F(PortPool_test, AddServerPortIsSuccessful)
 TEST_F(PortPool_test, AddServerPortToMaxCapacityIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "496021f9-5ec3-4b1c-a551-8a0d50d0ac8f");
-    constexpr uint32_t NUMBER_OF_SERVERS_TO_ADD{MAX_SERVERS};
+    constexpr uint32_t NUMBER_OF_SERVERS_TO_ADD{ MAX_SERVERS };
     auto addSuccessful =
         addServerPorts(NUMBER_OF_SERVERS_TO_ADD, [&](const auto& sd, const auto&, const auto& serverPort) {
             EXPECT_EQ(serverPort.m_serviceDescription, sd);
@@ -462,12 +464,12 @@ TEST_F(PortPool_test, AddServerPortToMaxCapacityIsSuccessful)
 TEST_F(PortPool_test, AddServerPortWhenServerListOverflowsReturnsError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "744b3d73-b2d2-49cf-a748-e13dc6f3b06c");
-    constexpr uint32_t NUMBER_OF_SERVERS_TO_ADD{MAX_SERVERS};
+    constexpr uint32_t NUMBER_OF_SERVERS_TO_ADD{ MAX_SERVERS };
     auto addSuccessful = addServerPorts(NUMBER_OF_SERVERS_TO_ADD, [&](const auto&, const auto&, const auto&) {});
 
     EXPECT_TRUE(addSuccessful);
 
-    constexpr uint32_t ONE_MORE_SERVER{1U};
+    constexpr uint32_t ONE_MORE_SERVER{ 1U };
     auto additionalAddSuccessful = addServerPorts(ONE_MORE_SERVER, [&](const auto&, const auto&, const auto&) {});
 
     EXPECT_FALSE(additionalAddSuccessful);
@@ -478,7 +480,7 @@ TEST_F(PortPool_test, AddServerPortWhenServerListOverflowsReturnsError)
 TEST_F(PortPool_test, GetServerPortDataListIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d30fa67c-7f7d-43f1-a7bc-599e5668ab65");
-    constexpr uint32_t NUMBER_OF_SERVERS_TO_ADD{1U};
+    constexpr uint32_t NUMBER_OF_SERVERS_TO_ADD{ 1U };
     auto addSuccessful = addServerPorts(NUMBER_OF_SERVERS_TO_ADD, [&](const auto&, const auto&, const auto&) {});
     EXPECT_TRUE(addSuccessful);
 
@@ -495,7 +497,7 @@ TEST_F(PortPool_test, GetServerPortDataListWhenEmptyIsSuccessful)
 TEST_F(PortPool_test, GetServerPortDataListCompletelyFilledIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2968e43d-6972-4667-82f6-7762d479a729");
-    constexpr uint32_t NUMBER_OF_SERVERS_TO_ADD{MAX_SERVERS};
+    constexpr uint32_t NUMBER_OF_SERVERS_TO_ADD{ MAX_SERVERS };
     auto addSuccessful = addServerPorts(NUMBER_OF_SERVERS_TO_ADD, [&](const auto&, const auto&, const auto&) {});
     EXPECT_TRUE(addSuccessful);
 
@@ -505,7 +507,7 @@ TEST_F(PortPool_test, GetServerPortDataListCompletelyFilledIsSuccessful)
 TEST_F(PortPool_test, RemoveServerPortIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b140e3bf-0ddf-4e1a-824b-a4935596f371");
-    constexpr uint32_t NUMBER_OF_SERVERS_TO_ADD{1U};
+    constexpr uint32_t NUMBER_OF_SERVERS_TO_ADD{ 1U };
     auto addSuccessful =
         addServerPorts(NUMBER_OF_SERVERS_TO_ADD,
                        [&](const auto&, const auto&, const auto& serverPort) { sut.removeServerPort(&serverPort); });

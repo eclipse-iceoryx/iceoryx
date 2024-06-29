@@ -40,10 +40,10 @@ class UserTrigger_test : public Test
 {
   public:
     UserTrigger m_sut;
-    ConditionVariableData m_condVar{"Horscht"};
-    ConditionVariableData m_condVar2{"Schnuppi"};
-    WaitSetTest m_waitSet{m_condVar};
-    WaitSetTest m_waitSet2{m_condVar2};
+    ConditionVariableData m_condVar{ "Horscht" };
+    ConditionVariableData m_condVar2{ "Schnuppi" };
+    WaitSetTest m_waitSet{ m_condVar };
+    WaitSetTest m_waitSet2{ m_condVar2 };
 
     void SetUp()
     {

@@ -65,7 +65,7 @@ class SubscriberTest : public Test
 
   protected:
     ChunkMock<DummyData> chunkMock;
-    TestSubscriber sut{{"", "", ""}, iox::popo::SubscriberOptions()};
+    TestSubscriber sut{ { "", "", "" }, iox::popo::SubscriberOptions() };
 };
 
 TEST_F(SubscriberTest, GetsUIDViaBaseSubscriber)

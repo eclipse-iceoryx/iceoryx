@@ -103,8 +103,8 @@ class PosixSharedMemory : public FileManagementInterface<PosixSharedMemory>
     shm_handle_t get_file_handle() const noexcept;
 
     Name_t m_name;
-    shm_handle_t m_handle{INVALID_HANDLE};
-    bool m_hasOwnership{false};
+    shm_handle_t m_handle{ INVALID_HANDLE };
+    bool m_hasOwnership{ false };
 };
 
 class PosixSharedMemoryBuilder

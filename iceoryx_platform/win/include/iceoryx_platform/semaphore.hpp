@@ -39,8 +39,8 @@ constexpr uint32_t IOX_SEM_VALUE_MAX = INT_MAX;
 
 struct iox_sem_t
 {
-    HANDLE handle{nullptr};
-    bool isInterprocessSemaphore{false};
+    HANDLE handle{ nullptr };
+    bool isInterprocessSemaphore{ false };
     UniqueSystemId uniqueId;
 };
 

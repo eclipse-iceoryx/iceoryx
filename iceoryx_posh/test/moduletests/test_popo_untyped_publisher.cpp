@@ -28,8 +28,8 @@ using ::testing::_;
 
 struct alignas(2) TestUserHeader
 {
-    uint16_t dummy1{1U};
-    uint16_t dummy2{2U};
+    uint16_t dummy1{ 1U };
+    uint16_t dummy2{ 2U };
 };
 
 using TestUntypedPublisher = iox::popo::UntypedPublisherImpl<MockBasePublisher<void>>;
@@ -51,8 +51,8 @@ class UntypedPublisherTest : public Test
 
   protected:
     ChunkMock<uint64_t> chunkMock;
-    TestUntypedPublisher sut{{"", "", ""}};
-    MockPublisherPortUser& portMock{sut.mockPort()};
+    TestUntypedPublisher sut{ { "", "", "" } };
+    MockPublisherPortUser& portMock{ sut.mockPort() };
 };
 
 TEST_F(UntypedPublisherTest, LoansChunkWithRequestedSizeWorks)
@@ -76,8 +76,8 @@ TEST_F(UntypedPublisherTest, LoansChunkWithRequestedSizeWorks)
 TEST_F(UntypedPublisherTest, LoansChunkWithRequestedSizeAndUserHeaderWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3f191e7e-4a1c-421d-bc17-917eaf497682");
-    TestUntypedPublisher sutWithUserHeader{{"", "", ""}};
-    MockPublisherPortUser& portMockWithUserHeader{sutWithUserHeader.mockPort()};
+    TestUntypedPublisher sutWithUserHeader{ { "", "", "" } };
+    MockPublisherPortUser& portMockWithUserHeader{ sutWithUserHeader.mockPort() };
 
     constexpr uint64_t USER_PAYLOAD_SIZE = 42U;
     constexpr uint32_t USER_PAYLOAD_ALIGNMENT = 512U;

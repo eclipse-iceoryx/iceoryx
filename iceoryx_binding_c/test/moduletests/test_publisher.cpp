@@ -52,12 +52,12 @@ class iox_pub_test : public Test
   protected:
     struct DummySample
     {
-        uint64_t dummy{42};
+        uint64_t dummy{ 42 };
     };
 
     iox_pub_test()
     {
-        m_mempoolconf.addMemPool({CHUNK_SIZE, NUM_CHUNKS_IN_POOL});
+        m_mempoolconf.addMemPool({ CHUNK_SIZE, NUM_CHUNKS_IN_POOL });
         m_memoryManager.configureMemoryManager(m_mempoolconf, m_memoryAllocator, m_memoryAllocator);
     }
 
@@ -102,27 +102,25 @@ class iox_pub_test : public Test
     static constexpr uint64_t CHUNK_SIZE = 256;
 
     using ChunkQueueData_t = popo::ChunkQueueData<DefaultChunkQueueConfig, popo::ThreadSafePolicy>;
-    ChunkQueueData_t m_chunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
-                                      iox::popo::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    ChunkQueueData_t m_chunkQueueData{ iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
+                                       iox::popo::VariantQueueTypes::SoFi_SingleProducerSingleConsumer };
 
-    BumpAllocator m_memoryAllocator{m_memory, MEMORY_SIZE};
+    BumpAllocator m_memoryAllocator{ m_memory, MEMORY_SIZE };
     MePooConfig m_mempoolconf;
     MemoryManager m_memoryManager;
 
     // publisher port w/o history
-    PublisherPortData m_publisherPortData{ServiceDescription("a", "b", "c"),
-                                          "myApp",
-                                          roudi::DEFAULT_UNIQUE_ROUDI_ID,
-                                          &m_memoryManager,
-                                          PublisherOptions()};
+    PublisherPortData m_publisherPortData{
+        ServiceDescription("a", "b", "c"), "myApp", roudi::DEFAULT_UNIQUE_ROUDI_ID, &m_memoryManager, PublisherOptions()
+    };
 
     // publisher port w/ history
-    PublisherOptions m_publisherOptions{MAX_PUBLISHER_HISTORY};
-    PublisherPortData m_publisherPortDataHistory{capro::ServiceDescription("x", "y", "z"),
-                                                 "myApp",
-                                                 roudi::DEFAULT_UNIQUE_ROUDI_ID,
-                                                 &m_memoryManager,
-                                                 m_publisherOptions};
+    PublisherOptions m_publisherOptions{ MAX_PUBLISHER_HISTORY };
+    PublisherPortData m_publisherPortDataHistory{ capro::ServiceDescription("x", "y", "z"),
+                                                  "myApp",
+                                                  roudi::DEFAULT_UNIQUE_ROUDI_ID,
+                                                  &m_memoryManager,
+                                                  m_publisherOptions };
     cpp2c_Publisher m_sut;
 };
 
@@ -218,7 +216,7 @@ TEST_F(iox_pub_test, allocateChunkForOneChunkIsSuccessful)
 TEST_F(iox_pub_test, allocateChunkUserPayloadAlignmentIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c6e7e2ea-fa76-43e7-b217-5bfc4b94837c");
-    constexpr uint32_t USER_PAYLOAD_ALIGNMENT{128U};
+    constexpr uint32_t USER_PAYLOAD_ALIGNMENT{ 128U };
     void* chunk = nullptr;
     ASSERT_EQ(AllocationResult_SUCCESS,
               iox_pub_loan_aligned_chunk(&m_sut, &chunk, sizeof(DummySample), USER_PAYLOAD_ALIGNMENT));
@@ -246,7 +244,7 @@ TEST_F(iox_pub_test, allocateChunkWithUserHeaderIsSuccessful)
 TEST_F(iox_pub_test, allocateChunkWithUserHeaderAndUserPayloadAlignmentFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a2bcb0d4-b207-436f-9909-9e67815f525a");
-    constexpr uint32_t USER_PAYLOAD_ALIGNMENT{128U};
+    constexpr uint32_t USER_PAYLOAD_ALIGNMENT{ 128U };
     constexpr uint32_t USER_HEADER_SIZE = 4U;
     constexpr uint32_t USER_HEADER_ALIGNMENT = 3U;
 
@@ -291,7 +289,7 @@ TEST_F(iox_pub_test, allocate_chunkFailsWhenHoldingToManyChunksInParallel)
 TEST_F(iox_pub_test, allocate_chunkFailsWhenOutOfChunks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7563ed4c-a6d5-487d-9c6c-937d8e8c3d1d");
-    constexpr uint64_t USER_PAYLOAD_SIZE{100U};
+    constexpr uint64_t USER_PAYLOAD_SIZE{ 100U };
 
     auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
     ASSERT_FALSE(chunkSettingsResult.has_error());

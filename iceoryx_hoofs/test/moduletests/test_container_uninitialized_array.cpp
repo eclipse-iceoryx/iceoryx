@@ -52,7 +52,7 @@ struct Integer
     Integer& operator=(const Integer&) = delete;
     Integer& operator=(Integer&&) = delete;
 
-    int value{0};
+    int value{ 0 };
 
     // so that it behaves like an int for comparison purposes
     // NOLINTNEXTLINE(hicpp-explicit-conversions) required for typed tests
@@ -103,7 +103,7 @@ TEST(UninitializedArrayTest, capacityIsCorrect)
 TEST(UninitializedArrayTest, isNotCopyConstructible)
 {
     ::testing::Test::RecordProperty("TEST_ID", "abc31a08-77b2-4fd2-af14-3129bafda00c");
-    constexpr uint64_t CAPACITY{31U};
+    constexpr uint64_t CAPACITY{ 31U };
 
     bool isCopyConstructible = std::is_copy_constructible<UninitializedArray<int, CAPACITY>>::value;
     EXPECT_FALSE(isCopyConstructible);
@@ -112,7 +112,7 @@ TEST(UninitializedArrayTest, isNotCopyConstructible)
 TEST(UninitializedArrayTest, isNotCopyAssignable)
 {
     ::testing::Test::RecordProperty("TEST_ID", "42c31a08-77b2-4fd2-6914-3129869da00c");
-    constexpr uint64_t CAPACITY{69U};
+    constexpr uint64_t CAPACITY{ 69U };
 
     bool isCopyAssignable = std::is_copy_assignable<UninitializedArray<int, CAPACITY>>::value;
     EXPECT_FALSE(isCopyAssignable);
@@ -122,7 +122,7 @@ TEST(UninitializedArrayTest, isNotCopyAssignable)
 TEST(UninitializedArrayTest, isNotMoveConstructible)
 {
     ::testing::Test::RecordProperty("TEST_ID", "baf31a08-77b2-4692-6914-31298693100c");
-    constexpr uint64_t CAPACITY{13U};
+    constexpr uint64_t CAPACITY{ 13U };
 
     bool isMoveConstructible = std::is_move_constructible<UninitializedArray<int, CAPACITY>>::value;
     EXPECT_FALSE(isMoveConstructible);
@@ -131,7 +131,7 @@ TEST(UninitializedArrayTest, isNotMoveConstructible)
 TEST(UninitializedArrayTest, isNotMoveAssignable)
 {
     ::testing::Test::RecordProperty("TEST_ID", "caba1a08-77b2-4fd2-3114-3129842daa0c");
-    constexpr uint64_t CAPACITY{42U};
+    constexpr uint64_t CAPACITY{ 42U };
 
     bool isMoveAssignable = std::is_move_assignable<UninitializedArray<int, CAPACITY>>::value;
     EXPECT_FALSE(isMoveAssignable);
@@ -181,7 +181,7 @@ TYPED_TEST(UninitializedArrayTest, accessElementsOfConstUinitializedArray)
 TEST(UninitializedArrayTest, AllElementsInitializedWithZeroWhenBufferSetToZeroedBuffer)
 {
     ::testing::Test::RecordProperty("TEST_ID", "bb213516-ab37-43e3-b2ec-098c98d777d1");
-    constexpr uint64_t CAPACITY{32};
+    constexpr uint64_t CAPACITY{ 32 };
     UninitializedArray<uint32_t, CAPACITY, iox::ZeroedBuffer> buffer;
     for (auto& e : buffer)
     {
@@ -201,7 +201,7 @@ TEST(UninitializedArrayTest, AllElementsInitializedWithZeroWhenBufferSetToZeroed
 TEST(UninitializedArrayTest, AllElementsAreNotZeroedWhenBufferSetToNonZeroedBuffer)
 {
     ::testing::Test::RecordProperty("TEST_ID", "35666437-6ee5-4940-b053-e82d8e312a11");
-    constexpr uint64_t CAPACITY{32};
+    constexpr uint64_t CAPACITY{ 32 };
     UninitializedArray<uint32_t, CAPACITY, iox::ZeroedBuffer> buffer;
     for (auto& e : buffer)
     {
@@ -309,7 +309,7 @@ TEST(UninitializedArrayTest, IteratorIteratesThroughUninitializedArray)
     new (&buffer[1]) Type(INITIAL_VALUE + 1);
     new (&buffer[2]) Type(INITIAL_VALUE + 2);
 
-    uint32_t count{0};
+    uint32_t count{ 0 };
     for (auto& e : buffer)
     {
         EXPECT_EQ(e, INITIAL_VALUE + count);
@@ -332,7 +332,7 @@ TEST(UninitializedArrayTest, ConstIteratorIteratesThroughUninitializedArray)
     new (&buffer[1]) Type(INITIAL_VALUE + 1);
     new (&buffer[2]) Type(INITIAL_VALUE + 2);
 
-    uint32_t count{0};
+    uint32_t count{ 0 };
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) reuse of buffer to test const methods
     for (const auto& e : *const_cast<const decltype(buffer)*>(&buffer))
     {
@@ -345,7 +345,7 @@ TEST(UninitializedArrayTest, ConstIteratorIteratesThroughUninitializedArray)
 TEST(UninitializedArrayTest, UninitializedArrayDoesNotInitializeOrDestroyElements)
 {
     ::testing::Test::RecordProperty("TEST_ID", "60334385-60e8-49bc-b297-61f5a5a3b175");
-    constexpr uint64_t CAPACITY{15};
+    constexpr uint64_t CAPACITY{ 15 };
     Integer::ctor = 0;
     Integer::dtor = 0;
 
@@ -353,7 +353,7 @@ TEST(UninitializedArrayTest, UninitializedArrayDoesNotInitializeOrDestroyElement
         UninitializedArray<Integer, CAPACITY> buffer{};
         EXPECT_EQ(Integer::ctor, 0);
 
-        for (uint64_t i{0}; i < CAPACITY; ++i)
+        for (uint64_t i{ 0 }; i < CAPACITY; ++i)
         {
             new (&buffer[i]) Integer(51);
         }

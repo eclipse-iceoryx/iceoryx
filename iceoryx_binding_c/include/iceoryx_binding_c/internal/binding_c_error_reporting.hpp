@@ -97,7 +97,7 @@ class CBindingErrorType
         return "iceoryx_binding_c";
     }
 
-    static constexpr iox::er::ModuleId MODULE_ID{iox::er::ModuleId::BINDING_C};
+    static constexpr iox::er::ModuleId MODULE_ID{ iox::er::ModuleId::BINDING_C };
 
   protected:
     iox::er::ErrorCode m_code;

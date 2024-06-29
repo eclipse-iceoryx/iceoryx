@@ -203,7 +203,7 @@ class Listener
         MpmcLoFFLi::Index_t
             m_loffliStorage[MpmcLoFFLi::requiredIndexMemorySize(MAX_NUMBER_OF_EVENTS) / sizeof(uint32_t)];
         MpmcLoFFLi m_loffli;
-        std::atomic<uint64_t> m_indicesInUse{0U};
+        std::atomic<uint64_t> m_indicesInUse{ 0U };
     } m_indexManager;
 
 
@@ -211,7 +211,7 @@ class Listener
     concurrent::smart_lock<internal::Event_t, std::recursive_mutex> m_events[MAX_NUMBER_OF_EVENTS];
     std::mutex m_addEventMutex;
 
-    std::atomic_bool m_wasDtorCalled{false};
+    std::atomic_bool m_wasDtorCalled{ false };
     ConditionVariableData* m_conditionVariableData = nullptr;
     ConditionListener m_conditionListener;
 };

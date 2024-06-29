@@ -47,7 +47,7 @@ ProcessManager::ProcessManager(RouDiMemoryInterface& roudiMemoryInterface,
     , m_domainId(domainId)
     , m_compatibilityCheckLevel(compatibilityCheckLevel)
 {
-    bool fatalError{false};
+    bool fatalError{ false };
 
     auto maybeSegmentManager = m_roudiMemoryInterface.segmentManager();
     if (!maybeSegmentManager.has_value())
@@ -227,7 +227,7 @@ bool ProcessManager::registerProcess(const RuntimeName_t& name,
                                      const uint64_t sessionId,
                                      const version::VersionInfo& versionInfo) noexcept
 {
-    bool returnValue{false};
+    bool returnValue{ false };
 
     findProcess(name)
         .and_then([&](auto& process) {
@@ -248,7 +248,7 @@ bool ProcessManager::registerProcess(const RuntimeName_t& name,
                                        "recognizing it. Re-registering application");
 
             // remove the existing process and add the new process afterwards, we do not send ack to new process
-            constexpr TerminationFeedback TERMINATION_FEEDBACK{TerminationFeedback::DO_NOT_SEND_ACK_TO_PROCESS};
+            constexpr TerminationFeedback TERMINATION_FEEDBACK{ TerminationFeedback::DO_NOT_SEND_ACK_TO_PROCESS };
             if (!this->searchForProcessAndRemoveIt(name, TERMINATION_FEEDBACK))
             {
                 IOX_LOG(WARN, "Application " << name << " could not be removed");
@@ -296,20 +296,20 @@ bool ProcessManager::addProcess(const RuntimeName_t& name,
     }
 
     auto heartbeatPoolIndex = HeartbeatPool::Index::INVALID;
-    iox::UntypedRelativePointer::offset_t heartbeatOffset{iox::UntypedRelativePointer::NULL_POINTER_OFFSET};
+    iox::UntypedRelativePointer::offset_t heartbeatOffset{ iox::UntypedRelativePointer::NULL_POINTER_OFFSET };
 
     if (isMonitored)
     {
         auto heartbeat = m_heartbeatPool->emplace();
         heartbeatPoolIndex = heartbeat.to_index();
-        heartbeatOffset = UntypedRelativePointer::getOffset(segment_id_t{m_mgmtSegmentId}, heartbeat.to_ptr());
+        heartbeatOffset = UntypedRelativePointer::getOffset(segment_id_t{ m_mgmtSegmentId }, heartbeat.to_ptr());
     }
     m_processList.emplace_back(name, m_domainId, pid, user, heartbeatPoolIndex, sessionId);
 
     // send REG_ACK and BaseAddrString
     runtime::IpcMessage sendBuffer;
 
-    auto segmentManagerOffset = UntypedRelativePointer::getOffset(segment_id_t{m_mgmtSegmentId}, m_segmentManager);
+    auto segmentManagerOffset = UntypedRelativePointer::getOffset(segment_id_t{ m_mgmtSegmentId }, m_segmentManager);
     sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::REG_ACK)
                << m_roudiMemoryInterface.mgmtMemoryProvider()->size() << segmentManagerOffset << transmissionTimestamp
                << m_mgmtSegmentId << heartbeatOffset;
@@ -324,7 +324,7 @@ bool ProcessManager::addProcess(const RuntimeName_t& name,
 
 bool ProcessManager::unregisterProcess(const RuntimeName_t& name) noexcept
 {
-    constexpr TerminationFeedback FEEDBACK{TerminationFeedback::SEND_ACK_TO_PROCESS};
+    constexpr TerminationFeedback FEEDBACK{ TerminationFeedback::SEND_ACK_TO_PROCESS };
     if (!searchForProcessAndRemoveIt(name, FEEDBACK))
     {
         IOX_LOG(ERROR, "Application " << name << " could not be unregistered!");
@@ -388,7 +388,7 @@ void ProcessManager::addInterfaceForProcess(const RuntimeName_t& name, capro::In
             popo::InterfacePortData* port = m_portManager.acquireInterfacePortData(interface, name);
 
             // send ReceiverPort to app as a serialized relative pointer
-            auto offset = UntypedRelativePointer::getOffset(segment_id_t{m_mgmtSegmentId}, port);
+            auto offset = UntypedRelativePointer::getOffset(segment_id_t{ m_mgmtSegmentId }, port);
 
             runtime::IpcMessage sendBuffer;
             sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_INTERFACE_ACK)
@@ -425,7 +425,8 @@ void ProcessManager::addSubscriberForProcess(const RuntimeName_t& name,
             if (maybeSubscriber.has_value())
             {
                 // send SubscriberPort to app as a serialized relative pointer
-                auto offset = UntypedRelativePointer::getOffset(segment_id_t{m_mgmtSegmentId}, maybeSubscriber.value());
+                auto offset =
+                    UntypedRelativePointer::getOffset(segment_id_t{ m_mgmtSegmentId }, maybeSubscriber.value());
 
                 runtime::IpcMessage sendBuffer;
                 sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_SUBSCRIBER_ACK)
@@ -480,7 +481,8 @@ void ProcessManager::addPublisherForProcess(const RuntimeName_t& name,
             if (maybePublisher.has_value())
             {
                 // send PublisherPort to app as a serialized relative pointer
-                auto offset = UntypedRelativePointer::getOffset(segment_id_t{m_mgmtSegmentId}, maybePublisher.value());
+                auto offset =
+                    UntypedRelativePointer::getOffset(segment_id_t{ m_mgmtSegmentId }, maybePublisher.value());
 
                 runtime::IpcMessage sendBuffer;
                 sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_PUBLISHER_ACK)
@@ -556,7 +558,7 @@ void ProcessManager::addClientForProcess(const RuntimeName_t& name,
                     service, clientOptions, name, &segmentInfo.m_memoryManager.value().get(), portConfigInfo)
                 .and_then([&](auto& clientPort) {
                     auto relativePtrToClientPort =
-                        UntypedRelativePointer::getOffset(segment_id_t{m_mgmtSegmentId}, clientPort);
+                        UntypedRelativePointer::getOffset(segment_id_t{ m_mgmtSegmentId }, clientPort);
 
                     runtime::IpcMessage sendBuffer;
                     sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_CLIENT_ACK)
@@ -610,7 +612,7 @@ void ProcessManager::addServerForProcess(const RuntimeName_t& name,
                     service, serverOptions, name, &segmentInfo.m_memoryManager.value().get(), portConfigInfo)
                 .and_then([&](auto& serverPort) {
                     auto relativePtrToServerPort =
-                        UntypedRelativePointer::getOffset(segment_id_t{m_mgmtSegmentId}, serverPort);
+                        UntypedRelativePointer::getOffset(segment_id_t{ m_mgmtSegmentId }, serverPort);
 
                     runtime::IpcMessage sendBuffer;
                     sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_SERVER_ACK)
@@ -645,7 +647,7 @@ void ProcessManager::addConditionVariableForProcess(const RuntimeName_t& runtime
         .and_then([&](auto& process) { // Try to create a condition variable
             m_portManager.acquireConditionVariableData(runtimeName)
                 .and_then([&](auto condVar) {
-                    auto offset = UntypedRelativePointer::getOffset(segment_id_t{m_mgmtSegmentId}, condVar);
+                    auto offset = UntypedRelativePointer::getOffset(segment_id_t{ m_mgmtSegmentId }, condVar);
 
                     runtime::IpcMessage sendBuffer;
                     sendBuffer << runtime::IpcMessageTypeToString(
@@ -716,7 +718,7 @@ void ProcessManager::monitorProcesses() noexcept
         auto elapsedMilliseconds = currentHeartbeatIterator->elapsed_milliseconds_since_last_beat();
         if (elapsedMilliseconds > timeout)
         {
-            bool removed{false};
+            bool removed{ false };
             auto processIterator = m_processList.begin();
             while (processIterator != m_processList.end())
             {

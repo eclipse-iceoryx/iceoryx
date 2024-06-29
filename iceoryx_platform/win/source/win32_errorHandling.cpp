@@ -23,14 +23,14 @@
 
 int __PrintLastErrorToConsole(const char* functionName, const char* file, const int line) noexcept
 {
-    constexpr uint64_t BUFFER_SIZE{2048u};
+    constexpr uint64_t BUFFER_SIZE{ 2048u };
     int lastError = GetLastError();
     if (lastError != 0)
     {
         char buffer[BUFFER_SIZE];
         sprintf(buffer, "< Win32API Error > [%d] ::: ", lastError);
         size_t used_buffer_size = strlen(buffer);
-        constexpr size_t NULL_TERMINATOR_SIZE{1};
+        constexpr size_t NULL_TERMINATOR_SIZE{ 1 };
         size_t remaining_buffer_size = BUFFER_SIZE - used_buffer_size - NULL_TERMINATOR_SIZE;
 
         FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_MAX_WIDTH_MASK,

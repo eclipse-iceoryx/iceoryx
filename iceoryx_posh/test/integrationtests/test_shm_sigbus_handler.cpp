@@ -35,14 +35,14 @@ TEST(ShmCreatorDeathTest, AllocatingTooMuchMemoryLeadsToExitWithSIGBUS)
     GTEST_SKIP() << "This test does not run reliable on the CI on unix like systems";
 #endif
 
-    const iox::ShmName_t TEST_SHM_NAME{"test_name"};
+    const iox::ShmName_t TEST_SHM_NAME{ "test_name" };
     // the death test makes only sense on platforms which are zeroing the whole shared memory
     // if the memory is only reserved a death will never occur
     if (iox::platform::IOX_SHM_WRITE_ZEROS_ON_CREATION)
     {
         // try a config with high memory requirements, expect failure
         iox::mepoo::MePooConfig badconfig;
-        badconfig.addMemPool({1 << 30, 100});
+        badconfig.addMemPool({ 1 << 30, 100 });
         iox::roudi::MemPoolCollectionMemoryBlock badmempools(badconfig);
         iox::roudi::PosixShmMemoryProvider badShmProvider(
             TEST_SHM_NAME, iox::DEFAULT_DOMAIN_ID, iox::AccessMode::READ_WRITE, iox::OpenMode::PURGE_AND_CREATE);
@@ -55,7 +55,7 @@ TEST(ShmCreatorDeathTest, AllocatingTooMuchMemoryLeadsToExitWithSIGBUS)
     // try again with a config with low memory requirements; success clears shared memory allocated by the OS in
     // e.g. /dev/shm
     iox::mepoo::MePooConfig goodconfig;
-    goodconfig.addMemPool({1024, 1});
+    goodconfig.addMemPool({ 1024, 1 });
     iox::roudi::MemPoolCollectionMemoryBlock goodmempools(goodconfig);
     iox::roudi::PosixShmMemoryProvider goodShmProvider(
         TEST_SHM_NAME, iox::DEFAULT_DOMAIN_ID, iox::AccessMode::READ_WRITE, iox::OpenMode::PURGE_AND_CREATE);

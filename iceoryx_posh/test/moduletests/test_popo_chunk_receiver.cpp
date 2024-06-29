@@ -39,7 +39,7 @@ using namespace ::testing;
 
 struct DummySample
 {
-    uint64_t dummy{42};
+    uint64_t dummy{ 42 };
 };
 
 class ChunkReceiver_test : public Test
@@ -47,7 +47,7 @@ class ChunkReceiver_test : public Test
   protected:
     ChunkReceiver_test()
     {
-        m_mempoolconf.addMemPool({CHUNK_SIZE, NUM_CHUNKS_IN_POOL});
+        m_mempoolconf.addMemPool({ CHUNK_SIZE, NUM_CHUNKS_IN_POOL });
         m_memoryManager.configureMemoryManager(m_mempoolconf, m_memoryAllocator, m_memoryAllocator);
     }
 
@@ -74,12 +74,12 @@ class ChunkReceiver_test : public Test
 
     static constexpr size_t MEGABYTE = 1 << 20;
     static constexpr size_t MEMORY_SIZE = 4 * MEGABYTE;
-    std::unique_ptr<char[]> m_memory{new char[MEMORY_SIZE]};
+    std::unique_ptr<char[]> m_memory{ new char[MEMORY_SIZE] };
     static constexpr uint32_t NUM_CHUNKS_IN_POOL =
         iox::MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY + iox::MAX_SUBSCRIBER_QUEUE_CAPACITY;
     static constexpr uint64_t CHUNK_SIZE = 128;
 
-    iox::BumpAllocator m_memoryAllocator{m_memory.get(), MEMORY_SIZE};
+    iox::BumpAllocator m_memoryAllocator{ m_memory.get(), MEMORY_SIZE };
     iox::mepoo::MePooConfig m_mempoolconf;
     iox::mepoo::MemoryManager m_memoryManager;
 
@@ -88,11 +88,11 @@ class ChunkReceiver_test : public Test
         iox::popo::ChunkReceiverData<iox::MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY, ChunkQueueData_t>;
     using ChunkQueuePopper_t = iox::popo::ChunkQueuePopper<ChunkQueueData_t>;
 
-    ChunkReceiverData_t m_chunkReceiverData{iox::popo::VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
-                                            iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA};
-    iox::popo::ChunkReceiver<ChunkReceiverData_t> m_chunkReceiver{&m_chunkReceiverData};
+    ChunkReceiverData_t m_chunkReceiverData{ iox::popo::VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
+                                             iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA };
+    iox::popo::ChunkReceiver<ChunkReceiverData_t> m_chunkReceiver{ &m_chunkReceiverData };
 
-    iox::popo::ChunkQueuePusher<ChunkReceiverData_t> m_chunkQueuePusher{&m_chunkReceiverData};
+    iox::popo::ChunkQueuePusher<ChunkReceiverData_t> m_chunkQueuePusher{ &m_chunkReceiverData };
 };
 
 TEST_F(ChunkReceiver_test, getNoChunkFromEmptyQueue)
@@ -238,10 +238,10 @@ TEST_F(ChunkReceiver_test, asStringLiteralConvertsChunkReceiveResultValuesToStri
     using ChunkReceiveResult = iox::popo::ChunkReceiveResult;
 
     // each bit corresponds to an enum value and must be set to true on test
-    uint64_t testedEnumValues{0U};
-    uint64_t loopCounter{0U};
+    uint64_t testedEnumValues{ 0U };
+    uint64_t loopCounter{ 0U };
     for (const auto& sut :
-         {ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL, ChunkReceiveResult::NO_CHUNK_AVAILABLE})
+         { ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL, ChunkReceiveResult::NO_CHUNK_AVAILABLE })
     {
         auto enumString = iox::popo::asStringLiteral(sut);
 

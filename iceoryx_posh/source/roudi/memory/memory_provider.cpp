@@ -126,7 +126,7 @@ expected<void, MemoryProviderError> MemoryProvider::destroy() noexcept
 
     if (!destructionResult.has_error())
     {
-        UntypedRelativePointer::unregisterPtr(segment_id_t{m_segmentId});
+        UntypedRelativePointer::unregisterPtr(segment_id_t{ m_segmentId });
         m_memory = nullptr;
         m_size = 0U;
     }

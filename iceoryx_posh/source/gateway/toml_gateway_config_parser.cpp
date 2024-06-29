@@ -49,7 +49,7 @@ iox::config::TomlGatewayConfigParser::parse(const roudi::ConfigFilePathString_t&
 
     IOX_LOG(INFO, "Using gateway config at: " << path);
 
-    std::ifstream fileStream{path.c_str()};
+    std::ifstream fileStream{ path.c_str() };
     if (!fileStream.is_open())
     {
         IOX_LOG(ERROR, "Could not open config file from path '" << path << "'");
@@ -81,10 +81,10 @@ iox::config::TomlGatewayConfigParser::parse(std::istream& stream) noexcept
 iox::expected<void, iox::config::TomlGatewayConfigParseError>
 iox::config::TomlGatewayConfigParser::parse(std::istream& stream, GatewayConfig& config) noexcept
 {
-    std::shared_ptr<cpptoml::table> parsedToml{nullptr};
+    std::shared_ptr<cpptoml::table> parsedToml{ nullptr };
     try
     {
-        cpptoml::parser p{stream};
+        cpptoml::parser p{ stream };
         parsedToml = p.parse();
     }
     catch (const std::exception& parserException)

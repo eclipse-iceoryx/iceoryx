@@ -30,7 +30,7 @@ template <typename Child,
 template <uint64_t N>
 inline SemanticString<Child, Capacity, DoesContainInvalidContentCall, DoesContainInvalidCharacterCall>::SemanticString(
     const string<N>& value) noexcept
-    : m_data{value}
+    : m_data{ value }
 {
 }
 
@@ -51,7 +51,7 @@ SemanticString<Child, Capacity, DoesContainInvalidContentCall, DoesContainInvali
         return err(SemanticStringError::ExceedsMaximumLength);
     }
 
-    string<Capacity> str{TruncateToCapacity, value};
+    string<Capacity> str{ TruncateToCapacity, value };
 
     if (DoesContainInvalidCharacterCall(str))
     {

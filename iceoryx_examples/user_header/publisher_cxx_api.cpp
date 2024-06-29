@@ -33,7 +33,7 @@ int main()
     //! [initialize runtime]
 
     //! [create publisher]
-    iox::popo::Publisher<Data, Header> publisher({"Example", "User-Header", "Timestamp"});
+    iox::popo::Publisher<Data, Header> publisher({ "Example", "User-Header", "Timestamp" });
     //! [create publisher]
 
     //! [send samples in a loop]
@@ -47,7 +47,7 @@ int main()
         fibonacciCurrent = fibonacciNext;
 
         //! [loan sample]
-        publisher.loan(Data{fibonacciCurrent})
+        publisher.loan(Data{ fibonacciCurrent })
             .and_then([&](auto& sample) {
                 //! [loan was successful]
                 sample.getUserHeader().publisherTimestamp = timestamp;
@@ -64,7 +64,7 @@ int main()
             });
         //! [loan sample]
 
-        constexpr uint64_t MILLISECONDS_SLEEP{1000U};
+        constexpr uint64_t MILLISECONDS_SLEEP{ 1000U };
         std::this_thread::sleep_for(std::chrono::milliseconds(MILLISECONDS_SLEEP));
         timestamp += MILLISECONDS_SLEEP;
     }

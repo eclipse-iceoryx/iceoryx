@@ -99,7 +99,7 @@ class static_storage final
     // AXIVION Next Construct AutosarC++19_03-A18.1.1 : safe access is guaranteed since the c-array is wrapped inside the static_storage
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     alignas(Align) uint8_t m_bytes[Capacity];
-    void* m_ptr{nullptr};
+    void* m_ptr{ nullptr };
 
     static constexpr uint64_t align_mismatch(uint64_t align, uint64_t requiredAlign) noexcept;
 };

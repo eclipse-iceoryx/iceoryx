@@ -24,8 +24,8 @@ template <uint64_t StringCapacity>
 inline bool isValidPathEntry(const iox::string<StringCapacity>& name,
                              const RelativePathComponents relativePathComponents) noexcept
 {
-    const iox::string<StringCapacity> currentDirectory{"."};
-    const iox::string<StringCapacity> parentDirectory{".."};
+    const iox::string<StringCapacity> currentDirectory{ "." };
+    const iox::string<StringCapacity> parentDirectory{ ".." };
 
     if ((name == currentDirectory) || (name == parentDirectory))
     {
@@ -34,19 +34,19 @@ inline bool isValidPathEntry(const iox::string<StringCapacity>& name,
 
     const auto nameSize = name.size();
 
-    for (uint64_t i{0}; i < nameSize; ++i)
+    for (uint64_t i{ 0 }; i < nameSize; ++i)
     {
         // AXIVION Next Construct AutosarC++19_03-A3.9.1: Not used as an integer but as actual character
-        const char c{name[i]};
+        const char c{ name[i] };
 
         // AXIVION DISABLE STYLE FaultDetection-UnusedAssignments : False positive, variable IS used
         // AXIVION DISABLE STYLE AutosarC++19_03-A0.1.1 : False positive, variable IS used
         // AXIVION DISABLE STYLE AutosarC++19_03-M4.5.3 : We are explicitly checking for ASCII characters which have defined consecutive values
-        const bool isSmallLetter{(internal::ASCII_A <= c) && (c <= internal::ASCII_Z)};
-        const bool isCapitalLetter{(internal::ASCII_CAPITAL_A <= c) && (c <= internal::ASCII_CAPITAL_Z)};
-        const bool isNumber{(internal::ASCII_0 <= c) && (c <= internal::ASCII_9)};
-        const bool isSpecialCharacter{((c == internal::ASCII_DASH) || (c == internal::ASCII_DOT))
-                                      || ((c == internal::ASCII_COLON) || (c == internal::ASCII_UNDERSCORE))};
+        const bool isSmallLetter{ (internal::ASCII_A <= c) && (c <= internal::ASCII_Z) };
+        const bool isCapitalLetter{ (internal::ASCII_CAPITAL_A <= c) && (c <= internal::ASCII_CAPITAL_Z) };
+        const bool isNumber{ (internal::ASCII_0 <= c) && (c <= internal::ASCII_9) };
+        const bool isSpecialCharacter{ ((c == internal::ASCII_DASH) || (c == internal::ASCII_DOT))
+                                       || ((c == internal::ASCII_COLON) || (c == internal::ASCII_UNDERSCORE)) };
         // AXIVION ENABLE STYLE AutosarC++19_03-M4.5.3
         // AXIVION ENABLE STYLE AutosarC++19_03-A0.1.1
         // AXIVION ENABLE STYLE FaultDetection-UnusedAssignments
@@ -96,15 +96,15 @@ inline bool isValidPathToFile(const iox::string<StringCapacity>& name) noexcept
 
     const auto& position = maybeSeparator.value();
 
-    bool isFileNameValid{false};
+    bool isFileNameValid{ false };
     name.substr(position + 1).and_then([&isFileNameValid](const auto& s) noexcept {
         isFileNameValid = isValidFileName(s);
     });
 
-    bool isPathValid{false};
+    bool isPathValid{ false };
     name.substr(0, position).and_then([&isPathValid](const auto& s) noexcept {
-        const bool isEmptyPath{s.empty()};
-        const bool isPathToDirectoryValid{isValidPathToDirectory(s)};
+        const bool isEmptyPath{ s.empty() };
+        const bool isPathToDirectoryValid{ isValidPathToDirectory(s) };
         isPathValid = isEmptyPath || isPathToDirectoryValid;
     });
 
@@ -120,11 +120,12 @@ inline bool isValidPathToDirectory(const iox::string<StringCapacity>& name) noex
         return false;
     }
 
-    const iox::string<StringCapacity> currentDirectory{"."};
-    const iox::string<StringCapacity> parentDirectory{".."};
+    const iox::string<StringCapacity> currentDirectory{ "." };
+    const iox::string<StringCapacity> parentDirectory{ ".." };
 
     const iox::string<platform::IOX_NUMBER_OF_PATH_SEPARATORS> pathSeparators{
-        TruncateToCapacity, &platform::IOX_PATH_SEPARATORS[0], platform::IOX_NUMBER_OF_PATH_SEPARATORS};
+        TruncateToCapacity, &platform::IOX_PATH_SEPARATORS[0], platform::IOX_NUMBER_OF_PATH_SEPARATORS
+    };
 
     auto remaining = name;
     while (!remaining.empty())
@@ -133,7 +134,7 @@ inline bool isValidPathToDirectory(const iox::string<StringCapacity>& name) noex
 
         if (separatorPosition.has_value())
         {
-            const uint64_t position{separatorPosition.value()};
+            const uint64_t position{ separatorPosition.value() };
 
             // multiple slashes are explicitly allowed. the following paths
             // are equivalent:
@@ -147,9 +148,9 @@ inline bool isValidPathToDirectory(const iox::string<StringCapacity>& name) noex
             {
                 const auto guaranteedSubstr = remaining.substr(0, position);
                 const auto& filenameToVerify = guaranteedSubstr.value();
-                const bool isValidDirectory{
-                    (isValidFileName(filenameToVerify))
-                    || ((filenameToVerify == currentDirectory) || (filenameToVerify == parentDirectory))};
+                const bool isValidDirectory{ (isValidFileName(filenameToVerify))
+                                             || ((filenameToVerify == currentDirectory)
+                                                 || (filenameToVerify == parentDirectory)) };
                 if (!isValidDirectory)
                 {
                     return false;
@@ -176,7 +177,7 @@ inline bool doesEndWithPathSeparator(const iox::string<StringCapacity>& name) no
         return false;
     }
     // AXIVION Next Construct AutosarC++19_03-A3.9.1: Not used as an integer but as actual character
-    const char lastCharacter{name[name.size() - 1U]};
+    const char lastCharacter{ name[name.size() - 1U] };
 
     for (const auto separator : iox::platform::IOX_PATH_SEPARATORS)
     {

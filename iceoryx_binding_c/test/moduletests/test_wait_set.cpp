@@ -90,13 +90,13 @@ class iox_ws_test : public Test
     }
 
     std::unique_ptr<PoshRuntimeMock> runtimeMock = PoshRuntimeMock::create("rudi_ruessel");
-    const iox::capro::ServiceDescription TEST_SERVICE_DESCRIPTION{"a", "b", "c"};
-    iox::popo::SubscriberOptions m_subscriberOptions{MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY, 0U};
+    const iox::capro::ServiceDescription TEST_SERVICE_DESCRIPTION{ "a", "b", "c" };
+    iox::popo::SubscriberOptions m_subscriberOptions{ MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY, 0U };
     vector<iox::popo::SubscriberPortData, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET + 1U> m_portDataVector;
     vector<cpp2c_Subscriber, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET + 1U> m_subscriberVector;
 
-    ConditionVariableData m_condVar{"Horscht"};
-    WaitSetMock* m_sut = new WaitSetMock{m_condVar};
+    ConditionVariableData m_condVar{ "Horscht" };
+    WaitSetMock* m_sut = new WaitSetMock{ m_condVar };
 
     iox_user_trigger_storage_t m_userTriggerStorage[MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET + 1];
     vector<iox_user_trigger_t, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET + 1> m_userTrigger;
@@ -104,21 +104,21 @@ class iox_ws_test : public Test
     iox_notification_info_t m_eventInfoStorage[MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET];
     uint64_t m_missedElements = 0U;
     uint64_t m_numberOfTriggeredConditions = 0U;
-    timespec m_timeout{0, 0};
+    timespec m_timeout{ 0, 0 };
 
     iox::mepoo::MemoryManager memoryManager;
-    ClientPortData clientPortData{{"ServiceA", "InstanceA", "EventA"},
-                                  "rudi_ruessel",
-                                  roudi::DEFAULT_UNIQUE_ROUDI_ID,
-                                  ClientOptions(),
-                                  &memoryManager};
+    ClientPortData clientPortData{ { "ServiceA", "InstanceA", "EventA" },
+                                   "rudi_ruessel",
+                                   roudi::DEFAULT_UNIQUE_ROUDI_ID,
+                                   ClientOptions(),
+                                   &memoryManager };
     iox_client_storage_t clientStorage;
 
-    ServerPortData serverPortData{{"ServiceA", "InstanceA", "EventA"},
-                                  "hypnotoad_loves_iceoryx",
-                                  roudi::DEFAULT_UNIQUE_ROUDI_ID,
-                                  ServerOptions(),
-                                  &memoryManager};
+    ServerPortData serverPortData{ { "ServiceA", "InstanceA", "EventA" },
+                                   "hypnotoad_loves_iceoryx",
+                                   roudi::DEFAULT_UNIQUE_ROUDI_ID,
+                                   ServerOptions(),
+                                   &memoryManager };
     iox_server_storage_t serverStorage;
 
     static void* m_callbackOrigin;
@@ -986,7 +986,7 @@ TIMING_TEST_F(iox_ws_test, WaitIsBlockingTillTriggered, Repeat(5), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "6d8a476d-5bcd-45a5-bbd4-7b3b709ac967");
     iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[0U], 0U, userTriggerCallback);
 
-    std::atomic_bool waitWasCalled{false};
+    std::atomic_bool waitWasCalled{ false };
     std::thread t([&] {
         iox_ws_wait(m_sut, NULL, 0U, &m_missedElements);
         waitWasCalled.store(true);
@@ -1003,7 +1003,7 @@ TIMING_TEST_F(iox_ws_test, WaitIsBlockingTillTriggered, Repeat(5), [&] {
 
 TIMING_TEST_F(iox_ws_test, WaitIsNonBlockingAfterMarkForDestruction, Repeat(5), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "4e576665-fda1-4f3c-8588-e9d2cffcb3f4");
-    std::atomic_bool waitWasCalled{false};
+    std::atomic_bool waitWasCalled{ false };
     std::thread t([&] {
         iox_ws_wait(m_sut, NULL, 0U, &m_missedElements);
         iox_ws_wait(m_sut, NULL, 0U, &m_missedElements);
@@ -1025,9 +1025,9 @@ TIMING_TEST_F(iox_ws_test, TimedWaitIsBlockingTillTriggered, Repeat(5), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "e79edc1d-8b8a-4dd0-97ba-e2f41c9c8b31");
     iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[0U], 0U, userTriggerCallback);
 
-    std::atomic_bool waitWasCalled{false};
+    std::atomic_bool waitWasCalled{ false };
     std::thread t([&] {
-        iox_ws_timed_wait(m_sut, {1000, 1000}, NULL, 0U, &m_missedElements);
+        iox_ws_timed_wait(m_sut, { 1000, 1000 }, NULL, 0U, &m_missedElements);
         waitWasCalled.store(true);
     });
 
@@ -1042,11 +1042,11 @@ TIMING_TEST_F(iox_ws_test, TimedWaitIsBlockingTillTriggered, Repeat(5), [&] {
 
 TIMING_TEST_F(iox_ws_test, TimedWaitIsNonBlockingAfterMarkForDestruction, Repeat(5), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "a6da4f49-b162-4c70-b0fa-c4ef1f988c57");
-    std::atomic_bool waitWasCalled{false};
+    std::atomic_bool waitWasCalled{ false };
     std::thread t([&] {
-        iox_ws_timed_wait(m_sut, {1000, 1000}, NULL, 0U, &m_missedElements);
-        iox_ws_timed_wait(m_sut, {1000, 1000}, NULL, 0U, &m_missedElements);
-        iox_ws_timed_wait(m_sut, {1000, 1000}, NULL, 0U, &m_missedElements);
+        iox_ws_timed_wait(m_sut, { 1000, 1000 }, NULL, 0U, &m_missedElements);
+        iox_ws_timed_wait(m_sut, { 1000, 1000 }, NULL, 0U, &m_missedElements);
+        iox_ws_timed_wait(m_sut, { 1000, 1000 }, NULL, 0U, &m_missedElements);
         waitWasCalled.store(true);
     });
 
@@ -1063,10 +1063,10 @@ TIMING_TEST_F(iox_ws_test, TimedWaitBlocksTillTimeout, Repeat(5), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "12fbbbc8-80b2-4e7e-af41-1376b2e48f4a");
     iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[0U], 0U, userTriggerCallback);
 
-    std::atomic_bool waitWasCalled{false};
+    std::atomic_bool waitWasCalled{ false };
     std::thread t([&] {
         constexpr long hundredMsInNanoSeconds = 100000000L;
-        iox_ws_timed_wait(m_sut, {0, hundredMsInNanoSeconds}, NULL, 0U, &m_missedElements);
+        iox_ws_timed_wait(m_sut, { 0, hundredMsInNanoSeconds }, NULL, 0U, &m_missedElements);
         waitWasCalled.store(true);
     });
 
@@ -1234,7 +1234,7 @@ void notifyClient(ClientPortData& portData)
 {
     portData.m_connectRequested.store(true);
     portData.m_connectionState = iox::ConnectionState::CONNECTED;
-    iox::popo::ChunkQueuePusher<ClientChunkQueueData_t> pusher{&portData.m_chunkReceiverData};
+    iox::popo::ChunkQueuePusher<ClientChunkQueueData_t> pusher{ &portData.m_chunkReceiverData };
     pusher.push(iox::mepoo::SharedChunk());
     EXPECT_FALSE(portData.m_chunkReceiverData.m_conditionVariableDataPtr->m_semaphore->post().has_error());
 }
@@ -1366,7 +1366,7 @@ TEST_F(iox_ws_test, NotifyingClientStateWithContextDataWorks)
 
 void notifyServer(ServerPortData& portData)
 {
-    iox::popo::ChunkQueuePusher<ServerChunkQueueData_t> pusher{&portData.m_chunkReceiverData};
+    iox::popo::ChunkQueuePusher<ServerChunkQueueData_t> pusher{ &portData.m_chunkReceiverData };
     pusher.push(iox::mepoo::SharedChunk());
     EXPECT_FALSE(portData.m_chunkReceiverData.m_conditionVariableDataPtr->m_semaphore->post().has_error());
 }
@@ -1578,7 +1578,7 @@ TEST_F(iox_ws_test, AttachingServiceDiscoveryEventWithContextDataWorks)
 
 void notifyServiceDiscovery(SubscriberPortData& portData)
 {
-    iox::popo::ChunkQueuePusher<SubscriberChunkReceiverData_t> pusher{&portData.m_chunkReceiverData};
+    iox::popo::ChunkQueuePusher<SubscriberChunkReceiverData_t> pusher{ &portData.m_chunkReceiverData };
     pusher.push(iox::mepoo::SharedChunk());
     EXPECT_FALSE(portData.m_chunkReceiverData.m_conditionVariableDataPtr->m_semaphore->post().has_error());
 }

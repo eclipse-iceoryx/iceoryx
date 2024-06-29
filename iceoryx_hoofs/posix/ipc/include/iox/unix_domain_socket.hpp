@@ -165,9 +165,9 @@ class UnixDomainSocket
 
     UdsName_t m_name;
     PosixIpcChannelSide m_channelSide = PosixIpcChannelSide::CLIENT;
-    int32_t m_sockfd{INVALID_FD};
+    int32_t m_sockfd{ INVALID_FD };
     sockaddr_un m_sockAddr{};
-    uint64_t m_maxMessageSize{MAX_MESSAGE_SIZE};
+    uint64_t m_maxMessageSize{ MAX_MESSAGE_SIZE };
 };
 
 class UnixDomainSocketBuilder

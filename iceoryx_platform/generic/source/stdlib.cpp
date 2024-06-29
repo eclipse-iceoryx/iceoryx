@@ -62,7 +62,7 @@ int iox_getenv_s(size_t* actual_size_with_null, char* buffer, size_t buffer_capa
     }
     else
     {
-        constexpr size_t NULL_TERMINATOR_SIZE{1};
+        constexpr size_t NULL_TERMINATOR_SIZE{ 1 };
         auto env_var_size_with_null = strlen(value) + NULL_TERMINATOR_SIZE;
         if (actual_size_with_null != nullptr)
         {

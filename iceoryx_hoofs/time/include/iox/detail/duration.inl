@@ -31,8 +31,8 @@ inline constexpr Duration::Duration(const Seconds_t seconds, const Nanoseconds_t
 {
     if (nanoseconds >= NANOSECS_PER_SEC)
     {
-        const Seconds_t additionalSeconds{static_cast<Seconds_t>(nanoseconds)
-                                          / static_cast<Seconds_t>(NANOSECS_PER_SEC)};
+        const Seconds_t additionalSeconds{ static_cast<Seconds_t>(nanoseconds)
+                                           / static_cast<Seconds_t>(NANOSECS_PER_SEC) };
         if ((std::numeric_limits<Seconds_t>::max() - additionalSeconds) < m_seconds)
         {
             m_seconds = std::numeric_limits<Seconds_t>::max();
@@ -53,12 +53,12 @@ inline constexpr Duration Duration::createDuration(const Seconds_t seconds, cons
 
 inline constexpr Duration Duration::max() noexcept
 {
-    return Duration{std::numeric_limits<Seconds_t>::max(), NANOSECS_PER_SEC - 1U};
+    return Duration{ std::numeric_limits<Seconds_t>::max(), NANOSECS_PER_SEC - 1U };
 }
 
 inline constexpr Duration Duration::zero() noexcept
 {
-    return Duration{0U, 0U};
+    return Duration{ 0U, 0U };
 }
 
 template <typename T>
@@ -106,48 +106,48 @@ template <typename T>
 inline constexpr Duration Duration::fromSeconds(const T value) noexcept
 {
     const auto clampedValue = positiveValueOrClampToZero(value);
-    constexpr Duration::Seconds_t MAX_SECONDS_BEFORE_OVERFLOW{std::numeric_limits<Duration::Seconds_t>::max()};
+    constexpr Duration::Seconds_t MAX_SECONDS_BEFORE_OVERFLOW{ std::numeric_limits<Duration::Seconds_t>::max() };
 
     // AXIVION Next Construct AutosarC++19_03-M0.1.2, AutosarC++19_03-M0.1.9, FaultDetection-DeadBranches : False positive, platform-dependent
     if (clampedValue > MAX_SECONDS_BEFORE_OVERFLOW)
     {
         return Duration::max();
     }
-    return Duration{static_cast<Duration::Seconds_t>(clampedValue), 0U};
+    return Duration{ static_cast<Duration::Seconds_t>(clampedValue), 0U };
 }
 template <typename T>
 inline constexpr Duration Duration::fromMinutes(const T value) noexcept
 {
     const auto clampedValue = positiveValueOrClampToZero(value);
-    constexpr uint64_t MAX_MINUTES_BEFORE_OVERFLOW{std::numeric_limits<uint64_t>::max() / Duration::SECS_PER_MINUTE};
+    constexpr uint64_t MAX_MINUTES_BEFORE_OVERFLOW{ std::numeric_limits<uint64_t>::max() / Duration::SECS_PER_MINUTE };
     if (clampedValue > MAX_MINUTES_BEFORE_OVERFLOW)
     {
         return Duration::max();
     }
-    return Duration{static_cast<Duration::Seconds_t>(clampedValue * Duration::SECS_PER_MINUTE), 0U};
+    return Duration{ static_cast<Duration::Seconds_t>(clampedValue * Duration::SECS_PER_MINUTE), 0U };
 }
 template <typename T>
 inline constexpr Duration Duration::fromHours(const T value) noexcept
 {
     const auto clampedValue = positiveValueOrClampToZero(value);
-    constexpr uint64_t MAX_HOURS_BEFORE_OVERFLOW{std::numeric_limits<uint64_t>::max() / Duration::SECS_PER_HOUR};
+    constexpr uint64_t MAX_HOURS_BEFORE_OVERFLOW{ std::numeric_limits<uint64_t>::max() / Duration::SECS_PER_HOUR };
     if (clampedValue > MAX_HOURS_BEFORE_OVERFLOW)
     {
         return Duration::max();
     }
-    return Duration{static_cast<Duration::Seconds_t>(clampedValue * Duration::SECS_PER_HOUR), 0U};
+    return Duration{ static_cast<Duration::Seconds_t>(clampedValue * Duration::SECS_PER_HOUR), 0U };
 }
 template <typename T>
 inline constexpr Duration Duration::fromDays(const T value) noexcept
 {
     const auto clampedValue = positiveValueOrClampToZero(value);
-    constexpr uint64_t SECS_PER_DAY{static_cast<uint64_t>(Duration::HOURS_PER_DAY * Duration::SECS_PER_HOUR)};
-    constexpr uint64_t MAX_DAYS_BEFORE_OVERFLOW{std::numeric_limits<uint64_t>::max() / SECS_PER_DAY};
+    constexpr uint64_t SECS_PER_DAY{ static_cast<uint64_t>(Duration::HOURS_PER_DAY * Duration::SECS_PER_HOUR) };
+    constexpr uint64_t MAX_DAYS_BEFORE_OVERFLOW{ std::numeric_limits<uint64_t>::max() / SECS_PER_DAY };
     if (clampedValue > MAX_DAYS_BEFORE_OVERFLOW)
     {
         return Duration::max();
     }
-    return Duration{static_cast<Duration::Seconds_t>(clampedValue * SECS_PER_DAY), 0U};
+    return Duration{ static_cast<Duration::Seconds_t>(clampedValue * SECS_PER_DAY), 0U };
 }
 
 // AXIVION Next Construct AutosarC++19_03-A8.4.7 : Argument is larger than two words
@@ -170,12 +170,12 @@ inline constexpr Duration::Duration(const struct itimerspec& value) noexcept
 
 inline constexpr uint64_t Duration::toNanoseconds() const noexcept
 {
-    constexpr Seconds_t MAX_SECONDS_BEFORE_OVERFLOW{std::numeric_limits<uint64_t>::max()
-                                                    / static_cast<uint64_t>(NANOSECS_PER_SEC)};
-    constexpr Nanoseconds_t MAX_NANOSECONDS_BEFORE_OVERFLOW{
-        static_cast<Nanoseconds_t>(std::numeric_limits<uint64_t>::max() % static_cast<uint64_t>(NANOSECS_PER_SEC))};
-    constexpr Duration MAX_DURATION_BEFORE_OVERFLOW{
-        createDuration(MAX_SECONDS_BEFORE_OVERFLOW, MAX_NANOSECONDS_BEFORE_OVERFLOW)};
+    constexpr Seconds_t MAX_SECONDS_BEFORE_OVERFLOW{ std::numeric_limits<uint64_t>::max()
+                                                     / static_cast<uint64_t>(NANOSECS_PER_SEC) };
+    constexpr Nanoseconds_t MAX_NANOSECONDS_BEFORE_OVERFLOW{ static_cast<Nanoseconds_t>(
+        std::numeric_limits<uint64_t>::max() % static_cast<uint64_t>(NANOSECS_PER_SEC)) };
+    constexpr Duration MAX_DURATION_BEFORE_OVERFLOW{ createDuration(MAX_SECONDS_BEFORE_OVERFLOW,
+                                                                    MAX_NANOSECONDS_BEFORE_OVERFLOW) };
 
     if (*this > MAX_DURATION_BEFORE_OVERFLOW)
     {
@@ -187,11 +187,12 @@ inline constexpr uint64_t Duration::toNanoseconds() const noexcept
 
 inline constexpr uint64_t Duration::toMicroseconds() const noexcept
 {
-    constexpr Seconds_t MAX_SECONDS_BEFORE_OVERFLOW{std::numeric_limits<uint64_t>::max() / MICROSECS_PER_SEC};
+    constexpr Seconds_t MAX_SECONDS_BEFORE_OVERFLOW{ std::numeric_limits<uint64_t>::max() / MICROSECS_PER_SEC };
     constexpr Nanoseconds_t MAX_NANOSECONDS_BEFORE_OVERFLOW{
-        static_cast<Nanoseconds_t>(std::numeric_limits<uint64_t>::max() % MICROSECS_PER_SEC) * NANOSECS_PER_MICROSEC};
-    constexpr Duration MAX_DURATION_BEFORE_OVERFLOW{
-        createDuration(MAX_SECONDS_BEFORE_OVERFLOW, MAX_NANOSECONDS_BEFORE_OVERFLOW)};
+        static_cast<Nanoseconds_t>(std::numeric_limits<uint64_t>::max() % MICROSECS_PER_SEC) * NANOSECS_PER_MICROSEC
+    };
+    constexpr Duration MAX_DURATION_BEFORE_OVERFLOW{ createDuration(MAX_SECONDS_BEFORE_OVERFLOW,
+                                                                    MAX_NANOSECONDS_BEFORE_OVERFLOW) };
 
     if (*this > MAX_DURATION_BEFORE_OVERFLOW)
     {
@@ -204,11 +205,12 @@ inline constexpr uint64_t Duration::toMicroseconds() const noexcept
 
 inline constexpr uint64_t Duration::toMilliseconds() const noexcept
 {
-    constexpr Seconds_t MAX_SECONDS_BEFORE_OVERFLOW{std::numeric_limits<uint64_t>::max() / MILLISECS_PER_SEC};
+    constexpr Seconds_t MAX_SECONDS_BEFORE_OVERFLOW{ std::numeric_limits<uint64_t>::max() / MILLISECS_PER_SEC };
     constexpr Nanoseconds_t MAX_NANOSECONDS_BEFORE_OVERFLOW{
-        static_cast<Nanoseconds_t>(std::numeric_limits<uint64_t>::max() % MILLISECS_PER_SEC) * NANOSECS_PER_MILLISEC};
-    constexpr Duration MAX_DURATION_BEFORE_OVERFLOW{
-        createDuration(MAX_SECONDS_BEFORE_OVERFLOW, MAX_NANOSECONDS_BEFORE_OVERFLOW)};
+        static_cast<Nanoseconds_t>(std::numeric_limits<uint64_t>::max() % MILLISECS_PER_SEC) * NANOSECS_PER_MILLISEC
+    };
+    constexpr Duration MAX_DURATION_BEFORE_OVERFLOW{ createDuration(MAX_SECONDS_BEFORE_OVERFLOW,
+                                                                    MAX_NANOSECONDS_BEFORE_OVERFLOW) };
 
     if (*this > MAX_DURATION_BEFORE_OVERFLOW)
     {
@@ -246,17 +248,17 @@ inline constexpr struct timeval Duration::timeval() const noexcept
     static_assert(sizeof(Seconds_t) >= sizeof(SEC_TYPE), "casting might alter result");
     if (m_seconds > static_cast<Seconds_t>(std::numeric_limits<SEC_TYPE>::max()))
     {
-        return {std::numeric_limits<SEC_TYPE>::max(), MICROSECS_PER_SEC - 1U};
+        return { std::numeric_limits<SEC_TYPE>::max(), MICROSECS_PER_SEC - 1U };
     }
     // AXIVION Next Construct AutosarC++19_03-M5.0.8, AutosarC++19_03-M5.0.9 : Protected by static assertion
-    return {static_cast<SEC_TYPE>(m_seconds), static_cast<USEC_TYPE>(m_nanoseconds / NANOSECS_PER_MICROSEC)};
+    return { static_cast<SEC_TYPE>(m_seconds), static_cast<USEC_TYPE>(m_nanoseconds / NANOSECS_PER_MICROSEC) };
 }
 
 // AXIVION Next Construct AutosarC++19_03-A8.4.7 : Argument is larger than two words
 inline constexpr Duration Duration::operator+(const Duration& rhs) const noexcept
 {
-    Seconds_t seconds{m_seconds + rhs.m_seconds};
-    Nanoseconds_t nanoseconds{m_nanoseconds + rhs.m_nanoseconds};
+    Seconds_t seconds{ m_seconds + rhs.m_seconds };
+    Nanoseconds_t nanoseconds{ m_nanoseconds + rhs.m_nanoseconds };
     if (nanoseconds >= NANOSECS_PER_SEC)
     {
         ++seconds;
@@ -285,9 +287,9 @@ inline constexpr Duration Duration::operator-(const Duration& rhs) const noexcep
     {
         return Duration::zero();
     }
-    Seconds_t seconds{m_seconds - rhs.m_seconds};
+    Seconds_t seconds{ m_seconds - rhs.m_seconds };
     // AXIVION Next Construct AutosarC++19_03-M0.1.9, AutosarC++19_03-A0.1.1, FaultDetection-UnusedAssignments : False positive, variable IS used
-    Nanoseconds_t nanoseconds{0U};
+    Nanoseconds_t nanoseconds{ 0U };
     if (m_nanoseconds >= rhs.m_nanoseconds)
     {
         nanoseconds = m_nanoseconds - rhs.m_nanoseconds;
@@ -321,7 +323,7 @@ Duration::multiplyWith(const std::enable_if_t<!std::is_floating_point<T>::value,
                   "only integer types with less or equal to size of uint64_t are allowed for multiplication");
     const auto multiplicator = static_cast<Seconds_t>(rhs);
 
-    const Seconds_t maxBeforeOverflow{std::numeric_limits<Seconds_t>::max() / multiplicator};
+    const Seconds_t maxBeforeOverflow{ std::numeric_limits<Seconds_t>::max() / multiplicator };
 
     // check if the result of the m_seconds multiplication would already overflow
     if (m_seconds > maxBeforeOverflow)
@@ -346,8 +348,8 @@ Duration::multiplyWith(const std::enable_if_t<!std::is_floating_point<T>::value,
     // multiplicator and another one with the upper 32 bits;
 
     // this is the easy part with the lower 32 bits
-    const uint64_t multiplicatorLow{static_cast<uint32_t>(multiplicator)};
-    const Duration durationFromNanosecondsLow{Duration::fromNanoseconds(m_nanoseconds * multiplicatorLow)};
+    const uint64_t multiplicatorLow{ static_cast<uint32_t>(multiplicator) };
+    const Duration durationFromNanosecondsLow{ Duration::fromNanoseconds(m_nanoseconds * multiplicatorLow) };
 
     // this is the complicated part with the upper 32 bits;
     // the m_nanoseconds are multiplied with the upper 32 bits of the multiplicator shifted by 32 bit to the right, thus
@@ -362,22 +364,22 @@ Duration::multiplyWith(const std::enable_if_t<!std::is_floating_point<T>::value,
 
     // least common multiple of 2^32 and NANOSECONDS_PER_SECOND;
     // for the following calculation it is not important to be the least common multiple, any common multiple will do
-    constexpr uint64_t LEAST_COMMON_MULTIPLE{8388608000000000};
-    constexpr uint64_t NUMBER_OF_BITS_IN_UINT32{32};
+    constexpr uint64_t LEAST_COMMON_MULTIPLE{ 8388608000000000 };
+    constexpr uint64_t NUMBER_OF_BITS_IN_UINT32{ 32 };
     static_assert((LEAST_COMMON_MULTIPLE % (1ULL << NUMBER_OF_BITS_IN_UINT32)) == 0, "invalid multiple");
     static_assert((LEAST_COMMON_MULTIPLE % NANOSECS_PER_SEC) == 0, "invalid multiple");
 
-    constexpr uint64_t ONE_FULL_BLOCK_OF_SECONDS_ONLY{LEAST_COMMON_MULTIPLE >> NUMBER_OF_BITS_IN_UINT32};
-    constexpr uint64_t SECONDS_PER_FULL_BLOCK{LEAST_COMMON_MULTIPLE / NANOSECS_PER_SEC};
+    constexpr uint64_t ONE_FULL_BLOCK_OF_SECONDS_ONLY{ LEAST_COMMON_MULTIPLE >> NUMBER_OF_BITS_IN_UINT32 };
+    constexpr uint64_t SECONDS_PER_FULL_BLOCK{ LEAST_COMMON_MULTIPLE / NANOSECS_PER_SEC };
 
-    const uint64_t multiplicatorHigh{static_cast<uint32_t>(multiplicator >> NUMBER_OF_BITS_IN_UINT32)};
-    const uint64_t nanosecondsFromHigh{m_nanoseconds * multiplicatorHigh};
-    const uint64_t fullBlocksOfSecondsOnly{nanosecondsFromHigh / ONE_FULL_BLOCK_OF_SECONDS_ONLY};
-    const uint64_t remainingBlockWithFullAndFractionalSeconds{nanosecondsFromHigh % ONE_FULL_BLOCK_OF_SECONDS_ONLY};
+    const uint64_t multiplicatorHigh{ static_cast<uint32_t>(multiplicator >> NUMBER_OF_BITS_IN_UINT32) };
+    const uint64_t nanosecondsFromHigh{ m_nanoseconds * multiplicatorHigh };
+    const uint64_t fullBlocksOfSecondsOnly{ nanosecondsFromHigh / ONE_FULL_BLOCK_OF_SECONDS_ONLY };
+    const uint64_t remainingBlockWithFullAndFractionalSeconds{ nanosecondsFromHigh % ONE_FULL_BLOCK_OF_SECONDS_ONLY };
 
     // AXIVION Next Construct AutosarC++19_03-A4.7.1, AutosarC++19_03-M0.3.1, FaultDetection-IntegerOverflow : The logic from above prevents overflows
     const auto durationFromNanosecondsHigh =
-        Duration{fullBlocksOfSecondsOnly * SECONDS_PER_FULL_BLOCK, 0U}
+        Duration{ fullBlocksOfSecondsOnly * SECONDS_PER_FULL_BLOCK, 0U }
         + Duration::fromNanoseconds(remainingBlockWithFullAndFractionalSeconds << NUMBER_OF_BITS_IN_UINT32);
 
     return durationFromSeconds + durationFromNanosecondsLow + durationFromNanosecondsHigh;
@@ -393,7 +395,7 @@ inline constexpr bool Duration::wouldCastFromFloatingPointProbablyOverflow(const
     // or the first one which causes an overflow;
     // to be safe, this is handled like causing an overflow which would result in undefined behavior when casting to
     // Seconds_t
-    constexpr From SECONDS_BEFORE_LIKELY_OVERFLOW{static_cast<From>(std::numeric_limits<To>::max())};
+    constexpr From SECONDS_BEFORE_LIKELY_OVERFLOW{ static_cast<From>(std::numeric_limits<To>::max()) };
     return floatingPoint >= SECONDS_BEFORE_LIKELY_OVERFLOW;
 }
 
@@ -407,16 +409,16 @@ inline constexpr Duration Duration::fromFloatingPointSeconds(const T floatingPoi
         return Duration::max();
     }
 
-    T secondsFull{0};
-    T secondsFraction{std::modf(floatingPointSeconds, &secondsFull)};
+    T secondsFull{ 0 };
+    T secondsFraction{ std::modf(floatingPointSeconds, &secondsFull) };
 
     if (wouldCastFromFloatingPointProbablyOverflow<T, Seconds_t>(secondsFull))
     {
         return Duration::max();
     }
 
-    return Duration{static_cast<Seconds_t>(secondsFull),
-                    static_cast<Nanoseconds_t>(secondsFraction * NANOSECS_PER_SEC)};
+    return Duration{ static_cast<Seconds_t>(secondsFull),
+                     static_cast<Nanoseconds_t>(secondsFraction * NANOSECS_PER_SEC) };
 }
 
 template <typename T>

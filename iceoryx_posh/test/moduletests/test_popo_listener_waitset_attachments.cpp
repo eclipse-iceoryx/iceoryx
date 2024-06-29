@@ -75,7 +75,7 @@ class ListenerWaitsetAttachments_test : public Test
     }
 
     std::unique_ptr<PoshRuntimeMock> runtimeMock = PoshRuntimeMock::create(RUNTIME_NAME);
-    ConditionVariableData conditionVariableData{RUNTIME_NAME};
+    ConditionVariableData conditionVariableData{ RUNTIME_NAME };
     optional<Listener> listener;
 
     MemoryManager memoryManager;
@@ -85,7 +85,7 @@ class ListenerWaitsetAttachments_test : public Test
 TEST_F(ListenerWaitsetAttachments_test, SubscriberDestructorCallsTriggerResetDirectly)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f1d163e0-4479-47b4-b4e8-01b0ee6a71b0");
-    SubscriberPortData subscriberData({SERVICE, INSTANCE, EVENT},
+    SubscriberPortData subscriberData({ SERVICE, INSTANCE, EVENT },
                                       RUNTIME_NAME,
                                       roudi::DEFAULT_UNIQUE_ROUDI_ID,
                                       VariantQueueTypes::SoFi_MultiProducerSingleConsumer,
@@ -110,7 +110,7 @@ TEST_F(ListenerWaitsetAttachments_test, SubscriberDestructorCallsTriggerResetDir
 TEST_F(ListenerWaitsetAttachments_test, UntypedSubscriberDestructorCallsTriggerResetDirectly)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a78a7016-46b6-4223-b7b1-e30344bb208f");
-    SubscriberPortData subscriberData({SERVICE, INSTANCE, EVENT},
+    SubscriberPortData subscriberData({ SERVICE, INSTANCE, EVENT },
                                       RUNTIME_NAME,
                                       roudi::DEFAULT_UNIQUE_ROUDI_ID,
                                       VariantQueueTypes::SoFi_MultiProducerSingleConsumer,
@@ -136,7 +136,7 @@ TEST_F(ListenerWaitsetAttachments_test, ClientDestructorCallsTriggerResetDirectl
 {
     ::testing::Test::RecordProperty("TEST_ID", "e21d98b9-9d24-4c85-90b9-0e7acd24a242");
     ClientPortData clientData(
-        {SERVICE, INSTANCE, EVENT}, RUNTIME_NAME, roudi::DEFAULT_UNIQUE_ROUDI_ID, ClientOptions(), &memoryManager);
+        { SERVICE, INSTANCE, EVENT }, RUNTIME_NAME, roudi::DEFAULT_UNIQUE_ROUDI_ID, ClientOptions(), &memoryManager);
     EXPECT_CALL(*this->runtimeMock, getMiddlewareClient(_, _, _)).WillOnce(Return(&clientData));
 
     optional<Client<int, int>> client;
@@ -158,7 +158,7 @@ TEST_F(ListenerWaitsetAttachments_test, UntypedClientDestructorCallsTriggerReset
 {
     ::testing::Test::RecordProperty("TEST_ID", "07934dd2-93aa-4aab-a216-eb86e842088b");
     ClientPortData clientData(
-        {SERVICE, INSTANCE, EVENT}, RUNTIME_NAME, roudi::DEFAULT_UNIQUE_ROUDI_ID, ClientOptions(), &memoryManager);
+        { SERVICE, INSTANCE, EVENT }, RUNTIME_NAME, roudi::DEFAULT_UNIQUE_ROUDI_ID, ClientOptions(), &memoryManager);
     EXPECT_CALL(*this->runtimeMock, getMiddlewareClient(_, _, _)).WillOnce(Return(&clientData));
 
     optional<UntypedClient> client;
@@ -180,7 +180,7 @@ TEST_F(ListenerWaitsetAttachments_test, ServerDestructorCallsTriggerResetDirectl
 {
     ::testing::Test::RecordProperty("TEST_ID", "306d7ef9-1fb1-4ce8-8b58-e5a7cb5fff69");
     ServerPortData serverData(
-        {SERVICE, INSTANCE, EVENT}, RUNTIME_NAME, roudi::DEFAULT_UNIQUE_ROUDI_ID, ServerOptions(), &memoryManager);
+        { SERVICE, INSTANCE, EVENT }, RUNTIME_NAME, roudi::DEFAULT_UNIQUE_ROUDI_ID, ServerOptions(), &memoryManager);
     EXPECT_CALL(*this->runtimeMock, getMiddlewareServer(_, _, _)).WillOnce(Return(&serverData));
 
     optional<Server<int, int>> server;
@@ -202,7 +202,7 @@ TEST_F(ListenerWaitsetAttachments_test, UntypedServerDestructorCallsTriggerReset
 {
     ::testing::Test::RecordProperty("TEST_ID", "3d074e8f-eab6-475d-a884-de8b4d2596ea");
     ServerPortData serverData(
-        {SERVICE, INSTANCE, EVENT}, RUNTIME_NAME, roudi::DEFAULT_UNIQUE_ROUDI_ID, ServerOptions(), &memoryManager);
+        { SERVICE, INSTANCE, EVENT }, RUNTIME_NAME, roudi::DEFAULT_UNIQUE_ROUDI_ID, ServerOptions(), &memoryManager);
     EXPECT_CALL(*this->runtimeMock, getMiddlewareServer(_, _, _)).WillOnce(Return(&serverData));
 
     optional<UntypedServer> server;
@@ -223,7 +223,7 @@ TEST_F(ListenerWaitsetAttachments_test, UntypedServerDestructorCallsTriggerReset
 TEST_F(ListenerWaitsetAttachments_test, ServiceDiscoveryDestructorCallsTriggerResetDirectly)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b266bb98-f31a-43b8-a0c4-75aea6f40efb");
-    SubscriberPortData subscriberData({SERVICE, INSTANCE, EVENT},
+    SubscriberPortData subscriberData({ SERVICE, INSTANCE, EVENT },
                                       RUNTIME_NAME,
                                       roudi::DEFAULT_UNIQUE_ROUDI_ID,
                                       VariantQueueTypes::SoFi_MultiProducerSingleConsumer,

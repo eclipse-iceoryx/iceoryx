@@ -183,12 +183,12 @@ class RelativePointer final
     /// @return The pointer for stored id and offset
     T* computeRawPtr() const noexcept;
 
-    static constexpr segment_id_underlying_t NULL_POINTER_ID{std::numeric_limits<segment_id_underlying_t>::max()};
-    static constexpr offset_t NULL_POINTER_OFFSET{std::numeric_limits<offset_t>::max()};
+    static constexpr segment_id_underlying_t NULL_POINTER_ID{ std::numeric_limits<segment_id_underlying_t>::max() };
+    static constexpr offset_t NULL_POINTER_OFFSET{ std::numeric_limits<offset_t>::max() };
 
   private:
-    segment_id_underlying_t m_id{NULL_POINTER_ID};
-    offset_t m_offset{NULL_POINTER_OFFSET};
+    segment_id_underlying_t m_id{ NULL_POINTER_ID };
+    offset_t m_offset{ NULL_POINTER_OFFSET };
 };
 
 using UntypedRelativePointer = RelativePointer<void>;

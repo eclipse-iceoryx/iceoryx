@@ -76,12 +76,13 @@ class ServiceDiscovery
 
     // use dynamic memory to reduce stack usage
     /// @todo iox-#1155 improve solution to avoid stack usage without using dynamic memory
-    std::unique_ptr<roudi::ServiceRegistry> m_serviceRegistry{new iox::roudi::ServiceRegistry};
+    std::unique_ptr<roudi::ServiceRegistry> m_serviceRegistry{ new iox::roudi::ServiceRegistry };
     std::mutex m_serviceRegistryMutex;
 
     popo::Subscriber<roudi::ServiceRegistry> m_serviceRegistrySubscriber{
-        {SERVICE_DISCOVERY_SERVICE_NAME, SERVICE_DISCOVERY_INSTANCE_NAME, SERVICE_DISCOVERY_EVENT_NAME},
-        {1U, 1U, iox::NodeName_t("Service Registry"), true}};
+        { SERVICE_DISCOVERY_SERVICE_NAME, SERVICE_DISCOVERY_INSTANCE_NAME, SERVICE_DISCOVERY_EVENT_NAME },
+        { 1U, 1U, iox::NodeName_t("Service Registry"), true }
+    };
 
     void update();
 };

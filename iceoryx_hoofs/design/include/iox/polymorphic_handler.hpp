@@ -118,8 +118,8 @@ class PolymorphicHandler
 
     // should a defaultHandler be created, the guard prevents its destruction
     StaticLifetimeGuard<Default> m_defaultGuard;
-    std::atomic_bool m_isFinal{false};
-    std::atomic<Interface*> m_current{nullptr};
+    std::atomic_bool m_isFinal{ false };
+    std::atomic<Interface*> m_current{ nullptr };
 };
 
 } // namespace iox

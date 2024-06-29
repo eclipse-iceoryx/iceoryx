@@ -21,7 +21,7 @@ namespace iox
 namespace cli
 {
 OptionManager::OptionManager(const OptionDescription_t& programDescription, const function<void()>& onFailureCallback)
-    : m_optionSet{programDescription, onFailureCallback}
+    : m_optionSet{ programDescription, onFailureCallback }
 {
 }
 
@@ -41,7 +41,7 @@ OptionName_t OptionManager::getLookupName(const char shortName, const OptionName
 {
     if (shortName == NO_SHORT_OPTION)
     {
-        return OptionName_t{TruncateToCapacity, &shortName, 1};
+        return OptionName_t{ TruncateToCapacity, &shortName, 1 };
     }
 
     return name;

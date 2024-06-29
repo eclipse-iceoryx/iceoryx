@@ -69,15 +69,15 @@ class UsedChunkList
     void init() noexcept;
 
   private:
-    static constexpr uint32_t INVALID_INDEX{Capacity};
+    static constexpr uint32_t INVALID_INDEX{ Capacity };
 
     using DataElement_t = mepoo::ShmSafeUnmanagedChunk;
     static constexpr DataElement_t DATA_ELEMENT_LOGICAL_NULLPTR{};
 
   private:
     std::atomic_flag m_synchronizer = ATOMIC_FLAG_INIT;
-    uint32_t m_usedListHead{INVALID_INDEX};
-    uint32_t m_freeListHead{0u};
+    uint32_t m_usedListHead{ INVALID_INDEX };
+    uint32_t m_freeListHead{ 0u };
     uint32_t m_listIndices[Capacity];
     DataElement_t m_listData[Capacity];
 };

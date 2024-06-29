@@ -23,13 +23,14 @@
 
 int main(int argc, char* argv[])
 {
-    constexpr option longOptions[] = {
-        {"help", no_argument, nullptr, 'h'}, {"moo", required_argument, nullptr, 'm'}, {nullptr, 0, nullptr, 0}};
+    constexpr option longOptions[] = { { "help", no_argument, nullptr, 'h' },
+                                       { "moo", required_argument, nullptr, 'm' },
+                                       { nullptr, 0, nullptr, 0 } };
 
     // colon after shortOption means it requires an argument, two colons mean optional argument
     constexpr const char* shortOptions = "hm:";
-    int32_t index{0};
-    int32_t opt{-1};
+    int32_t index{ 0 };
+    int32_t opt{ -1 };
     while ((opt = getopt_long(argc, argv, shortOptions, longOptions, &index), opt != -1))
     {
         switch (opt)
@@ -45,7 +46,7 @@ int main(int argc, char* argv[])
             return EXIT_SUCCESS;
         case 'm':
         {
-            constexpr decltype(EXIT_SUCCESS) MOO{EXIT_SUCCESS};
+            constexpr decltype(EXIT_SUCCESS) MOO{ EXIT_SUCCESS };
 
             auto result = iox::convert::from_string<uint64_t>(optarg);
             if (!result.has_value())

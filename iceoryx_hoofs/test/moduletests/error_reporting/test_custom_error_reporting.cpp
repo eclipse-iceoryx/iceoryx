@@ -33,8 +33,8 @@ namespace
 using namespace ::testing;
 using namespace iox::er;
 
-constexpr auto CODE{module_a::errors::Code::OutOfBounds};
-constexpr module_a::errors::Error ERROR{CODE};
+constexpr auto CODE{ module_a::errors::Code::OutOfBounds };
+constexpr module_a::errors::Error ERROR{ CODE };
 
 // Here we test the custom API that the public API forwards to.
 // To observe the side effects, this requires using the TestingErrorHandler (similar to the public API).
@@ -89,7 +89,7 @@ TEST_F(ErrorReporting_test, reportNonFatalErrorWorks)
     ::testing::Test::RecordProperty("TEST_ID", "1a1cec1b-5297-487a-bb95-e80af99886b6");
 
     auto f = []() {
-        constexpr const char* STRINGIFIED_CONDITION{""};
+        constexpr const char* STRINGIFIED_CONDITION{ "" };
         report(IOX_CURRENT_SOURCE_LOCATION, RUNTIME_ERROR, ERROR, STRINGIFIED_CONDITION);
     };
 
@@ -104,7 +104,7 @@ TEST_F(ErrorReporting_test, reportFatalErrorWorks)
     ::testing::Test::RecordProperty("TEST_ID", "");
 
     auto f = []() {
-        constexpr const char* STRINGIFIED_CONDITION{""};
+        constexpr const char* STRINGIFIED_CONDITION{ "" };
         report(IOX_CURRENT_SOURCE_LOCATION, FATAL, ERROR, STRINGIFIED_CONDITION);
     };
 
@@ -122,7 +122,7 @@ TEST_F(ErrorReporting_test, reportAssertViolatonWorks)
 
     auto f = []() {
         auto v = Violation::createAssertViolation();
-        constexpr const char* STRINGIFIED_CONDITION{""};
+        constexpr const char* STRINGIFIED_CONDITION{ "" };
         report(IOX_CURRENT_SOURCE_LOCATION, ASSERT_VIOLATION, v, STRINGIFIED_CONDITION);
     };
 
@@ -138,7 +138,7 @@ TEST_F(ErrorReporting_test, reportAssertViolatonWithMessageWorks)
 
     auto f = []() {
         auto v = Violation::createAssertViolation();
-        constexpr const char* STRINGIFIED_CONDITION{""};
+        constexpr const char* STRINGIFIED_CONDITION{ "" };
         report(IOX_CURRENT_SOURCE_LOCATION, ASSERT_VIOLATION, v, STRINGIFIED_CONDITION, "message");
     };
 
@@ -153,7 +153,7 @@ TEST_F(ErrorReporting_test, reportEnforceViolatonWorks)
 
     auto f = []() {
         auto v = Violation::createEnforceViolation();
-        constexpr const char* STRINGIFIED_CONDITION{""};
+        constexpr const char* STRINGIFIED_CONDITION{ "" };
         report(IOX_CURRENT_SOURCE_LOCATION, ENFORCE_VIOLATION, v, STRINGIFIED_CONDITION);
     };
 
@@ -169,7 +169,7 @@ TEST_F(ErrorReporting_test, reportEnforceViolatonWithMessageWorks)
 
     auto f = []() {
         auto v = Violation::createEnforceViolation();
-        constexpr const char* STRINGIFIED_CONDITION{""};
+        constexpr const char* STRINGIFIED_CONDITION{ "" };
         report(IOX_CURRENT_SOURCE_LOCATION, ENFORCE_VIOLATION, v, STRINGIFIED_CONDITION, "message");
     };
 

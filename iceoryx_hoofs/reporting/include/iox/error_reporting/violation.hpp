@@ -109,7 +109,7 @@ class Violation
 
   private:
     ErrorCode m_code;
-    ModuleId m_module{ModuleId::ANY};
+    ModuleId m_module{ ModuleId::ANY };
 };
 
 } // namespace er

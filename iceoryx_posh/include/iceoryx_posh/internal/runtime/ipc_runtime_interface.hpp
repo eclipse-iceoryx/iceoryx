@@ -80,9 +80,9 @@ class IpcRuntimeInterface
   private:
     struct MgmtShmCharacteristics
     {
-        uint64_t shmTopicSize{0U};
-        uint64_t segmentId{0U};
-        UntypedRelativePointer::offset_t segmentManagerAddressOffset{UntypedRelativePointer::NULL_POINTER_OFFSET};
+        uint64_t shmTopicSize{ 0U };
+        uint64_t segmentId{ 0U };
+        UntypedRelativePointer::offset_t segmentManagerAddressOffset{ UntypedRelativePointer::NULL_POINTER_OFFSET };
         optional<UntypedRelativePointer::offset_t> heartbeatAddressOffset;
     };
 

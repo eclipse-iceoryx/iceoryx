@@ -37,14 +37,14 @@ SharedMemoryUser::create(const DomainId domainId,
                          const UntypedRelativePointer::offset_t segmentManagerAddressOffset) noexcept
 {
     ShmVector_t shmSegments;
-    ScopeGuard shmCleaner{[] {}, [&shmSegments] { SharedMemoryUser::destroy(shmSegments); }};
+    ScopeGuard shmCleaner{ [] {}, [&shmSegments] { SharedMemoryUser::destroy(shmSegments); } };
 
     // open management segment
     auto shmOpen = openShmSegment(shmSegments,
                                   domainId,
                                   segmentId,
                                   ResourceType::ICEORYX_DEFINED,
-                                  {roudi::SHM_NAME},
+                                  { roudi::SHM_NAME },
                                   managementShmSize,
                                   AccessMode::READ_WRITE);
     if (shmOpen.has_error())
@@ -53,7 +53,7 @@ SharedMemoryUser::create(const DomainId domainId,
     }
 
     // open payload segments
-    auto* ptr = UntypedRelativePointer::getPtr(segment_id_t{segmentId}, segmentManagerAddressOffset);
+    auto* ptr = UntypedRelativePointer::getPtr(segment_id_t{ segmentId }, segmentManagerAddressOffset);
     auto* segmentManager = static_cast<mepoo::SegmentManager<>*>(ptr);
 
     auto segmentMapping = segmentManager->getSegmentMappings(PosixUser::getUserOfCurrentProcess());
@@ -78,7 +78,7 @@ SharedMemoryUser::create(const DomainId domainId,
     }
 
     ScopeGuard::release(std::move(shmCleaner));
-    return ok(SharedMemoryUser{std::move(shmSegments)});
+    return ok(SharedMemoryUser{ std::move(shmSegments) });
 }
 
 SharedMemoryUser::SharedMemoryUser(ShmVector_t&& payloadShm) noexcept
@@ -96,7 +96,7 @@ void SharedMemoryUser::destroy(ShmVector_t& shmSegments) noexcept
     while (!shmSegments.empty())
     {
         auto& shm = shmSegments.back();
-        auto segmentId = segment_id_t{UntypedRelativePointer::searchId(shm.getBaseAddress())};
+        auto segmentId = segment_id_t{ UntypedRelativePointer::searchId(shm.getBaseAddress()) };
         UntypedRelativePointer::unregisterPtr(segmentId);
         shmSegments.pop_back();
     }
@@ -124,7 +124,7 @@ expected<void, SharedMemoryUserError> SharedMemoryUser::openShmSegment(ShmVector
 
     auto& shm = shmResult.value();
     auto registeredSuccessfully = UntypedRelativePointer::registerPtrWithId(
-        segment_id_t{segmentId}, shm.getBaseAddress(), shm.get_size().expect("Failed to acquire SHM size."));
+        segment_id_t{ segmentId }, shm.getBaseAddress(), shm.get_size().expect("Failed to acquire SHM size."));
 
     if (!registeredSuccessfully)
     {

@@ -96,7 +96,7 @@ TEST_F(File_test, PurgeAndCreateRemovesExistingFile)
                        .create(m_sut_file_path);
         EXPECT_FALSE(sut.has_error());
 
-        std::array<uint8_t, 5> test_content{1, 2, 3, 4, 5};
+        std::array<uint8_t, 5> test_content{ 1, 2, 3, 4, 5 };
         auto result = sut->write(test_content.data(), 5);
         ASSERT_FALSE(result.has_error());
     }
@@ -215,7 +215,7 @@ TEST_F(File_test, ReadAndWriteToFileWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "494d9d0f-3a7f-40ba-bc92-36e445332aff");
 
-    const std::array<uint8_t, 8> test_content{12, 14, 18, 19, 22, 90, 200, 1};
+    const std::array<uint8_t, 8> test_content{ 12, 14, 18, 19, 22, 90, 200, 1 };
     auto sut = FileBuilder()
                    .open_mode(OpenMode::PURGE_AND_CREATE)
                    .permissions(perms::owner_write | perms::owner_read)
@@ -227,7 +227,7 @@ TEST_F(File_test, ReadAndWriteToFileWorks)
     ASSERT_FALSE(result.has_error());
     EXPECT_THAT(*result, Eq(test_content.size()));
 
-    std::array<uint8_t, 8> read_content{0};
+    std::array<uint8_t, 8> read_content{ 0 };
     auto read = sut->read(read_content.data(), read_content.size());
     ASSERT_FALSE(read.has_error());
     EXPECT_THAT(*read, Eq(test_content.size()));
@@ -246,7 +246,7 @@ TEST_F(File_test, ReadingOfAWriteOnlyFileFails)
                    .create(m_sut_file_path);
     ASSERT_FALSE(sut.has_error());
 
-    std::array<uint8_t, 8> read_content{0};
+    std::array<uint8_t, 8> read_content{ 0 };
     auto read = sut->read(read_content.data(), read_content.size());
     ASSERT_TRUE(read.has_error());
     EXPECT_THAT(read.error(), Eq(FileReadError::NotOpenedForReading));
@@ -257,7 +257,7 @@ TEST_F(File_test, ReadingWithSmallerBufferSizeWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "069f9752-7f1f-4da2-9015-a583f37b9e22");
 
-    const std::array<uint8_t, 8> test_content{112, 114, 118, 119, 122, 190, 100, 101};
+    const std::array<uint8_t, 8> test_content{ 112, 114, 118, 119, 122, 190, 100, 101 };
     auto sut = FileBuilder()
                    .open_mode(OpenMode::PURGE_AND_CREATE)
                    .permissions(perms::owner_write | perms::owner_read)
@@ -269,19 +269,19 @@ TEST_F(File_test, ReadingWithSmallerBufferSizeWorks)
     ASSERT_FALSE(result.has_error());
     EXPECT_THAT(*result, Eq(test_content.size()));
 
-    std::array<uint8_t, 2> read_content{0};
+    std::array<uint8_t, 2> read_content{ 0 };
     auto read = sut->read(read_content.data(), read_content.size());
 
     ASSERT_FALSE(read.has_error());
     EXPECT_THAT(*read, Eq(read_content.size()));
-    EXPECT_THAT(read_content, Eq(std::array<uint8_t, 2>{112, 114}));
+    EXPECT_THAT(read_content, Eq(std::array<uint8_t, 2>{ 112, 114 }));
 }
 
 TEST_F(File_test, ReadingWithLargerBufferSizeWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "63a19c93-f2ea-493f-b294-d3f8ae42ec27");
 
-    const std::array<uint8_t, 2> test_content{212, 214};
+    const std::array<uint8_t, 2> test_content{ 212, 214 };
     auto sut = FileBuilder()
                    .open_mode(OpenMode::PURGE_AND_CREATE)
                    .permissions(perms::owner_write | perms::owner_read)
@@ -293,19 +293,19 @@ TEST_F(File_test, ReadingWithLargerBufferSizeWorks)
     ASSERT_FALSE(result.has_error());
     EXPECT_THAT(*result, Eq(test_content.size()));
 
-    std::array<uint8_t, 4> read_content{0};
+    std::array<uint8_t, 4> read_content{ 0 };
     auto read = sut->read(read_content.data(), read_content.size());
 
     ASSERT_FALSE(read.has_error());
     EXPECT_THAT(*read, Eq(test_content.size()));
-    EXPECT_THAT(read_content, Eq(std::array<uint8_t, 4>{212, 214, 0, 0}));
+    EXPECT_THAT(read_content, Eq(std::array<uint8_t, 4>{ 212, 214, 0, 0 }));
 }
 
 TEST_F(File_test, ReadingWithOffsetWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "322cc4fc-56bd-42f9-9d46-47e361006371");
 
-    const std::array<uint8_t, 8> test_content{112, 114, 118, 119, 122, 190, 100, 101};
+    const std::array<uint8_t, 8> test_content{ 112, 114, 118, 119, 122, 190, 100, 101 };
     auto sut = FileBuilder()
                    .open_mode(OpenMode::PURGE_AND_CREATE)
                    .permissions(perms::owner_write | perms::owner_read)
@@ -317,19 +317,19 @@ TEST_F(File_test, ReadingWithOffsetWorks)
     ASSERT_FALSE(result.has_error());
     EXPECT_THAT(*result, Eq(test_content.size()));
 
-    std::array<uint8_t, 3> read_content{0};
+    std::array<uint8_t, 3> read_content{ 0 };
     auto read = sut->read_at(2, read_content.data(), read_content.size());
 
     ASSERT_FALSE(read.has_error());
     EXPECT_THAT(*read, Eq(read_content.size()));
-    EXPECT_THAT(read_content, Eq(std::array<uint8_t, 3>{118, 119, 122}));
+    EXPECT_THAT(read_content, Eq(std::array<uint8_t, 3>{ 118, 119, 122 }));
 }
 
 TEST_F(File_test, ReadingWithOutOfBoundsOffsetReadsNothing)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e5ef080e-c74d-40d0-a6c8-71541d3057da");
 
-    const std::array<uint8_t, 4> test_content{122, 190, 100, 101};
+    const std::array<uint8_t, 4> test_content{ 122, 190, 100, 101 };
     auto sut = FileBuilder()
                    .open_mode(OpenMode::PURGE_AND_CREATE)
                    .permissions(perms::owner_write | perms::owner_read)
@@ -341,7 +341,7 @@ TEST_F(File_test, ReadingWithOutOfBoundsOffsetReadsNothing)
     ASSERT_FALSE(result.has_error());
     EXPECT_THAT(*result, Eq(test_content.size()));
 
-    std::array<uint8_t, 3> read_content{0};
+    std::array<uint8_t, 3> read_content{ 0 };
     auto read = sut->read_at(8, read_content.data(), read_content.size());
 
     ASSERT_FALSE(read.has_error());
@@ -353,7 +353,7 @@ TEST_F(File_test, WritingIntoAReadOnlyFileFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "dba3d6b3-c09b-4bbe-acb4-22f20abdc9b9");
 
-    const std::array<uint8_t, 4> test_content{122, 190, 100, 101};
+    const std::array<uint8_t, 4> test_content{ 122, 190, 100, 101 };
     auto sut = FileBuilder()
                    .open_mode(OpenMode::PURGE_AND_CREATE)
                    .permissions(perms::owner_read)
@@ -371,7 +371,7 @@ TEST_F(File_test, WriteAtOverridesContent)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6b8de48f-a7cf-489e-bc66-95e92ddcb082");
 
-    const std::array<uint8_t, 4> test_content{122, 190, 100, 101};
+    const std::array<uint8_t, 4> test_content{ 122, 190, 100, 101 };
     auto sut = FileBuilder()
                    .open_mode(OpenMode::PURGE_AND_CREATE)
                    .permissions(perms::owner_read | perms::owner_write)
@@ -387,19 +387,19 @@ TEST_F(File_test, WriteAtOverridesContent)
     ASSERT_FALSE(result.has_error());
     EXPECT_THAT(*result, Eq(test_content.size()));
 
-    std::array<uint8_t, 10> read_content{0};
+    std::array<uint8_t, 10> read_content{ 0 };
     auto read = sut->read(read_content.data(), read_content.size());
 
     ASSERT_FALSE(read.has_error());
     EXPECT_THAT(*read, Eq(6));
-    EXPECT_THAT(read_content, Eq(std::array<uint8_t, 10>{122, 190, 122, 190, 100, 101, 0, 0, 0, 0}));
+    EXPECT_THAT(read_content, Eq(std::array<uint8_t, 10>{ 122, 190, 122, 190, 100, 101, 0, 0, 0, 0 }));
 }
 
 TEST_F(File_test, WriteWithOutOfBoundsOffsetAddsZerosInBetween)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c27e2ce3-e100-4c86-b414-8b59415a6ea8");
 
-    const std::array<uint8_t, 2> test_content{240, 250};
+    const std::array<uint8_t, 2> test_content{ 240, 250 };
     auto sut = FileBuilder()
                    .open_mode(OpenMode::PURGE_AND_CREATE)
                    .permissions(perms::owner_read | perms::owner_write)
@@ -415,19 +415,19 @@ TEST_F(File_test, WriteWithOutOfBoundsOffsetAddsZerosInBetween)
     ASSERT_FALSE(result.has_error());
     EXPECT_THAT(*result, Eq(test_content.size()));
 
-    std::array<uint8_t, 10> read_content{0};
+    std::array<uint8_t, 10> read_content{ 0 };
     auto read = sut->read(read_content.data(), read_content.size());
 
     ASSERT_FALSE(read.has_error());
     EXPECT_THAT(*read, Eq(6));
-    EXPECT_THAT(read_content, Eq(std::array<uint8_t, 10>{240, 250, 0, 0, 240, 250, 0, 0, 0, 0}));
+    EXPECT_THAT(read_content, Eq(std::array<uint8_t, 10>{ 240, 250, 0, 0, 240, 250, 0, 0, 0, 0 }));
 }
 
 TEST_F(File_test, MoveConstructedFileWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1f9ffd26-2171-4a1c-880b-c28ed11c843b");
 
-    const std::array<uint8_t, 2> test_content{242, 252};
+    const std::array<uint8_t, 2> test_content{ 242, 252 };
     auto sut = FileBuilder()
                    .open_mode(OpenMode::PURGE_AND_CREATE)
                    .permissions(perms::owner_read | perms::owner_write)
@@ -439,22 +439,22 @@ TEST_F(File_test, MoveConstructedFileWorks)
     ASSERT_FALSE(result.has_error());
     EXPECT_THAT(*result, Eq(test_content.size()));
 
-    File sut2{std::move(sut.value())};
+    File sut2{ std::move(sut.value()) };
     EXPECT_THAT(sut->get_file_handle(), -1);
 
-    std::array<uint8_t, 3> read_content{0};
+    std::array<uint8_t, 3> read_content{ 0 };
     auto read = sut2.read(read_content.data(), read_content.size());
 
     ASSERT_FALSE(read.has_error());
     EXPECT_THAT(*read, Eq(2));
-    EXPECT_THAT(read_content, Eq(std::array<uint8_t, 3>{242, 252, 0}));
+    EXPECT_THAT(read_content, Eq(std::array<uint8_t, 3>{ 242, 252, 0 }));
 }
 
 TEST_F(File_test, MoveAssignedFileWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "70e19f33-5007-42be-8a5e-51df6ca429dd");
 
-    const std::array<uint8_t, 2> test_content{244, 254};
+    const std::array<uint8_t, 2> test_content{ 244, 254 };
     auto sut = FileBuilder()
                    .open_mode(OpenMode::PURGE_AND_CREATE)
                    .permissions(perms::owner_read | perms::owner_write)
@@ -466,7 +466,7 @@ TEST_F(File_test, MoveAssignedFileWorks)
     ASSERT_FALSE(result.has_error());
     EXPECT_THAT(*result, Eq(test_content.size()));
 
-    File sut2{std::move(sut.value())};
+    File sut2{ std::move(sut.value()) };
     auto sut3 = FileBuilder()
                     .open_mode(OpenMode::OPEN_EXISTING)
                     .permissions(perms::owner_read)
@@ -477,11 +477,11 @@ TEST_F(File_test, MoveAssignedFileWorks)
     sut2 = std::move(sut3.value());
     EXPECT_THAT(sut3->get_file_handle(), -1);
 
-    std::array<uint8_t, 3> read_content{0};
+    std::array<uint8_t, 3> read_content{ 0 };
     auto read = sut2.read(read_content.data(), read_content.size());
 
     ASSERT_FALSE(read.has_error());
     EXPECT_THAT(*read, Eq(2));
-    EXPECT_THAT(read_content, Eq(std::array<uint8_t, 3>{244, 254, 0}));
+    EXPECT_THAT(read_content, Eq(std::array<uint8_t, 3>{ 244, 254, 0 }));
 }
 } // namespace

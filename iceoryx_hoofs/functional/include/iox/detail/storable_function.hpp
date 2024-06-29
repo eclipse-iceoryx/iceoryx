@@ -132,9 +132,9 @@ class storable_function<Capacity, signature<ReturnType, Args...>> final
     struct operations final
     {
         // function pointers defining copy, move and destroy semantics
-        void (*copyFunction)(const storable_function& src, storable_function& dest){nullptr};
-        void (*moveFunction)(storable_function& src, storable_function& dest){nullptr};
-        void (*destroyFunction)(storable_function& f){nullptr};
+        void (*copyFunction)(const storable_function& src, storable_function& dest){ nullptr };
+        void (*moveFunction)(storable_function& src, storable_function& dest){ nullptr };
+        void (*destroyFunction)(storable_function& f){ nullptr };
 
         operations() noexcept = default;
         operations(const operations& other) noexcept = default;
@@ -155,10 +155,10 @@ class storable_function<Capacity, signature<ReturnType, Args...>> final
 
     // AXIVION Next Construct AutosarC++19_03-A18.1.1 : safe access is guaranteed since the c-array is wrapped inside the storable_function
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
-    std::byte m_storage[Capacity];                      // storage for the callable
-    void* m_callable{nullptr};                          // pointer to stored type-erased callable
-    ReturnType (*m_invoker)(void*, Args&&...){nullptr}; // indirection to invoke the stored callable,
-                                                        // nullptr if no callable is stored
+    std::byte m_storage[Capacity];                        // storage for the callable
+    void* m_callable{ nullptr };                          // pointer to stored type-erased callable
+    ReturnType (*m_invoker)(void*, Args&&...){ nullptr }; // indirection to invoke the stored callable,
+                                                          // nullptr if no callable is stored
 
     /// @note For static_storage as the StorageType we detect at compile time if the functor can be stored.
     ///       If this is not the case, compilation will fail.

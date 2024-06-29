@@ -104,14 +104,14 @@ class LifetimeAndAssignmentTracker
 
     struct Statistics
     {
-        uint64_t cTor{0};
-        uint64_t customCTor{0};
-        uint64_t copyCTor{0};
-        uint64_t moveCTor{0};
-        uint64_t moveAssignment{0};
-        uint64_t copyAssignment{0};
-        uint64_t dTor{0};
-        T classValue{0};
+        uint64_t cTor{ 0 };
+        uint64_t customCTor{ 0 };
+        uint64_t copyCTor{ 0 };
+        uint64_t moveCTor{ 0 };
+        uint64_t moveAssignment{ 0 };
+        uint64_t copyAssignment{ 0 };
+        uint64_t dTor{ 0 };
+        T classValue{ 0 };
 
         std::vector<T> dTorOrder;
 
@@ -199,14 +199,14 @@ class MoveOnlyLifetimeAndAssignmentTracker
 
     struct Statistics
     {
-        uint64_t cTor{0};
-        uint64_t customCTor{0};
-        uint64_t copyCTor{0};
-        uint64_t moveCTor{0};
-        uint64_t moveAssignment{0};
-        uint64_t copyAssignment{0};
-        uint64_t dTor{0};
-        T classValue{0};
+        uint64_t cTor{ 0 };
+        uint64_t customCTor{ 0 };
+        uint64_t copyCTor{ 0 };
+        uint64_t moveCTor{ 0 };
+        uint64_t moveAssignment{ 0 };
+        uint64_t copyAssignment{ 0 };
+        uint64_t dTor{ 0 };
+        T classValue{ 0 };
 
         std::vector<T> dTorOrder;
 

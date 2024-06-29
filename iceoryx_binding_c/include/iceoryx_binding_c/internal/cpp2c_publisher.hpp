@@ -30,7 +30,7 @@ struct cpp2c_Publisher
     cpp2c_Publisher& operator=(const cpp2c_Publisher&) = delete;
     cpp2c_Publisher& operator=(cpp2c_Publisher&& rhs) noexcept;
 
-    iox::popo::PublisherPortData* m_portData{nullptr};
+    iox::popo::PublisherPortData* m_portData{ nullptr };
 };
 
 #endif

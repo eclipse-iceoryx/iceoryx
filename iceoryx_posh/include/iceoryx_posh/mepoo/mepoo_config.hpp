@@ -40,8 +40,8 @@ struct MePooConfig
             , m_chunkCount(chunkCount)
         {
         }
-        uint64_t m_size{0};
-        uint32_t m_chunkCount{0};
+        uint64_t m_size{ 0 };
+        uint32_t m_chunkCount{ 0 };
     };
 
     using MePooConfigContainerType = vector<Entry, MAX_NUMBER_OF_MEMPOOLS>;

@@ -142,10 +142,10 @@ class MemoryProvider
     static const char* getErrorString(const MemoryProviderError error) noexcept;
 
   private:
-    void* m_memory{nullptr};
-    uint64_t m_size{0};
-    uint64_t m_segmentId{0};
-    bool m_memoryAvailableAnnounced{false};
+    void* m_memory{ nullptr };
+    uint64_t m_size{ 0 };
+    uint64_t m_segmentId{ 0 };
+    bool m_memoryAvailableAnnounced{ false };
     vector<MemoryBlock*, MAX_NUMBER_OF_MEMORY_BLOCKS_PER_MEMORY_PROVIDER> m_memoryBlocks;
 };
 } // namespace roudi

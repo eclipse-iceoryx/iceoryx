@@ -127,23 +127,23 @@ class UnixDomainSocket_test : public Test
         }
     }
 
-    const std::chrono::milliseconds WAIT_IN_MS{10};
-    std::atomic_bool doWaitForThread{true};
+    const std::chrono::milliseconds WAIT_IN_MS{ 10 };
+    std::atomic_bool doWaitForThread{ true };
     static constexpr uint64_t MaxMsgNumber = 10U;
-    UnixDomainSocket server{UnixDomainSocketBuilder()
-                                .name(goodName)
-                                .channelSide(PosixIpcChannelSide::SERVER)
-                                .maxMsgSize(UnixDomainSocket::MAX_MESSAGE_SIZE)
-                                .maxMsgNumber(MaxMsgNumber)
-                                .create()
-                                .expect("Failed to create UnixDomainSocket")};
-    UnixDomainSocket client{UnixDomainSocketBuilder()
-                                .name(goodName)
-                                .channelSide(PosixIpcChannelSide::CLIENT)
-                                .maxMsgSize(UnixDomainSocket::MAX_MESSAGE_SIZE)
-                                .maxMsgNumber(MaxMsgNumber)
-                                .create()
-                                .expect("Failed to create UnixDomainSocket")};
+    UnixDomainSocket server{ UnixDomainSocketBuilder()
+                                 .name(goodName)
+                                 .channelSide(PosixIpcChannelSide::SERVER)
+                                 .maxMsgSize(UnixDomainSocket::MAX_MESSAGE_SIZE)
+                                 .maxMsgNumber(MaxMsgNumber)
+                                 .create()
+                                 .expect("Failed to create UnixDomainSocket") };
+    UnixDomainSocket client{ UnixDomainSocketBuilder()
+                                 .name(goodName)
+                                 .channelSide(PosixIpcChannelSide::CLIENT)
+                                 .maxMsgSize(UnixDomainSocket::MAX_MESSAGE_SIZE)
+                                 .maxMsgNumber(MaxMsgNumber)
+                                 .create()
+                                 .expect("Failed to create UnixDomainSocket") };
 };
 
 constexpr uint64_t UnixDomainSocket_test::MaxMsgNumber;
@@ -204,7 +204,7 @@ TEST_F(UnixDomainSocket_test, UnlinkExistingSocketWithPathPrefixLeadsIsSuccessfu
 // and the client can only send
 void sendOnServerLeadsToError(const sendCall_t& send)
 {
-    std::string message{"Foo"};
+    std::string message{ "Foo" };
     auto result = send(message);
     EXPECT_TRUE(result.has_error());
     EXPECT_THAT(result.error(), Eq(PosixIpcChannelError::INTERNAL_LOGIC_ERROR));
@@ -224,7 +224,7 @@ TEST_F(UnixDomainSocket_test, SendOnServerLeadsToError)
 
 void sendOnServerLeadsToErrorMsg(const sendCallMsg_t& send)
 {
-    message_t message{"Foo"};
+    message_t message{ "Foo" };
     auto result = send(message);
     EXPECT_TRUE(result.has_error());
     EXPECT_THAT(result.error(), Eq(PosixIpcChannelError::INTERNAL_LOGIC_ERROR));
@@ -263,7 +263,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithSendAn
 {
     ::testing::Test::RecordProperty("TEST_ID", "69a2f9f4-2a4a-48e2-aa50-72b00e657f1d");
     successfulSendAndReceive(
-        {"what's hypnotoads eye color?"},
+        { "what's hypnotoads eye color?" },
         [&](auto& msg) { return client.send(msg); },
         [&]() { return server.receive(); });
 }
@@ -272,8 +272,8 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithTimedS
 {
     ::testing::Test::RecordProperty("TEST_ID", "b5b2b116-04df-4ec8-ba2c-71ca2ff98b3a");
     successfulSendAndReceive(
-        {"the earth is a disc on the back of elephants on the slimy back of hypnotoad - let's all hope that no "
-         "elephant slips."},
+        { "the earth is a disc on the back of elephants on the slimy back of hypnotoad - let's all hope that no "
+          "elephant slips." },
         [&](auto& msg) { return client.timedSend(msg, 1_ms); },
         [&]() { return server.receive(); });
 }
@@ -282,7 +282,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithTimedS
 {
     ::testing::Test::RecordProperty("TEST_ID", "7b5f4b19-4721-42e4-899f-9b61d5f2e467");
     successfulSendAndReceive(
-        {"it is not the sun that rises, it is hypnotoad who is opening its eyes"},
+        { "it is not the sun that rises, it is hypnotoad who is opening its eyes" },
         [&](auto& msg) { return client.timedSend(msg, 1_ms); },
         [&]() { return server.timedReceive(1_ms); });
 }
@@ -291,7 +291,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithSendAn
 {
     ::testing::Test::RecordProperty("TEST_ID", "48dfea98-9b8f-4bc5-ba6b-b29229238c1c");
     successfulSendAndReceive(
-        {"what is the most beautiful color in the world? it's hypnotoad."},
+        { "what is the most beautiful color in the world? it's hypnotoad." },
         [&](auto& msg) { return client.send(msg); },
         [&]() { return server.timedReceive(1_ms); });
 }
@@ -300,35 +300,35 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfEmptyMessageWithSendAndRe
 {
     ::testing::Test::RecordProperty("TEST_ID", "1cbb2b57-5bde-4d36-b11d-879f55a313c0");
     successfulSendAndReceive(
-        {""}, [&](auto& msg) { return client.send(msg); }, [&]() { return server.receive(); });
+        { "" }, [&](auto& msg) { return client.send(msg); }, [&]() { return server.receive(); });
 }
 
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfEmptyMessageWithTimedSendAndReceive)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1fecbbc7-762c-4dcd-b7c2-c195d29d4023");
     successfulSendAndReceive(
-        {""}, [&](auto& msg) { return client.timedSend(msg, 1_ms); }, [&]() { return server.receive(); });
+        { "" }, [&](auto& msg) { return client.timedSend(msg, 1_ms); }, [&]() { return server.receive(); });
 }
 
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfEmptyMessageWithTimedSendAndTimedReceive)
 {
     ::testing::Test::RecordProperty("TEST_ID", "22d0ed9c-6ab1-4239-909e-41dccc0f9510");
     successfulSendAndReceive(
-        {""}, [&](auto& msg) { return client.timedSend(msg, 1_ms); }, [&]() { return server.timedReceive(1_ms); });
+        { "" }, [&](auto& msg) { return client.timedSend(msg, 1_ms); }, [&]() { return server.timedReceive(1_ms); });
 }
 
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfEmptyMessageWithSendAndTimedReceive)
 {
     ::testing::Test::RecordProperty("TEST_ID", "16ee1bee-67a0-4d2f-8f13-5fe6ca67f3b8");
     successfulSendAndReceive(
-        {""}, [&](auto& msg) { return client.send(msg); }, [&]() { return server.timedReceive(1_ms); });
+        { "" }, [&](auto& msg) { return client.send(msg); }, [&]() { return server.timedReceive(1_ms); });
 }
 
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMaxLengthMessageWithSendAndReceive)
 {
     ::testing::Test::RecordProperty("TEST_ID", "51fb179e-7256-47e8-8af9-6f14493ef253");
     successfulSendAndReceive(
-        {std::string(UnixDomainSocket::MAX_MESSAGE_SIZE, 'x')},
+        { std::string(UnixDomainSocket::MAX_MESSAGE_SIZE, 'x') },
         [&](auto& msg) { return client.send(msg); },
         [&]() { return server.receive(); });
 }
@@ -337,7 +337,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMaxLengthMessageWithTimed
 {
     ::testing::Test::RecordProperty("TEST_ID", "c5e9dbea-c514-4335-a151-bd38a806f048");
     successfulSendAndReceive(
-        {std::string(UnixDomainSocket::MAX_MESSAGE_SIZE, 'x')},
+        { std::string(UnixDomainSocket::MAX_MESSAGE_SIZE, 'x') },
         [&](auto& msg) { return client.timedSend(msg, 1_ms); },
         [&]() { return server.receive(); });
 }
@@ -346,7 +346,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMaxLengthMessageWithTimed
 {
     ::testing::Test::RecordProperty("TEST_ID", "6359e2bc-46ea-4cfa-9c51-bb3e5ad36834");
     successfulSendAndReceive(
-        {std::string(UnixDomainSocket::MAX_MESSAGE_SIZE, 'x')},
+        { std::string(UnixDomainSocket::MAX_MESSAGE_SIZE, 'x') },
         [&](auto& msg) { return client.timedSend(msg, 1_ms); },
         [&]() { return server.timedReceive(1_ms); });
 }
@@ -355,7 +355,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMaxLengthMessageWithSendA
 {
     ::testing::Test::RecordProperty("TEST_ID", "ec6b3ae4-5a87-499c-b41a-c759ee5a14f5");
     successfulSendAndReceive(
-        {std::string(UnixDomainSocket::MAX_MESSAGE_SIZE, 'x')},
+        { std::string(UnixDomainSocket::MAX_MESSAGE_SIZE, 'x') },
         [&](auto& msg) { return client.send(msg); },
         [&]() { return server.timedReceive(1_ms); });
 }
@@ -364,10 +364,10 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMultipleMessagesWithSendA
 {
     ::testing::Test::RecordProperty("TEST_ID", "d0dd293f-8dc5-493b-99bc-34859eaa7ca6");
     successfulSendAndReceive(
-        {"Famous hypnotoad alike creators from around the world:",
-         "Zoich, proposed mascot for the winter olympics 2014",
-         "Ed Bighead",
-         "Jason Funderburker"},
+        { "Famous hypnotoad alike creators from around the world:",
+          "Zoich, proposed mascot for the winter olympics 2014",
+          "Ed Bighead",
+          "Jason Funderburker" },
         [&](auto& msg) { return client.send(msg); },
         [&]() { return server.receive(); });
 }
@@ -376,13 +376,13 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMultipleMessagesWithTimed
 {
     ::testing::Test::RecordProperty("TEST_ID", "92cb2d91-2fa8-4600-bb42-042cfe97de01");
     successfulSendAndReceive(
-        {"Facts about hypnotoad",
-         "according to 'The Thief of Baghead' hypnotoad is divorced and has children",
-         "hypnotoad is shown in the open sequence in Simpsons - Treehouse of Horror XXIV",
-         "hypnotoad has its own tv show called: everyone loves hypnotoad",
-         "his homeworld is maybe Kif Krokers homeworld",
-         "he knows the answer to the ultimate question of life, the universe, and everything - just look deep into ",
-         "his eyes"},
+        { "Facts about hypnotoad",
+          "according to 'The Thief of Baghead' hypnotoad is divorced and has children",
+          "hypnotoad is shown in the open sequence in Simpsons - Treehouse of Horror XXIV",
+          "hypnotoad has its own tv show called: everyone loves hypnotoad",
+          "his homeworld is maybe Kif Krokers homeworld",
+          "he knows the answer to the ultimate question of life, the universe, and everything - just look deep into ",
+          "his eyes" },
         [&](auto& msg) { return client.timedSend(msg, 1_ms); },
         [&]() { return server.receive(); });
 }
@@ -391,11 +391,11 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMultipleMessagesWithTimed
 {
     ::testing::Test::RecordProperty("TEST_ID", "31daf91d-1b98-400e-a29b-e43643962dcc");
     successfulSendAndReceive(
-        {"hypnotoad was part of the german pop band Modern Talking and produced songs like",
-         "you're my, heart you're my seal",
-         "cheri cheri hypnotoad",
-         "brother hypno hypno toad",
-         "you are not alone hypnotoad is there for you"},
+        { "hypnotoad was part of the german pop band Modern Talking and produced songs like",
+          "you're my, heart you're my seal",
+          "cheri cheri hypnotoad",
+          "brother hypno hypno toad",
+          "you are not alone hypnotoad is there for you" },
         [&](auto& msg) { return client.timedSend(msg, 1_ms); },
         [&]() { return server.timedReceive(1_ms); });
 }
@@ -404,12 +404,12 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMultipleMessagesWithSendA
 {
     ::testing::Test::RecordProperty("TEST_ID", "eb25f813-ab2d-40e4-a363-5e025a2d53c8");
     successfulSendAndReceive(
-        {"most famous actors and politicians claim that the licked hypnotoad which was later the key to their "
-         "success",
-         "homer simpson licked hypnotoad before he was famous (Missionary Impossible)",
-         "but remember, always ask the toad before licking otherwise it is just rude",
-         "if the toad answers you the licking question, please consult David Hasselhof first or some other random "
-         "person"},
+        { "most famous actors and politicians claim that the licked hypnotoad which was later the key to their "
+          "success",
+          "homer simpson licked hypnotoad before he was famous (Missionary Impossible)",
+          "but remember, always ask the toad before licking otherwise it is just rude",
+          "if the toad answers you the licking question, please consult David Hasselhof first or some other random "
+          "person" },
         [&](auto& msg) { return client.send(msg); },
         [&]() { return server.timedReceive(1_ms); });
 }
@@ -437,7 +437,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithSendAn
 {
     ::testing::Test::RecordProperty("TEST_ID", "07fb2de2-151a-436a-8b17-bc940b0c197b");
     successfulSendAndReceiveMsg<message_t, message_t>(
-        {"what's hypnotoads eye color?"},
+        { "what's hypnotoads eye color?" },
         [&](auto& msg) { return client.send(msg); },
         [&](auto& msg) { return server.receive(msg); });
 }
@@ -446,8 +446,8 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithTimedS
 {
     ::testing::Test::RecordProperty("TEST_ID", "6da4ca23-eb10-4afc-9732-42aef9f821bc");
     successfulSendAndReceiveMsg<message_t, message_t>(
-        {"the earth is a disc on the back of elephants on the slimy back of hypnotoad - let's all hope that no "
-         "elephant slips."},
+        { "the earth is a disc on the back of elephants on the slimy back of hypnotoad - let's all hope that no "
+          "elephant slips." },
         [&](auto& msg) { return client.timedSend(msg, 1_ms); },
         [&](auto& msg) { return server.receive(msg); });
 }
@@ -456,7 +456,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithTimedS
 {
     ::testing::Test::RecordProperty("TEST_ID", "6506b641-4a02-407f-b7de-fbbbbf09d622");
     successfulSendAndReceiveMsg<message_t, message_t>(
-        {"it is not the sun that rises, it is hypnotoad who is opening its eyes"},
+        { "it is not the sun that rises, it is hypnotoad who is opening its eyes" },
         [&](auto& msg) { return client.timedSend(msg, 1_ms); },
         [&](auto& msg) { return server.timedReceive(msg, 1_ms); });
 }
@@ -465,7 +465,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithSendAn
 {
     ::testing::Test::RecordProperty("TEST_ID", "eb517664-f6ee-4504-9c27-686f1d70839e");
     successfulSendAndReceiveMsg<message_t, message_t>(
-        {"what is the most beautiful color in the world? it's hypnotoad."},
+        { "what is the most beautiful color in the world? it's hypnotoad." },
         [&](auto& msg) { return client.send(msg); },
         [&](auto& msg) { return server.timedReceive(msg, 1_ms); });
 }
@@ -474,7 +474,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithSend12
 {
     ::testing::Test::RecordProperty("TEST_ID", "f43dd0ea-110b-40d6-8077-6e96c57f99ba");
     successfulSendAndReceiveMsg<message128_t, message_t>(
-        {"what's hypnotoads eye color?"},
+        { "what's hypnotoads eye color?" },
         [&](auto& msg) { return client.send(msg); },
         [&](auto& msg) { return server.receive(msg); });
 }
@@ -483,8 +483,8 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithTimedS
 {
     ::testing::Test::RecordProperty("TEST_ID", "94facde0-65e6-4aac-a1e7-d0415e5ecd7e");
     successfulSendAndReceiveMsg<message128_t, message_t>(
-        {"the earth is a disc on the back of elephants on the slimy back of hypnotoad - let's all hope that no "
-         "elephant slips."},
+        { "the earth is a disc on the back of elephants on the slimy back of hypnotoad - let's all hope that no "
+          "elephant slips." },
         [&](auto& msg) { return client.timedSend(msg, 1_ms); },
         [&](auto& msg) { return server.receive(msg); });
 }
@@ -493,7 +493,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithTimedS
 {
     ::testing::Test::RecordProperty("TEST_ID", "f1349116-daed-44a1-9962-aa4bb22fe5a5");
     successfulSendAndReceiveMsg<message128_t, message_t>(
-        {"it is not the sun that rises, it is hypnotoad who is opening its eyes"},
+        { "it is not the sun that rises, it is hypnotoad who is opening its eyes" },
         [&](auto& msg) { return client.timedSend(msg, 1_ms); },
         [&](auto& msg) { return server.timedReceive(msg, 1_ms); });
 }
@@ -502,7 +502,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithSend12
 {
     ::testing::Test::RecordProperty("TEST_ID", "7d3c2333-508e-4fcc-8057-87194123c0fb");
     successfulSendAndReceiveMsg<message128_t, message_t>(
-        {"what is the most beautiful color in the world? it's hypnotoad."},
+        { "what is the most beautiful color in the world? it's hypnotoad." },
         [&](auto& msg) { return client.send(msg); },
         [&](auto& msg) { return server.timedReceive(msg, 1_ms); });
 }
@@ -511,7 +511,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithSendAn
 {
     ::testing::Test::RecordProperty("TEST_ID", "645ec34b-325f-459a-b87e-e9288add4392");
     successfulSendAndReceiveMsg<message_t, message128_t>(
-        {"what's hypnotoads eye color?"},
+        { "what's hypnotoads eye color?" },
         [&](auto& msg) { return client.send(msg); },
         [&](auto& msg) { return server.receive(msg); });
 }
@@ -520,8 +520,8 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithTimedS
 {
     ::testing::Test::RecordProperty("TEST_ID", "b2daa776-fd29-4420-a653-2316e8321643");
     successfulSendAndReceiveMsg<message_t, message128_t>(
-        {"the earth is a disc on the back of elephants on the slimy back of hypnotoad - let's all hope that no "
-         "elephant slips."},
+        { "the earth is a disc on the back of elephants on the slimy back of hypnotoad - let's all hope that no "
+          "elephant slips." },
         [&](auto& msg) { return client.timedSend(msg, 1_ms); },
         [&](auto& msg) { return server.receive(msg); });
 }
@@ -530,7 +530,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithTimedS
 {
     ::testing::Test::RecordProperty("TEST_ID", "e48b9dbb-6f9c-4e78-a053-9129f6604a0b");
     successfulSendAndReceiveMsg<message_t, message128_t>(
-        {"it is not the sun that rises, it is hypnotoad who is opening its eyes"},
+        { "it is not the sun that rises, it is hypnotoad who is opening its eyes" },
         [&](auto& msg) { return client.timedSend(msg, 1_ms); },
         [&](auto& msg) { return server.timedReceive(msg, 1_ms); });
 }
@@ -539,7 +539,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithSendAn
 {
     ::testing::Test::RecordProperty("TEST_ID", "dd1ce7b1-23fe-4547-b3ad-44531f5c9d5f");
     successfulSendAndReceiveMsg<message_t, message128_t>(
-        {"what is the most beautiful color in the world? it's hypnotoad."},
+        { "what is the most beautiful color in the world? it's hypnotoad." },
         [&](auto& msg) { return client.send(msg); },
         [&](auto& msg) { return server.timedReceive(msg, 1_ms); });
 }
@@ -548,21 +548,21 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfEmptyMessageWithSendAndRe
 {
     ::testing::Test::RecordProperty("TEST_ID", "b5c5f2bc-b319-4b75-86c2-c44ddd5f8d75");
     successfulSendAndReceiveMsg<message_t, message_t>(
-        {""}, [&](auto& msg) { return client.send(msg); }, [&](auto& msg) { return server.receive(msg); });
+        { "" }, [&](auto& msg) { return client.send(msg); }, [&](auto& msg) { return server.receive(msg); });
 }
 
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfEmptyMessageWithTimedSendAndReceiveMsg)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ccbbb0bb-f6b7-420b-9713-7642fd8f4766");
     successfulSendAndReceiveMsg<message_t, message_t>(
-        {""}, [&](auto& msg) { return client.timedSend(msg, 1_ms); }, [&](auto& msg) { return server.receive(msg); });
+        { "" }, [&](auto& msg) { return client.timedSend(msg, 1_ms); }, [&](auto& msg) { return server.receive(msg); });
 }
 
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfEmptyMessageWithTimedSendAndTimedReceiveMsg)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5c076821-d02b-4ba8-9329-a8c19555229c");
     successfulSendAndReceiveMsg<message_t, message_t>(
-        {""},
+        { "" },
         [&](auto& msg) { return client.timedSend(msg, 1_ms); },
         [&](auto& msg) { return server.timedReceive(msg, 1_ms); });
 }
@@ -571,7 +571,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfEmptyMessageWithSendAndTi
 {
     ::testing::Test::RecordProperty("TEST_ID", "f68cfc06-07ae-4830-9f06-0127ecb7bcd8");
     successfulSendAndReceiveMsg<message_t, message_t>(
-        {""}, [&](auto& msg) { return client.send(msg); }, [&](auto& msg) { return server.timedReceive(msg, 1_ms); });
+        { "" }, [&](auto& msg) { return client.send(msg); }, [&](auto& msg) { return server.timedReceive(msg, 1_ms); });
 }
 
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfFullLenghtMessageWithSendAndReceiveMsg)
@@ -579,7 +579,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfFullLenghtMessageWithSend
     ::testing::Test::RecordProperty("TEST_ID", "dc059e53-3d31-4ad5-93be-bbf0a1c0425d");
     auto message = memsetMessage<message_t>('a');
     successfulSendAndReceiveMsg<message_t, message_t>(
-        {message}, [&](auto& msg) { return client.send(msg); }, [&](auto& msg) { return server.receive(msg); });
+        { message }, [&](auto& msg) { return client.send(msg); }, [&](auto& msg) { return server.receive(msg); });
 }
 
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfFullLenghtMessageWithTimedSendAndReceiveMsg)
@@ -587,7 +587,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfFullLenghtMessageWithTime
     ::testing::Test::RecordProperty("TEST_ID", "cb6f2575-2753-443f-804e-5e7d34ef6555");
     auto message = memsetMessage<message_t>('a');
     successfulSendAndReceiveMsg<message_t, message_t>(
-        {message},
+        { message },
         [&](auto& msg) { return client.timedSend(msg, 1_ms); },
         [&](auto& msg) { return server.receive(msg); });
 }
@@ -597,7 +597,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfFullLenghtMessageWithTime
     ::testing::Test::RecordProperty("TEST_ID", "2014e782-c228-480b-a018-e7e9fe9f80d5");
     auto message = memsetMessage<message_t>('a');
     successfulSendAndReceiveMsg<message_t, message_t>(
-        {message},
+        { message },
         [&](auto& msg) { return client.timedSend(msg, 1_ms); },
         [&](auto& msg) { return server.timedReceive(msg, 1_ms); });
 }
@@ -607,7 +607,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfFullLenghtMessageWithSend
     ::testing::Test::RecordProperty("TEST_ID", "dd06c632-2bc7-4ff2-96fc-21ab9aa1c711");
     auto message = memsetMessage<message_t>('a');
     successfulSendAndReceiveMsg<message_t, message_t>(
-        {message},
+        { message },
         [&](auto& msg) { return client.send(msg); },
         [&](auto& msg) { return server.timedReceive(msg, 1_ms); });
 }
@@ -616,7 +616,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMessageWithSendAndReceive
 {
     ::testing::Test::RecordProperty("TEST_ID", "437b2b55-95e5-4d99-9e23-003eb68dce5d");
     successfulSendAndReceiveMsg<message_t, message_t>(
-        {"All glory to the hypnotoad"},
+        { "All glory to the hypnotoad" },
         [&](auto& msg) { return client.send(msg); },
         [&](auto& msg) {
             msg = memsetMessage<message_t>('a');
@@ -628,10 +628,10 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMultipleMessagesWithSendA
 {
     ::testing::Test::RecordProperty("TEST_ID", "42263a83-f588-44af-b6ff-d3cdbd01af40");
     successfulSendAndReceiveMsg<message_t, message_t>(
-        {"Famous hypnotoad alike creators from around the world:",
-         "Zoich, proposed mascot for the winter olympics 2014",
-         "Ed Bighead",
-         "Jason Funderburker"},
+        { "Famous hypnotoad alike creators from around the world:",
+          "Zoich, proposed mascot for the winter olympics 2014",
+          "Ed Bighead",
+          "Jason Funderburker" },
         [&](auto& msg) { return client.send(msg); },
         [&](auto& msg) { return server.receive(msg); });
 }
@@ -640,13 +640,13 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMultipleMessagesWithTimed
 {
     ::testing::Test::RecordProperty("TEST_ID", "ed817677-b0b1-4327-a995-ab70a6589e3b");
     successfulSendAndReceiveMsg<message_t, message_t>(
-        {"Facts about hypnotoad",
-         "according to 'The Thief of Baghead' hypnotoad is divorced and has children",
-         "hypnotoad is shown in the open sequence in Simpsons - Treehouse of Horror XXIV",
-         "hypnotoad has its own tv show called: everyone loves hypnotoad",
-         "his homeworld is maybe Kif Krokers homeworld",
-         "he knows the answer to the ultimate question of life, the universe, and everything - just look deep into ",
-         "his eyes"},
+        { "Facts about hypnotoad",
+          "according to 'The Thief of Baghead' hypnotoad is divorced and has children",
+          "hypnotoad is shown in the open sequence in Simpsons - Treehouse of Horror XXIV",
+          "hypnotoad has its own tv show called: everyone loves hypnotoad",
+          "his homeworld is maybe Kif Krokers homeworld",
+          "he knows the answer to the ultimate question of life, the universe, and everything - just look deep into ",
+          "his eyes" },
         [&](auto& msg) { return client.timedSend(msg, 1_ms); },
         [&](auto& msg) { return server.receive(msg); });
 }
@@ -655,11 +655,11 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMultipleMessagesWithTimed
 {
     ::testing::Test::RecordProperty("TEST_ID", "4fced677-42fe-49d4-8770-ca787ba35d44");
     successfulSendAndReceiveMsg<message_t, message_t>(
-        {"hypnotoad was part of the german pop band Modern Talking and produced songs like",
-         "you're my, heart you're my seal",
-         "cheri cheri hypnotoad",
-         "brother hypno hypno toad",
-         "you are not alone hypnotoad is there for you"},
+        { "hypnotoad was part of the german pop band Modern Talking and produced songs like",
+          "you're my, heart you're my seal",
+          "cheri cheri hypnotoad",
+          "brother hypno hypno toad",
+          "you are not alone hypnotoad is there for you" },
         [&](auto& msg) { return client.timedSend(msg, 1_ms); },
         [&](auto& msg) { return server.timedReceive(msg, 1_ms); });
 }
@@ -668,12 +668,12 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMultipleMessagesWithSendA
 {
     ::testing::Test::RecordProperty("TEST_ID", "882553db-05a1-4b68-9e9d-a5510ac78364");
     successfulSendAndReceiveMsg<message_t, message_t>(
-        {"most famous actors and politicians claim that the licked hypnotoad which was later the key to their "
-         "success",
-         "homer simpson licked hypnotoad before he was famous (Missionary Impossible)",
-         "but remember, always ask the toad before licking otherwise it is just rude",
-         "if the toad answers you the licking question, please consult David Hasselhof first or some other random "
-         "person"},
+        { "most famous actors and politicians claim that the licked hypnotoad which was later the key to their "
+          "success",
+          "homer simpson licked hypnotoad before he was famous (Missionary Impossible)",
+          "but remember, always ask the toad before licking otherwise it is just rude",
+          "if the toad answers you the licking question, please consult David Hasselhof first or some other random "
+          "person" },
         [&](auto& msg) { return client.send(msg); },
         [&](auto& msg) { return server.timedReceive(msg, 1_ms); });
 }

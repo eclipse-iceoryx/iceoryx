@@ -216,9 +216,9 @@ TEST_F(stack_test, popCreatesSpaceForAnotherElement)
 
 // clang >= 15 performs mandatory elision of copy/move operations (C++17 requirement)
 #if defined(__clang__) && __clang_major__ >= 15
-    constexpr uint64_t ELISION_CORRECTION{0};
+    constexpr uint64_t ELISION_CORRECTION{ 0 };
 #else
-    constexpr uint64_t ELISION_CORRECTION{1};
+    constexpr uint64_t ELISION_CORRECTION{ 1 };
 #endif
 
     EXPECT_THAT(TestClass::dTor, Eq(2 + ELISION_CORRECTION));
@@ -241,14 +241,14 @@ TEST_F(stack_test, StackDestroysElementsInReverseOrder)
     ::testing::Test::RecordProperty("TEST_ID", "fb38b063-4921-46ae-bdf2-922f49a9ab41");
     {
         stack<TestClass, STACK_SIZE> sut;
-        for (uint32_t i{0}; i < STACK_SIZE; ++i)
+        for (uint32_t i{ 0 }; i < STACK_SIZE; ++i)
         {
             sut.push(i + 3, i + 1, i + 2);
         }
     }
     EXPECT_THAT(TestClass::dTor, Eq(STACK_SIZE));
     ASSERT_THAT(TestClass::dTorOrder.size(), Eq(STACK_SIZE));
-    for (uint32_t i{0}; i < STACK_SIZE; ++i)
+    for (uint32_t i{ 0 }; i < STACK_SIZE; ++i)
     {
         EXPECT_THAT(TestClass(i + 3, i + 1, i + 2), Eq(TestClass::dTorOrder[STACK_SIZE - 1 - i]));
     }
@@ -257,7 +257,7 @@ TEST_F(stack_test, StackDestroysElementsInReverseOrder)
 TEST_F(stack_test, CopyConstructorWorksAndCallsTestClassCopyConstructor)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2e9d78a8-9553-42c1-b7f1-a9b26c4fc23b");
-    constexpr uint32_t ELEMENT{13};
+    constexpr uint32_t ELEMENT{ 13 };
     m_sut.push(ELEMENT, ELEMENT, ELEMENT);
 
     stack<TestClass, STACK_SIZE> testStack(m_sut);
@@ -269,7 +269,7 @@ TEST_F(stack_test, CopyConstructorWorksAndCallsTestClassCopyConstructor)
 TEST_F(stack_test, CopyCtorWithOneElementLeadsToEqualCtorAndDtorCalls)
 {
     ::testing::Test::RecordProperty("TEST_ID", "dc44fcdc-ced6-4345-822b-58b9e58baf85");
-    constexpr uint32_t ELEMENT{37};
+    constexpr uint32_t ELEMENT{ 37 };
     {
         stack<TestClass, STACK_SIZE> other;
         other.push(TestClass(ELEMENT, ELEMENT, ELEMENT));
@@ -291,9 +291,9 @@ TEST_F(stack_test, CopyCtorWithOneElementLeadsToEqualCtorAndDtorCalls)
 
 // clang >= 15 performs mandatory elision of copy/move operations (C++17 requirement)
 #if defined(__clang__) && __clang_major__ >= 15
-    constexpr uint64_t ELISION_CORRECTION{0};
+    constexpr uint64_t ELISION_CORRECTION{ 0 };
 #else
-    constexpr uint64_t ELISION_CORRECTION{1};
+    constexpr uint64_t ELISION_CORRECTION{ 1 };
 #endif
 
     EXPECT_THAT(TestClass::dTor, Eq(4 + ELISION_CORRECTION));
@@ -404,7 +404,7 @@ TEST_F(stack_test, CopyAssignmentWithLargerSourceWorks)
 TEST_F(stack_test, MoveConstructorWorksAndCallsTestClassMoveConstructor)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e3ad8e37-a95a-4f35-bee0-c83961c626a7");
-    constexpr uint32_t ELEMENT{46};
+    constexpr uint32_t ELEMENT{ 46 };
     m_sut.push(ELEMENT, ELEMENT, ELEMENT);
     stack<TestClass, STACK_SIZE> testStack(std::move(m_sut));
 

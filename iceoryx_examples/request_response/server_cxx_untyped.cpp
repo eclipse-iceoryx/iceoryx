@@ -32,7 +32,7 @@ int main()
     //! [initialize runtime]
 
     //! [create server]
-    iox::popo::UntypedServer server({"Example", "Request-Response", "Add"});
+    iox::popo::UntypedServer server({ "Example", "Request-Response", "Add" });
     //! [create server]
 
     //! [process requests in a loop]
@@ -61,7 +61,7 @@ int main()
         });
         //! [take request]
 
-        constexpr std::chrono::milliseconds SLEEP_TIME{100U};
+        constexpr std::chrono::milliseconds SLEEP_TIME{ 100U };
         std::this_thread::sleep_for(SLEEP_TIME);
     }
     //! [process requests in a loop]

@@ -66,7 +66,7 @@ struct SpscSofiTest : public ::testing::Test
 
     static constexpr uint64_t TEST_SOFI_CAPACITY = 10;
     iox::concurrent::SpscSofi<int, TEST_SOFI_CAPACITY> sofi;
-    int returnVal{-1}; // set to a value that should not be present in the SoFi
+    int returnVal{ -1 }; // set to a value that should not be present in the SoFi
 };
 
 std::string SpscSofiTest::testId()
@@ -79,7 +79,7 @@ std::string SpscSofiTest::testId()
 int SpscSofiTest::pushSome(int serNumStart, uint32_t numberOfItems)
 {
     int valIn = serNumStart;
-    int valOut{-1};
+    int valOut{ -1 };
 
     // fill the SoFi; SoFi has an internal capacity with two more items than specified the ones
     // the write position must always point to an empty position
@@ -97,7 +97,7 @@ int SpscSofiTest::pushSome(int serNumStart, uint32_t numberOfItems)
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters) used only for test purposes
 void SpscSofiTest::popSome(int serNumOldest, uint32_t numberOfItems)
 {
-    int valOut{-2};
+    int valOut{ -2 };
     for (uint32_t i = 0; i < numberOfItems; i++)
     {
         valOut = -2; // set valOut to a value not present in the SoFi
@@ -108,7 +108,7 @@ void SpscSofiTest::popSome(int serNumOldest, uint32_t numberOfItems)
 
 void SpscSofiTest::popAll(int serNumOldest)
 {
-    int valOut{-2}; // set valOut to a value not present in the SoFi
+    int valOut{ -2 }; // set valOut to a value not present in the SoFi
     int serNum = serNumOldest;
     while (sofi.pop(valOut))
     {
@@ -122,7 +122,7 @@ void SpscSofiTest::checkEmpty(const std::string& scope, int serNumStart)
 {
     SCOPED_TRACE(scope); // just a helper to trace the failure when subroutines are used
 
-    int valOut{-1}; // set valOut to a value not present in the SoFi
+    int valOut{ -1 }; // set valOut to a value not present in the SoFi
 
     EXPECT_TRUE(sofi.empty()) << "SoFi should be empty!";
 
@@ -149,7 +149,7 @@ void SpscSofiTest::checkCapacity(const std::string& scope, int serNumStart)
     // fill the SoFi
     int valIn = pushSome(serNumStart, TEST_SOFI_CAPACITY);
     // one more element should cause an overflow, which means the SoFi was already full
-    int valOut{-1}; // set valOut to a value not present in the SoFi
+    int valOut{ -1 }; // set valOut to a value not present in the SoFi
     EXPECT_FALSE(sofi.push(valIn, valOut)) << "No overflow occured! SoFi is not full yet!";
     EXPECT_EQ(serNumStart, valOut); // in the case of an overflow, the oldest item is returned
 
@@ -161,8 +161,8 @@ void SpscSofiTest::checkOverflow(const std::string& scope, int serNumStart)
 {
     SCOPED_TRACE(scope); // just a helper to trace the failure when subroutines are used
 
-    int valIn{0};
-    int valOut{-2};
+    int valIn{ 0 };
+    int valOut{ -2 };
 
     // fill the SoFi and return the first not pushed serial number
     valIn = pushSome(serNumStart, TEST_SOFI_CAPACITY);
@@ -183,8 +183,8 @@ void SpscSofiTest::checkMultiOverflow(const std::string& scope, int serNumStart)
 {
     SCOPED_TRACE(scope); // just a helper to trace the failure when subroutines are used
 
-    int valIn{0};
-    int valOut{-2};
+    int valIn{ 0 };
+    int valOut{ -2 };
 
     // fill the SoFi and return the first not pushed serial number
     valIn = pushSome(serNumStart, TEST_SOFI_CAPACITY);
@@ -218,7 +218,7 @@ TEST_F(SpscSofiTest, Empty)
     EXPECT_TRUE(sofi.empty());
 
     // test with an initial SoFi read and write position of zero
-    int serNumStart{1000};
+    int serNumStart{ 1000 };
     checkEmpty("first", serNumStart);
     // repeat the thest with a non zero initial read and write position
     serNumStart = 2000;
@@ -236,7 +236,7 @@ TEST_F(SpscSofiTest, Capacity)
     // check if SoFi doesn't lie to us
 
     // test with an initial SoFi read and write position of zero
-    int serNumStart{1000};
+    int serNumStart{ 1000 };
     checkCapacity("first", serNumStart);
     // repeat the thest with a non zero initial read and write position
     serNumStart = 2000;
@@ -295,7 +295,7 @@ TEST_F(SpscSofiTest, Overflow)
     SCOPED_TRACE(testId()); // just a helper to trace the failure when subroutines are used
 
     // test with an initial SoFi read and write position of zero
-    int serNumStart{1000};
+    int serNumStart{ 1000 };
     checkOverflow("first", serNumStart);
     // repeat the thest with a non zero initial read and write position
     serNumStart = 2000;
@@ -308,7 +308,7 @@ TEST_F(SpscSofiTest, MultiOverflow)
     SCOPED_TRACE(testId()); // just a helper to trace the failure when subroutines are used
 
     // test with an initial SoFi read and write position of zero
-    int serNumStart{1000};
+    int serNumStart{ 1000 };
     checkMultiOverflow("first", serNumStart);
     // repeat the test with a non zero initial read and write position
     serNumStart = 2000;
@@ -395,7 +395,7 @@ TEST_F(SpscSofiTest, PopIfWithValidCondition)
     sofi.push(11, returnVal);
     sofi.push(12, returnVal);
 
-    int output{-1};
+    int output{ -1 };
     bool result = sofi.popIf(output, [](const int& peek) { return peek < 20; });
 
     EXPECT_EQ(result, true);

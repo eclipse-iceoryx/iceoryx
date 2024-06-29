@@ -54,7 +54,7 @@ class BasePublisherTest : public Test
     }
 
   protected:
-    TestBasePublisher sut{{"", "", ""}};
+    TestBasePublisher sut{ { "", "", "" } };
 };
 
 

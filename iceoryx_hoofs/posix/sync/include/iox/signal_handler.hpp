@@ -78,7 +78,7 @@ class SignalGuard
   private:
     PosixSignal m_signal;
     struct sigaction m_previousAction = {};
-    bool m_doRestorePreviousAction{false};
+    bool m_doRestorePreviousAction{ false };
 };
 
 /// @brief Register a callback for a specific posix signal (SIG***).

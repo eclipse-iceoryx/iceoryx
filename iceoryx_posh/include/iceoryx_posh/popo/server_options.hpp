@@ -33,22 +33,22 @@ struct ServerOptions
 {
     /// @brief The size of the request queue where chunks are stored before they are passed to the user
     /// @attention Depending on the underlying queue there can be a different overflow behavior
-    uint64_t requestQueueCapacity{ServerChunkQueueData_t::MAX_CAPACITY};
+    uint64_t requestQueueCapacity{ ServerChunkQueueData_t::MAX_CAPACITY };
 
     /// @brief The name of the node where the server should belong to
     /// @deprecated the 'nodeName' is not used with the current stable API
-    iox::NodeName_t nodeName{""};
+    iox::NodeName_t nodeName{ "" };
 
     /// @brief The option whether the server should already be offered when creating it
-    bool offerOnCreate{true};
+    bool offerOnCreate{ true };
 
     /// @brief The option whether the client should block when the request queue is full
     /// @note Corresponds with ClientOptions::serverTooSlowPolicy
-    QueueFullPolicy requestQueueFullPolicy{QueueFullPolicy::DISCARD_OLDEST_DATA};
+    QueueFullPolicy requestQueueFullPolicy{ QueueFullPolicy::DISCARD_OLDEST_DATA };
 
     /// @brief The option whether the server should block when the response queue is full
     /// @note Corresponds with ClientOptions::responseQueueFullPolicy
-    ConsumerTooSlowPolicy clientTooSlowPolicy{ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA};
+    ConsumerTooSlowPolicy clientTooSlowPolicy{ ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA };
 
     /// @brief serialization of the ServerOptions
     Serialization serialize() const noexcept;

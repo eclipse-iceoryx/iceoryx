@@ -55,22 +55,22 @@ class Chunk_test : public RouDi_GTest
     }
 
     iox_pub_storage_t publisherStorage;
-    iox_pub_t publisher{nullptr};
+    iox_pub_t publisher{ nullptr };
 };
 
 TEST_F(Chunk_test, GettingChunkHeaderFromNonConstUserPayloadWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a044b28d-ad7e-45ed-a0e2-e431ef1eacf0");
     constexpr uint64_t USER_PAYLOAD_SIZE(42U);
-    void* userPayload{nullptr};
+    void* userPayload{ nullptr };
     ASSERT_EQ(iox_pub_loan_chunk(publisher, &userPayload, USER_PAYLOAD_SIZE), AllocationResult_SUCCESS);
 
     auto chunkHeader = iox_chunk_header_from_user_payload(userPayload);
     ASSERT_NE(chunkHeader, nullptr);
 
     // a default created ChunkHeader has always an adjacent user-payload
-    const uint64_t chunkStartAddress{reinterpret_cast<uint64_t>(chunkHeader)};
-    const uint64_t userPayloadStartAddress{reinterpret_cast<uint64_t>(userPayload)};
+    const uint64_t chunkStartAddress{ reinterpret_cast<uint64_t>(chunkHeader) };
+    const uint64_t userPayloadStartAddress{ reinterpret_cast<uint64_t>(userPayload) };
     EXPECT_THAT(userPayloadStartAddress - chunkStartAddress, Eq(sizeof(ChunkHeader)));
 }
 
@@ -78,7 +78,7 @@ TEST_F(Chunk_test, GettingChunkHeaderFromConstUserPayloadWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9f7bb07a-f0dd-4b58-af84-5daec365d9e2");
     constexpr uint64_t USER_PAYLOAD_SIZE(42U);
-    void* userPayload{nullptr};
+    void* userPayload{ nullptr };
     ASSERT_EQ(iox_pub_loan_chunk(publisher, &userPayload, USER_PAYLOAD_SIZE), AllocationResult_SUCCESS);
     const void* constUserPayload = userPayload;
 
@@ -86,8 +86,8 @@ TEST_F(Chunk_test, GettingChunkHeaderFromConstUserPayloadWorks)
     ASSERT_NE(chunkHeader, nullptr);
 
     // a default created ChunkHeader has always an adjacent user-payload
-    const uint64_t chunkStartAddress{reinterpret_cast<uint64_t>(chunkHeader)};
-    const uint64_t userPayloadStartAddress{reinterpret_cast<uint64_t>(userPayload)};
+    const uint64_t chunkStartAddress{ reinterpret_cast<uint64_t>(chunkHeader) };
+    const uint64_t userPayloadStartAddress{ reinterpret_cast<uint64_t>(userPayload) };
     EXPECT_THAT(userPayloadStartAddress - chunkStartAddress, Eq(sizeof(ChunkHeader)));
 }
 
@@ -95,7 +95,7 @@ TEST_F(Chunk_test, UserPayloadChunkHeaderUserPayloadRoundtripWorksForNonConst)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ea220aac-4d7d-41c2-92ea-7f929b824555");
     constexpr uint64_t USER_PAYLOAD_SIZE(42U);
-    void* userPayload{nullptr};
+    void* userPayload{ nullptr };
     ASSERT_EQ(iox_pub_loan_chunk(publisher, &userPayload, USER_PAYLOAD_SIZE), AllocationResult_SUCCESS);
     const void* constUserPayload = userPayload;
 
@@ -109,7 +109,7 @@ TEST_F(Chunk_test, UserPayloadChunkHeaderUserPayloadRoundtripWorksForConst)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e094616d-6d99-4b7f-a619-dd98ec7d1e44");
     constexpr uint64_t USER_PAYLOAD_SIZE(42U);
-    void* userPayload{nullptr};
+    void* userPayload{ nullptr };
     ASSERT_EQ(iox_pub_loan_chunk(publisher, &userPayload, USER_PAYLOAD_SIZE), AllocationResult_SUCCESS);
 
     auto chunkHeader = iox_chunk_header_from_user_payload(userPayload);
@@ -125,7 +125,7 @@ TEST_F(Chunk_test, GettingUserHeaderFromNonConstChunkHeaderWorks)
     constexpr uint32_t USER_PAYLOAD_ALIGNMENT(64U);
     constexpr uint32_t USER_HEADER_SIZE = 16U;
     constexpr uint32_t USER_HEADER_ALIGNMENT = 8U;
-    void* userPayload{nullptr};
+    void* userPayload{ nullptr };
     ASSERT_EQ(iox_pub_loan_aligned_chunk_with_user_header(publisher,
                                                           &userPayload,
                                                           USER_PAYLOAD_SIZE,
@@ -139,8 +139,8 @@ TEST_F(Chunk_test, GettingUserHeaderFromNonConstChunkHeaderWorks)
     auto userHeader = iox_chunk_header_to_user_header(chunkHeader);
 
     // a default created ChunkHeader has always an adjacent user-payload
-    const uint64_t chunkStartAddress{reinterpret_cast<uint64_t>(chunkHeader)};
-    const uint64_t userHeaderStartAddress{reinterpret_cast<uint64_t>(userHeader)};
+    const uint64_t chunkStartAddress{ reinterpret_cast<uint64_t>(chunkHeader) };
+    const uint64_t userHeaderStartAddress{ reinterpret_cast<uint64_t>(userHeader) };
     EXPECT_THAT(userHeaderStartAddress - chunkStartAddress, Eq(sizeof(ChunkHeader)));
 }
 
@@ -151,7 +151,7 @@ TEST_F(Chunk_test, GettingUserHeaderFromConstChunkHeaderWorks)
     constexpr uint32_t USER_PAYLOAD_ALIGNMENT(64U);
     constexpr uint32_t USER_HEADER_SIZE = 16U;
     constexpr uint32_t USER_HEADER_ALIGNMENT = 8U;
-    void* userPayload{nullptr};
+    void* userPayload{ nullptr };
     ASSERT_EQ(iox_pub_loan_aligned_chunk_with_user_header(publisher,
                                                           &userPayload,
                                                           USER_PAYLOAD_SIZE,
@@ -165,8 +165,8 @@ TEST_F(Chunk_test, GettingUserHeaderFromConstChunkHeaderWorks)
     auto userHeader = iox_chunk_header_to_user_header_const(chunkHeader);
 
     // a default created ChunkHeader has always an adjacent user-payload
-    const uint64_t chunkStartAddress{reinterpret_cast<uint64_t>(chunkHeader)};
-    const uint64_t userHeaderStartAddress{reinterpret_cast<uint64_t>(userHeader)};
+    const uint64_t chunkStartAddress{ reinterpret_cast<uint64_t>(chunkHeader) };
+    const uint64_t userHeaderStartAddress{ reinterpret_cast<uint64_t>(userHeader) };
     EXPECT_THAT(userHeaderStartAddress - chunkStartAddress, Eq(sizeof(ChunkHeader)));
 }
 

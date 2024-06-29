@@ -86,8 +86,8 @@ inline PosixCallBuilder<ReturnType, FunctionArguments...>::PosixCallBuilder(Func
                                                                             const char* file,
                                                                             const int32_t line,
                                                                             const char* callingFunction) noexcept
-    : m_IOX_POSIX_CALL{IOX_POSIX_CALL}
-    , m_details{posixFunctionName, file, line, callingFunction}
+    : m_IOX_POSIX_CALL{ IOX_POSIX_CALL }
+    , m_details{ posixFunctionName, file, line, callingFunction }
 {
 }
 
@@ -112,7 +112,7 @@ PosixCallBuilder<ReturnType, FunctionArguments...>::operator()(FunctionArguments
 
 template <typename ReturnType>
 inline PosixCallVerificator<ReturnType>::PosixCallVerificator(detail::PosixCallDetails<ReturnType>& details) noexcept
-    : m_details{details}
+    : m_details{ details }
 {
 }
 
@@ -149,7 +149,7 @@ inline PosixCallEvaluator<ReturnType> PosixCallVerificator<ReturnType>::returnVa
 
 template <typename ReturnType>
 inline PosixCallEvaluator<ReturnType>::PosixCallEvaluator(detail::PosixCallDetails<ReturnType>& details) noexcept
-    : m_details{details}
+    : m_details{ details }
 {
 }
 

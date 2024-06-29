@@ -85,7 +85,7 @@ class Thread
 
     iox_pthread_t m_threadHandle;
     callable_t m_callable;
-    bool m_isThreadConstructed{false};
+    bool m_isThreadConstructed{ false };
     ThreadName_t m_threadName;
 };
 

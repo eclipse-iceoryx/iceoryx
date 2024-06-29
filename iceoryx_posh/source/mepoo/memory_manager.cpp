@@ -83,7 +83,7 @@ MemPoolInfo MemoryManager::getMemPoolInfo(const uint32_t index) const noexcept
 {
     if (index >= m_memPoolVector.size())
     {
-        return {0, 0, 0, 0};
+        return { 0, 0, 0, 0 };
     }
     return m_memPoolVector[index].getInfo();
 }
@@ -95,7 +95,7 @@ uint64_t MemoryManager::sizeWithChunkHeaderStruct(const MaxChunkPayloadSize_t si
 
 uint64_t MemoryManager::requiredChunkMemorySize(const MePooConfig& mePooConfig) noexcept
 {
-    uint64_t memorySize{0};
+    uint64_t memorySize{ 0 };
     for (const auto& mempoolConfig : mePooConfig.m_mempoolConfig)
     {
         // for the required chunk memory size only the size of the ChunkHeader
@@ -111,8 +111,8 @@ uint64_t MemoryManager::requiredChunkMemorySize(const MePooConfig& mePooConfig) 
 
 uint64_t MemoryManager::requiredManagementMemorySize(const MePooConfig& mePooConfig) noexcept
 {
-    uint64_t memorySize{0U};
-    uint64_t sumOfAllChunks{0U};
+    uint64_t memorySize{ 0U };
+    uint64_t sumOfAllChunks{ 0U };
     for (const auto& mempool : mePooConfig.m_mempoolConfig)
     {
         sumOfAllChunks += mempool.m_chunkCount;
@@ -145,8 +145,8 @@ void MemoryManager::configureMemoryManager(const MePooConfig& mePooConfig,
 
 expected<SharedChunk, MemoryManager::Error> MemoryManager::getChunk(const ChunkSettings& chunkSettings) noexcept
 {
-    void* chunk{nullptr};
-    MemPool* memPoolPointer{nullptr};
+    void* chunk{ nullptr };
+    MemPool* memPoolPointer{ nullptr };
     const auto requiredChunkSize = chunkSettings.requiredChunkSize();
 
     uint64_t aquiredChunkSize = 0U;

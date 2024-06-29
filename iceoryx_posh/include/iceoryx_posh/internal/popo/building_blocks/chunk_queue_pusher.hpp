@@ -58,7 +58,7 @@ class ChunkQueuePusher
     MemberType_t* getMembers() noexcept;
 
   private:
-    MemberType_t* m_chunkQueueDataPtr{nullptr};
+    MemberType_t* m_chunkQueueDataPtr{ nullptr };
 };
 
 } // namespace popo

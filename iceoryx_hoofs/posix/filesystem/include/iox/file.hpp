@@ -166,10 +166,10 @@ class File : public FileManagementInterface<File>
     expected<void, FileOffsetError> set_offset(const uint64_t offset) const noexcept;
 
   private:
-    static constexpr int INVALID_FILE_DESCRIPTOR{-1};
+    static constexpr int INVALID_FILE_DESCRIPTOR{ -1 };
 
-    int m_file_descriptor{INVALID_FILE_DESCRIPTOR};
-    AccessMode m_access_mode{AccessMode::READ_ONLY};
+    int m_file_descriptor{ INVALID_FILE_DESCRIPTOR };
+    AccessMode m_access_mode{ AccessMode::READ_ONLY };
 };
 
 class FileBuilder

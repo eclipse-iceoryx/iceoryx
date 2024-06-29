@@ -91,8 +91,8 @@ class MemoryManager
     void generateChunkManagementPool(BumpAllocator& managementAllocator) noexcept;
 
   private:
-    bool m_denyAddMemPool{false};
-    uint32_t m_totalNumberOfChunks{0};
+    bool m_denyAddMemPool{ false };
+    uint32_t m_totalNumberOfChunks{ 0 };
 
     vector<MemPool, MAX_NUMBER_OF_MEMPOOLS> m_memPoolVector;
     vector<MemPool, 1> m_chunkManagementPool;

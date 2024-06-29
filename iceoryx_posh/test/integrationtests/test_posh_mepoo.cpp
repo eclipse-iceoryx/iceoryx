@@ -96,12 +96,12 @@ class Mepoo_IntegrationTest : public Test
                 memPoolTestContainer.push_back(mempoolInfo);
 
                 mempoolConfig.m_mempoolConfig.push_back(
-                    {testMempoolConfig[i].chunkSize, testMempoolConfig[i].chunkCount});
+                    { testMempoolConfig[i].chunkSize, testMempoolConfig[i].chunkCount });
             }
 
             auto currentGroup = iox::PosixGroup::getGroupOfCurrentProcess();
             iox::IceoryxConfig config;
-            config.m_sharedMemorySegments.push_back({currentGroup.getName(), currentGroup.getName(), mempoolConfig});
+            config.m_sharedMemorySegments.push_back({ currentGroup.getName(), currentGroup.getName(), mempoolConfig });
             return config;
         }
         else
@@ -119,7 +119,7 @@ class Mepoo_IntegrationTest : public Test
 
         ASSERT_THAT(m_roudiEnv.has_value(), Eq(true));
 
-        iox::capro::ServiceDescription m_service_description{"99", "1", "20"};
+        iox::capro::ServiceDescription m_service_description{ "99", "1", "20" };
 
         auto& senderRuntime = iox::runtime::PoshRuntime::initRuntime("sender");
         publisherPort.emplace(senderRuntime.getMiddlewarePublisher(m_service_description));
@@ -152,7 +152,7 @@ class Mepoo_IntegrationTest : public Test
     template <uint32_t size>
     struct MemPoolTestTopic
     {
-        uint8_t testtopic[size] = {0};
+        uint8_t testtopic[size] = { 0 };
     };
 
     enum class Log
@@ -324,7 +324,7 @@ class Mepoo_IntegrationTest : public Test
         return hasRunAsExpected;
     }
 
-    static constexpr uint32_t DEFAULT_NUMBER_OF_CHUNKS{10U};
+    static constexpr uint32_t DEFAULT_NUMBER_OF_CHUNKS{ 10U };
 
     std::vector<TestMemPoolConfig> defaultMemPoolConfig()
     {
@@ -333,7 +333,7 @@ class Mepoo_IntegrationTest : public Test
         uint32_t power = 5;
         for (uint32_t i = 0; i < MEMPOOL_COUNT; ++i)
         {
-            defaultConfig.push_back({1u << power, DEFAULT_NUMBER_OF_CHUNKS});
+            defaultConfig.push_back({ 1u << power, DEFAULT_NUMBER_OF_CHUNKS });
             ++power;
         }
 
@@ -395,7 +395,7 @@ TEST_F(Mepoo_IntegrationTest, WrongSampleSize)
     constexpr uint32_t SAMPLE_SIZE = 2048U;
     constexpr uint32_t REPETITION = 1U;
 
-    EXPECT_TRUE(sendReceiveSample<SAMPLE_SIZE>(REPETITION, {iox::popo::AllocationError::NO_MEMPOOLS_AVAILABLE}));
+    EXPECT_TRUE(sendReceiveSample<SAMPLE_SIZE>(REPETITION, { iox::popo::AllocationError::NO_MEMPOOLS_AVAILABLE }));
 
     IOX_TESTING_EXPECT_ERROR(iox::PoshError::MEPOO__MEMPOOL_GETCHUNK_CHUNK_IS_TOO_LARGE);
 }
@@ -413,7 +413,7 @@ TEST_F(Mepoo_IntegrationTest, SampleOverflow)
     EXPECT_TRUE(sendReceiveSample<SAMPLE_SIZE_1>(DEFAULT_NUMBER_OF_CHUNKS));
 
     // trigger out of chunk error
-    EXPECT_TRUE(sendReceiveSample<SAMPLE_SIZE_1>(REPETITION, {iox::popo::AllocationError::RUNNING_OUT_OF_CHUNKS}));
+    EXPECT_TRUE(sendReceiveSample<SAMPLE_SIZE_1>(REPETITION, { iox::popo::AllocationError::RUNNING_OUT_OF_CHUNKS }));
 
     IOX_TESTING_EXPECT_ERROR(iox::PoshError::MEPOO__MEMPOOL_GETCHUNK_POOL_IS_RUNNING_OUT_OF_CHUNKS);
 }

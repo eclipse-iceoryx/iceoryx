@@ -512,7 +512,7 @@ TEST(String100, UnsafeCharToStringConstrIncludingNullCharWithCountResultsInSizeC
     ::testing::Test::RecordProperty("TEST_ID", "548eb26e-39b0-4c35-ad80-7665cde80361");
     constexpr uint64_t STRING_CAPACITY = 100U;
     constexpr uint64_t STRING_SIZE = 7U;
-    std::string testString{"ice\0ryx", STRING_SIZE};
+    std::string testString{ "ice\0ryx", STRING_SIZE };
     string<STRING_CAPACITY> testSubject(TruncateToCapacity, testString.c_str(), STRING_SIZE);
     EXPECT_THAT(testSubject.capacity(), Eq(STRING_CAPACITY));
     EXPECT_THAT(testSubject.size(), Eq(STRING_SIZE));

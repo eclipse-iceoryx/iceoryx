@@ -84,16 +84,16 @@ class VersionInfo
 
     static_assert(COMMIT_ID_STRING_SIZE <= SERIALIZATION_STRING_SIZE, "CommitId needs to transfered completely.");
     static_assert(COMMIT_ID_STRING_SIZE <= BUILD_DATE_STRING_SIZE, "BuildDate needs to transfered completely.");
-    static constexpr uint64_t NULL_TERMINATION_SIZE{1};
+    static constexpr uint64_t NULL_TERMINATION_SIZE{ 1 };
     static_assert((size(ICEORYX_BUILDDATE) - NULL_TERMINATION_SIZE) < BUILD_DATE_STRING_SIZE,
                   "COMMIT_BUILD_DATE_STRING_SIZE needs to be bigger.");
 
   protected:
-    bool m_valid{true};
-    uint16_t m_versionMajor{0};
-    uint16_t m_versionMinor{0};
-    uint16_t m_versionPatch{0};
-    uint16_t m_versionTweak{0};
+    bool m_valid{ true };
+    uint16_t m_versionMajor{ 0 };
+    uint16_t m_versionMinor{ 0 };
+    uint16_t m_versionPatch{ 0 };
+    uint16_t m_versionTweak{ 0 };
     BuildDateString_t m_buildDateString;
     CommitIdString_t m_commitIdString;
 };

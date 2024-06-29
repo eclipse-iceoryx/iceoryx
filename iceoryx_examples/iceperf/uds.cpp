@@ -36,7 +36,7 @@ void UDS::initSocketAddress(sockaddr_un& socketAddr, const std::string& socketNa
 {
     memset(&socketAddr, 0, sizeof(sockaddr_un));
     socketAddr.sun_family = AF_LOCAL;
-    constexpr uint64_t NULL_TERMINATION_SIZE{1};
+    constexpr uint64_t NULL_TERMINATION_SIZE{ 1 };
     const uint64_t maxDestinationLength = iox::size(socketAddr.sun_path) - NULL_TERMINATION_SIZE;
     IOX_ENFORCE(maxDestinationLength >= socketName.size(), "Socketname too large!");
     strncpy(socketAddr.sun_path, socketName.c_str(), socketName.size());
@@ -98,7 +98,7 @@ void UDS::init() noexcept
         });
 
     auto setNonBlocking = [&](int fd) {
-        int fdFlags{0};
+        int fdFlags{ 0 };
         IOX_POSIX_CALL(iox_fcntl2)
         (fd, F_GETFL)
             .failureReturnValue(ERROR_CODE)
@@ -144,7 +144,7 @@ void UDS::init() noexcept
 void UDS::waitForLeader() noexcept
 {
     // try to send an empty message
-    constexpr bool TRY_TO_SEND{true};
+    constexpr bool TRY_TO_SEND{ true };
     while (TRY_TO_SEND)
     {
         auto sendCall = IOX_POSIX_CALL(iox_sendto)(m_sockfdPublisher,
@@ -164,7 +164,7 @@ void UDS::waitForLeader() noexcept
 
         if (sendCall.errnum == ENOENT || sendCall.errnum == ECONNREFUSED)
         {
-            constexpr std::chrono::milliseconds RETRY_INTERVAL{10};
+            constexpr std::chrono::milliseconds RETRY_INTERVAL{ 10 };
             std::this_thread::sleep_for(RETRY_INTERVAL);
             continue;
         }

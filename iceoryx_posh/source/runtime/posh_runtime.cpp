@@ -39,7 +39,7 @@ namespace
 // at which the runtime is destroyed.
 std::atomic<uint64_t>& poshRuntimeStaticRefCount()
 {
-    static std::atomic<uint64_t> s_refcount{0U};
+    static std::atomic<uint64_t> s_refcount{ 0U };
     return s_refcount;
 }
 // Tracks whether the refcount lifetime mechanism is used by the factory function.
@@ -51,7 +51,7 @@ std::atomic<uint64_t>& poshRuntimeStaticRefCount()
 // goes out of scope before the PoshRuntimeImpl instance was constructed.
 std::atomic<bool>& poshRuntimeNeedsManualDestruction()
 {
-    static std::atomic<bool> s_needsManualDestruction{false};
+    static std::atomic<bool> s_needsManualDestruction{ false };
     return s_needsManualDestruction;
 }
 

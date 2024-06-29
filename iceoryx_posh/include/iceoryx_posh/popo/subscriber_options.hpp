@@ -33,24 +33,24 @@ struct SubscriberOptions
 {
     /// @brief The size of the receiver queue where chunks are stored before they are passed to the user
     /// @attention Depending on the underlying queue there can be a different overflow behavior
-    uint64_t queueCapacity{SubscriberChunkQueueData_t::MAX_CAPACITY};
+    uint64_t queueCapacity{ SubscriberChunkQueueData_t::MAX_CAPACITY };
 
     /// @brief The max number of chunks received after subscription if chunks are available
-    uint64_t historyRequest{0U};
+    uint64_t historyRequest{ 0U };
 
     /// @brief The name of the node where the subscriber should belong to
     /// @deprecated the 'nodeName' is not used with the current stable API
-    iox::NodeName_t nodeName{""};
+    iox::NodeName_t nodeName{ "" };
 
     /// @brief The option whether the subscriber shall try to subscribe when creating it
-    bool subscribeOnCreate{true};
+    bool subscribeOnCreate{ true };
 
     /// @brief The option whether the publisher should block when the subscriber queue is full
-    QueueFullPolicy queueFullPolicy{QueueFullPolicy::DISCARD_OLDEST_DATA};
+    QueueFullPolicy queueFullPolicy{ QueueFullPolicy::DISCARD_OLDEST_DATA };
 
     /// @brief Indicates whether to enforce history support of the publisher,
     ///        i.e. require historyCapacity > 0 to be eligible to be connected
-    bool requiresPublisherHistorySupport{false};
+    bool requiresPublisherHistorySupport{ false };
 
     /// @brief serialization of the SubscriberOptions
     Serialization serialize() const noexcept;

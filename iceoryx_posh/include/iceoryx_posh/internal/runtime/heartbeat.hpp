@@ -45,7 +45,7 @@ class Heartbeat
     static uint64_t milliseconds_since_epoch() noexcept;
 
   private:
-    std::atomic<uint64_t> m_timestamp_last_beat{0};
+    std::atomic<uint64_t> m_timestamp_last_beat{ 0 };
 };
 } // namespace runtime
 } // namespace iox

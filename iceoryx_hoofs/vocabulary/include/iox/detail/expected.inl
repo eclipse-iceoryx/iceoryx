@@ -31,37 +31,37 @@ inline detail::ok<void> ok()
 template <typename T, typename>
 inline detail::ok<T> ok(const T& value)
 {
-    return detail::ok<T>{value};
+    return detail::ok<T>{ value };
 }
 
 template <typename T, typename, typename>
 inline detail::ok<T> ok(T&& value)
 {
-    return detail::ok<T>{std::forward<T>(value)};
+    return detail::ok<T>{ std::forward<T>(value) };
 }
 
 template <typename T, typename... Targs, typename>
 inline detail::ok<T> ok(Targs&&... args)
 {
-    return detail::ok<T>{std::forward<Targs>(args)...};
+    return detail::ok<T>{ std::forward<Targs>(args)... };
 }
 
 template <typename T>
 inline detail::err<T> err(const T& error)
 {
-    return detail::err<T>{error};
+    return detail::err<T>{ error };
 }
 
 template <typename T, typename>
 inline detail::err<T> err(T&& error)
 {
-    return detail::err<T>{std::forward<T>(error)};
+    return detail::err<T>{ std::forward<T>(error) };
 }
 
 template <typename T, typename... Targs>
 inline detail::err<T> err(Targs&&... args)
 {
-    return detail::err<T>{std::forward<Targs>(args)...};
+    return detail::err<T>{ std::forward<Targs>(args)... };
 }
 
 template <typename ValueType, typename ErrorType>
@@ -92,7 +92,7 @@ inline expected<ValueType, ErrorType>::expected(detail::err<ErrorType>&& errorVa
 
 template <typename ValueType, typename ErrorType>
 inline expected<ValueType, ErrorType>::expected(expected<ValueType, ErrorType>&& rhs) noexcept
-    : m_store{std::move(rhs.m_store)}
+    : m_store{ std::move(rhs.m_store) }
 {
 }
 

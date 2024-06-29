@@ -56,12 +56,12 @@ using namespace iox::mepoo;
 class iox_notification_info_test : public Test
 {
   public:
-    const iox::capro::ServiceDescription TEST_TheHoff_DESCRIPTION{"a", "b", "c"};
+    const iox::capro::ServiceDescription TEST_TheHoff_DESCRIPTION{ "a", "b", "c" };
 
     void SetUp()
     {
         m_lastNotificationCallbackArgument = nullptr;
-        m_mempoolconf.addMemPool({CHUNK_SIZE, NUM_CHUNKS_IN_POOL});
+        m_mempoolconf.addMemPool({ CHUNK_SIZE, NUM_CHUNKS_IN_POOL });
         m_memoryManager.configureMemoryManager(m_mempoolconf, m_memoryAllocator, m_memoryAllocator);
         m_subscriber.m_portData = &m_portPtr;
     }
@@ -86,7 +86,7 @@ class iox_notification_info_test : public Test
 
     iox::mepoo::SharedChunk getChunkFromMemoryManager()
     {
-        constexpr uint64_t USER_PAYLOAD_SIZE{100U};
+        constexpr uint64_t USER_PAYLOAD_SIZE{ 100U };
 
         auto chunkSettings = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT)
                                  .expect("Valid 'ChunkSettings'");
@@ -98,24 +98,24 @@ class iox_notification_info_test : public Test
     }
 
     static UserTrigger* m_lastNotificationCallbackArgument;
-    ConditionVariableData m_condVar{"myApp"};
-    WaitSetMock m_waitSet{m_condVar};
+    ConditionVariableData m_condVar{ "myApp" };
+    WaitSetMock m_waitSet{ m_condVar };
     UserTrigger m_userTrigger;
 
     static constexpr uint32_t NUM_CHUNKS_IN_POOL = MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY + 2;
     static constexpr uint64_t CHUNK_SIZE = 128U;
     static constexpr size_t MEMORY_SIZE = 1024 * 1024 * 100;
     uint8_t m_memory[MEMORY_SIZE];
-    BumpAllocator m_memoryAllocator{m_memory, MEMORY_SIZE};
+    BumpAllocator m_memoryAllocator{ m_memory, MEMORY_SIZE };
     MePooConfig m_mempoolconf;
     MemoryManager m_memoryManager;
-    SubscriberOptions m_subscriberOptions{MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY, 0U};
-    iox::popo::SubscriberPortData m_portPtr{TEST_TheHoff_DESCRIPTION,
-                                            "myApp",
-                                            roudi::DEFAULT_UNIQUE_ROUDI_ID,
-                                            iox::popo::VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
-                                            m_subscriberOptions};
-    ChunkQueuePusher<SubscriberPortData::ChunkQueueData_t> m_chunkPusher{&m_portPtr.m_chunkReceiverData};
+    SubscriberOptions m_subscriberOptions{ MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY, 0U };
+    iox::popo::SubscriberPortData m_portPtr{ TEST_TheHoff_DESCRIPTION,
+                                             "myApp",
+                                             roudi::DEFAULT_UNIQUE_ROUDI_ID,
+                                             iox::popo::VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
+                                             m_subscriberOptions };
+    ChunkQueuePusher<SubscriberPortData::ChunkQueueData_t> m_chunkPusher{ &m_portPtr.m_chunkReceiverData };
     cpp2c_Subscriber m_subscriber;
     iox_sub_t m_subscriberHandle = &m_subscriber;
 };

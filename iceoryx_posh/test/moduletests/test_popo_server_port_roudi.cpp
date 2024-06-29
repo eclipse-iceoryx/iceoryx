@@ -57,12 +57,12 @@ TEST_F(ServerPort_test, ReleaseAllChunksWorks)
     auto& sut = serverPortWithOfferOnCreate;
 
     // produce chunks for the chunk receiver
-    constexpr uint64_t NUMBER_OF_REQUEST_CHUNKS{QUEUE_CAPACITY};
+    constexpr uint64_t NUMBER_OF_REQUEST_CHUNKS{ QUEUE_CAPACITY };
     pushRequests(sut.requestQueuePusher, NUMBER_OF_REQUEST_CHUNKS);
 
     // produce chunks for the chunk sender
     allocateResponseWithRequestHeaderAndThen(sut, [&](const auto, auto) {
-        constexpr uint64_t NUMBER_OF_RESPONSE_CHUNKS{1U};
+        constexpr uint64_t NUMBER_OF_RESPONSE_CHUNKS{ 1U };
         EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(NUMBER_OF_REQUEST_CHUNKS + NUMBER_OF_RESPONSE_CHUNKS));
         sut.portRouDi.releaseAllChunks();
         EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(0U));
@@ -138,13 +138,13 @@ TEST_F(ServerPort_test, StateNotOfferedWithAllRelevantCaProMessageTypesButOfferR
     ::testing::Test::RecordProperty("TEST_ID", "ceaef856-2a8d-46c0-9167-fe1ca6fad736");
 
     for (const auto caproMessageType :
-         {CaproMessageType::CONNECT, CaproMessageType::DISCONNECT, CaproMessageType::STOP_OFFER})
+         { CaproMessageType::CONNECT, CaproMessageType::DISCONNECT, CaproMessageType::STOP_OFFER })
     {
         SCOPED_TRACE(caproMessageType);
 
         auto& sut = serverPortWithoutOfferOnCreate;
 
-        auto caproMessage = CaproMessage{caproMessageType, sut.portData.m_serviceDescription};
+        auto caproMessage = CaproMessage{ caproMessageType, sut.portData.m_serviceDescription };
 
         sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage)
             .and_then([&](const auto& responseCaproMessage) {
@@ -164,7 +164,7 @@ TEST_F(ServerPort_test, StateNotOfferedWithCaProMessageTypeOfferReactsWithOffer)
     sut.portUser.offer();
 
     // this is what tryGetCaProMessage does before it calls dispatchCaProMessageAndGetPossibleResponse
-    auto caproMessage = CaproMessage{CaproMessageType::OFFER, sut.portData.m_serviceDescription};
+    auto caproMessage = CaproMessage{ CaproMessageType::OFFER, sut.portData.m_serviceDescription };
     caproMessage.m_serviceType = CaproServiceType::SERVER;
 
     sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage)
@@ -182,7 +182,7 @@ TEST_F(ServerPort_test, StateOfferedWithCaProMessageTypeConnectReactsWithAckAndV
     ::testing::Test::RecordProperty("TEST_ID", "15ae7423-0945-45b6-b164-cc7ff5b979b1");
     auto& sut = serverPortWithOfferOnCreate;
 
-    auto caproMessage = CaproMessage{CaproMessageType::CONNECT, sut.portData.m_serviceDescription};
+    auto caproMessage = CaproMessage{ CaproMessageType::CONNECT, sut.portData.m_serviceDescription };
     caproMessage.m_chunkQueueData = &clientChunkQueueData;
 
     sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage)
@@ -201,7 +201,7 @@ TEST_F(ServerPort_test, StateOfferedWithCaProMessageTypeConnectAndNoResponseQueu
     ::testing::Test::RecordProperty("TEST_ID", "616b7a3d-6463-43bd-b75e-a257f62a006b");
     auto& sut = serverPortWithOfferOnCreate;
 
-    auto caproMessage = CaproMessage{CaproMessageType::CONNECT, sut.portData.m_serviceDescription};
+    auto caproMessage = CaproMessage{ CaproMessageType::CONNECT, sut.portData.m_serviceDescription };
     caproMessage.m_chunkQueueData = nullptr;
 
     sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage)
@@ -219,7 +219,7 @@ TEST_F(ServerPort_test, StateOfferedWithCaProMessageTypeDisconnectReactsWithNack
     ::testing::Test::RecordProperty("TEST_ID", "8e1a2bff-b58f-4545-8ff4-044f168276f1");
     auto& sut = serverPortWithOfferOnCreate;
 
-    auto caproMessage = CaproMessage{CaproMessageType::DISCONNECT, sut.portData.m_serviceDescription};
+    auto caproMessage = CaproMessage{ CaproMessageType::DISCONNECT, sut.portData.m_serviceDescription };
     caproMessage.m_chunkQueueData = &clientChunkQueueData;
 
     sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage)
@@ -235,7 +235,7 @@ TEST_F(ServerPort_test, StateOfferedWithCaProMessageTypeDisconnectReactsWithAckW
     ::testing::Test::RecordProperty("TEST_ID", "7255fd86-a00c-4539-b06d-ea6f96f589cb");
     auto& sut = serverPortWithOfferOnCreate;
 
-    auto caproMessage = CaproMessage{CaproMessageType::CONNECT, sut.portData.m_serviceDescription};
+    auto caproMessage = CaproMessage{ CaproMessageType::CONNECT, sut.portData.m_serviceDescription };
     caproMessage.m_chunkQueueData = &clientChunkQueueData;
     IOX_DISCARD_RESULT(sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage));
 
@@ -256,7 +256,7 @@ TEST_F(ServerPort_test, StateNotOfferedWithInvalidCaProMessageTypeCallsErrorHand
     ::testing::Test::RecordProperty("TEST_ID", "3c645c89-e846-44b3-8e52-31642af593b5");
     auto& sut = serverPortWithoutOfferOnCreate;
 
-    auto caproMessage = CaproMessage{CaproMessageType::PUB, sut.portData.m_serviceDescription};
+    auto caproMessage = CaproMessage{ CaproMessageType::PUB, sut.portData.m_serviceDescription };
 
     IOX_EXPECT_FATAL_FAILURE(
         [&] {
@@ -273,7 +273,7 @@ TEST_F(ServerPort_test, StateOfferedWithInvalidCaProMessageTypeCallsErrorHandler
     ::testing::Test::RecordProperty("TEST_ID", "30613e47-be74-4c74-a743-1bffd8468040");
     auto& sut = serverPortWithOfferOnCreate;
 
-    auto caproMessage = CaproMessage{CaproMessageType::SUB, sut.portData.m_serviceDescription};
+    auto caproMessage = CaproMessage{ CaproMessageType::SUB, sut.portData.m_serviceDescription };
 
     IOX_EXPECT_FATAL_FAILURE(
         [&] {

@@ -105,7 +105,7 @@ inline void FixedPositionContainer<T, CAPACITY>::copy_and_move_impl(RhsType&& rh
         }
     }
 
-    IndexType i{Index::FIRST};
+    IndexType i{ Index::FIRST };
     auto rhs_it = (std::forward<RhsType>(rhs)).begin();
 
     for (; rhs_it.to_index() != Index::INVALID; ++i, ++rhs_it)
@@ -299,7 +299,7 @@ FixedPositionContainer<T, CAPACITY>::emplace(Targs&&... args) noexcept
         }
     }
 
-    return Iterator{index, *this};
+    return Iterator{ index, *this };
 }
 
 template <typename T, uint64_t CAPACITY>
@@ -311,7 +311,7 @@ FixedPositionContainer<T, CAPACITY>::erase(const IndexType index) noexcept
 
     IOX_ENFORCE(m_status[index] == SlotStatus::USED, "Trying to erase from index pointing to an empty slot!");
 
-    const auto it = Iterator{m_next[index], *this};
+    const auto it = Iterator{ m_next[index], *this };
 
     // removing data from the container
     //
@@ -421,8 +421,8 @@ FixedPositionContainer<T, CAPACITY>::erase(const IndexType index) noexcept
     --m_size;
 
     auto next_used = m_next[index];
-    bool is_removed_from_used_list{false};
-    bool is_added_to_free_list{false};
+    bool is_removed_from_used_list{ false };
+    bool is_added_to_free_list{ false };
 
     if (index == m_begin_used)
     {
@@ -553,41 +553,41 @@ FixedPositionContainer<T, CAPACITY>::iter_from_index(const IndexType index) cons
 template <typename T, uint64_t CAPACITY>
 inline typename FixedPositionContainer<T, CAPACITY>::Iterator FixedPositionContainer<T, CAPACITY>::begin() noexcept
 {
-    return Iterator{m_begin_used, *this};
+    return Iterator{ m_begin_used, *this };
 }
 
 template <typename T, uint64_t CAPACITY>
 inline typename FixedPositionContainer<T, CAPACITY>::ConstIterator
 FixedPositionContainer<T, CAPACITY>::begin() const noexcept
 {
-    return ConstIterator{m_begin_used, *this};
+    return ConstIterator{ m_begin_used, *this };
 }
 
 template <typename T, uint64_t CAPACITY>
 inline typename FixedPositionContainer<T, CAPACITY>::ConstIterator
 FixedPositionContainer<T, CAPACITY>::cbegin() const noexcept
 {
-    return ConstIterator{m_begin_used, *this};
+    return ConstIterator{ m_begin_used, *this };
 }
 
 template <typename T, uint64_t CAPACITY>
 inline typename FixedPositionContainer<T, CAPACITY>::Iterator FixedPositionContainer<T, CAPACITY>::end() noexcept
 {
-    return Iterator{Index::INVALID, *this};
+    return Iterator{ Index::INVALID, *this };
 }
 
 template <typename T, uint64_t CAPACITY>
 inline typename FixedPositionContainer<T, CAPACITY>::ConstIterator
 FixedPositionContainer<T, CAPACITY>::end() const noexcept
 {
-    return ConstIterator{Index::INVALID, *this};
+    return ConstIterator{ Index::INVALID, *this };
 }
 
 template <typename T, uint64_t CAPACITY>
 inline typename FixedPositionContainer<T, CAPACITY>::ConstIterator
 FixedPositionContainer<T, CAPACITY>::cend() const noexcept
 {
-    return ConstIterator{Index::INVALID, *this};
+    return ConstIterator{ Index::INVALID, *this };
 }
 } // namespace iox
 

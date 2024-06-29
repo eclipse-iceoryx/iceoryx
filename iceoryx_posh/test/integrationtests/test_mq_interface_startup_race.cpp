@@ -94,12 +94,13 @@ class CMqInterfaceStartupRace_test : public Test
     {
         std::lock_guard<std::mutex> lock(m_appQueueMutex);
         IpcMessage regAck;
-        constexpr uint32_t DUMMY_SHM_SIZE{37};
-        constexpr uint32_t DUMMY_SHM_OFFSET{73};
-        constexpr uint32_t DUMMY_SEGMENT_ID{13};
-        constexpr uint32_t INDEX_OF_TIMESTAMP{4};
+        constexpr uint32_t DUMMY_SHM_SIZE{ 37 };
+        constexpr uint32_t DUMMY_SHM_OFFSET{ 73 };
+        constexpr uint32_t DUMMY_SEGMENT_ID{ 13 };
+        constexpr uint32_t INDEX_OF_TIMESTAMP{ 4 };
         constexpr iox::UntypedRelativePointer::offset_t OFFSET_ADDRESS_HEARTBEAT{
-            iox::UntypedRelativePointer::NULL_POINTER_OFFSET};
+            iox::UntypedRelativePointer::NULL_POINTER_OFFSET
+        };
         regAck << IpcMessageTypeToString(IpcMessageType::REG_ACK) << DUMMY_SHM_SIZE << DUMMY_SHM_OFFSET
                << oldMsg.getElementAtIndex(INDEX_OF_TIMESTAMP) << DUMMY_SEGMENT_ID << OFFSET_ADDRESS_HEARTBEAT;
 
@@ -121,8 +122,8 @@ class CMqInterfaceStartupRace_test : public Test
     optional<platform::IoxIpcChannelType> m_roudiQueue;
     std::mutex m_appQueueMutex;
     optional<platform::IoxIpcChannelType> m_appQueue;
-    InterfaceName_t m_roudiIpcChannelName{runtime::ipcChannelNameToInterfaceName(
-        roudi::IPC_CHANNEL_ROUDI_NAME, DEFAULT_DOMAIN_ID, ResourceType::ICEORYX_DEFINED)};
+    InterfaceName_t m_roudiIpcChannelName{ runtime::ipcChannelNameToInterfaceName(
+        roudi::IPC_CHANNEL_ROUDI_NAME, DEFAULT_DOMAIN_ID, ResourceType::ICEORYX_DEFINED) };
 };
 
 #if !defined(__APPLE__)

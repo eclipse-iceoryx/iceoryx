@@ -42,7 +42,7 @@ int main()
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
     // initialize publisher
-    iox::popo::Publisher<ComplexDataType> publisher({"Group", "Instance", "ComplexDataTopic"});
+    iox::popo::Publisher<ComplexDataType> publisher({ "Group", "Instance", "ComplexDataTopic" });
 
     uint64_t ct = 0;
     // run until interrupted by Ctrl-C

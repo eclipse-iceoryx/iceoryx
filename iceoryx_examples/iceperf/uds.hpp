@@ -52,7 +52,7 @@ class UDS : public IcePerfBase
     void shutdown() noexcept override;
 
   private:
-    static constexpr const char* PREFIX{"/tmp/"};
+    static constexpr const char* PREFIX{ "/tmp/" };
     void init() noexcept;
     void send(const char* buffer, uint32_t length) noexcept;
     void receive(char* buffer) noexcept;
@@ -65,8 +65,8 @@ class UDS : public IcePerfBase
 
     const std::string m_publisherSocketName;
     const std::string m_subscriberSocketName;
-    int m_sockfdPublisher{INVALID_FD};
-    int m_sockfdSubscriber{INVALID_FD};
+    int m_sockfdPublisher{ INVALID_FD };
+    int m_sockfdSubscriber{ INVALID_FD };
     struct sockaddr_un m_sockAddrPublisher;
     struct sockaddr_un m_sockAddrSubscriber;
     char m_message[MAX_MESSAGE_SIZE];

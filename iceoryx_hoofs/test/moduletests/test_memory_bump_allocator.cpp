@@ -40,10 +40,10 @@ class BumpAllocator_Test : public Test
         free(memory);
     }
 
-    static constexpr uint64_t MEMORY_ALIGNMENT{8};
-    static constexpr uint64_t MEMORY_SIZE{10016};
+    static constexpr uint64_t MEMORY_ALIGNMENT{ 8 };
+    static constexpr uint64_t MEMORY_SIZE{ 10016 };
 
-    void* memory{nullptr};
+    void* memory{ nullptr };
 };
 
 TEST_F(BumpAllocator_Test, AllocateFailsWithZeroSize)
@@ -69,9 +69,9 @@ TEST_F(BumpAllocator_Test, OverallocationFails)
 TEST_F(BumpAllocator_Test, OverallocationAfterMultipleCallsFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "435151e8-cc34-41ce-8115-5c179716a60a");
-    constexpr uint64_t MEMORY_CHUNK_SIZE{32};
+    constexpr uint64_t MEMORY_CHUNK_SIZE{ 32 };
     iox::BumpAllocator sut(memory, MEMORY_SIZE);
-    for (uint64_t i{0}; i < MEMORY_SIZE; i += MEMORY_CHUNK_SIZE)
+    for (uint64_t i{ 0 }; i < MEMORY_SIZE; i += MEMORY_CHUNK_SIZE)
     {
         ASSERT_FALSE(sut.allocate(MEMORY_CHUNK_SIZE, MEMORY_ALIGNMENT).has_error());
     }
@@ -84,8 +84,8 @@ TEST_F(BumpAllocator_Test, OverallocationAfterMultipleCallsFails)
 TEST_F(BumpAllocator_Test, AllocationIsCorrectlyAligned)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4252ddcc-05d4-499f-ad7c-30bffb420e08");
-    constexpr uint64_t MEMORY_CHUNK_SIZE{sizeof(int)};
-    constexpr uint64_t MEMORY_CHUNK_ALIGNMENT{alignof(int)};
+    constexpr uint64_t MEMORY_CHUNK_SIZE{ sizeof(int) };
+    constexpr uint64_t MEMORY_CHUNK_ALIGNMENT{ alignof(int) };
     iox::BumpAllocator sut(memory, MEMORY_SIZE);
 
     auto allocationResult = sut.allocate(MEMORY_CHUNK_SIZE, MEMORY_CHUNK_ALIGNMENT);
@@ -128,7 +128,7 @@ TEST_F(BumpAllocator_Test, AllocateCompleteMemoryAndStoreDataWorks)
 TEST_F(BumpAllocator_Test, AllocateCompleteMemoryWithEquallySizedChunksWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "21d0fa61-54f9-41a0-8e53-e3448784497b");
-    constexpr uint64_t MEMORY_CHUNK_SIZE{32};
+    constexpr uint64_t MEMORY_CHUNK_SIZE{ 32 };
     iox::BumpAllocator sut(memory, MEMORY_SIZE);
 
     auto allocationResult = sut.allocate(MEMORY_CHUNK_SIZE, MEMORY_ALIGNMENT);
@@ -136,7 +136,7 @@ TEST_F(BumpAllocator_Test, AllocateCompleteMemoryWithEquallySizedChunksWorks)
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast) required for testing
     auto p0 = reinterpret_cast<uintptr_t>(allocationResult.value());
 
-    for (uint64_t i{MEMORY_CHUNK_SIZE}; i < MEMORY_SIZE; i += MEMORY_CHUNK_SIZE)
+    for (uint64_t i{ MEMORY_CHUNK_SIZE }; i < MEMORY_SIZE; i += MEMORY_CHUNK_SIZE)
     {
         allocationResult = sut.allocate(MEMORY_CHUNK_SIZE, MEMORY_ALIGNMENT);
         ASSERT_FALSE(allocationResult.has_error());
@@ -150,7 +150,7 @@ TEST_F(BumpAllocator_Test, AllocateCompleteMemoryWithEquallySizedChunksWorks)
 TEST_F(BumpAllocator_Test, AllocateCompleteMemoryWithDifferentSizedChunksWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c8079bb7-1de6-45a6-92af-a50aa59d7481");
-    constexpr uint64_t MEMORY_CHUNK_SIZE{64};
+    constexpr uint64_t MEMORY_CHUNK_SIZE{ 64 };
     iox::BumpAllocator sut(memory, MEMORY_SIZE);
 
     auto allocationResult = sut.allocate(MEMORY_CHUNK_SIZE, MEMORY_ALIGNMENT);
@@ -158,7 +158,7 @@ TEST_F(BumpAllocator_Test, AllocateCompleteMemoryWithDifferentSizedChunksWorks)
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast) required for testing
     auto p0 = reinterpret_cast<uintptr_t>(allocationResult.value());
 
-    for (uint64_t i{MEMORY_CHUNK_SIZE}; i < MEMORY_SIZE - MEMORY_CHUNK_SIZE; i += MEMORY_CHUNK_SIZE)
+    for (uint64_t i{ MEMORY_CHUNK_SIZE }; i < MEMORY_SIZE - MEMORY_CHUNK_SIZE; i += MEMORY_CHUNK_SIZE)
     {
         allocationResult = sut.allocate(MEMORY_CHUNK_SIZE, MEMORY_ALIGNMENT);
         ASSERT_FALSE(allocationResult.has_error());

@@ -140,7 +140,7 @@ expected<void, ServerSendError> ServerPortUser::sendResponse(ResponseHeader* con
         return err(ServerSendError::NOT_OFFERED);
     }
 
-    bool responseSent{false};
+    bool responseSent{ false };
     m_chunkSender.getQueueIndex(responseHeader->m_uniqueClientQueueId, responseHeader->m_lastKnownClientQueueIndex)
         .and_then([&](auto queueIndex) {
             responseHeader->m_lastKnownClientQueueIndex = queueIndex;

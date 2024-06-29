@@ -25,7 +25,7 @@ static struct timeval getTimeoutOfSocket(int sockfd, int option_name)
     socklen_t optionLength = sizeof(struct timeval);
     if (getsockopt(sockfd, SOL_SOCKET, option_name, &tv, &optionLength) == -1)
     {
-        return {0, 0};
+        return { 0, 0 };
     }
     return tv;
 }

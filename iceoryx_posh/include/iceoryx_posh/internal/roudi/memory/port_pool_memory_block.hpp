@@ -65,7 +65,7 @@ class PortPoolMemoryBlock : public MemoryBlock
     void destroy() noexcept override;
 
   private:
-    PortPoolData* m_portPoolData{nullptr};
+    PortPoolData* m_portPoolData{ nullptr };
     const roudi::UniqueRouDiId m_uniqueRouDiId;
 };
 

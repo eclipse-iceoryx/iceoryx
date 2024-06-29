@@ -21,16 +21,16 @@
 namespace iox
 {
 SignalGuard::SignalGuard(const PosixSignal signal, const struct sigaction& previousAction) noexcept
-    : m_signal{signal}
-    , m_previousAction{previousAction}
+    : m_signal{ signal }
+    , m_previousAction{ previousAction }
     , m_doRestorePreviousAction(true)
 {
 }
 
 SignalGuard::SignalGuard(SignalGuard&& rhs) noexcept
-    : m_signal{rhs.m_signal}
-    , m_previousAction{rhs.m_previousAction}
-    , m_doRestorePreviousAction{rhs.m_doRestorePreviousAction}
+    : m_signal{ rhs.m_signal }
+    , m_previousAction{ rhs.m_previousAction }
+    , m_doRestorePreviousAction{ rhs.m_doRestorePreviousAction }
 {
     rhs.m_doRestorePreviousAction = false;
 }

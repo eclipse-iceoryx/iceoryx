@@ -92,7 +92,7 @@ inline constexpr variant<Types...>& variant<Types...>::operator=(const variant& 
 
 template <typename... Types>
 inline constexpr variant<Types...>::variant(variant&& rhs) noexcept
-    : m_type_index{std::move(rhs.m_type_index)}
+    : m_type_index{ std::move(rhs.m_type_index) }
 {
     if (m_type_index != INVALID_VARIANT_INDEX)
     {

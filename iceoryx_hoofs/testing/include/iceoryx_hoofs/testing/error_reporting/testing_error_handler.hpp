@@ -107,10 +107,10 @@ class TestingErrorHandler : public iox::er::ErrorHandlerInterface
     void jump() noexcept;
 
   private:
-    static constexpr int JUMPED_INDICATOR{1};
+    static constexpr int JUMPED_INDICATOR{ 1 };
 
     mutable std::mutex m_mutex;
-    std::atomic<bool> m_panicked{false};
+    std::atomic<bool> m_panicked{ false };
     std::vector<er::ErrorDescriptor> m_errors;
 
     // we track violations separately (leads to simple search)
@@ -129,7 +129,7 @@ class TestingErrorHandler : public iox::er::ErrorHandlerInterface
     // (longjmp does not support this)
     // We need to ensure though that only one jump buffer is considered by panic and controlling
     // ownership of the buffer is one way to accomplish that.
-    std::atomic<JumpState> m_jumpState{JumpState::Obtainable};
+    std::atomic<JumpState> m_jumpState{ JumpState::Obtainable };
 };
 
 /// @brief This class hooks into gTest to automatically resets the error handler on the start of a test

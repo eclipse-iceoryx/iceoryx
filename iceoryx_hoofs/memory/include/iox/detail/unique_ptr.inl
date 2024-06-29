@@ -46,8 +46,8 @@ inline unique_ptr<T>& unique_ptr<T>::operator=(unique_ptr&& rhs) noexcept
 
 template <typename T>
 inline unique_ptr<T>::unique_ptr(unique_ptr&& rhs) noexcept
-    : m_ptr{rhs.m_ptr}
-    , m_deleter{std::move(rhs.m_deleter)}
+    : m_ptr{ rhs.m_ptr }
+    , m_deleter{ std::move(rhs.m_deleter) }
 {
     rhs.m_ptr = nullptr;
 }
@@ -91,7 +91,7 @@ template <typename T>
 inline T* unique_ptr<T>::release(unique_ptr&& ptrToBeReleased) noexcept
 {
     auto owned = std::move(ptrToBeReleased);
-    auto* const ptr{owned.m_ptr};
+    auto* const ptr{ owned.m_ptr };
     owned.m_ptr = nullptr;
     return ptr;
 }

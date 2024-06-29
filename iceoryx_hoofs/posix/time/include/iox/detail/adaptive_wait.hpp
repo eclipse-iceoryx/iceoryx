@@ -76,12 +76,12 @@ class adaptive_wait
     ///   auto actualDuration = end - start;
     ///   // actualDuration ~= 1.5 minimalDuration
     /// @endcode
-    static constexpr std::chrono::microseconds INITIAL_WAITING_TIME{100};
+    static constexpr std::chrono::microseconds INITIAL_WAITING_TIME{ 100 };
 
     /// @brief The value was choosen by educated guess.
     ///        With 10ms a busy loop is around 0.1% in top. when decreasing it
     ///        to 5ms we get around 0.7% and then it starts to raise fast.
-    static constexpr std::chrono::milliseconds FINAL_WAITING_TIME{10};
+    static constexpr std::chrono::milliseconds FINAL_WAITING_TIME{ 10 };
 
     /// @brief std::thread::yield cause not much overhead. 10000U was chosen
     /// since the code below requires around 1ms to run on a standard pc.

@@ -62,10 +62,10 @@ TEST(PublisherOptions_test, DeserializingBogusDataFails)
 TEST(PublisherOptions_test, DeserializingInvalidSubscriberTooSlowPolicyFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8903ee4a-8a05-4df4-8f8f-f6cb87f41da8");
-    constexpr uint64_t HISTORY_CAPACITY{42U};
-    const iox::NodeName_t NODE_NAME{"harr-harr"};
-    constexpr bool OFFER_ON_CREATE{true};
-    constexpr std::underlying_type_t<iox::popo::ConsumerTooSlowPolicy> SUBSCRIBER_TOO_SLOW_POLICY{111};
+    constexpr uint64_t HISTORY_CAPACITY{ 42U };
+    const iox::NodeName_t NODE_NAME{ "harr-harr" };
+    constexpr bool OFFER_ON_CREATE{ true };
+    constexpr std::underlying_type_t<iox::popo::ConsumerTooSlowPolicy> SUBSCRIBER_TOO_SLOW_POLICY{ 111 };
 
     const auto serialized =
         iox::Serialization::create(HISTORY_CAPACITY, NODE_NAME, OFFER_ON_CREATE, SUBSCRIBER_TOO_SLOW_POLICY);

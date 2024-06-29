@@ -50,7 +50,7 @@ class RouDiApp
     IOX_DEPRECATED_SINCE(3, "Please use iox::waitForTerminationRequest() from 'iox/signal_watcher.hpp'")
     bool waitForSignal() noexcept;
 
-    bool m_run{true};
+    bool m_run{ true };
     IceoryxConfig m_config;
 
   private:

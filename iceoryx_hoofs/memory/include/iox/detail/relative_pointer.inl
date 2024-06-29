@@ -44,9 +44,9 @@ inline RelativePointer<T>::RelativePointer(const offset_t offset, const segment_
 template <typename T>
 inline RelativePointer<T>::RelativePointer(ptr_t const ptr) noexcept
     : RelativePointer([this, ptr]() noexcept -> RelativePointer {
-        const segment_id_t id{this->searchId(ptr)};
-        const offset_t offset{this->getOffset(id, ptr)};
-        return RelativePointer{offset, id};
+        const segment_id_t id{ this->searchId(ptr) };
+        const offset_t offset{ this->getOffset(id, ptr) };
+        return RelativePointer{ offset, id };
     }())
 {
 }
@@ -103,7 +103,7 @@ inline typename std::enable_if<!std::is_void<U>::value, const U&>::type Relative
 template <typename T>
 inline T* RelativePointer<T>::operator->() const noexcept
 {
-    auto* const ptr{get()};
+    auto* const ptr{ get() };
     IOX_ENFORCE(ptr != nullptr, "should not happen unless src is incorrectly used after move");
     return ptr;
 }
@@ -135,7 +135,7 @@ inline typename RelativePointer<T>::offset_t RelativePointer<T>::getOffset() con
 template <typename T>
 inline T* RelativePointer<T>::getBasePtr() const noexcept
 {
-    return getBasePtr(segment_id_t{m_id});
+    return getBasePtr(segment_id_t{ m_id });
 }
 
 template <typename T>
@@ -225,13 +225,13 @@ inline segment_id_underlying_t RelativePointer<T>::searchId(ptr_t const ptr) noe
 template <typename T>
 inline typename RelativePointer<T>::offset_t RelativePointer<T>::computeOffset(ptr_t const ptr) const noexcept
 {
-    return getOffset(segment_id_t{m_id}, ptr);
+    return getOffset(segment_id_t{ m_id }, ptr);
 }
 
 template <typename T>
 inline T* RelativePointer<T>::computeRawPtr() const noexcept
 {
-    return getPtr(segment_id_t{m_id}, m_offset);
+    return getPtr(segment_id_t{ m_id }, m_offset);
 }
 
 // AXIVION Next Construct AutosarC++19_03-A15.5.3, AutosarC++19_03-A15.4.2, FaultDetection-NoexceptViolations : False

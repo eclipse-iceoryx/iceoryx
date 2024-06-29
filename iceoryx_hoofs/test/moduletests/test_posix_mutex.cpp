@@ -63,11 +63,11 @@ class Mutex_test : public Test
         return std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
     }
 
-    std::atomic_bool doWaitForThread{true};
+    std::atomic_bool doWaitForThread{ true };
     iox::optional<mutex> sutNonRecursive;
     iox::optional<mutex> sutRecursive;
     iox::units::Duration watchdogTimeout = 5_s;
-    Watchdog deadlockWatchdog{watchdogTimeout};
+    Watchdog deadlockWatchdog{ watchdogTimeout };
 };
 
 TEST_F(Mutex_test, TryLockAndUnlockWithNonRecursiveMutexWorks)
@@ -109,7 +109,7 @@ TEST_F(Mutex_test, RepeatedLockAndUnlockWithNonRecursiveMutexWorks)
 
 void tryLockReturnsFalseWhenMutexLockedInOtherThread(mutex& mutex)
 {
-    std::atomic<MutexTryLock> tryLockState = {MutexTryLock::LOCK_SUCCEEDED};
+    std::atomic<MutexTryLock> tryLockState = { MutexTryLock::LOCK_SUCCEEDED };
     ASSERT_FALSE(mutex.lock().has_error());
     std::thread lockThread([&] {
         auto tryLockResult = mutex.try_lock();
@@ -138,7 +138,7 @@ TEST_F(Mutex_test, TryLockReturnsFalseWhenMutexLockedInOtherThreadRecursiveMutex
 void lockedMutexBlocks(Mutex_test* test, mutex& mutex)
 {
     const std::chrono::milliseconds WAIT_IN_MS(100);
-    std::chrono::milliseconds blockingDuration{0};
+    std::chrono::milliseconds blockingDuration{ 0 };
 
     ASSERT_FALSE(mutex.lock().has_error());
 

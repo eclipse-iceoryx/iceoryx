@@ -53,7 +53,7 @@ class SignalWatcher_test : public Test
     }
 
     SignalWatcher* sut = nullptr;
-    Watchdog watchdog{iox::units::Duration::fromSeconds(2)};
+    Watchdog watchdog{ iox::units::Duration::fromSeconds(2) };
     std::chrono::milliseconds waitingTime = std::chrono::milliseconds(10);
 };
 
@@ -88,7 +88,7 @@ void unblocksWhenSignalWasRaisedForWaiters(SignalWatcher_test& test,
                                            const std::function<void()>& wait)
 {
     Barrier isThreadStarted(numberOfWaiters);
-    std::atomic<uint64_t> isThreadFinished{0};
+    std::atomic<uint64_t> isThreadFinished{ 0 };
 
     std::vector<std::thread> threads;
 

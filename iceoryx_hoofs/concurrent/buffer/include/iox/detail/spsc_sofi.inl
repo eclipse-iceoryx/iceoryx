@@ -33,8 +33,8 @@ inline uint64_t SpscSofi<ValueType, CapacityValue>::capacity() const noexcept
 template <class ValueType, uint64_t CapacityValue>
 inline uint64_t SpscSofi<ValueType, CapacityValue>::size() const noexcept
 {
-    uint64_t readPosition{0};
-    uint64_t writePosition{0};
+    uint64_t readPosition{ 0 };
+    uint64_t writePosition{ 0 };
     do
     {
         readPosition = m_readPosition.load(std::memory_order_relaxed);
@@ -65,8 +65,8 @@ inline bool SpscSofi<ValueType, CapacityValue>::setCapacity(const uint64_t newSi
 template <class ValueType, uint64_t CapacityValue>
 inline bool SpscSofi<ValueType, CapacityValue>::empty() const noexcept
 {
-    uint64_t currentReadPosition{0};
-    bool isEmpty{false};
+    uint64_t currentReadPosition{ 0 };
+    bool isEmpty{ false };
 
     do
     {
@@ -93,9 +93,9 @@ template <typename Verificator_T>
 inline bool SpscSofi<ValueType, CapacityValue>::popIf(ValueType& valueOut, const Verificator_T& verificator) noexcept
 {
     uint64_t currentReadPosition = m_readPosition.load(std::memory_order_acquire);
-    uint64_t nextReadPosition{0};
+    uint64_t nextReadPosition{ 0 };
 
-    bool popWasSuccessful{true};
+    bool popWasSuccessful{ true };
     do
     {
         if (currentReadPosition == m_writePosition.load(std::memory_order_acquire))
@@ -142,7 +142,7 @@ inline bool SpscSofi<ValueType, CapacityValue>::popIf(ValueType& valueOut, const
 template <class ValueType, uint64_t CapacityValue>
 inline bool SpscSofi<ValueType, CapacityValue>::push(const ValueType& valueIn, ValueType& valueOut) noexcept
 {
-    constexpr bool SOFI_OVERFLOW{false};
+    constexpr bool SOFI_OVERFLOW{ false };
 
     uint64_t currentWritePosition = m_writePosition.load(std::memory_order_relaxed);
     uint64_t nextWritePosition = currentWritePosition + 1U;

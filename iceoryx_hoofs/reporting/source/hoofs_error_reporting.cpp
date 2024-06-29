@@ -23,7 +23,7 @@ namespace iox
 {
 // NOLINTJUSTIFICATION Use to map enum tag names to strings
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays)
-const char* const HOOFS_ERROR_NAMES[] = {IOX_HOOFS_ERRORS(IOX_CREATE_ERROR_STRING)};
+const char* const HOOFS_ERROR_NAMES[] = { IOX_HOOFS_ERRORS(IOX_CREATE_ERROR_STRING) };
 
 const char* asStringLiteral(const HoofsError error) noexcept
 {

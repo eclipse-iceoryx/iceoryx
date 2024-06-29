@@ -40,7 +40,7 @@ struct Integer
     {
     }
 
-    int value{0};
+    int value{ 0 };
 
     // so that it behaves like an int for comparison purposes
     // NOLINTNEXTLINE(hicpp-explicit-conversions) required for typed tests
@@ -79,7 +79,7 @@ class MpmcLockFreeQueueTest : public ::testing::Test
 
     void fillQueue(int start = 0)
     {
-        int data{start};
+        int data{ start };
         for (uint64_t i = 0; i < queue.capacity(); ++i)
         {
             queue.tryPush(data);
@@ -192,7 +192,7 @@ TYPED_TEST_SUITE(MpmcLockFreeQueueTest, TestConfigs, );
 TEST(MpmcLockFreeQueueTest, capacityIsConsistent)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0b56ef76-2eac-4174-9999-e26495758e6a");
-    constexpr uint64_t CAPACITY{37};
+    constexpr uint64_t CAPACITY{ 37 };
     IntegerQueue<CAPACITY> q;
     EXPECT_EQ(q.capacity(), CAPACITY);
 }
@@ -238,7 +238,7 @@ TYPED_TEST(MpmcLockFreeQueueTest, tryPushUntilFullCapacityIsUsed)
     auto& q = this->queue;
     auto capacity = q.capacity();
 
-    int data{0};
+    int data{ 0 };
     for (uint64_t i = 0; i < capacity; ++i)
     {
         EXPECT_EQ(q.size(), i);
@@ -254,7 +254,7 @@ TYPED_TEST(MpmcLockFreeQueueTest, tryPushInFullQueueFails)
     ::testing::Test::RecordProperty("TEST_ID", "0b793a3e-1e47-46d9-91c2-4967569b508b");
     auto& q = this->queue;
     this->fillQueue(38);
-    int data{37};
+    int data{ 37 };
     EXPECT_FALSE(q.tryPush(data));
 }
 
@@ -287,8 +287,8 @@ TYPED_TEST(MpmcLockFreeQueueTest, pushDoesNotOverflowIfQueueIsNotFull)
     auto& q = this->queue;
     auto capacity = q.capacity();
 
-    int start{66};
-    int data{start};
+    int start{ 66 };
+    int data{ start };
     for (uint64_t i = 0; i < capacity; ++i)
     {
         auto x = q.push(data);
@@ -303,10 +303,10 @@ TYPED_TEST(MpmcLockFreeQueueTest, pushReturnsOldestElementOnOverflow)
     auto& q = this->queue;
     auto capacity = q.capacity();
 
-    int start{666};
+    int start{ 666 };
     this->fillQueue(start);
 
-    int data{-start};
+    int data{ -start };
     for (uint64_t i = 0; i < capacity; ++i)
     {
         auto x = q.push(data);
@@ -323,10 +323,10 @@ TYPED_TEST(MpmcLockFreeQueueTest, pushInsertsInFifoOrder)
     auto& q = this->queue;
     auto capacity = q.capacity();
 
-    int start{69};
+    int start{ 69 };
     this->fillQueue(start);
 
-    int value{-start};
+    int value{ -start };
     for (uint64_t i = 0; i < capacity; ++i)
     {
         q.push(value);
@@ -361,7 +361,7 @@ TYPED_TEST(MpmcLockFreeQueueTest, checkEmptynessAfterFullQueueWasEmptied)
     auto& q = this->queue;
     auto capacity = q.capacity();
 
-    int start{73};
+    int start{ 73 };
     this->fillQueue(start);
 
     for (uint64_t i = 0; i < capacity; ++i)

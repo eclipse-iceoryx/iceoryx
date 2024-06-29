@@ -67,10 +67,10 @@ class MemoryManager_test : public Test
         return chunkStore;
     }
 
-    static constexpr uint64_t CHUNK_SIZE_32{32U};
-    static constexpr uint64_t CHUNK_SIZE_64{64U};
-    static constexpr uint64_t CHUNK_SIZE_128{128};
-    static constexpr uint64_t CHUNK_SIZE_256{256U};
+    static constexpr uint64_t CHUNK_SIZE_32{ 32U };
+    static constexpr uint64_t CHUNK_SIZE_64{ 64U };
+    static constexpr uint64_t CHUNK_SIZE_128{ 128 };
+    static constexpr uint64_t CHUNK_SIZE_256{ 256U };
 
     iox::BumpAllocator* allocator;
     void* rawMemory;
@@ -80,23 +80,27 @@ class MemoryManager_test : public Test
     iox::mepoo::MePooConfig mempoolconf;
 
     const iox::mepoo::ChunkSettings chunkSettings_32{
-        iox::mepoo::ChunkSettings::create(32U, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT).value()};
+        iox::mepoo::ChunkSettings::create(32U, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT).value()
+    };
     const iox::mepoo::ChunkSettings chunkSettings_64{
-        iox::mepoo::ChunkSettings::create(64U, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT).value()};
+        iox::mepoo::ChunkSettings::create(64U, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT).value()
+    };
     const iox::mepoo::ChunkSettings chunkSettings_128{
-        iox::mepoo::ChunkSettings::create(128U, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT).value()};
+        iox::mepoo::ChunkSettings::create(128U, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT).value()
+    };
     const iox::mepoo::ChunkSettings chunkSettings_256{
-        iox::mepoo::ChunkSettings::create(256, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT).value()};
+        iox::mepoo::ChunkSettings::create(256, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT).value()
+    };
 };
 
 TEST_F(MemoryManager_test, AddingMempoolNotInTheIncreasingOrderReturnsError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "df439901-8d42-4532-8494-21d5447ef7d7");
-    constexpr uint32_t CHUNK_COUNT{10U};
-    mempoolconf.addMemPool({CHUNK_SIZE_32, CHUNK_COUNT});
-    mempoolconf.addMemPool({CHUNK_SIZE_128, CHUNK_COUNT});
-    mempoolconf.addMemPool({CHUNK_SIZE_256, CHUNK_COUNT});
-    mempoolconf.addMemPool({CHUNK_SIZE_64, CHUNK_COUNT});
+    constexpr uint32_t CHUNK_COUNT{ 10U };
+    mempoolconf.addMemPool({ CHUNK_SIZE_32, CHUNK_COUNT });
+    mempoolconf.addMemPool({ CHUNK_SIZE_128, CHUNK_COUNT });
+    mempoolconf.addMemPool({ CHUNK_SIZE_256, CHUNK_COUNT });
+    mempoolconf.addMemPool({ CHUNK_SIZE_64, CHUNK_COUNT });
 
     IOX_EXPECT_FATAL_FAILURE([&] { sut->configureMemoryManager(mempoolconf, *allocator, *allocator); },
                              iox::PoshError::MEPOO__MEMPOOL_CONFIG_MUST_BE_ORDERED_BY_INCREASING_SIZE);
@@ -105,9 +109,9 @@ TEST_F(MemoryManager_test, AddingMempoolNotInTheIncreasingOrderReturnsError)
 TEST_F(MemoryManager_test, WrongCallOfConfigureMemoryManagerReturnsError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "04cbf769-8721-454b-b038-96dd467ac3c2");
-    constexpr uint32_t CHUNK_COUNT{10U};
-    mempoolconf.addMemPool({CHUNK_SIZE_32, CHUNK_COUNT});
-    mempoolconf.addMemPool({CHUNK_SIZE_64, CHUNK_COUNT});
+    constexpr uint32_t CHUNK_COUNT{ 10U };
+    mempoolconf.addMemPool({ CHUNK_SIZE_32, CHUNK_COUNT });
+    mempoolconf.addMemPool({ CHUNK_SIZE_64, CHUNK_COUNT });
     sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
 
     IOX_EXPECT_FATAL_FAILURE([&] { sut->configureMemoryManager(mempoolconf, *allocator, *allocator); },
@@ -117,9 +121,9 @@ TEST_F(MemoryManager_test, WrongCallOfConfigureMemoryManagerReturnsError)
 TEST_F(MemoryManager_test, GetMempoolInfoMethodForOutOfBoundaryMempoolIndexReturnsZeroForAllMempoolAttributes)
 {
     ::testing::Test::RecordProperty("TEST_ID", "897e635e-d6df-46be-a3f0-7373b4116102");
-    constexpr uint32_t CHUNK_COUNT{10U};
-    mempoolconf.addMemPool({CHUNK_SIZE_32, CHUNK_COUNT});
-    mempoolconf.addMemPool({CHUNK_SIZE_64, CHUNK_COUNT});
+    constexpr uint32_t CHUNK_COUNT{ 10U };
+    mempoolconf.addMemPool({ CHUNK_SIZE_32, CHUNK_COUNT });
+    mempoolconf.addMemPool({ CHUNK_SIZE_64, CHUNK_COUNT });
     constexpr uint32_t INVALID_MEMPOOL_INDEX = 2U;
     sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
 
@@ -134,10 +138,10 @@ TEST_F(MemoryManager_test, GetMempoolInfoMethodForOutOfBoundaryMempoolIndexRetur
 TEST_F(MemoryManager_test, GetNumberOfMemPoolsMethodReturnsTheNumberOfMemPools)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e3c05153-add7-4098-8045-88960970d2a7");
-    constexpr uint32_t CHUNK_COUNT{10U};
-    mempoolconf.addMemPool({CHUNK_SIZE_32, CHUNK_COUNT});
-    mempoolconf.addMemPool({CHUNK_SIZE_64, CHUNK_COUNT});
-    mempoolconf.addMemPool({CHUNK_SIZE_128, CHUNK_COUNT});
+    constexpr uint32_t CHUNK_COUNT{ 10U };
+    mempoolconf.addMemPool({ CHUNK_SIZE_32, CHUNK_COUNT });
+    mempoolconf.addMemPool({ CHUNK_SIZE_64, CHUNK_COUNT });
+    mempoolconf.addMemPool({ CHUNK_SIZE_128, CHUNK_COUNT });
 
     sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
 
@@ -148,12 +152,12 @@ TEST_F(MemoryManager_test, GetChunkMethodWithNoMemPoolInMemConfigReturnsError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "dff31ea2-8ae0-4786-8c97-633af59c287d");
 
-    constexpr uint64_t USER_PAYLOAD_SIZE{15U};
+    constexpr uint64_t USER_PAYLOAD_SIZE{ 15U };
     auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
     ASSERT_FALSE(chunkSettingsResult.has_error());
     auto& chunkSettings = chunkSettingsResult.value();
 
-    constexpr auto EXPECTED_ERROR{iox::mepoo::MemoryManager::Error::NO_MEMPOOLS_AVAILABLE};
+    constexpr auto EXPECTED_ERROR{ iox::mepoo::MemoryManager::Error::NO_MEMPOOLS_AVAILABLE };
     sut->getChunk(chunkSettings)
         .and_then(
             [&](auto&) { GTEST_FAIL() << "getChunk should fail with '" << EXPECTED_ERROR << "' but did not fail"; })
@@ -166,18 +170,18 @@ TEST_F(MemoryManager_test, GetChunkMethodWithNoMemPoolInMemConfigReturnsError)
 TEST_F(MemoryManager_test, GetChunkMethodWithChunkSizeGreaterThanAvailableChunkSizeInMemPoolConfigReturnsError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d2104b74-5092-484d-bb9d-554996dffbc5");
-    constexpr uint32_t CHUNK_COUNT{10U};
-    mempoolconf.addMemPool({CHUNK_SIZE_32, CHUNK_COUNT});
-    mempoolconf.addMemPool({CHUNK_SIZE_64, CHUNK_COUNT});
-    mempoolconf.addMemPool({CHUNK_SIZE_128, CHUNK_COUNT});
+    constexpr uint32_t CHUNK_COUNT{ 10U };
+    mempoolconf.addMemPool({ CHUNK_SIZE_32, CHUNK_COUNT });
+    mempoolconf.addMemPool({ CHUNK_SIZE_64, CHUNK_COUNT });
+    mempoolconf.addMemPool({ CHUNK_SIZE_128, CHUNK_COUNT });
     sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
 
-    constexpr uint64_t USER_PAYLOAD_SIZE{200U};
+    constexpr uint64_t USER_PAYLOAD_SIZE{ 200U };
     auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
     ASSERT_FALSE(chunkSettingsResult.has_error());
     auto& chunkSettings = chunkSettingsResult.value();
 
-    constexpr auto EXPECTED_ERROR{iox::mepoo::MemoryManager::Error::NO_MEMPOOL_FOR_REQUESTED_CHUNK_SIZE};
+    constexpr auto EXPECTED_ERROR{ iox::mepoo::MemoryManager::Error::NO_MEMPOOL_FOR_REQUESTED_CHUNK_SIZE };
     sut->getChunk(chunkSettings)
         .and_then(
             [&](auto&) { GTEST_FAIL() << "getChunk should fail with '" << EXPECTED_ERROR << "' but did not fail"; })
@@ -189,16 +193,16 @@ TEST_F(MemoryManager_test, GetChunkMethodWithChunkSizeGreaterThanAvailableChunkS
 TEST_F(MemoryManager_test, GetChunkMethodWhenNoFreeChunksInMemPoolConfigReturnsError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0f201458-040e-43b1-a51b-698c2957ca7c");
-    constexpr uint32_t CHUNK_COUNT{1U};
-    constexpr uint64_t PAYLOAD_SIZE{100U};
-    mempoolconf.addMemPool({CHUNK_SIZE_128, CHUNK_COUNT});
+    constexpr uint32_t CHUNK_COUNT{ 1U };
+    constexpr uint64_t PAYLOAD_SIZE{ 100U };
+    mempoolconf.addMemPool({ CHUNK_SIZE_128, CHUNK_COUNT });
     sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
     auto chunkSettingsResult = ChunkSettings::create(PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
     ASSERT_FALSE(chunkSettingsResult.has_error());
     auto& chunkSettings = chunkSettingsResult.value();
     auto chunkStore = getChunksFromSut(CHUNK_COUNT, chunkSettings);
 
-    constexpr auto EXPECTED_ERROR{iox::mepoo::MemoryManager::Error::MEMPOOL_OUT_OF_CHUNKS};
+    constexpr auto EXPECTED_ERROR{ iox::mepoo::MemoryManager::Error::MEMPOOL_OUT_OF_CHUNKS };
     sut->getChunk(chunkSettings)
         .and_then(
             [&](auto&) { GTEST_FAIL() << "getChunk should fail with '" << EXPECTED_ERROR << "' but did not fail"; })
@@ -210,11 +214,11 @@ TEST_F(MemoryManager_test, GetChunkMethodWhenNoFreeChunksInMemPoolConfigReturnsE
 TEST_F(MemoryManager_test, VerifyGetChunkMethodWhenTheRequestedChunkIsAvailableInMemPoolConfig)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a5069a9d-ae2f-4466-ae13-53b0794dd292");
-    constexpr uint32_t CHUNK_COUNT{10U};
-    mempoolconf.addMemPool({CHUNK_SIZE_128, CHUNK_COUNT});
+    constexpr uint32_t CHUNK_COUNT{ 10U };
+    mempoolconf.addMemPool({ CHUNK_SIZE_128, CHUNK_COUNT });
     sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
 
-    constexpr uint64_t USER_PAYLOAD_SIZE{50U};
+    constexpr uint64_t USER_PAYLOAD_SIZE{ 50U };
     auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
     ASSERT_FALSE(chunkSettingsResult.has_error());
     auto& chunkSettings = chunkSettingsResult.value();
@@ -227,12 +231,12 @@ TEST_F(MemoryManager_test, VerifyGetChunkMethodWhenTheRequestedChunkIsAvailableI
 TEST_F(MemoryManager_test, getChunkSingleMemPoolAllChunks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6623841b-baf0-4636-a5d4-b21e4678b7e8");
-    constexpr uint32_t CHUNK_COUNT{100U};
+    constexpr uint32_t CHUNK_COUNT{ 100U };
 
-    mempoolconf.addMemPool({128, CHUNK_COUNT});
+    mempoolconf.addMemPool({ 128, CHUNK_COUNT });
     sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
 
-    constexpr uint64_t USER_PAYLOAD_SIZE{50U};
+    constexpr uint64_t USER_PAYLOAD_SIZE{ 50U };
     auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
     ASSERT_FALSE(chunkSettingsResult.has_error());
     auto& chunkSettings = chunkSettingsResult.value();
@@ -245,14 +249,14 @@ TEST_F(MemoryManager_test, getChunkSingleMemPoolAllChunks)
 TEST_F(MemoryManager_test, getChunkSingleMemPoolToMuchChunks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8af072c7-425b-4820-bc28-0c1e6bad0441");
-    constexpr uint32_t CHUNK_COUNT{100U};
+    constexpr uint32_t CHUNK_COUNT{ 100U };
 
-    mempoolconf.addMemPool({CHUNK_SIZE_128, CHUNK_COUNT});
+    mempoolconf.addMemPool({ CHUNK_SIZE_128, CHUNK_COUNT });
     sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
 
     auto chunkStore = getChunksFromSut(CHUNK_COUNT, chunkSettings_128);
 
-    constexpr auto EXPECTED_ERROR{iox::mepoo::MemoryManager::Error::MEMPOOL_OUT_OF_CHUNKS};
+    constexpr auto EXPECTED_ERROR{ iox::mepoo::MemoryManager::Error::MEMPOOL_OUT_OF_CHUNKS };
     sut->getChunk(chunkSettings_128)
         .and_then(
             [&](auto&) { GTEST_FAIL() << "getChunk should fail with '" << EXPECTED_ERROR << "' but did not fail"; })
@@ -262,11 +266,11 @@ TEST_F(MemoryManager_test, getChunkSingleMemPoolToMuchChunks)
 TEST_F(MemoryManager_test, freeChunkSingleMemPoolFullToEmptyToFull)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0cbb56ae-c5a3-46b6-bfab-abbf91b0ed64");
-    constexpr uint32_t CHUNK_COUNT{100U};
+    constexpr uint32_t CHUNK_COUNT{ 100U };
 
     // chunks are freed when they go out of scope
     {
-        mempoolconf.addMemPool({CHUNK_SIZE_128, CHUNK_COUNT});
+        mempoolconf.addMemPool({ CHUNK_SIZE_128, CHUNK_COUNT });
         sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
 
         auto chunkStore = getChunksFromSut(CHUNK_COUNT, chunkSettings_128);
@@ -284,16 +288,16 @@ TEST_F(MemoryManager_test, freeChunkSingleMemPoolFullToEmptyToFull)
 TEST_F(MemoryManager_test, getChunkMultiMemPoolSingleChunk)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b22f804d-2e12-40c3-8bec-f9a0ab375e98");
-    constexpr uint32_t CHUNK_COUNT{10U};
+    constexpr uint32_t CHUNK_COUNT{ 10U };
 
-    mempoolconf.addMemPool({CHUNK_SIZE_32, CHUNK_COUNT});
-    mempoolconf.addMemPool({CHUNK_SIZE_64, CHUNK_COUNT});
-    mempoolconf.addMemPool({CHUNK_SIZE_128, CHUNK_COUNT});
-    mempoolconf.addMemPool({CHUNK_SIZE_256, CHUNK_COUNT});
+    mempoolconf.addMemPool({ CHUNK_SIZE_32, CHUNK_COUNT });
+    mempoolconf.addMemPool({ CHUNK_SIZE_64, CHUNK_COUNT });
+    mempoolconf.addMemPool({ CHUNK_SIZE_128, CHUNK_COUNT });
+    mempoolconf.addMemPool({ CHUNK_SIZE_256, CHUNK_COUNT });
 
     sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
 
-    for (const auto& chunkSettings : {chunkSettings_32, chunkSettings_64, chunkSettings_128, chunkSettings_256})
+    for (const auto& chunkSettings : { chunkSettings_32, chunkSettings_64, chunkSettings_128, chunkSettings_256 })
     {
         sut->getChunk(chunkSettings).and_then([&](auto& chunk) { EXPECT_TRUE(chunk); }).or_else([](const auto& error) {
             GTEST_FAIL() << "getChunk failed with: " << error;
@@ -304,12 +308,12 @@ TEST_F(MemoryManager_test, getChunkMultiMemPoolSingleChunk)
 TEST_F(MemoryManager_test, getChunkMultiMemPoolAllChunks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "cdb65377-7579-4c76-9931-9552071fff5c");
-    constexpr uint32_t CHUNK_COUNT{100U};
+    constexpr uint32_t CHUNK_COUNT{ 100U };
 
-    mempoolconf.addMemPool({CHUNK_SIZE_32, CHUNK_COUNT});
-    mempoolconf.addMemPool({CHUNK_SIZE_64, CHUNK_COUNT});
-    mempoolconf.addMemPool({CHUNK_SIZE_128, CHUNK_COUNT});
-    mempoolconf.addMemPool({CHUNK_SIZE_256, CHUNK_COUNT});
+    mempoolconf.addMemPool({ CHUNK_SIZE_32, CHUNK_COUNT });
+    mempoolconf.addMemPool({ CHUNK_SIZE_64, CHUNK_COUNT });
+    mempoolconf.addMemPool({ CHUNK_SIZE_128, CHUNK_COUNT });
+    mempoolconf.addMemPool({ CHUNK_SIZE_256, CHUNK_COUNT });
     sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
 
     auto chunkStore_32 = getChunksFromSut(CHUNK_COUNT, chunkSettings_32);
@@ -326,12 +330,12 @@ TEST_F(MemoryManager_test, getChunkMultiMemPoolAllChunks)
 TEST_F(MemoryManager_test, getChunkMultiMemPoolTooMuchChunks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "975e1347-9b39-4fda-a95a-0725b04f7d7d");
-    constexpr uint32_t CHUNK_COUNT{100U};
+    constexpr uint32_t CHUNK_COUNT{ 100U };
 
-    mempoolconf.addMemPool({CHUNK_SIZE_32, CHUNK_COUNT});
-    mempoolconf.addMemPool({CHUNK_SIZE_64, CHUNK_COUNT});
-    mempoolconf.addMemPool({CHUNK_SIZE_128, CHUNK_COUNT});
-    mempoolconf.addMemPool({CHUNK_SIZE_256, CHUNK_COUNT});
+    mempoolconf.addMemPool({ CHUNK_SIZE_32, CHUNK_COUNT });
+    mempoolconf.addMemPool({ CHUNK_SIZE_64, CHUNK_COUNT });
+    mempoolconf.addMemPool({ CHUNK_SIZE_128, CHUNK_COUNT });
+    mempoolconf.addMemPool({ CHUNK_SIZE_256, CHUNK_COUNT });
     sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
 
     auto chunkStore_32 = getChunksFromSut(CHUNK_COUNT, chunkSettings_32);
@@ -339,9 +343,9 @@ TEST_F(MemoryManager_test, getChunkMultiMemPoolTooMuchChunks)
     auto chunkStore_128 = getChunksFromSut(CHUNK_COUNT, chunkSettings_128);
     auto chunkStore_256 = getChunksFromSut(CHUNK_COUNT, chunkSettings_256);
 
-    constexpr auto EXPECTED_ERROR{iox::mepoo::MemoryManager::Error::MEMPOOL_OUT_OF_CHUNKS};
+    constexpr auto EXPECTED_ERROR{ iox::mepoo::MemoryManager::Error::MEMPOOL_OUT_OF_CHUNKS };
 
-    for (const auto& chunkSettings : {chunkSettings_32, chunkSettings_64, chunkSettings_128, chunkSettings_256})
+    for (const auto& chunkSettings : { chunkSettings_32, chunkSettings_64, chunkSettings_128, chunkSettings_256 })
     {
         sut->getChunk(chunkSettings)
             .and_then([&](auto&) {
@@ -355,17 +359,17 @@ TEST_F(MemoryManager_test, getChunkMultiMemPoolTooMuchChunks)
 TEST_F(MemoryManager_test, emptyMemPoolDoesNotResultInAcquiringChunksFromOtherMemPools)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c2ff3937-6cdf-43ad-bec6-5203521a8f57");
-    constexpr uint32_t CHUNK_COUNT{100};
+    constexpr uint32_t CHUNK_COUNT{ 100 };
 
-    mempoolconf.addMemPool({CHUNK_SIZE_32, CHUNK_COUNT});
-    mempoolconf.addMemPool({CHUNK_SIZE_64, CHUNK_COUNT});
-    mempoolconf.addMemPool({CHUNK_SIZE_128, CHUNK_COUNT});
-    mempoolconf.addMemPool({CHUNK_SIZE_256, CHUNK_COUNT});
+    mempoolconf.addMemPool({ CHUNK_SIZE_32, CHUNK_COUNT });
+    mempoolconf.addMemPool({ CHUNK_SIZE_64, CHUNK_COUNT });
+    mempoolconf.addMemPool({ CHUNK_SIZE_128, CHUNK_COUNT });
+    mempoolconf.addMemPool({ CHUNK_SIZE_256, CHUNK_COUNT });
     sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
 
     auto chunkStore = getChunksFromSut(CHUNK_COUNT, chunkSettings_64);
 
-    constexpr auto EXPECTED_ERROR{iox::mepoo::MemoryManager::Error::MEMPOOL_OUT_OF_CHUNKS};
+    constexpr auto EXPECTED_ERROR{ iox::mepoo::MemoryManager::Error::MEMPOOL_OUT_OF_CHUNKS };
     sut->getChunk(chunkSettings_64)
         .and_then(
             [&](auto&) { GTEST_FAIL() << "getChunk should fail with '" << EXPECTED_ERROR << "' but did not fail"; })
@@ -380,16 +384,16 @@ TEST_F(MemoryManager_test, emptyMemPoolDoesNotResultInAcquiringChunksFromOtherMe
 TEST_F(MemoryManager_test, freeChunkMultiMemPoolFullToEmptyToFull)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0eddc5b5-e28f-43df-9da7-2c12014284a5");
-    constexpr uint32_t CHUNK_COUNT{100U};
+    constexpr uint32_t CHUNK_COUNT{ 100U };
 
     // chunks are freed when they go out of scope
     {
         std::vector<iox::mepoo::SharedChunk> chunkStore;
 
-        mempoolconf.addMemPool({CHUNK_SIZE_32, CHUNK_COUNT});
-        mempoolconf.addMemPool({CHUNK_SIZE_64, CHUNK_COUNT});
-        mempoolconf.addMemPool({CHUNK_SIZE_128, CHUNK_COUNT});
-        mempoolconf.addMemPool({CHUNK_SIZE_256, CHUNK_COUNT});
+        mempoolconf.addMemPool({ CHUNK_SIZE_32, CHUNK_COUNT });
+        mempoolconf.addMemPool({ CHUNK_SIZE_64, CHUNK_COUNT });
+        mempoolconf.addMemPool({ CHUNK_SIZE_128, CHUNK_COUNT });
+        mempoolconf.addMemPool({ CHUNK_SIZE_256, CHUNK_COUNT });
         sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
 
         auto chunkStore_32 = getChunksFromSut(CHUNK_COUNT, chunkSettings_32);
@@ -422,12 +426,12 @@ TEST_F(MemoryManager_test, freeChunkMultiMemPoolFullToEmptyToFull)
 TEST_F(MemoryManager_test, getChunkWithUserPayloadSizeZeroShouldNotFail)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9fbfe1ff-9d59-449b-b164-433bbb031125");
-    constexpr uint64_t USER_PAYLOAD_SIZE{0U};
+    constexpr uint64_t USER_PAYLOAD_SIZE{ 0U };
     auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
     ASSERT_FALSE(chunkSettingsResult.has_error());
     auto& chunkSettings = chunkSettingsResult.value();
 
-    mempoolconf.addMemPool({32, 10});
+    mempoolconf.addMemPool({ 32, 10 });
     sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
 
     sut->getChunk(chunkSettings).and_then([&](auto& chunk) { EXPECT_TRUE(chunk); }).or_else([](const auto& error) {
@@ -438,7 +442,7 @@ TEST_F(MemoryManager_test, getChunkWithUserPayloadSizeZeroShouldNotFail)
 TEST_F(MemoryManager_test, addMemPoolWithChunkCountZeroShouldFail)
 {
     ::testing::Test::RecordProperty("TEST_ID", "be653b65-a2d1-42eb-98b5-d161c6ba7c08");
-    mempoolconf.addMemPool({32, 0});
+    mempoolconf.addMemPool({ 32, 0 });
 
     IOX_EXPECT_FATAL_FAILURE([&] { sut->configureMemoryManager(mempoolconf, *allocator, *allocator); }, iox::er::FATAL);
 }
@@ -449,10 +453,10 @@ TEST(MemoryManagerEnumString_test, asStringLiteralConvertsEnumValuesToStrings)
     using Error = iox::mepoo::MemoryManager::Error;
 
     // each bit corresponds to an enum value and must be set to true on test
-    uint64_t testedEnumValues{0U};
-    uint64_t loopCounter{0U};
+    uint64_t testedEnumValues{ 0U };
+    uint64_t loopCounter{ 0U };
     for (const auto& sut :
-         {Error::NO_MEMPOOLS_AVAILABLE, Error::NO_MEMPOOL_FOR_REQUESTED_CHUNK_SIZE, Error::MEMPOOL_OUT_OF_CHUNKS})
+         { Error::NO_MEMPOOLS_AVAILABLE, Error::NO_MEMPOOL_FOR_REQUESTED_CHUNK_SIZE, Error::MEMPOOL_OUT_OF_CHUNKS })
     {
         auto enumString = iox::mepoo::asStringLiteral(sut);
 

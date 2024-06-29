@@ -35,7 +35,7 @@ class NamedSemaphoreTest : public Test
     }
 
     optional<NamedSemaphore> sut;
-    NamedSemaphore::Name_t sutName{TruncateToCapacity, "dr.peacock_rocks"};
+    NamedSemaphore::Name_t sutName{ TruncateToCapacity, "dr.peacock_rocks" };
     const iox::access_rights sutPermission = iox::perms::owner_all;
 };
 

@@ -60,7 +60,7 @@ class Discovery
   private:
     using callback_t = iox::function<void(Discovery&)>;
 
-    ServiceDiscovery* m_discovery{nullptr};
+    ServiceDiscovery* m_discovery{ nullptr };
     iox::popo::Listener m_listener;
 
     /// @note currently only one callback can be active (and there is no need to have more

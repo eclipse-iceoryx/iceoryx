@@ -56,26 +56,26 @@ class RelativePointerData
     bool isLogicalNullptr() const noexcept;
 
     /// @note the maximum number of available ids
-    static constexpr identifier_t ID_RANGE{std::numeric_limits<identifier_t>::max()};
+    static constexpr identifier_t ID_RANGE{ std::numeric_limits<identifier_t>::max() };
     /// @note this represents the id of a logically nullptr
-    static constexpr identifier_t NULL_POINTER_ID{ID_RANGE};
+    static constexpr identifier_t NULL_POINTER_ID{ ID_RANGE };
     /// @note the maximum number of valid ids
-    static constexpr identifier_t MAX_VALID_ID{ID_RANGE - 1U};
+    static constexpr identifier_t MAX_VALID_ID{ ID_RANGE - 1U };
     /// identifier_t is 16 bit and the offset consumes the remaining 48 bits -> offset range is 2^48 - 1
-    static constexpr offset_t OFFSET_RANGE{(1ULL << 48U) - 1U};
+    static constexpr offset_t OFFSET_RANGE{ (1ULL << 48U) - 1U };
     /// @note this represents the offset of a logically nullptr;
-    static constexpr offset_t NULL_POINTER_OFFSET{OFFSET_RANGE};
+    static constexpr offset_t NULL_POINTER_OFFSET{ OFFSET_RANGE };
     /// @note the maximum offset which can be represented
-    static constexpr offset_t MAX_VALID_OFFSET{OFFSET_RANGE - 1U};
+    static constexpr offset_t MAX_VALID_OFFSET{ OFFSET_RANGE - 1U };
     /// @note the maximum allowed size of RelativePointerData
-    static constexpr uint64_t MAX_ALLOWED_SIZE_OF_RELATIVE_POINTER_DATA{8U};
+    static constexpr uint64_t MAX_ALLOWED_SIZE_OF_RELATIVE_POINTER_DATA{ 8U };
 
   private:
     /// @note offset in bits for storing and reading the id
-    static constexpr uint64_t ID_BIT_SIZE{16U};
+    static constexpr uint64_t ID_BIT_SIZE{ 16U };
     /// @note internal representation of a nullptr
-    static constexpr offset_t LOGICAL_NULLPTR{(NULL_POINTER_OFFSET << ID_BIT_SIZE) | NULL_POINTER_ID};
-    uint64_t m_idAndOffset{LOGICAL_NULLPTR};
+    static constexpr offset_t LOGICAL_NULLPTR{ (NULL_POINTER_OFFSET << ID_BIT_SIZE) | NULL_POINTER_ID };
+    uint64_t m_idAndOffset{ LOGICAL_NULLPTR };
 };
 
 } // namespace iox

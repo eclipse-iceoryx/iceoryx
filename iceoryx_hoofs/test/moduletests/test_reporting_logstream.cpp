@@ -38,10 +38,10 @@ class IoxLogStream_test : public IoxLogStreamBase_test
 TEST_F(IoxLogStream_test, CTorDelegatesParameterToLogger)
 {
     ::testing::Test::RecordProperty("TEST_ID", "209aadb5-9ea6-4620-a6d1-f8fb2d12b97d");
-    constexpr const char* EXPECTED_FILE{"hypnotoad.hpp"};
-    constexpr const char* EXPECTED_FUNCTION{"void all_glory_to_the_hypnotoad()"};
-    constexpr int EXPECTED_LINE{42};
-    constexpr auto EXPECTED_LOG_LEVEL{iox::log::LogLevel::WARN};
+    constexpr const char* EXPECTED_FILE{ "hypnotoad.hpp" };
+    constexpr const char* EXPECTED_FUNCTION{ "void all_glory_to_the_hypnotoad()" };
+    constexpr int EXPECTED_LINE{ 42 };
+    constexpr auto EXPECTED_LOG_LEVEL{ iox::log::LogLevel::WARN };
     iox::log::LogStream(loggerMock, EXPECTED_FILE, EXPECTED_LINE, EXPECTED_FUNCTION, EXPECTED_LOG_LEVEL) << "";
 
     ASSERT_THAT(loggerMock.logs.size(), Eq(1U));
@@ -94,7 +94,7 @@ TEST_F(IoxLogStream_test, StreamOperatorCStyleString)
 {
     ::testing::Test::RecordProperty("TEST_ID", "68b034d7-a424-4e75-b6db-a5c4172ee271");
     std::string logValue("This is the iceoryx logger!");
-    const std::string constLogValue{"Nothing to see here, move along!"};
+    const std::string constLogValue{ "Nothing to see here, move along!" };
     LogStreamSut(loggerMock) << logValue.c_str();
     LogStreamSut(loggerMock) << constLogValue.c_str();
 
@@ -106,8 +106,8 @@ TEST_F(IoxLogStream_test, StreamOperatorCStyleString)
 TEST_F(IoxLogStream_test, StreamOperatorStdString)
 {
     ::testing::Test::RecordProperty("TEST_ID", "da8dde06-3f69-4549-b584-64c3ad328dbc");
-    std::string logValue{"This is the iceoryx logger!"};
-    const std::string constLogValue{"Nothing to see here, move along!"};
+    std::string logValue{ "This is the iceoryx logger!" };
+    const std::string constLogValue{ "Nothing to see here, move along!" };
     LogStreamSut(loggerMock) << logValue;
     LogStreamSut(loggerMock) << constLogValue;
 
@@ -119,9 +119,9 @@ TEST_F(IoxLogStream_test, StreamOperatorStdString)
 TEST_F(IoxLogStream_test, StreamOperatorChar)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2a1fff17-e388-4f84-bb16-30bb3432ae9d");
-    char logValue{'b'};
-    const char constLogValue{'o'};
-    constexpr char CONSTEXPR_LOG_VALUE{'b'};
+    char logValue{ 'b' };
+    const char constLogValue{ 'o' };
+    constexpr char CONSTEXPR_LOG_VALUE{ 'b' };
     LogStreamSut(loggerMock) << logValue;
     LogStreamSut(loggerMock) << constLogValue;
     LogStreamSut(loggerMock) << CONSTEXPR_LOG_VALUE;
@@ -135,11 +135,11 @@ TEST_F(IoxLogStream_test, StreamOperatorChar)
 TEST_F(IoxLogStream_test, StreamOperator8BitTypesWithCharAsCharacterAndEverythingElseAsNumber)
 {
     ::testing::Test::RecordProperty("TEST_ID", "707d4c04-1999-4713-b930-e113969617e0");
-    char cc{'a'};
-    signed char sc{'a'};
-    unsigned char uc{'a'};
-    int8_t i8{'a'};
-    uint8_t u8{'a'};
+    char cc{ 'a' };
+    signed char sc{ 'a' };
+    unsigned char uc{ 'a' };
+    int8_t i8{ 'a' };
+    uint8_t u8{ 'a' };
 
     LogStreamSut(loggerMock) << cc;
     LogStreamSut(loggerMock) << sc;
@@ -158,7 +158,7 @@ TEST_F(IoxLogStream_test, StreamOperator8BitTypesWithCharAsCharacterAndEverythin
 TEST_F(IoxLogStream_test, StreamOperatorLogLevel)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d85b7ef4-35de-4e11-b0fd-f0de6581a9e6");
-    std::string logValue{"This is the iceoryx logger!"};
+    std::string logValue{ "This is the iceoryx logger!" };
     const auto logLevel = iox::log::LogLevel::WARN;
     LogStreamSut(loggerMock) << logValue << logLevel;
 
@@ -167,7 +167,7 @@ TEST_F(IoxLogStream_test, StreamOperatorLogLevel)
 
 constexpr bool isBigEndian()
 {
-    constexpr uint16_t endianess{0x0100};
+    constexpr uint16_t endianess{ 0x0100 };
     return static_cast<const uint8_t&>(endianess) == 1;
 }
 
@@ -176,11 +176,12 @@ TEST_F(IoxLogStream_test, StreamOperatorLogRawBufferWithObject)
     ::testing::Test::RecordProperty("TEST_ID", "24974c62-3ec6-4a02-83ff-cbb61a3de664");
     struct DummyStruct
     {
-        uint16_t a{0xAFFE};
-        uint16_t b{0xDEAD};
-        uint32_t c{0xC0FFEE};
+        uint16_t a{ 0xAFFE };
+        uint16_t b{ 0xDEAD };
+        uint32_t c{ 0xC0FFEE };
     };
-    constexpr const char* EXPECTED_DATA{isBigEndian() ? "0x[af fe de ad 00 c0 ff ee]" : "0x[fe af ad de ee ff c0 00]"};
+    constexpr const char* EXPECTED_DATA{ isBigEndian() ? "0x[af fe de ad 00 c0 ff ee]"
+                                                       : "0x[fe af ad de ee ff c0 00]" };
 
     DummyStruct d;
 
@@ -194,11 +195,12 @@ TEST_F(IoxLogStream_test, StreamOperatorLogRawBufferWithPointer)
     ::testing::Test::RecordProperty("TEST_ID", "54579f85-0d7a-4d51-b3a8-e18f256f2703");
     struct DummyStruct
     {
-        uint16_t a{0xBEEF};
-        uint16_t b{0xAFFE};
-        uint32_t c{0xBAADF00D};
+        uint16_t a{ 0xBEEF };
+        uint16_t b{ 0xAFFE };
+        uint32_t c{ 0xBAADF00D };
     };
-    constexpr const char* EXPECTED_DATA{isBigEndian() ? "0x[be ef af fe ba ad f0 0d]" : "0x[ef be fe af 0d f0 ad ba]"};
+    constexpr const char* EXPECTED_DATA{ isBigEndian() ? "0x[be ef af fe ba ad f0 0d]"
+                                                       : "0x[ef be fe af 0d f0 ad ba]" };
 
     DummyStruct d;
 
@@ -210,7 +212,7 @@ TEST_F(IoxLogStream_test, StreamOperatorLogRawBufferWithPointer)
 TEST_F(IoxLogStream_test, StreamOperatorLogRawBufferWithNullpointer)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4b1306cb-68d8-4345-b5dd-46fadff02c8d");
-    constexpr const char* EXPECTED_DATA{"0x[nullptr, 42]"};
+    constexpr const char* EXPECTED_DATA{ "0x[nullptr, 42]" };
 
     LogStreamSut(loggerMock) << iox::log::raw(nullptr, 42);
 

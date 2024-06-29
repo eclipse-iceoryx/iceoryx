@@ -37,9 +37,9 @@ class UsedChunkList_test : public Test
         static constexpr uint32_t NUM_CHUNKS_IN_POOL = 100U;
         static constexpr uint64_t CHUNK_SIZE = 128U;
         MePooConfig mempoolconf;
-        mempoolconf.addMemPool({CHUNK_SIZE, NUM_CHUNKS_IN_POOL});
+        mempoolconf.addMemPool({ CHUNK_SIZE, NUM_CHUNKS_IN_POOL });
 
-        iox::BumpAllocator memoryAllocator{m_memory.get(), MEMORY_SIZE};
+        iox::BumpAllocator memoryAllocator{ m_memory.get(), MEMORY_SIZE };
         memoryManager.configureMemoryManager(mempoolconf, memoryAllocator, memoryAllocator);
     };
 
@@ -47,7 +47,7 @@ class UsedChunkList_test : public Test
 
     SharedChunk getChunkFromMemoryManager()
     {
-        constexpr uint64_t USER_PAYLOAD_SIZE{32U};
+        constexpr uint64_t USER_PAYLOAD_SIZE{ 32U };
         auto chunkSettings =
             iox::mepoo::ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT)
                 .expect("Valid 'ChunkSettings'");
@@ -75,13 +75,13 @@ class UsedChunkList_test : public Test
 
     MemoryManager memoryManager;
 
-    static constexpr uint32_t USED_CHUNK_LIST_CAPACITY{10U};
+    static constexpr uint32_t USED_CHUNK_LIST_CAPACITY{ 10U };
     UsedChunkList<USED_CHUNK_LIST_CAPACITY> sut;
 
   private:
     static constexpr size_t MEGABYTE = 1U << 20U;
     static constexpr size_t MEMORY_SIZE = 4U * MEGABYTE;
-    std::unique_ptr<char[]> m_memory{new char[MEMORY_SIZE]};
+    std::unique_ptr<char[]> m_memory{ new char[MEMORY_SIZE] };
 };
 
 TEST_F(UsedChunkList_test, OneChunkCanBeAdded)
@@ -181,7 +181,7 @@ TEST_F(UsedChunkList_test, MultipleChunksCanBeRemovedInReverseOrder)
         sut.insert(chunk);
     });
 
-    constexpr uint32_t removeOrderIndices[]{2U, 1U, 0U};
+    constexpr uint32_t removeOrderIndices[]{ 2U, 1U, 0U };
     for (auto index : removeOrderIndices)
     {
         SharedChunk removedChunk;
@@ -201,7 +201,7 @@ TEST_F(UsedChunkList_test, MultipleChunksCanBeRemovedInArbitraryOrder)
         sut.insert(chunk);
     });
 
-    constexpr uint32_t removeOrderIndices[]{0U, 2U, 1U};
+    constexpr uint32_t removeOrderIndices[]{ 0U, 2U, 1U };
     for (auto index : removeOrderIndices)
     {
         SharedChunk removedChunk;

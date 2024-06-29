@@ -29,13 +29,14 @@
 using namespace testing;
 
 using SoFiData = int64_t;
-constexpr SoFiData INVALID_SOFI_DATA{-1};
+constexpr SoFiData INVALID_SOFI_DATA{ -1 };
 
-constexpr int64_t STRESS_TIME_HOURS{0};
-constexpr int64_t STRESS_TIME_MINUTES{0};
-constexpr int64_t STRESS_TIME_SECONDS{2};
+constexpr int64_t STRESS_TIME_HOURS{ 0 };
+constexpr int64_t STRESS_TIME_MINUTES{ 0 };
+constexpr int64_t STRESS_TIME_SECONDS{ 2 };
 constexpr std::chrono::milliseconds STRESS_TIME{
-    ((STRESS_TIME_HOURS * 60 + STRESS_TIME_MINUTES) * 60 + STRESS_TIME_SECONDS) * 1000};
+    ((STRESS_TIME_HOURS * 60 + STRESS_TIME_MINUTES) * 60 + STRESS_TIME_SECONDS) * 1000
+};
 
 class SpscSofiStress : public Test
 {
@@ -87,17 +88,17 @@ TEST_F(SpscSofiStress, SimultaneouslyPushAndPopOnEmptySoFi)
     ::testing::Test::RecordProperty("TEST_ID", "e648d8b1-4eaf-449d-b6eb-4ec412b4f59d");
     iox::concurrent::SpscSofi<SoFiData, 10> sofi;
 
-    SoFiData popCounter{0};
-    SoFiData tryPopCounter{0};
-    SoFiData pushCounter{0};
-    std::atomic<bool> allowPush{false};
-    std::atomic<bool> isPushing{false};
-    std::atomic<bool> stopPushThread{false};
-    std::atomic<bool> stopPopThread{false};
+    SoFiData popCounter{ 0 };
+    SoFiData tryPopCounter{ 0 };
+    SoFiData pushCounter{ 0 };
+    std::atomic<bool> allowPush{ false };
+    std::atomic<bool> isPushing{ false };
+    std::atomic<bool> stopPushThread{ false };
+    std::atomic<bool> stopPopThread{ false };
 
     auto popThread = std::thread([&] {
         allowPush = true;
-        SoFiData valOut{INVALID_SOFI_DATA};
+        SoFiData valOut{ INVALID_SOFI_DATA };
         while (!stopPopThread)
         {
             valOut = INVALID_SOFI_DATA;
@@ -132,7 +133,7 @@ TEST_F(SpscSofiStress, SimultaneouslyPushAndPopOnEmptySoFi)
     });
 
     auto pushThread = std::thread([&] {
-        SoFiData valOut{INVALID_SOFI_DATA};
+        SoFiData valOut{ INVALID_SOFI_DATA };
         while (!stopPushThread)
         {
             // we try to trigger a push into an empty SpscSofi, so wait until the pop thread tells us the SpscSofi is
@@ -180,7 +181,7 @@ TEST_F(SpscSofiStress, SimultaneouslyPushAndPopOnEmptySoFi)
     popThread.join();
 
     // after stopping the threads, there might still be values in the SpscSofi; get them out and check for validity
-    SoFiData valOut{INVALID_SOFI_DATA};
+    SoFiData valOut{ INVALID_SOFI_DATA };
     while (sofi.pop(valOut))
     {
         if (valOut != popCounter)
@@ -219,17 +220,17 @@ TEST_F(SpscSofiStress, PopFromContinuouslyOverflowingSoFi)
     ::testing::Test::RecordProperty("TEST_ID", "fce77c72-8136-4587-8cfb-578cb8c80d89");
     iox::concurrent::SpscSofi<SoFiData, 10> sofi;
 
-    SoFiData pushCounter{0};
-    SoFiData dataCounter{0};
-    SoFiData popCounter{0};
-    std::atomic<SoFiData> lastPopValue{INVALID_SOFI_DATA};
-    std::atomic<bool> allowPop{false};
-    std::atomic<bool> isPopping{false};
-    std::atomic<bool> stopPushThread{false};
-    std::atomic<bool> stopPopThread{false};
+    SoFiData pushCounter{ 0 };
+    SoFiData dataCounter{ 0 };
+    SoFiData popCounter{ 0 };
+    std::atomic<SoFiData> lastPopValue{ INVALID_SOFI_DATA };
+    std::atomic<bool> allowPop{ false };
+    std::atomic<bool> isPopping{ false };
+    std::atomic<bool> stopPushThread{ false };
+    std::atomic<bool> stopPopThread{ false };
 
     auto pushThread = std::thread([&] {
-        SoFiData valOut{INVALID_SOFI_DATA};
+        SoFiData valOut{ INVALID_SOFI_DATA };
         while (!stopPushThread)
         {
             valOut = INVALID_SOFI_DATA;
@@ -304,7 +305,7 @@ TEST_F(SpscSofiStress, PopFromContinuouslyOverflowingSoFi)
     });
 
     auto popThread = std::thread([&] {
-        SoFiData valOut{INVALID_SOFI_DATA};
+        SoFiData valOut{ INVALID_SOFI_DATA };
         while (!stopPopThread)
         {
             // we try to trigger a pop from an overflowing SpscSofi, so wait until the push thread tells us the SpscSofi
@@ -376,7 +377,7 @@ TEST_F(SpscSofiStress, PopFromContinuouslyOverflowingSoFi)
         EXPECT_THAT(lastPopValue, Eq(dataCounter)) << "There was a data loss!";
         dataCounter++;
     }
-    auto valOut{INVALID_SOFI_DATA};
+    auto valOut{ INVALID_SOFI_DATA };
     while (sofi.pop(valOut))
     {
         if (valOut != dataCounter)
@@ -416,14 +417,14 @@ TEST_F(SpscSofiStress, PushAndPopFromNonOverflowingNonEmptySoFi)
     ::testing::Test::RecordProperty("TEST_ID", "aad26323-07b1-49c9-be4e-fe9248699713");
     // SpscSofi is quite big in this test -> put it on the heap
     using SoFi_t = iox::concurrent::SpscSofi<SoFiData, 1000000>;
-    std::unique_ptr<SoFi_t> sofi{new SoFi_t};
+    std::unique_ptr<SoFi_t> sofi{ new SoFi_t };
 
-    std::atomic<SoFiData> pushCounter{0};
-    std::atomic<SoFiData> popCounter{0};
-    bool slowDownPush{false};
-    bool slowDownPop{false};
-    std::atomic<bool> stopPushThread{false};
-    std::atomic<bool> stopPopThread{false};
+    std::atomic<SoFiData> pushCounter{ 0 };
+    std::atomic<SoFiData> popCounter{ 0 };
+    bool slowDownPush{ false };
+    bool slowDownPop{ false };
+    std::atomic<bool> stopPushThread{ false };
+    std::atomic<bool> stopPopThread{ false };
 
     auto pushThread = std::thread([&] {
         auto localPushCounter = pushCounter.load();
@@ -438,7 +439,7 @@ TEST_F(SpscSofiStress, PushAndPopFromNonOverflowingNonEmptySoFi)
                 continue;
             }
 
-            SoFiData valOut{INVALID_SOFI_DATA};
+            SoFiData valOut{ INVALID_SOFI_DATA };
             auto pushResult = sofi->push(localPushCounter, valOut);
 
             if (!pushResult)
@@ -483,7 +484,7 @@ TEST_F(SpscSofiStress, PushAndPopFromNonOverflowingNonEmptySoFi)
                 continue;
             }
 
-            SoFiData valOut{INVALID_SOFI_DATA};
+            SoFiData valOut{ INVALID_SOFI_DATA };
             auto popResult = sofi->pop(valOut);
 
             if (!popResult)
@@ -527,7 +528,7 @@ TEST_F(SpscSofiStress, PushAndPopFromNonOverflowingNonEmptySoFi)
     popThread.join();
 
     // after stopping the threads, there might still be values in the SpscSofi; get them out and check for validity
-    SoFiData valOut{INVALID_SOFI_DATA};
+    SoFiData valOut{ INVALID_SOFI_DATA };
     while (sofi->pop(valOut))
     {
         if (valOut != popCounter)

@@ -54,10 +54,10 @@ TEST(RelativePointerData_test, ResetOnDefaultConstructedResultsInLogicallyNullpt
 TEST(RelativePointerData_test, ConstructedWithNonZeroIdAndOffsetResultsInSameIdAndOffset)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2aab553c-5348-4788-b0df-795d0b683487");
-    constexpr uint16_t ID{13U};
-    constexpr uint64_t OFFSET{42U};
+    constexpr uint16_t ID{ 13U };
+    constexpr uint64_t OFFSET{ 42U };
 
-    RelativePointerData sut{ID, OFFSET};
+    RelativePointerData sut{ ID, OFFSET };
 
     EXPECT_EQ(sut.id(), ID);
     EXPECT_EQ(sut.offset(), OFFSET);
@@ -66,10 +66,10 @@ TEST(RelativePointerData_test, ConstructedWithNonZeroIdAndOffsetResultsInSameIdA
 TEST(RelativePointerData_test, ConstructedWithZeroIdAndOffsetResultsNotInLogicallyNullptr)
 {
     ::testing::Test::RecordProperty("TEST_ID", "84bfc576-b31b-4f97-b862-4711e7257504");
-    constexpr uint16_t ID{0U};
-    constexpr uint64_t OFFSET{0U};
+    constexpr uint16_t ID{ 0U };
+    constexpr uint64_t OFFSET{ 0U };
 
-    RelativePointerData sut{ID, OFFSET};
+    RelativePointerData sut{ ID, OFFSET };
 
     EXPECT_FALSE(sut.isLogicalNullptr());
 }
@@ -77,10 +77,10 @@ TEST(RelativePointerData_test, ConstructedWithZeroIdAndOffsetResultsNotInLogical
 TEST(RelativePointerData_test, ConstructedWithNonZeroIdAndOffsetResultsNotInLogicallyNullptr)
 {
     ::testing::Test::RecordProperty("TEST_ID", "84214163-11f8-4693-8827-bb4519c6b377");
-    constexpr uint16_t ID{13U};
-    constexpr uint64_t OFFSET{42U};
+    constexpr uint16_t ID{ 13U };
+    constexpr uint64_t OFFSET{ 42U };
 
-    RelativePointerData sut{ID, OFFSET};
+    RelativePointerData sut{ ID, OFFSET };
 
     EXPECT_FALSE(sut.isLogicalNullptr());
 }
@@ -88,10 +88,10 @@ TEST(RelativePointerData_test, ConstructedWithNonZeroIdAndOffsetResultsNotInLogi
 TEST(RelativePointerData_test, ConstructedWithMaxIdAndOffsetResultsNotInLogicallyNullptr)
 {
     ::testing::Test::RecordProperty("TEST_ID", "28c3eb9f-aedb-4eab-a5e3-ac48b0ef50b6");
-    constexpr uint16_t ID{RelativePointerData::MAX_VALID_ID};
-    constexpr uint64_t OFFSET{RelativePointerData::MAX_VALID_OFFSET};
+    constexpr uint16_t ID{ RelativePointerData::MAX_VALID_ID };
+    constexpr uint64_t OFFSET{ RelativePointerData::MAX_VALID_OFFSET };
 
-    RelativePointerData sut{ID, OFFSET};
+    RelativePointerData sut{ ID, OFFSET };
 
     EXPECT_FALSE(sut.isLogicalNullptr());
 }
@@ -99,10 +99,10 @@ TEST(RelativePointerData_test, ConstructedWithMaxIdAndOffsetResultsNotInLogicall
 TEST(RelativePointerData_test, ResetOnConstructedWithNonZeroIdAndOffsetResultsInLogicallyNullptr)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7917eb83-2671-4091-a0b1-bd86e9fb9268");
-    constexpr uint16_t ID{13U};
-    constexpr uint64_t OFFSET{42U};
+    constexpr uint16_t ID{ 13U };
+    constexpr uint64_t OFFSET{ 42U };
 
-    RelativePointerData sut{ID, OFFSET};
+    RelativePointerData sut{ ID, OFFSET };
     sut.reset();
 
     EXPECT_TRUE(sut.isLogicalNullptr());
@@ -111,8 +111,8 @@ TEST(RelativePointerData_test, ResetOnConstructedWithNonZeroIdAndOffsetResultsIn
 TEST(RelativePointerData_test, ConstructedWithNullPointerIdResultsLogicallyNullptr)
 {
     ::testing::Test::RecordProperty("TEST_ID", "75a669ee-65ca-41f0-8196-f9dd4260a641");
-    constexpr uint16_t ID{RelativePointerData::NULL_POINTER_ID};
-    constexpr uint64_t OFFSET{RelativePointerData::MAX_VALID_OFFSET};
+    constexpr uint16_t ID{ RelativePointerData::NULL_POINTER_ID };
+    constexpr uint64_t OFFSET{ RelativePointerData::MAX_VALID_OFFSET };
 
     RelativePointerData sut(ID, OFFSET);
 
@@ -122,8 +122,8 @@ TEST(RelativePointerData_test, ConstructedWithNullPointerIdResultsLogicallyNullp
 TEST(RelativePointerData_test, ConstructedWithNullPointerOffsetResultsInLogicallyNullptr)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d3206dfa-fcc3-4f39-9590-daea8a5482f9");
-    constexpr uint16_t ID{RelativePointerData::MAX_VALID_ID};
-    constexpr uint64_t OFFSET{RelativePointerData::NULL_POINTER_OFFSET};
+    constexpr uint16_t ID{ RelativePointerData::MAX_VALID_ID };
+    constexpr uint64_t OFFSET{ RelativePointerData::NULL_POINTER_OFFSET };
 
     RelativePointerData sut(ID, OFFSET);
 
@@ -133,8 +133,8 @@ TEST(RelativePointerData_test, ConstructedWithNullPointerOffsetResultsInLogicall
 TEST(RelativePointerData_test, ConstructedWithNullPointerIdAndOffsetResultsInLogicallyNullptr)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c6dd55da-a70d-409d-b88e-1835db44a163");
-    constexpr uint16_t ID{RelativePointerData::NULL_POINTER_ID};
-    constexpr uint64_t OFFSET{RelativePointerData::NULL_POINTER_OFFSET};
+    constexpr uint16_t ID{ RelativePointerData::NULL_POINTER_ID };
+    constexpr uint64_t OFFSET{ RelativePointerData::NULL_POINTER_OFFSET };
 
     RelativePointerData sut(ID, OFFSET);
 

@@ -72,8 +72,11 @@ expected<ChunkSettings, ChunkSettings::Error> ChunkSettings::create(const uint64
     uint64_t requiredChunkSize = expectChunkSize.value();
 
 
-    return ok(ChunkSettings{
-        userPayloadSize, adjustedUserPayloadAlignment, userHeaderSize, adjustedUserHeaderAlignment, requiredChunkSize});
+    return ok(ChunkSettings{ userPayloadSize,
+                             adjustedUserPayloadAlignment,
+                             userHeaderSize,
+                             adjustedUserHeaderAlignment,
+                             requiredChunkSize });
 }
 
 expected<uint64_t, ChunkSettings::Error> ChunkSettings::calculateRequiredChunkSize(
@@ -111,8 +114,8 @@ expected<uint64_t, ChunkSettings::Error> ChunkSettings::calculateRequiredChunkSi
     }
 
     // the most complex case with a user-header
-    constexpr uint64_t SIZE_OF_USER_PAYLOAD_OFFSET_T{sizeof(ChunkHeader::UserPayloadOffset_t)};
-    constexpr uint64_t ALIGNMENT_OF_USER_PAYLOAD_OFFSET_T{alignof(ChunkHeader::UserPayloadOffset_t)};
+    constexpr uint64_t SIZE_OF_USER_PAYLOAD_OFFSET_T{ sizeof(ChunkHeader::UserPayloadOffset_t) };
+    constexpr uint64_t ALIGNMENT_OF_USER_PAYLOAD_OFFSET_T{ alignof(ChunkHeader::UserPayloadOffset_t) };
     uint64_t headerSize = sizeof(ChunkHeader) + userHeaderSize;
     uint64_t preUserPayloadAlignmentOverhang = align(headerSize, ALIGNMENT_OF_USER_PAYLOAD_OFFSET_T);
     uint64_t maxPadding = algorithm::maxVal(SIZE_OF_USER_PAYLOAD_OFFSET_T, static_cast<uint64_t>(userPayloadAlignment));
