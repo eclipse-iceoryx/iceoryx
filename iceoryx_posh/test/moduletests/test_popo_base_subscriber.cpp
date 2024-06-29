@@ -206,7 +206,7 @@ TEST_F(BaseSubscriberTest, WaitSetUnsetStateBasedConditionVariableWhenGoingOutOf
     ::testing::Test::RecordProperty("TEST_ID", "9af5c23d-7584-4142-bd1b-1eaca706d887");
     // ===== Setup ===== //
     iox::popo::ConditionVariableData condVar("Horscht");
-    std::unique_ptr<WaitSetTest> waitSet{new WaitSetTest(condVar)};
+    std::unique_ptr<WaitSetTest> waitSet{ new WaitSetTest(condVar) };
     EXPECT_CALL(sut.port(), setConditionVariable(_, _)).Times(1);
     EXPECT_CALL(sut.port(), hasNewChunks()).WillRepeatedly(Return(false));
     ASSERT_FALSE(waitSet->attachState(sut, iox::popo::SubscriberState::HAS_DATA).has_error());
@@ -221,7 +221,7 @@ TEST_F(BaseSubscriberTest, WaitSetUnsetEventBasedConditionVariableWhenGoingOutOf
     ::testing::Test::RecordProperty("TEST_ID", "d0a1d958-9681-4c88-88d8-4a6e4485d101");
     // ===== Setup ===== //
     iox::popo::ConditionVariableData condVar("Horscht");
-    std::unique_ptr<WaitSetTest> waitSet{new WaitSetTest(condVar)};
+    std::unique_ptr<WaitSetTest> waitSet{ new WaitSetTest(condVar) };
     EXPECT_CALL(sut.port(), setConditionVariable(_, _)).Times(1);
     ASSERT_FALSE(waitSet->attachEvent(sut, iox::popo::SubscriberEvent::DATA_RECEIVED).has_error());
     // ===== Test ===== //
@@ -235,8 +235,8 @@ TEST_F(BaseSubscriberTest, AttachingAttachedStateSubscriberToNewWaitsetDetachesI
     ::testing::Test::RecordProperty("TEST_ID", "301c7202-cb9c-436c-ba6d-5c370eab9e5d");
     // ===== Setup ===== //
     iox::popo::ConditionVariableData condVar("Horscht");
-    std::unique_ptr<WaitSetTest> waitSet{new WaitSetTest(condVar)};
-    std::unique_ptr<WaitSetTest> waitSet2{new WaitSetTest(condVar)};
+    std::unique_ptr<WaitSetTest> waitSet{ new WaitSetTest(condVar) };
+    std::unique_ptr<WaitSetTest> waitSet2{ new WaitSetTest(condVar) };
     EXPECT_CALL(sut.port(), setConditionVariable(_, _)).Times(1);
     EXPECT_CALL(sut.port(), hasNewChunks()).WillRepeatedly(Return(false));
     ASSERT_FALSE(waitSet->attachState(sut, iox::popo::SubscriberState::HAS_DATA).has_error());
@@ -255,7 +255,7 @@ TEST_F(BaseSubscriberTest, AttachingEventToAttachedStateSubscriberDetachesState)
     ::testing::Test::RecordProperty("TEST_ID", "c4b37424-10ec-4217-9e64-7006e6aebad9");
     // ===== Setup ===== //
     iox::popo::ConditionVariableData condVar("Horscht");
-    std::unique_ptr<WaitSetTest> waitSet{new WaitSetTest(condVar)};
+    std::unique_ptr<WaitSetTest> waitSet{ new WaitSetTest(condVar) };
     EXPECT_CALL(sut.port(), setConditionVariable(_, _)).Times(1);
     EXPECT_CALL(sut.port(), hasNewChunks()).WillRepeatedly(Return(false));
     ASSERT_FALSE(waitSet->attachState(sut, iox::popo::SubscriberState::HAS_DATA).has_error());
@@ -273,7 +273,7 @@ TEST_F(BaseSubscriberTest, DetachingAttachedStateCleansup)
     ::testing::Test::RecordProperty("TEST_ID", "3bff4985-752e-47c9-9232-e2382086db29");
     // ===== Setup ===== //
     iox::popo::ConditionVariableData condVar("Horscht");
-    std::unique_ptr<WaitSetTest> waitSet{new WaitSetTest(condVar)};
+    std::unique_ptr<WaitSetTest> waitSet{ new WaitSetTest(condVar) };
     EXPECT_CALL(sut.port(), setConditionVariable(_, _)).Times(1);
     EXPECT_CALL(sut.port(), hasNewChunks()).WillRepeatedly(Return(false));
     ASSERT_FALSE(waitSet->attachState(sut, iox::popo::SubscriberState::HAS_DATA).has_error());
@@ -290,7 +290,7 @@ TEST_F(BaseSubscriberTest, DetachingAttachedEventCleansup)
     ::testing::Test::RecordProperty("TEST_ID", "c9b7a7e4-4374-4634-ba3d-6ffb833c5974");
     // ===== Setup ===== //
     iox::popo::ConditionVariableData condVar("Horscht");
-    std::unique_ptr<WaitSetTest> waitSet{new WaitSetTest(condVar)};
+    std::unique_ptr<WaitSetTest> waitSet{ new WaitSetTest(condVar) };
     EXPECT_CALL(sut.port(), setConditionVariable(_, _)).Times(1);
     ASSERT_FALSE(waitSet->attachEvent(sut, iox::popo::SubscriberEvent::DATA_RECEIVED).has_error());
     // ===== Test ===== //

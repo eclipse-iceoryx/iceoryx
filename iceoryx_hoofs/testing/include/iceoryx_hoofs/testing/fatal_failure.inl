@@ -35,7 +35,7 @@ inline bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction,
     IOX_TESTING_EXPECT_PANIC();
     auto hasPanicked = iox::testing::hasPanicked();
 
-    auto hasExpectedError{false};
+    auto hasExpectedError{ false };
     if constexpr (std::is_same_v<ErrorType, iox::er::FatalKind>)
     {
         hasExpectedError = hasPanicked;

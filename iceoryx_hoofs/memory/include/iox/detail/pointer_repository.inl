@@ -44,7 +44,7 @@ template <typename id_t, typename ptr_t, uint64_t CAPACITY>
 inline optional<id_t> PointerRepository<id_t, ptr_t, CAPACITY>::registerPtr(const ptr_t ptr,
                                                                             const uint64_t size) noexcept
 {
-    for (id_t id{1U}; id <= MAX_ID; ++id)
+    for (id_t id{ 1U }; id <= MAX_ID; ++id)
     {
         if (addPointerIfIdIsFree(id, ptr, size))
         {
@@ -100,7 +100,7 @@ inline ptr_t PointerRepository<id_t, ptr_t, CAPACITY>::getBasePtr(const id_t id)
 template <typename id_t, typename ptr_t, uint64_t CAPACITY>
 inline id_t PointerRepository<id_t, ptr_t, CAPACITY>::searchId(const ptr_t ptr) const noexcept
 {
-    for (id_t id{1U}; id <= m_maxRegistered; ++id)
+    for (id_t id{ 1U }; id <= m_maxRegistered; ++id)
     {
         // return first id where the ptr is in the corresponding interval
         // AXIVION Next Construct AutosarC++19_03-M5.14.1 : False positive. vector::operator[](index) has no side-effect when index is less than vector size which is guaranteed by PointerRepository design

@@ -46,7 +46,7 @@ using iox::popo::UniquePortId;
 
 struct DummySample
 {
-    uint64_t dummy{42};
+    uint64_t dummy{ 42 };
 };
 
 class ChunkSender_test : public Test
@@ -54,8 +54,8 @@ class ChunkSender_test : public Test
   protected:
     ChunkSender_test()
     {
-        m_mempoolconf.addMemPool({SMALL_CHUNK, NUM_CHUNKS_IN_POOL});
-        m_mempoolconf.addMemPool({BIG_CHUNK, NUM_CHUNKS_IN_POOL});
+        m_mempoolconf.addMemPool({ SMALL_CHUNK, NUM_CHUNKS_IN_POOL });
+        m_mempoolconf.addMemPool({ BIG_CHUNK, NUM_CHUNKS_IN_POOL });
         m_memoryManager.configureMemoryManager(m_mempoolconf, m_memoryAllocator, m_memoryAllocator);
     }
 
@@ -83,7 +83,7 @@ class ChunkSender_test : public Test
     static constexpr uint32_t USER_HEADER_SIZE = iox::CHUNK_NO_USER_HEADER_SIZE;
     static constexpr uint32_t USER_HEADER_ALIGNMENT = iox::CHUNK_NO_USER_HEADER_ALIGNMENT;
 
-    iox::BumpAllocator m_memoryAllocator{m_memory, MEMORY_SIZE};
+    iox::BumpAllocator m_memoryAllocator{ m_memory, MEMORY_SIZE };
     iox::mepoo::MePooConfig m_mempoolconf;
     iox::mepoo::MemoryManager m_memoryManager;
 
@@ -106,22 +106,24 @@ class ChunkSender_test : public Test
     using ChunkSenderData_t =
         iox::popo::ChunkSenderData<iox::MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY, ChunkDistributorData_t>;
 
-    ChunkQueueData_t m_chunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
-                                      iox::popo::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
-    ChunkSenderData_t m_chunkSenderData{
-        &m_memoryManager, iox::popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA, 0}; // must be 0 for test
-    ChunkSenderData_t m_chunkSenderDataWithHistory{
-        &m_memoryManager, iox::popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA, HISTORY_CAPACITY};
+    ChunkQueueData_t m_chunkQueueData{ iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
+                                       iox::popo::VariantQueueTypes::SoFi_SingleProducerSingleConsumer };
+    ChunkSenderData_t m_chunkSenderData{ &m_memoryManager,
+                                         iox::popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA,
+                                         0 }; // must be 0 for test
+    ChunkSenderData_t m_chunkSenderDataWithHistory{ &m_memoryManager,
+                                                    iox::popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA,
+                                                    HISTORY_CAPACITY };
 
-    iox::popo::ChunkSender<ChunkSenderData_t> m_chunkSender{&m_chunkSenderData};
-    iox::popo::ChunkSender<ChunkSenderData_t> m_chunkSenderWithHistory{&m_chunkSenderDataWithHistory};
+    iox::popo::ChunkSender<ChunkSenderData_t> m_chunkSender{ &m_chunkSenderData };
+    iox::popo::ChunkSender<ChunkSenderData_t> m_chunkSenderWithHistory{ &m_chunkSenderDataWithHistory };
 };
 
 TEST_F(ChunkSender_test, allocate_OneChunkWithoutUserHeaderAndSmallUserPayloadAlignmentResultsInSmallChunk)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3c60fd47-6637-4a9f-bf1b-1b5f707a0cdf");
-    constexpr uint64_t USER_PAYLOAD_SIZE{SMALL_CHUNK / 2};
-    constexpr uint32_t USER_PAYLOAD_ALIGNMENT{iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT};
+    constexpr uint64_t USER_PAYLOAD_SIZE{ SMALL_CHUNK / 2 };
+    constexpr uint32_t USER_PAYLOAD_ALIGNMENT{ iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT };
     auto maybeChunkHeader = m_chunkSender.tryAllocate(UniquePortId(iox::roudi::DEFAULT_UNIQUE_ROUDI_ID),
                                                       USER_PAYLOAD_SIZE,
                                                       USER_PAYLOAD_ALIGNMENT,
@@ -134,8 +136,8 @@ TEST_F(ChunkSender_test, allocate_OneChunkWithoutUserHeaderAndSmallUserPayloadAl
 TEST_F(ChunkSender_test, allocate_OneChunkWithoutUserHeaderAndLargeUserPayloadAlignmentResultsInLargeChunk)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a1743fc6-65a2-4218-be6b-b0b8c2e7d1f7");
-    constexpr uint64_t USER_PAYLOAD_SIZE{SMALL_CHUNK / 2};
-    constexpr uint32_t USER_PAYLOAD_ALIGNMENT{SMALL_CHUNK};
+    constexpr uint64_t USER_PAYLOAD_SIZE{ SMALL_CHUNK / 2 };
+    constexpr uint32_t USER_PAYLOAD_ALIGNMENT{ SMALL_CHUNK };
     auto maybeChunkHeader = m_chunkSender.tryAllocate(UniquePortId(iox::roudi::DEFAULT_UNIQUE_ROUDI_ID),
                                                       USER_PAYLOAD_SIZE,
                                                       USER_PAYLOAD_ALIGNMENT,
@@ -148,7 +150,7 @@ TEST_F(ChunkSender_test, allocate_OneChunkWithoutUserHeaderAndLargeUserPayloadAl
 TEST_F(ChunkSender_test, allocate_OneChunkWithLargeUserHeaderResultsInLargeChunk)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e13e06e5-3c9a-4ec2-812c-4ea73cd1d4eb");
-    constexpr uint32_t LARGE_HEADER_SIZE{SMALL_CHUNK};
+    constexpr uint32_t LARGE_HEADER_SIZE{ SMALL_CHUNK };
     auto maybeChunkHeader = m_chunkSender.tryAllocate(UniquePortId(iox::roudi::DEFAULT_UNIQUE_ROUDI_ID),
                                                       sizeof(DummySample),
                                                       alignof(DummySample),
@@ -161,7 +163,7 @@ TEST_F(ChunkSender_test, allocate_OneChunkWithLargeUserHeaderResultsInLargeChunk
 TEST_F(ChunkSender_test, allocate_ChunkHasOriginIdSet)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7e33b20b-93f9-4b53-926b-20295ac73b61");
-    UniquePortId uniqueId{iox::roudi::DEFAULT_UNIQUE_ROUDI_ID};
+    UniquePortId uniqueId{ iox::roudi::DEFAULT_UNIQUE_ROUDI_ID };
     auto maybeChunkHeader = m_chunkSender.tryAllocate(
         uniqueId, sizeof(DummySample), alignof(DummySample), USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
 
@@ -504,7 +506,7 @@ TEST_F(ChunkSender_test, sendToQueueWithoutReceiverReturnsFalse)
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
 
     auto chunkHeader = *maybeChunkHeader;
-    constexpr uint32_t EXPECTED_QUEUE_INDEX{0U};
+    constexpr uint32_t EXPECTED_QUEUE_INDEX{ 0U };
     EXPECT_FALSE(m_chunkSender.sendToQueue(chunkHeader, m_chunkQueueData.m_uniqueId, EXPECTED_QUEUE_INDEX));
     // chunk is still used because last chunk is stored
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
@@ -525,9 +527,9 @@ TEST_F(ChunkSender_test, sendToQueueWithReceiverReturnsTrueAndDeliversSample)
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
 
     auto chunkHeader = *maybeChunkHeader;
-    uint64_t EXPECTED_SAMPLE_DATA{73};
-    new (chunkHeader->userPayload()) DummySample{EXPECTED_SAMPLE_DATA};
-    constexpr uint32_t EXPECTED_QUEUE_INDEX{0U};
+    uint64_t EXPECTED_SAMPLE_DATA{ 73 };
+    new (chunkHeader->userPayload()) DummySample{ EXPECTED_SAMPLE_DATA };
+    constexpr uint32_t EXPECTED_QUEUE_INDEX{ 0U };
     EXPECT_TRUE(m_chunkSender.sendToQueue(chunkHeader, m_chunkQueueData.m_uniqueId, EXPECTED_QUEUE_INDEX));
     // chunk is still used because last chunk is stored
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
@@ -550,7 +552,7 @@ TEST_F(ChunkSender_test, sendToQueueWithInvalidChunkTriggersTheErrorHandler)
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
 
     ChunkMock<bool> myCrazyChunk;
-    constexpr uint32_t EXPECTED_QUEUE_INDEX{0U};
+    constexpr uint32_t EXPECTED_QUEUE_INDEX{ 0U };
     EXPECT_FALSE(
         m_chunkSender.sendToQueue(myCrazyChunk.chunkHeader(), m_chunkQueueData.m_uniqueId, EXPECTED_QUEUE_INDEX));
 
@@ -811,14 +813,14 @@ TEST_F(ChunkSender_test, asStringLiteralConvertsAllocationErrorValuesToStrings)
     using AllocationError = iox::popo::AllocationError;
 
     // each bit corresponds to an enum value and must be set to true on test
-    uint64_t testedEnumValues{0U};
-    uint64_t loopCounter{0U};
-    for (const auto& sut : {AllocationError::UNDEFINED_ERROR,
-                            AllocationError::NO_MEMPOOLS_AVAILABLE,
-                            AllocationError::RUNNING_OUT_OF_CHUNKS,
-                            AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL,
-                            AllocationError::INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER,
-                            AllocationError::INVALID_PARAMETER_FOR_REQUEST_HEADER})
+    uint64_t testedEnumValues{ 0U };
+    uint64_t loopCounter{ 0U };
+    for (const auto& sut : { AllocationError::UNDEFINED_ERROR,
+                             AllocationError::NO_MEMPOOLS_AVAILABLE,
+                             AllocationError::RUNNING_OUT_OF_CHUNKS,
+                             AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL,
+                             AllocationError::INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER,
+                             AllocationError::INVALID_PARAMETER_FOR_REQUEST_HEADER })
     {
         auto enumString = iox::popo::asStringLiteral(sut);
 

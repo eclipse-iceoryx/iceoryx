@@ -41,7 +41,7 @@ template <typename port_t>
 inline BaseSubscriber<port_t>::BaseSubscriber(const capro::ServiceDescription& service,
                                               const SubscriberOptions& subscriberOptions) noexcept
     : BaseSubscriber(
-        port_t{iox::runtime::PoshRuntime::getInstance().getMiddlewareSubscriber(service, subscriberOptions)})
+        port_t{ iox::runtime::PoshRuntime::getInstance().getMiddlewareSubscriber(service, subscriberOptions) })
 {
 }
 

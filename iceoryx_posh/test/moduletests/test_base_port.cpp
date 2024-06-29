@@ -39,12 +39,12 @@ using namespace iox::popo;
 const iox::capro::ServiceDescription SERVICE_DESCRIPTION("Radar", "FrontRight", "ChuckNorrisDetected");
 const iox::capro::ServiceDescription DEFAULT_SERVICE_DESCRIPTION;
 
-const iox::RuntimeName_t RUNTIME_NAME_FOR_BASE_PORTS = {"BasePort"};
-const iox::RuntimeName_t RUNTIME_NAME_FOR_PUBLISHER_PORTS = {"PublisherPort"};
-const iox::RuntimeName_t RUNTIME_NAME_FOR_SUBSCRIBER_PORTS = {"SubscriberPort"};
-const iox::RuntimeName_t RUNTIME_NAME_FOR_CLIENT_PORTS = {"ClientPort"};
-const iox::RuntimeName_t RUNTIME_NAME_FOR_SERVER_PORTS = {"ServerPort"};
-const iox::RuntimeName_t RUNTIME_NAME_FOR_INTERFACE_PORTS = {"InterfacePort"};
+const iox::RuntimeName_t RUNTIME_NAME_FOR_BASE_PORTS = { "BasePort" };
+const iox::RuntimeName_t RUNTIME_NAME_FOR_PUBLISHER_PORTS = { "PublisherPort" };
+const iox::RuntimeName_t RUNTIME_NAME_FOR_SUBSCRIBER_PORTS = { "SubscriberPort" };
+const iox::RuntimeName_t RUNTIME_NAME_FOR_CLIENT_PORTS = { "ClientPort" };
+const iox::RuntimeName_t RUNTIME_NAME_FOR_SERVER_PORTS = { "ServerPort" };
+const iox::RuntimeName_t RUNTIME_NAME_FOR_INTERFACE_PORTS = { "InterfacePort" };
 
 iox::mepoo::MemoryManager m_memoryManager;
 std::vector<UniquePortId> uniquePortIds;
@@ -200,8 +200,8 @@ class BasePort_test : public Test
     {
     }
 
-    std::unique_ptr<PortData> sutData{createPortData<PortData>()};
-    BasePort sut{sutData.get()};
+    std::unique_ptr<PortData> sutData{ createPortData<PortData>() };
+    BasePort sut{ sutData.get() };
 };
 
 TYPED_TEST(BasePort_test, CallingGetCaProServiceDescriptionWorks)

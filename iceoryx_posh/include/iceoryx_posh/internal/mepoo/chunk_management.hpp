@@ -41,7 +41,7 @@ struct ChunkManagement
                     const not_null<MemPool*> chunkManagementPool) noexcept;
 
     iox::RelativePointer<base_t> m_chunkHeader;
-    referenceCounter_t m_referenceCounter{1U};
+    referenceCounter_t m_referenceCounter{ 1U };
 
     iox::RelativePointer<MemPool> m_mempool;
     iox::RelativePointer<MemPool> m_chunkManagementPool;

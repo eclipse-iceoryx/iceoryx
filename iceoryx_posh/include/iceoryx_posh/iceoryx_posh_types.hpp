@@ -120,9 +120,9 @@ constexpr uint32_t MAX_SHM_SEGMENTS = build::IOX_MAX_SHM_SEGMENTS;
 constexpr uint32_t MAX_NUMBER_OF_MEMORY_PROVIDER = 8U;
 constexpr uint32_t MAX_NUMBER_OF_MEMORY_BLOCKS_PER_MEMORY_PROVIDER = 64U;
 
-constexpr uint32_t CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT{8U};
-constexpr uint32_t CHUNK_NO_USER_HEADER_SIZE{0U};
-constexpr uint32_t CHUNK_NO_USER_HEADER_ALIGNMENT{1U};
+constexpr uint32_t CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT{ 8U };
+constexpr uint32_t CHUNK_NO_USER_HEADER_SIZE{ 0U };
+constexpr uint32_t CHUNK_NO_USER_HEADER_ALIGNMENT{ 1U };
 
 // Message Queue
 constexpr uint32_t ROUDI_MAX_MESSAGES = 5U;
@@ -219,7 +219,7 @@ IOX_NEW_TYPE(DomainId,
              newtype::Convertable,
              newtype::Sortable);
 
-constexpr DomainId DEFAULT_DOMAIN_ID{0};
+constexpr DomainId DEFAULT_DOMAIN_ID{ 0 };
 
 using build::IOX_DEFAULT_RESOURCE_PREFIX;
 
@@ -282,7 +282,7 @@ IOX_NEW_TYPE(UniqueRouDiId,
              newtype::Sortable);
 
 // this is used by the UniquePortId
-constexpr UniqueRouDiId DEFAULT_UNIQUE_ROUDI_ID{0U};
+constexpr UniqueRouDiId DEFAULT_UNIQUE_ROUDI_ID{ 0U };
 
 // Timeout
 using namespace units::duration_literals;

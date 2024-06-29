@@ -30,9 +30,9 @@ struct SourceLocation
     {
     }
 
-    const char* file{nullptr};
-    int line{0};
-    const char* function{nullptr};
+    const char* file{ nullptr };
+    int line{ 0 };
+    const char* function{ nullptr };
 };
 
 } // namespace er

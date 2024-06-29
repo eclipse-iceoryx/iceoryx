@@ -37,7 +37,7 @@ inline vector<T, Capacity>::vector(const uint64_t count, const T& value) noexcep
                     << " elements will be created!");
     }
 
-    for (uint64_t i{0U}; (i < count) && (i < Capacity); ++i)
+    for (uint64_t i{ 0U }; (i < count) && (i < Capacity); ++i)
     {
         IOX_DISCARD_RESULT(emplace_back(value));
     }
@@ -55,7 +55,7 @@ inline vector<T, Capacity>::vector(const uint64_t count) noexcept
     }
 
     m_size = std::min(count, Capacity);
-    for (uint64_t i{0U}; i < m_size; ++i)
+    for (uint64_t i{ 0U }; i < m_size; ++i)
     {
         // AXIVION Next Line AutosarC++19_03-A18.5.2, FaultDetection-IndirectAssignmentOverflow : False positive, it is a placement new. Size guaranteed by T.
         new (&at_unchecked(i)) T();
@@ -85,8 +85,8 @@ inline vector<T, Capacity>& vector<T, Capacity>::operator=(const vector& rhs) no
 {
     if (this != &rhs)
     {
-        uint64_t i{0U};
-        const uint64_t rhsSize{rhs.size()};
+        uint64_t i{ 0U };
+        const uint64_t rhsSize{ rhs.size() };
 
         if constexpr (std::is_trivially_copyable<T>::value)
         {
@@ -95,7 +95,7 @@ inline vector<T, Capacity>& vector<T, Capacity>::operator=(const vector& rhs) no
         }
         else
         {
-            const uint64_t minSize{algorithm::minVal(m_size, rhsSize)};
+            const uint64_t minSize{ algorithm::minVal(m_size, rhsSize) };
 
             // copy using copy assignment
             for (; i < minSize; ++i)
@@ -124,8 +124,8 @@ inline vector<T, Capacity>& vector<T, Capacity>::operator=(vector&& rhs) noexcep
 {
     if (this != &rhs)
     {
-        uint64_t i{0U};
-        const uint64_t rhsSize{rhs.size()};
+        uint64_t i{ 0U };
+        const uint64_t rhsSize{ rhs.size() };
 
         if constexpr (std::is_trivially_copyable<T>::value)
         {
@@ -134,7 +134,7 @@ inline vector<T, Capacity>& vector<T, Capacity>::operator=(vector&& rhs) noexcep
         }
         else
         {
-            const uint64_t minSize{algorithm::minVal(m_size, rhsSize)};
+            const uint64_t minSize{ algorithm::minVal(m_size, rhsSize) };
 
             // move using move assignment
             for (; i < minSize; ++i)
@@ -191,12 +191,12 @@ inline bool vector<T, Capacity>::emplace_back(Targs&&... args) noexcept
     {
         if constexpr (std::is_trivial<T>::value)
         {
-            at_unchecked(m_size++) = T{std::forward<Targs>(args)...};
+            at_unchecked(m_size++) = T{ std::forward<Targs>(args)... };
         }
         else
         {
             // AXIVION Next Line AutosarC++19_03-A5.0.1, FaultDetection-IndirectAssignmentOverflow: Size guaranteed by T. Evaluation order is inconsequential.
-            new (&at_unchecked(m_size++)) T{std::forward<Targs>(args)...};
+            new (&at_unchecked(m_size++)) T{ std::forward<Targs>(args)... };
         }
         return true;
     }
@@ -207,7 +207,7 @@ template <typename T, uint64_t Capacity>
 template <typename... Targs>
 inline bool vector<T, Capacity>::emplace(const uint64_t position, Targs&&... args) noexcept
 {
-    const uint64_t sizeBeforeEmplace{m_size};
+    const uint64_t sizeBeforeEmplace{ m_size };
     if ((m_size >= Capacity) || ((position >= Capacity) || (position > sizeBeforeEmplace)))
     {
         return false;
@@ -220,14 +220,14 @@ inline bool vector<T, Capacity>::emplace(const uint64_t position, Targs&&... arg
     if constexpr (std::is_trivial<T>::value)
     {
         resize(size() + 1U);
-        const uint64_t dataLen{sizeBeforeEmplace - position};
+        const uint64_t dataLen{ sizeBeforeEmplace - position };
         std::memmove(data() + position + 1U, data() + position, dataLen * sizeof(T));
-        at_unchecked(position) = T{std::forward<Targs>(args)...};
+        at_unchecked(position) = T{ std::forward<Targs>(args)... };
     }
     else
     {
         IOX_DISCARD_RESULT(emplace_back(std::move(at_unchecked(sizeBeforeEmplace - 1U))));
-        for (uint64_t i{sizeBeforeEmplace - 1U}; i > position; --i)
+        for (uint64_t i{ sizeBeforeEmplace - 1U }; i > position; --i)
         {
             at_unchecked(i) = std::move(at_unchecked(i - 1U));
         }
@@ -405,15 +405,15 @@ inline bool vector<T, Capacity>::erase(iterator position) noexcept
     if ((begin() <= position) && (position < end()))
     {
         // AXIVION Next Line AutosarC++19_03-M5.0.9 : False positive. Pointer arithmetic occurs here.
-        uint64_t index{static_cast<uint64_t>(position - begin())};
-        uint64_t n{index};
+        uint64_t index{ static_cast<uint64_t>(position - begin()) };
+        uint64_t n{ index };
         if constexpr (std::is_trivially_copyable<T>::value)
         {
             if constexpr (!(std::is_trivially_destructible<T>::value))
             {
                 at_unchecked(n).~T();
             }
-            uint64_t dataLen{size() - n - 1U};
+            uint64_t dataLen{ size() - n - 1U };
             std::memmove(data() + n, data() + n + 1U, dataLen * sizeof(T));
         }
         else
@@ -470,13 +470,13 @@ inline void vector<T, Capacity>::clearFrom(const uint64_t startPosition) noexcep
 template <typename T, uint64_t CapacityLeft, uint64_t CapacityRight>
 inline constexpr bool operator==(const vector<T, CapacityLeft>& lhs, const vector<T, CapacityRight>& rhs) noexcept
 {
-    uint64_t vectorSize{lhs.size()};
+    uint64_t vectorSize{ lhs.size() };
     if (vectorSize != rhs.size())
     {
         return false;
     }
 
-    for (uint64_t i{0U}; i < vectorSize; ++i)
+    for (uint64_t i{ 0U }; i < vectorSize; ++i)
     {
         if (lhs[i] != rhs[i])
         {

@@ -358,7 +358,7 @@ TEST_F(convert_test, fromString_Integer_InvalidTrailingChar_Fail)
                                    unsigned int,
                                    unsigned long,
                                    unsigned long long>;
-    std::vector<std::string> invalid_input = {"42a", "74 ", "-52-"};
+    std::vector<std::string> invalid_input = { "42a", "74 ", "-52-" };
 
     // a lambda to iterate all invalid_input cases converting to type decltype(dummy)
     auto expect_failure = [&invalid_input](auto dummy) {
@@ -480,7 +480,7 @@ TEST_F(convert_test, fromString_SignedLong_EdgeCase_OutOfRange_Fail)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fb349f9c-0800-4f0b-8940-9012f9946b77");
 
-    constexpr bool IS_32_BIT{sizeof(long) != sizeof(long long)};
+    constexpr bool IS_32_BIT{ sizeof(long) != sizeof(long long) };
 
     std::string source = IS_32_BIT ? "-2147483649" : "-9223372036854775809";
     auto long_min_dec_1 = iox::convert::from_string<long>(source.c_str());
@@ -627,7 +627,7 @@ TEST_F(convert_test, fromString_UnSignedLong_EdgeCase_OutOfRange_Fail)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6e74e284-7f13-4d77-8d3f-009df216828f");
 
-    constexpr bool IS_32_BIT{sizeof(long) != sizeof(long long)};
+    constexpr bool IS_32_BIT{ sizeof(long) != sizeof(long long) };
 
     std::string source = "-1";
     auto unlong_min_dec_1 = iox::convert::from_string<unsigned long>(source.c_str());
@@ -675,8 +675,8 @@ TEST_F(convert_test, fromString_Float_EdgeCase_InRange_Success)
     ::testing::Test::RecordProperty("TEST_ID", "cf849d5d-d0ed-4447-89b8-d6b9f47287c7");
 
     // the number larger than numeric_limits<long double>::digits10 that will pass all tests for all platforms
-    constexpr uint16_t PLATFORM_DIGIT_WORKAROUND_MIN{7};
-    constexpr uint16_t PLATFORM_DIGIT_WORKAROUND_MAX{7};
+    constexpr uint16_t PLATFORM_DIGIT_WORKAROUND_MIN{ 7 };
+    constexpr uint16_t PLATFORM_DIGIT_WORKAROUND_MAX{ 7 };
 
     std::string source = fp_to_string(std::numeric_limits<float>::min(), PLATFORM_DIGIT_WORKAROUND_MIN);
     auto float_min = iox::convert::from_string<float>(source.c_str());
@@ -709,8 +709,8 @@ TEST_F(convert_test, fromString_Double_EdgeCase_InRange_Success)
     ::testing::Test::RecordProperty("TEST_ID", "d5e5e5ad-92ed-4229-8128-4ee82059fbf7");
 
     // the number larger than numeric_limits<double>::digits10 that will pass all tests for all platforms
-    constexpr uint16_t PLATFORM_DIGIT_WORKAROUND_MIN{19};
-    constexpr uint16_t PLATFORM_DIGIT_WORKAROUND_MAX{18};
+    constexpr uint16_t PLATFORM_DIGIT_WORKAROUND_MIN{ 19 };
+    constexpr uint16_t PLATFORM_DIGIT_WORKAROUND_MAX{ 18 };
 
     std::string source = fp_to_string(std::numeric_limits<double>::min(), PLATFORM_DIGIT_WORKAROUND_MIN);
     auto double_min = iox::convert::from_string<double>(source.c_str());
@@ -743,8 +743,8 @@ TEST_F(convert_test, fromString_LongDouble_EdgeCase_InRange_Success)
     ::testing::Test::RecordProperty("TEST_ID", "cab1c90b-1de0-4654-bbea-4bb4e55e4fc3");
 
     // the number larger than numeric_limits<long double>::digits10 that will pass all tests for all platforms
-    constexpr uint16_t PLATFORM_DIGIT_WORKAROUND_MIN{36};
-    constexpr uint16_t PLATFORM_DIGIT_WORKAROUND_MAX{34};
+    constexpr uint16_t PLATFORM_DIGIT_WORKAROUND_MIN{ 36 };
+    constexpr uint16_t PLATFORM_DIGIT_WORKAROUND_MAX{ 34 };
 
     std::string source = fp_to_string(std::numeric_limits<long double>::min(), PLATFORM_DIGIT_WORKAROUND_MIN);
     auto long_double_min = iox::convert::from_string<long double>(source.c_str());
@@ -783,7 +783,7 @@ TEST_F(convert_test, fromString_Float_EdgeCase_Nan_Success)
 {
     ::testing::Test::RecordProperty("TEST_ID", "772bcbc3-d55b-464f-873f-82754ad543f3");
 
-    std::vector<std::string> nan_vec = {"NAN", "NaN", "nan"};
+    std::vector<std::string> nan_vec = { "NAN", "NaN", "nan" };
 
     for (const auto& v : nan_vec)
     {
@@ -797,7 +797,7 @@ TEST_F(convert_test, fromString_Double_EdgeCase_Nan_Success)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a27c8575-658c-465d-a1a2-4f2f6b9a723a");
 
-    std::vector<std::string> nan_vec = {"NAN", "NaN", "nan"};
+    std::vector<std::string> nan_vec = { "NAN", "NaN", "nan" };
 
     for (const auto& v : nan_vec)
     {
@@ -811,7 +811,7 @@ TEST_F(convert_test, fromString_LongDouble_EdgeCase_Nan_Success)
 {
     ::testing::Test::RecordProperty("TEST_ID", "486f4e78-6000-4401-bb66-62d26b1d0cce");
 
-    std::vector<std::string> nan_vec = {"NAN", "NaN", "nan"};
+    std::vector<std::string> nan_vec = { "NAN", "NaN", "nan" };
 
     for (const auto& v : nan_vec)
     {
@@ -825,8 +825,8 @@ TEST_F(convert_test, fromString_Float_EdgeCase_Inf_Success)
 {
     ::testing::Test::RecordProperty("TEST_ID", "82dba3ae-5802-4fbc-aa91-15f4a2953573");
 
-    std::vector<std::string> inf_vec = {
-        "INF", "Inf", "inf", "INFINITY", "Infinity", "-INF", "-Inf", "-inf", "-INFINITY", "-Infinity"};
+    std::vector<std::string> inf_vec = { "INF",  "Inf",  "inf",  "INFINITY",  "Infinity",
+                                         "-INF", "-Inf", "-inf", "-INFINITY", "-Infinity" };
 
     for (const auto& v : inf_vec)
     {
@@ -840,8 +840,8 @@ TEST_F(convert_test, fromString_Double_EdgeCase_Inf_Success)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e4ccd01d-b1d1-433e-ba04-548dcc479bb1");
 
-    std::vector<std::string> inf_vec = {
-        "INF", "Inf", "inf", "INFINITY", "Infinity", "-INF", "-Inf", "-inf", "-INFINITY", "-Infinity"};
+    std::vector<std::string> inf_vec = { "INF",  "Inf",  "inf",  "INFINITY",  "Infinity",
+                                         "-INF", "-Inf", "-inf", "-INFINITY", "-Infinity" };
 
     for (const auto& v : inf_vec)
     {
@@ -855,8 +855,8 @@ TEST_F(convert_test, fromString_LongDouble_EdgeCase_Inf_Success)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6b8a3284-5f20-4cd6-9958-a2abb348ebe2");
 
-    std::vector<std::string> inf_vec = {
-        "INF", "Inf", "inf", "INFINITY", "Infinity", "-INF", "-Inf", "-inf", "-INFINITY", "-Infinity"};
+    std::vector<std::string> inf_vec = { "INF",  "Inf",  "inf",  "INFINITY",  "Infinity",
+                                         "-INF", "-Inf", "-inf", "-INFINITY", "-Infinity" };
 
     for (const auto& v : inf_vec)
     {
@@ -870,7 +870,7 @@ TEST_F(convert_test, fromString_Float_EdgeCase_ZeroDecimalNotation_Success)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4ac285f9-e107-4d74-8aca-5d87032794db");
 
-    std::vector<std::string> decimal_notation_vec = {"0", "-0", ".0", "-.0", "0.0", "-0.0", "0.", "-0."};
+    std::vector<std::string> decimal_notation_vec = { "0", "-0", ".0", "-.0", "0.0", "-0.0", "0.", "-0." };
 
     for (const auto& v : decimal_notation_vec)
     {
@@ -884,7 +884,7 @@ TEST_F(convert_test, fromString_Double_EdgeCase_ZeroDecimalNotation_Success)
 {
     ::testing::Test::RecordProperty("TEST_ID", "98938eaa-c472-4338-a153-5c2de9eb4940");
 
-    std::vector<std::string> decimal_notation_vec = {"0", "-0", ".0", "-.0", "0.0", "-0.0", "0.", "-0."};
+    std::vector<std::string> decimal_notation_vec = { "0", "-0", ".0", "-.0", "0.0", "-0.0", "0.", "-0." };
 
     for (const auto& v : decimal_notation_vec)
     {
@@ -898,7 +898,7 @@ TEST_F(convert_test, fromString_LongDouble_EdgeCase_ZeroDecimalNotation_Success)
 {
     ::testing::Test::RecordProperty("TEST_ID", "49fc0812-47c0-4815-8a15-a94a81493ea0");
 
-    std::vector<std::string> decimal_notation_vec = {"0", "-0", ".0", "-.0", "0.0", "-0.0", "0.", "-0."};
+    std::vector<std::string> decimal_notation_vec = { "0", "-0", ".0", "-.0", "0.0", "-0.0", "0.", "-0." };
 
     for (const auto& v : decimal_notation_vec)
     {
@@ -948,7 +948,7 @@ TEST_F(convert_test, fromString_ioxString)
 {
     ::testing::Test::RecordProperty("TEST_ID", "dbf015bb-5f51-47e1-9d0e-0525f65e7803");
     std::string source = "hello";
-    constexpr uint64_t STRING_CAPACITY{8};
+    constexpr uint64_t STRING_CAPACITY{ 8 };
     EXPECT_THAT(iox::convert::from_string<iox::string<STRING_CAPACITY>>(source.c_str()).has_value(), Eq(true));
     source = "";
     EXPECT_THAT(iox::convert::from_string<iox::string<STRING_CAPACITY>>(source.c_str()).has_value(), Eq(true));

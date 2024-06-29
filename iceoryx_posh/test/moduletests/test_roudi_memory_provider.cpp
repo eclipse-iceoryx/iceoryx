@@ -63,8 +63,8 @@ class MemoryProvider_Test : public Test
         iox::UntypedRelativePointer::unregisterAll();
     }
 
-    static constexpr uint64_t COMMON_SETUP_MEMORY_SIZE{16};
-    static constexpr uint64_t COMMON_SETUP_MEMORY_ALIGNMENT{8};
+    static constexpr uint64_t COMMON_SETUP_MEMORY_SIZE{ 16 };
+    static constexpr uint64_t COMMON_SETUP_MEMORY_ALIGNMENT{ 8 };
 
     iox::expected<void, MemoryProviderError> commonSetup()
     {
@@ -91,20 +91,21 @@ class MemoryProvider_Test : public Test
         iox::roudi::MemoryProviderError::MEMORY_DESTRUCTION_FAILED,
         iox::roudi::MemoryProviderError::MEMORY_DEALLOCATION_FAILED,
         iox::roudi::MemoryProviderError::MEMORY_UNMAPPING_FAILED,
-        iox::roudi::MemoryProviderError::SIGACTION_CALL_FAILED};
+        iox::roudi::MemoryProviderError::SIGACTION_CALL_FAILED
+    };
 
-    static constexpr const char* m_testResultGetErrorString[] = {"MEMORY_BLOCKS_EXHAUSTED",
-                                                                 "NO_MEMORY_BLOCKS_PRESENT",
-                                                                 "MEMORY_ALREADY_CREATED",
-                                                                 "MEMORY_CREATION_FAILED",
-                                                                 "MEMORY_ALIGNMENT_EXCEEDS_PAGE_SIZE",
-                                                                 "MEMORY_ALLOCATION_FAILED",
-                                                                 "MEMORY_MAPPING_FAILED",
-                                                                 "MEMORY_NOT_AVAILABLE",
-                                                                 "MEMORY_DESTRUCTION_FAILED",
-                                                                 "MEMORY_DEALLOCATION_FAILED",
-                                                                 "MEMORY_UNMAPPING_FAILED",
-                                                                 "SIGACTION_CALL_FAILED"};
+    static constexpr const char* m_testResultGetErrorString[] = { "MEMORY_BLOCKS_EXHAUSTED",
+                                                                  "NO_MEMORY_BLOCKS_PRESENT",
+                                                                  "MEMORY_ALREADY_CREATED",
+                                                                  "MEMORY_CREATION_FAILED",
+                                                                  "MEMORY_ALIGNMENT_EXCEEDS_PAGE_SIZE",
+                                                                  "MEMORY_ALLOCATION_FAILED",
+                                                                  "MEMORY_MAPPING_FAILED",
+                                                                  "MEMORY_NOT_AVAILABLE",
+                                                                  "MEMORY_DESTRUCTION_FAILED",
+                                                                  "MEMORY_DEALLOCATION_FAILED",
+                                                                  "MEMORY_UNMAPPING_FAILED",
+                                                                  "SIGACTION_CALL_FAILED" };
 
     MemoryBlockMock memoryBlock1;
     MemoryBlockMock memoryBlock2;
@@ -184,8 +185,8 @@ TEST_F(MemoryProvider_Test, CreationFailed)
     ::testing::Test::RecordProperty("TEST_ID", "b47cd296-8fb2-4ae7-ad80-9c962eff687f");
     MemoryProviderFailingCreation sutFailure;
     ASSERT_FALSE(sutFailure.addMemoryBlock(&memoryBlock1).has_error());
-    uint64_t MEMORY_SIZE{16};
-    uint64_t MEMORY_ALIGNMENT{8};
+    uint64_t MEMORY_SIZE{ 16 };
+    uint64_t MEMORY_ALIGNMENT{ 8 };
     EXPECT_CALL(memoryBlock1, size()).WillRepeatedly(Return(MEMORY_SIZE));
     EXPECT_CALL(memoryBlock1, alignment()).WillRepeatedly(Return(MEMORY_ALIGNMENT));
 
@@ -213,10 +214,10 @@ TEST_F(MemoryProvider_Test, CreateAndAnnounceWithMultipleMemoryBlocks)
     ::testing::Test::RecordProperty("TEST_ID", "e4c13cc4-6596-4902-be7b-99b801a89cc0");
     ASSERT_FALSE(sut.addMemoryBlock(&memoryBlock1).has_error());
     ASSERT_FALSE(sut.addMemoryBlock(&memoryBlock2).has_error());
-    uint64_t MEMORY_SIZE_1{16};
-    uint64_t MEMORY_ALIGNMENT_1{8};
-    uint64_t MEMORY_SIZE_2{32};
-    uint64_t MEMORY_ALIGNMENT_2{16};
+    uint64_t MEMORY_SIZE_1{ 16 };
+    uint64_t MEMORY_ALIGNMENT_1{ 8 };
+    uint64_t MEMORY_SIZE_2{ 32 };
+    uint64_t MEMORY_ALIGNMENT_2{ 16 };
     EXPECT_CALL(memoryBlock1, size()).WillRepeatedly(Return(MEMORY_SIZE_1));
     EXPECT_CALL(memoryBlock1, alignment()).WillRepeatedly(Return(MEMORY_ALIGNMENT_1));
     EXPECT_CALL(memoryBlock2, size()).WillRepeatedly(Return(MEMORY_SIZE_2));
@@ -339,7 +340,7 @@ TEST_F(MemoryProvider_Test, InitialSegmentIdValueIsUnset)
 TEST_F(MemoryProvider_Test, SegmentIdValueAfterCreationIsValid)
 {
     ::testing::Test::RecordProperty("TEST_ID", "56307b8c-724b-4bb2-8619-a127205db184");
-    constexpr uint64_t DummyMemorySize{1024};
+    constexpr uint64_t DummyMemorySize{ 1024 };
     uint8_t dummy[DummyMemorySize];
     auto segmentIdOffset = iox::UntypedRelativePointer::registerPtr(dummy, DummyMemorySize);
 

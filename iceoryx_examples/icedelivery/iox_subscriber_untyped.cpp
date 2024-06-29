@@ -33,7 +33,7 @@ int main()
     //! [initialize runtime]
 
     //! [create untyped subscriber]
-    iox::popo::UntypedSubscriber subscriber({"Radar", "FrontLeft", "Object"});
+    iox::popo::UntypedSubscriber subscriber({ "Radar", "FrontLeft", "Object" });
     //! [create untyped subscriber]
 
     // run until interrupted by Ctrl-C

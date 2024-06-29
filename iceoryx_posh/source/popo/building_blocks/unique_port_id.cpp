@@ -24,7 +24,7 @@ namespace iox
 namespace popo
 {
 // start with 1 to prevent accidentally generating an invalid ID when unique roudi ID is 0
-std::atomic<UniquePortId::value_type> UniquePortId::globalIDCounter{1U};
+std::atomic<UniquePortId::value_type> UniquePortId::globalIDCounter{ 1U };
 
 UniquePortId::UniquePortId(const roudi::UniqueRouDiId uniqueRouDiId) noexcept
     : ThisType(newtype::internal::ProtectedConstructor,

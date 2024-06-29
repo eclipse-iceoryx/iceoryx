@@ -29,7 +29,7 @@ using namespace ::testing;
 using namespace iox;
 using namespace iox::runtime;
 
-constexpr uint64_t ALLOWED_JITTER_MS{5};
+constexpr uint64_t ALLOWED_JITTER_MS{ 5 };
 
 units::Duration sleep_for(units::Duration sleep_time)
 {
@@ -44,7 +44,7 @@ TEST(Heartbeat_test, ElapsedMillisecondsSinceLastBeatOnNewlyCreatedInstanceIsClo
 {
     ::testing::Test::RecordProperty("TEST_ID", "b8640277-c179-4adf-a7f1-5ba70fd39854");
 
-    constexpr uint64_t EXPECTED_MS{0};
+    constexpr uint64_t EXPECTED_MS{ 0 };
 
     Heartbeat sut;
     auto elapsed_ms = sut.elapsed_milliseconds_since_last_beat();
@@ -56,7 +56,7 @@ TEST(Heartbeat_test, ElapsedMillisecondsSinceLastBeatIsLargerOrEqualToSleepTimeA
 {
     ::testing::Test::RecordProperty("TEST_ID", "d076c96b-59ad-4241-a024-20d65667c404");
 
-    constexpr auto SLEEP_TIME{units::Duration::fromMilliseconds(100)};
+    constexpr auto SLEEP_TIME{ units::Duration::fromMilliseconds(100) };
 
     Heartbeat sut;
 
@@ -71,10 +71,10 @@ TEST(Heartbeat_test, ElapsedMillisecondsSinceLastBeatAfterBeatCallIsCloseToZero)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1197fc96-d3e2-4f32-88dd-209f0647bbdd");
 
-    constexpr uint64_t EXPECTED_MS{0};
+    constexpr uint64_t EXPECTED_MS{ 0 };
 
     Heartbeat sut;
-    units::Duration real_sleep_duration{units::Duration::zero()};
+    units::Duration real_sleep_duration{ units::Duration::zero() };
     do
     {
         real_sleep_duration += sleep_for(units::Duration::fromMilliseconds(ALLOWED_JITTER_MS));
@@ -90,7 +90,7 @@ TEST(Heartbeat_test, ElapsedMillisecondsSinceLastBeatIsLargerOrEqualToSleepTimeA
 {
     ::testing::Test::RecordProperty("TEST_ID", "8891a282-f606-44b4-9bcb-6d99cff4ab71");
 
-    constexpr auto SLEEP_TIME{units::Duration::fromMilliseconds(100)};
+    constexpr auto SLEEP_TIME{ units::Duration::fromMilliseconds(100) };
 
     Heartbeat sut;
 

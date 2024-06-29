@@ -46,7 +46,7 @@ class MQ : public IcePerfBase
     void shutdown() noexcept override;
 
   private:
-    static constexpr const char* PREFIX{"/"};
+    static constexpr const char* PREFIX{ "/" };
     void initMqAttributes() noexcept;
     void open(const std::string& name, const iox::PosixIpcChannelSide channelSide) noexcept;
     void send(const char* buffer, uint32_t length) noexcept;
@@ -60,7 +60,7 @@ class MQ : public IcePerfBase
     mqd_t m_mqDescriptorPublisher = INVALID_DESCRIPTOR;
     mqd_t m_mqDescriptorSubscriber = INVALID_DESCRIPTOR;
     // read/write permissions
-    static constexpr mode_t m_filemode{S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH};
+    static constexpr mode_t m_filemode{ S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH };
     char m_message[MAX_MESSAGE_SIZE];
 };
 

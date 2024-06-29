@@ -164,9 +164,9 @@ expected<PosixSharedMemory, PosixSharedMemoryError> PosixSharedMemoryBuilder::cr
 }
 
 PosixSharedMemory::PosixSharedMemory(const Name_t& name, const shm_handle_t handle, const bool hasOwnership) noexcept
-    : m_name{name}
-    , m_handle{handle}
-    , m_hasOwnership{hasOwnership}
+    : m_name{ name }
+    , m_handle{ handle }
+    , m_hasOwnership{ hasOwnership }
 {
 }
 

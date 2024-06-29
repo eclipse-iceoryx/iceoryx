@@ -34,7 +34,7 @@ struct nullopt_t
 };
 // AXIVION Next Construct AutosarC++19_03-M17.0.2 : nullopt is defined within iox namespace which prevents easy
 // misuse
-constexpr nullopt_t nullopt{nullopt_t()};
+constexpr nullopt_t nullopt{ nullopt_t() };
 
 /// @brief helper struct which is used to call the in-place-construction constructor
 struct in_place_t
@@ -230,7 +230,7 @@ class optional final : public FunctionalInterface<optional<T>, T, void>
     //     // mistakes can be introduced quickly in low level c abstraction classes
     //     initHandle(&handle);
     //   }
-    bool m_hasValue{false};
+    bool m_hasValue{ false };
     // AXIVION DISABLE STYLE AutosarC++19_03-A9.6.1 : False positive. Used type has defined size.
     struct alignas(T) element_t
     {

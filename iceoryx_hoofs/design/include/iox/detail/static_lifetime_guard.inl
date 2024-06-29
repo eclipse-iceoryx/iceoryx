@@ -30,11 +30,11 @@ namespace iox
 template <typename T>
 typename StaticLifetimeGuard<T>::storage_t StaticLifetimeGuard<T>::s_storage;
 template <typename T>
-std::atomic<uint64_t> StaticLifetimeGuard<T>::s_count{0};
+std::atomic<uint64_t> StaticLifetimeGuard<T>::s_count{ 0 };
 template <typename T>
-std::atomic<uint32_t> StaticLifetimeGuard<T>::s_instanceState{UNINITIALIZED};
+std::atomic<uint32_t> StaticLifetimeGuard<T>::s_instanceState{ UNINITIALIZED };
 template <typename T>
-T* StaticLifetimeGuard<T>::s_instance{nullptr};
+T* StaticLifetimeGuard<T>::s_instance{ nullptr };
 // NOLINTEND (cppcoreguidelines-avoid-non-const-global-variables)
 
 template <typename T>
@@ -75,7 +75,7 @@ T& StaticLifetimeGuard<T>::instance(Args&&... args) noexcept
     // we determine wether this call has to initialize the instance
     // via CAS (without mutex!)
     // NB: this shows how CAS acts as consensus primitive to determine the initializing call
-    uint32_t exp{UNINITIALIZED};
+    uint32_t exp{ UNINITIALIZED };
     if (s_instanceState.compare_exchange_strong(exp, INITALIZING, std::memory_order_acq_rel, std::memory_order_acquire))
     {
         // NOLINTJUSTIFICATION s_instance is managed by reference counting
@@ -135,7 +135,7 @@ void StaticLifetimeGuard<T>::destroy()
         //
         // check the counter again, if it is zero the primary guard and all others that existed
         // are already destroyed or being destroyed (one of them triggered this destroy)
-        uint64_t exp{0};
+        uint64_t exp{ 0 };
         // destroy is a rare operation and the memory order is intentional to ensure
         // memory synchronization of s_instance and limit reordering.
         if (s_count.compare_exchange_strong(exp, 0, std::memory_order_acq_rel))

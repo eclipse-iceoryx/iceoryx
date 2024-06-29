@@ -27,12 +27,12 @@ using namespace discovery;
 
 constexpr char APP_NAME[] = "iox-wait-for-service";
 
-volatile bool keepRunning{true};
+volatile bool keepRunning{ true };
 
 //! [service to wait for]
-iox::capro::IdString_t service{"Camera"};
-iox::capro::IdString_t instance{"FrontLeft"};
-iox::capro::IdString_t event{"Image"};
+iox::capro::IdString_t service{ "Camera" };
+iox::capro::IdString_t instance{ "FrontLeft" };
+iox::capro::IdString_t event{ "Image" };
 //! [service to wait for]
 
 void printSearchResult(const discovery::ServiceContainer& result)
@@ -46,7 +46,7 @@ void printSearchResult(const discovery::ServiceContainer& result)
     }
 }
 
-volatile Discovery* discoverySigHandlerAccess{nullptr};
+volatile Discovery* discoverySigHandlerAccess{ nullptr };
 
 void sigHandler(int)
 {

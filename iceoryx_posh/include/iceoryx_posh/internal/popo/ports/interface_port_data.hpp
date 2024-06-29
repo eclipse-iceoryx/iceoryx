@@ -33,7 +33,7 @@ struct InterfacePortData : public BasePortData
                       const capro::Interfaces interface) noexcept;
 
     concurrent::SpscFifo<capro::CaproMessage, MAX_INTERFACE_CAPRO_FIFO_SIZE> m_caproMessageFiFo;
-    bool m_doInitialOfferForward{true};
+    bool m_doInitialOfferForward{ true };
 };
 } // namespace popo
 } // namespace iox

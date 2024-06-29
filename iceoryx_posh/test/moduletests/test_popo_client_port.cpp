@@ -38,8 +38,8 @@ using namespace iox::popo;
 
 class ClientPort_test : public Test
 {
-    static constexpr iox::units::Duration DEADLOCK_TIMEOUT{5_s};
-    Watchdog m_deadlockWatchdog{DEADLOCK_TIMEOUT};
+    static constexpr iox::units::Duration DEADLOCK_TIMEOUT{ 5_s };
+    Watchdog m_deadlockWatchdog{ DEADLOCK_TIMEOUT };
 
     struct SutClientPort
     {
@@ -53,16 +53,16 @@ class ClientPort_test : public Test
         }
 
         ClientPortData portData;
-        ClientPortUser portUser{portData};
-        ClientPortRouDi portRouDi{portData};
-        ChunkQueuePusher<ClientChunkQueueData_t> responseQueuePusher{&portData.m_chunkReceiverData};
+        ClientPortUser portUser{ portData };
+        ClientPortRouDi portRouDi{ portData };
+        ChunkQueuePusher<ClientChunkQueueData_t> responseQueuePusher{ &portData.m_chunkReceiverData };
     };
 
   public:
     ClientPort_test()
     {
         iox::mepoo::MePooConfig mempoolconf;
-        mempoolconf.addMemPool({CHUNK_SIZE, NUM_CHUNKS});
+        mempoolconf.addMemPool({ CHUNK_SIZE, NUM_CHUNKS });
         m_memoryManager.configureMemoryManager(mempoolconf, m_memoryAllocator, m_memoryAllocator);
     }
 
@@ -99,13 +99,13 @@ class ClientPort_test : public Test
 
         if (targetState == iox::ConnectionState::WAIT_FOR_OFFER)
         {
-            CaproMessage serverMessageNack{CaproMessageType::NACK, m_serviceDescription};
+            CaproMessage serverMessageNack{ CaproMessageType::NACK, m_serviceDescription };
             clientPort.portRouDi.dispatchCaProMessageAndGetPossibleResponse(serverMessageNack);
             ASSERT_THAT(clientPort.portData.m_connectionState, Eq(targetState));
             return;
         }
 
-        CaproMessage serverMessageAck{CaproMessageType::ACK, m_serviceDescription};
+        CaproMessage serverMessageAck{ CaproMessageType::ACK, m_serviceDescription };
         serverMessageAck.m_chunkQueueData = &serverChunkQueueData;
         clientPort.portRouDi.dispatchCaProMessageAndGetPossibleResponse(serverMessageAck);
         ASSERT_THAT(clientPort.portData.m_connectionState, Eq(iox::ConnectionState::CONNECTED));
@@ -114,7 +114,7 @@ class ClientPort_test : public Test
             return;
         }
 
-        CaproMessage serverMessageDisconnect{CaproMessageType::DISCONNECT, m_serviceDescription};
+        CaproMessage serverMessageDisconnect{ CaproMessageType::DISCONNECT, m_serviceDescription };
         clientPort.portRouDi.dispatchCaProMessageAndGetPossibleResponse(serverMessageDisconnect);
         ASSERT_THAT(clientPort.portData.m_connectionState, Eq(iox::ConnectionState::DISCONNECT_REQUESTED));
         if (clientPort.portData.m_connectionState == targetState)
@@ -122,7 +122,7 @@ class ClientPort_test : public Test
             return;
         }
 
-        constexpr bool NOT_IMPLEMENTED{true};
+        constexpr bool NOT_IMPLEMENTED{ true };
         ASSERT_FALSE(NOT_IMPLEMENTED);
     }
 
@@ -155,7 +155,7 @@ class ClientPort_test : public Test
     {
         for (auto i = 0U; i < numberOfPushes; ++i)
         {
-            constexpr uint64_t USER_PAYLOAD_SIZE{10};
+            constexpr uint64_t USER_PAYLOAD_SIZE{ 10 };
             auto sharedChunk = getChunkFromMemoryManager(USER_PAYLOAD_SIZE, sizeof(ResponseHeader));
             if (!chunkQueuePusher.push(sharedChunk))
             {
@@ -166,18 +166,18 @@ class ClientPort_test : public Test
         return true;
     }
 
-    static constexpr uint64_t QUEUE_CAPACITY{4};
+    static constexpr uint64_t QUEUE_CAPACITY{ 4 };
 
   private:
     static constexpr uint32_t NUM_CHUNKS = 1024U;
     static constexpr uint64_t CHUNK_SIZE = 128U;
     static constexpr size_t MEMORY_SIZE = 1024U * 1024U;
     uint8_t m_memory[MEMORY_SIZE];
-    iox::BumpAllocator m_memoryAllocator{m_memory, MEMORY_SIZE};
+    iox::BumpAllocator m_memoryAllocator{ m_memory, MEMORY_SIZE };
     iox::mepoo::MemoryManager m_memoryManager;
 
-    ServiceDescription m_serviceDescription{"hyp", "no", "toad"};
-    iox::RuntimeName_t m_runtimeName{"hypnotoad"};
+    ServiceDescription m_serviceDescription{ "hyp", "no", "toad" };
+    iox::RuntimeName_t m_runtimeName{ "hypnotoad" };
 
     ClientOptions m_clientOptionsWithConnectOnCreate = [&] {
         ClientOptions options;
@@ -209,21 +209,25 @@ class ClientPort_test : public Test
     iox::optional<SutClientPort> clientPortForStateTransitionTests;
 
   public:
-    static constexpr uint64_t USER_PAYLOAD_SIZE{32U};
-    static constexpr uint32_t USER_PAYLOAD_ALIGNMENT{8U};
+    static constexpr uint64_t USER_PAYLOAD_SIZE{ 32U };
+    static constexpr uint32_t USER_PAYLOAD_ALIGNMENT{ 8U };
 
-    ServerChunkQueueData_t serverChunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
-                                                iox::popo::VariantQueueTypes::SoFi_MultiProducerSingleConsumer};
-    ChunkQueuePopper<ServerChunkQueueData_t> serverRequestQueue{&serverChunkQueueData};
+    ServerChunkQueueData_t serverChunkQueueData{ iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
+                                                 iox::popo::VariantQueueTypes::SoFi_MultiProducerSingleConsumer };
+    ChunkQueuePopper<ServerChunkQueueData_t> serverRequestQueue{ &serverChunkQueueData };
 
     SutClientPort clientPortWithConnectOnCreate{
-        m_serviceDescription, m_runtimeName, m_clientOptionsWithConnectOnCreate, m_memoryManager};
+        m_serviceDescription, m_runtimeName, m_clientOptionsWithConnectOnCreate, m_memoryManager
+    };
     SutClientPort clientPortWithoutConnectOnCreate{
-        m_serviceDescription, m_runtimeName, m_clientOptionsWithoutConnectOnCreate, m_memoryManager};
+        m_serviceDescription, m_runtimeName, m_clientOptionsWithoutConnectOnCreate, m_memoryManager
+    };
     SutClientPort clientPortWithBlockProducerResponseQueuePolicy{
-        m_serviceDescription, m_runtimeName, m_clientOptionsWithBlockProducerResponseQueueFullPolicy, m_memoryManager};
+        m_serviceDescription, m_runtimeName, m_clientOptionsWithBlockProducerResponseQueueFullPolicy, m_memoryManager
+    };
     SutClientPort clientPortWithWaitForConsumerServerTooSlowPolicy{
-        m_serviceDescription, m_runtimeName, m_clientOptionsWithWaitForConsumerServerTooSlowPolicy, m_memoryManager};
+        m_serviceDescription, m_runtimeName, m_clientOptionsWithWaitForConsumerServerTooSlowPolicy, m_memoryManager
+    };
 };
 constexpr iox::units::Duration ClientPort_test::DEADLOCK_TIMEOUT;
 
@@ -278,7 +282,7 @@ TEST_F(ClientPort_test, ReleaseRequestWithValidRequestWorksAndReleasesTheChunkTo
             EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(0U));
         })
         .or_else([&](auto&) {
-            constexpr bool UNREACHABLE{false};
+            constexpr bool UNREACHABLE{ false };
             EXPECT_TRUE(UNREACHABLE);
         });
 }
@@ -298,7 +302,7 @@ TEST_F(ClientPort_test, SendRequestWithNullptrOnConnectedClientPortCallsErrorHan
 TEST_F(ClientPort_test, SendRequestOnConnectedClientPortEnqueuesRequestToServerQueue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "861efd1d-31ae-436d-9a0c-84da5bf99a57");
-    constexpr int64_t SEQUENCE_ID{42U};
+    constexpr int64_t SEQUENCE_ID{ 42U };
     auto& sut = clientPortWithConnectOnCreate;
     auto allocateResult = sut.portUser.allocateRequest(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT);
     ASSERT_FALSE(allocateResult.has_error());
@@ -314,7 +318,7 @@ TEST_F(ClientPort_test, SendRequestOnConnectedClientPortEnqueuesRequestToServerQ
             EXPECT_THAT(requestHeader->getSequenceId(), Eq(SEQUENCE_ID));
         })
         .or_else([&] {
-            constexpr bool UNREACHABLE{false};
+            constexpr bool UNREACHABLE{ false };
             EXPECT_TRUE(UNREACHABLE);
         });
 }
@@ -361,7 +365,7 @@ TEST_F(ClientPort_test, GetResponseOnNotConnectedClientPortHasNoResponse)
     auto& sut = clientPortWithoutConnectOnCreate;
     sut.portUser.getResponse()
         .and_then([&](auto&) {
-            constexpr bool UNREACHABLE{false};
+            constexpr bool UNREACHABLE{ false };
             EXPECT_TRUE(UNREACHABLE);
         })
         .or_else([&](auto& err) { EXPECT_THAT(err, Eq(iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)); });
@@ -373,7 +377,7 @@ TEST_F(ClientPort_test, GetResponseOnConnectedClientPortWithEmptyResponseQueueHa
     auto& sut = clientPortWithConnectOnCreate;
     sut.portUser.getResponse()
         .and_then([&](auto&) {
-            constexpr bool UNREACHABLE{false};
+            constexpr bool UNREACHABLE{ false };
             EXPECT_TRUE(UNREACHABLE);
         })
         .or_else([&](auto& err) { EXPECT_THAT(err, Eq(iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)); });
@@ -382,10 +386,10 @@ TEST_F(ClientPort_test, GetResponseOnConnectedClientPortWithEmptyResponseQueueHa
 TEST_F(ClientPort_test, GetResponseOnConnectedClientPortWithNonEmptyResponseQueueHasResponse)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f9625942-d69f-404a-a419-cf2f5f20dd85");
-    constexpr int64_t SEQUENCE_ID{13U};
+    constexpr int64_t SEQUENCE_ID{ 13U };
     auto& sut = clientPortWithConnectOnCreate;
 
-    constexpr uint64_t USER_PAYLOAD_SIZE{10};
+    constexpr uint64_t USER_PAYLOAD_SIZE{ 10 };
     auto sharedChunk = getChunkFromMemoryManager(USER_PAYLOAD_SIZE, sizeof(ResponseHeader));
     new (sharedChunk.getChunkHeader()->userHeader())
         ResponseHeader(iox::UniqueId(), RpcBaseHeader::UNKNOWN_CLIENT_QUEUE_INDEX, SEQUENCE_ID);
@@ -394,7 +398,7 @@ TEST_F(ClientPort_test, GetResponseOnConnectedClientPortWithNonEmptyResponseQueu
     sut.portUser.getResponse()
         .and_then([&](auto& responseHeader) { EXPECT_THAT(responseHeader->getSequenceId(), Eq(SEQUENCE_ID)); })
         .or_else([&](auto&) {
-            constexpr bool UNREACHABLE{false};
+            constexpr bool UNREACHABLE{ false };
             EXPECT_TRUE(UNREACHABLE);
         });
 }
@@ -414,10 +418,10 @@ TEST_F(ClientPort_test, ReleaseResponseWithValidResponseReleasesChunkToTheMempoo
     ::testing::Test::RecordProperty("TEST_ID", "3f625d3e-9ef3-4329-9c80-95af0327cbc0");
     auto& sut = clientPortWithConnectOnCreate;
 
-    constexpr uint64_t USER_PAYLOAD_SIZE{10};
+    constexpr uint64_t USER_PAYLOAD_SIZE{ 10 };
 
-    iox::optional<iox::mepoo::SharedChunk> sharedChunk{
-        getChunkFromMemoryManager(USER_PAYLOAD_SIZE, sizeof(ResponseHeader))};
+    iox::optional<iox::mepoo::SharedChunk> sharedChunk{ getChunkFromMemoryManager(USER_PAYLOAD_SIZE,
+                                                                                  sizeof(ResponseHeader)) };
     sut.responseQueuePusher.push(sharedChunk.value());
     sharedChunk.reset();
 
@@ -428,7 +432,7 @@ TEST_F(ClientPort_test, ReleaseResponseWithValidResponseReleasesChunkToTheMempoo
             EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(0U));
         })
         .or_else([&](auto&) {
-            constexpr bool UNREACHABLE{false};
+            constexpr bool UNREACHABLE{ false };
             EXPECT_TRUE(UNREACHABLE);
         });
 }
@@ -438,13 +442,13 @@ TEST_F(ClientPort_test, ReleaseQueuedResponsesReleasesAllChunksToTheMempool)
     ::testing::Test::RecordProperty("TEST_ID", "d51674b7-ad92-47cc-85d9-06169e8a813b");
     auto& sut = clientPortWithConnectOnCreate;
 
-    constexpr uint64_t USER_PAYLOAD_SIZE{10};
-    constexpr uint32_t NUMBER_OF_QUEUED_RESPONSES{3};
+    constexpr uint64_t USER_PAYLOAD_SIZE{ 10 };
+    constexpr uint32_t NUMBER_OF_QUEUED_RESPONSES{ 3 };
 
     for (uint32_t i = 0; i < NUMBER_OF_QUEUED_RESPONSES; ++i)
     {
-        iox::optional<iox::mepoo::SharedChunk> sharedChunk{
-            getChunkFromMemoryManager(USER_PAYLOAD_SIZE, sizeof(ResponseHeader))};
+        iox::optional<iox::mepoo::SharedChunk> sharedChunk{ getChunkFromMemoryManager(USER_PAYLOAD_SIZE,
+                                                                                      sizeof(ResponseHeader)) };
         sut.responseQueuePusher.push(sharedChunk.value());
         sharedChunk.reset();
     }
@@ -466,7 +470,7 @@ TEST_F(ClientPort_test, HasNewResponseOnNonEmptyResponseQueueReturnsTrue)
     ::testing::Test::RecordProperty("TEST_ID", "2b0dbb32-2d5b-4eac-96d3-6cf7a8cbac15");
     auto& sut = clientPortWithConnectOnCreate;
 
-    constexpr uint64_t USER_PAYLOAD_SIZE{10};
+    constexpr uint64_t USER_PAYLOAD_SIZE{ 10 };
     auto sharedChunk = getChunkFromMemoryManager(USER_PAYLOAD_SIZE, sizeof(ResponseHeader));
     sut.responseQueuePusher.push(sharedChunk);
 
@@ -478,7 +482,7 @@ TEST_F(ClientPort_test, HasNewResponseOnEmptyResponseQueueAfterPreviouslyNotEmpt
     ::testing::Test::RecordProperty("TEST_ID", "9cd91de8-9687-436a-9d7d-95d2754eee30");
     auto& sut = clientPortWithConnectOnCreate;
 
-    constexpr uint64_t USER_PAYLOAD_SIZE{10};
+    constexpr uint64_t USER_PAYLOAD_SIZE{ 10 };
     auto sharedChunk = getChunkFromMemoryManager(USER_PAYLOAD_SIZE, sizeof(ResponseHeader));
     sut.responseQueuePusher.push(sharedChunk);
 
@@ -532,8 +536,8 @@ TEST_F(ClientPort_test, ConditionVariableInitiallyNotSet)
 TEST_F(ClientPort_test, SettingConditionVariableWithoutConditionVariablePresentWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "86c03248-f9a6-4f4b-830f-fac5ec8c5cc3");
-    iox::popo::ConditionVariableData condVar{"hypnotoad"};
-    constexpr uint32_t NOTIFICATION_INDEX{1};
+    iox::popo::ConditionVariableData condVar{ "hypnotoad" };
+    constexpr uint32_t NOTIFICATION_INDEX{ 1 };
 
     auto& sut = clientPortWithConnectOnCreate;
     sut.portUser.setConditionVariable(condVar, NOTIFICATION_INDEX);
@@ -544,8 +548,8 @@ TEST_F(ClientPort_test, SettingConditionVariableWithoutConditionVariablePresentW
 TEST_F(ClientPort_test, UnsettingConditionVariableWithConditionVariablePresentWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2f10db20-e236-4b9d-9162-4d8ea5c9f4c9");
-    iox::popo::ConditionVariableData condVar{"brain slug"};
-    constexpr uint32_t NOTIFICATION_INDEX{2};
+    iox::popo::ConditionVariableData condVar{ "brain slug" };
+    constexpr uint32_t NOTIFICATION_INDEX{ 2 };
 
     auto& sut = clientPortWithConnectOnCreate;
     sut.portUser.setConditionVariable(condVar, NOTIFICATION_INDEX);
@@ -610,11 +614,11 @@ TEST_F(ClientPort_test, asStringLiteralConvertsClientSendErrorValuesToStrings)
     using ClientSendError = iox::popo::ClientSendError;
 
     // each bit corresponds to an enum value and must be set to true on test
-    uint64_t testedEnumValues{0U};
-    uint64_t loopCounter{0U};
-    for (const auto& sut : {ClientSendError::NO_CONNECT_REQUESTED,
-                            ClientSendError::SERVER_NOT_AVAILABLE,
-                            ClientSendError::INVALID_REQUEST})
+    uint64_t testedEnumValues{ 0U };
+    uint64_t loopCounter{ 0U };
+    for (const auto& sut : { ClientSendError::NO_CONNECT_REQUESTED,
+                             ClientSendError::SERVER_NOT_AVAILABLE,
+                             ClientSendError::INVALID_REQUEST })
     {
         auto enumString = iox::popo::asStringLiteral(sut);
 
@@ -718,7 +722,7 @@ TEST_F(ClientPort_test, ReleaseAllChunksWorks)
     sut.portUser.allocateRequest(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT)
         .and_then([&](auto& requestHeader) { EXPECT_FALSE(sut.portUser.sendRequest(requestHeader).has_error()); })
         .or_else([&](auto&) {
-            constexpr bool UNREACHABLE{false};
+            constexpr bool UNREACHABLE{ false };
             EXPECT_TRUE(UNREACHABLE);
         });
 
@@ -742,7 +746,7 @@ TEST_F(ClientPort_test, StateNotConnectedWithCaProMessageTypeOfferRemainsInState
     ::testing::Test::RecordProperty("TEST_ID", "849f1825-61da-4bad-8390-b14173905611");
     auto& sut = initAndGetClientPortForStateTransitionTests();
 
-    auto caproMessage = CaproMessage{CaproMessageType::OFFER, sut.portData.m_serviceDescription};
+    auto caproMessage = CaproMessage{ CaproMessageType::OFFER, sut.portData.m_serviceDescription };
     auto responseCaproMessage = sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
 
     EXPECT_THAT(sut.portUser.getConnectionState(), Eq(iox::ConnectionState::NOT_CONNECTED));
@@ -754,7 +758,7 @@ TEST_F(ClientPort_test, StateNotConnectedWithCaProMessageTypeConnectTransitionsT
     ::testing::Test::RecordProperty("TEST_ID", "72c72160-f53e-4062-90cb-b7a51017b5be");
     auto& sut = initAndGetClientPortForStateTransitionTests();
 
-    auto caproMessage = CaproMessage{CaproMessageType::CONNECT, sut.portData.m_serviceDescription};
+    auto caproMessage = CaproMessage{ CaproMessageType::CONNECT, sut.portData.m_serviceDescription };
     auto responseCaproMessage = sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
 
     EXPECT_THAT(sut.portUser.getConnectionState(), Eq(iox::ConnectionState::CONNECT_REQUESTED));
@@ -771,7 +775,7 @@ TEST_F(ClientPort_test, StateConnectRequestedWithCaProMessageTypeNackTransitions
     sut.portUser.connect();
     tryAdvanceToState(sut, iox::ConnectionState::CONNECT_REQUESTED);
 
-    auto caproMessage = CaproMessage{CaproMessageType::NACK, sut.portData.m_serviceDescription};
+    auto caproMessage = CaproMessage{ CaproMessageType::NACK, sut.portData.m_serviceDescription };
     auto responseCaproMessage = sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
 
     EXPECT_THAT(sut.portUser.getConnectionState(), Eq(iox::ConnectionState::WAIT_FOR_OFFER));
@@ -785,7 +789,7 @@ TEST_F(ClientPort_test, StateConnectRequestedWithCaProMessageTypeAckTransitionsT
     sut.portUser.connect();
     tryAdvanceToState(sut, iox::ConnectionState::CONNECT_REQUESTED);
 
-    auto caproMessage = CaproMessage{CaproMessageType::ACK, sut.portData.m_serviceDescription};
+    auto caproMessage = CaproMessage{ CaproMessageType::ACK, sut.portData.m_serviceDescription };
     caproMessage.m_chunkQueueData = &serverChunkQueueData;
 
     auto responseCaproMessage = sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
@@ -801,7 +805,7 @@ TEST_F(ClientPort_test, StateWaitForOfferWithCaProMessageTypeDisconnetTransition
     sut.portUser.connect();
     tryAdvanceToState(sut, iox::ConnectionState::WAIT_FOR_OFFER);
 
-    auto caproMessage = CaproMessage{CaproMessageType::DISCONNECT, sut.portData.m_serviceDescription};
+    auto caproMessage = CaproMessage{ CaproMessageType::DISCONNECT, sut.portData.m_serviceDescription };
     auto responseCaproMessage = sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
 
     EXPECT_THAT(sut.portUser.getConnectionState(), Eq(iox::ConnectionState::NOT_CONNECTED));
@@ -815,7 +819,7 @@ TEST_F(ClientPort_test, StateWaitForOfferWithCaProMessageTypeOfferTransitionsToS
     sut.portUser.connect();
     tryAdvanceToState(sut, iox::ConnectionState::WAIT_FOR_OFFER);
 
-    auto caproMessage = CaproMessage{CaproMessageType::OFFER, sut.portData.m_serviceDescription};
+    auto caproMessage = CaproMessage{ CaproMessageType::OFFER, sut.portData.m_serviceDescription };
     auto responseCaproMessage = sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
 
     EXPECT_THAT(sut.portUser.getConnectionState(), Eq(iox::ConnectionState::CONNECT_REQUESTED));
@@ -832,7 +836,7 @@ TEST_F(ClientPort_test, StateConnectedWithCaProMessageTypeStopOfferTransitionsTo
     sut.portUser.connect();
     tryAdvanceToState(sut, iox::ConnectionState::CONNECTED);
 
-    auto caproMessage = CaproMessage{CaproMessageType::STOP_OFFER, sut.portData.m_serviceDescription};
+    auto caproMessage = CaproMessage{ CaproMessageType::STOP_OFFER, sut.portData.m_serviceDescription };
     caproMessage.m_chunkQueueData = &serverChunkQueueData;
 
     auto responseCaproMessage = sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
@@ -848,7 +852,7 @@ TEST_F(ClientPort_test, StateConnectedWithCaProMessageTypeDisconnectTransitionsT
     sut.portUser.connect();
     tryAdvanceToState(sut, iox::ConnectionState::CONNECTED);
 
-    auto caproMessage = CaproMessage{CaproMessageType::DISCONNECT, sut.portData.m_serviceDescription};
+    auto caproMessage = CaproMessage{ CaproMessageType::DISCONNECT, sut.portData.m_serviceDescription };
     caproMessage.m_chunkQueueData = &serverChunkQueueData;
 
     auto responseCaproMessage = sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
@@ -867,7 +871,7 @@ TEST_F(ClientPort_test, StateDisconnectRequestedWithCaProMessageTypeAckTransitio
     sut.portUser.connect();
     tryAdvanceToState(sut, iox::ConnectionState::DISCONNECT_REQUESTED);
 
-    auto caproMessage = CaproMessage{CaproMessageType::ACK, sut.portData.m_serviceDescription};
+    auto caproMessage = CaproMessage{ CaproMessageType::ACK, sut.portData.m_serviceDescription };
     caproMessage.m_chunkQueueData = &serverChunkQueueData;
 
     auto responseCaproMessage = sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
@@ -883,7 +887,7 @@ TEST_F(ClientPort_test, StateDisconnectRequestedWithCaProMessageTypeNackTransiti
     sut.portUser.connect();
     tryAdvanceToState(sut, iox::ConnectionState::DISCONNECT_REQUESTED);
 
-    auto caproMessage = CaproMessage{CaproMessageType::NACK, sut.portData.m_serviceDescription};
+    auto caproMessage = CaproMessage{ CaproMessageType::NACK, sut.portData.m_serviceDescription };
     caproMessage.m_chunkQueueData = &serverChunkQueueData;
 
     auto responseCaproMessage = sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
@@ -900,11 +904,11 @@ TEST_F(ClientPort_test, StateDisconnectRequestedWithCaProMessageTypeNackTransiti
 TEST_F(ClientPort_test, InvalidStateTransitionsCallErrorHandler)
 {
     ::testing::Test::RecordProperty("TEST_ID", "465258d2-b58d-41fe-bc18-e7fd43dd233d");
-    constexpr iox::ConnectionState ALL_STATES[]{iox::ConnectionState::NOT_CONNECTED,
-                                                iox::ConnectionState::CONNECT_REQUESTED,
-                                                iox::ConnectionState::WAIT_FOR_OFFER,
-                                                iox::ConnectionState::CONNECTED,
-                                                iox::ConnectionState::DISCONNECT_REQUESTED};
+    constexpr iox::ConnectionState ALL_STATES[]{ iox::ConnectionState::NOT_CONNECTED,
+                                                 iox::ConnectionState::CONNECT_REQUESTED,
+                                                 iox::ConnectionState::WAIT_FOR_OFFER,
+                                                 iox::ConnectionState::CONNECTED,
+                                                 iox::ConnectionState::DISCONNECT_REQUESTED };
 
     for (auto targetState : ALL_STATES)
     {
@@ -960,7 +964,7 @@ TEST_F(ClientPort_test, InvalidStateTransitionsCallErrorHandler)
 
             IOX_EXPECT_FATAL_FAILURE(
                 [&] {
-                    auto caproMessage = CaproMessage{caproMessageType, sut.portData.m_serviceDescription};
+                    auto caproMessage = CaproMessage{ caproMessageType, sut.portData.m_serviceDescription };
                     auto responseCaproMessage = sut.portRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
                     ASSERT_FALSE(responseCaproMessage.has_value());
                 },

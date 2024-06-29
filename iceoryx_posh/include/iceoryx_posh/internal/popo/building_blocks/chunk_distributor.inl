@@ -141,7 +141,7 @@ inline bool ChunkDistributor<ChunkDistributorDataType>::hasStoredQueues() const 
 template <typename ChunkDistributorDataType>
 inline uint64_t ChunkDistributor<ChunkDistributorDataType>::deliverToAllStoredQueues(mepoo::SharedChunk chunk) noexcept
 {
-    uint64_t numberOfQueuesTheChunkWasDeliveredTo{0U};
+    uint64_t numberOfQueuesTheChunkWasDeliveredTo{ 0U };
     using QueueContainer = decltype(getMembers()->m_queues);
     QueueContainer fullQueuesAwaitingDelivery;
     {
@@ -239,7 +239,7 @@ ChunkDistributor<ChunkDistributorDataType>::deliverToQueue(const UniqueId unique
                                                            const uint32_t lastKnownQueueIndex,
                                                            mepoo::SharedChunk chunk [[maybe_unused]]) noexcept
 {
-    bool retry{false};
+    bool retry{ false };
     do
     {
         typename MemberType_t::LockGuard_t lock(*getMembers());
@@ -288,7 +288,7 @@ ChunkDistributor<ChunkDistributorDataType>::getQueueIndex(const UniqueId uniqueQ
         return lastKnownQueueIndex;
     }
 
-    uint32_t index{0};
+    uint32_t index{ 0 };
     for (auto& queue : queues)
     {
         if (queue->m_uniqueId == uniqueQueueId)

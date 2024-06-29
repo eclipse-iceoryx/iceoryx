@@ -67,7 +67,7 @@ int main()
     //! [queue full policy]
 
     //! [create subscriber with options]
-    iox::popo::Subscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"}, subscriberOptions);
+    iox::popo::Subscriber<RadarObject> subscriber({ "Radar", "FrontLeft", "Object" }, subscriberOptions);
     //! [create subscriber with options]
 
     // We have to explicitly call subscribe() otherwise the subscriber will not try to connect to publishers

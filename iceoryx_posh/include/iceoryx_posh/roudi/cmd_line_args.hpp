@@ -29,7 +29,7 @@ namespace config
 {
 struct CmdLineArgs_t
 {
-    bool run{true};
+    bool run{ true };
     RouDiConfig roudiConfig;
     roudi::ConfigFilePathString_t configFilePath;
 };

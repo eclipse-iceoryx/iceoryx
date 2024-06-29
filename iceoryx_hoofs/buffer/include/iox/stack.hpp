@@ -79,7 +79,7 @@ class stack final // NOLINT(cppcoreguidelines-pro-type-member-init, hicpp-member
     stack& move(stack&& rhs) noexcept;
 
     UninitializedArray<T, Capacity> m_data;
-    uint64_t m_size{0U};
+    uint64_t m_size{ 0U };
 };
 } // namespace iox
 

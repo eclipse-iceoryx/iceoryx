@@ -67,7 +67,7 @@ class GenericMemoryBlock final : public MemoryBlock
     void destroy() noexcept override;
 
   private:
-    T* m_value{nullptr};
+    T* m_value{ nullptr };
 };
 
 } // namespace roudi

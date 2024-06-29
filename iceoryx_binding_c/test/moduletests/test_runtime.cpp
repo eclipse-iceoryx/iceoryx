@@ -113,7 +113,7 @@ TEST_F(BindingC_Runtime_test, GetInstanceNameLengthIsLessThanRuntimeNameLength)
     constexpr char EXPECTED_RUNTIME_NAME[iox::MAX_RUNTIME_NAME_LENGTH + 1] = "chuck";
     iox_runtime_init(ACTUAL_RUNTIME_NAME);
 
-    constexpr uint64_t RUNTIME_NAME_BUFFER_LENGTH{6};
+    constexpr uint64_t RUNTIME_NAME_BUFFER_LENGTH{ 6 };
     char truncatedRuntimeName[RUNTIME_NAME_BUFFER_LENGTH];
     for (auto& c : truncatedRuntimeName)
     {

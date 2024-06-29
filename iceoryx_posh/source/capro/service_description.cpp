@@ -25,7 +25,7 @@ namespace iox
 namespace capro
 {
 ServiceDescription::ClassHash::ClassHash() noexcept
-    : ClassHash{0U, 0U, 0U, 0U}
+    : ClassHash{ 0U, 0U, 0U, 0U }
 {
 }
 
@@ -81,9 +81,9 @@ ServiceDescription::ServiceDescription(const IdString_t& service,
                                        const IdString_t& event,
                                        ClassHash classHash,
                                        Interfaces interfaceSource) noexcept
-    : m_serviceString{service}
-    , m_instanceString{instance}
-    , m_eventString{event}
+    : m_serviceString{ service }
+    , m_instanceString{ instance }
+    , m_eventString{ event }
     , m_classHash(classHash)
     , m_interfaceSource(interfaceSource)
 {
@@ -160,8 +160,8 @@ ServiceDescription::deserialize(const Serialization& serialized) noexcept
     using ScopeUnderlyingType = std::underlying_type<Scope>::type;
     using InterfaceUnderlyingType = std::underlying_type<Interfaces>::type;
 
-    ScopeUnderlyingType scope{0};
-    InterfaceUnderlyingType interfaceSource{0};
+    ScopeUnderlyingType scope{ 0 };
+    InterfaceUnderlyingType interfaceSource{ 0 };
 
     auto deserializationSuccessful = serialized.extract(deserializedObject.m_serviceString,
                                                         deserializedObject.m_instanceString,

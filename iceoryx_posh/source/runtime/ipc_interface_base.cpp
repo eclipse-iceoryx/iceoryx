@@ -96,7 +96,7 @@ IpcInterface<IpcChannelType>::IpcInterface(const RuntimeName_t& runtimeName,
     }
     for (const auto s : platform::IOX_PATH_SEPARATORS)
     {
-        const char separator[2]{s};
+        const char separator[2]{ s };
         if (runtimeName.find(separator).has_value())
         {
             IOX_LOG(FATAL, "The runtime name '" << runtimeName << "' contains path separators");

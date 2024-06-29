@@ -101,7 +101,7 @@ void ServerPortRouDi::handleCaProProtocolViolation(const capro::CaproMessageType
 optional<capro::CaproMessage>
 ServerPortRouDi::handleCaProMessageForStateOffered(const capro::CaproMessage& caProMessage) noexcept
 {
-    capro::CaproMessage responseMessage{capro::CaproMessageType::NACK, this->getCaProServiceDescription()};
+    capro::CaproMessage responseMessage{ capro::CaproMessageType::NACK, this->getCaProServiceDescription() };
 
     switch (caProMessage.m_type)
     {

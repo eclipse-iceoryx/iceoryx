@@ -47,19 +47,19 @@ int main(int argc, char* argv[])
     iox::mepoo::MePooConfig mepooConfig;
 
     /// @details Format: addMemPool({Chunksize(bytes), Amount of Chunks})
-    mepooConfig.addMemPool({128, 10000}); // bytes
-    mepooConfig.addMemPool({ONE_KILOBYTE, 5000});
-    mepooConfig.addMemPool({ONE_KILOBYTE * 16, 1000});
-    mepooConfig.addMemPool({ONE_KILOBYTE * 128, 200});
-    mepooConfig.addMemPool({ONE_KILOBYTE * 512, 50});
-    mepooConfig.addMemPool({ONE_MEGABYTE, 30});
-    mepooConfig.addMemPool({ONE_MEGABYTE * 4, 10});
+    mepooConfig.addMemPool({ 128, 10000 }); // bytes
+    mepooConfig.addMemPool({ ONE_KILOBYTE, 5000 });
+    mepooConfig.addMemPool({ ONE_KILOBYTE * 16, 1000 });
+    mepooConfig.addMemPool({ ONE_KILOBYTE * 128, 200 });
+    mepooConfig.addMemPool({ ONE_KILOBYTE * 512, 50 });
+    mepooConfig.addMemPool({ ONE_MEGABYTE, 30 });
+    mepooConfig.addMemPool({ ONE_MEGABYTE * 4, 10 });
 
     /// We want to use the Shared Memory Segment for the current user
     auto currentGroup = iox::PosixGroup::getGroupOfCurrentProcess();
 
     /// Create an Entry for a new Shared Memory Segment from the MempoolConfig and add it to the IceoryxConfig
-    config.m_sharedMemorySegments.push_back({currentGroup.getName(), currentGroup.getName(), mepooConfig});
+    config.m_sharedMemorySegments.push_back({ currentGroup.getName(), currentGroup.getName(), mepooConfig });
 
     /// For the case that you want to give accessrights to the shm segments, you need to set groupnames as fixed string.
     /// These names defines groups whose members are either to read/write from/to the respective shared memory segment.

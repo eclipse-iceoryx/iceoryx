@@ -54,7 +54,7 @@ TEST_F(RoudiConfigTomlFileProvider_test, ParseDefaultConfigIsSuccessful)
 TEST_F(RoudiConfigTomlFileProvider_test, InvalidPathResultsInError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ca2cc3bd-bf39-451c-9dc6-ae90ec0b8ab7");
-    iox::roudi::ConfigFilePathString_t invalidConfigFilePath{"/nowhere/to/find/config.toml"};
+    iox::roudi::ConfigFilePathString_t invalidConfigFilePath{ "/nowhere/to/find/config.toml" };
     cmdLineArgs.configFilePath = invalidConfigFilePath;
 
     iox::config::TomlRouDiConfigFileProvider sut(cmdLineArgs);
@@ -74,7 +74,7 @@ TEST_F(RoudiConfigTomlFileProvider_test, ParsingFileIsSuccessful)
     auto tempFilePath = std::filesystem::temp_directory_path();
     tempFilePath.append("test_roudi_config.toml");
 
-    std::fstream tempFile{tempFilePath, std::ios_base::trunc | std::ios_base::out};
+    std::fstream tempFile{ tempFilePath, std::ios_base::trunc | std::ios_base::out };
     ASSERT_TRUE(tempFile.is_open());
     tempFile << R"([general]
         version = 1
@@ -186,22 +186,23 @@ constexpr const char* CONFIG_EXCEPTION_IN_PARSER = R"(🐔)";
 INSTANTIATE_TEST_SUITE_P(
     ParseAllMalformedInputConfigFiles,
     RoudiConfigTomlFileProvider_test,
-    Values(ParseErrorInputFile_t{iox::roudi::RouDiConfigFileParseError::NO_GENERAL_SECTION, CONFIG_NO_GENERAL_SECTION},
-           ParseErrorInputFile_t{iox::roudi::RouDiConfigFileParseError::INVALID_CONFIG_FILE_VERSION,
-                                 CONFIG_INVALID_CONFIG_FILE_VERSION},
-           ParseErrorInputFile_t{iox::roudi::RouDiConfigFileParseError::NO_SEGMENTS, CONFIG_NO_SEGMENTS},
-           ParseErrorInputFile_t{iox::roudi::RouDiConfigFileParseError::MAX_NUMBER_OF_SEGMENTS_EXCEEDED,
-                                 CONFIG_MAX_NUMBER_OF_SEGMENTS_EXCEEDED},
-           ParseErrorInputFile_t{iox::roudi::RouDiConfigFileParseError::SEGMENT_WITHOUT_MEMPOOL,
-                                 CONFIG_SEGMENT_WITHOUT_MEMPOOL},
-           ParseErrorInputFile_t{iox::roudi::RouDiConfigFileParseError::MAX_NUMBER_OF_MEMPOOLS_PER_SEGMENT_EXCEEDED,
-                                 CONFIG_MAX_NUMBER_OF_MEMPOOLS_PER_SEGMENT_EXCEEDED},
-           ParseErrorInputFile_t{iox::roudi::RouDiConfigFileParseError::MEMPOOL_WITHOUT_CHUNK_SIZE,
-                                 CONFIG_MEMPOOL_WITHOUT_CHUNK_SIZE},
-           ParseErrorInputFile_t{iox::roudi::RouDiConfigFileParseError::MEMPOOL_WITHOUT_CHUNK_COUNT,
-                                 CONFIG_MEMPOOL_WITHOUT_CHUNK_COUNT},
-           ParseErrorInputFile_t{iox::roudi::RouDiConfigFileParseError::EXCEPTION_IN_PARSER,
-                                 CONFIG_EXCEPTION_IN_PARSER}));
+    Values(ParseErrorInputFile_t{ iox::roudi::RouDiConfigFileParseError::NO_GENERAL_SECTION,
+                                  CONFIG_NO_GENERAL_SECTION },
+           ParseErrorInputFile_t{ iox::roudi::RouDiConfigFileParseError::INVALID_CONFIG_FILE_VERSION,
+                                  CONFIG_INVALID_CONFIG_FILE_VERSION },
+           ParseErrorInputFile_t{ iox::roudi::RouDiConfigFileParseError::NO_SEGMENTS, CONFIG_NO_SEGMENTS },
+           ParseErrorInputFile_t{ iox::roudi::RouDiConfigFileParseError::MAX_NUMBER_OF_SEGMENTS_EXCEEDED,
+                                  CONFIG_MAX_NUMBER_OF_SEGMENTS_EXCEEDED },
+           ParseErrorInputFile_t{ iox::roudi::RouDiConfigFileParseError::SEGMENT_WITHOUT_MEMPOOL,
+                                  CONFIG_SEGMENT_WITHOUT_MEMPOOL },
+           ParseErrorInputFile_t{ iox::roudi::RouDiConfigFileParseError::MAX_NUMBER_OF_MEMPOOLS_PER_SEGMENT_EXCEEDED,
+                                  CONFIG_MAX_NUMBER_OF_MEMPOOLS_PER_SEGMENT_EXCEEDED },
+           ParseErrorInputFile_t{ iox::roudi::RouDiConfigFileParseError::MEMPOOL_WITHOUT_CHUNK_SIZE,
+                                  CONFIG_MEMPOOL_WITHOUT_CHUNK_SIZE },
+           ParseErrorInputFile_t{ iox::roudi::RouDiConfigFileParseError::MEMPOOL_WITHOUT_CHUNK_COUNT,
+                                  CONFIG_MEMPOOL_WITHOUT_CHUNK_COUNT },
+           ParseErrorInputFile_t{ iox::roudi::RouDiConfigFileParseError::EXCEPTION_IN_PARSER,
+                                  CONFIG_EXCEPTION_IN_PARSER }));
 
 
 TEST_P(RoudiConfigTomlFileProvider_test, ParseMalformedInputFileCausesError)

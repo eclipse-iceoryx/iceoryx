@@ -37,7 +37,7 @@ class ShmSafeUnmanagedChunk_test : public Test
     void SetUp() override
     {
         MePooConfig mempoolconf;
-        mempoolconf.addMemPool({CHUNK_SIZE, NUM_CHUNKS_IN_POOL});
+        mempoolconf.addMemPool({ CHUNK_SIZE, NUM_CHUNKS_IN_POOL });
         memoryManager.configureMemoryManager(mempoolconf, m_memoryAllocator, m_memoryAllocator);
     }
 
@@ -54,11 +54,11 @@ class ShmSafeUnmanagedChunk_test : public Test
   private:
     static constexpr size_t KILOBYTE = 1 << 10;
     static constexpr size_t MEMORY_SIZE = 100 * KILOBYTE;
-    std::unique_ptr<char[]> m_memory{new char[MEMORY_SIZE]};
+    std::unique_ptr<char[]> m_memory{ new char[MEMORY_SIZE] };
     static constexpr uint32_t NUM_CHUNKS_IN_POOL = 100;
     static constexpr uint64_t CHUNK_SIZE = 128;
 
-    iox::BumpAllocator m_memoryAllocator{m_memory.get(), MEMORY_SIZE};
+    iox::BumpAllocator m_memoryAllocator{ m_memory.get(), MEMORY_SIZE };
 };
 
 TEST_F(ShmSafeUnmanagedChunk_test, DefaultConstructedResultsInLogicalNullptr)

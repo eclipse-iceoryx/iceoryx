@@ -29,31 +29,31 @@ using iox::lossy;
 
 PublisherOptions createTestPubOptions()
 {
-    return PublisherOptions{0U, iox::NodeName_t("node"), true, iox::popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA};
+    return PublisherOptions{ 0U, iox::NodeName_t("node"), true, iox::popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA };
 }
 
 SubscriberOptions createTestSubOptions()
 {
-    return SubscriberOptions{1U, 0U, iox::NodeName_t("node"), true, QueueFullPolicy::DISCARD_OLDEST_DATA, false};
+    return SubscriberOptions{ 1U, 0U, iox::NodeName_t("node"), true, QueueFullPolicy::DISCARD_OLDEST_DATA, false };
 }
 
 TEST_F(PortManager_test, DoDiscoveryWithSingleShotPublisherFirst)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f767cb6a-ae82-45e5-9969-d75be1077fc0");
-    PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), false};
-    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), false};
+    PublisherOptions publisherOptions{ 1U, iox::NodeName_t("node"), false };
+    SubscriberOptions subscriberOptions{ 1U, 1U, iox::NodeName_t("node"), false };
 
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {"1", "1", "1"}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
+                { "1", "1", "1" }, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
             .value());
     ASSERT_TRUE(publisher);
     publisher.offer();
     // no doDiscovery() at this position is intentional
 
     SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({"1", "1", "1"}, subscriberOptions, "schlomo", PortConfigInfo())
+        m_portManager->acquireSubscriberPortData({ "1", "1", "1" }, subscriberOptions, "schlomo", PortConfigInfo())
             .value());
     ASSERT_TRUE(subscriber);
     subscriber.subscribe();
@@ -67,11 +67,11 @@ TEST_F(PortManager_test, DoDiscoveryWithSingleShotPublisherFirst)
 TEST_F(PortManager_test, DoDiscoveryWithSingleShotSubscriberFirst)
 {
     ::testing::Test::RecordProperty("TEST_ID", "bef1fc7f-3661-4dcc-98dd-fbf951ed275c");
-    PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), false};
-    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), false};
+    PublisherOptions publisherOptions{ 1U, iox::NodeName_t("node"), false };
+    SubscriberOptions subscriberOptions{ 1U, 1U, iox::NodeName_t("node"), false };
 
     SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({"1", "1", "1"}, subscriberOptions, "schlomo", PortConfigInfo())
+        m_portManager->acquireSubscriberPortData({ "1", "1", "1" }, subscriberOptions, "schlomo", PortConfigInfo())
             .value());
     ASSERT_TRUE(subscriber);
     subscriber.subscribe();
@@ -80,7 +80,7 @@ TEST_F(PortManager_test, DoDiscoveryWithSingleShotSubscriberFirst)
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {"1", "1", "1"}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
+                { "1", "1", "1" }, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
             .value());
     ASSERT_TRUE(publisher);
     publisher.offer();
@@ -94,11 +94,11 @@ TEST_F(PortManager_test, DoDiscoveryWithSingleShotSubscriberFirst)
 TEST_F(PortManager_test, DoDiscoveryWithDiscoveryLoopInBetweenCreationOfSubscriberAndPublisher)
 {
     ::testing::Test::RecordProperty("TEST_ID", "bbd475bd-23fd-4b8f-b2ae-88e41c39e6e2");
-    PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), false};
-    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), false};
+    PublisherOptions publisherOptions{ 1U, iox::NodeName_t("node"), false };
+    SubscriberOptions subscriberOptions{ 1U, 1U, iox::NodeName_t("node"), false };
 
     SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({"1", "1", "1"}, subscriberOptions, " schlomo ", PortConfigInfo())
+        m_portManager->acquireSubscriberPortData({ "1", "1", "1" }, subscriberOptions, " schlomo ", PortConfigInfo())
             .value());
     ASSERT_TRUE(subscriber);
     subscriber.subscribe();
@@ -107,7 +107,7 @@ TEST_F(PortManager_test, DoDiscoveryWithDiscoveryLoopInBetweenCreationOfSubscrib
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {"1", "1", "1"}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
+                { "1", "1", "1" }, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
             .value());
     ASSERT_TRUE(publisher);
     publisher.offer();
@@ -121,11 +121,11 @@ TEST_F(PortManager_test, DoDiscoveryWithDiscoveryLoopInBetweenCreationOfSubscrib
 TEST_F(PortManager_test, DoDiscoveryWithSubscribersCreatedBeforeAndAfterCreationOfPublisher)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b1c5bf2e-066e-4f01-b92a-edab9197a5dd");
-    PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), false};
-    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), false};
+    PublisherOptions publisherOptions{ 1U, iox::NodeName_t("node"), false };
+    SubscriberOptions subscriberOptions{ 1U, 1U, iox::NodeName_t("node"), false };
 
     SubscriberPortUser subscriber1(
-        m_portManager->acquireSubscriberPortData({"1", "1", "1"}, subscriberOptions, "schlomo", PortConfigInfo())
+        m_portManager->acquireSubscriberPortData({ "1", "1", "1" }, subscriberOptions, "schlomo", PortConfigInfo())
             .value());
     ASSERT_TRUE(subscriber1);
     subscriber1.subscribe();
@@ -135,13 +135,13 @@ TEST_F(PortManager_test, DoDiscoveryWithSubscribersCreatedBeforeAndAfterCreation
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {"1", "1", "1"}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
+                { "1", "1", "1" }, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
             .value());
     ASSERT_TRUE(publisher);
     publisher.offer();
 
     SubscriberPortUser subscriber2(
-        m_portManager->acquireSubscriberPortData({"1", "1", " 1 "}, subscriberOptions, " ingnatz ", PortConfigInfo())
+        m_portManager->acquireSubscriberPortData({ "1", "1", " 1 " }, subscriberOptions, " ingnatz ", PortConfigInfo())
             .value());
     ASSERT_TRUE(subscriber2);
     subscriber2.subscribe();
@@ -156,18 +156,18 @@ TEST_F(PortManager_test, DoDiscoveryWithSubscribersCreatedBeforeAndAfterCreation
 TEST_F(PortManager_test, SubscribeOnCreateSubscribesWithoutDiscoveryLoopWhenPublisherAvailable)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5a94cf82-d1f6-4129-88ca-34344d94e04e");
-    PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), false};
-    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), true};
+    PublisherOptions publisherOptions{ 1U, iox::NodeName_t("node"), false };
+    SubscriberOptions subscriberOptions{ 1U, 1U, iox::NodeName_t("node"), true };
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {"1", "1", "1"}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
+                { "1", "1", "1" }, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
             .value());
     publisher.offer();
     m_portManager->doDiscovery();
 
     SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({"1", "1", "1"}, subscriberOptions, "schlomo", PortConfigInfo())
+        m_portManager->acquireSubscriberPortData({ "1", "1", "1" }, subscriberOptions, "schlomo", PortConfigInfo())
             .value());
 
     ASSERT_TRUE(publisher.hasSubscribers());
@@ -177,10 +177,10 @@ TEST_F(PortManager_test, SubscribeOnCreateSubscribesWithoutDiscoveryLoopWhenPubl
 TEST_F(PortManager_test, OfferOnCreateSubscribesWithoutDiscoveryLoopWhenSubscriberAvailable)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f6cb4274-d137-4035-b38c-3644b8158006");
-    PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), true};
-    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), false};
+    PublisherOptions publisherOptions{ 1U, iox::NodeName_t("node"), true };
+    SubscriberOptions subscriberOptions{ 1U, 1U, iox::NodeName_t("node"), false };
     SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({"1", "1", "1"}, subscriberOptions, "schlomo", PortConfigInfo())
+        m_portManager->acquireSubscriberPortData({ "1", "1", "1" }, subscriberOptions, "schlomo", PortConfigInfo())
             .value());
     subscriber.subscribe();
     m_portManager->doDiscovery();
@@ -188,7 +188,7 @@ TEST_F(PortManager_test, OfferOnCreateSubscribesWithoutDiscoveryLoopWhenSubscrib
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {"1", "1", "1"}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
+                { "1", "1", "1" }, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
             .value());
 
     ASSERT_TRUE(publisher.hasSubscribers());
@@ -198,16 +198,16 @@ TEST_F(PortManager_test, OfferOnCreateSubscribesWithoutDiscoveryLoopWhenSubscrib
 TEST_F(PortManager_test, OfferOnCreateAndSubscribeOnCreateNeedsNoMoreDiscoveryLoopSubscriberFirst)
 {
     ::testing::Test::RecordProperty("TEST_ID", "28798301-1630-458a-81b5-77f53e75d0fb");
-    PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), true};
-    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), true};
+    PublisherOptions publisherOptions{ 1U, iox::NodeName_t("node"), true };
+    SubscriberOptions subscriberOptions{ 1U, 1U, iox::NodeName_t("node"), true };
     SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({"1", "1", "1"}, subscriberOptions, "schlomo", PortConfigInfo())
+        m_portManager->acquireSubscriberPortData({ "1", "1", "1" }, subscriberOptions, "schlomo", PortConfigInfo())
             .value());
 
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {"1", "1", "1"}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
+                { "1", "1", "1" }, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
             .value());
 
     ASSERT_TRUE(publisher.hasSubscribers());
@@ -217,16 +217,16 @@ TEST_F(PortManager_test, OfferOnCreateAndSubscribeOnCreateNeedsNoMoreDiscoveryLo
 TEST_F(PortManager_test, OfferOnCreateAndSubscribeOnCreateNeedsNoMoreDiscoveryLoopPublisherFirst)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8a51d940-fc35-428e-b4dd-b19c7e9d1f4a");
-    PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), true};
-    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), true};
+    PublisherOptions publisherOptions{ 1U, iox::NodeName_t("node"), true };
+    SubscriberOptions subscriberOptions{ 1U, 1U, iox::NodeName_t("node"), true };
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {"1", "1", "1"}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
+                { "1", "1", "1" }, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
             .value());
 
     SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({"1", "1", "1"}, subscriberOptions, "schlomo", PortConfigInfo())
+        m_portManager->acquireSubscriberPortData({ "1", "1", "1" }, subscriberOptions, "schlomo", PortConfigInfo())
             .value());
 
 
@@ -239,7 +239,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfPublishersFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "617abda0-36f7-4f98-9eb9-572622e0ffa1");
     iox::RuntimeName_t runtimeName = "test1";
-    PublisherOptions publisherOptions{1U, iox::NodeName_t("run1")};
+    PublisherOptions publisherOptions{ 1U, iox::NodeName_t("run1") };
 
     for (unsigned int i = 0; i < iox::MAX_PUBLISHERS; i++)
     {
@@ -291,13 +291,14 @@ TEST_F(PortManager_test, AcquiringPublisherAsRoudiWithAnyInternalServiceDescript
 }
 
 constexpr bool IS_COMMUNICATION_POLICY_ONE_TO_MANY_ONLY{
-    std::is_same<iox::build::CommunicationPolicy, iox::build::OneToManyPolicy>::value};
+    std::is_same<iox::build::CommunicationPolicy, iox::build::OneToManyPolicy>::value
+};
 
 TEST_F(PortManager_test, AcquirePublisherPortDataWithSameServiceDescriptionTwiceWorksAccordingCommunicationPolicy)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6b26220c-01a3-4f3a-8af4-06c66d6f98ef");
-    const iox::capro::ServiceDescription sd{"hyp", "no", "toad"};
-    const iox::RuntimeName_t runtimeName{"hypnotoad"};
+    const iox::capro::ServiceDescription sd{ "hyp", "no", "toad" };
+    const iox::RuntimeName_t runtimeName{ "hypnotoad" };
     auto publisherOptions = createTestPubOptions();
 
     // first call must be successful
@@ -326,8 +327,8 @@ TEST_F(PortManager_test,
        AcquirePublisherPortDataWithSameServiceDescriptionTwiceAndFirstPortMarkedToBeDestroyedReturnsPort)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0840c279-5429-4c93-a120-738735a89100");
-    const iox::capro::ServiceDescription sd{"hyp", "no", "toad"};
-    const iox::RuntimeName_t runtimeName{"hypnotoad"};
+    const iox::capro::ServiceDescription sd{ "hyp", "no", "toad" };
+    const iox::RuntimeName_t runtimeName{ "hypnotoad" };
     auto publisherOptions = createTestPubOptions();
 
     // first call must be successful
@@ -351,7 +352,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfSubscribersFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5039eff5-f2d1-4f58-8bd2-fc9768a9bc92");
     iox::RuntimeName_t runtimeName1 = "test1";
-    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("run1")};
+    SubscriberOptions subscriberOptions{ 1U, 1U, iox::NodeName_t("run1") };
 
     for (unsigned int i = 0; i < iox::MAX_SUBSCRIBERS; i++)
     {
@@ -395,16 +396,17 @@ TEST_F(PortManager_test, DoDiscoveryPublisherCanWaitAndSubscriberRequestsBlockin
 {
     ::testing::Test::RecordProperty("TEST_ID", "34380b13-5541-4fdf-b266-beccb90f5215");
     PublisherOptions publisherOptions{
-        1U, iox::NodeName_t("node"), true, iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER};
-    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), true, QueueFullPolicy::BLOCK_PRODUCER};
+        1U, iox::NodeName_t("node"), true, iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER
+    };
+    SubscriberOptions subscriberOptions{ 1U, 1U, iox::NodeName_t("node"), true, QueueFullPolicy::BLOCK_PRODUCER };
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {"1", "1", "1"}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
+                { "1", "1", "1" }, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
             .value());
     ASSERT_TRUE(publisher);
     SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({"1", "1", "1"}, subscriberOptions, "schlomo", PortConfigInfo())
+        m_portManager->acquireSubscriberPortData({ "1", "1", "1" }, subscriberOptions, "schlomo", PortConfigInfo())
             .value());
     ASSERT_TRUE(subscriber);
 
@@ -416,16 +418,17 @@ TEST_F(PortManager_test, DoDiscoveryBothDiscardOldestPolicyLeadsToConnect)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3cf03140-9ca6-47a1-b45b-8cfa70e3fd5c");
     PublisherOptions publisherOptions{
-        1U, iox::NodeName_t("node"), true, iox::popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA};
-    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), true, QueueFullPolicy::DISCARD_OLDEST_DATA};
+        1U, iox::NodeName_t("node"), true, iox::popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA
+    };
+    SubscriberOptions subscriberOptions{ 1U, 1U, iox::NodeName_t("node"), true, QueueFullPolicy::DISCARD_OLDEST_DATA };
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {"1", "1", "1"}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
+                { "1", "1", "1" }, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
             .value());
     ASSERT_TRUE(publisher);
     SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({"1", "1", "1"}, subscriberOptions, "schlomo", PortConfigInfo())
+        m_portManager->acquireSubscriberPortData({ "1", "1", "1" }, subscriberOptions, "schlomo", PortConfigInfo())
             .value());
     ASSERT_TRUE(subscriber);
 
@@ -437,16 +440,17 @@ TEST_F(PortManager_test, DoDiscoveryPublisherDoesNotAllowBlockingAndSubscriberRe
 {
     ::testing::Test::RecordProperty("TEST_ID", "31d879bf-ca07-4f29-90cd-a46f09a98f7c");
     PublisherOptions publisherOptions{
-        1U, iox::NodeName_t("node"), true, iox::popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA};
-    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), true, QueueFullPolicy::BLOCK_PRODUCER};
+        1U, iox::NodeName_t("node"), true, iox::popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA
+    };
+    SubscriberOptions subscriberOptions{ 1U, 1U, iox::NodeName_t("node"), true, QueueFullPolicy::BLOCK_PRODUCER };
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {"1", "1", "1"}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
+                { "1", "1", "1" }, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
             .value());
     ASSERT_TRUE(publisher);
     SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({"1", "1", "1"}, subscriberOptions, "schlomo", PortConfigInfo())
+        m_portManager->acquireSubscriberPortData({ "1", "1", "1" }, subscriberOptions, "schlomo", PortConfigInfo())
             .value());
     ASSERT_TRUE(subscriber);
 
@@ -457,17 +461,18 @@ TEST_F(PortManager_test, DoDiscoveryPublisherCanWaitAndSubscriberDiscardOldestLe
 {
     ::testing::Test::RecordProperty("TEST_ID", "f2ea15a6-0672-4a98-8f80-f2900b247ac0");
     PublisherOptions publisherOptions{
-        1U, iox::NodeName_t("node"), true, iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER};
-    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), true, QueueFullPolicy::DISCARD_OLDEST_DATA};
+        1U, iox::NodeName_t("node"), true, iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER
+    };
+    SubscriberOptions subscriberOptions{ 1U, 1U, iox::NodeName_t("node"), true, QueueFullPolicy::DISCARD_OLDEST_DATA };
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData(
-                {"1", "1", "1"}, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
+                { "1", "1", "1" }, publisherOptions, "guiseppe", m_payloadDataSegmentMemoryManager, PortConfigInfo())
             .value());
     ASSERT_TRUE(publisher);
 
     SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({"1", "1", "1"}, subscriberOptions, "schlomo", PortConfigInfo())
+        m_portManager->acquireSubscriberPortData({ "1", "1", "1" }, subscriberOptions, "schlomo", PortConfigInfo())
             .value());
     ASSERT_TRUE(subscriber);
 
@@ -670,7 +675,7 @@ TEST_F(PortManager_test, AcquireConditionVariablesDataAfterDestroyingPreviouslyA
 TEST_F(PortManager_test, UnblockRouDiShutdownMakesAllPublisherStopOffer)
 {
     ::testing::Test::RecordProperty("TEST_ID", "aa0cd25c-4e9d-476a-a8a6-d5c650fb9fff");
-    PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), true};
+    PublisherOptions publisherOptions{ 1U, iox::NodeName_t("node"), true };
     iox::vector<PublisherPortUser, iox::MAX_PUBLISHERS> publisher;
 
     for (unsigned int i = 0; i < iox::MAX_PUBLISHERS; i++)
@@ -699,13 +704,14 @@ TEST_F(PortManager_test, UnblockRouDiShutdownMakesAllPublisherStopOffer)
 TEST_F(PortManager_test, UnblockProcessShutdownMakesPublisherStopOffer)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a013e699-2a6b-42e9-b6e8-5f65ea235c0a");
-    const iox::RuntimeName_t publisherRuntimeName{"guiseppe"};
+    const iox::RuntimeName_t publisherRuntimeName{ "guiseppe" };
 
     // get publisher and subscriber
     PublisherOptions publisherOptions{
-        0U, iox::NodeName_t("node"), true, iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER};
+        0U, iox::NodeName_t("node"), true, iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER
+    };
     PublisherPortUser publisher(m_portManager
-                                    ->acquirePublisherPortData({"1", "1", "1"},
+                                    ->acquirePublisherPortData({ "1", "1", "1" },
                                                                publisherOptions,
                                                                publisherRuntimeName,
                                                                m_payloadDataSegmentMemoryManager,
@@ -724,11 +730,13 @@ void PortManager_test::setupAndTestBlockingPublisher(const iox::RuntimeName_t& p
 {
     // get publisher and subscriber
     PublisherOptions publisherOptions{
-        0U, iox::NodeName_t("node"), true, iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER};
+        0U, iox::NodeName_t("node"), true, iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER
+    };
     SubscriberOptions subscriberOptions{
-        1U, 0U, iox::NodeName_t("node"), true, iox::popo::QueueFullPolicy::BLOCK_PRODUCER};
+        1U, 0U, iox::NodeName_t("node"), true, iox::popo::QueueFullPolicy::BLOCK_PRODUCER
+    };
     PublisherPortUser publisher(m_portManager
-                                    ->acquirePublisherPortData({"1", "1", "1"},
+                                    ->acquirePublisherPortData({ "1", "1", "1" },
                                                                publisherOptions,
                                                                publisherRuntimeName,
                                                                m_payloadDataSegmentMemoryManager,
@@ -736,7 +744,7 @@ void PortManager_test::setupAndTestBlockingPublisher(const iox::RuntimeName_t& p
                                     .value());
 
     SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({"1", "1", "1"}, subscriberOptions, "schlomo", PortConfigInfo())
+        m_portManager->acquireSubscriberPortData({ "1", "1", "1" }, subscriberOptions, "schlomo", PortConfigInfo())
             .value());
 
     ASSERT_TRUE(publisher.hasSubscribers());
@@ -747,10 +755,10 @@ void PortManager_test::setupAndTestBlockingPublisher(const iox::RuntimeName_t& p
     ASSERT_FALSE(maybeChunk.has_error());
     publisher.sendChunk(maybeChunk.value());
 
-    std::atomic_bool wasChunkSent{false};
+    std::atomic_bool wasChunkSent{ false };
 
-    constexpr iox::units::Duration DEADLOCK_TIMEOUT{5_s};
-    Watchdog deadlockWatchdog{DEADLOCK_TIMEOUT};
+    constexpr iox::units::Duration DEADLOCK_TIMEOUT{ 5_s };
+    Watchdog deadlockWatchdog{ DEADLOCK_TIMEOUT };
     deadlockWatchdog.watchAndActOnFailure([] { std::terminate(); });
 
     // block in a separate thread
@@ -779,14 +787,14 @@ void PortManager_test::setupAndTestBlockingPublisher(const iox::RuntimeName_t& p
 TEST_F(PortManager_test, UnblockRouDiShutdownUnblocksBlockedPublisher)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5200e46f-5006-4a71-966a-a4aff8a0bf85");
-    const iox::RuntimeName_t publisherRuntimeName{"guiseppe"};
+    const iox::RuntimeName_t publisherRuntimeName{ "guiseppe" };
     setupAndTestBlockingPublisher(publisherRuntimeName, [&] { m_portManager->unblockRouDiShutdown(); });
 }
 
 TEST_F(PortManager_test, UnblockProcessShutdownUnblocksBlockedPublisher)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2c5a3f87-20fb-4fd8-a3b5-033b79598800");
-    const iox::RuntimeName_t publisherRuntimeName{"guiseppe"};
+    const iox::RuntimeName_t publisherRuntimeName{ "guiseppe" };
     setupAndTestBlockingPublisher(publisherRuntimeName,
                                   [&] { m_portManager->unblockProcessShutdown(publisherRuntimeName); });
 }
@@ -798,8 +806,8 @@ TEST_F(PortManager_test, PortsDestroyInProcess2ChangeStatesOfPortsInProcess1)
     iox::RuntimeName_t runtimeName2 = "myApp2";
     iox::capro::ServiceDescription cap1("1", "1", "1");
     iox::capro::ServiceDescription cap2("2", "2", "2");
-    PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), false};
-    SubscriberOptions subscriberOptions{1U, 1U, iox::NodeName_t("node"), false};
+    PublisherOptions publisherOptions{ 1U, iox::NodeName_t("node"), false };
+    SubscriberOptions subscriberOptions{ 1U, 1U, iox::NodeName_t("node"), false };
 
     // two applications app1 and app2 each with a publisher and subscriber that match to the other applications
     auto publisherData1 =

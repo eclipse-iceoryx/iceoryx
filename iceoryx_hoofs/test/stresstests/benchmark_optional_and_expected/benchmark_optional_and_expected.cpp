@@ -23,7 +23,7 @@
 #include <array>
 #include <limits>
 
-uint64_t globalCounter{0U};
+uint64_t globalCounter{ 0U };
 
 template <uint64_t Size>
 struct LargeObject
@@ -42,7 +42,7 @@ struct LargeObjectComplexCTor
             element = static_cast<char>((++globalCounter) % 256);
         }
     };
-    uint64_t value{0};
+    uint64_t value{ 0 };
     std::array<char, Size> dataBlob;
 };
 
@@ -74,7 +74,7 @@ bool popFromFiFoImpl(uint64_t& value)
 
 void popFromFiFo()
 {
-    uint64_t maybeValue{0U};
+    uint64_t maybeValue{ 0U };
     if (popFromFiFoImpl(maybeValue))
     {
         globalCounter += maybeValue;
@@ -119,7 +119,7 @@ uint64_t complexErrorValueImpl(uint64_t& value)
 
 void complexErrorValue()
 {
-    uint64_t maybeValue{0};
+    uint64_t maybeValue{ 0 };
     uint64_t returnValue = complexErrorValueImpl(maybeValue);
     if (returnValue == 0)
     {

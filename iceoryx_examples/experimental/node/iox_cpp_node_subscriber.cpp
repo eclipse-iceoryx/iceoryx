@@ -22,10 +22,10 @@
 
 #include <iostream>
 
-std::atomic_bool keep_running{true};
+std::atomic_bool keep_running{ true };
 
 using WaitSet = iox::popo::WaitSet<>;
-volatile WaitSet* waitsetSigHandlerAccess{nullptr};
+volatile WaitSet* waitsetSigHandlerAccess{ nullptr };
 
 static void sigHandler(int sig [[maybe_unused]])
 {
@@ -69,7 +69,7 @@ int main()
     waitsetSigHandlerAccess = ws.get();
 
     auto subscriber =
-        node.subscriber({"Radar", "FrontLeft", "Object"}).create<RadarObject>().expect("Getting a subscriber");
+        node.subscriber({ "Radar", "FrontLeft", "Object" }).create<RadarObject>().expect("Getting a subscriber");
 
     ws->attachState(*subscriber.get(), iox::popo::SubscriberState::HAS_DATA).or_else([](auto) {
         std::cout << "Failed to attach subscriber" << std::endl;

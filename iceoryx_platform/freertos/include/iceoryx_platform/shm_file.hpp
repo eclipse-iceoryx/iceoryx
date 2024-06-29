@@ -44,10 +44,10 @@ class ShmFile
 
   private:
     char m_name[MAX_NAME_LENGTH];
-    int m_fd{0};
-    uint32_t m_size{0U};
-    void* m_ptr{nullptr};
-    bool m_full{false};
+    int m_fd{ 0 };
+    uint32_t m_size{ 0U };
+    void* m_ptr{ nullptr };
+    bool m_full{ false };
 
     static int s_fdCounter;
 };

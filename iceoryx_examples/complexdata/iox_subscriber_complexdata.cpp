@@ -29,7 +29,7 @@ int main()
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
     // initialize subscriber
-    iox::popo::Subscriber<ComplexDataType> subscriber({"Group", "Instance", "ComplexDataTopic"});
+    iox::popo::Subscriber<ComplexDataType> subscriber({ "Group", "Instance", "ComplexDataTopic" });
 
     // run until interrupted by Ctrl-C
     while (!iox::hasTerminationRequested())

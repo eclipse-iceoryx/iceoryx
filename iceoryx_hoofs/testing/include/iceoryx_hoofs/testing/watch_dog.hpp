@@ -95,7 +95,7 @@ class Watchdog
     }
 
   private:
-    iox::units::Duration m_timeToWait{0_s};
+    iox::units::Duration m_timeToWait{ 0_s };
     iox::optional<iox::UnnamedSemaphore> m_watchdogSemaphore;
     std::thread m_watchdog;
 };

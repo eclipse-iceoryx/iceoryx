@@ -59,15 +59,15 @@ struct ModuleId
 
     type value;
 
-    static constexpr type ANY{0};
-    static constexpr type HOOFS{1};
-    static constexpr type POSH{2};
-    static constexpr type BINDING_C{3};
+    static constexpr type ANY{ 0 };
+    static constexpr type HOOFS{ 1 };
+    static constexpr type POSH{ 2 };
+    static constexpr type BINDING_C{ 3 };
 
     // User module ids should be larger or equal than this to avoid conflicts
     // with internal modules.
     // All lower values are reserved.
-    static constexpr type USER_MODULE_BASE{0x100};
+    static constexpr type USER_MODULE_BASE{ 0x100 };
 
     constexpr explicit ModuleId(uint32_t value = ANY)
         : value(value)

@@ -66,7 +66,7 @@ class SemaphoreInterfaceTest : public Test
 
     static constexpr iox::units::Duration WATCHDOG_TIMEOUT = 5_s;
     static constexpr iox::units::Duration TIMING_TEST_WAIT_TIME = 100_ms;
-    Watchdog deadlockWatchdog{WATCHDOG_TIMEOUT};
+    Watchdog deadlockWatchdog{ WATCHDOG_TIMEOUT };
 };
 template <typename T>
 constexpr iox::units::Duration SemaphoreInterfaceTest<T>::WATCHDOG_TIMEOUT;

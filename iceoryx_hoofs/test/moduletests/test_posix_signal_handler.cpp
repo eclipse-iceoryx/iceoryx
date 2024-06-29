@@ -23,8 +23,8 @@ namespace
 using namespace ::testing;
 using namespace iox;
 
-std::atomic_int signalOfCallback1{0};
-std::atomic_int signalOfCallback2{0};
+std::atomic_int signalOfCallback1{ 0 };
+std::atomic_int signalOfCallback2{ 0 };
 
 template <PosixSignal SignalValue>
 struct SignalType

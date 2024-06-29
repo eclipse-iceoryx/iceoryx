@@ -227,7 +227,7 @@ TEST_F(MemPoolIntrospection_test, Send_withSubscribers)
         m_rouDiInternalMemoryManager_mock, m_segmentManager_mock, std::move(m_publisherPortImpl_mock));
 
     MemPoolInfoContainer memPoolInfoContainer;
-    MemPoolInfo memPoolInfo{0, 0, 0, 0};
+    MemPoolInfo memPoolInfo{ 0, 0, 0, 0 };
     initMemPoolInfoContainer(memPoolInfoContainer);
 
     EXPECT_CALL(m_segmentManager_mock.m_segmentContainer.front().getMemoryManager(), getMemPoolInfo(_))

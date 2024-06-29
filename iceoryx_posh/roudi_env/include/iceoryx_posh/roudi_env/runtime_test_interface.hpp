@@ -39,7 +39,7 @@ class RuntimeTestInterface
     friend class RouDiEnv;
 
   private:
-    bool m_doCleanupOnDestruction{true};
+    bool m_doCleanupOnDestruction{ true };
 
     thread_local static runtime::PoshRuntime* t_activeRuntime;
     thread_local static std::atomic<uint64_t> t_currentRouDiContext;

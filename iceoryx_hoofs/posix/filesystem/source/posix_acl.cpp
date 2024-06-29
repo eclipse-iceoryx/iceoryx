@@ -60,7 +60,7 @@ bool PosixAcl::writePermissionsToFile(const int32_t fileDescriptor) const noexce
     // add mask to acl if specific users or groups have been added
     if (m_useACLMask)
     {
-        createACLEntry(workingACL.get(), {ACL_MASK, Permission::READWRITE, -1U});
+        createACLEntry(workingACL.get(), { ACL_MASK, Permission::READWRITE, -1U });
     }
 
     // check if acl is valid
@@ -174,7 +174,7 @@ bool PosixAcl::addPermissionEntry(const Category category, const Permission perm
     }
     }
 
-    m_permissions.emplace_back(PermissionEntry{static_cast<uint32_t>(category), permission, id});
+    m_permissions.emplace_back(PermissionEntry{ static_cast<uint32_t>(category), permission, id });
     return true;
 }
 
@@ -184,7 +184,7 @@ bool PosixAcl::createACLEntry(const acl_t ACL, const PermissionEntry& entry) noe
 {
     // create new entry in acl
     acl_entry_t newEntry{};
-    acl_t l_ACL{ACL};
+    acl_t l_ACL{ ACL };
 
     auto aclCreateEntryCall = IOX_POSIX_CALL(acl_create_entry)(&l_ACL, &newEntry).successReturnValue(0).evaluate();
 

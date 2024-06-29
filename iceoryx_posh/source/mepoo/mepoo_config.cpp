@@ -44,13 +44,13 @@ void MePooConfig::addMemPool(MePooConfig::Entry entry) noexcept
 /// this is the default memory pool configuration if no one is provided by the user
 MePooConfig& MePooConfig::setDefaults() noexcept
 {
-    m_mempoolConfig.push_back({128, 10000});
-    m_mempoolConfig.push_back({1024, 5000});
-    m_mempoolConfig.push_back({1024 * 16, 1000});
-    m_mempoolConfig.push_back({1024 * 128, 200});
-    m_mempoolConfig.push_back({1024 * 512, 50});
-    m_mempoolConfig.push_back({1024 * 1024, 30});
-    m_mempoolConfig.push_back({1024 * 1024 * 4, 10});
+    m_mempoolConfig.push_back({ 128, 10000 });
+    m_mempoolConfig.push_back({ 1024, 5000 });
+    m_mempoolConfig.push_back({ 1024 * 16, 1000 });
+    m_mempoolConfig.push_back({ 1024 * 128, 200 });
+    m_mempoolConfig.push_back({ 1024 * 512, 50 });
+    m_mempoolConfig.push_back({ 1024 * 1024, 30 });
+    m_mempoolConfig.push_back({ 1024 * 1024 * 4, 10 });
 
     return *this;
 }
@@ -62,7 +62,7 @@ MePooConfig& MePooConfig::optimize() noexcept
 
     std::sort(config.begin(), config.end(), [](const Entry& lhs, const Entry& rhs) { return lhs.m_size < rhs.m_size; });
 
-    MePooConfig::Entry newEntry{0u, 0u};
+    MePooConfig::Entry newEntry{ 0u, 0u };
 
     for (const auto& entry : config)
     {

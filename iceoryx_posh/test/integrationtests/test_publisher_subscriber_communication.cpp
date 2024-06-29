@@ -85,11 +85,11 @@ class PublisherSubscriberCommunication_test : public RouDi_GTest
         iox::popo::PublisherOptions options;
         options.subscriberTooSlowPolicy = policy;
         return std::make_unique<iox::popo::Publisher<T>>(
-            capro::ServiceDescription{m_serviceDescription.getServiceIDString(),
-                                      m_serviceDescription.getInstanceIDString(),
-                                      m_serviceDescription.getEventIDString(),
-                                      {0U, 0U, 0U, 0U},
-                                      interface},
+            capro::ServiceDescription{ m_serviceDescription.getServiceIDString(),
+                                       m_serviceDescription.getInstanceIDString(),
+                                       m_serviceDescription.getEventIDString(),
+                                       { 0U, 0U, 0U, 0U },
+                                       interface },
             options);
     }
 
@@ -100,11 +100,11 @@ class PublisherSubscriberCommunication_test : public RouDi_GTest
         iox::popo::PublisherOptions options;
         options.historyCapacity = historyCapacity;
         return std::make_unique<iox::popo::Publisher<T>>(
-            capro::ServiceDescription{m_serviceDescription.getServiceIDString(),
-                                      m_serviceDescription.getInstanceIDString(),
-                                      m_serviceDescription.getEventIDString(),
-                                      {0U, 0U, 0U, 0U},
-                                      capro::Interfaces::INTERNAL},
+            capro::ServiceDescription{ m_serviceDescription.getServiceIDString(),
+                                       m_serviceDescription.getInstanceIDString(),
+                                       m_serviceDescription.getEventIDString(),
+                                       { 0U, 0U, 0U, 0U },
+                                       capro::Interfaces::INTERNAL },
             options);
     }
 
@@ -118,11 +118,11 @@ class PublisherSubscriberCommunication_test : public RouDi_GTest
         options.queueFullPolicy = policy;
         options.queueCapacity = queueCapacity;
         return std::make_unique<iox::popo::Subscriber<T>>(
-            capro::ServiceDescription{m_serviceDescription.getServiceIDString(),
-                                      m_serviceDescription.getInstanceIDString(),
-                                      m_serviceDescription.getEventIDString(),
-                                      {0U, 0U, 0U, 0U},
-                                      interface},
+            capro::ServiceDescription{ m_serviceDescription.getServiceIDString(),
+                                       m_serviceDescription.getInstanceIDString(),
+                                       m_serviceDescription.getEventIDString(),
+                                       { 0U, 0U, 0U, 0U },
+                                       interface },
             options);
     }
 
@@ -135,17 +135,18 @@ class PublisherSubscriberCommunication_test : public RouDi_GTest
         options.historyRequest = historyRequest;
         options.requiresPublisherHistorySupport = requiresPublisherHistorySupport;
         return std::make_unique<iox::popo::Subscriber<T>>(
-            capro::ServiceDescription{m_serviceDescription.getServiceIDString(),
-                                      m_serviceDescription.getInstanceIDString(),
-                                      m_serviceDescription.getEventIDString(),
-                                      {0U, 0U, 0U, 0U},
-                                      capro::Interfaces::INTERNAL},
+            capro::ServiceDescription{ m_serviceDescription.getServiceIDString(),
+                                       m_serviceDescription.getInstanceIDString(),
+                                       m_serviceDescription.getEventIDString(),
+                                       { 0U, 0U, 0U, 0U },
+                                       capro::Interfaces::INTERNAL },
             options);
     }
 
-    Watchdog m_watchdog{units::Duration::fromSeconds(5)};
-    capro::ServiceDescription m_serviceDescription{
-        "PublisherSubscriberCommunication", "IntegrationTest", "AllHailHypnotoad"};
+    Watchdog m_watchdog{ units::Duration::fromSeconds(5) };
+    capro::ServiceDescription m_serviceDescription{ "PublisherSubscriberCommunication",
+                                                    "IntegrationTest",
+                                                    "AllHailHypnotoad" };
 };
 
 class PublisherSubscriberCommunicationWithBigPayload_test : public PublisherSubscriberCommunication_test
@@ -168,7 +169,7 @@ class PublisherSubscriberCommunicationWithBigPayload_test : public PublisherSubs
         runtime::PoshRuntime::initRuntime("PublisherSubscriberCommunication_test");
         m_watchdog.watchAndActOnFailure([] { std::terminate(); });
     };
-    Watchdog m_watchdog{units::Duration::fromSeconds(10)};
+    Watchdog m_watchdog{ units::Duration::fromSeconds(10) };
 };
 
 // intentional reference to unique pointer, we do not want to pass ownership in this helper function
@@ -576,7 +577,7 @@ TEST_F(PublisherSubscriberCommunication_test, PublisherBlocksWhenBlockingActivat
     EXPECT_FALSE(publisher->publishCopyOf("start your day with a smile").has_error());
     EXPECT_FALSE(publisher->publishCopyOf("and hypnotoad will smile back").has_error());
 
-    std::atomic_bool wasSampleDelivered{false};
+    std::atomic_bool wasSampleDelivered{ false };
     Barrier isThreadStarted(1U);
     std::thread t1([&] {
         isThreadStarted.notify();
@@ -617,7 +618,7 @@ TEST_F(PublisherSubscriberCommunication_test, PublisherDoesNotBlockAndDiscardsSa
     EXPECT_FALSE(publisher->publishCopyOf("first there was a blubb named mantua").has_error());
     EXPECT_FALSE(publisher->publishCopyOf("second hypnotoad ate it").has_error());
 
-    std::atomic_bool wasSampleDelivered{false};
+    std::atomic_bool wasSampleDelivered{ false };
     Barrier isThreadStarted(1U);
     std::thread t1([&] {
         isThreadStarted.notify();
@@ -679,7 +680,7 @@ TEST_F(PublisherSubscriberCommunication_test, MixedOptionsSetupWorksWithBlocking
     EXPECT_FALSE(publisherBlocking->publishCopyOf("hypnotoad wants a cookie").has_error());
     EXPECT_FALSE(publisherNonBlocking->publishCopyOf("hypnotoad has a sister named hypnoodle").has_error());
 
-    std::atomic_bool wasSampleDelivered{false};
+    std::atomic_bool wasSampleDelivered{ false };
     Barrier isThreadStarted(1U);
     std::thread t1([&] {
         isThreadStarted.notify();

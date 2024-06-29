@@ -53,7 +53,7 @@ class NotificationInfo_test : public Test
 
     NotificationOriginTest m_origin;
     NotificationOriginTest m_falseOrigin;
-    NotificationInfo m_sut{&m_origin, 1478U, createNotificationCallback(NotificationOriginTest::callback)};
+    NotificationInfo m_sut{ &m_origin, 1478U, createNotificationCallback(NotificationOriginTest::callback) };
 };
 
 TEST_F(NotificationInfo_test, defaultCTorConstructsEmptyNotificationInfo)
@@ -120,7 +120,7 @@ TEST_F(NotificationInfo_test, triggerCallbackReturnsTrueAndCallsCallbackWithSett
 TEST_F(NotificationInfo_test, triggerCallbackReturnsFalseWithUnsetCallback)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d015f42f-cc01-467a-b568-e957a45a97e6");
-    m_sut = NotificationInfo{&m_origin, 9U, NotificationCallback<NotificationOriginTest, int>{}};
+    m_sut = NotificationInfo{ &m_origin, 9U, NotificationCallback<NotificationOriginTest, int>{} };
     EXPECT_FALSE(m_sut());
 }
 

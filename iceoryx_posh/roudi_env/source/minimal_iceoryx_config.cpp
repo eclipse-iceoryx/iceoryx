@@ -24,9 +24,9 @@ IceoryxConfig MinimalIceoryxConfigBuilder::create() const noexcept
 {
     IceoryxConfig config;
     mepoo::MePooConfig mepooConfig;
-    mepooConfig.addMemPool({m_payloadChunkSize, m_payloadChunkCount});
+    mepooConfig.addMemPool({ m_payloadChunkSize, m_payloadChunkCount });
     auto currentGroup = PosixGroup::getGroupOfCurrentProcess();
-    config.m_sharedMemorySegments.push_back({currentGroup.getName(), currentGroup.getName(), mepooConfig});
+    config.m_sharedMemorySegments.push_back({ currentGroup.getName(), currentGroup.getName(), mepooConfig });
 
     config.introspectionChunkCount = m_introspectionChunkCount;
     config.discoveryChunkCount = m_discoveryChunkCount;

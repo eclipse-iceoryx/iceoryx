@@ -82,11 +82,11 @@ class ChunkSettings
                                                                                const uint32_t userHeaderSize) noexcept;
 
   private:
-    uint64_t m_userPayloadSize{0U};
-    uint32_t m_userPayloadAlignment{0U};
-    uint32_t m_userHeaderSize{0U};
-    uint32_t m_userHeaderAlignment{0U};
-    uint64_t m_requiredChunkSize{0U};
+    uint64_t m_userPayloadSize{ 0U };
+    uint32_t m_userPayloadAlignment{ 0U };
+    uint32_t m_userHeaderSize{ 0U };
+    uint32_t m_userHeaderAlignment{ 0U };
+    uint64_t m_requiredChunkSize{ 0U };
 };
 
 } // namespace mepoo

@@ -85,7 +85,7 @@ void MemPool::adjustMinFree() noexcept
 
 void* MemPool::getChunk() noexcept
 {
-    uint32_t index{0U};
+    uint32_t index{ 0U };
     if (!m_freeIndices.pop(index))
     {
         IOX_LOG(WARN,
@@ -179,10 +179,10 @@ uint32_t MemPool::getMinFree() const noexcept
 
 MemPoolInfo MemPool::getInfo() const noexcept
 {
-    return {m_usedChunks.load(std::memory_order_relaxed),
-            m_minFree.load(std::memory_order_relaxed),
-            m_numberOfChunks,
-            m_chunkSize};
+    return { m_usedChunks.load(std::memory_order_relaxed),
+             m_minFree.load(std::memory_order_relaxed),
+             m_numberOfChunks,
+             m_chunkSize };
 }
 
 } // namespace mepoo

@@ -50,7 +50,7 @@ expected<Request<const Req>, ServerRequestResult> ServerImpl<Req, Res, BaseServe
         auto* requestHeader = iox::popo::RequestHeader::fromPayload(payload);
         this->port().releaseRequest(requestHeader);
     });
-    return ok(Request<const Req>{std::move(request)});
+    return ok(Request<const Req>{ std::move(request) });
 }
 
 template <typename Req, typename Res, typename BaseServerT>
@@ -69,7 +69,7 @@ ServerImpl<Req, Res, BaseServerT>::loanUninitialized(const Request<const Req>& r
         auto* responseHeader = iox::popo::ResponseHeader::fromPayload(payload);
         this->port().releaseResponse(responseHeader);
     });
-    return ok(Response<Res>{std::move(response), *this});
+    return ok(Response<Res>{ std::move(response), *this });
 }
 
 template <typename Req, typename Res, typename BaseServerT>

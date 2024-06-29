@@ -77,7 +77,7 @@ class ExampleBaseClass
 
   private:
     /// @brief Short description
-    uint32_t m_memberVariable{0U};
+    uint32_t m_memberVariable{ 0U };
 };
 
 #include "example_base_class.inl"

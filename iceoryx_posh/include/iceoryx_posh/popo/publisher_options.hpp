@@ -33,17 +33,17 @@ namespace popo
 struct PublisherOptions
 {
     /// @brief The size of the history chunk queue
-    uint64_t historyCapacity{0U};
+    uint64_t historyCapacity{ 0U };
 
     /// @brief The name of the node where the publisher should belong to
     /// @deprecated the 'nodeName' is not used with the current stable API
-    iox::NodeName_t nodeName{""};
+    iox::NodeName_t nodeName{ "" };
 
     /// @brief The option whether the publisher should already be offered when creating it
-    bool offerOnCreate{true};
+    bool offerOnCreate{ true };
 
     /// @brief The option whether the publisher should block when the subscriber queue is full
-    ConsumerTooSlowPolicy subscriberTooSlowPolicy{ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA};
+    ConsumerTooSlowPolicy subscriberTooSlowPolicy{ ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA };
 
     /// @brief serialization of the PublisherOptions
     Serialization serialize() const noexcept;

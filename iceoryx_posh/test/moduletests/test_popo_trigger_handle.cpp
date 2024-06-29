@@ -43,11 +43,11 @@ class TriggerHandle_test : public Test
     }
 
     uint64_t m_resetCallbackId = 0U;
-    ConditionVariableData m_condVar{"Horscht"};
+    ConditionVariableData m_condVar{ "Horscht" };
     TriggerHandle_test* m_self = this;
 
-    Watchdog m_watchdog{units::Duration::fromSeconds(2U)};
-    TriggerHandle m_sut{m_condVar, {*this, &TriggerHandle_test::resetCallback}, 12U};
+    Watchdog m_watchdog{ units::Duration::fromSeconds(2U) };
+    TriggerHandle m_sut{ m_condVar, { *this, &TriggerHandle_test::resetCallback }, 12U };
 };
 
 
@@ -114,7 +114,7 @@ TEST_F(TriggerHandle_test, getConditionVariableDataReturnsCorrectVar)
 TEST_F(TriggerHandle_test, getUniqueIdReturnsCorrectId)
 {
     ::testing::Test::RecordProperty("TEST_ID", "856e38a0-c5eb-461c-9445-efb5b21cc5db");
-    TriggerHandle sut2{m_condVar, {*m_self, &TriggerHandle_test::resetCallback}, 8912U};
+    TriggerHandle sut2{ m_condVar, { *m_self, &TriggerHandle_test::resetCallback }, 8912U };
     EXPECT_EQ(sut2.getUniqueId(), 8912U);
 }
 
@@ -122,7 +122,7 @@ TEST_F(TriggerHandle_test, triggerNotifiesConditionVariable)
 {
     ::testing::Test::RecordProperty("TEST_ID", "11e752c8-d473-4bfd-b973-869c3b2d9fbc");
 
-    std::atomic_int stage{0};
+    std::atomic_int stage{ 0 };
 
     std::thread t([&] {
         stage.store(1);
@@ -136,7 +136,7 @@ TEST_F(TriggerHandle_test, triggerNotifiesConditionVariable)
         std::this_thread::yield();
     }
 
-    iox::deadline_timer timeout{100_ms};
+    iox::deadline_timer timeout{ 100_ms };
     EXPECT_THAT(stage.load(), Eq(1));
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     EXPECT_THAT(stage.load(), Eq(1));

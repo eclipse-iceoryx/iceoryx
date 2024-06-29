@@ -32,7 +32,7 @@ class MpmcIndexQueueTest : public ::testing::Test
     using index_t = typename Queue::value_t;
 
     Queue queue;
-    Queue fullQueue{Queue::ConstructFull};
+    Queue fullQueue{ Queue::ConstructFull };
 };
 
 TEST(MpmcIndexQueueTest, capacityIsConsistent)
@@ -103,7 +103,7 @@ TYPED_TEST(MpmcIndexQueueTest, IndicesAreIncreasingWhenConstructedFull)
     Queue& q = this->fullQueue;
     EXPECT_FALSE(q.empty());
 
-    index_t expected{0U};
+    index_t expected{ 0U };
     auto index = q.pop();
     while (index.has_value())
     {
@@ -171,7 +171,7 @@ TYPED_TEST(MpmcIndexQueueTest, poppedElementsAreInFifoOrder)
     using index_t = typename TestFixture::index_t;
 
     auto capacity = q.capacity();
-    index_t expected{0U};
+    index_t expected{ 0U };
 
     for (uint64_t i = 0U; i < capacity; ++i)
     {
@@ -271,7 +271,7 @@ TYPED_TEST(MpmcIndexQueueTest, popIfSizeIsAtLeastOneReturnsIndexIfQueueContainsO
     using index_t = typename TestFixture::index_t;
 
     // we can only push indices up to capacity - 1
-    const index_t expectedIndex{q.capacity() - 1};
+    const index_t expectedIndex{ q.capacity() - 1 };
     q.push(expectedIndex);
 
     const auto index = q.popIfSizeIsAtLeast(1U);

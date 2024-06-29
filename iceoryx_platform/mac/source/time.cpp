@@ -137,11 +137,11 @@ int iox_timer_settime(iox_timer_t timerid, int, const struct itimerspec* new_val
 
 int iox_timer_gettime(iox_timer_t timerid, struct itimerspec* curr_value)
 {
-    constexpr int64_t NANO_SECONDS{1000000000};
+    constexpr int64_t NANO_SECONDS{ 1000000000 };
     timespec currentTime;
     iox_clock_gettime(CLOCK_REALTIME, &currentTime);
     int64_t currentTimeNs = currentTime.tv_sec * NANO_SECONDS + currentTime.tv_nsec;
-    int64_t intervalTimeNs{0}, startTimeNs{0};
+    int64_t intervalTimeNs{ 0 }, startTimeNs{ 0 };
     {
         std::lock_guard<std::mutex> l(timerid->parameter.mutex);
         curr_value->it_interval = timerid->parameter.timeParameters.it_interval;

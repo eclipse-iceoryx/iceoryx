@@ -103,8 +103,8 @@ class Logger : public BaseLogger
     void initLoggerInternal(const LogLevel logLevel) noexcept;
 
   private:
-    std::atomic<bool> m_isActive{true};
-    std::atomic<bool> m_isFinalized{false};
+    std::atomic<bool> m_isActive{ true };
+    std::atomic<bool> m_isFinalized{ false };
 };
 
 } // namespace internal

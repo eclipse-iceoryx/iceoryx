@@ -37,7 +37,7 @@ using namespace iox::mepoo;
 
 struct DummySample
 {
-    uint64_t m_dummy{42};
+    uint64_t m_dummy{ 42 };
 };
 
 static constexpr uint32_t NUM_CHUNKS_IN_POOL = 9 * iox::MAX_SUBSCRIBER_QUEUE_CAPACITY;
@@ -73,7 +73,7 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
   public:
     ChunkBuildingBlocks_IntegrationTest()
     {
-        m_mempoolConfig.addMemPool({SMALL_CHUNK, NUM_CHUNKS_IN_POOL});
+        m_mempoolConfig.addMemPool({ SMALL_CHUNK, NUM_CHUNKS_IN_POOL });
         m_memoryManager.configureMemoryManager(m_mempoolConfig, m_memoryAllocator, m_memoryAllocator);
     }
     virtual ~ChunkBuildingBlocks_IntegrationTest()
@@ -120,11 +120,11 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
 
     void forward()
     {
-        uint64_t forwardCounter{0};
-        bool finished{false};
+        uint64_t forwardCounter{ 0 };
+        bool finished{ false };
         // this is to prevent a race condition on thread shutdown; there must be two consecutive empty pops after the
         // publish thread finished
-        bool newChunkReceivedInLastIteration{true};
+        bool newChunkReceivedInLastIteration{ true };
         while (!finished)
         {
             m_popper.tryPop()
@@ -156,10 +156,10 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
 
     void subscribe()
     {
-        bool finished{false};
+        bool finished{ false };
         // this is to prevent a race condition on thread shutdown; there must be two consecutive empty pops after the
         // forward thread finished
-        bool newChunkReceivedInLastIteration{true};
+        bool newChunkReceivedInLastIteration{ true };
 
         while (!finished)
         {
@@ -196,32 +196,32 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
         }
     }
 
-    uint64_t m_sendCounter{0};
-    uint64_t m_receiveCounter{0};
-    std::atomic<bool> m_publisherRun{true};
-    std::atomic<bool> m_forwarderRun{true};
+    uint64_t m_sendCounter{ 0 };
+    uint64_t m_receiveCounter{ 0 };
+    std::atomic<bool> m_publisherRun{ true };
+    std::atomic<bool> m_forwarderRun{ true };
 
     // Memory objects
-    iox::BumpAllocator m_memoryAllocator{g_memory, MEMORY_SIZE};
+    iox::BumpAllocator m_memoryAllocator{ g_memory, MEMORY_SIZE };
     MePooConfig m_mempoolConfig;
     MemoryManager m_memoryManager;
 
     // Objects used by publishing thread
-    ChunkSenderData_t m_chunkSenderData{&m_memoryManager, ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA};
-    ChunkSender<ChunkSenderData_t> m_chunkSender{&m_chunkSenderData};
+    ChunkSenderData_t m_chunkSenderData{ &m_memoryManager, ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA };
+    ChunkSender<ChunkSenderData_t> m_chunkSender{ &m_chunkSenderData };
 
     // Objects used by forwarding thread
-    ChunkDistributorData_t m_chunkDistributorData{ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA};
-    ChunkDistributor_t m_chunkDistributor{&m_chunkDistributorData};
+    ChunkDistributorData_t m_chunkDistributorData{ ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA };
+    ChunkDistributor_t m_chunkDistributor{ &m_chunkDistributorData };
     ChunkQueueData_t m_chunkQueueData{
-        QueueFullPolicy::DISCARD_OLDEST_DATA,
-        iox::popo::VariantQueueTypes::FiFo_SingleProducerSingleConsumer}; // SoFi intentionally not used
-    ChunkQueuePopper_t m_popper{&m_chunkQueueData};
+        QueueFullPolicy::DISCARD_OLDEST_DATA, iox::popo::VariantQueueTypes::FiFo_SingleProducerSingleConsumer
+    }; // SoFi intentionally not used
+    ChunkQueuePopper_t m_popper{ &m_chunkQueueData };
 
     // Objects used by subscribing thread
-    ChunkReceiverData_t m_chunkReceiverData{iox::popo::VariantQueueTypes::FiFo_SingleProducerSingleConsumer,
-                                            QueueFullPolicy::DISCARD_OLDEST_DATA}; // SoFi intentionally not used
-    ChunkReceiver<ChunkReceiverData_t> m_chunkReceiver{&m_chunkReceiverData};
+    ChunkReceiverData_t m_chunkReceiverData{ iox::popo::VariantQueueTypes::FiFo_SingleProducerSingleConsumer,
+                                             QueueFullPolicy::DISCARD_OLDEST_DATA }; // SoFi intentionally not used
+    ChunkReceiver<ChunkReceiverData_t> m_chunkReceiver{ &m_chunkReceiverData };
 };
 
 TEST_F(ChunkBuildingBlocks_IntegrationTest, TwoHopsThreeThreadsNoSoFi)

@@ -25,11 +25,11 @@
 void sending()
 {
     iox::runtime::PoshRuntime::initRuntime("iox-cpp-publisher-waitset");
-    iox::popo::Publisher<CounterTopic> myPublisher({"Radar", "FrontLeft", "Counter"});
+    iox::popo::Publisher<CounterTopic> myPublisher({ "Radar", "FrontLeft", "Counter" });
 
     for (uint32_t counter = 0U; !iox::hasTerminationRequested(); ++counter)
     {
-        myPublisher.publishCopyOf(CounterTopic{counter})
+        myPublisher.publishCopyOf(CounterTopic{ counter })
             .and_then([&] { std::cout << "Sending: " << counter << std::endl; })
             .or_else([&](auto) { std::cout << "Failed sending: " << counter << std::endl; });
 

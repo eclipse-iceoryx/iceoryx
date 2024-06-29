@@ -38,7 +38,7 @@ class InterfacePort_test : public Test
 
     capro::CaproMessage generateMessage(const capro::Interfaces interface) noexcept
     {
-        return {capro::CaproMessageType::ACK, {"Cheri", "Cheri", "Hypnotoad", {0U, 0U, 0U, 0U}, interface}};
+        return { capro::CaproMessageType::ACK, { "Cheri", "Cheri", "Hypnotoad", { 0U, 0U, 0U, 0U }, interface } };
     }
 };
 

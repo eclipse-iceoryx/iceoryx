@@ -96,7 +96,7 @@ class FileLock
         UNLOCK = LOCK_UN
     };
 
-    int32_t m_fd{INVALID_FD};
+    int32_t m_fd{ INVALID_FD };
     FilePath_t m_fileLockPath;
 
   private:

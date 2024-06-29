@@ -23,17 +23,17 @@ namespace iox_test_roudi_portmanager
 {
 using namespace iox::popo;
 
-constexpr uint64_t RESPONSE_QUEUE_CAPACITY{2U};
-constexpr uint64_t REQUEST_QUEUE_CAPACITY{2U};
+constexpr uint64_t RESPONSE_QUEUE_CAPACITY{ 2U };
+constexpr uint64_t REQUEST_QUEUE_CAPACITY{ 2U };
 
 ClientOptions createTestClientOptions()
 {
-    return ClientOptions{RESPONSE_QUEUE_CAPACITY, iox::NodeName_t("node")};
+    return ClientOptions{ RESPONSE_QUEUE_CAPACITY, iox::NodeName_t("node") };
 }
 
 ServerOptions createTestServerOptions()
 {
-    return ServerOptions{REQUEST_QUEUE_CAPACITY, iox::NodeName_t("node")};
+    return ServerOptions{ REQUEST_QUEUE_CAPACITY, iox::NodeName_t("node") };
 }
 
 // BEGIN aquireClientPortData tests
@@ -41,8 +41,8 @@ ServerOptions createTestServerOptions()
 TEST_F(PortManager_test, AcquireClientPortDataReturnsPort)
 {
     ::testing::Test::RecordProperty("TEST_ID", "92225f2c-619a-425b-bba0-6a014822c4c3");
-    const ServiceDescription sd{"hyp", "no", "toad"};
-    const RuntimeName_t runtimeName{"hypnotoad"};
+    const ServiceDescription sd{ "hyp", "no", "toad" };
+    const RuntimeName_t runtimeName{ "hypnotoad" };
     auto clientOptions = createTestClientOptions();
     clientOptions.connectOnCreate = false;
     clientOptions.responseQueueFullPolicy = QueueFullPolicy::BLOCK_PRODUCER;
@@ -72,8 +72,8 @@ TEST_F(PortManager_test, AcquireClientPortDataReturnsPort)
 TEST_F(PortManager_test, AcquireServerPortDataReturnsPort)
 {
     ::testing::Test::RecordProperty("TEST_ID", "776c51c4-074a-4404-b6a7-ed08f59f05a0");
-    const ServiceDescription sd{"hyp", "no", "toad"};
-    const RuntimeName_t runtimeName{"hypnotoad"};
+    const ServiceDescription sd{ "hyp", "no", "toad" };
+    const RuntimeName_t runtimeName{ "hypnotoad" };
     auto serverOptions = createTestServerOptions();
     serverOptions.offerOnCreate = false;
     serverOptions.requestQueueFullPolicy = QueueFullPolicy::BLOCK_PRODUCER;
@@ -98,8 +98,8 @@ TEST_F(PortManager_test, AcquireServerPortDataReturnsPort)
 TEST_F(PortManager_test, AcquireServerPortDataWithSameServiceDescriptionTwiceCallsErrorHandlerAndReturnsError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9f2c24ba-192d-4ce8-a61a-fe40b42c655b");
-    const ServiceDescription sd{"hyp", "no", "toad"};
-    const RuntimeName_t runtimeName{"hypnotoad"};
+    const ServiceDescription sd{ "hyp", "no", "toad" };
+    const RuntimeName_t runtimeName{ "hypnotoad" };
     auto serverOptions = createTestServerOptions();
 
     // first call must be successful
@@ -121,8 +121,8 @@ TEST_F(PortManager_test, AcquireServerPortDataWithSameServiceDescriptionTwiceCal
 TEST_F(PortManager_test, AcquireServerPortDataWithSameServiceDescriptionTwiceAndFirstPortMarkedToBeDestroyedReturnsPort)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d7f2815d-f1ea-403d-9355-69470d92a10f");
-    const ServiceDescription sd{"hyp", "no", "toad"};
-    const RuntimeName_t runtimeName{"hypnotoad"};
+    const ServiceDescription sd{ "hyp", "no", "toad" };
+    const RuntimeName_t runtimeName{ "hypnotoad" };
     auto serverOptions = createTestServerOptions();
 
     // first call must be successful
@@ -490,7 +490,7 @@ TEST_F(PortManager_test, CreateServerWithNotOfferOnCreateDoesNotAddServerToServi
     auto serverPortUser = createServer(serverOptions);
     m_portManager->doDiscovery();
 
-    uint64_t serverCount{0U};
+    uint64_t serverCount{ 0U };
     m_portManager->serviceRegistry().find(nullopt, nullopt, nullopt, [&](const auto& entry) {
         EXPECT_THAT(entry.serverCount, Eq(1U));
         serverCount += entry.serverCount;
@@ -507,7 +507,7 @@ TEST_F(PortManager_test, CreateServerWithOfferOnCreateAddsServerToServiceRegistr
     auto serverPortUser = createServer(serverOptions);
     m_portManager->doDiscovery();
 
-    uint64_t serverCount{0U};
+    uint64_t serverCount{ 0U };
     m_portManager->serviceRegistry().find(nullopt, nullopt, nullopt, [&](const auto& entry) {
         EXPECT_THAT(entry.serverCount, Eq(1U));
         serverCount += entry.serverCount;
@@ -527,7 +527,7 @@ TEST_F(PortManager_test, StopOfferRemovesServerFromServiceRegistry)
     serverPortUser.stopOffer();
     m_portManager->doDiscovery();
 
-    uint64_t serverCount{0U};
+    uint64_t serverCount{ 0U };
     m_portManager->serviceRegistry().find(nullopt, nullopt, nullopt, [&](const auto& entry) {
         EXPECT_THAT(entry.serverCount, Eq(1U));
         serverCount += entry.serverCount;
@@ -547,7 +547,7 @@ TEST_F(PortManager_test, OfferAddsServerToServiceRegistry)
     serverPortUser.offer();
     m_portManager->doDiscovery();
 
-    uint64_t serverCount{0U};
+    uint64_t serverCount{ 0U };
     m_portManager->serviceRegistry().find(nullopt, nullopt, nullopt, [&](const auto& entry) {
         EXPECT_THAT(entry.serverCount, Eq(1U));
         serverCount += entry.serverCount;
@@ -706,7 +706,7 @@ TEST_F(PortManager_test, ConnectedClientCanCommunicateWithServer)
     auto clientPortUser = createClient(clientOptions);
 
     using DataType = uint64_t;
-    constexpr int64_t SEQUENCE_ID{42};
+    constexpr int64_t SEQUENCE_ID{ 42 };
 
     auto allocateRequestResult = clientPortUser.allocateRequest(sizeof(DataType), alignof(DataType));
     ASSERT_FALSE(allocateRequestResult.has_error());

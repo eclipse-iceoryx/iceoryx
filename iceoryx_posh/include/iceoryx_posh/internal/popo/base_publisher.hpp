@@ -99,7 +99,7 @@ class BasePublisher
     port_t& port() noexcept;
 
   private:
-    port_t m_port{nullptr};
+    port_t m_port{ nullptr };
 };
 
 } // namespace popo

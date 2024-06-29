@@ -75,8 +75,8 @@ TEST_F(PosixShmMemoryProvider_Test, CreateMemory)
     PosixShmMemoryProvider sut(
         TEST_SHM_NAME, DEFAULT_DOMAIN_ID, iox::AccessMode::READ_WRITE, iox::OpenMode::PURGE_AND_CREATE);
     ASSERT_FALSE(sut.addMemoryBlock(&memoryBlock1).has_error());
-    uint64_t MEMORY_SIZE{16};
-    uint64_t MEMORY_ALIGNMENT{8};
+    uint64_t MEMORY_SIZE{ 16 };
+    uint64_t MEMORY_ALIGNMENT{ 8 };
     EXPECT_CALL(memoryBlock1, size()).WillRepeatedly(Return(MEMORY_SIZE));
     EXPECT_CALL(memoryBlock1, alignment()).WillRepeatedly(Return(MEMORY_ALIGNMENT));
 
@@ -93,8 +93,8 @@ TEST_F(PosixShmMemoryProvider_Test, DestroyMemory)
     PosixShmMemoryProvider sut(
         TEST_SHM_NAME, DEFAULT_DOMAIN_ID, iox::AccessMode::READ_WRITE, iox::OpenMode::PURGE_AND_CREATE);
     ASSERT_FALSE(sut.addMemoryBlock(&memoryBlock1).has_error());
-    uint64_t MEMORY_SIZE{16};
-    uint64_t MEMORY_ALIGNMENT{8};
+    uint64_t MEMORY_SIZE{ 16 };
+    uint64_t MEMORY_ALIGNMENT{ 8 };
     EXPECT_CALL(memoryBlock1, size()).WillRepeatedly(Return(MEMORY_SIZE));
     EXPECT_CALL(memoryBlock1, alignment()).WillRepeatedly(Return(MEMORY_ALIGNMENT));
 
@@ -113,8 +113,8 @@ TEST_F(PosixShmMemoryProvider_Test, CreationFailedWithAlignmentExceedingPageSize
     PosixShmMemoryProvider sut(
         TEST_SHM_NAME, DEFAULT_DOMAIN_ID, iox::AccessMode::READ_WRITE, iox::OpenMode::PURGE_AND_CREATE);
     ASSERT_FALSE(sut.addMemoryBlock(&memoryBlock1).has_error());
-    uint64_t MEMORY_SIZE{16};
-    uint64_t MEMORY_ALIGNMENT{iox::detail::pageSize() + 8U};
+    uint64_t MEMORY_SIZE{ 16 };
+    uint64_t MEMORY_ALIGNMENT{ iox::detail::pageSize() + 8U };
     EXPECT_CALL(memoryBlock1, size()).WillRepeatedly(Return(MEMORY_SIZE));
     EXPECT_CALL(memoryBlock1, alignment()).WillRepeatedly(Return(MEMORY_ALIGNMENT));
 

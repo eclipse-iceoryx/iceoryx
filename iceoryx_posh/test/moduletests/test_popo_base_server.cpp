@@ -92,8 +92,8 @@ class BaseServer_test : public Test
         // the default ctor is used in the getMiddlewareServer call
         PortConfigInfo portInfo;
         MemoryManager memoryManager;
-        ServerPortData portData{
-            sd, runtimeName, roudi::DEFAULT_UNIQUE_ROUDI_ID, options, &memoryManager, portInfo.memoryInfo};
+        ServerPortData portData{ sd,      runtimeName,    roudi::DEFAULT_UNIQUE_ROUDI_ID,
+                                 options, &memoryManager, portInfo.memoryInfo };
         EXPECT_CALL(*mockRuntime, getMiddlewareServer(sd, options, portInfo)).WillOnce(Return(&portData));
 
         sut.emplace(sd, options);
@@ -109,10 +109,10 @@ class BaseServer_test : public Test
         }
     }
 
-    iox::RuntimeName_t runtimeName{"HYPNOTOAD"};
+    iox::RuntimeName_t runtimeName{ "HYPNOTOAD" };
     std::unique_ptr<PoshRuntimeMock> mockRuntime = PoshRuntimeMock::create(runtimeName);
 
-    ServiceDescription sd{"make", "it", "so"};
+    ServiceDescription sd{ "make", "it", "so" };
     iox::popo::ServerOptions options;
     optional<TestBaseServer<Sut>> sut;
 };
@@ -130,7 +130,7 @@ TYPED_TEST(BaseServer_test, GetUidCallsUnderlyingPort)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3ff821b6-4977-4405-b95d-60fb84933d28");
 
-    const UniquePortId uid{roudi::DEFAULT_UNIQUE_ROUDI_ID};
+    const UniquePortId uid{ roudi::DEFAULT_UNIQUE_ROUDI_ID };
     EXPECT_CALL(this->sut->port(), getUniqueID).WillOnce(Return(uid));
 
     EXPECT_THAT(this->sut->getUid(), Eq(uid));
@@ -167,7 +167,7 @@ TYPED_TEST(BaseServer_test, IsOfferedCallsUnderlyingPort)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b4b46a37-5331-4306-9df1-b092ea2d62ef");
 
-    constexpr bool IS_OFFERED{true};
+    constexpr bool IS_OFFERED{ true };
     EXPECT_CALL(this->sut->port(), isOffered).WillOnce(Return(IS_OFFERED));
 
     EXPECT_THAT(this->sut->isOffered(), Eq(IS_OFFERED));
@@ -177,7 +177,7 @@ TYPED_TEST(BaseServer_test, HasClientsCallsUnderlyingPort)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9c2eb6f3-5ce6-4bba-88de-08fcff87f5cf");
 
-    constexpr bool HAS_CLIENTS{true};
+    constexpr bool HAS_CLIENTS{ true };
     EXPECT_CALL(this->sut->port(), hasClients).WillOnce(Return(HAS_CLIENTS));
 
     EXPECT_THAT(this->sut->hasClients(), Eq(HAS_CLIENTS));
@@ -187,7 +187,7 @@ TYPED_TEST(BaseServer_test, HasRequestsCallsUnderlyingPort)
 {
     ::testing::Test::RecordProperty("TEST_ID", "bcc738d3-21f7-4f36-9395-4a89f2f88a07");
 
-    constexpr bool HAS_REQUESTS{true};
+    constexpr bool HAS_REQUESTS{ true };
     EXPECT_CALL(this->sut->port(), hasNewRequests).WillOnce(Return(HAS_REQUESTS));
 
     EXPECT_THAT(this->sut->hasRequests(), Eq(HAS_REQUESTS));
@@ -197,7 +197,7 @@ TYPED_TEST(BaseServer_test, HasMissedRequestsCallsUnderlyingPort)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b0567e45-f66d-410b-b744-efdd4e566464");
 
-    constexpr bool HAS_MISSED_REQUESTS{true};
+    constexpr bool HAS_MISSED_REQUESTS{ true };
     EXPECT_CALL(this->sut->port(), hasLostRequestsSinceLastCall).WillOnce(Return(HAS_MISSED_REQUESTS));
 
     EXPECT_THAT(this->sut->hasMissedRequests(), Eq(HAS_MISSED_REQUESTS));
@@ -218,7 +218,7 @@ TYPED_TEST(BaseServer_test, InvalidateTriggerWithFittingTriggerIdCallsUnderlying
 {
     ::testing::Test::RecordProperty("TEST_ID", "fab216c1-b88f-4755-b5d4-7cf0fb95bc5a");
 
-    constexpr uint64_t TRIGGER_ID{13U};
+    constexpr uint64_t TRIGGER_ID{ 13U };
 
     EXPECT_CALL(this->sut->m_trigger, getUniqueId).WillOnce(Return(TRIGGER_ID));
     EXPECT_CALL(this->sut->port(), unsetConditionVariable).Times(1);
@@ -231,8 +231,8 @@ TYPED_TEST(BaseServer_test, InvalidateTriggerWithUnfittingTriggerIdDoesNotCallUn
 {
     ::testing::Test::RecordProperty("TEST_ID", "a895a258-1237-4de6-ab85-7246e3404d3a");
 
-    constexpr uint64_t TRIGGER_ID_1{1U};
-    constexpr uint64_t TRIGGER_ID_2{2U};
+    constexpr uint64_t TRIGGER_ID_1{ 1U };
+    constexpr uint64_t TRIGGER_ID_2{ 2U };
 
     EXPECT_CALL(this->sut->m_trigger, getUniqueId).WillOnce(Return(TRIGGER_ID_2));
     EXPECT_CALL(this->sut->port(), unsetConditionVariable).Times(0);
@@ -245,15 +245,15 @@ TYPED_TEST(BaseServer_test, EnableStateCallsUnderlyingPortAndTriggerHandle)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e97beefa-f83d-42c5-8087-02bf4b9f2a32");
 
-    for (const bool serverAttachedIndicator : {false, true})
+    for (const bool serverAttachedIndicator : { false, true })
     {
         SCOPED_TRACE(std::string("Test 'enableState' with server ")
                      + (serverAttachedIndicator ? "attached" : " not attached"));
 
-        const uint64_t TRIGGER_ID{serverAttachedIndicator ? 42U : 73U};
+        const uint64_t TRIGGER_ID{ serverAttachedIndicator ? 42U : 73U };
         MockTriggeHandle triggerHandle;
         triggerHandle.triggerId = TRIGGER_ID;
-        ConditionVariableData condVar{this->runtimeName};
+        ConditionVariableData condVar{ this->runtimeName };
 
         EXPECT_THAT(this->sut->m_trigger.triggerId, Ne(TRIGGER_ID));
 
@@ -286,7 +286,7 @@ TYPED_TEST(BaseServer_test, GetCallbackForIsStateConditionSatisfiedReturnsCallba
 
     auto callback = this->sut->getCallbackForIsStateConditionSatisfied(ServerState::HAS_REQUEST);
 
-    constexpr bool HAS_REQUESTS{true};
+    constexpr bool HAS_REQUESTS{ true };
     EXPECT_CALL(this->sut->port(), hasNewRequests).WillOnce(Return(HAS_REQUESTS));
     EXPECT_TRUE((*callback)());
 }
@@ -305,15 +305,15 @@ TYPED_TEST(BaseServer_test, EnableEventCallsUnderlyingPortAndTriggerHandle)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a5715e02-7362-4d4e-a387-11367b804ce1");
 
-    for (const bool serverAttachedIndicator : {false, true})
+    for (const bool serverAttachedIndicator : { false, true })
     {
         SCOPED_TRACE(std::string("Test 'enableEvent' with server ")
                      + (serverAttachedIndicator ? "attached" : " not attached"));
 
-        const uint64_t TRIGGER_ID{serverAttachedIndicator ? 42U : 73U};
+        const uint64_t TRIGGER_ID{ serverAttachedIndicator ? 42U : 73U };
         MockTriggeHandle triggerHandle;
         triggerHandle.triggerId = TRIGGER_ID;
-        ConditionVariableData condVar{this->runtimeName};
+        ConditionVariableData condVar{ this->runtimeName };
 
         EXPECT_THAT(this->sut->m_trigger.triggerId, Ne(TRIGGER_ID));
 

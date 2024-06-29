@@ -64,14 +64,14 @@ TEST_F(GenericMemoryBlock_POD_Test, Alignment)
 TEST_F(GenericMemoryBlock_POD_Test, EmplaceWithoutCreate)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a6ded0ad-72e2-4c0a-b9ae-b359e0044350");
-    constexpr uint32_t EXPECTED_VALUE{37};
+    constexpr uint32_t EXPECTED_VALUE{ 37 };
     EXPECT_THAT(sutPOD.emplace(EXPECTED_VALUE).has_value(), Eq(false));
 }
 
 TEST_F(GenericMemoryBlock_POD_Test, EmplaceValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f9527cb7-33a9-40fe-b573-39c2b02033f9");
-    constexpr uint32_t EXPECTED_VALUE{42};
+    constexpr uint32_t EXPECTED_VALUE{ 42 };
     IOX_DISCARD_RESULT(memoryProvider.addMemoryBlock(&sutPOD));
     IOX_DISCARD_RESULT(memoryProvider.create());
     ASSERT_THAT(sutPOD.memory().has_value(), Eq(true));
@@ -84,8 +84,8 @@ TEST_F(GenericMemoryBlock_POD_Test, EmplaceValue)
 TEST_F(GenericMemoryBlock_POD_Test, MultipleEmplaceValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "cb0175fa-1f9f-4fc8-802f-4eee14fa9ad9");
-    constexpr uint32_t FIRST_VALUE{13};
-    constexpr uint32_t EXPECTED_VALUE{73};
+    constexpr uint32_t FIRST_VALUE{ 13 };
+    constexpr uint32_t EXPECTED_VALUE{ 73 };
     IOX_DISCARD_RESULT(memoryProvider.addMemoryBlock(&sutPOD));
     IOX_DISCARD_RESULT(memoryProvider.create());
 
@@ -99,7 +99,7 @@ TEST_F(GenericMemoryBlock_POD_Test, MultipleEmplaceValue)
 TEST_F(GenericMemoryBlock_POD_Test, GetValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "01db1013-4df4-4e24-b1a6-9406153ac693");
-    constexpr uint32_t EXPECTED_VALUE{42};
+    constexpr uint32_t EXPECTED_VALUE{ 42 };
     IOX_DISCARD_RESULT(memoryProvider.addMemoryBlock(&sutPOD));
     IOX_DISCARD_RESULT(memoryProvider.create());
 
@@ -123,7 +123,7 @@ class NonTrivialClass
         ++s_destructorCounter;
     }
 
-    uint32_t m_data{0};
+    uint32_t m_data{ 0 };
 
     static uint64_t s_constructorCounter;
     static uint64_t s_destructorCounter;
@@ -159,7 +159,7 @@ class GenericMemoryBlock_NonTrivial_Test : public Test
 TEST_F(GenericMemoryBlock_NonTrivial_Test, EmplaceValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6758f87f-dd40-4d96-a593-3c8c5ad754a1");
-    constexpr uint32_t EXPECTED_VALUE{142};
+    constexpr uint32_t EXPECTED_VALUE{ 142 };
     IOX_DISCARD_RESULT(memoryProvider.addMemoryBlock(&sut));
     IOX_DISCARD_RESULT(memoryProvider.create());
     ASSERT_THAT(sut.memory().has_value(), Eq(true));
@@ -173,8 +173,8 @@ TEST_F(GenericMemoryBlock_NonTrivial_Test, EmplaceValue)
 TEST_F(GenericMemoryBlock_NonTrivial_Test, MultipleEmplaceValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4894ac48-6f29-4f9f-b56d-ed559432d2e3");
-    constexpr uint32_t FIRST_VALUE{113};
-    constexpr uint32_t EXPECTED_VALUE{173};
+    constexpr uint32_t FIRST_VALUE{ 113 };
+    constexpr uint32_t EXPECTED_VALUE{ 173 };
     IOX_DISCARD_RESULT(memoryProvider.addMemoryBlock(&sut));
     IOX_DISCARD_RESULT(memoryProvider.create());
 
@@ -203,7 +203,7 @@ TEST_F(GenericMemoryBlock_NonTrivial_Test, RunDestructorWithoutEmplace)
 TEST_F(GenericMemoryBlock_NonTrivial_Test, DestroyWithEmplace)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e5a1568a-3b46-4c1c-96f0-c191de1b19b7");
-    constexpr uint32_t EXPECTED_VALUE{111};
+    constexpr uint32_t EXPECTED_VALUE{ 111 };
     IOX_DISCARD_RESULT(memoryProvider.addMemoryBlock(&sut));
     IOX_DISCARD_RESULT(memoryProvider.create());
     EXPECT_THAT(sut.emplace(EXPECTED_VALUE).value()->m_data, EXPECTED_VALUE);
@@ -218,7 +218,7 @@ TEST_F(GenericMemoryBlock_NonTrivial_Test, DestroyWithEmplace)
 TEST_F(GenericMemoryBlock_NonTrivial_Test, RepetitiveDestroyWithEmplace)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e8e07e99-7896-4cdc-b990-b24522d7d504");
-    constexpr uint32_t EXPECTED_VALUE{42};
+    constexpr uint32_t EXPECTED_VALUE{ 42 };
     IOX_DISCARD_RESULT(memoryProvider.addMemoryBlock(&sut));
     IOX_DISCARD_RESULT(memoryProvider.create());
     sut.emplace(EXPECTED_VALUE);

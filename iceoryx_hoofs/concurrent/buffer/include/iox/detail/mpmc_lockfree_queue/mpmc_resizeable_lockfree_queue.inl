@@ -131,7 +131,7 @@ inline uint64_t MpmcResizeableLockFreeQueue<ElementType, MaxCapacity>::decreaseC
     uint64_t decreased = 0U;
     while (decreased < toDecrease)
     {
-        BufferIndex index{0};
+        BufferIndex index{ 0 };
         while (decreased < toDecrease)
         {
             if (!Base::m_freeIndices.pop(index))
@@ -206,7 +206,7 @@ inline iox::optional<ElementType> MpmcResizeableLockFreeQueue<ElementType, MaxCa
 {
     optional<ElementType> evictedValue;
 
-    BufferIndex index{0};
+    BufferIndex index{ 0 };
 
     while (!Base::m_freeIndices.pop(index))
     {

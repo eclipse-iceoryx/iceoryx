@@ -134,8 +134,8 @@ class PosixMemoryMap
     bool destroy() noexcept;
     static PosixMemoryMapError errnoToEnum(const int32_t errnum) noexcept;
 
-    void* m_baseAddress{nullptr};
-    uint64_t m_length{0U};
+    void* m_baseAddress{ nullptr };
+    uint64_t m_length{ 0U };
 };
 } // namespace detail
 } // namespace iox

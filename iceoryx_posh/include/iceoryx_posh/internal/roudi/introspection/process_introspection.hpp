@@ -87,13 +87,14 @@ class ProcessIntrospection
   private:
     using ProcessList_t = iox::list<ProcessIntrospectionData, MAX_PROCESS_NUMBER>;
     ProcessList_t m_processList;
-    bool m_processListNewData{true}; // true because we want to have a valid field, even with an empty list
+    bool m_processListNewData{ true }; // true because we want to have a valid field, even with an empty list
 
     std::mutex m_mutex;
 
-    units::Duration m_sendInterval{units::Duration::fromSeconds(1U)};
+    units::Duration m_sendInterval{ units::Duration::fromSeconds(1U) };
     concurrent::detail::PeriodicTask<function<void()>> m_publishingTask{
-        concurrent::detail::PeriodicTaskManualStart, "ProcessIntr", *this, &ProcessIntrospection::send};
+        concurrent::detail::PeriodicTaskManualStart, "ProcessIntr", *this, &ProcessIntrospection::send
+    };
 };
 
 /// @brief typedef for the templated process introspection class that is used by RouDi for the

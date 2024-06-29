@@ -45,7 +45,7 @@ class ConditionNotifier
     ConditionVariableData* getMembers() noexcept;
 
   private:
-    ConditionVariableData* m_condVarDataPtr{nullptr};
+    ConditionVariableData* m_condVarDataPtr{ nullptr };
     uint64_t m_notificationIndex = INVALID_NOTIFICATION_INDEX;
 };
 

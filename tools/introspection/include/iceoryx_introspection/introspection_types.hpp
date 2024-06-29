@@ -40,9 +40,9 @@ enum class PrettyOptions
 
 struct IntrospectionSelection
 {
-    bool mempool{false};
-    bool process{false};
-    bool port{false};
+    bool mempool{ false };
+    bool process{ false };
+    bool port{ false };
 };
 
 /// @note this contains just pointer to the real data, therefore pay attention to the lifetime of the original data

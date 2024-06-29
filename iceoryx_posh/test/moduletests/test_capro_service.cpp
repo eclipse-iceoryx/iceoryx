@@ -63,7 +63,7 @@ TEST_F(ServiceDescription_test, ServiceDescriptionClassHashDefaultCtorCreatesCla
 TEST_F(ServiceDescription_test, ServiceDescriptionClassHashCtorCreatesClassHashWithValuesPassedToTheCtor)
 {
     ::testing::Test::RecordProperty("TEST_ID", "00d1f6f1-4011-406e-a18e-85af7fa401f4");
-    ServiceDescription::ClassHash testHash{1U, 2U, 3U, 4U};
+    ServiceDescription::ClassHash testHash{ 1U, 2U, 3U, 4U };
 
     EXPECT_EQ(uint32_t(1), testHash[0]);
     EXPECT_EQ(uint32_t(2), testHash[1]);
@@ -74,8 +74,8 @@ TEST_F(ServiceDescription_test, ServiceDescriptionClassHashCtorCreatesClassHashW
 TEST_F(ServiceDescription_test, ComparingTwoUnequalClassHashWithEqualityOperatorReturnsFalse)
 {
     ::testing::Test::RecordProperty("TEST_ID", "dc2e03b0-d9ac-49fd-8d1d-6e2393ce3d68");
-    ServiceDescription::ClassHash testHash1{15U, 25U, 35U, 45U};
-    ServiceDescription::ClassHash testHash2{55U, 65U, 75U, 85U};
+    ServiceDescription::ClassHash testHash1{ 15U, 25U, 35U, 45U };
+    ServiceDescription::ClassHash testHash2{ 55U, 65U, 75U, 85U };
 
     EXPECT_FALSE(testHash1 == testHash2);
 }
@@ -83,8 +83,8 @@ TEST_F(ServiceDescription_test, ComparingTwoUnequalClassHashWithEqualityOperator
 TEST_F(ServiceDescription_test, ComparingTwoUnequalClassHashWithEqualityOperatorReturnsTrue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3423678c-d45e-4b36-bce6-7e6d0a5bc2a6");
-    ServiceDescription::ClassHash testHash1{10U, 20U, 30U, 40U};
-    ServiceDescription::ClassHash testHash2{10U, 20U, 30U, 40U};
+    ServiceDescription::ClassHash testHash1{ 10U, 20U, 30U, 40U };
+    ServiceDescription::ClassHash testHash2{ 10U, 20U, 30U, 40U };
 
     EXPECT_TRUE(testHash1 == testHash2);
 }
@@ -92,8 +92,8 @@ TEST_F(ServiceDescription_test, ComparingTwoUnequalClassHashWithEqualityOperator
 TEST_F(ServiceDescription_test, ComparingTwoUnequalClassHashWithNotEqualOperatorReturnsTrue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "59d7790f-5d1f-4f1f-9cf6-8f474ae8978f");
-    ServiceDescription::ClassHash testHash1{12U, 24U, 36U, 48U};
-    ServiceDescription::ClassHash testHash2{60U, 72U, 84U, 96U};
+    ServiceDescription::ClassHash testHash1{ 12U, 24U, 36U, 48U };
+    ServiceDescription::ClassHash testHash2{ 60U, 72U, 84U, 96U };
 
     EXPECT_TRUE(testHash1 != testHash2);
 }
@@ -101,8 +101,8 @@ TEST_F(ServiceDescription_test, ComparingTwoUnequalClassHashWithNotEqualOperator
 TEST_F(ServiceDescription_test, ComparingTwoEqualClassHashWithNotEqualOperatorReturnsFalse)
 {
     ::testing::Test::RecordProperty("TEST_ID", "498fa728-7fbb-4e99-8e95-eaf267284f22");
-    ServiceDescription::ClassHash testHash1{11U, 22U, 33U, 44U};
-    ServiceDescription::ClassHash testHash2{11U, 22U, 33U, 44U};
+    ServiceDescription::ClassHash testHash1{ 11U, 22U, 33U, 44U };
+    ServiceDescription::ClassHash testHash2{ 11U, 22U, 33U, 44U };
 
     EXPECT_FALSE(testHash1 != testHash2);
 }
@@ -126,7 +126,7 @@ TEST_F(ServiceDescription_test, ClassHashWithValuesAssignedUsingAssignmentOperat
 TEST_F(ServiceDescription_test, ClassHashSubsriptOperatorOutOfBoundsFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ac4b4cb3-503c-4e39-a549-684176e7557a");
-    ServiceDescription::ClassHash testHash{1U, 2U, 3U, 4U};
+    ServiceDescription::ClassHash testHash{ 1U, 2U, 3U, 4U };
 
     testHash[0] = 1U;
     testHash[1] = 2U;
@@ -147,7 +147,7 @@ TEST_F(ServiceDescription_test, ClassHashSubsriptOperatorOutOfBoundsFails)
 TEST_F(ServiceDescription_test, ServiceDescriptionSerializationCreatesServiceDescriptionWithValuesPassedToTheCtor)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0bda1264-f1b0-41d5-b1c4-f8e7f2a5806a");
-    ServiceDescription::ClassHash testHash = {11U, 21U, 31U, 41U};
+    ServiceDescription::ClassHash testHash = { 11U, 21U, 31U, 41U };
     testService = "Service";
     testInstance = "Instance";
     testEvent = "Event";
@@ -188,7 +188,7 @@ TEST_F(ServiceDescription_test,
        ServiceDescriptionObjectInitialisationWithOutOfBoundaryScopeLeadsToInvalidDeserialization)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0a94b000-54ac-415a-a7c7-6f1348676f03");
-    ServiceDescription::ClassHash testHash = {14U, 28U, 42U, 56U};
+    ServiceDescription::ClassHash testHash = { 14U, 28U, 42U, 56U };
     testService = "Service";
     testInstance = "Instance";
     testEvent = "Event";
@@ -215,7 +215,7 @@ TEST_F(ServiceDescription_test,
        ServiceDescriptionObjectInitialisationWithOutOfBoundaryInterfaceSourceLeadsToInvalidDeserialization)
 {
     ::testing::Test::RecordProperty("TEST_ID", "29fac03f-a845-4180-89b7-8367a203646e");
-    ServiceDescription::ClassHash testHash = {17U, 34U, 51U, 68U};
+    ServiceDescription::ClassHash testHash = { 17U, 34U, 51U, 68U };
     testService = "Service";
     testInstance = "Instance";
     testEvent = "Event";
@@ -241,7 +241,7 @@ TEST_F(ServiceDescription_test, ServiceDescriptionObjectInitialisationWithEmptyS
 {
     ::testing::Test::RecordProperty("TEST_ID", "4607d73d-d27d-4694-833d-2e28162589cd");
     std::string emptyString;
-    iox::Serialization invalidSerialObj{emptyString};
+    iox::Serialization invalidSerialObj{ emptyString };
 
     auto deserializationResult = ServiceDescription::deserialize(invalidSerialObj);
 
@@ -281,7 +281,7 @@ TEST_F(ServiceDescription_test, ServiceDescriptionStringCtorCreatesServiceDescri
     testService = "1";
     testInstance = "2";
     testEvent = "3";
-    ServiceDescription::ClassHash testHash = {12U, 23U, 34U, 45U};
+    ServiceDescription::ClassHash testHash = { 12U, 23U, 34U, 45U };
 
     ServiceDescription serviceDescription1 = ServiceDescription(testService, testInstance, testEvent, testHash);
 
@@ -439,11 +439,11 @@ TEST_F(ServiceDescription_test, LogStreamConvertsServiceDescriptionToString)
     ::testing::Test::RecordProperty("TEST_ID", "42bc3f21-d9f4-4cc3-a37e-6508e1f981c1");
     iox::testing::Logger_Mock loggerMock;
 
-    const IdString_t SERVICE_ID{"all"};
-    const IdString_t INSTANCE_ID{"glory"};
-    const IdString_t EVENT_ID{"hypnotoad"};
-    const std::string SERVICE_DESCRIPTION_AS_STRING{"Service: all, Instance: glory, Event: hypnotoad"};
-    auto sut = ServiceDescription{SERVICE_ID, INSTANCE_ID, EVENT_ID};
+    const IdString_t SERVICE_ID{ "all" };
+    const IdString_t INSTANCE_ID{ "glory" };
+    const IdString_t EVENT_ID{ "hypnotoad" };
+    const std::string SERVICE_DESCRIPTION_AS_STRING{ "Service: all, Instance: glory, Event: hypnotoad" };
+    auto sut = ServiceDescription{ SERVICE_ID, INSTANCE_ID, EVENT_ID };
 
     {
         IOX_LOGSTREAM_MOCK(loggerMock) << sut;

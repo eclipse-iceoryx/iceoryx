@@ -53,9 +53,9 @@ class Logger_Mock : public log::TestingLoggerBase
     struct LogEntry
     {
         std::string file;
-        int line{0};
+        int line{ 0 };
         std::string function;
-        log::LogLevel logLevel{iox::log::LogLevel::OFF};
+        log::LogLevel logLevel{ iox::log::LogLevel::OFF };
         std::string message;
     };
 

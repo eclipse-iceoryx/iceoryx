@@ -62,7 +62,7 @@ class MockTriggeHandle
 
     MOCK_METHOD(bool, operatorBoolMock, (), (const));
 
-    uint64_t triggerId{0};
+    uint64_t triggerId{ 0 };
 };
 
 #endif // IOX_POSH_MOCKS_TRIGGER_HANDLE_MOCK_HPP

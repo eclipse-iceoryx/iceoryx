@@ -101,7 +101,7 @@ class function_refTest : public Test
         return MEMBER_FUNC_TEST_VALUE;
     }
 
-    uint8_t m_iter{0};
+    uint8_t m_iter{ 0 };
 };
 
 using function_refDeathTest = function_refTest;
@@ -111,7 +111,7 @@ TEST_F(function_refTest, CallValidByAssignResultEqual)
     ::testing::Test::RecordProperty("TEST_ID", "99c66fbd-2df5-48d9-bc89-8394e99c76ba");
     auto lambda = []() -> int { return 7253; };
     auto wrongLambda = []() -> int { return 5372; };
-    function_ref<int()> sut{wrongLambda};
+    function_ref<int()> sut{ wrongLambda };
     sut = lambda;
     EXPECT_THAT(sut(), Eq(7253));
 }
@@ -120,7 +120,7 @@ TEST_F(function_refTest, CallValidByCopyConstructResultEqual)
 {
     ::testing::Test::RecordProperty("TEST_ID", "cb30b36d-1c3d-4848-a497-d6d3e72edbd5");
     auto lambda = []() -> int { return 3527; };
-    function_ref<int()> sut1{lambda};
+    function_ref<int()> sut1{ lambda };
     function_ref<int()> sut2(sut1);
     EXPECT_THAT(sut2(), Eq(3527));
 }
@@ -130,9 +130,9 @@ TEST_F(function_refTest, CreateValidByCopyAssignResultEqual)
     ::testing::Test::RecordProperty("TEST_ID", "fb8b568c-06fe-4af2-8d2a-c2527f799ad9");
     auto lambda = []() -> int { return 43; };
     auto lambda2 = []() -> int { return 34; };
-    function_ref<int()> sut2{lambda2};
+    function_ref<int()> sut2{ lambda2 };
     {
-        function_ref<int()> sut1{lambda};
+        function_ref<int()> sut1{ lambda };
         EXPECT_THAT(sut1(), Eq(43));
         sut2 = sut1;
     }
@@ -143,8 +143,8 @@ TEST_F(function_refTest, CreateValidByMoveResultEqual)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b7b5ac66-a703-429b-9e38-44ebcd9a7519");
     auto lambda = []() -> int { return 123; };
-    function_ref<int()> sut1{lambda};
-    function_ref<int()> sut2{std::move(sut1)};
+    function_ref<int()> sut1{ lambda };
+    function_ref<int()> sut2{ std::move(sut1) };
     EXPECT_THAT(sut2(), Eq(123));
 }
 
@@ -153,9 +153,9 @@ TEST_F(function_refTest, CreateValidByMoveAssignResultEqual)
     ::testing::Test::RecordProperty("TEST_ID", "e641e34f-0e8a-4092-8224-b5f52b964a16");
     auto lambda1 = []() -> int { return 118; };
     auto lambda2 = []() -> int { return 999; };
-    function_ref<int()> sut1{lambda1};
+    function_ref<int()> sut1{ lambda1 };
     {
-        function_ref<int()> sut2{lambda2};
+        function_ref<int()> sut2{ lambda2 };
         sut1 = std::move(sut2);
     }
     EXPECT_THAT(sut1(), Eq(999));
@@ -166,8 +166,8 @@ TEST_F(function_refDeathTest, CallMovedFromLeadsToTermination)
     ::testing::Test::RecordProperty("TEST_ID", "3402f27e-ced5-483f-ab39-0069cfd172ac");
 
     auto lambda = []() -> int { return 7654; };
-    function_ref<int()> sut1{lambda};
-    function_ref<int()> sut2{std::move(sut1)};
+    function_ref<int()> sut1{ lambda };
+    function_ref<int()> sut2{ std::move(sut1) };
 
     // NOLINTJUSTIFICATION Use after move is tested here
     // NOLINTBEGIN(bugprone-use-after-move, hicpp-invalid-access-moved)
@@ -226,7 +226,7 @@ TEST_F(function_refTest, CreateValidWithFreeFunctionResultEqual)
 TEST_F(function_refTest, CreateValidWithComplexTypeResultEqual)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7c6a4bf0-989f-4d15-a905-03fddf6d80bc");
-    ComplexType fuubar{1, 2, 1.3F};
+    ComplexType fuubar{ 1, 2, 1.3F };
     function_ref<ComplexType(ComplexType)> sut(returnComplexType);
     EXPECT_THAT(sut(fuubar), Eq(fuubar));
 }
@@ -303,7 +303,7 @@ TEST_F(function_refTest, CreationWithFunctionPointerWithRefArgWorks)
     constexpr auto fp = &freeVoidFunction;
     function_ref<void(int&)> sut(fp);
 
-    int arg{0};
+    int arg{ 0 };
     sut(arg);
     EXPECT_EQ(arg, FREE_FUNC_TEST_VALUE);
 }
@@ -314,7 +314,7 @@ TEST_F(function_refTest, CreationWithFunctionPointerWithComplexTypeArgWorks)
     constexpr auto fp = &returnComplexType;
     function_ref<ComplexType(ComplexType)> sut(fp);
 
-    ComplexType arg{1, 2, 3.3F};
+    ComplexType arg{ 1, 2, 3.3F };
     auto result = sut(arg);
     EXPECT_EQ(result, arg);
 }

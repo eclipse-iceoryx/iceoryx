@@ -38,7 +38,7 @@ struct TransmissionData_t
     uint64_t counter;
 };
 
-constexpr std::chrono::milliseconds CYCLE_TIME{100};
+constexpr std::chrono::milliseconds CYCLE_TIME{ 100 };
 
 void consoleOutput(const char* source, const char* arrow, const uint64_t counter)
 {
@@ -53,11 +53,11 @@ void publisher()
     //! [publisher]
     iox::popo::PublisherOptions publisherOptions;
     publisherOptions.historyCapacity = 10U;
-    iox::popo::Publisher<TransmissionData_t> publisher({"Single", "Process", "Demo"}, publisherOptions);
+    iox::popo::Publisher<TransmissionData_t> publisher({ "Single", "Process", "Demo" }, publisherOptions);
     //! [publisher]
 
     //! [send]
-    uint64_t counter{0};
+    uint64_t counter{ 0 };
     constexpr const char GREEN_RIGHT_ARROW[] = "\033[32m->\033[m ";
     while (!iox::hasTerminationRequested())
     {
@@ -78,7 +78,7 @@ void subscriber()
     iox::popo::SubscriberOptions options;
     options.queueCapacity = 10U;
     options.historyRequest = 5U;
-    iox::popo::Subscriber<TransmissionData_t> subscriber({"Single", "Process", "Demo"}, options);
+    iox::popo::Subscriber<TransmissionData_t> subscriber({ "Single", "Process", "Demo" }, options);
     //! [subscriber]
 
     //! [receive]
@@ -87,7 +87,7 @@ void subscriber()
     {
         if (iox::SubscribeState::SUBSCRIBED == subscriber.getSubscriptionState())
         {
-            bool hasMoreSamples{true};
+            bool hasMoreSamples{ true };
 
             do
             {

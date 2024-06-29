@@ -31,7 +31,7 @@ namespace log
 {
 // NOLINTJUSTIFICATION See at declaration in header
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
-std::atomic<LogLevel> ConsoleLogger::s_activeLogLevel{LogLevel::INFO};
+std::atomic<LogLevel> ConsoleLogger::s_activeLogLevel{ LogLevel::INFO };
 
 ConsoleLogger::ThreadLocalData& ConsoleLogger::getThreadLocalData() noexcept
 {
@@ -57,15 +57,15 @@ void ConsoleLogger::createLogMessageHeader(const char* file,
                                            const char* function,
                                            LogLevel logLevel) noexcept
 {
-    timespec timestamp{0, 0};
+    timespec timestamp{ 0, 0 };
     // intentionally avoid using 'IOX_POSIX_CALL' here to keep the logger dependency free
     if (iox_clock_gettime(CLOCK_REALTIME, &timestamp) != 0)
     {
-        timestamp = {0, 0};
+        timestamp = { 0, 0 };
         // intentionally do nothing since a timestamp from 01.01.1970 already indicates  an issue with the clock
     }
 
-    const time_t time{timestamp.tv_sec};
+    const time_t time{ timestamp.tv_sec };
 
 /// @todo iox-#1755 since this will be part of the platform at one point, we might not be able to handle this via the
 /// platform abstraction; re-evaluate this when the move to the platform happens
@@ -83,19 +83,19 @@ void ConsoleLogger::createLogMessageHeader(const char* file,
     // AXIVION Next Construct AutosarC++19_03-A18.1.1 : This is used to get the size for the buffer where strftime
     // writes the local time
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-    constexpr const char TIME_FORMAT[]{"0000-00-00 00:00:00"};
-    constexpr uint32_t NULL_TERMINATION{1};
-    constexpr uint32_t YEAR_1M_PROBLEM{2}; // in case iceoryx is still in use, please change to 3
-    constexpr auto NULL_TERMINATED_TIMESTAMP_BUFFER_SIZE{ConsoleLogger::bufferSize(TIME_FORMAT) + YEAR_1M_PROBLEM
-                                                         + NULL_TERMINATION};
+    constexpr const char TIME_FORMAT[]{ "0000-00-00 00:00:00" };
+    constexpr uint32_t NULL_TERMINATION{ 1 };
+    constexpr uint32_t YEAR_1M_PROBLEM{ 2 }; // in case iceoryx is still in use, please change to 3
+    constexpr auto NULL_TERMINATED_TIMESTAMP_BUFFER_SIZE{ ConsoleLogger::bufferSize(TIME_FORMAT) + YEAR_1M_PROBLEM
+                                                          + NULL_TERMINATION };
 
     // AXIVION Next Construct AutosarC++19_03-A3.9.1 : Not used as an integer but as actual character
     // AXIVION Next Construct AutosarC++19_03-A18.1.1 : Required for strftime and safe since array bounds are taken into
     // account
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-    char timestampString[NULL_TERMINATED_TIMESTAMP_BUFFER_SIZE]{0};
+    char timestampString[NULL_TERMINATED_TIMESTAMP_BUFFER_SIZE]{ 0 };
 
-    bool timeStampConversionSuccessful{false};
+    bool timeStampConversionSuccessful{ false };
     if (timeInfo != nullptr)
     {
         const auto strftimeRetVal =
@@ -110,8 +110,8 @@ void ConsoleLogger::createLogMessageHeader(const char* file,
         strncpy(&timestampString[0], &TIME_FORMAT[0], ConsoleLogger::bufferSize(TIME_FORMAT));
     }
 
-    constexpr uint32_t MILLISECS_PER_SEC{1000};
-    constexpr uint32_t NANOSECS_PER_MILLISEC{1000000};
+    constexpr uint32_t MILLISECS_PER_SEC{ 1000 };
+    constexpr uint32_t NANOSECS_PER_MILLISEC{ 1000000 };
     // convert nanoseconds to milliseconds and compute the remaining milliseconds in a second
     const auto milliseconds = static_cast<int32_t>((timestamp.tv_nsec / NANOSECS_PER_MILLISEC) % MILLISECS_PER_SEC);
 
@@ -125,10 +125,10 @@ void ConsoleLogger::createLogMessageHeader(const char* file,
 
     // AXIVION Next Construct AutosarC++19_03-A3.9.1 : Not used as an integer but as string literal
     // AXIVION Next Construct AutosarC++19_03-M2.13.2 : Required for the color codes; only valid octal digits are used
-    constexpr const char* COLOR_GRAY{"\033[0;90m"};
+    constexpr const char* COLOR_GRAY{ "\033[0;90m" };
     // AXIVION Next Construct AutosarC++19_03-A3.9.1 : Not used as an integer but as string literal
     // AXIVION Next Construct AutosarC++19_03-M2.13.2 : Required for the color codes; only valid octal digits are used
-    constexpr const char* COLOR_RESET{"\033[m"};
+    constexpr const char* COLOR_RESET{ "\033[m" };
     // NOLINTJUSTIFICATION snprintf required to populate char array so that it can be flushed in one piece
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
     const auto retVal = snprintf(&getThreadLocalData().buffer[0],
@@ -169,7 +169,7 @@ void ConsoleLogger::flush() noexcept
     // NOLINTJUSTIFICATION it is ensured that the index cannot be out of bounds
     // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
     data.buffer[data.bufferWriteIndex] = '\n'; // overwrite null-termination with line ending
-    constexpr uint32_t LINE_ENDING_SIZE{1};
+    constexpr uint32_t LINE_ENDING_SIZE{ 1 };
 
     if (iox_write(STDOUT_FILENO, &data.buffer[0], data.bufferWriteIndex + LINE_ENDING_SIZE) < 0)
     {
@@ -185,7 +185,7 @@ void ConsoleLogger::flush() noexcept
 LogBuffer ConsoleLogger::getLogBuffer() const noexcept
 {
     auto& data = getThreadLocalData();
-    return LogBuffer{&data.buffer[0], data.bufferWriteIndex};
+    return LogBuffer{ &data.buffer[0], data.bufferWriteIndex };
 }
 
 // AXIVION Next Construct AutosarC++19_03-M9.3.3 : This is the default implementation for a logger. The design requires

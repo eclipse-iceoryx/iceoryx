@@ -121,8 +121,8 @@ class ConsoleLogger
         ThreadLocalData& operator=(ThreadLocalData&&) = delete;
 
         /// @todo iox-#1755 this could be made a compile time option
-        static constexpr uint32_t BUFFER_SIZE{1024};
-        static constexpr uint32_t NULL_TERMINATED_BUFFER_SIZE{BUFFER_SIZE + 1};
+        static constexpr uint32_t BUFFER_SIZE{ 1024 };
+        static constexpr uint32_t NULL_TERMINATED_BUFFER_SIZE{ BUFFER_SIZE + 1 };
 
         // AXIVION Next Construct AutosarC++19_03-A3.9.1 : Not used as an integer but as actual character
         // AXIVION Next Construct AutosarC++19_03-A18.1.1 : This is a low-level component with minimal dependencies.

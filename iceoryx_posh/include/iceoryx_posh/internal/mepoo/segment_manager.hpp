@@ -70,10 +70,10 @@ class SegmentManager
         {
         }
 
-        ShmName_t m_sharedMemoryName{""};
-        uint64_t m_size{0};
-        bool m_isWritable{false};
-        uint64_t m_segmentId{0};
+        ShmName_t m_sharedMemoryName{ "" };
+        uint64_t m_size{ 0 };
+        bool m_isWritable{ false };
+        uint64_t m_segmentId{ 0 };
         iox::mepoo::MemoryInfo m_memoryInfo; // we can specify additional info about a segments memory here
     };
 
@@ -101,7 +101,7 @@ class SegmentManager
 
     BumpAllocator* m_managementAllocator;
     vector<SegmentType, MAX_SHM_SEGMENTS> m_segmentContainer;
-    bool m_createInterfaceEnabled{true};
+    bool m_createInterfaceEnabled{ true };
 };
 
 

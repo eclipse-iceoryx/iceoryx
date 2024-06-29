@@ -38,12 +38,12 @@ struct timespec Duration::timespec(const TimeSpecReference reference) const noex
         if (this->m_seconds > static_cast<uint64_t>(std::numeric_limits<SEC_TYPE>::max()))
         {
             IOX_LOG(TRACE, ": Result of conversion would overflow, clamping to max value!");
-            return {std::numeric_limits<SEC_TYPE>::max(), NANOSECS_PER_SEC - 1U};
+            return { std::numeric_limits<SEC_TYPE>::max(), NANOSECS_PER_SEC - 1U };
         }
 
         const auto tv_sec = static_cast<SEC_TYPE>(this->m_seconds);
         const auto tv_nsec = static_cast<NSEC_TYPE>(this->m_nanoseconds);
-        return {tv_sec, tv_nsec};
+        return { tv_sec, tv_nsec };
     }
 
     struct timespec referenceTime
@@ -52,7 +52,7 @@ struct timespec Duration::timespec(const TimeSpecReference reference) const noex
 
     // AXIVION Next Construct AutosarC++19_03-M0.1.2, AutosarC++19_03-M0.1.9, FaultDetection-DeadBranches : False positive! Branching depends on input parameter
     // AXIVION Next Construct AutosarC++19_03-M5.0.3: False positive! CLOCK_REALTIME and CLOCK_MONOTONIC are of type clockid_t
-    const iox_clockid_t clockId{(reference == TimeSpecReference::Epoch) ? CLOCK_REALTIME : CLOCK_MONOTONIC};
+    const iox_clockid_t clockId{ (reference == TimeSpecReference::Epoch) ? CLOCK_REALTIME : CLOCK_MONOTONIC };
     IOX_ENFORCE(
         !IOX_POSIX_CALL(iox_clock_gettime)(clockId, &referenceTime).failureReturnValue(-1).evaluate().has_error(),
         "An error which should never happen occured during 'iox_clock_gettime'!");
@@ -64,12 +64,12 @@ struct timespec Duration::timespec(const TimeSpecReference reference) const noex
     if (targetTime.m_seconds > static_cast<uint64_t>(std::numeric_limits<SEC_TYPE>::max()))
     {
         IOX_LOG(TRACE, ": Result of conversion would overflow, clamping to max value!");
-        return {std::numeric_limits<SEC_TYPE>::max(), NANOSECS_PER_SEC - 1U};
+        return { std::numeric_limits<SEC_TYPE>::max(), NANOSECS_PER_SEC - 1U };
     }
 
     const auto tv_sec = static_cast<SEC_TYPE>(targetTime.m_seconds);
     const auto tv_nsec = static_cast<NSEC_TYPE>(targetTime.m_nanoseconds);
-    return {tv_sec, tv_nsec};
+    return { tv_sec, tv_nsec };
 }
 
 // AXIVION Next Construct AutosarC++19_03-M5.17.1 : This is not used as shift operator but as stream operator and does not require to implement '<<='

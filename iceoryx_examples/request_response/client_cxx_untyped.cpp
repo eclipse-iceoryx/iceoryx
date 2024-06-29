@@ -32,7 +32,7 @@ int main()
     //! [initialize runtime]
 
     //! [create client]
-    iox::popo::UntypedClient client({"Example", "Request-Response", "Add"});
+    iox::popo::UntypedClient client({ "Example", "Request-Response", "Add" });
     //! [create client]
 
     //! [send requests in a loop]
@@ -60,7 +60,7 @@ int main()
         //! [send request]
 
         // the client polls with an interval of 150ms
-        constexpr std::chrono::milliseconds DELAY_TIME{150U};
+        constexpr std::chrono::milliseconds DELAY_TIME{ 150U };
         std::this_thread::sleep_for(DELAY_TIME);
 
         //! [take response]
@@ -84,7 +84,7 @@ int main()
         };
         //! [take response]
 
-        constexpr std::chrono::milliseconds SLEEP_TIME{950U};
+        constexpr std::chrono::milliseconds SLEEP_TIME{ 950U };
         std::this_thread::sleep_for(SLEEP_TIME);
     }
     //! [send requests in a loop]

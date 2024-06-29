@@ -121,7 +121,7 @@ expected<NamedPipe, PosixIpcChannelError> NamedPipeBuilder::create() const noexc
         }
     }
 
-    return ok(NamedPipe{std::move(sharedMemory), data});
+    return ok(NamedPipe{ std::move(sharedMemory), data });
 }
 
 NamedPipe::NamedPipe(PosixSharedMemoryObject&& sharedMemory, NamedPipeData* data) noexcept

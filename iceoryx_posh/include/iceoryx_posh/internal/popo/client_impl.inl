@@ -50,7 +50,7 @@ expected<Request<Req>, AllocationError> ClientImpl<Req, Res, BaseClientT>::loanU
         auto* requestHeader = iox::popo::RequestHeader::fromPayload(payload);
         this->port().releaseRequest(requestHeader);
     });
-    return ok(Request<Req>{std::move(request), *this});
+    return ok(Request<Req>{ std::move(request), *this });
 }
 
 template <typename Req, typename Res, typename BaseClientT>
@@ -84,7 +84,7 @@ expected<Response<const Res>, ChunkReceiveResult> ClientImpl<Req, Res, BaseClien
         auto* responseHeader = iox::popo::ResponseHeader::fromPayload(payload);
         this->port().releaseResponse(responseHeader);
     });
-    return ok(Response<const Res>{std::move(response)});
+    return ok(Response<const Res>{ std::move(response) });
 }
 
 } // namespace popo

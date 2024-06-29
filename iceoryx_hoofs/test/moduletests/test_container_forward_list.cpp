@@ -28,8 +28,8 @@ using namespace ::testing;
 using namespace iox;
 using namespace iox::testing;
 
-constexpr uint64_t TESTLISTCAPACITY{10U};
-constexpr int64_t TEST_LIST_ELEMENT_DEFAULT_VALUE{-99L};
+constexpr uint64_t TESTLISTCAPACITY{ 10U };
+constexpr int64_t TEST_LIST_ELEMENT_DEFAULT_VALUE{ -99L };
 
 class forward_list_test : public Test
 {
@@ -91,7 +91,7 @@ TEST_F(forward_list_test, ReadMax_sizeOnList)
 TEST_F(forward_list_test, NewListCTorWithZeroElements)
 {
     ::testing::Test::RecordProperty("TEST_ID", "480ba421-8b15-4f17-b148-50101bb4b6b5");
-    constexpr uint64_t CAPACITY{42U};
+    constexpr uint64_t CAPACITY{ 42U };
     EXPECT_THAT(isSetupState(), Eq(true));
     const forward_list<int, CAPACITY> sut1;
     EXPECT_THAT(sut1.empty(), Eq(true));
@@ -250,8 +250,8 @@ TEST_F(forward_list_test, NotFullWhenFilledWithCapacityAndEraseOneAndReinsertEle
 TEST_F(forward_list_test, CTorWithOneElements)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ff5e1018-2b8d-443d-bc32-8ab673eca43d");
-    constexpr uint64_t CAPACITY{42U};
-    constexpr uint64_t ELEMENT_COUNT{1U};
+    constexpr uint64_t CAPACITY{ 42U };
+    constexpr uint64_t ELEMENT_COUNT{ 1U };
     forward_list<TestListElement, CAPACITY> sut1;
 
     EXPECT_THAT(stats.cTor, Eq(0U));
@@ -267,9 +267,9 @@ TEST_F(forward_list_test, CTorWithOneElements)
 TEST_F(forward_list_test, CustomCTorWithOneElements)
 {
     ::testing::Test::RecordProperty("TEST_ID", "56251d67-94f6-406d-9448-3224a58df4bb");
-    constexpr uint64_t CAPACITY{42U};
-    constexpr uint64_t ELEMENT_COUNT{1U};
-    constexpr int64_t DEFAULT_VALUE{3};
+    constexpr uint64_t CAPACITY{ 42U };
+    constexpr uint64_t ELEMENT_COUNT{ 1U };
+    constexpr int64_t DEFAULT_VALUE{ 3 };
     forward_list<TestListElement, CAPACITY> sut1;
 
     for (uint64_t i = 0U; i < ELEMENT_COUNT; ++i)
@@ -286,8 +286,8 @@ TEST_F(forward_list_test, CustomCTorWithOneElements)
 TEST_F(forward_list_test, CTorWithSomeElements)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d389fee1-a86d-4a29-a307-b3770b64e17d");
-    constexpr uint64_t CAPACITY{42U};
-    constexpr uint64_t ELEMENT_COUNT{37U};
+    constexpr uint64_t CAPACITY{ 42U };
+    constexpr uint64_t ELEMENT_COUNT{ 37U };
     forward_list<TestListElement, CAPACITY> sut1;
 
     for (uint64_t i = 0U; i < ELEMENT_COUNT; ++i)
@@ -302,8 +302,8 @@ TEST_F(forward_list_test, CTorWithSomeElements)
 TEST_F(forward_list_test, CTorWithCapacityElements)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2cdb47bc-2704-4a9f-8425-9783504a4c12");
-    constexpr uint64_t CAPACITY{42U};
-    constexpr uint64_t ELEMENT_COUNT{CAPACITY};
+    constexpr uint64_t CAPACITY{ 42U };
+    constexpr uint64_t ELEMENT_COUNT{ CAPACITY };
     forward_list<TestListElement, CAPACITY> sut1;
 
     for (uint64_t i = 0U; i < ELEMENT_COUNT; ++i)
@@ -318,8 +318,8 @@ TEST_F(forward_list_test, CTorWithCapacityElements)
 TEST_F(forward_list_test, CTorWithMoreThanCapacityElements)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1882dc91-9d0a-42e5-bcfe-1259772d795e");
-    constexpr uint64_t CAPACITY{42U};
-    constexpr uint64_t ELEMENT_COUNT{CAPACITY};
+    constexpr uint64_t CAPACITY{ 42U };
+    constexpr uint64_t ELEMENT_COUNT{ CAPACITY };
     forward_list<TestListElement, CAPACITY> sut1;
 
     for (uint64_t i = 0U; i < ELEMENT_COUNT; ++i)
@@ -337,8 +337,8 @@ TEST_F(forward_list_test, CTorWithMoreThanCapacityElements)
 TEST_F(forward_list_test, EmplaceAfterWithOneElements)
 {
     ::testing::Test::RecordProperty("TEST_ID", "89baa6c4-7c31-471f-86b8-5ca607ad8937");
-    constexpr uint64_t CAPACITY{42U};
-    constexpr uint64_t ELEMENT_COUNT{1U};
+    constexpr uint64_t CAPACITY{ 42U };
+    constexpr uint64_t ELEMENT_COUNT{ 1U };
     forward_list<TestListElement, CAPACITY> sut1;
     auto iter = sut1.cbefore_begin();
     decltype(TestListElement::value) cnt = 0U;
@@ -367,8 +367,8 @@ TEST_F(forward_list_test, EmplaceAfterWithOneElements)
 TEST_F(forward_list_test, EmplaceAfterWithSomeElements)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b4dbfaed-6077-40e9-b141-4f50f71d3000");
-    constexpr uint64_t CAPACITY{42U};
-    constexpr uint64_t ELEMENT_COUNT{37U};
+    constexpr uint64_t CAPACITY{ 42U };
+    constexpr uint64_t ELEMENT_COUNT{ 37U };
     forward_list<TestListElement, CAPACITY> sut1;
     auto iter = sut1.cbefore_begin();
     int64_t cnt = 0;
@@ -397,8 +397,8 @@ TEST_F(forward_list_test, EmplaceAfterWithSomeElements)
 TEST_F(forward_list_test, EmplaceAfterWithCapacityElements)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c1b8898b-7b15-447c-8d17-4a81ab7a3e9e");
-    constexpr uint64_t CAPACITY{42U};
-    constexpr uint64_t ELEMENT_COUNT{CAPACITY};
+    constexpr uint64_t CAPACITY{ 42U };
+    constexpr uint64_t ELEMENT_COUNT{ CAPACITY };
     forward_list<TestListElement, CAPACITY> sut1;
     auto iter = sut1.cbefore_begin();
     int64_t cnt = 0;
@@ -424,8 +424,8 @@ TEST_F(forward_list_test, EmplaceAfterWithCapacityElements)
 TEST_F(forward_list_test, EmplaceAfterWithMoreThanCapacityElements)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d8fb7dc7-c91b-44a1-a596-06a8ecefd44d");
-    constexpr uint64_t CAPACITY{42U};
-    constexpr uint64_t ELEMENT_COUNT{CAPACITY + 1U};
+    constexpr uint64_t CAPACITY{ 42U };
+    constexpr uint64_t ELEMENT_COUNT{ CAPACITY + 1U };
     forward_list<TestListElement, CAPACITY> sut1;
     auto iter = sut1.cbefore_begin();
     int64_t cnt = 0;
@@ -452,8 +452,8 @@ TEST_F(forward_list_test, EmplaceAfterWithMoreThanCapacityElements)
 TEST_F(forward_list_test, EmplaceAfterReverseWithOneElements)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f6de806a-7911-4535-997c-018e34cebb2b");
-    constexpr uint64_t CAPACITY{42U};
-    constexpr uint64_t ELEMENT_COUNT{1U};
+    constexpr uint64_t CAPACITY{ 42U };
+    constexpr uint64_t ELEMENT_COUNT{ 1U };
     forward_list<TestListElement, CAPACITY> sut1;
     auto iter = sut1.cbefore_begin();
     int64_t cnt = 0;
@@ -479,8 +479,8 @@ TEST_F(forward_list_test, EmplaceAfterReverseWithOneElements)
 TEST_F(forward_list_test, EmplaceAfterReverseWithSomeElements)
 {
     ::testing::Test::RecordProperty("TEST_ID", "32fccdae-93cc-4de1-a7b3-638758744070");
-    constexpr uint64_t CAPACITY{42U};
-    constexpr uint64_t ELEMENT_COUNT{37U};
+    constexpr uint64_t CAPACITY{ 42U };
+    constexpr uint64_t ELEMENT_COUNT{ 37U };
     forward_list<TestListElement, CAPACITY> sut1;
     auto iter = sut1.cbefore_begin();
     int64_t cnt = 0;
@@ -506,8 +506,8 @@ TEST_F(forward_list_test, EmplaceAfterReverseWithSomeElements)
 TEST_F(forward_list_test, EmplaceAfterReverseWithCapacityElements)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2480c086-673a-4003-9814-f3fdeb86c5fe");
-    constexpr uint64_t CAPACITY{42U};
-    constexpr uint64_t ELEMENT_COUNT{CAPACITY};
+    constexpr uint64_t CAPACITY{ 42U };
+    constexpr uint64_t ELEMENT_COUNT{ CAPACITY };
     forward_list<TestListElement, CAPACITY> sut1;
     auto iter = sut1.cbefore_begin();
     int64_t cnt = 0;
@@ -533,8 +533,8 @@ TEST_F(forward_list_test, EmplaceAfterReverseWithCapacityElements)
 TEST_F(forward_list_test, EmplaceAfterReverseWithWithMoreThanCapacityElements)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a17d34f7-a454-402b-a42e-c2b87283c58f");
-    constexpr uint64_t CAPACITY{42U};
-    constexpr uint64_t ELEMENT_COUNT{CAPACITY + 1U};
+    constexpr uint64_t CAPACITY{ 42U };
+    constexpr uint64_t ELEMENT_COUNT{ CAPACITY + 1U };
     forward_list<TestListElement, CAPACITY> sut1;
     auto iter = sut1.cbefore_begin();
     int64_t cnt = 0;
@@ -560,8 +560,8 @@ TEST_F(forward_list_test, EmplaceAfterReverseWithWithMoreThanCapacityElements)
 TEST_F(forward_list_test, EmplaceAfterWithWrongListIterator)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8ea12c2d-c942-45f7-a642-364b21267413");
-    constexpr uint64_t CAPACITY{42U};
-    constexpr uint64_t ELEMENT_COUNT{13U};
+    constexpr uint64_t CAPACITY{ 42U };
+    constexpr uint64_t ELEMENT_COUNT{ 13U };
     forward_list<TestListElement, CAPACITY> sut11;
     forward_list<TestListElement, CAPACITY> sut12;
     auto iterOfSut11 = sut11.before_begin();
@@ -580,8 +580,8 @@ TEST_F(forward_list_test, EmplaceAfterWithWrongListIterator)
 TEST_F(forward_list_test, PushFrontConstCustomSuccessfullWhenSpaceAvailableLValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9caef076-4533-4179-b2e5-b75ce5090f5b");
-    constexpr int64_t DEFAULT_VALUE{13L};
-    const TestListElement a{DEFAULT_VALUE};
+    constexpr int64_t DEFAULT_VALUE{ 13L };
+    const TestListElement a{ DEFAULT_VALUE };
     EXPECT_TRUE(sut.push_front(a));
     ASSERT_THAT(sut.size(), Eq(1U));
     EXPECT_THAT(stats.cTor, Eq(0U));
@@ -603,8 +603,8 @@ TEST_F(forward_list_test, PushFrontConstSuccessfullWhenSpaceAvailableLValue)
 TEST_F(forward_list_test, PushFrontFailsWhenSpaceNotAvailableLValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4d9dfebf-0f25-4472-afb1-a38ecf8322b7");
-    constexpr int64_t DEFAULT_VALUE{13L};
-    const TestListElement a{DEFAULT_VALUE};
+    constexpr int64_t DEFAULT_VALUE{ 13L };
+    const TestListElement a{ DEFAULT_VALUE };
 
     EXPECT_THAT(sut.size(), Eq(0U));
     for (uint64_t i = 0U; i < TESTLISTCAPACITY; ++i)
@@ -619,11 +619,11 @@ TEST_F(forward_list_test, PushFrontFailsWhenSpaceNotAvailableLValue)
 TEST_F(forward_list_test, PushFrontSuccessfullWhenSpaceAvailableRValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "65dcef65-f68c-4268-aec1-b32439137f95");
-    constexpr int64_t DEFAULT_VALUE{13L};
+    constexpr int64_t DEFAULT_VALUE{ 13L };
 
     EXPECT_THAT(sut.size(), Eq(0U));
 
-    sut.push_front(TestListElement{DEFAULT_VALUE});
+    sut.push_front(TestListElement{ DEFAULT_VALUE });
     EXPECT_THAT(sut.size(), Eq(1U));
     EXPECT_THAT((*sut.begin()).value, Eq(DEFAULT_VALUE));
 }
@@ -631,7 +631,7 @@ TEST_F(forward_list_test, PushFrontSuccessfullWhenSpaceAvailableRValue)
 TEST_F(forward_list_test, PushFrontFailsWhenSpaceNotAvailableRValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0aa7e3ae-13ba-4ef9-8a2e-afca53bd1aaa");
-    constexpr int64_t DEFAULT_VALUE{13L};
+    constexpr int64_t DEFAULT_VALUE{ 13L };
 
     EXPECT_THAT(sut.size(), Eq(0U));
     for (uint64_t i = 0U; i < TESTLISTCAPACITY; ++i)
@@ -653,14 +653,14 @@ TEST_F(forward_list_test, PushFrontFailsWhenSpaceNotAvailableRValue)
 TEST_F(forward_list_test, AccessFrontElement)
 {
     ::testing::Test::RecordProperty("TEST_ID", "bf08eb83-fcc0-4418-b290-2b86b3dfc70a");
-    constexpr int64_t DEFAULT_VALUE{13L};
-    const TestListElement a{DEFAULT_VALUE};
+    constexpr int64_t DEFAULT_VALUE{ 13L };
+    const TestListElement a{ DEFAULT_VALUE };
 
     sut.push_front({});
     sut.push_front(a);
 
-    TestListElement& b{sut.front()};
-    const TestListElement& c{sut.front()};
+    TestListElement& b{ sut.front() };
+    const TestListElement& c{ sut.front() };
     EXPECT_THAT(b.value, Eq(DEFAULT_VALUE));
     EXPECT_THAT(c.value, Eq(DEFAULT_VALUE));
 }
@@ -668,13 +668,13 @@ TEST_F(forward_list_test, AccessFrontElement)
 TEST_F(forward_list_test, AccessFrontElementFromConstList)
 {
     ::testing::Test::RecordProperty("TEST_ID", "bfa365c4-bcea-46e7-88b7-d2818304bad4");
-    constexpr int64_t DEFAULT_VALUE{13L};
-    const TestListElement a{DEFAULT_VALUE};
+    constexpr int64_t DEFAULT_VALUE{ 13L };
+    const TestListElement a{ DEFAULT_VALUE };
 
     sut.push_front({});
     sut.push_front(a);
 
-    const forward_list<TestListElement, TESTLISTCAPACITY> sut1{sut};
+    const forward_list<TestListElement, TESTLISTCAPACITY> sut1{ sut };
     const TestListElement& c = sut1.front();
 
     EXPECT_THAT(c.value, Eq(DEFAULT_VALUE));
@@ -752,8 +752,8 @@ TEST_F(forward_list_test, PopFrontFullPlusOneToEmptyList)
 TEST_F(forward_list_test, InsertAfterEmptyListAsLValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ad042f38-c3b6-489a-a79d-7be730595fde");
-    constexpr int64_t DEFAULT_VALUE{13L};
-    const TestListElement a{DEFAULT_VALUE};
+    constexpr int64_t DEFAULT_VALUE{ 13L };
+    const TestListElement a{ DEFAULT_VALUE };
 
     sut.insert_after(sut.before_begin(), a);
 
@@ -769,8 +769,8 @@ TEST_F(forward_list_test, InsertAfterEmptyListAsLValue)
 TEST_F(forward_list_test, InsertAfterLValueCheckReturn)
 {
     ::testing::Test::RecordProperty("TEST_ID", "17d6a817-66de-425d-925d-fef62c528dbd");
-    constexpr int64_t DEFAULT_VALUE{13L};
-    const TestListElement a{DEFAULT_VALUE};
+    constexpr int64_t DEFAULT_VALUE{ 13L };
+    const TestListElement a{ DEFAULT_VALUE };
 
     auto iter = sut.insert_after(sut.before_begin(), a);
 
@@ -781,7 +781,7 @@ TEST_F(forward_list_test, InsertAfterEmptyListAsRValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ef2e7386-315e-42b3-95e0-e08fcf387d1c");
     constexpr uint32_t DATA = 10U;
-    sut.insert_after(sut.before_begin(), {DATA});
+    sut.insert_after(sut.before_begin(), { DATA });
 
     ASSERT_THAT(sut.size(), Eq(1U));
     ASSERT_THAT(stats.cTor, Eq(0U));
@@ -796,7 +796,7 @@ TEST_F(forward_list_test, InsertAfterRValueCheckReturn)
 {
     ::testing::Test::RecordProperty("TEST_ID", "37db60b9-1222-4339-aabb-e8d2db11403c");
     constexpr uint32_t DATA = 10U;
-    auto iter = sut.insert_after(sut.before_begin(), {DATA});
+    auto iter = sut.insert_after(sut.before_begin(), { DATA });
 
     ASSERT_THAT(iter == sut.begin(), Eq(true));
     ASSERT_THAT((*iter).value, Eq(DATA));
@@ -805,8 +805,8 @@ TEST_F(forward_list_test, InsertAfterRValueCheckReturn)
 TEST_F(forward_list_test, InsertAfterBeginListLValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6ff7fdbd-193c-488b-9b9c-5f9b10f4bd45");
-    constexpr int64_t DEFAULT_VALUE{13L};
-    const TestListElement a{DEFAULT_VALUE};
+    constexpr int64_t DEFAULT_VALUE{ 13L };
+    const TestListElement a{ DEFAULT_VALUE };
 
     sut.emplace_front();
     sut.insert_after(sut.begin(), a);
@@ -823,8 +823,8 @@ TEST_F(forward_list_test, InsertAfterBeginListLValue)
 TEST_F(forward_list_test, InsertAfterBeforeBeginListLValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9cfdc926-ee3f-43c2-bf59-6dce94cd052d");
-    constexpr int64_t DEFAULT_VALUE{13L};
-    const TestListElement a{DEFAULT_VALUE};
+    constexpr int64_t DEFAULT_VALUE{ 13L };
+    const TestListElement a{ DEFAULT_VALUE };
 
     sut.emplace_front();
     sut.insert_after(sut.before_begin(), a);
@@ -840,8 +840,8 @@ TEST_F(forward_list_test, InsertAfterBeforeBeginListLValue)
 TEST_F(forward_list_test, InsertAfterBeforeBeginListRValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "76b17794-2ac6-4725-9192-88023e8650bc");
-    constexpr int64_t DEFAULT_VALUE{13L};
-    const TestListElement a{DEFAULT_VALUE};
+    constexpr int64_t DEFAULT_VALUE{ 13L };
+    const TestListElement a{ DEFAULT_VALUE };
 
     sut.emplace_front(a);
     sut.insert_after(sut.before_begin(), {});
@@ -857,8 +857,8 @@ TEST_F(forward_list_test, InsertAfterBeforeBeginListRValue)
 TEST_F(forward_list_test, InsertAfterSomeElementsListLValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "66930a3c-338d-438e-9077-6b89df04a533");
-    constexpr int64_t DEFAULT_VALUE{13L};
-    const TestListElement a{DEFAULT_VALUE};
+    constexpr int64_t DEFAULT_VALUE{ 13L };
+    const TestListElement a{ DEFAULT_VALUE };
     uint64_t loopCounter = 0U;
 
     // fill half
@@ -898,7 +898,7 @@ TEST_F(forward_list_test, InsertAfterSomeElementsListLValue)
 TEST_F(forward_list_test, InsertAfterSomeElementsListRValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e30b2576-0625-44f0-95c9-f6084ff2147e");
-    constexpr int64_t DEFAULT_VALUE{13L};
+    constexpr int64_t DEFAULT_VALUE{ 13L };
 
     // fill half
     for (uint64_t i = 0U; i < TESTLISTCAPACITY / 2U; ++i)
@@ -932,8 +932,8 @@ TEST_F(forward_list_test, InsertAfterSomeElementsListRValue)
 TEST_F(forward_list_test, InsertAfterFullElementsListLValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "97a3c126-e5fb-40db-a65f-725a0143e167");
-    constexpr int64_t DEFAULT_VALUE{13L};
-    const TestListElement a{DEFAULT_VALUE};
+    constexpr int64_t DEFAULT_VALUE{ 13L };
+    const TestListElement a{ DEFAULT_VALUE };
     int64_t cnt = 0U;
 
     auto iter = sut.before_begin();
@@ -966,7 +966,7 @@ TEST_F(forward_list_test, InsertAfterFullElementsListLValue)
 TEST_F(forward_list_test, InsertAfterFullElementsListRValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "46a0d274-4929-42c5-a427-b76e6941ad86");
-    constexpr int64_t DEFAULT_VALUE{13L};
+    constexpr int64_t DEFAULT_VALUE{ 13L };
     int64_t cnt = 0U;
 
     auto iter = sut.before_begin();
@@ -999,7 +999,7 @@ TEST_F(forward_list_test, InsertAfterFullElementsListRValue)
 TEST_F(forward_list_test, IteratorArrowOperator)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ed2c903e-ab2e-4c44-abb1-bf1db2839863");
-    constexpr int64_t DEFAULT_VALUE{13L};
+    constexpr int64_t DEFAULT_VALUE{ 13L };
 
     // fill half
     for (uint64_t i = 0U; i < TESTLISTCAPACITY / 2U; ++i)
@@ -1032,7 +1032,7 @@ TEST_F(forward_list_test, IteratorArrowOperator)
 TEST_F(forward_list_test, IteratorIncrementOperatorBeyondEnd)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4cc22ba8-a201-48c1-9d6e-1c9100b89874");
-    constexpr int64_t DEFAULT_VALUE{13L};
+    constexpr int64_t DEFAULT_VALUE{ 13L };
 
     sut.push_front(DEFAULT_VALUE);
 
@@ -1045,7 +1045,7 @@ TEST_F(forward_list_test, IteratorIncrementOperatorBeyondEnd)
 TEST_F(forward_list_test, ConstIteratorIncrementOperatorBeyondEnd)
 {
     ::testing::Test::RecordProperty("TEST_ID", "da3e61d7-e19c-40c0-984c-9cc5044db019");
-    constexpr int64_t DEFAULT_VALUE{13L};
+    constexpr int64_t DEFAULT_VALUE{ 13L };
 
     sut.push_front(DEFAULT_VALUE);
 
@@ -1135,7 +1135,7 @@ TEST_F(forward_list_test, IteratorTraitsGetValueType)
     forward_list<int, TESTLISTCAPACITY> sut1;
 
     sut1.emplace_front(static_cast<int32_t>(TESTLISTCAPACITY) / 2);
-    auto iter{sut1.begin()};
+    auto iter{ sut1.begin() };
 
     // using a function call here is closer to the actual use case (-> intentionally did not inline all code here)
     auto ret = iteratorTraitReturnDoubleValue(iter);
@@ -1541,7 +1541,7 @@ TEST_F(forward_list_test, RemoveDefaultElementFromEmptyList)
 TEST_F(forward_list_test, RemoveCustomElementFromEmptyList)
 {
     ::testing::Test::RecordProperty("TEST_ID", "43a46355-3fc5-42dd-ae88-db28f1e6dcba");
-    auto cnt = sut.remove({10U});
+    auto cnt = sut.remove({ 10U });
 
     EXPECT_THAT(stats.cTor, Eq(0U));
     EXPECT_THAT(stats.customCTor, Eq(1U));
@@ -1585,7 +1585,7 @@ TEST_F(forward_list_test, RemoveOneCustomElementFromList)
     sut11.emplace_front(158432U);
     sut11.emplace_front(158432U);
 
-    auto cnt = sut11.remove({1584122U});
+    auto cnt = sut11.remove({ 1584122U });
 
     EXPECT_THAT(stats.cTor, Eq(2U));
     EXPECT_THAT(stats.customCTor, Eq(5U));
@@ -1611,7 +1611,7 @@ TEST_F(forward_list_test, RemoveNotExistentElementFromList)
     sut11.emplace_front(158432U);
     sut11.emplace_front(158432U);
 
-    auto cnt = sut11.remove({1243U});
+    auto cnt = sut11.remove({ 1243U });
 
     EXPECT_THAT(stats.cTor, Eq(2U));
     EXPECT_THAT(stats.customCTor, Eq(5U));
@@ -1635,7 +1635,7 @@ TEST_F(forward_list_test, RemoveOnetoEmptyList)
     forward_list<TestListElement, TESTLISTCAPACITY> sut11;
     sut11.emplace_front(15842U);
 
-    auto cnt = sut11.remove({15842U});
+    auto cnt = sut11.remove({ 15842U });
 
     EXPECT_THAT(stats.cTor, Eq(0U));
     EXPECT_THAT(stats.customCTor, Eq(2U));
@@ -1686,7 +1686,7 @@ TEST_F(forward_list_test, RemoveAllFromList)
     sut11.emplace_front();
     sut11.emplace_front();
 
-    auto cnt = sut11.remove({ELEMENT});
+    auto cnt = sut11.remove({ ELEMENT });
     cnt += sut11.remove({});
 
     EXPECT_THAT(stats.cTor, Eq(3U));
@@ -1862,16 +1862,16 @@ TEST_F(forward_list_test, RemoveIfAllFromList)
 TEST_F(forward_list_test, writeContentViaDereferencedIterator)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9cf93531-33ac-4cac-8234-741500755701");
-    constexpr uint64_t TEST_VALUE{356U};
+    constexpr uint64_t TEST_VALUE{ 356U };
     for (uint64_t i = 0U; i < TESTLISTCAPACITY; ++i)
     {
-        const uint64_t j{i};
+        const uint64_t j{ i };
         sut.emplace_front(static_cast<int64_t>(j));
     }
 
-    auto sut1{sut};
+    auto sut1{ sut };
     auto iter = sut1.begin();
-    TestListElement element{TEST_VALUE};
+    TestListElement element{ TEST_VALUE };
     *iter = element;
     EXPECT_THAT(sut1.front().value, Eq(TEST_VALUE));
 }
@@ -1881,7 +1881,7 @@ TEST_F(forward_list_test, invalidIteratorErase)
     ::testing::Test::RecordProperty("TEST_ID", "9d8a0810-e99c-47bd-9534-cdf74a445f60");
     for (uint64_t i = 0U; i < TESTLISTCAPACITY; ++i)
     {
-        const uint64_t j{i};
+        const uint64_t j{ i };
         sut.emplace_front(static_cast<int64_t>(j));
     }
 
@@ -1896,7 +1896,7 @@ TEST_F(forward_list_test, invalidIteratorIncrement)
     ::testing::Test::RecordProperty("TEST_ID", "5dcf55cb-f2a5-4c40-8af7-2a0b736f3b9b");
     for (uint64_t i = 0U; i < TESTLISTCAPACITY; ++i)
     {
-        const uint64_t j{i};
+        const uint64_t j{ i };
         sut.emplace_front(static_cast<int64_t>(j));
     }
 
@@ -1911,7 +1911,7 @@ TEST_F(forward_list_test, invalidIteratorComparison)
     ::testing::Test::RecordProperty("TEST_ID", "11413af1-1b36-4b0b-9a5a-9d87fe8bd8c5");
     for (uint64_t i = 0U; i < TESTLISTCAPACITY; ++i)
     {
-        const uint64_t j{i};
+        const uint64_t j{ i };
         sut.emplace_front(static_cast<int64_t>(j));
     }
 
@@ -1926,7 +1926,7 @@ TEST_F(forward_list_test, invalidIteratorComparisonUnequal)
     ::testing::Test::RecordProperty("TEST_ID", "0248c2a5-48c4-48d0-a276-359878ce1106");
     for (uint64_t i = 0U; i < TESTLISTCAPACITY; ++i)
     {
-        const uint64_t j{i};
+        const uint64_t j{ i };
         sut.emplace_front(static_cast<int64_t>(j));
     }
     auto iter = sut.cbegin();
@@ -1941,7 +1941,7 @@ TEST_F(forward_list_test, invalidIteratorDereferencing)
     ::testing::Test::RecordProperty("TEST_ID", "17fc46ba-716d-43ca-ae74-232fc7ea2ed6");
     for (uint64_t i = 0U; i < TESTLISTCAPACITY; ++i)
     {
-        const uint64_t j{i};
+        const uint64_t j{ i };
         sut.emplace_front(static_cast<int64_t>(j));
     }
 
@@ -1956,7 +1956,7 @@ TEST_F(forward_list_test, invalidIteratorAddressOfOperator)
     ::testing::Test::RecordProperty("TEST_ID", "445f6f24-1e14-4dd5-8744-ef8785747026");
     for (uint64_t i = 0U; i < TESTLISTCAPACITY; ++i)
     {
-        const uint64_t j{i};
+        const uint64_t j{ i };
         sut.emplace_front(static_cast<int64_t>(j));
     }
 
@@ -1980,7 +1980,7 @@ TEST_F(forward_list_test, ListIsCopyableViaMemcpy)
 
         for (; i < TESTLISTCAPACITY; ++i)
         {
-            const uint64_t j{i};
+            const uint64_t j{ i };
             sut1.emplace_front(static_cast<int64_t>(j));
         }
 
@@ -1991,7 +1991,7 @@ TEST_F(forward_list_test, ListIsCopyableViaMemcpy)
         sut1.clear();
         for (uint64_t k = 0U; k < TESTLISTCAPACITY; ++k)
         {
-            const uint64_t j{k + i};
+            const uint64_t j{ k + i };
             sut1.emplace_front(static_cast<int64_t>(j));
         }
     }

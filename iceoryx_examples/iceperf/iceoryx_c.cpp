@@ -98,7 +98,7 @@ void IceoryxC::sendPerfTopic(const uint32_t payloadSizeInBytes, const RunFlag ru
 
 PerfTopic IceoryxC::receivePerfTopic() noexcept
 {
-    bool hasReceivedSample{false};
+    bool hasReceivedSample{ false };
     PerfTopic receivedSample;
 
     do

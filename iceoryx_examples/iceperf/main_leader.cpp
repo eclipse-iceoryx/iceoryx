@@ -29,16 +29,16 @@ int main(int argc, char* argv[])
 {
     PerfSettings settings;
 
-    constexpr option longOptions[] = {{"help", no_argument, nullptr, 'h'},
-                                      {"benchmark", required_argument, nullptr, 'b'},
-                                      {"technology", required_argument, nullptr, 't'},
-                                      {"number-of-samples", required_argument, nullptr, 't'},
-                                      {nullptr, 0, nullptr, 0}};
+    constexpr option longOptions[] = { { "help", no_argument, nullptr, 'h' },
+                                       { "benchmark", required_argument, nullptr, 'b' },
+                                       { "technology", required_argument, nullptr, 't' },
+                                       { "number-of-samples", required_argument, nullptr, 't' },
+                                       { nullptr, 0, nullptr, 0 } };
 
     // colon after shortOption means it requires an argument, two colons mean optional argument
     constexpr const char* shortOptions = "hb:t:n:";
-    int32_t index{0};
-    int32_t opt{-1};
+    int32_t index{ 0 };
+    int32_t opt{ -1 };
     while ((opt = getopt_long(argc, argv, shortOptions, longOptions, &index), opt != -1))
     {
         switch (opt)

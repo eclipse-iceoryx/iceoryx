@@ -59,7 +59,7 @@ expected<IpcRuntimeInterface, IpcRuntimeInterfaceError> IpcRuntimeInterface::cre
         FINISHED
     };
 
-    int64_t transmissionTimestamp{0};
+    int64_t transmissionTimestamp{ 0 };
     auto regState = RegState::WAIT_FOR_ROUDI;
     auto oldRegState = RegState::WAIT_FOR_ROUDI;
     do
@@ -151,7 +151,7 @@ expected<IpcRuntimeInterface, IpcRuntimeInterfaceError> IpcRuntimeInterface::cre
     }
 
     return ok(IpcRuntimeInterface{
-        std::move(appIpcInterface.value()), std::move(roudiIpcInterface), std::move(mgmtShmCharacteristics)});
+        std::move(appIpcInterface.value()), std::move(roudiIpcInterface), std::move(mgmtShmCharacteristics) });
 }
 
 IpcRuntimeInterface::IpcRuntimeInterface(IpcInterfaceCreator&& appIpcInterface,
@@ -194,7 +194,7 @@ void IpcRuntimeInterface::waitForRoudi(IpcInterfaceUser& roudiIpcInterface, dead
 {
     bool printWaitingWarning = true;
     bool printFoundMessage = false;
-    uint32_t numberOfRemainingFastPolls{10};
+    uint32_t numberOfRemainingFastPolls{ 10 };
     while (!timer.hasExpired() && !roudiIpcInterface.isInitialized())
     {
         roudiIpcInterface.reopen();
@@ -254,9 +254,9 @@ IpcRuntimeInterface::waitForRegAck(int64_t transmissionTimestamp,
                 }
 
                 // read out the shared memory base address and save it
-                UntypedRelativePointer::offset_t segmentManagerOffset{UntypedRelativePointer::NULL_POINTER_OFFSET};
-                UntypedRelativePointer::offset_t heartbeatOffset{UntypedRelativePointer::NULL_POINTER_OFFSET};
-                int64_t receivedTimestamp{0U};
+                UntypedRelativePointer::offset_t segmentManagerOffset{ UntypedRelativePointer::NULL_POINTER_OFFSET };
+                UntypedRelativePointer::offset_t heartbeatOffset{ UntypedRelativePointer::NULL_POINTER_OFFSET };
+                int64_t receivedTimestamp{ 0U };
 
                 auto topic_size_result =
                     iox::convert::from_string<uint64_t>(receiveBuffer.getElementAtIndex(1U).c_str());

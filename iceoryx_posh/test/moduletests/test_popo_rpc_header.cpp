@@ -45,10 +45,10 @@ class RpcBaseHeader_test : public Test
     }
 
     ChunkMock<bool, RpcBaseHeader> chunk;
-    static constexpr uint32_t LAST_KNOWN_CLIENT_QUEUE_INDEX{73};
-    static constexpr int64_t SEQUENCE_ID{37};
-    RpcBaseHeader* sut{new (chunk.userHeader()) RpcBaseHeader(
-        UniqueId(), LAST_KNOWN_CLIENT_QUEUE_INDEX, SEQUENCE_ID, RpcBaseHeader::RPC_HEADER_VERSION)};
+    static constexpr uint32_t LAST_KNOWN_CLIENT_QUEUE_INDEX{ 73 };
+    static constexpr int64_t SEQUENCE_ID{ 37 };
+    RpcBaseHeader* sut{ new (chunk.userHeader()) RpcBaseHeader(
+        UniqueId(), LAST_KNOWN_CLIENT_QUEUE_INDEX, SEQUENCE_ID, RpcBaseHeader::RPC_HEADER_VERSION) };
 };
 
 void checkRpcBaseHeader(const RpcBaseHeaderAccess* sut,
@@ -67,9 +67,9 @@ TEST_F(RpcBaseHeader_test, ConstructorWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "54b62ac7-30a7-424b-b149-8255afbf0a0d");
     const UniqueId uniqueClientQueueId;
-    constexpr uint32_t LAST_KNOWN_CLIENT_QUEUE_INDEX{13};
-    constexpr int64_t SEQUENCE_ID{42};
-    constexpr uint8_t RPC_HEADER_VERSION{222};
+    constexpr uint32_t LAST_KNOWN_CLIENT_QUEUE_INDEX{ 13 };
+    constexpr int64_t SEQUENCE_ID{ 42 };
+    constexpr uint8_t RPC_HEADER_VERSION{ 222 };
 
     ChunkMock<bool, RpcBaseHeader> chunk;
     new (chunk.userHeader())
@@ -149,17 +149,17 @@ class RequestHeader_test : public Test
     }
 
     ChunkMock<bool, RequestHeader> chunk;
-    static constexpr uint32_t LAST_KNOWN_CLIENT_QUEUE_INDEX{7};
-    RequestHeader* sut{new (chunk.userHeader()) RequestHeader(UniqueId(), LAST_KNOWN_CLIENT_QUEUE_INDEX)};
+    static constexpr uint32_t LAST_KNOWN_CLIENT_QUEUE_INDEX{ 7 };
+    RequestHeader* sut{ new (chunk.userHeader()) RequestHeader(UniqueId(), LAST_KNOWN_CLIENT_QUEUE_INDEX) };
 };
 
 TEST_F(RequestHeader_test, ConstructorWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4af7c64c-5f9f-4598-b405-567658e128db");
     const UniqueId uniqueClientQueueId;
-    constexpr uint32_t LAST_KNOWN_CLIENT_QUEUE_INDEX{13};
-    constexpr int64_t EXPECTED_SEQUENCE_ID{0};
-    constexpr uint8_t EXPECTED_RPC_HEADER_VERSION{RpcBaseHeader::RPC_HEADER_VERSION};
+    constexpr uint32_t LAST_KNOWN_CLIENT_QUEUE_INDEX{ 13 };
+    constexpr int64_t EXPECTED_SEQUENCE_ID{ 0 };
+    constexpr uint8_t EXPECTED_RPC_HEADER_VERSION{ RpcBaseHeader::RPC_HEADER_VERSION };
 
     ChunkMock<bool, RequestHeader> chunk;
     auto requestHeader = new (chunk.userHeader()) RequestHeader(uniqueClientQueueId, LAST_KNOWN_CLIENT_QUEUE_INDEX);
@@ -174,7 +174,7 @@ TEST_F(RequestHeader_test, ConstructorWorks)
 TEST_F(RequestHeader_test, SetSequenceIdWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fde17d21-33b9-4c23-a482-9bce99b8c346");
-    constexpr int64_t SEQUENCE_ID{666};
+    constexpr int64_t SEQUENCE_ID{ 666 };
 
     sut->setSequenceId(SEQUENCE_ID);
 
@@ -184,7 +184,7 @@ TEST_F(RequestHeader_test, SetSequenceIdWorks)
 TEST_F(RequestHeader_test, GetRequestHeaderFromPayloadWithNullptrReturnsNullptr)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7b67e56a-7245-48f3-8de6-f4a9e8f30b8e");
-    void* payloadPointer{nullptr};
+    void* payloadPointer{ nullptr };
     auto requestHeader = RequestHeader::fromPayload(payloadPointer);
 
     EXPECT_THAT(requestHeader, Eq(nullptr));
@@ -193,7 +193,7 @@ TEST_F(RequestHeader_test, GetRequestHeaderFromPayloadWithNullptrReturnsNullptr)
 TEST_F(RequestHeader_test, GetRequestHeaderFromConstPayloadWithNullptrReturnsNullptr)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f6ce3b3b-226f-4286-a8db-63feed5ef882");
-    const void* payloadPointer{nullptr};
+    const void* payloadPointer{ nullptr };
     auto requestHeader = RequestHeader::fromPayload(payloadPointer);
 
     EXPECT_THAT(requestHeader, Eq(nullptr));
@@ -202,7 +202,7 @@ TEST_F(RequestHeader_test, GetRequestHeaderFromConstPayloadWithNullptrReturnsNul
 TEST_F(RequestHeader_test, GetRequestHeaderFromPayloadWithNonNullptrReturnsRequestHeaderPointer)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e7ddff21-4f6f-4688-a35d-d43296876e82");
-    void* payloadPointer{sut->getUserPayload()};
+    void* payloadPointer{ sut->getUserPayload() };
     auto requestHeader = RequestHeader::fromPayload(payloadPointer);
 
     EXPECT_THAT(requestHeader, Eq(sut));
@@ -211,7 +211,7 @@ TEST_F(RequestHeader_test, GetRequestHeaderFromPayloadWithNonNullptrReturnsReque
 TEST_F(RequestHeader_test, GetRequestHeaderFromConstPayloadNonNullptrReturnsRequestHeaderPointer)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5cf198ca-d345-446b-8c3e-3deec5799573");
-    const void* payloadPointer{sut->getUserPayload()};
+    const void* payloadPointer{ sut->getUserPayload() };
     auto requestHeader = RequestHeader::fromPayload(payloadPointer);
 
     EXPECT_THAT(requestHeader, Eq(sut));
@@ -229,19 +229,19 @@ class ResponseHeader_test : public Test
     }
 
     ChunkMock<bool, ResponseHeader> chunk;
-    static constexpr uint32_t LAST_KNOWN_CLIENT_QUEUE_INDEX{13};
-    static constexpr int64_t SEQUENCE_ID{1111};
-    ResponseHeader* sut{new (chunk.userHeader())
-                            ResponseHeader(UniqueId(), LAST_KNOWN_CLIENT_QUEUE_INDEX, SEQUENCE_ID)};
+    static constexpr uint32_t LAST_KNOWN_CLIENT_QUEUE_INDEX{ 13 };
+    static constexpr int64_t SEQUENCE_ID{ 1111 };
+    ResponseHeader* sut{ new (chunk.userHeader())
+                             ResponseHeader(UniqueId(), LAST_KNOWN_CLIENT_QUEUE_INDEX, SEQUENCE_ID) };
 };
 
 TEST_F(ResponseHeader_test, ConstructorWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ec3d90c3-2126-420c-a31c-f1c6a0731791");
     const UniqueId uniqueClientQueueId;
-    constexpr uint32_t LAST_KNOWN_CLIENT_QUEUE_INDEX{17};
-    constexpr int64_t SEQUENCE_ID{555};
-    constexpr uint8_t EXPECTED_RPC_HEADER_VERSION{RpcBaseHeader::RPC_HEADER_VERSION};
+    constexpr uint32_t LAST_KNOWN_CLIENT_QUEUE_INDEX{ 17 };
+    constexpr int64_t SEQUENCE_ID{ 555 };
+    constexpr uint8_t EXPECTED_RPC_HEADER_VERSION{ RpcBaseHeader::RPC_HEADER_VERSION };
 
     ChunkMock<bool, ResponseHeader> chunk;
     auto responseHeader =
@@ -267,7 +267,7 @@ TEST_F(ResponseHeader_test, SetServerErrorWorks)
 TEST_F(ResponseHeader_test, GetResponseHeaderFromPayloadWithNullptrReturnsNullptr)
 {
     ::testing::Test::RecordProperty("TEST_ID", "564a2240-1bc9-4d94-b1ba-0b75d6db3df6");
-    void* payloadPointer{nullptr};
+    void* payloadPointer{ nullptr };
     auto requestHeader = ResponseHeader::fromPayload(payloadPointer);
 
     EXPECT_THAT(requestHeader, Eq(nullptr));
@@ -276,7 +276,7 @@ TEST_F(ResponseHeader_test, GetResponseHeaderFromPayloadWithNullptrReturnsNullpt
 TEST_F(ResponseHeader_test, GetResponseHeaderFromConstPayloadWithNullptrReturnsNullptr)
 {
     ::testing::Test::RecordProperty("TEST_ID", "656d7937-6276-4de4-ba82-2db90524951e");
-    const void* payloadPointer{nullptr};
+    const void* payloadPointer{ nullptr };
     auto requestHeader = ResponseHeader::fromPayload(payloadPointer);
 
     EXPECT_THAT(requestHeader, Eq(nullptr));
@@ -285,7 +285,7 @@ TEST_F(ResponseHeader_test, GetResponseHeaderFromConstPayloadWithNullptrReturnsN
 TEST_F(ResponseHeader_test, GetResponseHeaderFromPayloadWithNonNullptrReturnsRequestHeaderPointer)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4170f552-a90a-412d-8cbd-217d9ca989ce");
-    void* payloadPointer{sut->getUserPayload()};
+    void* payloadPointer{ sut->getUserPayload() };
     auto requestHeader = ResponseHeader::fromPayload(payloadPointer);
 
     EXPECT_THAT(requestHeader, Eq(sut));
@@ -294,7 +294,7 @@ TEST_F(ResponseHeader_test, GetResponseHeaderFromPayloadWithNonNullptrReturnsReq
 TEST_F(ResponseHeader_test, GetResponseHeaderFromConstPayloadNonNullptrReturnsRequestHeaderPointer)
 {
     ::testing::Test::RecordProperty("TEST_ID", "81de8904-6aaa-4390-a132-881f963a0ede");
-    const void* payloadPointer{sut->getUserPayload()};
+    const void* payloadPointer{ sut->getUserPayload() };
     auto requestHeader = ResponseHeader::fromPayload(payloadPointer);
 
     EXPECT_THAT(requestHeader, Eq(sut));

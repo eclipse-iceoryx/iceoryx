@@ -118,7 +118,7 @@ class unique_ptr final
     void destroy() noexcept;
 
   private:
-    T* m_ptr{nullptr};
+    T* m_ptr{ nullptr };
     function<DeleterType> m_deleter;
 };
 

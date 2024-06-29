@@ -66,7 +66,7 @@
     }                                                                                                                  \
                                                                                                                        \
   private:                                                                                                             \
-    type m_##name{defaultValue};
+    type m_##name{ defaultValue };
 // NOLINTEND(bugprone-macro-parentheses)
 
 #endif

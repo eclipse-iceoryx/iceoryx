@@ -19,7 +19,7 @@
 
 namespace iox
 {
-const char* POSH_ERROR_NAMES[] = {IOX_POSH_ERRORS(IOX_CREATE_ERROR_STRING)};
+const char* POSH_ERROR_NAMES[] = { IOX_POSH_ERRORS(IOX_CREATE_ERROR_STRING) };
 
 const char* asStringLiteral(const PoshError error) noexcept
 {

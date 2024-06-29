@@ -50,7 +50,7 @@ struct cpp2c_Subscriber
     getCallbackForIsStateConditionSatisfied(const iox::popo::SubscriberState subscriberState) const noexcept;
 
 
-    iox::popo::SubscriberPortData* m_portData{nullptr};
+    iox::popo::SubscriberPortData* m_portData{ nullptr };
     iox::popo::TriggerHandle m_trigger;
 };
 #endif

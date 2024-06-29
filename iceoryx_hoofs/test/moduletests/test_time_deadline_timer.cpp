@@ -44,14 +44,14 @@ class DeadlineTimer_test : public Test
     {
     }
 
-    Duration second{1_s};
+    Duration second{ 1_s };
 
-    std::atomic<int> numberOfCalls{0};
+    std::atomic<int> numberOfCalls{ 0 };
     static const Duration TIMEOUT;
     static const uint64_t SLEEPTIME;
 };
 
-const Duration DeadlineTimer_test::TIMEOUT{10_ms};
+const Duration DeadlineTimer_test::TIMEOUT{ 10_ms };
 const uint64_t DeadlineTimer_test::SLEEPTIME = DeadlineTimer_test::TIMEOUT.toMilliseconds();
 
 TIMING_TEST_F(DeadlineTimer_test, ZeroTimeoutTest, Repeat(5), [&] {

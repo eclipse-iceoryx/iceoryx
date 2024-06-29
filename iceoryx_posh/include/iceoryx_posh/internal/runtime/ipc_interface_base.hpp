@@ -276,9 +276,9 @@ class IpcInterface
   protected:
     InterfaceName_t m_interfaceName;
     RuntimeName_t m_runtimeName;
-    uint64_t m_maxMessageSize{0U};
-    uint64_t m_maxMessages{0U};
-    PosixIpcChannelSide m_channelSide{PosixIpcChannelSide::CLIENT};
+    uint64_t m_maxMessageSize{ 0U };
+    uint64_t m_maxMessages{ 0U };
+    PosixIpcChannelSide m_channelSide{ PosixIpcChannelSide::CLIENT };
     optional<IpcChannelType> m_ipcChannel;
 };
 

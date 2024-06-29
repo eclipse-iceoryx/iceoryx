@@ -56,9 +56,9 @@ class BumpAllocator final
     void deallocate() noexcept;
 
   private:
-    uint64_t m_startAddress{0U};
-    uint64_t m_length{0U};
-    uint64_t m_currentPosition{0U};
+    uint64_t m_startAddress{ 0U };
+    uint64_t m_length{ 0U };
+    uint64_t m_currentPosition{ 0U };
 };
 } // namespace iox
 

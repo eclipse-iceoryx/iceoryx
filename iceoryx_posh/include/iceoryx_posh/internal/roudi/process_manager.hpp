@@ -224,11 +224,11 @@ class ProcessManager : public ProcessManagerInterface
     RouDiMemoryInterface& m_roudiMemoryInterface;
     PortManager& m_portManager;
     const DomainId m_domainId;
-    mepoo::SegmentManager<>* m_segmentManager{nullptr};
-    mepoo::MemoryManager* m_introspectionMemoryManager{nullptr};
-    segment_id_underlying_t m_mgmtSegmentId{UntypedRelativePointer::NULL_POINTER_ID};
+    mepoo::SegmentManager<>* m_segmentManager{ nullptr };
+    mepoo::MemoryManager* m_introspectionMemoryManager{ nullptr };
+    segment_id_underlying_t m_mgmtSegmentId{ UntypedRelativePointer::NULL_POINTER_ID };
     ProcessList_t m_processList;
-    ProcessIntrospectionType* m_processIntrospection{nullptr};
+    ProcessIntrospectionType* m_processIntrospection{ nullptr };
     version::CompatibilityCheckLevel m_compatibilityCheckLevel;
     HeartbeatPool* m_heartbeatPool;
 };

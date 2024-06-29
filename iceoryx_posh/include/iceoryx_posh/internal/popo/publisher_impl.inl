@@ -77,7 +77,7 @@ inline expected<void, AllocationError> PublisherImpl<T, H, BasePublisherType>::p
 template <typename T, typename H, typename BasePublisherType>
 inline expected<Sample<T, H>, AllocationError> PublisherImpl<T, H, BasePublisherType>::loanSample() noexcept
 {
-    static constexpr uint32_t USER_HEADER_SIZE{std::is_same<H, mepoo::NoUserHeader>::value ? 0U : sizeof(H)};
+    static constexpr uint32_t USER_HEADER_SIZE{ std::is_same<H, mepoo::NoUserHeader>::value ? 0U : sizeof(H) };
 
     auto result = port().tryAllocateChunk(sizeof(T), alignof(T), USER_HEADER_SIZE, alignof(H));
     if (result.has_error())

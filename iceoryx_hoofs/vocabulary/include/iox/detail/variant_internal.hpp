@@ -55,25 +55,26 @@ struct is_in_place_type<in_place_type<T>> : std::true_type
 template <typename TypeToCheck, typename T, typename... Targs>
 struct does_contain_type
 {
-    static constexpr bool value{std::is_same<TypeToCheck, T>::value || does_contain_type<TypeToCheck, Targs...>::value};
+    static constexpr bool value{ std::is_same<TypeToCheck, T>::value
+                                 || does_contain_type<TypeToCheck, Targs...>::value };
 };
 
 template <typename TypeToCheck, typename T>
 struct does_contain_type<TypeToCheck, T>
 {
-    static constexpr bool value{std::is_same<TypeToCheck, T>::value};
+    static constexpr bool value{ std::is_same<TypeToCheck, T>::value };
 };
 
 template <uint64_t N, typename Type, typename T, typename... Targs>
 struct get_index_of_type
 {
-    static constexpr uint64_t index{get_index_of_type<N + 1, Type, Targs...>::index};
+    static constexpr uint64_t index{ get_index_of_type<N + 1, Type, Targs...>::index };
 };
 
 template <uint64_t N, typename Type, typename... Targs>
 struct get_index_of_type<N, Type, Type, Targs...>
 {
-    static constexpr uint64_t index{N};
+    static constexpr uint64_t index{ N };
 };
 
 template <uint64_t N, uint64_t Index, typename T, typename... Targs>

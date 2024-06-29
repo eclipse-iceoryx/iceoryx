@@ -140,7 +140,7 @@ class GatewayGeneric : public gateway_t
   private:
     ConcurrentChannelVector m_channels;
 
-    std::atomic_bool m_isRunning{false};
+    std::atomic_bool m_isRunning{ false };
 
     units::Duration m_discoveryPeriod;
     units::Duration m_forwardingPeriod;

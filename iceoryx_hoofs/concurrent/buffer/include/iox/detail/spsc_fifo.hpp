@@ -67,8 +67,8 @@ class SpscFifo
 
   private:
     UninitializedArray<ValueType, Capacity> m_data;
-    std::atomic<uint64_t> m_writePos{0};
-    std::atomic<uint64_t> m_readPos{0};
+    std::atomic<uint64_t> m_writePos{ 0 };
+    std::atomic<uint64_t> m_readPos{ 0 };
 };
 
 } // namespace concurrent

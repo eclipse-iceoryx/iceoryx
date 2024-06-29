@@ -58,9 +58,9 @@ class FixedPositionContainer final
 
     struct Index
     {
-        static constexpr IndexType FIRST{0};
-        static constexpr IndexType LAST{CAPACITY - 1};
-        static constexpr IndexType INVALID{CAPACITY};
+        static constexpr IndexType FIRST{ 0 };
+        static constexpr IndexType LAST{ CAPACITY - 1 };
+        static constexpr IndexType INVALID{ CAPACITY };
     };
 
     FixedPositionContainer() noexcept;
@@ -320,9 +320,9 @@ class FixedPositionContainer final
     UninitializedArray<T, CAPACITY> m_data;
     UninitializedArray<SlotStatus, CAPACITY> m_status;
     UninitializedArray<IndexType, CAPACITY> m_next;
-    IndexType m_size{0};
-    IndexType m_begin_free{Index::FIRST};
-    IndexType m_begin_used{Index::INVALID};
+    IndexType m_size{ 0 };
+    IndexType m_begin_free{ Index::FIRST };
+    IndexType m_begin_used{ Index::INVALID };
 };
 
 } // namespace iox

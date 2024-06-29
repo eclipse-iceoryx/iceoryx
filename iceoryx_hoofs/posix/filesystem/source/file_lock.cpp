@@ -90,8 +90,8 @@ expected<FileLock, FileLockError> FileLockBuilder::create() noexcept
 }
 
 FileLock::FileLock(const int32_t fileDescriptor, const FilePath_t& path) noexcept
-    : m_fd{fileDescriptor}
-    , m_fileLockPath{path}
+    : m_fd{ fileDescriptor }
+    , m_fileLockPath{ path }
 {
 }
 

@@ -26,7 +26,7 @@
 
 int iox_shm_open(const char* name, int, mode_t)
 {
-    std::lock_guard<std::mutex> lock{ShmFile::openFilesMutex};
+    std::lock_guard<std::mutex> lock{ ShmFile::openFilesMutex };
     const auto iter =
         std::find_if(std::begin(ShmFile::openFiles), std::end(ShmFile::openFiles), [name](const ShmFile& f) {
             return std::strncmp(name, f.name(), ShmFile::MAX_NAME_LENGTH) == 0;
@@ -36,7 +36,7 @@ int iox_shm_open(const char* name, int, mode_t)
         const auto iter_empty = std::find_if(
             std::begin(ShmFile::openFiles), std::end(ShmFile::openFiles), [](const ShmFile& f) { return f.empty(); });
         configASSERT(iter_empty != std::end(ShmFile::openFiles));
-        *iter_empty = ShmFile{name};
+        *iter_empty = ShmFile{ name };
         return iter_empty->fd();
     }
     else
@@ -47,7 +47,7 @@ int iox_shm_open(const char* name, int, mode_t)
 
 int iox_shm_unlink(const char* name)
 {
-    std::lock_guard<std::mutex> lock{ShmFile::openFilesMutex};
+    std::lock_guard<std::mutex> lock{ ShmFile::openFilesMutex };
     const auto iter =
         std::find_if(std::begin(ShmFile::openFiles), std::end(ShmFile::openFiles), [name](const ShmFile& f) {
             return std::strncmp(name, f.name(), ShmFile::MAX_NAME_LENGTH) == 0;
@@ -72,7 +72,7 @@ int iox_shm_close(int)
 
 void* mmap(void*, size_t length, int, int, int fd, off_t)
 {
-    std::lock_guard<std::mutex> lock{ShmFile::openFilesMutex};
+    std::lock_guard<std::mutex> lock{ ShmFile::openFilesMutex };
     const auto iter = std::find_if(
         std::begin(ShmFile::openFiles), std::end(ShmFile::openFiles), [fd](const ShmFile& f) { return f.fd() == fd; });
 

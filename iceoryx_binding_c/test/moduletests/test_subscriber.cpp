@@ -55,12 +55,12 @@ using namespace iox::mepoo;
 class iox_sub_test : public Test
 {
   public:
-    const iox::capro::ServiceDescription TEST_SERVICE_DESCRIPTION{"a", "b", "c"};
+    const iox::capro::ServiceDescription TEST_SERVICE_DESCRIPTION{ "a", "b", "c" };
 
   protected:
     iox_sub_test()
     {
-        m_mempoolconf.addMemPool({CHUNK_SIZE, NUM_CHUNKS_IN_POOL});
+        m_mempoolconf.addMemPool({ CHUNK_SIZE, NUM_CHUNKS_IN_POOL });
         m_memoryManager.configureMemoryManager(m_mempoolconf, m_memoryAllocator, m_memoryAllocator);
         m_subscriber->m_portData = &m_portPtr;
     }
@@ -90,7 +90,7 @@ class iox_sub_test : public Test
 
     iox::mepoo::SharedChunk getChunkFromMemoryManager()
     {
-        constexpr uint64_t USER_PAYLOAD_SIZE{100U};
+        constexpr uint64_t USER_PAYLOAD_SIZE{ 100U };
 
         auto chunkSettings = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT)
                                  .expect("Valid 'ChunkSettings'");
@@ -103,22 +103,22 @@ class iox_sub_test : public Test
     static constexpr uint32_t NUM_CHUNKS_IN_POOL = MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY + 2U;
     static constexpr uint64_t CHUNK_SIZE = 128U;
 
-    BumpAllocator m_memoryAllocator{m_memory, MEMORY_SIZE};
+    BumpAllocator m_memoryAllocator{ m_memory, MEMORY_SIZE };
     MePooConfig m_mempoolconf;
     MemoryManager m_memoryManager;
 
-    iox::popo::SubscriberOptions subscriberOptions{MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY, 0U};
-    iox::popo::SubscriberPortData m_portPtr{TEST_SERVICE_DESCRIPTION,
-                                            "myApp",
-                                            roudi::DEFAULT_UNIQUE_ROUDI_ID,
-                                            iox::popo::VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
-                                            subscriberOptions};
-    ChunkQueuePusher<SubscriberPortData::ChunkQueueData_t> m_chunkPusher{&m_portPtr.m_chunkReceiverData};
-    std::unique_ptr<cpp2c_Subscriber> m_subscriber{new cpp2c_Subscriber};
+    iox::popo::SubscriberOptions subscriberOptions{ MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY, 0U };
+    iox::popo::SubscriberPortData m_portPtr{ TEST_SERVICE_DESCRIPTION,
+                                             "myApp",
+                                             roudi::DEFAULT_UNIQUE_ROUDI_ID,
+                                             iox::popo::VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
+                                             subscriberOptions };
+    ChunkQueuePusher<SubscriberPortData::ChunkQueueData_t> m_chunkPusher{ &m_portPtr.m_chunkReceiverData };
+    std::unique_ptr<cpp2c_Subscriber> m_subscriber{ new cpp2c_Subscriber };
     iox_sub_t m_sut = m_subscriber.get();
 
-    ConditionVariableData m_condVar{"myApp"};
-    std::unique_ptr<WaitSetMock> m_waitSet{new WaitSetMock(m_condVar)};
+    ConditionVariableData m_condVar{ "myApp" };
+    std::unique_ptr<WaitSetMock> m_waitSet{ new WaitSetMock(m_condVar) };
 };
 
 iox_sub_t iox_sub_test::m_triggerCallbackLatestArgument = nullptr;
@@ -355,7 +355,7 @@ TEST_F(iox_sub_test, attachingToWaitSetWorks)
 TEST_F(iox_sub_test, attachingToAnotherWaitsetCleansupAtOriginalWaitset)
 {
     ::testing::Test::RecordProperty("TEST_ID", "cfc150f3-aa6d-41a1-a68e-7b21711ef5c3");
-    WaitSetMock m_waitSet2{m_condVar};
+    WaitSetMock m_waitSet2{ m_condVar };
     iox_ws_attach_subscriber_state(m_waitSet.get(), m_sut, SubscriberState_HAS_DATA, 0U, triggerCallback);
 
     EXPECT_EQ(iox_ws_attach_subscriber_state(&m_waitSet2, m_sut, SubscriberState_HAS_DATA, 0U, triggerCallback),

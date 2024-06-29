@@ -30,9 +30,9 @@ namespace
 using namespace ::testing;
 
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables) for testing only
-std::atomic<bool> has_custom_backend{false};
+std::atomic<bool> has_custom_backend{ false };
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables) for testing only
-std::atomic<uint64_t> dummy_backend_output_counter{0};
+std::atomic<uint64_t> dummy_backend_output_counter{ 0 };
 
 class LogOutput
 {
@@ -62,7 +62,7 @@ class LogOutput
 
   private:
     mutable std::mutex m_mtx;
-    IceoryxPlatformLogLevel m_log_level{IceoryxPlatformLogLevel::IOX_PLATFORM_LOG_LEVEL_TRACE};
+    IceoryxPlatformLogLevel m_log_level{ IceoryxPlatformLogLevel::IOX_PLATFORM_LOG_LEVEL_TRACE };
     std::string m_log_msg;
 };
 
@@ -96,7 +96,7 @@ TEST(Logging_test, DefaultBackendLogsToCout)
     std::stringstream buffer;
     std::streambuf* original_cout_buffer = std::cout.rdbuf(buffer.rdbuf());
 
-    constexpr const char* MESSAGE{"Hypnotoad will rock you"};
+    constexpr const char* MESSAGE{ "Hypnotoad will rock you" };
 
     IOX_PLATFORM_LOG(IOX_PLATFORM_LOG_LEVEL_INFO, MESSAGE);
 
@@ -128,7 +128,7 @@ TEST(Logging_test, SettingCustomBackendWorks)
 
     last_log_output.clear();
 
-    constexpr const char* MESSAGE{"Who will rock you?"};
+    constexpr const char* MESSAGE{ "Who will rock you?" };
     IOX_PLATFORM_LOG(IOX_PLATFORM_LOG_LEVEL_INFO, MESSAGE);
 
     auto [log_level, log_msg] = last_log_output.get();
@@ -142,7 +142,7 @@ TEST(Logging_test, SettingCustomBackendTwiceFails)
 
     ASSERT_TRUE(has_custom_backend);
 
-    constexpr uint64_t DUMMY_MESSAGE_COUNT_AFTER_FAILED_SETUP{1};
+    constexpr uint64_t DUMMY_MESSAGE_COUNT_AFTER_FAILED_SETUP{ 1 };
     ASSERT_THAT(dummy_backend_output_counter, Eq(0));
     iox_platform_set_log_backend(&dummy_log_backend);
     ASSERT_THAT(dummy_backend_output_counter, Eq(DUMMY_MESSAGE_COUNT_AFTER_FAILED_SETUP));

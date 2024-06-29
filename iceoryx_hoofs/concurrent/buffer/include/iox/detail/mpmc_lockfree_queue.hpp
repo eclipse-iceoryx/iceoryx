@@ -112,7 +112,7 @@ class MpmcLockFreeQueue
 
     UninitializedArray<ElementType, Capacity> m_buffer;
 
-    std::atomic<uint64_t> m_size{0U};
+    std::atomic<uint64_t> m_size{ 0U };
 
     // template is needed to distinguish between lvalue and rvalue T references
     // (universal reference type deduction)

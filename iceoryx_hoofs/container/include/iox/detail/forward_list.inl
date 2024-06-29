@@ -136,7 +136,7 @@ inline forward_list<T, Capacity>::~forward_list() noexcept
 template <typename T, uint64_t Capacity>
 inline typename forward_list<T, Capacity>::iterator forward_list<T, Capacity>::before_begin() noexcept
 {
-    return iterator{this, BEFORE_BEGIN_INDEX};
+    return iterator{ this, BEFORE_BEGIN_INDEX };
 }
 template <typename T, uint64_t Capacity>
 inline typename forward_list<T, Capacity>::const_iterator forward_list<T, Capacity>::before_begin() const noexcept
@@ -146,13 +146,13 @@ inline typename forward_list<T, Capacity>::const_iterator forward_list<T, Capaci
 template <typename T, uint64_t Capacity>
 inline typename forward_list<T, Capacity>::const_iterator forward_list<T, Capacity>::cbefore_begin() const noexcept
 {
-    return const_iterator{this, BEFORE_BEGIN_INDEX};
+    return const_iterator{ this, BEFORE_BEGIN_INDEX };
 }
 
 template <typename T, uint64_t Capacity>
 inline typename forward_list<T, Capacity>::iterator forward_list<T, Capacity>::begin() noexcept
 {
-    return iterator{this, getNextIdx(BEFORE_BEGIN_INDEX)};
+    return iterator{ this, getNextIdx(BEFORE_BEGIN_INDEX) };
 }
 template <typename T, uint64_t Capacity>
 inline typename forward_list<T, Capacity>::const_iterator forward_list<T, Capacity>::begin() const noexcept
@@ -162,14 +162,14 @@ inline typename forward_list<T, Capacity>::const_iterator forward_list<T, Capaci
 template <typename T, uint64_t Capacity>
 inline typename forward_list<T, Capacity>::const_iterator forward_list<T, Capacity>::cbegin() const noexcept
 {
-    return const_iterator{this, getNextIdx(BEFORE_BEGIN_INDEX)};
+    return const_iterator{ this, getNextIdx(BEFORE_BEGIN_INDEX) };
 }
 
 
 template <typename T, uint64_t Capacity>
 inline typename forward_list<T, Capacity>::iterator forward_list<T, Capacity>::end() noexcept
 {
-    return iterator{this, END_INDEX};
+    return iterator{ this, END_INDEX };
 }
 template <typename T, uint64_t Capacity>
 inline typename forward_list<T, Capacity>::const_iterator forward_list<T, Capacity>::end() const noexcept
@@ -179,7 +179,7 @@ inline typename forward_list<T, Capacity>::const_iterator forward_list<T, Capaci
 template <typename T, uint64_t Capacity>
 inline typename forward_list<T, Capacity>::const_iterator forward_list<T, Capacity>::cend() const noexcept
 {
-    return const_iterator{this, END_INDEX};
+    return const_iterator{ this, END_INDEX };
 }
 
 
@@ -254,7 +254,7 @@ forward_list<T, Capacity>::emplace_after(const_iterator iter, ConstructorArgs&&.
 
     ++m_size;
 
-    return iterator{this, toBeAddedIdx};
+    return iterator{ this, toBeAddedIdx };
 }
 
 
@@ -290,7 +290,7 @@ inline typename forward_list<T, Capacity>::iterator forward_list<T, Capacity>::e
     --m_size;
 
     // Iterator to the element following the erased one, or end() if no such element exists.
-    return iterator{this, retIdx};
+    return iterator{ this, retIdx };
 }
 
 template <typename T, uint64_t Capacity>

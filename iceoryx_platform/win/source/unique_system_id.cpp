@@ -21,12 +21,12 @@
 #include <processthreadsapi.h>
 
 
-std::atomic<uint64_t> UniqueSystemId::sequenceCounter{0U};
+std::atomic<uint64_t> UniqueSystemId::sequenceCounter{ 0U };
 
 UniqueSystemId::UniqueSystemId() noexcept
-    : m_processId{GetCurrentProcessId()}
-    , m_timestamp{static_cast<uint64_t>(std::chrono::system_clock::now().time_since_epoch().count())}
-    , m_sequenceNumber{sequenceCounter.fetch_add(1U, std::memory_order_relaxed)}
+    : m_processId{ GetCurrentProcessId() }
+    , m_timestamp{ static_cast<uint64_t>(std::chrono::system_clock::now().time_since_epoch().count()) }
+    , m_sequenceNumber{ sequenceCounter.fetch_add(1U, std::memory_order_relaxed) }
 {
 }
 

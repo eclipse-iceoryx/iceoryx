@@ -47,8 +47,8 @@ class DummyRequest
         , addend(addend)
     {
     }
-    uint64_t augend{0U};
-    uint64_t addend{0U};
+    uint64_t augend{ 0U };
+    uint64_t addend{ 0U };
 };
 
 class DummyResponse
@@ -59,12 +59,12 @@ class DummyResponse
         : sum(sum)
     {
     }
-    uint64_t sum{0U};
+    uint64_t sum{ 0U };
 };
 
 struct BigPayloadStruct
 {
-    uint8_t bigPayload[SIZE_LARGER_THAN_4GB]{0U};
+    uint8_t bigPayload[SIZE_LARGER_THAN_4GB]{ 0U };
 };
 
 class ClientServer_test : public RouDi_GTest
@@ -87,10 +87,10 @@ class ClientServer_test : public RouDi_GTest
         deadlockWatchdog.watchAndActOnFailure([] { std::terminate(); });
     }
 
-    static constexpr iox::units::Duration DEADLOCK_TIMEOUT{5_s};
-    Watchdog deadlockWatchdog{DEADLOCK_TIMEOUT};
-    ServiceDescription sd{"blue", "and", "yellow"};
-    ServiceDescription sdUnmatch{"white", "blue", "red"};
+    static constexpr iox::units::Duration DEADLOCK_TIMEOUT{ 5_s };
+    Watchdog deadlockWatchdog{ DEADLOCK_TIMEOUT };
+    ServiceDescription sd{ "blue", "and", "yellow" };
+    ServiceDescription sdUnmatch{ "white", "blue", "red" };
     iox::popo::ClientOptions clientOptions;
     iox::popo::ServerOptions serverOptions;
 };
@@ -116,20 +116,20 @@ class BigPayloadClientServer_test : public ClientServer_test
         deadlockWatchdog.watchAndActOnFailure([] { std::terminate(); });
     }
 
-    static constexpr iox::units::Duration DEADLOCK_TIMEOUT{10_s};
-    Watchdog deadlockWatchdog{DEADLOCK_TIMEOUT};
+    static constexpr iox::units::Duration DEADLOCK_TIMEOUT{ 10_s };
+    Watchdog deadlockWatchdog{ DEADLOCK_TIMEOUT };
 };
 
 TEST_F(ClientServer_test, TypedApiWithMatchingOptionsWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a14eb330-1b7d-4243-be4d-009f9e67a232");
 
-    constexpr int64_t SEQUENCE_ID{73};
-    constexpr uint64_t AUGEND{13U};
-    constexpr uint64_t ADDEND{42U};
+    constexpr int64_t SEQUENCE_ID{ 73 };
+    constexpr uint64_t AUGEND{ 13U };
+    constexpr uint64_t ADDEND{ 42U };
 
-    Client<DummyRequest, DummyResponse> client{sd};
-    Server<DummyRequest, DummyResponse> server{sd};
+    Client<DummyRequest, DummyResponse> client{ sd };
+    Server<DummyRequest, DummyResponse> server{ sd };
 
     // send request
     {
@@ -169,12 +169,12 @@ TEST_F(ClientServer_test, UnypedApiWithMatchingOptionsWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e0a26c45-8eb9-4a68-be23-60d447f6bdc8");
 
-    constexpr int64_t SEQUENCE_ID{37};
-    constexpr uint64_t AUGEND{7U};
-    constexpr uint64_t ADDEND{4U};
+    constexpr int64_t SEQUENCE_ID{ 37 };
+    constexpr uint64_t AUGEND{ 7U };
+    constexpr uint64_t ADDEND{ 4U };
 
-    UntypedClient client{sd};
-    UntypedServer server{sd};
+    UntypedClient client{ sd };
+    UntypedServer server{ sd };
 
     // send request
     {
@@ -217,17 +217,17 @@ TEST_F(ClientServer_test, MultipleClientsWithMatchingOptionsWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "dba14d17-c2ee-4cfe-b535-7ad9ccf9d58a");
 
-    constexpr uint64_t NUMBER_OF_REQUESTS{2U};
+    constexpr uint64_t NUMBER_OF_REQUESTS{ 2U };
 
-    const std::vector<int64_t> SEQUENCE_ID{111, 222};
-    const std::vector<uint64_t> AUGEND{10U, 20U};
-    const std::vector<uint64_t> ADDEND{11U, 22U};
+    const std::vector<int64_t> SEQUENCE_ID{ 111, 222 };
+    const std::vector<uint64_t> AUGEND{ 10U, 20U };
+    const std::vector<uint64_t> ADDEND{ 11U, 22U };
 
-    Client<DummyRequest, DummyResponse> client_1{sd};
-    Client<DummyRequest, DummyResponse> client_2{sd};
-    std::vector<Client<DummyRequest, DummyResponse>*> client{&client_1, &client_2};
+    Client<DummyRequest, DummyResponse> client_1{ sd };
+    Client<DummyRequest, DummyResponse> client_2{ sd };
+    std::vector<Client<DummyRequest, DummyResponse>*> client{ &client_1, &client_2 };
 
-    Server<DummyRequest, DummyResponse> server{sd};
+    Server<DummyRequest, DummyResponse> server{ sd };
 
     // send requests
     for (auto i = 0U; i < NUMBER_OF_REQUESTS; ++i)
@@ -267,8 +267,8 @@ TEST_F(ClientServer_test, ClientWithNotMatchingServiceDescriptionIsNotConnected)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f95b6904-1956-4610-8e09-edb23680689d");
 
-    Client<DummyRequest, DummyResponse> client{sdUnmatch};
-    Server<DummyRequest, DummyResponse> server{sd};
+    Client<DummyRequest, DummyResponse> client{ sdUnmatch };
+    Server<DummyRequest, DummyResponse> server{ sd };
 
     EXPECT_FALSE(server.hasClients());
     EXPECT_THAT(client.getConnectionState(), Ne(iox::ConnectionState::CONNECTED));
@@ -281,8 +281,8 @@ TEST_F(ClientServer_test, ClientWithNotMatchingResponseQueueFullPolicyIsNotConne
     clientOptions.responseQueueFullPolicy = QueueFullPolicy::BLOCK_PRODUCER;
     serverOptions.clientTooSlowPolicy = ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA;
 
-    Client<DummyRequest, DummyResponse> client{sd, clientOptions};
-    Server<DummyRequest, DummyResponse> server{sd, serverOptions};
+    Client<DummyRequest, DummyResponse> client{ sd, clientOptions };
+    Server<DummyRequest, DummyResponse> server{ sd, serverOptions };
 
     EXPECT_FALSE(server.hasClients());
     EXPECT_THAT(client.getConnectionState(), Ne(iox::ConnectionState::CONNECTED));
@@ -295,8 +295,8 @@ TEST_F(ClientServer_test, ClientWithNotMatchingServerTooSlowPolicyIsNotConnected
     clientOptions.serverTooSlowPolicy = ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA;
     serverOptions.requestQueueFullPolicy = QueueFullPolicy::BLOCK_PRODUCER;
 
-    Client<DummyRequest, DummyResponse> client{sd, clientOptions};
-    Server<DummyRequest, DummyResponse> server{sd, serverOptions};
+    Client<DummyRequest, DummyResponse> client{ sd, clientOptions };
+    Server<DummyRequest, DummyResponse> server{ sd, serverOptions };
 
     EXPECT_FALSE(server.hasClients());
     EXPECT_THAT(client.getConnectionState(), Ne(iox::ConnectionState::CONNECTED));
@@ -306,14 +306,14 @@ TEST_F(ClientServer_test, SlowServerDoesNotBlockClient)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5866ef06-941d-4f72-858f-cd07dd26c4fc");
 
-    constexpr int64_t SEQUENCE_ID{42};
-    constexpr int64_t NUMBER_OF_OVERFLOWS{1};
+    constexpr int64_t SEQUENCE_ID{ 42 };
+    constexpr int64_t NUMBER_OF_OVERFLOWS{ 1 };
 
     clientOptions.responseQueueCapacity = 10U;
     serverOptions.requestQueueCapacity = 1U;
 
-    Client<DummyRequest, DummyResponse> client{sd, clientOptions};
-    Server<DummyRequest, DummyResponse> server{sd, serverOptions};
+    Client<DummyRequest, DummyResponse> client{ sd, clientOptions };
+    Server<DummyRequest, DummyResponse> server{ sd, serverOptions };
 
     // send request till queue overflows
     const int64_t iMax = static_cast<int64_t>(serverOptions.requestQueueCapacity) + NUMBER_OF_OVERFLOWS;
@@ -339,10 +339,10 @@ TEST_F(ClientServer_test, SlowClientDoesNotBlockServer)
     clientOptions.responseQueueCapacity = 1U;
     serverOptions.requestQueueCapacity = 10U;
 
-    Client<DummyRequest, DummyResponse> client{sd, clientOptions};
-    Server<DummyRequest, DummyResponse> server{sd, serverOptions};
+    Client<DummyRequest, DummyResponse> client{ sd, clientOptions };
+    Server<DummyRequest, DummyResponse> server{ sd, serverOptions };
 
-    int64_t latestSequenceId{13};
+    int64_t latestSequenceId{ 13 };
     // send request and responses
     for (uint64_t i = 0; i < serverOptions.requestQueueCapacity; ++i)
     {
@@ -386,13 +386,13 @@ TEST_F(ClientServer_test, ServerTakeRequestUnblocksClientSendingRequest)
     serverOptions.requestQueueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PRODUCER;
     serverOptions.clientTooSlowPolicy = iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER;
 
-    Client<DummyRequest, DummyResponse> client{sd, clientOptions};
-    Server<DummyRequest, DummyResponse> server{sd, serverOptions};
+    Client<DummyRequest, DummyResponse> client{ sd, clientOptions };
+    Server<DummyRequest, DummyResponse> server{ sd, serverOptions };
 
     ASSERT_TRUE(server.hasClients());
     ASSERT_THAT(client.getConnectionState(), Eq(iox::ConnectionState::CONNECTED));
 
-    std::atomic_bool wasRequestSent{false};
+    std::atomic_bool wasRequestSent{ false };
 
     // block in a separate thread
     Barrier isThreadStarted(1U);
@@ -416,7 +416,7 @@ TEST_F(ClientServer_test, ServerTakeRequestUnblocksClientSendingRequest)
     });
 
     // wait some time to check if the client is blocked
-    constexpr std::chrono::milliseconds SLEEP_TIME{100U};
+    constexpr std::chrono::milliseconds SLEEP_TIME{ 100U };
     isThreadStarted.wait();
     std::this_thread::sleep_for(SLEEP_TIME);
     EXPECT_THAT(wasRequestSent.load(), Eq(false));
@@ -439,8 +439,8 @@ TEST_F(ClientServer_test, ClientTakesResponseUnblocksServerSendingResponse)
     serverOptions.requestQueueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PRODUCER;
     serverOptions.clientTooSlowPolicy = iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER;
 
-    Client<DummyRequest, DummyResponse> client{sd, clientOptions};
-    Server<DummyRequest, DummyResponse> server{sd, serverOptions};
+    Client<DummyRequest, DummyResponse> client{ sd, clientOptions };
+    Server<DummyRequest, DummyResponse> server{ sd, serverOptions };
 
     ASSERT_TRUE(server.hasClients());
     ASSERT_THAT(client.getConnectionState(), Eq(iox::ConnectionState::CONNECTED));
@@ -453,7 +453,7 @@ TEST_F(ClientServer_test, ClientTakesResponseUnblocksServerSendingResponse)
         EXPECT_FALSE(clientLoanResult.value().send().has_error());
     }
 
-    std::atomic_bool wasResponseSent{false};
+    std::atomic_bool wasResponseSent{ false };
 
     // block in a separate thread
     Barrier isThreadStarted(1U);
@@ -477,7 +477,7 @@ TEST_F(ClientServer_test, ClientTakesResponseUnblocksServerSendingResponse)
     });
 
     // wait some time to check if the server is blocked
-    constexpr std::chrono::milliseconds SLEEP_TIME{100U};
+    constexpr std::chrono::milliseconds SLEEP_TIME{ 100U };
     isThreadStarted.wait();
     std::this_thread::sleep_for(SLEEP_TIME);
     EXPECT_THAT(wasResponseSent.load(), Eq(false));
@@ -494,14 +494,14 @@ TEST_F(BigPayloadClientServer_test, TypedApiWithBigPayloadWithMatchingOptionsWor
 {
     ::testing::Test::RecordProperty("TEST_ID", "9838d2dc-bd87-42aa-b581-a9526e35e46a");
 
-    constexpr int64_t SEQUENCE_ID{73};
-    constexpr uint64_t FIRST{4095};
-    constexpr uint64_t LAST{SIZE_LARGER_THAN_4GB - 1};
-    constexpr uint64_t STEP{4096};
-    constexpr uint8_t SHIFT{13U};
+    constexpr int64_t SEQUENCE_ID{ 73 };
+    constexpr uint64_t FIRST{ 4095 };
+    constexpr uint64_t LAST{ SIZE_LARGER_THAN_4GB - 1 };
+    constexpr uint64_t STEP{ 4096 };
+    constexpr uint8_t SHIFT{ 13U };
 
-    Client<BigPayloadStruct, BigPayloadStruct> client{sd};
-    Server<BigPayloadStruct, BigPayloadStruct> server{sd};
+    Client<BigPayloadStruct, BigPayloadStruct> client{ sd };
+    Server<BigPayloadStruct, BigPayloadStruct> server{ sd };
 
     // send request
     {
@@ -553,14 +553,14 @@ TEST_F(BigPayloadClientServer_test, UntypedApiWithBigPayloadWithMatchingOptionsW
 {
     ::testing::Test::RecordProperty("TEST_ID", "3c784d7f-6fe8-2137-b267-7f3e70a307f3");
 
-    constexpr int64_t SEQUENCE_ID{37};
-    constexpr uint64_t FIRST{4095};
-    constexpr uint64_t LAST{SIZE_LARGER_THAN_4GB - 1};
-    constexpr uint64_t STEP{4096};
-    constexpr uint8_t SHIFT{13U};
+    constexpr int64_t SEQUENCE_ID{ 37 };
+    constexpr uint64_t FIRST{ 4095 };
+    constexpr uint64_t LAST{ SIZE_LARGER_THAN_4GB - 1 };
+    constexpr uint64_t STEP{ 4096 };
+    constexpr uint8_t SHIFT{ 13U };
 
-    UntypedClient client{sd};
-    UntypedServer server{sd};
+    UntypedClient client{ sd };
+    UntypedServer server{ sd };
 
     // send request
     {

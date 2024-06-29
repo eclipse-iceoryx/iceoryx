@@ -29,11 +29,11 @@ using ::testing::_;
 
 struct DummyRequest
 {
-    uint64_t data{0};
+    uint64_t data{ 0 };
 };
 struct DummyResponse
 {
-    uint64_t data{0};
+    uint64_t data{ 0 };
 };
 
 using TestClient = ClientImpl<DummyRequest, DummyResponse, MockBaseClient>;
@@ -49,16 +49,16 @@ class Client_test : public Test
     {
     }
 
-    static constexpr uint64_t PAYLOAD_SIZE{sizeof(DummyRequest)};
-    static constexpr uint32_t PAYLOAD_ALIGNMENT{alignof(DummyRequest)};
+    static constexpr uint64_t PAYLOAD_SIZE{ sizeof(DummyRequest) };
+    static constexpr uint32_t PAYLOAD_ALIGNMENT{ alignof(DummyRequest) };
 
     ChunkMock<DummyRequest, RequestHeader> requestMock;
     ChunkMock<DummyResponse, ResponseHeader> responseMock;
 
-    ServiceDescription sd{"a one", "a two", "a three"};
-    static constexpr uint64_t RESPONSE_QUEUE_CAPACITY{123U};
-    ClientOptions options{RESPONSE_QUEUE_CAPACITY};
-    TestClient sut{sd, options};
+    ServiceDescription sd{ "a one", "a two", "a three" };
+    static constexpr uint64_t RESPONSE_QUEUE_CAPACITY{ 123U };
+    ClientOptions options{ RESPONSE_QUEUE_CAPACITY };
+    TestClient sut{ sd, options };
 };
 
 TEST_F(Client_test, ConstructorForwardsArgumentsToBaseClient)
@@ -88,7 +88,7 @@ TEST_F(Client_test, LoanCallsUnderlyingPortWithErrorResult)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9029b641-09d9-4f47-8627-63fc0c45d7ef");
 
-    constexpr AllocationError ALLOCATION_ERROR{AllocationError::RUNNING_OUT_OF_CHUNKS};
+    constexpr AllocationError ALLOCATION_ERROR{ AllocationError::RUNNING_OUT_OF_CHUNKS };
     const iox::expected<RequestHeader*, AllocationError> allocateRequestResult = iox::err(ALLOCATION_ERROR);
 
     EXPECT_CALL(sut.mockPort, allocateRequest(PAYLOAD_SIZE, PAYLOAD_ALIGNMENT)).WillOnce(Return(allocateRequestResult));
@@ -140,7 +140,7 @@ TEST_F(Client_test, TakeCallsUnderlyingPortWithErrorResult)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1aac50ca-5455-4579-9e69-769d569e2b4b");
 
-    constexpr ChunkReceiveResult CHUNK_RECEIVE_RESULT{ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL};
+    constexpr ChunkReceiveResult CHUNK_RECEIVE_RESULT{ ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL };
     const iox::expected<const ResponseHeader*, ChunkReceiveResult> getResponseResult = iox::err(CHUNK_RECEIVE_RESULT);
 
     EXPECT_CALL(sut.mockPort, getResponse()).WillOnce(Return(getResponseResult));

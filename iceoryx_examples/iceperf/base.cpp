@@ -46,7 +46,7 @@ iox::units::Duration IcePerfBase::latencyPerfTestLeader(const uint64_t numRoundT
 
     auto finish = std::chrono::steady_clock::now();
 
-    constexpr uint64_t TRANSMISSIONS_PER_ROUNDTRIP{2U};
+    constexpr uint64_t TRANSMISSIONS_PER_ROUNDTRIP{ 2U };
     auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start);
     auto latencyInNanoSeconds =
         (static_cast<uint64_t>(duration.count()) / (numRoundTrips * TRANSMISSIONS_PER_ROUNDTRIP));

@@ -96,8 +96,8 @@ class Ownership
     Ownership(const iox_uid_t uid, const iox_gid_t gid) noexcept;
 
   private:
-    iox_uid_t m_uid{std::numeric_limits<iox_uid_t>::max()};
-    iox_gid_t m_gid{std::numeric_limits<iox_gid_t>::max()};
+    iox_uid_t m_uid{ std::numeric_limits<iox_uid_t>::max() };
+    iox_gid_t m_gid{ std::numeric_limits<iox_gid_t>::max() };
 };
 
 /// @brief Abstract implementation to manage things common to all file descriptor

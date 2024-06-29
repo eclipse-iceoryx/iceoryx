@@ -22,7 +22,7 @@
 #include <iostream>
 #include <thread>
 
-std::atomic_bool keepRunning{true};
+std::atomic_bool keepRunning{ true };
 
 using WaitSet = iox::popo::WaitSet<>;
 

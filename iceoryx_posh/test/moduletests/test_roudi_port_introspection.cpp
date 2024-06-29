@@ -180,8 +180,8 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
 
     auto chunk = std::unique_ptr<ChunkMock<Topic>>(new ChunkMock<Topic>);
 
-    const iox::RuntimeName_t runtimeName1{"name1"};
-    const iox::RuntimeName_t runtimeName2{"name2"};
+    const iox::RuntimeName_t runtimeName1{ "name1" };
+    const iox::RuntimeName_t runtimeName2{ "name2" };
 
     // prepare expected outputs
     PortData expected1;
@@ -307,10 +307,10 @@ TEST_F(PortIntrospection_test, addAndRemoveSubscriber)
 
     auto chunk = std::unique_ptr<ChunkMock<Topic>>(new ChunkMock<Topic>);
 
-    const iox::RuntimeName_t runtimeName1{"name1"};
-    const iox::RuntimeName_t runtimeName2{"name2"};
-    const iox::NodeName_t nodeName1{"4"};
-    const iox::NodeName_t nodeName2{"7"};
+    const iox::RuntimeName_t runtimeName1{ "name1" };
+    const iox::RuntimeName_t runtimeName2{ "name2" };
+    const iox::NodeName_t nodeName1{ "4" };
+    const iox::NodeName_t nodeName2{ "7" };
 
     // prepare expected outputs
     PortData expected1;
@@ -338,17 +338,17 @@ TEST_F(PortIntrospection_test, addAndRemoveSubscriber)
 
     // test adding of ports
     // remark: duplicate subscriber insertions are not possible
-    iox::popo::SubscriberPortData recData1{service1,
-                                           runtimeName1,
-                                           iox::roudi::DEFAULT_UNIQUE_ROUDI_ID,
-                                           iox::popo::VariantQueueTypes::FiFo_MultiProducerSingleConsumer,
-                                           subscriberOptions1};
+    iox::popo::SubscriberPortData recData1{ service1,
+                                            runtimeName1,
+                                            iox::roudi::DEFAULT_UNIQUE_ROUDI_ID,
+                                            iox::popo::VariantQueueTypes::FiFo_MultiProducerSingleConsumer,
+                                            subscriberOptions1 };
     MockSubscriberPortUser port1(&recData1);
-    iox::popo::SubscriberPortData recData2{service2,
-                                           runtimeName2,
-                                           iox::roudi::DEFAULT_UNIQUE_ROUDI_ID,
-                                           iox::popo::VariantQueueTypes::FiFo_MultiProducerSingleConsumer,
-                                           subscriberOptions2};
+    iox::popo::SubscriberPortData recData2{ service2,
+                                            runtimeName2,
+                                            iox::roudi::DEFAULT_UNIQUE_ROUDI_ID,
+                                            iox::popo::VariantQueueTypes::FiFo_MultiProducerSingleConsumer,
+                                            subscriberOptions2 };
     MockSubscriberPortUser port2(&recData2);
     EXPECT_THAT(m_introspectionAccess.addSubscriber(recData1), Eq(true));
     EXPECT_THAT(m_introspectionAccess.addSubscriber(recData1), Eq(false));

@@ -87,8 +87,8 @@ class MePooSegment_test : public Test
             return &memory[0];
         }
 
-        uint64_t m_memorySizeInBytes{0};
-        void* m_baseAddressHint{nullptr};
+        uint64_t m_memorySizeInBytes{ 0 };
+        void* m_baseAddressHint{ nullptr };
         static constexpr int MEM_SIZE = 100000;
         char memory[MEM_SIZE];
         shm_handle_t filehandle;
@@ -124,13 +124,13 @@ class MePooSegment_test : public Test
     MePooConfig setupMepooConfig()
     {
         MePooConfig config;
-        config.addMemPool({128, 100});
+        config.addMemPool({ 128, 100 });
         return config;
     }
 
-    static constexpr uint64_t RawMemorySize{20000};
+    static constexpr uint64_t RawMemorySize{ 20000 };
     uint8_t m_rawMemory[RawMemorySize];
-    iox::BumpAllocator m_managementAllocator{iox::BumpAllocator(m_rawMemory, RawMemorySize)};
+    iox::BumpAllocator m_managementAllocator{ iox::BumpAllocator(m_rawMemory, RawMemorySize) };
 
     MePooConfig mepooConfig = setupMepooConfig();
 
@@ -140,8 +140,8 @@ class MePooSegment_test : public Test
         return std::make_unique<SUT>(mepooConfig,
                                      DEFAULT_DOMAIN_ID,
                                      m_managementAllocator,
-                                     PosixGroup{"iox_roudi_test1"},
-                                     PosixGroup{"iox_roudi_test2"});
+                                     PosixGroup{ "iox_roudi_test1" },
+                                     PosixGroup{ "iox_roudi_test2" });
     }
 };
 MePooSegment_test::SharedMemoryObject_MOCK::createFct MePooSegment_test::SharedMemoryObject_MOCK::createVerificator;
@@ -169,11 +169,11 @@ TEST_F(MePooSegment_test, SharedMemoryCreationParameter)
         EXPECT_THAT(accessMode, Eq(iox::AccessMode::READ_WRITE));
         EXPECT_THAT(openMode, Eq(iox::OpenMode::PURGE_AND_CREATE));
     };
-    SUT sut{mepooConfig,
-            DEFAULT_DOMAIN_ID,
-            m_managementAllocator,
-            PosixGroup{"iox_roudi_test1"},
-            PosixGroup{"iox_roudi_test2"}};
+    SUT sut{ mepooConfig,
+             DEFAULT_DOMAIN_ID,
+             m_managementAllocator,
+             PosixGroup{ "iox_roudi_test1" },
+             PosixGroup{ "iox_roudi_test2" } };
     MePooSegment_test::SharedMemoryObject_MOCK::createVerificator =
         MePooSegment_test::SharedMemoryObject_MOCK::createFct();
 }
@@ -215,7 +215,7 @@ TEST_F(MePooSegment_test, GetMemoryManager)
     auto config = sut->getMemoryManager().getMemPoolInfo(0);
     ASSERT_THAT(config.m_numChunks, Eq(100U));
 
-    constexpr uint64_t USER_PAYLOAD_SIZE{128U};
+    constexpr uint64_t USER_PAYLOAD_SIZE{ 128U };
     auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
     ASSERT_FALSE(chunkSettingsResult.has_error());
     auto& chunkSettings = chunkSettingsResult.value();

@@ -95,11 +95,11 @@ GatewayGeneric<channel_t, gateway_t>::addChannel(const capro::ServiceDescription
     }
     else
     {
-        auto result = channel_t::create({service.getServiceIDString(),
-                                         service.getInstanceIDString(),
-                                         service.getEventIDString(),
-                                         {0U, 0U, 0U, 0U},
-                                         this->getInterface()},
+        auto result = channel_t::create({ service.getServiceIDString(),
+                                          service.getInstanceIDString(),
+                                          service.getEventIDString(),
+                                          { 0U, 0U, 0U, 0U },
+                                          this->getInterface() },
                                         options);
         if (result.has_error())
         {

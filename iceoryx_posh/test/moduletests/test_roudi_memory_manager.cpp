@@ -49,10 +49,9 @@ class RouDiMemoryManager_Test : public Test
         RouDiMemoryManagerError::MEMORY_DESTRUCTION_FAILED,
     };
 
-    const char* m_testResultOperatorMethod[nbTestCase] = {"MEMORY_PROVIDER_EXHAUSTED",
-                                                          "NO_MEMORY_PROVIDER_PRESENT",
-                                                          "MEMORY_CREATION_FAILED",
-                                                          "MEMORY_DESTRUCTION_FAILED"};
+    const char* m_testResultOperatorMethod[nbTestCase] = {
+        "MEMORY_PROVIDER_EXHAUSTED", "NO_MEMORY_PROVIDER_PRESENT", "MEMORY_CREATION_FAILED", "MEMORY_DESTRUCTION_FAILED"
+    };
 
     MemoryBlockMock memoryBlock1;
     MemoryBlockMock memoryBlock2;
@@ -73,10 +72,10 @@ TEST_F(RouDiMemoryManager_Test, CallingCreateAndAnnounceMemoryWithoutMemoryProvi
 TEST_F(RouDiMemoryManager_Test, CallingCreateMemoryWithMemoryProviderSucceeds)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0634d8d5-5ab9-448b-a7c6-031b58374366");
-    uint64_t MEMORY_SIZE_1{16};
-    uint64_t MEMORY_ALIGNMENT_1{8};
-    uint64_t MEMORY_SIZE_2{32};
-    uint64_t MEMORY_ALIGNMENT_2{16};
+    uint64_t MEMORY_SIZE_1{ 16 };
+    uint64_t MEMORY_ALIGNMENT_1{ 8 };
+    uint64_t MEMORY_SIZE_2{ 32 };
+    uint64_t MEMORY_ALIGNMENT_2{ 16 };
     EXPECT_CALL(memoryBlock1, size()).WillRepeatedly(Return(MEMORY_SIZE_1));
     EXPECT_CALL(memoryBlock1, alignment()).WillRepeatedly(Return(MEMORY_ALIGNMENT_1));
     EXPECT_CALL(memoryBlock1, onMemoryAvailable(_));
@@ -111,8 +110,8 @@ TEST_F(RouDiMemoryManager_Test, CallingCreateMemoryWithMemoryProviderError)
 TEST_F(RouDiMemoryManager_Test, RouDiMemoryManagerDTorTriggersMemoryProviderDestroy)
 {
     ::testing::Test::RecordProperty("TEST_ID", "bb14b892-9f78-4494-a269-0c361b6a88bd");
-    uint64_t MEMORY_SIZE_1{16};
-    uint64_t MEMORY_ALIGNMENT_1{8};
+    uint64_t MEMORY_SIZE_1{ 16 };
+    uint64_t MEMORY_ALIGNMENT_1{ 8 };
     EXPECT_CALL(memoryBlock1, size()).WillRepeatedly(Return(MEMORY_SIZE_1));
     EXPECT_CALL(memoryBlock1, alignment()).WillRepeatedly(Return(MEMORY_ALIGNMENT_1));
     EXPECT_CALL(memoryBlock1, onMemoryAvailable(_));

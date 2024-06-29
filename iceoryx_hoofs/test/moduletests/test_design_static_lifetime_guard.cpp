@@ -65,17 +65,17 @@ struct DelayedFou : public Fou<N>
     }
 };
 
-constexpr uint32_t FIRST_INSTANCE_ID{1};
-constexpr uint32_t SECOND_INSTANCE_ID{2};
+constexpr uint32_t FIRST_INSTANCE_ID{ 1 };
+constexpr uint32_t SECOND_INSTANCE_ID{ 2 };
 
 template <uint64_t N>
-uint32_t Fou<N>::ctorCalled{0};
+uint32_t Fou<N>::ctorCalled{ 0 };
 
 template <uint64_t N>
-uint32_t Fou<N>::dtorCalled{0};
+uint32_t Fou<N>::dtorCalled{ 0 };
 
 template <uint64_t N>
-uint32_t Fou<N>::instancesCreated{0};
+uint32_t Fou<N>::instancesCreated{ 0 };
 
 template <uint64_t N>
 using TestGuard = iox::StaticLifetimeGuard<Fou<N>>;

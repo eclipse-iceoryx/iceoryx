@@ -37,8 +37,8 @@ using namespace iox::mepoo;
 
 class ServerPort_test : public Test
 {
-    static constexpr iox::units::Duration DEADLOCK_TIMEOUT{5_s};
-    Watchdog m_deadlockWatchdog{DEADLOCK_TIMEOUT};
+    static constexpr iox::units::Duration DEADLOCK_TIMEOUT{ 5_s };
+    Watchdog m_deadlockWatchdog{ DEADLOCK_TIMEOUT };
 
     struct SutServerPort
     {
@@ -52,16 +52,16 @@ class ServerPort_test : public Test
         }
 
         ServerPortData portData;
-        ServerPortUser portUser{portData};
-        ServerPortRouDi portRouDi{portData};
-        ChunkQueuePusher<ServerChunkQueueData_t> requestQueuePusher{&portData.m_chunkReceiverData};
+        ServerPortUser portUser{ portData };
+        ServerPortRouDi portRouDi{ portData };
+        ChunkQueuePusher<ServerChunkQueueData_t> requestQueuePusher{ &portData.m_chunkReceiverData };
     };
 
   public:
     ServerPort_test()
     {
         MePooConfig mempoolconf;
-        mempoolconf.addMemPool({CHUNK_SIZE, NUM_CHUNKS});
+        mempoolconf.addMemPool({ CHUNK_SIZE, NUM_CHUNKS });
         m_memoryManager.configureMemoryManager(mempoolconf, m_memoryAllocator, m_memoryAllocator);
     }
 
@@ -114,11 +114,11 @@ class ServerPort_test : public Test
         return m_memoryManager.getChunk(chunkSettings).expect("Obtaining chunk");
     }
 
-    static constexpr uint64_t DUMMY_DATA{0U};
+    static constexpr uint64_t DUMMY_DATA{ 0U };
 
     SharedChunk getChunkWithInitializedRequestHeaderAndData(const uint64_t data = DUMMY_DATA)
     {
-        constexpr uint64_t USER_PAYLOAD_SIZE{sizeof(uint64_t)};
+        constexpr uint64_t USER_PAYLOAD_SIZE{ sizeof(uint64_t) };
         auto sharedChunk = getChunkFromMemoryManager(USER_PAYLOAD_SIZE, sizeof(RequestHeader));
         new (sharedChunk.getChunkHeader()->userHeader())
             RequestHeader(clientChunkQueueData.m_uniqueId, RpcBaseHeader::UNKNOWN_CLIENT_QUEUE_INDEX);
@@ -161,10 +161,10 @@ class ServerPort_test : public Test
     void allocateResponseWithRequestHeaderAndThen(
         SutServerPort& sut, std::function<void(const RequestHeader* const, ResponseHeader* const)> testFunction)
     {
-        constexpr uint64_t USER_PAYLOAD_SIZE{8};
-        constexpr uint32_t USER_PAYLOAD_ALIGNMENT{8};
+        constexpr uint64_t USER_PAYLOAD_SIZE{ 8 };
+        constexpr uint32_t USER_PAYLOAD_ALIGNMENT{ 8 };
 
-        constexpr uint64_t NUMBER_OF_REQUESTS{1U};
+        constexpr uint64_t NUMBER_OF_REQUESTS{ 1U };
         pushRequests(sut.requestQueuePusher, NUMBER_OF_REQUESTS);
         auto requestResult = sut.portUser.getRequest();
         ASSERT_FALSE(requestResult.has_error());
@@ -175,7 +175,7 @@ class ServerPort_test : public Test
             .or_else([&](const auto& error) { GTEST_FAIL() << "Expected ResponseHeader but got error: " << error; });
     }
 
-    static constexpr uint64_t QUEUE_CAPACITY{iox::MAX_REQUESTS_PROCESSED_SIMULTANEOUSLY * 2U};
+    static constexpr uint64_t QUEUE_CAPACITY{ iox::MAX_REQUESTS_PROCESSED_SIMULTANEOUSLY * 2U };
 
   private:
     static constexpr uint32_t NUM_CHUNKS =
@@ -184,11 +184,11 @@ class ServerPort_test : public Test
     static constexpr uint64_t CHUNK_SIZE = 128U;
     static constexpr size_t MEMORY_SIZE = 1024U * 1024U;
     uint8_t m_memory[MEMORY_SIZE];
-    iox::BumpAllocator m_memoryAllocator{m_memory, MEMORY_SIZE};
+    iox::BumpAllocator m_memoryAllocator{ m_memory, MEMORY_SIZE };
     MemoryManager m_memoryManager;
 
-    ServiceDescription m_serviceDescription{"hyp", "no", "toad"};
-    iox::RuntimeName_t m_runtimeName{"hypnotoad"};
+    ServiceDescription m_serviceDescription{ "hyp", "no", "toad" };
+    iox::RuntimeName_t m_runtimeName{ "hypnotoad" };
 
     ServerOptions m_serverOptionsWithOfferOnCreate = [&] {
         ServerOptions options;
@@ -221,21 +221,25 @@ class ServerPort_test : public Test
     iox::optional<SutServerPort> clientPortForStateTransitionTests;
 
   public:
-    static constexpr uint64_t USER_PAYLOAD_SIZE{32U};
-    static constexpr uint32_t USER_PAYLOAD_ALIGNMENT{8U};
+    static constexpr uint64_t USER_PAYLOAD_SIZE{ 32U };
+    static constexpr uint32_t USER_PAYLOAD_ALIGNMENT{ 8U };
 
-    ClientChunkQueueData_t clientChunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
-                                                iox::popo::VariantQueueTypes::SoFi_MultiProducerSingleConsumer};
-    ChunkQueuePopper<ClientChunkQueueData_t> clientResponseQueue{&clientChunkQueueData};
+    ClientChunkQueueData_t clientChunkQueueData{ iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
+                                                 iox::popo::VariantQueueTypes::SoFi_MultiProducerSingleConsumer };
+    ChunkQueuePopper<ClientChunkQueueData_t> clientResponseQueue{ &clientChunkQueueData };
 
     SutServerPort serverPortWithOfferOnCreate{
-        m_serviceDescription, m_runtimeName, m_serverOptionsWithOfferOnCreate, m_memoryManager};
+        m_serviceDescription, m_runtimeName, m_serverOptionsWithOfferOnCreate, m_memoryManager
+    };
     SutServerPort serverPortWithoutOfferOnCreate{
-        m_serviceDescription, m_runtimeName, m_serverOptionsWithoutOfferOnCreate, m_memoryManager};
+        m_serviceDescription, m_runtimeName, m_serverOptionsWithoutOfferOnCreate, m_memoryManager
+    };
     SutServerPort serverOptionsWithBlockProducerRequestQueueFullPolicy{
-        m_serviceDescription, m_runtimeName, m_serverOptionsWithBlockProducerRequestQueueFullPolicy, m_memoryManager};
+        m_serviceDescription, m_runtimeName, m_serverOptionsWithBlockProducerRequestQueueFullPolicy, m_memoryManager
+    };
     SutServerPort serverOptionsWithWaitForConsumerClientTooSlowPolicy{
-        m_serviceDescription, m_runtimeName, m_serverOptionsWithWaitForConsumerClientTooSlowPolicy, m_memoryManager};
+        m_serviceDescription, m_runtimeName, m_serverOptionsWithWaitForConsumerClientTooSlowPolicy, m_memoryManager
+    };
 };
 
 } // namespace iox_test_popo_server_port

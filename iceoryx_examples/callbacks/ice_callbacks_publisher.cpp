@@ -29,22 +29,22 @@ void sending()
 {
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
-    iox::popo::Publisher<CounterTopic> myPublisherLeft({"Radar", "FrontLeft", "Counter"});
-    iox::popo::Publisher<CounterTopic> myPublisherRight({"Radar", "FrontRight", "Counter"});
+    iox::popo::Publisher<CounterTopic> myPublisherLeft({ "Radar", "FrontLeft", "Counter" });
+    iox::popo::Publisher<CounterTopic> myPublisherRight({ "Radar", "FrontRight", "Counter" });
 
     for (uint32_t counter = 0U; !iox::hasTerminationRequested(); ++counter)
     {
         if (counter % 3 == 0)
         {
             std::cout << "Radar.FrontLeft.Counter sending : " << counter << std::endl;
-            myPublisherLeft.publishCopyOf(CounterTopic{counter}).or_else([](auto) {
+            myPublisherLeft.publishCopyOf(CounterTopic{ counter }).or_else([](auto) {
                 std::cerr << "Radar.FrontLeft.Counter send failed\n";
             });
         }
         else
         {
             std::cout << "Radar.FrontRight.Counter sending : " << counter * 2 << std::endl;
-            myPublisherRight.publishCopyOf(CounterTopic{counter * 2}).or_else([](auto) {
+            myPublisherRight.publishCopyOf(CounterTopic{ counter * 2 }).or_else([](auto) {
                 std::cerr << "Radar.FrontRight.Counter send failed\n";
             });
         }

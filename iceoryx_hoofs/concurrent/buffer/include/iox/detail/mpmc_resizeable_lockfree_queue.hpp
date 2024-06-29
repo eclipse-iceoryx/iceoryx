@@ -123,7 +123,7 @@ class MpmcResizeableLockFreeQueue : protected MpmcLockFreeQueue<ElementType, Max
 
   private:
     using BufferIndex = uint64_t;
-    std::atomic<uint64_t> m_capacity{MaxCapacity};
+    std::atomic<uint64_t> m_capacity{ MaxCapacity };
     // must be operator= otherwise it is undefined, see https://en.cppreference.com/w/cpp/atomic/ATOMIC_FLAG_INIT
     std::atomic_flag m_resizeInProgress = ATOMIC_FLAG_INIT;
     iox::vector<BufferIndex, MaxCapacity> m_unusedIndices;

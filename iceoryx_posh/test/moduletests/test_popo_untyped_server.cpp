@@ -44,10 +44,10 @@ class UntypedServer_test : public Test
     ChunkMock<uint64_t, RequestHeader> requestMock;
     ChunkMock<uint64_t, ResponseHeader> responseMock;
 
-    ServiceDescription sd{"shores", "ring", "bell"};
-    static constexpr uint64_t REQUEST_QUEUE_CAPACITY{7U};
-    ServerOptions options{REQUEST_QUEUE_CAPACITY};
-    TestUntypedServer sut{sd, options};
+    ServiceDescription sd{ "shores", "ring", "bell" };
+    static constexpr uint64_t REQUEST_QUEUE_CAPACITY{ 7U };
+    ServerOptions options{ REQUEST_QUEUE_CAPACITY };
+    TestUntypedServer sut{ sd, options };
 };
 
 TEST_F(UntypedServer_test, ConstructorForwardsArgumentsToBaseClient)
@@ -76,7 +76,7 @@ TEST_F(UntypedServer_test, TakeCallsUnderlyingPortWithErrorResult)
 {
     ::testing::Test::RecordProperty("TEST_ID", "224e93e3-47f4-4533-8fac-9cb7bbb87f08");
 
-    constexpr ServerRequestResult SERVER_REQUEST_RESULT{ServerRequestResult::TOO_MANY_REQUESTS_HELD_IN_PARALLEL};
+    constexpr ServerRequestResult SERVER_REQUEST_RESULT{ ServerRequestResult::TOO_MANY_REQUESTS_HELD_IN_PARALLEL };
     const iox::expected<const RequestHeader*, ServerRequestResult> getRequestResult = iox::err(SERVER_REQUEST_RESULT);
 
     EXPECT_CALL(sut.mockPort, getRequest()).WillOnce(Return(getRequestResult));
@@ -108,8 +108,8 @@ TEST_F(UntypedServer_test, LoanCallsUnderlyingPortWithSuccessResult)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f39d58f3-b25e-4515-852d-c3afa5519e5a");
 
-    constexpr uint64_t PAYLOAD_SIZE{8U};
-    constexpr uint32_t PAYLOAD_ALIGNMENT{32U};
+    constexpr uint64_t PAYLOAD_SIZE{ 8U };
+    constexpr uint32_t PAYLOAD_ALIGNMENT{ 32U };
     const iox::expected<ResponseHeader*, AllocationError> allocateResponseResult =
         iox::ok<ResponseHeader*>(responseMock.userHeader());
 
@@ -125,9 +125,9 @@ TEST_F(UntypedServer_test, LoanCallsUnderlyingPortWithErrorResult)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d813b550-64b2-490f-a9f4-bafc9ddc7696");
 
-    constexpr uint64_t PAYLOAD_SIZE{8U};
-    constexpr uint32_t PAYLOAD_ALIGNMENT{32U};
-    constexpr AllocationError ALLOCATION_ERROR{AllocationError::RUNNING_OUT_OF_CHUNKS};
+    constexpr uint64_t PAYLOAD_SIZE{ 8U };
+    constexpr uint32_t PAYLOAD_ALIGNMENT{ 32U };
+    constexpr AllocationError ALLOCATION_ERROR{ AllocationError::RUNNING_OUT_OF_CHUNKS };
     const iox::expected<ResponseHeader*, AllocationError> allocateResponseResult = iox::err(ALLOCATION_ERROR);
 
     EXPECT_CALL(sut.mockPort, allocateResponse(requestMock.userHeader(), PAYLOAD_SIZE, PAYLOAD_ALIGNMENT))

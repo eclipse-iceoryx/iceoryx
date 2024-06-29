@@ -87,13 +87,13 @@ bool Trigger::isLogicalEqualTo(const void* const notificationOrigin,
 }
 
 Trigger::Trigger(Trigger&& rhs) noexcept
-    : m_notificationInfo{rhs.m_notificationInfo}
-    , m_hasTriggeredCallback{std::move(rhs.m_hasTriggeredCallback)}
-    , m_resetCallback{std::move(rhs.m_resetCallback)}
-    , m_uniqueId{rhs.m_uniqueId}
-    , m_triggerType{rhs.m_triggerType}
-    , m_originTriggerType{rhs.m_originTriggerType}
-    , m_originTriggerTypeHash{rhs.m_originTriggerTypeHash}
+    : m_notificationInfo{ rhs.m_notificationInfo }
+    , m_hasTriggeredCallback{ std::move(rhs.m_hasTriggeredCallback) }
+    , m_resetCallback{ std::move(rhs.m_resetCallback) }
+    , m_uniqueId{ rhs.m_uniqueId }
+    , m_triggerType{ rhs.m_triggerType }
+    , m_originTriggerType{ rhs.m_originTriggerType }
+    , m_originTriggerTypeHash{ rhs.m_originTriggerTypeHash }
 {
     rhs.invalidate();
 }

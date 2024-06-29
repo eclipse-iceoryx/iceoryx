@@ -152,7 +152,7 @@ TEST_F(ServerPort_test, HasNewRequestsWithOneRequestIsTrue)
     ::testing::Test::RecordProperty("TEST_ID", "0235ce49-96b3-41c0-aac1-e0d6f6bc2b1f");
     auto& sut = serverPortWithOfferOnCreate;
 
-    constexpr uint64_t NUMBER_OF_REQUESTS{1U};
+    constexpr uint64_t NUMBER_OF_REQUESTS{ 1U };
     pushRequests(sut.requestQueuePusher, NUMBER_OF_REQUESTS);
 
     EXPECT_TRUE(sut.portUser.hasNewRequests());
@@ -163,7 +163,7 @@ TEST_F(ServerPort_test, HasNewRequestsWithNoRequestsButPreviouslyHavingOneIsFals
     ::testing::Test::RecordProperty("TEST_ID", "29b0a347-2439-488d-ba13-962c7acffac1");
     auto& sut = serverPortWithOfferOnCreate;
 
-    constexpr uint64_t NUMBER_OF_REQUESTS{1U};
+    constexpr uint64_t NUMBER_OF_REQUESTS{ 1U };
     pushRequests(sut.requestQueuePusher, NUMBER_OF_REQUESTS);
     IOX_DISCARD_RESULT(sut.portUser.getRequest());
 
@@ -175,7 +175,7 @@ TEST_F(ServerPort_test, HasNewRequestsWithOneRequestButIntermediatelyHavingNoneI
     ::testing::Test::RecordProperty("TEST_ID", "a9fc0d89-7b97-48c4-8ba4-e4b22355116b");
     auto& sut = serverPortWithOfferOnCreate;
 
-    constexpr uint64_t NUMBER_OF_REQUESTS{1U};
+    constexpr uint64_t NUMBER_OF_REQUESTS{ 1U };
     pushRequests(sut.requestQueuePusher, NUMBER_OF_REQUESTS);
     IOX_DISCARD_RESULT(sut.portUser.getRequest());
     pushRequests(sut.requestQueuePusher, NUMBER_OF_REQUESTS);
@@ -188,7 +188,7 @@ TEST_F(ServerPort_test, HasNewRequestsWithMultipleRequestsIsTrue)
     ::testing::Test::RecordProperty("TEST_ID", "30e36e69-4f23-41ee-aac7-d34240f075ae");
     auto& sut = serverPortWithOfferOnCreate;
 
-    constexpr uint64_t NUMBER_OF_REQUESTS{2U};
+    constexpr uint64_t NUMBER_OF_REQUESTS{ 2U };
     pushRequests(sut.requestQueuePusher, NUMBER_OF_REQUESTS);
 
     EXPECT_TRUE(sut.portUser.hasNewRequests());
@@ -199,7 +199,7 @@ TEST_F(ServerPort_test, HasNewRequestsWithFullRequestQueueIsTrue)
     ::testing::Test::RecordProperty("TEST_ID", "e0aea054-4f58-443b-abbb-e0e3c6c5c5c6");
     auto& sut = serverPortWithOfferOnCreate;
 
-    constexpr uint64_t NUMBER_OF_REQUESTS{QUEUE_CAPACITY};
+    constexpr uint64_t NUMBER_OF_REQUESTS{ QUEUE_CAPACITY };
     pushRequests(sut.requestQueuePusher, NUMBER_OF_REQUESTS);
 
     EXPECT_TRUE(sut.portUser.hasNewRequests());
@@ -210,7 +210,7 @@ TEST_F(ServerPort_test, HasNewRequestsWithMultipleRequestsAndAllButOneRemovedIsT
     ::testing::Test::RecordProperty("TEST_ID", "96c42094-9931-46a3-8fd6-e7d28b490527");
     auto& sut = serverPortWithOfferOnCreate;
 
-    constexpr uint64_t NUMBER_OF_REQUESTS{2U};
+    constexpr uint64_t NUMBER_OF_REQUESTS{ 2U };
     pushRequests(sut.requestQueuePusher, NUMBER_OF_REQUESTS);
     IOX_DISCARD_RESULT(sut.portUser.getRequest());
 
@@ -222,7 +222,7 @@ TEST_F(ServerPort_test, HasNewRequestsWithNoRequestsButIntermediatelyHavingMulti
     ::testing::Test::RecordProperty("TEST_ID", "44845e16-ec0a-4b4e-a000-ff62f377c0b9");
     auto& sut = serverPortWithOfferOnCreate;
 
-    constexpr uint64_t NUMBER_OF_REQUESTS{2U};
+    constexpr uint64_t NUMBER_OF_REQUESTS{ 2U };
     pushRequests(sut.requestQueuePusher, NUMBER_OF_REQUESTS);
     IOX_DISCARD_RESULT(sut.portUser.getRequest());
     IOX_DISCARD_RESULT(sut.portUser.getRequest());
@@ -265,8 +265,8 @@ TEST_F(ServerPort_test, GetRequestWithOneRequestsResultsInRequestHeader)
     ::testing::Test::RecordProperty("TEST_ID", "b3b79e97-00bb-4e36-931d-88cfbe027a07");
     auto& sut = serverPortWithOfferOnCreate;
 
-    constexpr uint64_t NUMBER_OF_REQUESTS{1U};
-    constexpr uint64_t REQUEST_DATA{42};
+    constexpr uint64_t NUMBER_OF_REQUESTS{ 1U };
+    constexpr uint64_t REQUEST_DATA{ 42 };
     pushRequests(sut.requestQueuePusher, NUMBER_OF_REQUESTS, REQUEST_DATA);
 
     sut.portUser.getRequest()
@@ -279,7 +279,7 @@ TEST_F(ServerPort_test, GetRequestWithNoRequestsButIntermediatelyHavingOneResult
     ::testing::Test::RecordProperty("TEST_ID", "a1df6ee7-a936-446d-8960-5b9d6a93ad62");
     auto& sut = serverPortWithOfferOnCreate;
 
-    constexpr uint64_t NUMBER_OF_REQUESTS{1U};
+    constexpr uint64_t NUMBER_OF_REQUESTS{ 1U };
     pushRequests(sut.requestQueuePusher, NUMBER_OF_REQUESTS);
     IOX_DISCARD_RESULT(sut.portUser.getRequest());
 
@@ -294,10 +294,10 @@ TEST_F(ServerPort_test, GetRequestWithOneRequestsButIntermediatelyHavingNoneResu
     ::testing::Test::RecordProperty("TEST_ID", "ea4154a8-5a46-4c5d-b9cb-91adf6c1ff75");
     auto& sut = serverPortWithOfferOnCreate;
 
-    constexpr uint64_t REQUEST_DATA_1{13};
-    constexpr uint64_t REQUEST_DATA_2{73};
+    constexpr uint64_t REQUEST_DATA_1{ 13 };
+    constexpr uint64_t REQUEST_DATA_2{ 73 };
 
-    constexpr uint64_t NUMBER_OF_REQUESTS{1U};
+    constexpr uint64_t NUMBER_OF_REQUESTS{ 1U };
     pushRequests(sut.requestQueuePusher, NUMBER_OF_REQUESTS, REQUEST_DATA_1);
     IOX_DISCARD_RESULT(sut.portUser.getRequest());
     pushRequests(sut.requestQueuePusher, NUMBER_OF_REQUESTS, REQUEST_DATA_2);
@@ -312,9 +312,9 @@ TEST_F(ServerPort_test, GetRequestWithMultipleRequestsResultsInAsManyRequestHead
     ::testing::Test::RecordProperty("TEST_ID", "35032bbb-ec59-4b54-ba27-bdb364105162");
     auto& sut = serverPortWithOfferOnCreate;
 
-    constexpr uint64_t REQUEST_DATA_BASE{37};
+    constexpr uint64_t REQUEST_DATA_BASE{ 37 };
 
-    constexpr uint64_t NUMBER_OF_REQUESTS{2U};
+    constexpr uint64_t NUMBER_OF_REQUESTS{ 2U };
     pushRequests(sut.requestQueuePusher, NUMBER_OF_REQUESTS, REQUEST_DATA_BASE);
 
     sut.portUser.getRequest()
@@ -331,7 +331,7 @@ TEST_F(ServerPort_test, GetRequestWithMaximalHeldChunksInParallelResultsInReques
     ::testing::Test::RecordProperty("TEST_ID", "19c19b39-2dd1-4784-a1c1-adfba56248e8");
     auto& sut = serverPortWithOfferOnCreate;
 
-    constexpr uint64_t REQUEST_DATA_BASE{7337};
+    constexpr uint64_t REQUEST_DATA_BASE{ 7337 };
     // the maximum number of request which can be held in parallel must be larger than
     // MAX_REQUESTS_PROCESSED_SIMULTANEOUSLY; if it would be the same, the server would have to release one request
     // before a new one could be fetched and for a short time window the requirement of being able to hold
@@ -353,7 +353,7 @@ TEST_F(ServerPort_test, GetRequestWhenProcessingTooManyRequestsInParallelResults
     ::testing::Test::RecordProperty("TEST_ID", "87aa5ddf-80aa-4d32-b901-a82a99fb4a2f");
     auto& sut = serverPortWithOfferOnCreate;
 
-    constexpr uint64_t REQUEST_DATA_BASE{7337};
+    constexpr uint64_t REQUEST_DATA_BASE{ 7337 };
     // the maximum number of request which can be held in parallel must be larger than
     // MAX_REQUESTS_PROCESSED_SIMULTANEOUSLY; if it would be the same, the server would have to release one request
     // before a new one could be fetched and for a short time window the requirement of being able to hold
@@ -385,8 +385,8 @@ TEST_F(ServerPort_test, ReleaseRequestWithValidRequestHeaderWorksAndReleasesTheC
     ::testing::Test::RecordProperty("TEST_ID", "ffb5df3f-2f2d-40a9-b0b6-53b44daa5568");
     auto& sut = serverPortWithOfferOnCreate;
 
-    constexpr uint64_t NUMBER_OF_REQUESTS{1U};
-    constexpr uint64_t REQUEST_DATA{42};
+    constexpr uint64_t NUMBER_OF_REQUESTS{ 1U };
+    constexpr uint64_t REQUEST_DATA{ 42 };
     pushRequests(sut.requestQueuePusher, NUMBER_OF_REQUESTS, REQUEST_DATA);
 
     sut.portUser.getRequest()
@@ -429,8 +429,8 @@ TEST_F(ServerPort_test, ReleaseQueuedRequestsReleasesAllChunksToTheMempool)
     ::testing::Test::RecordProperty("TEST_ID", "90d918e4-a1cf-4a78-b987-7f0c03ca8805");
     auto& sut = serverPortWithOfferOnCreate;
 
-    constexpr uint64_t NUMBER_OF_REQUESTS{3U};
-    constexpr uint64_t REQUEST_DATA{42};
+    constexpr uint64_t NUMBER_OF_REQUESTS{ 3U };
+    constexpr uint64_t REQUEST_DATA{ 42 };
     pushRequests(sut.requestQueuePusher, NUMBER_OF_REQUESTS, REQUEST_DATA);
 
     EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(NUMBER_OF_REQUESTS));
@@ -510,7 +510,7 @@ TEST_F(ServerPort_test, HasLostRequestsSinceLastCallWhenNoRequestAreLostAfterRem
     pushRequests(sut.requestQueuePusher, QUEUE_CAPACITY + 1);
     IOX_DISCARD_RESULT(sut.portUser.hasLostRequestsSinceLastCall());
     IOX_DISCARD_RESULT(sut.portUser.getRequest());
-    constexpr uint64_t NUMBER_OF_REQUESTS{1U};
+    constexpr uint64_t NUMBER_OF_REQUESTS{ 1U };
     pushRequests(sut.requestQueuePusher, NUMBER_OF_REQUESTS);
 
     EXPECT_FALSE(sut.portUser.hasLostRequestsSinceLastCall());
@@ -522,7 +522,7 @@ TEST_F(ServerPort_test,
     ::testing::Test::RecordProperty("TEST_ID", "301beffe-acae-4863-9eb9-96d7629f81f8");
     auto& sut = serverOptionsWithBlockProducerRequestQueueFullPolicy;
 
-    constexpr uint64_t REQUEST_DATA_BASE{666};
+    constexpr uint64_t REQUEST_DATA_BASE{ 666 };
 
     EXPECT_TRUE(
         pushRequests(sut.requestQueuePusher, QUEUE_CAPACITY, REQUEST_DATA_BASE, QueueFullPolicy::BLOCK_PRODUCER));
@@ -554,9 +554,9 @@ TEST_F(ServerPort_test, AllocateResponseWithNullptrAsRequestHeaderCallsErrorHand
     ::testing::Test::RecordProperty("TEST_ID", "05891e1b-3aa4-4aa9-aafd-0649f88d2982");
     auto& sut = serverPortWithOfferOnCreate;
 
-    constexpr uint64_t USER_PAYLOAD_SIZE{8U};
-    constexpr uint32_t USER_PAYLOAD_ALIGNMENT{8U};
-    constexpr RequestHeader* REQUEST_HEADER_NULLPTR{nullptr};
+    constexpr uint64_t USER_PAYLOAD_SIZE{ 8U };
+    constexpr uint32_t USER_PAYLOAD_ALIGNMENT{ 8U };
+    constexpr RequestHeader* REQUEST_HEADER_NULLPTR{ nullptr };
 
     sut.portUser.allocateResponse(REQUEST_HEADER_NULLPTR, USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT)
         .and_then([&](const auto&) {
@@ -572,10 +572,10 @@ TEST_F(ServerPort_test,
     ::testing::Test::RecordProperty("TEST_ID", "6015d3d6-73ae-46fe-994d-445f3f8f366d");
     auto& sut = serverPortWithOfferOnCreate;
 
-    constexpr uint64_t INVALID_USER_PAYLOAD_SIZE{23U};
-    constexpr uint32_t INVALID_USER_PAYLOAD_ALIGNMENT{15U};
+    constexpr uint64_t INVALID_USER_PAYLOAD_SIZE{ 23U };
+    constexpr uint32_t INVALID_USER_PAYLOAD_ALIGNMENT{ 15U };
 
-    constexpr uint64_t NUMBER_OF_REQUESTS{1U};
+    constexpr uint64_t NUMBER_OF_REQUESTS{ 1U };
     pushRequests(sut.requestQueuePusher, NUMBER_OF_REQUESTS);
     auto requestResult = sut.portUser.getRequest();
     ASSERT_FALSE(requestResult.has_error());
@@ -608,8 +608,8 @@ TEST_F(ServerPort_test, ReleaseResponseWithValidResponseHeaderWorksAndReleasesTh
     auto& sut = serverPortWithOfferOnCreate;
 
     allocateResponseWithRequestHeaderAndThen(sut, [&](const auto, auto res) {
-        constexpr uint64_t NUMBER_OF_REQUEST_CHUNKS{1U};
-        constexpr uint64_t NUMBER_OF_RESPONSE_CHUNKS{1U};
+        constexpr uint64_t NUMBER_OF_REQUEST_CHUNKS{ 1U };
+        constexpr uint64_t NUMBER_OF_RESPONSE_CHUNKS{ 1U };
         EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(NUMBER_OF_REQUEST_CHUNKS + NUMBER_OF_RESPONSE_CHUNKS));
         sut.portUser.releaseResponse(res);
         EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(NUMBER_OF_REQUEST_CHUNKS));
@@ -663,8 +663,8 @@ TEST_F(ServerPort_test, SendResponseWithoutOfferReleasesTheChunkToTheMempool)
     auto& sut = serverPortWithoutOfferOnCreate;
 
     allocateResponseWithRequestHeaderAndThen(sut, [&](const auto, auto res) {
-        constexpr uint64_t NUMBER_OF_REQUEST_CHUNKS{1U};
-        constexpr uint64_t NUMBER_OF_RESPONSE_CHUNKS{1U};
+        constexpr uint64_t NUMBER_OF_REQUEST_CHUNKS{ 1U };
+        constexpr uint64_t NUMBER_OF_RESPONSE_CHUNKS{ 1U };
         EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(NUMBER_OF_REQUEST_CHUNKS + NUMBER_OF_RESPONSE_CHUNKS));
         sut.portUser.sendResponse(res)
             .and_then([&]() { GTEST_FAIL() << "Expected response not successfully sent"; })
@@ -680,8 +680,8 @@ TEST_F(ServerPort_test, SendResponseWithInvalidClientQueueIdReleasesTheChunkToTh
 
     // the client is not yet connected to the 'clientResponseQueue' which ID is used to send the responses to
     allocateResponseWithRequestHeaderAndThen(sut, [&](const auto, auto res) {
-        constexpr uint64_t NUMBER_OF_REQUEST_CHUNKS{1U};
-        constexpr uint64_t NUMBER_OF_RESPONSE_CHUNKS{1U};
+        constexpr uint64_t NUMBER_OF_REQUEST_CHUNKS{ 1U };
+        constexpr uint64_t NUMBER_OF_RESPONSE_CHUNKS{ 1U };
         EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(NUMBER_OF_REQUEST_CHUNKS + NUMBER_OF_RESPONSE_CHUNKS));
         sut.portUser.sendResponse(res)
             .and_then([&]() { GTEST_FAIL() << "Expected response not successfully sent"; })
@@ -697,7 +697,7 @@ TEST_F(ServerPort_test, SendResponseWithValidClientQueueIdReleasesDeliversToTheC
 
     addClientQueue(sut);
 
-    constexpr uint64_t RESPONSE_DATA{111U};
+    constexpr uint64_t RESPONSE_DATA{ 111U };
     allocateResponseWithRequestHeaderAndThen(sut, [&](const auto, auto res) {
         new (ChunkHeader::fromUserHeader(res)->userPayload()) int64_t(RESPONSE_DATA);
         sut.portUser.sendResponse(res)
@@ -712,8 +712,8 @@ TEST_F(ServerPort_test, SendResponseWithValidClientQueueIdReleasesDeliversToTheC
                                            })
                                            .or_else([&]() { GTEST_FAIL() << "Expected response but got none"; });
 
-    constexpr uint64_t NUMBER_OF_REQUEST_CHUNKS{1U};
-    constexpr uint64_t NUMBER_OF_RESPONSE_CHUNKS{1U};
+    constexpr uint64_t NUMBER_OF_REQUEST_CHUNKS{ 1U };
+    constexpr uint64_t NUMBER_OF_RESPONSE_CHUNKS{ 1U };
     EXPECT_THAT(this->getNumberOfUsedChunks(), Eq(NUMBER_OF_REQUEST_CHUNKS + NUMBER_OF_RESPONSE_CHUNKS));
 }
 
@@ -731,8 +731,8 @@ TEST_F(ServerPort_test, ConditionVariableInitiallyNotSet)
 TEST_F(ServerPort_test, SettingConditionVariableWithoutConditionVariablePresentWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ce878180-626e-4b94-93b0-9d465f054971");
-    iox::popo::ConditionVariableData condVar{"hypnotoad"};
-    constexpr uint32_t NOTIFICATION_INDEX{1};
+    iox::popo::ConditionVariableData condVar{ "hypnotoad" };
+    constexpr uint32_t NOTIFICATION_INDEX{ 1 };
 
     auto& sut = serverPortWithOfferOnCreate;
     sut.portUser.setConditionVariable(condVar, NOTIFICATION_INDEX);
@@ -743,8 +743,8 @@ TEST_F(ServerPort_test, SettingConditionVariableWithoutConditionVariablePresentW
 TEST_F(ServerPort_test, UnsettingConditionVariableWithConditionVariablePresentWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a84b8bf2-877f-495c-9b90-933bfffe1d4d");
-    iox::popo::ConditionVariableData condVar{"brain slug"};
-    constexpr uint32_t NOTIFICATION_INDEX{2};
+    iox::popo::ConditionVariableData condVar{ "brain slug" };
+    constexpr uint32_t NOTIFICATION_INDEX{ 2 };
 
     auto& sut = serverPortWithOfferOnCreate;
     sut.portUser.setConditionVariable(condVar, NOTIFICATION_INDEX);
@@ -773,12 +773,12 @@ TEST_F(ServerPort_test, asStringLiteralConvertsRequestResultValuesToStrings)
     using ServerRequestResult = iox::popo::ServerRequestResult;
 
     // each bit corresponds to an enum value and must be set to true on test
-    uint64_t testedEnumValues{0U};
-    uint64_t loopCounter{0U};
-    for (const auto& sut : {ServerRequestResult::TOO_MANY_REQUESTS_HELD_IN_PARALLEL,
-                            ServerRequestResult::NO_PENDING_REQUESTS,
-                            ServerRequestResult::UNDEFINED_CHUNK_RECEIVE_ERROR,
-                            ServerRequestResult::NO_PENDING_REQUESTS_AND_SERVER_DOES_NOT_OFFER})
+    uint64_t testedEnumValues{ 0U };
+    uint64_t loopCounter{ 0U };
+    for (const auto& sut : { ServerRequestResult::TOO_MANY_REQUESTS_HELD_IN_PARALLEL,
+                             ServerRequestResult::NO_PENDING_REQUESTS,
+                             ServerRequestResult::UNDEFINED_CHUNK_RECEIVE_ERROR,
+                             ServerRequestResult::NO_PENDING_REQUESTS_AND_SERVER_DOES_NOT_OFFER })
     {
         auto enumString = iox::popo::asStringLiteral(sut);
 
@@ -831,10 +831,10 @@ TEST_F(ServerPort_test, asStringLiteralConvertsServerSendErrorValuesToStrings)
     using ServerSendError = iox::popo::ServerSendError;
 
     // each bit corresponds to an enum value and must be set to true on test
-    uint64_t testedEnumValues{0U};
-    uint64_t loopCounter{0U};
+    uint64_t testedEnumValues{ 0U };
+    uint64_t loopCounter{ 0U };
     for (const auto& sut :
-         {ServerSendError::NOT_OFFERED, ServerSendError::CLIENT_NOT_AVAILABLE, ServerSendError::INVALID_RESPONSE})
+         { ServerSendError::NOT_OFFERED, ServerSendError::CLIENT_NOT_AVAILABLE, ServerSendError::INVALID_RESPONSE })
     {
         auto enumString = iox::popo::asStringLiteral(sut);
 

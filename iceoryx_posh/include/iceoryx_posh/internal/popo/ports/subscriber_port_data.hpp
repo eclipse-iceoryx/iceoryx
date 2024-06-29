@@ -50,8 +50,8 @@ struct SubscriberPortData : public BasePortData
 
     SubscriberOptions m_options;
 
-    std::atomic_bool m_subscribeRequested{false};
-    std::atomic<SubscribeState> m_subscriptionState{SubscribeState::NOT_SUBSCRIBED};
+    std::atomic_bool m_subscribeRequested{ false };
+    std::atomic<SubscribeState> m_subscriptionState{ SubscribeState::NOT_SUBSCRIBED };
 };
 
 } // namespace popo

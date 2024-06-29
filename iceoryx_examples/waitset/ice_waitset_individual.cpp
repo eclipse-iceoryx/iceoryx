@@ -24,10 +24,10 @@
 #include <chrono>
 #include <iostream>
 
-std::atomic_bool keepRunning{true};
+std::atomic_bool keepRunning{ true };
 
 using WaitSet = iox::popo::WaitSet<>;
-volatile WaitSet* waitsetSigHandlerAccess{nullptr};
+volatile WaitSet* waitsetSigHandlerAccess{ nullptr };
 
 static void sigHandler(int f_sig [[maybe_unused]])
 {
@@ -55,8 +55,8 @@ int main()
 
     // create two subscribers, subscribe to the service and attach them to the waitset
     //! [create subscribers]
-    iox::popo::Subscriber<CounterTopic> subscriber1({"Radar", "FrontLeft", "Counter"});
-    iox::popo::Subscriber<CounterTopic> subscriber2({"Radar", "FrontLeft", "Counter"});
+    iox::popo::Subscriber<CounterTopic> subscriber1({ "Radar", "FrontLeft", "Counter" });
+    iox::popo::Subscriber<CounterTopic> subscriber2({ "Radar", "FrontLeft", "Counter" });
 
     waitset.attachState(subscriber1, iox::popo::SubscriberState::HAS_DATA).or_else([](auto) {
         std::cerr << "failed to attach subscriber1" << std::endl;

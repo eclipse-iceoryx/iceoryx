@@ -24,16 +24,16 @@
 //! [topic data definitions]
 struct PerfSettings
 {
-    Benchmark benchmark{Benchmark::ALL};
-    Technology technology{Technology::ALL};
-    uint64_t numberOfSamples{10000U};
+    Benchmark benchmark{ Benchmark::ALL };
+    Technology technology{ Technology::ALL };
+    uint64_t numberOfSamples{ 10000U };
 };
 
 struct PerfTopic
 {
-    uint32_t payloadSize{0};
-    uint32_t subPackets{0};
-    RunFlag runFlag{RunFlag::RUN};
+    uint32_t payloadSize{ 0 };
+    uint32_t subPackets{ 0 };
+    RunFlag runFlag{ RunFlag::RUN };
 };
 //! [topic data definitions]
 

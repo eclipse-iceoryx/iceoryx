@@ -50,7 +50,7 @@ void IpcHandleManager::addHandle(const UniqueSystemId& id, const OwnerShip owner
 {
     std::lock_guard<std::mutex> lock(mtx);
 
-    ipcHandles[id] = IpcHandle_t{ownerShip, handle};
+    ipcHandles[id] = IpcHandle_t{ ownerShip, handle };
 }
 
 void IpcHandleManager::removeHandle(const UniqueSystemId& id) noexcept

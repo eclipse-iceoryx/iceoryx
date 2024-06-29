@@ -22,15 +22,15 @@
 //! [request]
 struct AddRequest
 {
-    uint64_t augend{0};
-    uint64_t addend{0};
+    uint64_t augend{ 0 };
+    uint64_t addend{ 0 };
 };
 //! [request]
 
 //! [response]
 struct AddResponse
 {
-    uint64_t sum{0};
+    uint64_t sum{ 0 };
 };
 //! [response]
 

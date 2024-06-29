@@ -74,7 +74,7 @@ iox::expected<iox::IceoryxConfig, iox::roudi::RouDiConfigFileParseError> TomlRou
         return iox::ok(defaultConfig);
     }
 
-    std::ifstream fileStream{m_customConfigFilePath.c_str()};
+    std::ifstream fileStream{ m_customConfigFilePath.c_str() };
     if (!fileStream.is_open())
     {
         IOX_LOG(ERROR, "Could not open config file from path '" << m_customConfigFilePath << "'");
@@ -90,10 +90,10 @@ iox::expected<iox::IceoryxConfig, iox::roudi::RouDiConfigFileParseError> TomlRou
 iox::expected<iox::IceoryxConfig, iox::roudi::RouDiConfigFileParseError>
 TomlRouDiConfigFileProvider::parse(std::istream& stream) noexcept
 {
-    std::shared_ptr<cpptoml::table> parsedFile{nullptr};
+    std::shared_ptr<cpptoml::table> parsedFile{ nullptr };
     try
     {
-        cpptoml::parser p{stream};
+        cpptoml::parser p{ stream };
         parsedFile = p.parse();
     }
     catch (const std::exception& parserException)
@@ -158,12 +158,12 @@ TomlRouDiConfigFileProvider::parse(std::istream& stream) noexcept
             {
                 return iox::err(iox::roudi::RouDiConfigFileParseError::MEMPOOL_WITHOUT_CHUNK_COUNT);
             }
-            mempoolConfig.addMemPool({*chunkSize, *chunkCount});
+            mempoolConfig.addMemPool({ *chunkSize, *chunkCount });
         }
         parsedConfig.m_sharedMemorySegments.push_back(
-            {PosixGroup::groupName_t(iox::TruncateToCapacity, reader.c_str(), reader.size()),
-             PosixGroup::groupName_t(iox::TruncateToCapacity, writer.c_str(), writer.size()),
-             mempoolConfig});
+            { PosixGroup::groupName_t(iox::TruncateToCapacity, reader.c_str(), reader.size()),
+              PosixGroup::groupName_t(iox::TruncateToCapacity, writer.c_str(), writer.size()),
+              mempoolConfig });
     }
 
     return iox::ok(parsedConfig);

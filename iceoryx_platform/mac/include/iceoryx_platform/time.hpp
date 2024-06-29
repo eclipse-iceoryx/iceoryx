@@ -40,11 +40,11 @@ struct IceoryxPlatformTimer_t
     struct
     {
         std::mutex mutex;
-        bool keepRunning{true};
+        bool keepRunning{ true };
         timespec startTime;
-        bool wasCallbackCalled{false};
-        bool runOnce{false};
-        bool isTimerRunning{false};
+        bool wasCallbackCalled{ false };
+        bool runOnce{ false };
+        bool isTimerRunning{ false };
         itimerspec timeParameters;
         std::condition_variable wakeup;
     } parameter;

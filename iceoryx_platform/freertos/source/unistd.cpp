@@ -37,7 +37,7 @@ int iox_ext_close(int)
 
 int iox_ftruncate(int fd, off_t length)
 {
-    std::lock_guard<std::mutex> lock{ShmFile::openFilesMutex};
+    std::lock_guard<std::mutex> lock{ ShmFile::openFilesMutex };
     const auto iter = std::find_if(
         std::begin(ShmFile::openFiles), std::end(ShmFile::openFiles), [fd](const ShmFile& f) { return f.fd() == fd; });
     configASSERT(iter != std::end(ShmFile::openFiles));

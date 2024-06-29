@@ -38,7 +38,7 @@ struct DummyData
     {
         return 42U;
     };
-    uint64_t val{defaultVal()};
+    uint64_t val{ defaultVal() };
 };
 
 using TestPublisher = iox::popo::PublisherImpl<DummyData, iox::mepoo::NoUserHeader, MockBasePublisher<DummyData>>;
@@ -60,8 +60,8 @@ class PublisherTest : public Test
 
   protected:
     ChunkMock<DummyData> chunkMock;
-    TestPublisher sut{{"", "", ""}};
-    MockPublisherPortUser& portMock{sut.mockPort()};
+    TestPublisher sut{ { "", "", "" } };
+    MockPublisherPortUser& portMock{ sut.mockPort() };
 };
 
 
@@ -95,7 +95,7 @@ TEST_F(PublisherTest, LoanedSampleIsDefaultInitialized)
 TEST_F(PublisherTest, LoanWithArgumentsCallsCustomCtor)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1fd165ed-73a2-4465-a740-6d7b502b0d95");
-    constexpr uint64_t CUSTOM_VALUE{73};
+    constexpr uint64_t CUSTOM_VALUE{ 73 };
     EXPECT_CALL(portMock, tryAllocateChunk(sizeof(DummyData), _, _, _))
         .WillOnce(Return(ByMove(iox::ok(chunkMock.chunkHeader()))));
     // ===== Test ===== //

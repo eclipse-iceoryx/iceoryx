@@ -48,7 +48,7 @@ TEST_F(Thread_test, DtorOfThreadBlocksUntilCallbackHasFinished)
     ::testing::Test::RecordProperty("TEST_ID", "1062a036-e825-4f30-bfb8-00d5de47fdfd");
 
     constexpr Duration TEST_WAIT_TIME = 100_ms;
-    std::chrono::milliseconds realWaitDuration{0};
+    std::chrono::milliseconds realWaitDuration{ 0 };
     Barrier threadSync;
 
     ASSERT_FALSE(ThreadBuilder()

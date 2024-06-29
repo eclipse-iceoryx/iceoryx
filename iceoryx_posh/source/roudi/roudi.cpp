@@ -176,7 +176,7 @@ void RouDi::cyclicUpdateHook() noexcept
 
 void RouDi::triggerDiscoveryLoopAndWaitToFinish(units::Duration timeout) noexcept
 {
-    bool decrementSemaphoreCount{true};
+    bool decrementSemaphoreCount{ true };
     while (decrementSemaphoreCount)
     {
         m_discoveryFinishedSemaphore->tryWait()
@@ -212,9 +212,9 @@ void RouDi::monitorAndDiscoveryUpdate() noexcept
     };
 
     popo::ConditionVariableData conditionVariableData;
-    DiscoveryWaitSet discoveryLoopWaitset{conditionVariableData};
+    DiscoveryWaitSet discoveryLoopWaitset{ conditionVariableData };
     discoveryLoopWaitset.attachEvent(m_discoveryLoopTrigger).expect("Failed to attach a single event");
-    bool manuallyTriggered{false};
+    bool manuallyTriggered{ false };
 
     while (m_runMonitoringAndDiscoveryThread)
     {
@@ -261,7 +261,7 @@ void RouDi::processRuntimeMessages(runtime::IpcInterfaceCreator&& roudiIpcInterf
         if (roudiIpc.timedReceive(m_runtimeMessagesThreadTimeout, message))
         {
             auto cmd = runtime::stringToIpcMessageType(message.getElementAtIndex(0).c_str());
-            RuntimeName_t runtimeName{into<lossy<RuntimeName_t>>(message.getElementAtIndex(1))};
+            RuntimeName_t runtimeName{ into<lossy<RuntimeName_t>>(message.getElementAtIndex(1)) };
 
             processMessage(message, cmd, runtimeName);
         }
@@ -299,7 +299,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
 
     for (const auto s : platform::IOX_PATH_SEPARATORS)
     {
-        const char separator[2]{s};
+        const char separator[2]{ s };
         if (runtimeName.find(separator).has_value())
         {
             IOX_LOG(ERROR, "Got message with a runtime name with invalid characters: \"" << runtimeName << "\"!");
@@ -318,14 +318,14 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
         }
         else
         {
-            uint32_t pid{0U};
-            iox_uid_t userId{0};
-            int64_t transmissionTimestamp{0};
+            uint32_t pid{ 0U };
+            iox_uid_t userId{ 0 };
+            int64_t transmissionTimestamp{ 0 };
             version::VersionInfo versionInfo = parseRegisterMessage(message, pid, userId, transmissionTimestamp);
 
             registerProcess(runtimeName,
                             pid,
-                            PosixUser{userId},
+                            PosixUser{ userId },
                             transmissionTimestamp,
                             getUniqueSessionIdForProcess(),
                             versionInfo);
@@ -441,7 +441,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
             }
             const auto& clientOptions = clientOptionsDeserializationResult.value();
 
-            runtime::PortConfigInfo portConfigInfo{Serialization(message.getElementAtIndex(4))};
+            runtime::PortConfigInfo portConfigInfo{ Serialization(message.getElementAtIndex(4)) };
 
             m_prcMgr->addClientForProcess(runtimeName, service, clientOptions, portConfigInfo);
         }
@@ -479,7 +479,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
             }
             const auto& serverOptions = serverOptionsDeserializationResult.value();
 
-            runtime::PortConfigInfo portConfigInfo{Serialization(message.getElementAtIndex(4))};
+            runtime::PortConfigInfo portConfigInfo{ Serialization(message.getElementAtIndex(4)) };
 
             m_prcMgr->addServerForProcess(runtimeName, service, serverOptions, portConfigInfo);
         }

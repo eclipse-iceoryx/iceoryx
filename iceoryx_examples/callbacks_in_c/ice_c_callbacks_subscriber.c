@@ -48,8 +48,8 @@ struct cache_t
     bool isSet;
 };
 
-struct cache_t leftCache = {.isSet = false};
-struct cache_t rightCache = {.isSet = false};
+struct cache_t leftCache = { .isSet = false };
+struct cache_t rightCache = { .isSet = false };
 
 //! [heartbeat callback]
 void heartbeatCallback(iox_user_trigger_t userTrigger)

@@ -350,18 +350,18 @@ class forward_list
     // the necessity for 'before_begin' elements stems from the way a forward_list removes elements at an arbitrary
     // position. Removing the front-most list element (aka begin()) requires an element pointing towards this position,
     // hence 'before_begin'. The before_begin index is the head of the list.
-    static constexpr size_type BEFORE_BEGIN_INDEX{Capacity};
-    static constexpr size_type END_INDEX{size_type(Capacity) + 1U};
-    static constexpr size_type NODE_LINK_COUNT{size_type(Capacity) + 2U};
+    static constexpr size_type BEFORE_BEGIN_INDEX{ Capacity };
+    static constexpr size_type END_INDEX{ size_type(Capacity) + 1U };
+    static constexpr size_type NODE_LINK_COUNT{ size_type(Capacity) + 2U };
 
     // available storage-indices are moved between a 'freeList' (m_freeListHeadIdx) and 'usedList' where elements
     // are inserted by the user (starting from BEFORE_BEGIN_INDEX)
-    size_type m_freeListHeadIdx{0U};
+    size_type m_freeListHeadIdx{ 0U };
 
     UninitializedArray<NodeLink, NODE_LINK_COUNT> m_links;
     UninitializedArray<T, Capacity> m_data;
 
-    size_type m_size{0U};
+    size_type m_size{ 0U };
 }; // forward_list
 
 } // namespace iox

@@ -36,11 +36,11 @@ constexpr int MAX_GROUP_NAME_LENGTH = 32;
 /// to store information on all available memmpools.
 struct MemPoolInfo
 {
-    uint32_t m_usedChunks{0};
-    uint32_t m_minFreeChunks{0};
-    uint32_t m_numChunks{0};
-    uint64_t m_chunkSize{0};
-    uint64_t m_chunkPayloadSize{0};
+    uint32_t m_usedChunks{ 0 };
+    uint32_t m_minFreeChunks{ 0 };
+    uint32_t m_numChunks{ 0 };
+    uint64_t m_chunkSize{ 0 };
+    uint64_t m_chunkPayloadSize{ 0 };
 };
 
 /// @brief container for MemPoolInfo structs of all available mempools.
@@ -77,8 +77,8 @@ using SubscriberPortData = PortData;
 /// @brief container for publisher port introspection data.
 struct PublisherPortData : public PortData
 {
-    uint64_t m_publisherPortID{0};
-    iox::capro::Interfaces m_sourceInterface{iox::capro::Interfaces::INTERFACE_END};
+    uint64_t m_publisherPortID{ 0 };
+    iox::capro::Interfaces m_sourceInterface{ iox::capro::Interfaces::INTERFACE_END };
 };
 
 /// @brief the topic for the port introspection that a user can subscribe to
@@ -93,12 +93,12 @@ const capro::ServiceDescription
 
 struct PortThroughputData
 {
-    uint64_t m_publisherPortID{0};
-    uint64_t m_sampleSize{0};
-    uint64_t m_chunkSize{0};
-    double m_chunksPerMinute{0};
-    uint64_t m_lastSendIntervalInNanoseconds{0};
-    bool m_isField{false};
+    uint64_t m_publisherPortID{ 0 };
+    uint64_t m_sampleSize{ 0 };
+    uint64_t m_chunkSize{ 0 };
+    double m_chunksPerMinute{ 0 };
+    uint64_t m_lastSendIntervalInNanoseconds{ 0 };
+    bool m_isField{ false };
 };
 
 /// @brief the topic for the port throughput that a user can subscribe to
@@ -113,10 +113,10 @@ const capro::ServiceDescription
 struct SubscriberPortChangingData
 {
     // index used to identify subscriber is same as in PortIntrospectionFieldTopic->subscriberList
-    uint64_t fifoSize{0};
-    uint64_t fifoCapacity{0};
-    iox::SubscribeState subscriptionState{iox::SubscribeState::NOT_SUBSCRIBED};
-    capro::Scope propagationScope{capro::Scope::INVALID};
+    uint64_t fifoSize{ 0 };
+    uint64_t fifoCapacity{ 0 };
+    iox::SubscribeState subscriptionState{ iox::SubscribeState::NOT_SUBSCRIBED };
+    capro::Scope propagationScope{ capro::Scope::INVALID };
 };
 
 struct SubscriberPortChangingIntrospectionFieldTopic
@@ -128,7 +128,7 @@ const capro::ServiceDescription IntrospectionProcessService(INTROSPECTION_SERVIC
 
 struct ProcessIntrospectionData
 {
-    int m_pid{0};
+    int m_pid{ 0 };
     RuntimeName_t m_name;
 };
 

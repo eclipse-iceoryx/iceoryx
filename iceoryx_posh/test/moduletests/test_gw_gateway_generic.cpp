@@ -62,7 +62,7 @@ class GatewayGenericTest : public Test
     void SetUp(){};
     void TearDown(){};
 
-    std::unique_ptr<TestGatewayGeneric> sut{new TestGatewayGeneric{}};
+    std::unique_ptr<TestGatewayGeneric> sut{ new TestGatewayGeneric{} };
 };
 
 // ======================================== Tests ======================================== //
@@ -177,7 +177,7 @@ TEST_F(GatewayGenericTest, ThrowsErrorWhenExceedingMaximumChannelCapaicity)
         EXPECT_EQ(false, result.has_error());
     }
 
-    auto result = sut->addChannel({"oneTooMany", "oneTooMany", "oneTooMany"}, StubbedIceoryxTerminal::Options());
+    auto result = sut->addChannel({ "oneTooMany", "oneTooMany", "oneTooMany" }, StubbedIceoryxTerminal::Options());
     EXPECT_EQ(true, result.has_error());
     EXPECT_EQ(iox::gw::GatewayError::UNSUCCESSFUL_CHANNEL_CREATION, result.error());
 }

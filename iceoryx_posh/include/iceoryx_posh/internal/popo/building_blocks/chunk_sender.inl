@@ -180,7 +180,7 @@ inline void ChunkSender<ChunkSenderDataType>::release(const mepoo::ChunkHeader* 
 template <typename ChunkSenderDataType>
 inline uint64_t ChunkSender<ChunkSenderDataType>::send(mepoo::ChunkHeader* const chunkHeader) noexcept
 {
-    uint64_t numberOfReceiverTheChunkWasDelivered{0};
+    uint64_t numberOfReceiverTheChunkWasDelivered{ 0 };
     mepoo::SharedChunk chunk(nullptr);
     // BEGIN of critical section, chunk will be lost if the process terminates in this section
     if (getChunkReadyForSend(chunkHeader, chunk))

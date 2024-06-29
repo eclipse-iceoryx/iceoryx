@@ -67,7 +67,7 @@ class SharedChunk
     void freeChunk() noexcept;
 
   private:
-    ChunkManagement* m_chunkManagement{nullptr};
+    ChunkManagement* m_chunkManagement{ nullptr };
 };
 } // namespace mepoo
 } // namespace iox

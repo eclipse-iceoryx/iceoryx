@@ -62,7 +62,7 @@ class UntypedSubscriberTest : public Test
 
   protected:
     ChunkMock<DummyData> chunkMock;
-    TestUntypedSubscriber sut{{"", "", ""}};
+    TestUntypedSubscriber sut{ { "", "", "" } };
 };
 
 TEST_F(UntypedSubscriberTest, GetsUIDViaBaseSubscriber)

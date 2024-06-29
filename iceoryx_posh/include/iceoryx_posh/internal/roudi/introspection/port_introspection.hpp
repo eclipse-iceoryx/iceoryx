@@ -79,13 +79,13 @@ class PortIntrospection
             {
             }
 
-            typename PublisherPort::MemberType_t* portData{nullptr};
+            typename PublisherPort::MemberType_t* portData{ nullptr };
             RuntimeName_t process;
             capro::ServiceDescription service;
 
             /// map from indices to ConnectionContainer indices
             std::map<int, ConnectionContainerIndexType> connectionMap;
-            int index{-1};
+            int index{ -1 };
         };
 
         struct SubscriberInfo
@@ -99,7 +99,7 @@ class PortIntrospection
             {
             }
 
-            typename SubscriberPort::MemberType_t* portData{nullptr};
+            typename SubscriberPort::MemberType_t* portData{ nullptr };
             RuntimeName_t process;
             capro::ServiceDescription service;
         };
@@ -122,7 +122,7 @@ class PortIntrospection
 
             SubscriberInfo subscriberInfo;
             iox::optional<PublisherContainerIndexType> publisherInfoIndex;
-            ConnectionState state{ConnectionState::DEFAULT};
+            ConnectionState state{ ConnectionState::DEFAULT };
 
             bool isConnected() const noexcept
             {
@@ -312,9 +312,10 @@ class PortIntrospection
   private:
     PortData m_portData;
 
-    units::Duration m_sendInterval{units::Duration::fromSeconds(1U)};
+    units::Duration m_sendInterval{ units::Duration::fromSeconds(1U) };
     concurrent::detail::PeriodicTask<function<void()>> m_publishingTask{
-        concurrent::detail::PeriodicTaskManualStart, "PortIntr", *this, &PortIntrospection::send};
+        concurrent::detail::PeriodicTaskManualStart, "PortIntr", *this, &PortIntrospection::send
+    };
 };
 
 /// @brief typedef for the templated port introspection class that is used by RouDi for the

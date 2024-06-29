@@ -52,7 +52,7 @@ TEST(TypeTraitsTest, IsInvocableResolvesToTrue)
 TEST(TypeTraitsTest, IsInvocableResolvesToFalse)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c862c84f-d31b-4060-9e11-3a4d850c59f2");
-    int beeblebrox{42};
+    int beeblebrox{ 42 };
     auto sut = is_invocable<decltype(beeblebrox), void>::value;
     EXPECT_FALSE(sut);
 }

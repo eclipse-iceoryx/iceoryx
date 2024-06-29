@@ -53,7 +53,7 @@ class PosixUser
 
   private:
     iox_uid_t m_id;
-    bool m_doesExist{false};
+    bool m_doesExist{ false };
 };
 
 } // namespace iox

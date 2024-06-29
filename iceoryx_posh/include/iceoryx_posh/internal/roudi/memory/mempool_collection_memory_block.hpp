@@ -70,7 +70,7 @@ class MemPoolCollectionMemoryBlock final : public MemoryBlock
 
   private:
     mepoo::MePooConfig m_memPoolConfig;
-    mepoo::MemoryManager* m_memoryManager{nullptr};
+    mepoo::MemoryManager* m_memoryManager{ nullptr };
 };
 
 } // namespace roudi

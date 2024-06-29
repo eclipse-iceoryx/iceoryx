@@ -52,16 +52,16 @@ class iox_server_test : public Test
 
     void SetUp() override
     {
-        memoryConfig.addMemPool({128, 2});
-        memoryConfig.addMemPool({1024, MAX_REQUESTS_HOLD_IN_PARALLEL + 1});
+        memoryConfig.addMemPool({ 128, 2 });
+        memoryConfig.addMemPool({ 1024, MAX_REQUESTS_HOLD_IN_PARALLEL + 1 });
         memoryManager.configureMemoryManager(memoryConfig, mgmtAllocator, dataAllocator);
     }
 
     ServerPortData* createServerPortData(const ServerOptions& options)
     {
-        sutPort.emplace(ServiceDescription{IdString_t(TruncateToCapacity, SERVICE),
-                                           IdString_t(TruncateToCapacity, INSTANCE),
-                                           IdString_t(TruncateToCapacity, EVENT)},
+        sutPort.emplace(ServiceDescription{ IdString_t(TruncateToCapacity, SERVICE),
+                                            IdString_t(TruncateToCapacity, INSTANCE),
+                                            IdString_t(TruncateToCapacity, EVENT) },
                         RUNTIME_NAME,
                         roudi::DEFAULT_UNIQUE_ROUDI_ID,
                         options,
@@ -77,7 +77,7 @@ class iox_server_test : public Test
         new (chunk->getChunkHeader()->userHeader())
             RequestHeader(clientResponseQueueData.m_uniqueId, RpcBaseHeader::UNKNOWN_CLIENT_QUEUE_INDEX);
         *static_cast<int64_t*>(chunk->getUserPayload()) = requestValue;
-        iox::popo::ChunkQueuePusher<ServerChunkQueueData_t> pusher{&sutPort->m_chunkReceiverData};
+        iox::popo::ChunkQueuePusher<ServerChunkQueueData_t> pusher{ &sutPort->m_chunkReceiverData };
         if (!pusher.push(*chunk))
         {
             sutPort->m_chunkReceiverData.m_queueHasLostChunks = true;
@@ -92,9 +92,9 @@ class iox_server_test : public Test
     void prepareServerInit(const ServerOptions& options = ServerOptions())
     {
         EXPECT_CALL(*runtimeMock,
-                    getMiddlewareServer(ServiceDescription{IdString_t(TruncateToCapacity, SERVICE),
-                                                           IdString_t(TruncateToCapacity, INSTANCE),
-                                                           IdString_t(TruncateToCapacity, EVENT)},
+                    getMiddlewareServer(ServiceDescription{ IdString_t(TruncateToCapacity, SERVICE),
+                                                            IdString_t(TruncateToCapacity, INSTANCE),
+                                                            IdString_t(TruncateToCapacity, EVENT) },
                                         options,
                                         _))
             .WillOnce(Return(createServerPortData(options)));
@@ -102,19 +102,19 @@ class iox_server_test : public Test
 
     static constexpr uint64_t MANAGEMENT_MEMORY_SIZE = 1024 * 1024;
     char managementMemory[MANAGEMENT_MEMORY_SIZE];
-    iox::BumpAllocator mgmtAllocator{managementMemory, MANAGEMENT_MEMORY_SIZE};
+    iox::BumpAllocator mgmtAllocator{ managementMemory, MANAGEMENT_MEMORY_SIZE };
     static constexpr uint64_t DATA_MEMORY_SIZE = 1024 * 1024;
     char dataMemory[DATA_MEMORY_SIZE];
-    iox::BumpAllocator dataAllocator{dataMemory, DATA_MEMORY_SIZE};
+    iox::BumpAllocator dataAllocator{ dataMemory, DATA_MEMORY_SIZE };
     iox::mepoo::MemoryManager memoryManager;
     iox::mepoo::MePooConfig memoryConfig;
 
     iox::optional<ServerPortData> sutPort;
     iox_server_storage_t sutStorage;
 
-    ClientChunkQueueData_t clientResponseQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
-                                                   iox::popo::VariantQueueTypes::SoFi_MultiProducerSingleConsumer};
-    ChunkQueuePopper<ClientChunkQueueData_t> clientResponseQueue{&clientResponseQueueData};
+    ClientChunkQueueData_t clientResponseQueueData{ iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
+                                                    iox::popo::VariantQueueTypes::SoFi_MultiProducerSingleConsumer };
+    ChunkQueuePopper<ClientChunkQueueData_t> clientResponseQueue{ &clientResponseQueueData };
 
     static constexpr const char SERVICE[] = "TheHoff";
     static constexpr const char INSTANCE[] = "IsAll";

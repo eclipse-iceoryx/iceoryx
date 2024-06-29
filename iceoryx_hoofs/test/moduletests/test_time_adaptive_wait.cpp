@@ -88,12 +88,12 @@ TEST(AdaptiveWaitTest, wait_loopWaitsAtLeastAsLongAsTheConditionsReturnsTrue)
         using adaptive_wait::INITIAL_REPETITIONS;
     };
 
-    std::atomic_bool continueToWait{true};
-    std::atomic_bool threadIsStarted{false};
-    std::thread waitThread{[&] {
+    std::atomic_bool continueToWait{ true };
+    std::atomic_bool threadIsStarted{ false };
+    std::thread waitThread{ [&] {
         threadIsStarted = true;
         AdaptiveWaitSut().wait_loop([&] { return continueToWait.load(); });
-    }};
+    } };
 
     while (!threadIsStarted.load())
     {

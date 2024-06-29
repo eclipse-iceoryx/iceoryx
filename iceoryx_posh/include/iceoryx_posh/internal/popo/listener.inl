@@ -40,7 +40,7 @@ Listener::attachEvent(T& eventOrigin, const NotificationCallback<T, ContextDataT
                     NotificationAttorney::getInvalidateTriggerMethod(eventOrigin))
         .and_then([&](auto& eventId) {
             NotificationAttorney::enableEvent(
-                eventOrigin, TriggerHandle(*m_conditionVariableData, {*this, &Listener::removeTrigger}, eventId));
+                eventOrigin, TriggerHandle(*m_conditionVariableData, { *this, &Listener::removeTrigger }, eventId));
         });
 }
 
@@ -63,7 +63,7 @@ inline expected<void, ListenerError> Listener::attachEvent(
         .and_then([&](auto& eventId) {
             NotificationAttorney::enableEvent(
                 eventOrigin,
-                TriggerHandle(*m_conditionVariableData, {*this, &Listener::removeTrigger}, eventId),
+                TriggerHandle(*m_conditionVariableData, { *this, &Listener::removeTrigger }, eventId),
                 eventType);
         });
 }

@@ -43,10 +43,10 @@ class MpmcLoFFLi_test : public Test
     {
     }
 
-    static constexpr uint32_t CAPACITY{4};
+    static constexpr uint32_t CAPACITY{ 4 };
 
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) needed for MpmcLoFFLi::init
-    MpmcLoFFLi::Index_t m_memoryLoFFLi[MpmcLoFFLi::requiredIndexMemorySize(CAPACITY)]{0};
+    MpmcLoFFLi::Index_t m_memoryLoFFLi[MpmcLoFFLi::requiredIndexMemorySize(CAPACITY)]{ 0 };
     MpmcLoFFLi m_loffli;
 };
 
@@ -130,7 +130,7 @@ TEST_F(MpmcLoFFLi_test, SinglePush)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0b7bf346-056b-4b1c-a6e9-92b54233598e");
     constexpr uint32_t AFFE = 0xAFFE;
-    uint32_t index{0};
+    uint32_t index{ 0 };
     this->m_loffli.pop(index);
 
     uint32_t indexPush = index;
@@ -144,7 +144,7 @@ TEST_F(MpmcLoFFLi_test, PushTillFull)
 {
     ::testing::Test::RecordProperty("TEST_ID", "610e3e8f-1db9-4a92-a5e8-2d1bb0077123");
     std::vector<uint32_t> useList;
-    uint32_t index{0};
+    uint32_t index{ 0 };
     while (this->m_loffli.pop(index))
     {
         useList.push_back(index);
@@ -161,7 +161,7 @@ TEST_F(MpmcLoFFLi_test, PushRandomOrder)
     ::testing::Test::RecordProperty("TEST_ID", "73700ca3-3a37-48af-8485-91e0a7b4e3d0");
     std::vector<uint32_t> useListToPush;
     std::vector<uint32_t> useListPoped;
-    uint32_t index{0};
+    uint32_t index{ 0 };
     while (this->m_loffli.pop(index))
     {
         useListToPush.push_back(index);
@@ -191,7 +191,7 @@ TEST_F(MpmcLoFFLi_test, PushRandomOrder)
 TEST_F(MpmcLoFFLi_test, PushWrongIndex)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9a3fabd1-17c0-4e40-8390-53ca4d656d91");
-    uint32_t index{0};
+    uint32_t index{ 0 };
     this->m_loffli.pop(index);
 
     uint32_t indexPush = index + 1;
@@ -201,7 +201,7 @@ TEST_F(MpmcLoFFLi_test, PushWrongIndex)
 TEST_F(MpmcLoFFLi_test, PushOutOfBoundIndex)
 {
     ::testing::Test::RecordProperty("TEST_ID", "261ba489-1cec-44db-8c41-d9e71c761d91");
-    uint32_t index{0};
+    uint32_t index{ 0 };
     this->m_loffli.pop(index);
 
     EXPECT_THAT(this->m_loffli.push(CAPACITY), Eq(false));

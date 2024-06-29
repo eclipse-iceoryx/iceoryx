@@ -157,8 +157,8 @@ Ownership Ownership::from_process() noexcept
 }
 
 Ownership::Ownership(const iox_uid_t uid, const iox_gid_t gid) noexcept
-    : m_uid{uid}
-    , m_gid{gid}
+    : m_uid{ uid }
+    , m_gid{ gid }
 {
 }
 } // namespace iox

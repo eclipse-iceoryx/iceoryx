@@ -28,8 +28,8 @@ namespace iox
 {
 namespace concurrent
 {
-constexpr uint32_t NODE_ALIGNMENT{8};
-constexpr uint32_t NODE_SIZE{8};
+constexpr uint32_t NODE_ALIGNMENT{ 8 };
+constexpr uint32_t NODE_SIZE{ 8 };
 
 class MpmcLoFFLi
 {
@@ -69,9 +69,9 @@ class MpmcLoFFLi
     ///    };
     /// @endcode
 
-    uint32_t m_size{0U};
-    Index_t m_invalidIndex{0U};
-    std::atomic<Node> m_head{{0U, 1U}};
+    uint32_t m_size{ 0U };
+    Index_t m_invalidIndex{ 0U };
+    std::atomic<Node> m_head{ { 0U, 1U } };
     iox::RelativePointer<Index_t> m_nextFreeIndex;
 
   public:

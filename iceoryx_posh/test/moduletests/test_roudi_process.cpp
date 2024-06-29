@@ -50,14 +50,14 @@ class IpcInterfaceUser_Mock : public iox::roudi::Process
 class Process_test : public Test
 {
   public:
-    const iox::RuntimeName_t processname = {"TestProcess"};
-    uint32_t pid{200U};
-    PosixUser user{"foo"};
+    const iox::RuntimeName_t processname = { "TestProcess" };
+    uint32_t pid{ 200U };
+    PosixUser user{ "foo" };
     bool isMonitored = true;
     HeartbeatPool heartbeatPool;
-    HeartbeatPoolIndexType heartbeatPoolIndex{heartbeatPool.emplace().to_index()};
-    const uint64_t dataSegmentId{0x654321U};
-    const uint64_t sessionId{255U};
+    HeartbeatPoolIndexType heartbeatPoolIndex{ heartbeatPool.emplace().to_index() };
+    const uint64_t dataSegmentId{ 0x654321U };
+    const uint64_t sessionId{ 255U };
     IpcInterfaceUser_Mock ipcInterfaceUserMock;
 };
 
@@ -92,14 +92,14 @@ TEST_F(Process_test, getSessionId)
 TEST_F(Process_test, sendViaIpcChannelPass)
 {
     ::testing::Test::RecordProperty("TEST_ID", "478cb320-7f4c-420c-a0d2-4a24e0db691c");
-    iox::runtime::IpcMessage data{"MESSAGE_NOT_SUPPORTED"};
+    iox::runtime::IpcMessage data{ "MESSAGE_NOT_SUPPORTED" };
     EXPECT_CALL(ipcInterfaceUserMock, sendViaIpcChannel(_)).Times(1);
     ipcInterfaceUserMock.sendViaIpcChannel(data);
 }
 TEST_F(Process_test, sendViaIpcChannelFail)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c4d5c133-bf93-45a4-aa4f-9c3c2a50f91a");
-    iox::runtime::IpcMessage data{""};
+    iox::runtime::IpcMessage data{ "" };
 
     Process roudiproc(processname, DEFAULT_DOMAIN_ID, pid, user, heartbeatPoolIndex, sessionId);
     roudiproc.sendViaIpcChannel(data);

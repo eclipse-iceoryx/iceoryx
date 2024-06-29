@@ -64,7 +64,7 @@ class MemPoolSegmentManagerMemoryBlock : public MemoryBlock
     void destroy() noexcept override;
 
   private:
-    mepoo::SegmentManager<>* m_segmentManager{nullptr};
+    mepoo::SegmentManager<>* m_segmentManager{ nullptr };
     mepoo::SegmentConfig m_segmentConfig;
     const DomainId m_domainId;
 };

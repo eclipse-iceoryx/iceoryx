@@ -65,10 +65,10 @@ class MemoryProviderTestImpl : public iox::roudi::MemoryProvider
     }
     MOCK_METHOD(void, destroyMemoryMock, (), (noexcept));
 
-    void* dummyMemory{nullptr};
+    void* dummyMemory{ nullptr };
 
   protected:
-    bool m_mockCallsEnabled{false};
+    bool m_mockCallsEnabled{ false };
 };
 
 class MemoryProviderMock final : public MemoryProviderTestImpl

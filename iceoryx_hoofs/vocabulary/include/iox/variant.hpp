@@ -41,7 +41,7 @@ namespace iox
 template <uint64_t N>
 struct in_place_index
 {
-    static constexpr uint64_t value{N};
+    static constexpr uint64_t value{ N };
 };
 
 /// @brief helper struct to perform an emplacement of a predefined type in
@@ -68,7 +68,7 @@ struct in_place_type
 ///     // variant with setted value therefore the index is not invalid
 ///     if ( someVariant.index() != INVALID_VARIANT_INDEX ) ...
 /// @endcode
-static constexpr uint64_t INVALID_VARIANT_INDEX{std::numeric_limits<uint64_t>::max()};
+static constexpr uint64_t INVALID_VARIANT_INDEX{ std::numeric_limits<uint64_t>::max() };
 
 /// @brief Variant implementation from the C++17 standard with C++11. The
 ///         interface is inspired by the C++17 standard but it has changes in
@@ -108,7 +108,7 @@ class variant final
 {
   private:
     /// @brief contains the size of the largest element
-    static constexpr uint64_t TYPE_SIZE{algorithm::maxVal(sizeof(Types)...)};
+    static constexpr uint64_t TYPE_SIZE{ algorithm::maxVal(sizeof(Types)...) };
 
   public:
     /// @brief the default constructor constructs a variant which does not contain
@@ -290,7 +290,7 @@ class variant final
         std::byte data[TYPE_SIZE];
     };
     storage_t m_storage{};
-    uint64_t m_type_index{INVALID_VARIANT_INDEX};
+    uint64_t m_type_index{ INVALID_VARIANT_INDEX };
 
   private:
     template <typename T>

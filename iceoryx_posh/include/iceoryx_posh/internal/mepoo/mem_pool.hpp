@@ -39,10 +39,10 @@ struct MemPoolInfo
                 const uint32_t numChunks,
                 const uint64_t chunkSize) noexcept;
 
-    uint32_t m_usedChunks{0};
-    uint32_t m_minFreeChunks{0};
-    uint32_t m_numChunks{0};
-    uint64_t m_chunkSize{0};
+    uint32_t m_usedChunks{ 0 };
+    uint32_t m_minFreeChunks{ 0 };
+    uint32_t m_numChunks{ 0 };
+    uint64_t m_chunkSize{ 0 };
 };
 
 class MemPool
@@ -91,13 +91,13 @@ class MemPool
 
     RelativePointer<void> m_rawMemory;
 
-    uint64_t m_chunkSize{0U};
+    uint64_t m_chunkSize{ 0U };
     /// needs to be 32 bit since loffli supports only 32 bit numbers
     /// (cas is only 64 bit and we need the other 32 bit for the aba counter)
-    uint32_t m_numberOfChunks{0U};
+    uint32_t m_numberOfChunks{ 0U };
 
-    std::atomic<uint32_t> m_usedChunks{0U};
-    std::atomic<uint32_t> m_minFree{0U};
+    std::atomic<uint32_t> m_usedChunks{ 0U };
+    std::atomic<uint32_t> m_minFree{ 0U };
 
     freeList_t m_freeIndices;
 };

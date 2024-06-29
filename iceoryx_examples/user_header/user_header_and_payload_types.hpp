@@ -22,14 +22,14 @@
 //! [user-header]
 struct Header
 {
-    uint64_t publisherTimestamp{0};
+    uint64_t publisherTimestamp{ 0 };
 };
 //! [user-header]
 
 //! [user-payload]
 struct Data
 {
-    uint64_t fibonacci{0};
+    uint64_t fibonacci{ 0 };
 };
 //! [user-payload]
 

@@ -91,7 +91,7 @@ int munmap(void* addr, size_t length)
 
 int iox_shm_open(const char* name, int oflag, mode_t mode)
 {
-    HANDLE sharedMemoryHandle{nullptr};
+    HANDLE sharedMemoryHandle{ nullptr };
 
     auto printErrorMessage = [&] {
         std::stringstream stream;

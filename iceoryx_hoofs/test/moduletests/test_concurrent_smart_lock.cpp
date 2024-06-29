@@ -131,10 +131,10 @@ class smart_lock_test : public Test
         }
     }
 
-    Watchdog m_watchdog{iox::units::Duration::fromSeconds(60U)};
+    Watchdog m_watchdog{ iox::units::Duration::fromSeconds(60U) };
     using SutType_t = smart_lock<SmartLockTester>;
     iox::optional<SutType_t> m_sut;
-    std::atomic<uint64_t> m_numberOfThreadWaiter{0U};
+    std::atomic<uint64_t> m_numberOfThreadWaiter{ 0U };
 };
 constexpr uint64_t NUMBER_OF_RUNS_PER_THREAD = 100000U;
 constexpr uint64_t NUMBER_OF_THREADS = 4;

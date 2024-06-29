@@ -147,8 +147,8 @@ struct EventAndSutPair_t
 
 struct TriggerSourceAndCount
 {
-    std::atomic<SimpleEventClass*> m_source{nullptr};
-    std::atomic<uint64_t> m_count{0U};
+    std::atomic<SimpleEventClass*> m_source{ nullptr };
+    std::atomic<uint64_t> m_count{ 0U };
 };
 
 iox::concurrent::smart_lock<std::vector<EventAndSutPair_t>> g_toBeAttached;
@@ -279,11 +279,11 @@ class Listener_test : public Test
     static constexpr uint64_t OVERFLOW_TEST_APPENDIX = 1U;
     using eventArray_t = SimpleEventClass[iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER + OVERFLOW_TEST_APPENDIX];
     eventArray_t m_simpleEvents;
-    ConditionVariableData m_condVarData{"Maulbeerblättle"};
+    ConditionVariableData m_condVarData{ "Maulbeerblättle" };
     iox::optional<TestListener> m_sut;
 
     const iox::units::Duration m_fatalTimeout = 2_s;
-    Watchdog m_watchdog{m_fatalTimeout};
+    Watchdog m_watchdog{ m_fatalTimeout };
     static constexpr uint64_t CALLBACK_WAIT_IN_MS = 100U;
 };
 
@@ -1133,7 +1133,7 @@ TIMING_TEST_F(Listener_test, DetachingSelfInCallbackWorks, Repeat(5), [&] {
     g_toBeDetached->clear();
 
     std::vector<SimpleEventClass> events(iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER);
-    g_toBeDetached->push_back({&events[0U], &*m_sut});
+    g_toBeDetached->push_back({ &events[0U], &*m_sut });
     ASSERT_FALSE(
         m_sut->attachEvent(events[0U], SimpleEvent::StoepselBachelorParty, createNotificationCallback(detachCallback))
             .has_error());
@@ -1151,7 +1151,7 @@ TIMING_TEST_F(Listener_test, DetachingNonSelfEventInCallbackWorks, Repeat(5), [&
     g_toBeDetached->clear();
 
     std::vector<SimpleEventClass> events(iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER);
-    g_toBeDetached->push_back({&events[1U], &*m_sut});
+    g_toBeDetached->push_back({ &events[1U], &*m_sut });
     ASSERT_FALSE(
         m_sut->attachEvent(events[0U], SimpleEvent::StoepselBachelorParty, createNotificationCallback(detachCallback))
             .has_error());
@@ -1184,7 +1184,7 @@ TIMING_TEST_F(Listener_test, DetachedCallbacksAreNotBeingCalledWhenTriggeredBefo
     g_toBeDetached->clear();
 
     std::vector<SimpleEventClass> events(iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER);
-    g_toBeDetached->push_back({&events[1U], &*m_sut});
+    g_toBeDetached->push_back({ &events[1U], &*m_sut });
     ASSERT_FALSE(m_sut
                      ->attachEvent(events[0U],
                                    SimpleEvent::StoepselBachelorParty,
@@ -1219,7 +1219,7 @@ TIMING_TEST_F(Listener_test, AttachingInCallbackWorks, Repeat(5), [&] {
     g_toBeAttached->clear();
 
     std::vector<SimpleEventClass> events(iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER);
-    g_toBeAttached->push_back({&events[1U], &*m_sut});
+    g_toBeAttached->push_back({ &events[1U], &*m_sut });
     ASSERT_FALSE(
         m_sut->attachEvent(events[0U], SimpleEvent::StoepselBachelorParty, createNotificationCallback(attachCallback))
             .has_error());

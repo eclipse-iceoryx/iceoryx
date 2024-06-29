@@ -28,7 +28,7 @@ namespace errors
 using ErrorCode = iox::er::ErrorCode;
 using ModuleId = iox::er::ModuleId;
 
-constexpr ModuleId MODULE_ID{666};
+constexpr ModuleId MODULE_ID{ 666 };
 
 // NOLINTNEXTLINE(performance-enum-size) the type is required for error handling
 enum class Code : ErrorCode::type

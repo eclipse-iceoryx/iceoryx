@@ -25,7 +25,7 @@ using namespace iox;
 
 struct ComplexType
 {
-    uint64_t value{0};
+    uint64_t value{ 0 };
 
     // the test requires the type to be implicit convertable
     // NOLINTNEXTLINE(hicpp-explicit-conversions)
@@ -36,7 +36,7 @@ struct ComplexType
 
     ComplexType(const ComplexType& other) noexcept = default;
     ComplexType(ComplexType&& other) noexcept
-        : value{other.value}
+        : value{ other.value }
     {
         other.value = 0;
     }
@@ -275,11 +275,11 @@ TEST(NewType, NewTypeIsPreIncrementable)
                  newtype::Incrementable,
                  newtype::ConstructByValueCopy);
 
-    constexpr uint64_t START_VALUE{42};
-    SutType a{START_VALUE};
-    SutType pre{++a};
-    EXPECT_THAT(pre, Eq(SutType{START_VALUE + 1}));
-    EXPECT_THAT(a, Eq(SutType{START_VALUE + 1}));
+    constexpr uint64_t START_VALUE{ 42 };
+    SutType a{ START_VALUE };
+    SutType pre{ ++a };
+    EXPECT_THAT(pre, Eq(SutType{ START_VALUE + 1 }));
+    EXPECT_THAT(a, Eq(SutType{ START_VALUE + 1 }));
 }
 
 TEST(NewType, NewTypeIsPostIncrementable)
@@ -293,11 +293,11 @@ TEST(NewType, NewTypeIsPostIncrementable)
                  newtype::Incrementable,
                  newtype::ConstructByValueCopy);
 
-    constexpr uint64_t START_VALUE{42};
-    SutType a{START_VALUE};
-    SutType post{a++};
-    EXPECT_THAT(post, Eq(SutType{START_VALUE}));
-    EXPECT_THAT(a, Eq(SutType{START_VALUE + 1}));
+    constexpr uint64_t START_VALUE{ 42 };
+    SutType a{ START_VALUE };
+    SutType post{ a++ };
+    EXPECT_THAT(post, Eq(SutType{ START_VALUE }));
+    EXPECT_THAT(a, Eq(SutType{ START_VALUE + 1 }));
 }
 
 TEST(NewType, NewTypeIsPreDecrementable)
@@ -311,11 +311,11 @@ TEST(NewType, NewTypeIsPreDecrementable)
                  newtype::Decrementable,
                  newtype::ConstructByValueCopy);
 
-    constexpr uint64_t START_VALUE{24};
-    SutType a{START_VALUE};
-    SutType pre{--a};
-    EXPECT_THAT(pre, Eq(SutType{START_VALUE - 1}));
-    EXPECT_THAT(a, Eq(SutType{START_VALUE - 1}));
+    constexpr uint64_t START_VALUE{ 24 };
+    SutType a{ START_VALUE };
+    SutType pre{ --a };
+    EXPECT_THAT(pre, Eq(SutType{ START_VALUE - 1 }));
+    EXPECT_THAT(a, Eq(SutType{ START_VALUE - 1 }));
 }
 
 TEST(NewType, NewTypeIsPostDecrementable)
@@ -329,11 +329,11 @@ TEST(NewType, NewTypeIsPostDecrementable)
                  newtype::Decrementable,
                  newtype::ConstructByValueCopy);
 
-    constexpr uint64_t START_VALUE{24};
-    SutType a{START_VALUE};
-    SutType post{a--};
-    EXPECT_THAT(post, Eq(SutType{START_VALUE}));
-    EXPECT_THAT(a, Eq(SutType{START_VALUE - 1}));
+    constexpr uint64_t START_VALUE{ 24 };
+    SutType a{ START_VALUE };
+    SutType post{ a-- };
+    EXPECT_THAT(post, Eq(SutType{ START_VALUE }));
+    EXPECT_THAT(a, Eq(SutType{ START_VALUE - 1 }));
 }
 
 TEST(NewType, NewTypeCanBeAdded)
@@ -347,11 +347,11 @@ TEST(NewType, NewTypeCanBeAdded)
                  newtype::Arithmetic,
                  newtype::ConstructByValueCopy);
 
-    constexpr uint64_t START_VALUE{42};
-    SutType a{START_VALUE};
-    SutType b{START_VALUE};
-    SutType c{a + b};
-    EXPECT_EQ(c, SutType{START_VALUE + START_VALUE});
+    constexpr uint64_t START_VALUE{ 42 };
+    SutType a{ START_VALUE };
+    SutType b{ START_VALUE };
+    SutType c{ a + b };
+    EXPECT_EQ(c, SutType{ START_VALUE + START_VALUE });
 }
 
 TEST(NewType, NewTypeCanBeSubstracted)
@@ -365,11 +365,11 @@ TEST(NewType, NewTypeCanBeSubstracted)
                  newtype::Arithmetic,
                  newtype::ConstructByValueCopy);
 
-    constexpr uint64_t START_VALUE{42};
-    SutType a{START_VALUE};
-    SutType b{START_VALUE};
-    SutType c{a - b};
-    EXPECT_THAT(c, Eq(SutType{START_VALUE - START_VALUE}));
+    constexpr uint64_t START_VALUE{ 42 };
+    SutType a{ START_VALUE };
+    SutType b{ START_VALUE };
+    SutType c{ a - b };
+    EXPECT_THAT(c, Eq(SutType{ START_VALUE - START_VALUE }));
 }
 
 TEST(NewType, NewTypeCanBeMultiplied)
@@ -383,12 +383,12 @@ TEST(NewType, NewTypeCanBeMultiplied)
                  newtype::Arithmetic,
                  newtype::ConstructByValueCopy);
 
-    constexpr uint64_t START_VALUE1{42};
-    constexpr uint64_t START_VALUE2{24};
-    SutType a{START_VALUE1};
-    SutType b{START_VALUE2};
-    SutType c{a * b};
-    EXPECT_THAT(c, Eq(SutType{START_VALUE1 * START_VALUE2}));
+    constexpr uint64_t START_VALUE1{ 42 };
+    constexpr uint64_t START_VALUE2{ 24 };
+    SutType a{ START_VALUE1 };
+    SutType b{ START_VALUE2 };
+    SutType c{ a * b };
+    EXPECT_THAT(c, Eq(SutType{ START_VALUE1 * START_VALUE2 }));
 }
 
 TEST(NewType, NewTypeCanBeDivided)
@@ -402,12 +402,12 @@ TEST(NewType, NewTypeCanBeDivided)
                  newtype::Arithmetic,
                  newtype::ConstructByValueCopy);
 
-    constexpr uint64_t START_VALUE1{42};
-    constexpr uint64_t START_VALUE2{24};
-    SutType a{START_VALUE1};
-    SutType b{START_VALUE2};
-    SutType c{a / b};
-    EXPECT_THAT(c, Eq(SutType{START_VALUE1 / START_VALUE2}));
+    constexpr uint64_t START_VALUE1{ 42 };
+    constexpr uint64_t START_VALUE2{ 24 };
+    SutType a{ START_VALUE1 };
+    SutType b{ START_VALUE2 };
+    SutType c{ a / b };
+    EXPECT_THAT(c, Eq(SutType{ START_VALUE1 / START_VALUE2 }));
 }
 
 } // namespace

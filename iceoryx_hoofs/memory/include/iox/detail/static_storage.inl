@@ -65,7 +65,7 @@ constexpr void* static_storage<Capacity, Align>::allocate(const uint64_t align, 
         return nullptr; // cannot allocate, already in use
     }
 
-    size_t space{Capacity};
+    size_t space{ Capacity };
     m_ptr = m_bytes;
     if (std::align(align, size, m_ptr, space) != nullptr)
     {

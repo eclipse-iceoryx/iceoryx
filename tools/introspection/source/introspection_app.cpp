@@ -129,7 +129,7 @@ void IntrospectionApp::parseCmdLineArguments(int argc,
                 std::cout << "Invalid argument for 't'! Will be ignored!";
             }
 #ifdef HAS_EXPERIMENTAL_POSH
-            domainId = DomainId{result.value()};
+            domainId = DomainId{ result.value() };
 #else
             std::cout << "The domain ID is an experimental feature and iceoryx must be compiled with the "
                          "'IOX_EXPERIMENTAL_POSH' cmake option to use it!";
@@ -210,7 +210,7 @@ void IntrospectionApp::refreshTerminal()
 {
     prefresh(pad, yPad, xPad, 0, 0, LINES - 1, COLS - 1);
 
-    constexpr int32_t titleLines{0};
+    constexpr int32_t titleLines{ 0 };
     wmove(pad, titleLines, 0);
 }
 
@@ -270,8 +270,8 @@ void IntrospectionApp::prettyPrint(const std::string& str, const PrettyOptions p
 
 void IntrospectionApp::printProcessIntrospectionData(const ProcessIntrospectionFieldTopic* processIntrospectionField)
 {
-    constexpr int32_t pidWidth{-10};
-    constexpr int32_t processWidth{-10};
+    constexpr int32_t pidWidth{ -10 };
+    constexpr int32_t processWidth{ -10 };
 
     for (auto& data : processIntrospectionField->m_processList)
     {
@@ -292,12 +292,12 @@ void IntrospectionApp::printMemPoolInfo(const MemPoolIntrospectionInfo& introspe
     prettyPrint(iox::into<std::string>(introspectionInfo.m_readerGroupName), PrettyOptions::bold);
     wprintw(pad, "\n\n");
 
-    constexpr int32_t memPoolWidth{8};
-    constexpr int32_t usedchunksWidth{14};
-    constexpr int32_t numchunksWidth{9};
-    constexpr int32_t minFreechunksWidth{9};
-    constexpr int32_t chunkSizeWidth{11};
-    constexpr int32_t chunkPayloadSizeWidth{13};
+    constexpr int32_t memPoolWidth{ 8 };
+    constexpr int32_t usedchunksWidth{ 14 };
+    constexpr int32_t numchunksWidth{ 9 };
+    constexpr int32_t minFreechunksWidth{ 9 };
+    constexpr int32_t chunkSizeWidth{ 11 };
+    constexpr int32_t chunkPayloadSizeWidth{ 13 };
 
     wprintw(pad, "%*s |", memPoolWidth, "MemPool");
     wprintw(pad, "%*s |", usedchunksWidth, "Chunks In Use");
@@ -326,19 +326,19 @@ void IntrospectionApp::printMemPoolInfo(const MemPoolIntrospectionInfo& introspe
 void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPublisherPortData>& publisherPortData,
                                                   const std::vector<ComposedSubscriberPortData>& subscriberPortData)
 {
-    constexpr int32_t serviceWidth{16};
-    constexpr int32_t instanceWidth{16};
-    constexpr int32_t eventWidth{21};
-    constexpr int32_t runtimeNameWidth{23};
+    constexpr int32_t serviceWidth{ 16 };
+    constexpr int32_t instanceWidth{ 16 };
+    constexpr int32_t eventWidth{ 21 };
+    constexpr int32_t runtimeNameWidth{ 23 };
     // uncomment once this information is needed
     // constexpr int32_t sampleSizeWidth{12};
     // constexpr int32_t chunkSizeWidth{12};
     // constexpr int32_t chunksWidth{12};
     // constexpr int32_t intervalWidth{19};
-    constexpr int32_t subscriptionStateWidth{14};
+    constexpr int32_t subscriptionStateWidth{ 14 };
     // constexpr int32_t fifoWidth{17};    // uncomment once this information is needed
-    constexpr int32_t scopeWidth{12};
-    constexpr int32_t interfaceSourceWidth{8};
+    constexpr int32_t scopeWidth{ 12 };
+    constexpr int32_t interfaceSourceWidth{ 8 };
 
     prettyPrint(std::string("Publisher Ports (") + std::to_string(publisherPortData.size()) + ")\n",
                 PrettyOptions::bold);
@@ -368,12 +368,12 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
     wprintw(pad,
             "---------------------------------------------------------------------------------------------------\n");
 
-    bool needsLineBreak{false};
-    uint32_t currentLine{0U};
+    bool needsLineBreak{ false };
+    uint32_t currentLine{ 0U };
     auto printEntry = [&](int32_t maxSize, const std::string& data) -> std::string {
         std::stringstream stream;
 
-        constexpr int32_t indentation{2};
+        constexpr int32_t indentation{ 2 };
         constexpr char indentationString[indentation + 1] = "  ";
 
         auto stringSize = data.size();
@@ -553,14 +553,15 @@ IntrospectionApp::createSubscriber(const iox::capro::ServiceDescription& service
     subscriberOptions.historyRequest = 1U;
 
     return iox::unique_ptr<iox::popo::Subscriber<Topic>>{
-        new iox::popo::Subscriber<Topic>{serviceDescription, subscriberOptions}, [&](auto* const pub) { delete pub; }};
+        new iox::popo::Subscriber<Topic>{ serviceDescription, subscriberOptions }, [&](auto* const pub) { delete pub; }
+    };
 }
 
 template <typename Subscriber>
 bool IntrospectionApp::waitForSubscription(Subscriber& port)
 {
-    uint32_t numberOfLoopsTillTimeout{100};
-    bool subscribed{false};
+    uint32_t numberOfLoopsTillTimeout{ 100 };
+    bool subscribed{ false };
     while ((subscribed = (port->getSubscriptionState() == iox::SubscribeState::SUBSCRIBED)),
            !subscribed && numberOfLoopsTillTimeout > 0)
     {
@@ -588,7 +589,7 @@ IntrospectionApp::composePublisherPortData(const PortIntrospectionFieldTopic* po
         bool found = (fastLookup && m_publisherList[i].m_publisherPortID == m_throughputList[i].m_publisherPortID);
         if (found)
         {
-            publisherPortData.push_back({m_publisherList[i], m_throughputList[i]});
+            publisherPortData.push_back({ m_publisherList[i], m_throughputList[i] });
             continue;
         }
         else
@@ -597,14 +598,14 @@ IntrospectionApp::composePublisherPortData(const PortIntrospectionFieldTopic* po
             {
                 if (m_publisherList[i].m_publisherPortID == throughput.m_publisherPortID)
                 {
-                    publisherPortData.push_back({m_publisherList[i], throughput});
+                    publisherPortData.push_back({ m_publisherList[i], throughput });
                     found = true;
                     break;
                 }
             }
             if (!found)
             {
-                publisherPortData.push_back({m_publisherList[i], dummyThroughputData});
+                publisherPortData.push_back({ m_publisherList[i], dummyThroughputData });
             }
         }
     }
@@ -632,7 +633,7 @@ std::vector<ComposedSubscriberPortData> IntrospectionApp::composeSubscriberPortD
     { // should be the same, else it will be soon
         for (const auto& port : portData->m_subscriberList)
         {
-            subscriberPortData.push_back({port, subscriberPortChangingData->subscriberPortChangingDataList[i++]});
+            subscriberPortData.push_back({ port, subscriberPortChangingData->subscriberPortChangingDataList[i++] });
         }
     }
 

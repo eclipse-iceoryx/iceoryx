@@ -121,8 +121,8 @@ class IpcMessage
   private:
     static const char m_separator; // default value is ,
     std::string m_msg;
-    bool m_isValid{true};
-    uint32_t m_numberOfElements{0};
+    bool m_isValid{ true };
+    uint32_t m_numberOfElements{ 0 };
 };
 
 } // namespace runtime

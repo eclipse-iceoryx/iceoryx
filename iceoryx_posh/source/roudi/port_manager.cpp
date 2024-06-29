@@ -76,7 +76,7 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
 
     // we cannot (fully) perform discovery without this port
     m_serviceRegistryPublisherPortData = acquireInternalPublisherPortDataWithoutDiscovery(
-        {SERVICE_DISCOVERY_SERVICE_NAME, SERVICE_DISCOVERY_INSTANCE_NAME, SERVICE_DISCOVERY_EVENT_NAME},
+        { SERVICE_DISCOVERY_SERVICE_NAME, SERVICE_DISCOVERY_INSTANCE_NAME, SERVICE_DISCOVERY_EVENT_NAME },
         registryPortOptions,
         discoveryMemoryManager);
 
@@ -335,8 +335,8 @@ void PortManager::destroyServerPort(popo::ServerPortData* const serverPortData) 
     IOX_ENFORCE(serverPortData != nullptr, "serverPortData must not be a nullptr");
 
     // create temporary server ports to orderly shut this server down
-    popo::ServerPortRouDi serverPortRoudi{*serverPortData};
-    popo::ServerPortUser serverPortUser{*serverPortData};
+    popo::ServerPortRouDi serverPortRoudi{ *serverPortData };
+    popo::ServerPortUser serverPortUser{ *serverPortData };
 
     serverPortUser.stopOffer();
 
@@ -834,8 +834,8 @@ void PortManager::deletePortsOfProcess(const RuntimeName_t& runtimeName) noexcep
 void PortManager::destroyPublisherPort(PublisherPortRouDiType::MemberType_t* const publisherPortData) noexcept
 {
     // create temporary publisher ports to orderly shut this publisher down
-    PublisherPortRouDiType publisherPortRoudi{publisherPortData};
-    PublisherPortUserType publisherPortUser{publisherPortData};
+    PublisherPortRouDiType publisherPortRoudi{ publisherPortData };
+    PublisherPortUserType publisherPortUser{ publisherPortData };
 
     publisherPortUser.stopOffer();
 
@@ -925,7 +925,7 @@ PortManager::acquirePublisherPortDataWithoutDiscovery(const capro::ServiceDescri
         return err(PortPoolError::UNIQUE_PUBLISHER_PORT_ALREADY_EXISTS);
     }
 
-    if (runtimeName == RuntimeName_t{IPC_CHANNEL_ROUDI_NAME})
+    if (runtimeName == RuntimeName_t{ IPC_CHANNEL_ROUDI_NAME })
     {
         m_internalServices.push_back(service);
     }

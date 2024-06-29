@@ -89,7 +89,7 @@ inline void ConsoleLogger::logOct(const T value) noexcept
 template <typename T, typename std::enable_if_t<std::is_integral<T>::value && std::is_unsigned<T>::value, bool>>
 inline void ConsoleLogger::logBin(const T value) noexcept
 {
-    constexpr uint32_t NUMBER_OF_BITS{std::numeric_limits<decltype(value)>::digits};
+    constexpr uint32_t NUMBER_OF_BITS{ std::numeric_limits<decltype(value)>::digits };
 
     auto& data = getThreadLocalData();
 
@@ -103,8 +103,8 @@ inline void ConsoleLogger::logBin(const T value) noexcept
         bufferWriteIndexEnd = ThreadLocalData::BUFFER_SIZE;
     }
 
-    constexpr T ONE{1};
-    T mask{ONE << (NUMBER_OF_BITS - 1)};
+    constexpr T ONE{ 1 };
+    T mask{ ONE << (NUMBER_OF_BITS - 1) };
     for (; bufferWriteIndexNext < bufferWriteIndexEnd; ++bufferWriteIndexNext)
     {
         // NOLINTJUSTIFICATION it is ensured that the index cannot be out of bounds

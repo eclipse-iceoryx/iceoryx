@@ -114,7 +114,7 @@ expected<UnixDomainSocket, PosixIpcChannelError> UnixDomainSocketBuilderNoPathPr
             // possible errors in closeFileDescriptor() are masked and we inform the user about the actual error
             return err(UnixDomainSocket::errnoToEnum(m_name, bindCall.error().errnum));
         }
-        return ok(UnixDomainSocket{m_name, m_channelSide, sockfd, sockAddr, m_maxMsgSize});
+        return ok(UnixDomainSocket{ m_name, m_channelSide, sockfd, sockAddr, m_maxMsgSize });
     }
     // we use a connected socket, this leads to a behavior closer to the message queue (e.g. error if client
     // is created and server not present)
@@ -135,7 +135,7 @@ expected<UnixDomainSocket, PosixIpcChannelError> UnixDomainSocketBuilderNoPathPr
         return err(UnixDomainSocket::errnoToEnum(m_name, connectCall.error().errnum));
     }
 
-    return ok(UnixDomainSocket{m_name, m_channelSide, sockfd, sockAddr, m_maxMsgSize});
+    return ok(UnixDomainSocket{ m_name, m_channelSide, sockfd, sockAddr, m_maxMsgSize });
 }
 
 // @todo iox-#832

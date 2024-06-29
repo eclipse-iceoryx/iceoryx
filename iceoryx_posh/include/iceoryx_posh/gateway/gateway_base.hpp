@@ -62,7 +62,7 @@ class GatewayBase
     capro::Interfaces getInterface() const noexcept;
 
   protected:
-    popo::InterfacePort m_interfaceImpl{nullptr};
+    popo::InterfacePort m_interfaceImpl{ nullptr };
 };
 
 } // namespace gw

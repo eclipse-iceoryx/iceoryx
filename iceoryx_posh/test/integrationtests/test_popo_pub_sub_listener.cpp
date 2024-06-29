@@ -60,7 +60,7 @@ class PubSubListener_IntegrationTest : public RouDi_GTest
     {
     }
 
-    ServiceDescription m_serviceDescr{"Radar", "FrontLeft", "Counter"};
+    ServiceDescription m_serviceDescr{ "Radar", "FrontLeft", "Counter" };
     std::unique_ptr<Listener> m_listener;
     std::unique_ptr<Subscriber<int>> m_subscriber;
     std::unique_ptr<UntypedSubscriber> m_untypedSubscriber;

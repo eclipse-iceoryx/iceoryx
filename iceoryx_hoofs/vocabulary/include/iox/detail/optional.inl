@@ -295,7 +295,7 @@ inline void optional<T>::destruct_value() noexcept
 template <typename OptionalBaseType, typename... Targs>
 inline optional<OptionalBaseType> make_optional(Targs&&... args) noexcept
 {
-    optional<OptionalBaseType> returnValue{nullopt_t()};
+    optional<OptionalBaseType> returnValue{ nullopt_t() };
     returnValue.emplace(std::forward<Targs>(args)...);
     return returnValue;
 }

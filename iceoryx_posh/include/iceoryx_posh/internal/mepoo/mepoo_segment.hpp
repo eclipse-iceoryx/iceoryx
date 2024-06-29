@@ -60,8 +60,8 @@ class MePooSegment
   protected:
     PosixGroup m_readerGroup;
     PosixGroup m_writerGroup;
-    uint64_t m_segmentId{0};
-    uint64_t m_segmentSize{0};
+    uint64_t m_segmentId{ 0 };
+    uint64_t m_segmentSize{ 0 };
     iox::mepoo::MemoryInfo m_memoryInfo;
     SharedMemoryObjectType m_sharedMemoryObject;
     MemoryManagerType m_memoryManager;

@@ -65,7 +65,7 @@ int iox_sem_getvalue(iox_sem_t* sem, int* sval)
 
 int iox_sem_post(iox_sem_t* sem)
 {
-    int retVal{0};
+    int retVal{ 0 };
     if (sem->m_hasPosixHandle)
     {
         retVal = sem_post(sem->m_handle.posix);
@@ -92,7 +92,7 @@ int iox_sem_post(iox_sem_t* sem)
 
 int iox_sem_wait(iox_sem_t* sem)
 {
-    int retVal{0};
+    int retVal{ 0 };
     if (sem->m_hasPosixHandle)
     {
         retVal = sem_wait(sem->m_handle.posix);
@@ -114,7 +114,7 @@ int iox_sem_wait(iox_sem_t* sem)
 
 int iox_sem_trywait(iox_sem_t* sem)
 {
-    int retVal{0};
+    int retVal{ 0 };
     if (sem->m_hasPosixHandle)
     {
         retVal = sem_trywait(sem->m_handle.posix);

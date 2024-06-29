@@ -23,11 +23,12 @@ namespace cli
 {
 OptionDefinition::OptionDefinition(const OptionDescription_t& programDescription,
                                    const function<void()>& onFailureCallback) noexcept
-    : m_programDescription{programDescription}
-    , m_onFailureCallback{onFailureCallback}
+    : m_programDescription{ programDescription }
+    , m_onFailureCallback{ onFailureCallback }
 {
     constexpr bool IS_SWITCH = true;
-    std::move(*this).addOption({{'h', IS_SWITCH, {"help"}, {""}}, {"Display help."}, OptionType::SWITCH, {""}});
+    std::move(*this).addOption(
+        { { 'h', IS_SWITCH, { "help" }, { "" } }, { "Display help." }, OptionType::SWITCH, { "" } });
 }
 
 optional<OptionWithDetails> OptionDefinition::getOption(const OptionName_t& name) const noexcept
@@ -100,7 +101,7 @@ OptionDefinition& OptionDefinition::addSwitch(const char shortOption,
                                               const OptionDescription_t& description) noexcept
 {
     constexpr bool IS_SWITCH = true;
-    return addOption({{shortOption, IS_SWITCH, longOption, {""}}, description, OptionType::SWITCH, {""}});
+    return addOption({ { shortOption, IS_SWITCH, longOption, { "" } }, description, OptionType::SWITCH, { "" } });
 }
 
 // NOLINTJUSTIFICATION this is not a user facing API but hidden in a macro
@@ -113,7 +114,7 @@ OptionDefinition& OptionDefinition::addOptional(const char shortOption,
 {
     constexpr bool IS_NO_SWITCH = false;
     return addOption(
-        {{shortOption, IS_NO_SWITCH, longOption, defaultValue}, description, OptionType::OPTIONAL, typeName});
+        { { shortOption, IS_NO_SWITCH, longOption, defaultValue }, description, OptionType::OPTIONAL, typeName });
 }
 OptionDefinition& OptionDefinition::addRequired(const char shortOption,
                                                 const OptionName_t& longOption,
@@ -121,7 +122,8 @@ OptionDefinition& OptionDefinition::addRequired(const char shortOption,
                                                 const TypeName_t& typeName) noexcept
 {
     constexpr bool IS_NO_SWITCH = false;
-    return addOption({{shortOption, IS_NO_SWITCH, longOption, {""}}, description, OptionType::REQUIRED, typeName});
+    return addOption(
+        { { shortOption, IS_NO_SWITCH, longOption, { "" } }, description, OptionType::REQUIRED, typeName });
 }
 
 std::ostream& operator<<(std::ostream& stream, const OptionWithDetails& option) noexcept

@@ -78,7 +78,7 @@ inline constexpr const char* logLevelDisplayText(const LogLevel value) noexcept
 namespace internal
 {
 template <typename>
-constexpr bool always_false_v{false};
+constexpr bool always_false_v{ false };
 
 template <typename T>
 inline constexpr const char* logFormatDec() noexcept

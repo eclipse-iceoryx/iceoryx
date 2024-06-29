@@ -73,7 +73,7 @@ TEST(UniqueId_test, CopyConstructingUniqueIdsWorks)
 
     // NOLINTJUSTIFICATION we test the copy constructor here
     // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
-    auto sut{id};
+    auto sut{ id };
     auto sutValue = static_cast<UniqueId::value_type>(sut);
 
     EXPECT_THAT(sut, Eq(id));
@@ -98,7 +98,7 @@ TEST(UniqueId_test, MoveConstructingUniqueIdsWorks)
     ::testing::Test::RecordProperty("TEST_ID", "da614907-acf5-4a26-a432-fa072ac6599d");
     auto id = UniqueId();
     auto idValue = static_cast<UniqueId::value_type>(id);
-    auto sut{std::move(id)};
+    auto sut{ std::move(id) };
     auto sutValue = static_cast<UniqueId::value_type>(sut);
 
     EXPECT_THAT(sutValue, Eq(idValue));

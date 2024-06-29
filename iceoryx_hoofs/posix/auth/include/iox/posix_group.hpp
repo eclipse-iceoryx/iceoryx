@@ -48,7 +48,7 @@ class PosixGroup
 
   private:
     iox_gid_t m_id;
-    bool m_doesExist{false};
+    bool m_doesExist{ false };
 };
 
 } // namespace iox

@@ -33,7 +33,7 @@ int main()
     //! [initialize runtime]
 
     //! [create subscriber]
-    iox::popo::UntypedSubscriber subscriber({"Example", "User-Header", "Timestamp"});
+    iox::popo::UntypedSubscriber subscriber({ "Example", "User-Header", "Timestamp" });
     //! [create subscriber]
 
     //! [poll subscriber for samples in a loop]
@@ -53,7 +53,7 @@ int main()
         });
         //! [take chunk]
 
-        constexpr std::chrono::milliseconds SLEEP_TIME{100U};
+        constexpr std::chrono::milliseconds SLEEP_TIME{ 100U };
         std::this_thread::sleep_for(SLEEP_TIME);
     }
     //! [poll subscriber for samples in a loop]

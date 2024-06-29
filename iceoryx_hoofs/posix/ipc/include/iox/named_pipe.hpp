@@ -193,7 +193,7 @@ class NamedPipe
         static constexpr units::Duration WAIT_FOR_INIT_TIMEOUT = units::Duration::fromSeconds(1);
         static constexpr units::Duration WAIT_FOR_INIT_SLEEP_TIME = units::Duration::fromMilliseconds(1);
 
-        std::atomic<uint64_t> initializationGuard{INVALID_DATA};
+        std::atomic<uint64_t> initializationGuard{ INVALID_DATA };
         optional<UnnamedSemaphore> m_sendSemaphore;
         optional<UnnamedSemaphore> m_receiveSemaphore;
     };

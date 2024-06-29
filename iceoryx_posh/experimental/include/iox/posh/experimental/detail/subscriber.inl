@@ -32,41 +32,43 @@ template <typename T, typename H>
 inline expected<unique_ptr<Subscriber<T, H>>, SubscriberBuilderError> SubscriberBuilder::create() noexcept
 {
     auto* subscriber_port_data = m_runtime.getMiddlewareSubscriber(m_service_description,
-                                                                   {m_queue_capacity,
-                                                                    m_history_request,
-                                                                    "",
-                                                                    m_subscribe_on_create,
-                                                                    m_queue_full_policy,
-                                                                    m_requires_publisher_history_support});
+                                                                   { m_queue_capacity,
+                                                                     m_history_request,
+                                                                     "",
+                                                                     m_subscribe_on_create,
+                                                                     m_queue_full_policy,
+                                                                     m_requires_publisher_history_support });
     if (subscriber_port_data == nullptr)
     {
         return err(SubscriberBuilderError::OUT_OF_RESOURCES);
     }
-    return ok(unique_ptr<Subscriber<T, H>>{
-        new (std::nothrow) Subscriber<T, H>{iox::SubscriberPortUserType{subscriber_port_data}}, [&](auto* const sub) {
-            // NOLINTNEXTLINE(cppcoreguidelines-owning-memory) raw pointer is required by the unique_ptr API
-            delete sub;
-        }});
+    return ok(unique_ptr<Subscriber<T, H>>{ new (std::nothrow)
+                                                Subscriber<T, H>{ iox::SubscriberPortUserType{ subscriber_port_data } },
+                                            [&](auto* const sub) {
+                                                // NOLINTNEXTLINE(cppcoreguidelines-owning-memory) raw pointer is required by the unique_ptr API
+                                                delete sub;
+                                            } });
 }
 
 inline expected<unique_ptr<UntypedSubscriber>, SubscriberBuilderError> SubscriberBuilder::create() noexcept
 {
     auto* subscriber_port_data = m_runtime.getMiddlewareSubscriber(m_service_description,
-                                                                   {m_queue_capacity,
-                                                                    m_history_request,
-                                                                    "",
-                                                                    m_subscribe_on_create,
-                                                                    m_queue_full_policy,
-                                                                    m_requires_publisher_history_support});
+                                                                   { m_queue_capacity,
+                                                                     m_history_request,
+                                                                     "",
+                                                                     m_subscribe_on_create,
+                                                                     m_queue_full_policy,
+                                                                     m_requires_publisher_history_support });
     if (subscriber_port_data == nullptr)
     {
         return err(SubscriberBuilderError::OUT_OF_RESOURCES);
     }
     return ok(unique_ptr<UntypedSubscriber>{
-        new (std::nothrow) UntypedSubscriber{iox::SubscriberPortUserType{subscriber_port_data}}, [&](auto* const sub) {
+        new (std::nothrow) UntypedSubscriber{ iox::SubscriberPortUserType{ subscriber_port_data } },
+        [&](auto* const sub) {
             // NOLINTNEXTLINE(cppcoreguidelines-owning-memory) raw pointer is required by the unique_ptr API
             delete sub;
-        }});
+        } });
 }
 
 } // namespace iox::posh::experimental

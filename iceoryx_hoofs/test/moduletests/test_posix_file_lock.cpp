@@ -121,7 +121,7 @@ TEST_F(FileLock_test, CreatingSameFileLockAgainFails)
 TEST_F(FileLock_test, MoveCtorTransfersLock)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0ba1f8d8-3bd5-46ee-aba8-5dff7e712026");
-    auto movedSut{std::move(m_sut.value())};
+    auto movedSut{ std::move(m_sut.value()) };
     auto anotherLock = FileLockBuilder().name(TEST_NAME).create();
     ASSERT_TRUE(anotherLock.has_error());
     EXPECT_THAT(anotherLock.error(), Eq(FileLockError::LOCKED_BY_OTHER_PROCESS));

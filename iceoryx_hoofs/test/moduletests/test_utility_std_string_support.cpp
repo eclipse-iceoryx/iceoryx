@@ -385,7 +385,7 @@ TYPED_TEST(StdString_test, CheckForEqualityWithEqualStdStringsWorks)
     ::testing::Test::RecordProperty("TEST_ID", "f59dac18-3ee4-46de-86e1-e7838bd25d5a");
     this->testSubject = "M";
 
-    const std::string testStdString{"M"};
+    const std::string testStdString{ "M" };
     EXPECT_THAT(this->testSubject == testStdString, Eq(true));
     EXPECT_THAT(testStdString == this->testSubject, Eq(true));
     EXPECT_THAT(this->testSubject != testStdString, Eq(false));
@@ -397,7 +397,7 @@ TYPED_TEST(StdString_test, CheckForEqualityWithUnequalStdStringsWorks)
     ::testing::Test::RecordProperty("TEST_ID", "8851f836-aa00-416a-9461-77f0909bcf1a");
     this->testSubject = "M";
 
-    const std::string testStdString{"L"};
+    const std::string testStdString{ "L" };
     EXPECT_THAT(this->testSubject == testStdString, Eq(false));
     EXPECT_THAT(testStdString == this->testSubject, Eq(false));
     EXPECT_THAT(this->testSubject != testStdString, Eq(true));
@@ -533,7 +533,7 @@ TYPED_TEST(StdString_test, AppendStdStringContainingNullWorks)
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     constexpr auto RESULT_CAPACITY = STRINGCAP + 10U;
-    const std::string expectedString{"ice\0ryx", 7};
+    const std::string expectedString{ "ice\0ryx", 7 };
 
     string<RESULT_CAPACITY> sut("i");
     const string<RESULT_CAPACITY> testCxxString(TruncateToCapacity, expectedString.substr(1).c_str(), 6U);

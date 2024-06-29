@@ -37,9 +37,9 @@ std::string compiler = "msvc-" + std::to_string(_MSC_VER);
 template <typename Return>
 void PerformBenchmark(Return (&f)(), const char* functionName, const iox::units::Duration& duration)
 {
-    std::atomic_bool keepRunning{true};
-    uint64_t numberOfCalls{0U};
-    uint64_t actualDurationNanoSeconds{0};
+    std::atomic_bool keepRunning{ true };
+    uint64_t numberOfCalls{ 0U };
+    uint64_t actualDurationNanoSeconds{ 0 };
     std::thread t([&] {
         auto start = std::chrono::system_clock::now();
         while (keepRunning)

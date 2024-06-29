@@ -226,7 +226,7 @@ class vector final
 
     // AXIVION Next Construct AutosarC++19_03-A1.1.1 : object size depends on template parameter and has to be taken care of at the specific template instantiation
     UninitializedArray<T, Capacity> m_data{};
-    uint64_t m_size{0U};
+    uint64_t m_size{ 0U };
 };
 
 // AXIVION Next Construct AutosarC++19_03-A13.5.5 : intentional implementation with different parameters to enable

@@ -40,9 +40,9 @@ struct ConditionVariableData
 
     optional<UnnamedSemaphore> m_semaphore;
     RuntimeName_t m_runtimeName;
-    std::atomic_bool m_toBeDestroyed{false};
+    std::atomic_bool m_toBeDestroyed{ false };
     std::atomic_bool m_activeNotifications[MAX_NUMBER_OF_NOTIFIERS];
-    std::atomic_bool m_wasNotified{false};
+    std::atomic_bool m_wasNotified{ false };
 };
 
 } // namespace popo

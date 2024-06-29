@@ -29,17 +29,18 @@ ResourcePrefix_t iceoryxResourcePrefix(const DomainId domainId, const ResourceTy
     static_assert(std::is_same_v<uint16_t, DomainId::value_type>,
                   "Please adjust 'MAX_UINT16_WIDTH' to the new fixed width type to have enough space for the "
                   "stringified Domain ID");
-    constexpr auto MAX_UINT16_WIDTH{5};
+    constexpr auto MAX_UINT16_WIDTH{ 5 };
 
     uint16_t usedDomainId = static_cast<DomainId::value_type>(domainId);
     if (!experimental::hasExperimentalPoshFeaturesEnabled())
     {
         usedDomainId = static_cast<DomainId::value_type>(DEFAULT_DOMAIN_ID);
     }
-    iox::string<MAX_UINT16_WIDTH> uniqueDomainIdString{TruncateToCapacity,
-                                                       iox::convert::toString(usedDomainId).c_str()};
+    iox::string<MAX_UINT16_WIDTH> uniqueDomainIdString{ TruncateToCapacity,
+                                                        iox::convert::toString(usedDomainId).c_str() };
 
-    auto resourceTypeString{resourceType == ResourceType::ICEORYX_DEFINED ? iox::string<1>{"i"} : iox::string<1>{"u"}};
+    auto resourceTypeString{ resourceType == ResourceType::ICEORYX_DEFINED ? iox::string<1>{ "i" }
+                                                                           : iox::string<1>{ "u" } };
     return concatenate(IOX_DEFAULT_RESOURCE_PREFIX, "_", uniqueDomainIdString, "_", resourceTypeString, "_");
 }
 
@@ -47,7 +48,7 @@ namespace experimental
 {
 bool hasExperimentalPoshFeaturesEnabled(const optional<bool>& newValue) noexcept
 {
-    static std::atomic<bool> experimentalEnabled{build::IOX_EXPERIMENTAL_POSH_FLAG};
+    static std::atomic<bool> experimentalEnabled{ build::IOX_EXPERIMENTAL_POSH_FLAG };
 
     if (newValue.has_value())
     {

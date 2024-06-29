@@ -49,21 +49,21 @@ class SharedChunk_Test : public Test
         auto& chunkSettings = chunkSettingsResult.value();
         ChunkHeader* chunkHeader = new (memoryChunk) ChunkHeader(mempool.getChunkSize(), chunkSettings);
 
-        new (v) ChunkManagement{chunkHeader, &mempool, &chunkMgmtPool};
+        new (v) ChunkManagement{ chunkHeader, &mempool, &chunkMgmtPool };
         return v;
     }
 
-    static constexpr uint32_t CHUNK_SIZE{64U};
-    static constexpr uint32_t NUMBER_OF_CHUNKS{10U};
-    static constexpr uint32_t USER_PAYLOAD_SIZE{64U};
+    static constexpr uint32_t CHUNK_SIZE{ 64U };
+    static constexpr uint32_t NUMBER_OF_CHUNKS{ 10U };
+    static constexpr uint32_t USER_PAYLOAD_SIZE{ 64U };
 
     char memory[4096U];
-    iox::BumpAllocator allocator{memory, 4096U};
-    MemPool mempool{sizeof(ChunkHeader) + USER_PAYLOAD_SIZE, NUMBER_OF_CHUNKS, allocator, allocator};
-    MemPool chunkMgmtPool{CHUNK_SIZE, NUMBER_OF_CHUNKS, allocator, allocator};
-    void* memoryChunk{mempool.getChunk()};
+    iox::BumpAllocator allocator{ memory, 4096U };
+    MemPool mempool{ sizeof(ChunkHeader) + USER_PAYLOAD_SIZE, NUMBER_OF_CHUNKS, allocator, allocator };
+    MemPool chunkMgmtPool{ CHUNK_SIZE, NUMBER_OF_CHUNKS, allocator, allocator };
+    void* memoryChunk{ mempool.getChunk() };
     ChunkManagement* chunkManagement = GetChunkManagement(memoryChunk);
-    SharedChunk sut{chunkManagement};
+    SharedChunk sut{ chunkManagement };
 };
 
 TEST_F(SharedChunk_Test, SharedChunkObjectUpOnInitilizationSetsTheChunkHeaderToNullPointer)
@@ -141,7 +141,7 @@ TEST_F(SharedChunk_Test, GetChunkHeaderMethodReturnsValidPointerWhenSharedChunkO
 TEST_F(SharedChunk_Test, EqualityOperatorOnTwoSharedChunkWithTheSameContentReturnsTrue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "65a7ce87-5f64-48af-830d-71ab03db39e9");
-    SharedChunk sut1{chunkManagement};
+    SharedChunk sut1{ chunkManagement };
 
     EXPECT_TRUE(sut == sut1);
 }
@@ -165,7 +165,7 @@ TEST_F(SharedChunk_Test, EqualityOperatorOnSharedChunkAndSharedChunkPayloadWithD
 TEST_F(SharedChunk_Test, EqualityOperatorOnSharedChunkAndSharedChunkPayloadWithSameChunkManagementsReturnTrue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e2d4ced9-ec74-47c5-abc2-ec9952168622");
-    SharedChunk sut1{chunkManagement};
+    SharedChunk sut1{ chunkManagement };
 
     EXPECT_TRUE(sut == sut1.getUserPayload());
 }
@@ -197,7 +197,7 @@ TEST_F(SharedChunk_Test, GetUserPayloadMethodReturnsValidPointerWhen_m_chunkmana
 {
     ::testing::Test::RecordProperty("TEST_ID", "89ec859c-75cc-439c-84f5-0021696fee5e");
     using DATA_TYPE = uint32_t;
-    constexpr DATA_TYPE USER_DATA{7337U};
+    constexpr DATA_TYPE USER_DATA{ 7337U };
     ChunkHeader* newChunk = static_cast<ChunkHeader*>(mempool.getChunk());
 
     auto chunkSettingsResult = ChunkSettings::create(sizeof(DATA_TYPE), alignof(DATA_TYPE));
@@ -205,7 +205,7 @@ TEST_F(SharedChunk_Test, GetUserPayloadMethodReturnsValidPointerWhen_m_chunkmana
     auto& chunkSettings = chunkSettingsResult.value();
 
     new (newChunk) ChunkHeader(mempool.getChunkSize(), chunkSettings);
-    new (static_cast<DATA_TYPE*>(newChunk->userPayload())) DATA_TYPE{USER_DATA};
+    new (static_cast<DATA_TYPE*>(newChunk->userPayload())) DATA_TYPE{ USER_DATA };
 
     iox::mepoo::SharedChunk sut1(GetChunkManagement(newChunk));
     EXPECT_THAT(*static_cast<DATA_TYPE*>(sut1.getUserPayload()), Eq(USER_DATA));
@@ -292,7 +292,7 @@ TEST_F(SharedChunk_Test, NonEqualityOperatorOnTwoSharedChunkWithDifferentContent
 TEST_F(SharedChunk_Test, NonEqualityOperatorOnTwoSharedChunkWithSameContentReturnsFalse)
 {
     ::testing::Test::RecordProperty("TEST_ID", "152831f0-19c9-473e-8599-9fd0828dd173");
-    SharedChunk sut1{chunkManagement};
+    SharedChunk sut1{ chunkManagement };
 
     EXPECT_FALSE(sut1 != sut);
 }
@@ -308,7 +308,7 @@ TEST_F(SharedChunk_Test, NonEqualityOperatorOnSharedChunkAndSharedChunkPayloadWi
 TEST_F(SharedChunk_Test, NonEqualityOperatorOnSharedChunkAndSharedChunkPayloadWithSameChunkManagementsReturnFalse)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b07f53b5-51c8-471f-9c63-05f432ec79e6");
-    SharedChunk sut1{chunkManagement};
+    SharedChunk sut1{ chunkManagement };
 
     EXPECT_FALSE(sut != sut1.getUserPayload());
 }

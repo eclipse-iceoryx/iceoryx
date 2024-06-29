@@ -33,7 +33,7 @@ int main()
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
     //! [create subscriber]
-    iox::popo::Subscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"});
+    iox::popo::Subscriber<RadarObject> subscriber({ "Radar", "FrontLeft", "Object" });
     //! [create subscriber]
 
     // run until interrupted by Ctrl-C

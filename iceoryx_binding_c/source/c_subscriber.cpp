@@ -40,7 +40,7 @@ extern "C" {
 /// @todo iox-#1221 remove this workaround needed for CycloneDDS due to our change to use the head for storage
 struct SubscriberWithStoragePointer
 {
-    void* subscriberStorage{nullptr};
+    void* subscriberStorage{ nullptr };
     cpp2c_Subscriber subscriber;
 };
 
@@ -114,9 +114,9 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
            && "Size mismatch for SubscriberWithStoragePointer!");
 
     me->m_portData =
-        PoshRuntime::getInstance().getMiddlewareSubscriber(ServiceDescription{IdString_t(TruncateToCapacity, service),
-                                                                              IdString_t(TruncateToCapacity, instance),
-                                                                              IdString_t(TruncateToCapacity, event)},
+        PoshRuntime::getInstance().getMiddlewareSubscriber(ServiceDescription{ IdString_t(TruncateToCapacity, service),
+                                                                               IdString_t(TruncateToCapacity, instance),
+                                                                               IdString_t(TruncateToCapacity, event) },
                                                            subscriberOptions);
 
     self->do_not_touch_me[0] = reinterpret_cast<uint64_t>(me);

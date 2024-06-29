@@ -73,12 +73,12 @@ class variant_Test : public Test
             Delete();
         }
         DoubleDelete(const DoubleDelete& rhs)
-            : doDtorCall{false}
+            : doDtorCall{ false }
         {
             *this = rhs;
         }
         DoubleDelete(DoubleDelete&& rhs) noexcept
-            : doDtorCall{false}
+            : doDtorCall{ false }
         {
             *this = std::move(rhs);
         }
@@ -115,7 +115,7 @@ class variant_Test : public Test
         static int ctorCalls;
 
       private:
-        bool doDtorCall{true};
+        bool doDtorCall{ true };
     };
 
     iox::variant<int, float, ComplexClass> sut;
@@ -140,7 +140,7 @@ TEST_F(variant_Test, InitializedVariantReturnsCorrectIndex)
 TEST_F(variant_Test, CreatingVariantFromPODTypeReturnsProvidedValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d087b440-a669-4467-a016-3a4ae5b5882a");
-    iox::variant<ComplexClass, float> sut2{42.42F};
+    iox::variant<ComplexClass, float> sut2{ 42.42F };
 
     ASSERT_THAT(sut2.index(), Eq(1U));
     ASSERT_THAT(sut2.get<float>(), Ne(nullptr));
@@ -151,7 +151,7 @@ TEST_F(variant_Test, CreatingVariantFromLValueReturnsProvidedValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ff991aeb-15de-45fe-b6fb-a0a3d3c36c68");
     std::string string("Buhh");
-    iox::variant<std::string, float> sut2{string};
+    iox::variant<std::string, float> sut2{ string };
     ASSERT_THAT(sut2.index(), Eq(0U));
     ASSERT_THAT(sut2.get<std::string>(), Ne(nullptr));
     EXPECT_THAT(sut2.get<std::string>()->c_str(), StrEq("Buhh"));
@@ -160,7 +160,7 @@ TEST_F(variant_Test, CreatingVariantFromLValueReturnsProvidedValue)
 TEST_F(variant_Test, CreatingVariantWithSameTypeChoosesFirstFittingType)
 {
     ::testing::Test::RecordProperty("TEST_ID", "819b5c7d-106c-476a-a49e-aaa78e092e3f");
-    iox::variant<float, float> sut2{73.73F};
+    iox::variant<float, float> sut2{ 73.73F };
 
     ASSERT_THAT(sut2.index(), Eq(0U));
     ASSERT_THAT(sut2.get<float>(), Ne(nullptr));
@@ -242,7 +242,7 @@ TEST_F(variant_Test, ConstGetVariantWithIncorrectValueFails)
 TEST_F(variant_Test, Get_ifWhenUninitializedReturnsProvidedValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "64585111-3495-4c01-8900-af2e19223e62");
-    float bla{0.0F};
+    float bla{ 0.0F };
     EXPECT_THAT(sut.get_if<float>(&bla), Eq(&bla));
 }
 
@@ -250,7 +250,7 @@ TEST_F(variant_Test, Get_ifInitializedWithCorrectValueWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "27b80822-0f32-46a6-83d9-595b35e23139");
     sut.emplace<float>(12.1F);
-    float bla{0.0F};
+    float bla{ 0.0F };
     EXPECT_THAT(sut.get_if<float>(&bla), Ne(&bla));
 }
 
@@ -258,7 +258,7 @@ TEST_F(variant_Test, Get_ifInitializedWithIncorrectValueReturnsProvidedValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4126af94-d4ce-405a-bcc7-1b6d1fce6d0b");
     sut.emplace<float>(12.1F);
-    int bla{0};
+    int bla{ 0 };
     EXPECT_THAT(sut.get_if<int>(&bla), Eq(&bla));
 }
 
@@ -578,7 +578,7 @@ TEST_F(variant_Test, ComplexDTorUsingCorrectTypeWithInPlace)
     DoubleDelete::ctorCalls = 0;
     DoubleDelete::dtorCalls = 0;
     {
-        iox::variant<int, DoubleDelete> schlomo{iox::in_place_type<DoubleDelete>()};
+        iox::variant<int, DoubleDelete> schlomo{ iox::in_place_type<DoubleDelete>() };
     }
 
     EXPECT_THAT(DoubleDelete::ctorCalls, Eq(1));
@@ -591,10 +591,10 @@ TEST_F(variant_Test, ComplexDTorWithCopyCTor)
     DoubleDelete::ctorCalls = 0;
     DoubleDelete::dtorCalls = 0;
     {
-        iox::variant<int, DoubleDelete> schlomo{iox::in_place_type<DoubleDelete>()};
+        iox::variant<int, DoubleDelete> schlomo{ iox::in_place_type<DoubleDelete>() };
         // NOLINTJUSTIFICATION Copy c'tor shall be tested
         // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
-        iox::variant<int, DoubleDelete> sut{schlomo};
+        iox::variant<int, DoubleDelete> sut{ schlomo };
     }
 
     EXPECT_THAT(DoubleDelete::ctorCalls, Eq(1));
@@ -607,8 +607,8 @@ TEST_F(variant_Test, ComplexDTorWithCopyAssignmentTwoVariantsWithValue)
     DoubleDelete::ctorCalls = 0;
     DoubleDelete::dtorCalls = 0;
     {
-        iox::variant<int, DoubleDelete> schlomo{iox::in_place_type<DoubleDelete>()};
-        iox::variant<int, DoubleDelete> sut{iox::in_place_type<DoubleDelete>()};
+        iox::variant<int, DoubleDelete> schlomo{ iox::in_place_type<DoubleDelete>() };
+        iox::variant<int, DoubleDelete> sut{ iox::in_place_type<DoubleDelete>() };
         sut = schlomo;
     }
 
@@ -622,7 +622,7 @@ TEST_F(variant_Test, ComplexDTorWithMove)
     DoubleDelete::ctorCalls = 0;
     DoubleDelete::dtorCalls = 0;
     {
-        iox::variant<int, DoubleDelete> schlomo{iox::in_place_type<DoubleDelete>()};
+        iox::variant<int, DoubleDelete> schlomo{ iox::in_place_type<DoubleDelete>() };
         iox::variant<int, DoubleDelete> sut = std::move(schlomo);
     }
 
@@ -637,7 +637,7 @@ TEST_F(variant_Test, ComplexDTorWithMoveAssignment)
     DoubleDelete::dtorCalls = 0;
     {
         iox::variant<int, DoubleDelete> sut;
-        iox::variant<int, DoubleDelete> schlomo{iox::in_place_type<DoubleDelete>()};
+        iox::variant<int, DoubleDelete> schlomo{ iox::in_place_type<DoubleDelete>() };
         sut = std::move(schlomo);
     }
 
@@ -651,8 +651,8 @@ TEST_F(variant_Test, ComplexDTorWithMoveAssignmentTwoVariantsWithValue)
     DoubleDelete::ctorCalls = 0;
     DoubleDelete::dtorCalls = 0;
     {
-        iox::variant<int, DoubleDelete> sut{iox::in_place_type<DoubleDelete>()};
-        iox::variant<int, DoubleDelete> schlomo{iox::in_place_type<DoubleDelete>()};
+        iox::variant<int, DoubleDelete> sut{ iox::in_place_type<DoubleDelete>() };
+        iox::variant<int, DoubleDelete> schlomo{ iox::in_place_type<DoubleDelete>() };
         sut = std::move(schlomo);
     }
 
@@ -702,8 +702,8 @@ TEST_F(variant_Test, TwoInvalidVariantsAreEqual)
 TEST_F(variant_Test, InvalidAndValidVariantAreUnequal)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0c77c24f-059b-4298-b4a2-0a7d8eb70364");
-    std::string string{"Foo"};
-    iox::variant<std::string, float> sut1{string};
+    std::string string{ "Foo" };
+    iox::variant<std::string, float> sut1{ string };
     iox::variant<std::string, float> sut2;
     EXPECT_FALSE(sut1 == sut2);
     EXPECT_TRUE(sut1 != sut2);
@@ -712,9 +712,9 @@ TEST_F(variant_Test, InvalidAndValidVariantAreUnequal)
 TEST_F(variant_Test, TwoVariantsWithEqualValuesAreEqual)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6496566e-647d-426b-b369-7ec27c6ee673");
-    std::string string{"Foo"};
-    iox::variant<std::string, float> sut1{string};
-    iox::variant<std::string, float> sut2{string};
+    std::string string{ "Foo" };
+    iox::variant<std::string, float> sut1{ string };
+    iox::variant<std::string, float> sut2{ string };
     EXPECT_TRUE(sut1 == sut2);
     EXPECT_FALSE(sut1 != sut2);
 }
@@ -722,10 +722,10 @@ TEST_F(variant_Test, TwoVariantsWithEqualValuesAreEqual)
 TEST_F(variant_Test, TwoVariantsWithUnequalValueAreUnequal)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b37c2f64-6ba6-42c8-9b6d-73bb344b8c8e");
-    std::string string{"Foo"};
-    float floatNum{42.42F};
-    iox::variant<std::string, float> sut1{string};
-    iox::variant<std::string, float> sut2{floatNum};
+    std::string string{ "Foo" };
+    float floatNum{ 42.42F };
+    iox::variant<std::string, float> sut1{ string };
+    iox::variant<std::string, float> sut2{ floatNum };
     EXPECT_TRUE(sut1 != sut2);
     EXPECT_FALSE(sut1 == sut2);
 }

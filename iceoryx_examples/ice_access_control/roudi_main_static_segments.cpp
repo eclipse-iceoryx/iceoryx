@@ -46,12 +46,12 @@ int main(int argc, char* argv[])
     iox::mepoo::MePooConfig mepooConfig;
 
     // We only send very small data, just one mempool per segment
-    mepooConfig.addMemPool({128, 1000});
+    mepooConfig.addMemPool({ 128, 1000 });
 
     // Create an entry for a new shared memory segment from the mempooConfig and add it to the iceoryx config
     // Parameters are {"ReaderGroup", "WriterGroup", MemoryPoolConfig}
-    config.m_sharedMemorySegments.push_back({"unprivileged", "privileged", mepooConfig});
-    config.m_sharedMemorySegments.push_back({"infotainment", "infotainment", mepooConfig});
+    config.m_sharedMemorySegments.push_back({ "unprivileged", "privileged", mepooConfig });
+    config.m_sharedMemorySegments.push_back({ "infotainment", "infotainment", mepooConfig });
     //! [config]
 
     IceOryxRouDiApp roudi(config);

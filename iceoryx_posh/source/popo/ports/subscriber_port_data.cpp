@@ -30,7 +30,7 @@ SubscriberPortData::SubscriberPortData(const capro::ServiceDescription& serviceD
                                        const mepoo::MemoryInfo& memoryInfo) noexcept
     : BasePortData(serviceDescription, runtimeName, uniqueRouDiId)
     , m_chunkReceiverData(queueType, subscriberOptions.queueFullPolicy, memoryInfo)
-    , m_options{subscriberOptions}
+    , m_options{ subscriberOptions }
     , m_subscribeRequested(subscriberOptions.subscribeOnCreate)
 {
     m_chunkReceiverData.m_queue.setCapacity(subscriberOptions.queueCapacity);

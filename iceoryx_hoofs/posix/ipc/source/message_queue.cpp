@@ -76,7 +76,7 @@ expected<MessageQueue, PosixIpcChannelError> MessageQueueBuilder::create() const
     }
     const auto mqDescriptor = openResult.value();
 
-    return ok(MessageQueue{sanitizedName, attributes, mqDescriptor, m_channelSide});
+    return ok(MessageQueue{ sanitizedName, attributes, mqDescriptor, m_channelSide });
 }
 
 MessageQueue::MessageQueue(const PosixIpcChannelName_t& name,

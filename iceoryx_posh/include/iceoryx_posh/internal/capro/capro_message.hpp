@@ -91,11 +91,11 @@ class CaproMessage
                  CaproServiceType serviceType = CaproServiceType::NONE,
                  void* chunkQueueData = nullptr) noexcept;
 
-    CaproMessageType m_type{CaproMessageType::NOTYPE};
-    CaproServiceType m_serviceType{CaproServiceType::NONE};
+    CaproMessageType m_type{ CaproMessageType::NOTYPE };
+    CaproServiceType m_serviceType{ CaproServiceType::NONE };
     ServiceDescription m_serviceDescription;
-    void* m_chunkQueueData{nullptr};
-    uint64_t m_historyCapacity{0u};
+    void* m_chunkQueueData{ nullptr };
+    uint64_t m_historyCapacity{ 0u };
 };
 
 } // namespace capro

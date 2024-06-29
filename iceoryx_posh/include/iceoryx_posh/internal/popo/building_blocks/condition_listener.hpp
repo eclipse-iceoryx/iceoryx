@@ -75,8 +75,8 @@ class ConditionListener
     NotificationVector_t waitImpl(const function_ref<bool()> waitCall) noexcept;
 
   private:
-    ConditionVariableData* m_condVarDataPtr{nullptr};
-    std::atomic_bool m_toBeDestroyed{false};
+    ConditionVariableData* m_condVarDataPtr{ nullptr };
+    std::atomic_bool m_toBeDestroyed{ false };
 };
 
 } // namespace popo

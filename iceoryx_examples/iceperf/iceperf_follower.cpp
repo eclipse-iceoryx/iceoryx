@@ -27,9 +27,9 @@
 #include <iostream>
 
 //! [use constants instead of magic values]
-constexpr const char APP_NAME[]{"iceperf-bench-follower"};
-constexpr const char PUBLISHER[]{"Follower"};
-constexpr const char SUBSCRIBER[]{"Leader"};
+constexpr const char APP_NAME[]{ "iceperf-bench-follower" };
+constexpr const char PUBLISHER[]{ "Follower" };
+constexpr const char SUBSCRIBER[]{ "Leader" };
 //! [use constants instead of magic values]
 
 //! [do the measurement for a single technology]
@@ -47,10 +47,10 @@ void IcePerfFollower::doMeasurement(IcePerfBase& ipcTechnology) noexcept
 PerfSettings IcePerfFollower::getSettings(iox::popo::Subscriber<PerfSettings>& subscriber) noexcept
 {
     // wait for settings from leader application
-    constexpr bool WAIT_FOR_SETTINGS{true};
+    constexpr bool WAIT_FOR_SETTINGS{ true };
     while (WAIT_FOR_SETTINGS)
     {
-        static bool waitMessagePrinted{false};
+        static bool waitMessagePrinted{ false };
         if (!waitMessagePrinted)
         {
             std::cout << "Waiting for PerfSettings from leader application!" << std::endl;
@@ -64,7 +64,7 @@ PerfSettings IcePerfFollower::getSettings(iox::popo::Subscriber<PerfSettings>& s
         }
         else
         {
-            constexpr std::chrono::milliseconds POLLING_INTERVAL{100};
+            constexpr std::chrono::milliseconds POLLING_INTERVAL{ 100 };
             std::this_thread::sleep_for(POLLING_INTERVAL);
         }
     }
@@ -77,10 +77,10 @@ int IcePerfFollower::run() noexcept
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
     //! [get settings from leader]
-    iox::capro::ServiceDescription serviceDescription{"IcePerf", "Settings", "Generic"};
+    iox::capro::ServiceDescription serviceDescription{ "IcePerf", "Settings", "Generic" };
     iox::popo::SubscriberOptions options;
     options.historyRequest = 1U;
-    iox::popo::Subscriber<PerfSettings> settingsSubscriber{serviceDescription, options};
+    iox::popo::Subscriber<PerfSettings> settingsSubscriber{ serviceDescription, options };
 
     m_settings = getSettings(settingsSubscriber);
     //! [get settings from leader]

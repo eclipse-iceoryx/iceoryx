@@ -23,8 +23,8 @@ namespace iox
 /// @brief struct used to define the used size and total size of a buffer
 struct BufferInfo
 {
-    uint64_t used_size{0};
-    uint64_t total_size{0};
+    uint64_t used_size{ 0 };
+    uint64_t total_size{ 0 };
 };
 
 } // namespace iox

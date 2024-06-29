@@ -59,9 +59,9 @@ class Discovery
                                  const iox::optional<iox::capro::IdString_t>& event);
 
   private:
-    ServiceDiscovery* m_discovery{nullptr};
+    ServiceDiscovery* m_discovery{ nullptr };
     iox::popo::WaitSet<1> m_waitset;
-    std::atomic_bool m_blocking{true};
+    std::atomic_bool m_blocking{ true };
 };
 
 //! [wait until condition]

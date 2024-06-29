@@ -48,7 +48,7 @@ expected<IpcInterfaceCreator, IpcInterfaceCreatorError> IpcInterfaceCreator::cre
     cleanupOutdatedIpcChannel(interfaceName);
 
     return ok(IpcInterfaceCreator{
-        std::move(fileLock.value()), runtimeName, domainId, resourceType, maxMessages, messageSize});
+        std::move(fileLock.value()), runtimeName, domainId, resourceType, maxMessages, messageSize });
 }
 
 IpcInterfaceCreator::IpcInterfaceCreator(FileLock&& fileLock,

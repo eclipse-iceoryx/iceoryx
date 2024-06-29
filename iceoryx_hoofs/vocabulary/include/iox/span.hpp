@@ -197,7 +197,7 @@ struct span_storage<DYNAMIC_EXTENT>
     ~span_storage() noexcept = default;
 
   private:
-    uint64_t m_size{0};
+    uint64_t m_size{ 0 };
 };
 
 template <typename T>

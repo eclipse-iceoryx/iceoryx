@@ -44,13 +44,13 @@ using charArray = char[N];
 template <typename T>
 struct GetCapa
 {
-    static constexpr uint64_t capa{0U};
+    static constexpr uint64_t capa{ 0U };
 };
 
 template <uint64_t N>
 struct GetCapa<string<N>>
 {
-    static constexpr uint64_t capa{N};
+    static constexpr uint64_t capa{ N };
 };
 
 template <uint64_t N>
@@ -58,13 +58,13 @@ template <uint64_t N>
 // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
 struct GetCapa<char[N]>
 {
-    static constexpr uint64_t capa{N - 1U};
+    static constexpr uint64_t capa{ N - 1U };
 };
 
 template <>
 struct GetCapa<char>
 {
-    static constexpr uint64_t capa{1U};
+    static constexpr uint64_t capa{ 1U };
 };
 
 /// @brief generic empty implementation of the struct to get size of a string
@@ -161,13 +161,13 @@ struct SumCapa;
 template <>
 struct SumCapa<>
 {
-    static constexpr uint64_t value{0U};
+    static constexpr uint64_t value{ 0U };
 };
 
 template <typename T, typename... Targs>
 struct SumCapa<T, Targs...>
 {
-    static constexpr uint64_t value{GetCapa<T>::capa + SumCapa<Targs...>::value};
+    static constexpr uint64_t value{ GetCapa<T>::capa + SumCapa<Targs...>::value };
 };
 } // namespace internal
 // AXIVION ENABLE STYLE AutosarC++19_03-A3.9.1

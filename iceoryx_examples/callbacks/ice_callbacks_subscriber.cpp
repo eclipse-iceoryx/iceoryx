@@ -87,8 +87,8 @@ int main()
 
     //! [create heartbeat and subscribers]
     iox::popo::UserTrigger heartbeat;
-    iox::popo::Subscriber<CounterTopic> subscriberLeft({"Radar", "FrontLeft", "Counter"});
-    iox::popo::Subscriber<CounterTopic> subscriberRight({"Radar", "FrontRight", "Counter"});
+    iox::popo::Subscriber<CounterTopic> subscriberLeft({ "Radar", "FrontLeft", "Counter" });
+    iox::popo::Subscriber<CounterTopic> subscriberRight({ "Radar", "FrontRight", "Counter" });
     //! [create heartbeat and subscribers]
 
     // send a heartbeat every 4 seconds

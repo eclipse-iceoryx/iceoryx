@@ -89,8 +89,8 @@ OptionWithDetails::OptionWithDetails(const Option& option,
                                      const OptionDescription_t& description,
                                      const OptionType type,
                                      const TypeName_t& typeName) noexcept
-    : Option{option}
-    , details{description, type, typeName}
+    : Option{ option }
+    , details{ description, type, typeName }
 {
 }
 

@@ -38,7 +38,7 @@ struct Interface
         value = 0;
     }
 
-    uint32_t value{0};
+    uint32_t value{ 0 };
 };
 
 constexpr uint32_t DEFAULT_ID = 73;
@@ -180,7 +180,7 @@ TEST_F(PolymorphicHandler_test, defaultHandlerIsVisibleInAllThreads)
 
     Handler::set(defaultGuard);
 
-    std::atomic<uint32_t> count{0};
+    std::atomic<uint32_t> count{ 0 };
 
     auto checkHandler = [&]() {
         auto& h = Handler::get();
@@ -191,7 +191,7 @@ TEST_F(PolymorphicHandler_test, defaultHandlerIsVisibleInAllThreads)
         }
     };
 
-    constexpr uint32_t NUM_THREADS{2}; // including main thread
+    constexpr uint32_t NUM_THREADS{ 2 }; // including main thread
 
     std::thread t(checkHandler);
     t.join();

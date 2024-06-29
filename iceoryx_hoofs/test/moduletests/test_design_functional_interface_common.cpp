@@ -21,8 +21,8 @@ namespace test_design_functional_interface
 {
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters) only for testing purposes
 GenericValueError::GenericValueError(const value_t value, const error_t error) noexcept
-    : m_value{value}
-    , m_error{error}
+    : m_value{ value }
+    , m_error{ error }
 {
 }
 
@@ -85,7 +85,7 @@ const GenericValueError::error_t&& GenericValueError::error() const&& noexcept
 
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters) only for testing purposes
 GenericPlain::GenericPlain(const int value, const int error)
-    : m_isValid{value != INVALID_VALUE}
+    : m_isValid{ value != INVALID_VALUE }
 {
     IOX_DISCARD_RESULT(error);
 }

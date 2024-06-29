@@ -24,12 +24,12 @@
 #include <chrono>
 #include <iostream>
 
-std::atomic_bool keepRunning{true};
+std::atomic_bool keepRunning{ true };
 
 constexpr uint64_t NUMBER_OF_SUBSCRIBERS = 4U;
 using WaitSet = iox::popo::WaitSet<NUMBER_OF_SUBSCRIBERS>;
 
-volatile WaitSet* waitsetSigHandlerAccess{nullptr};
+volatile WaitSet* waitsetSigHandlerAccess{ nullptr };
 
 static void sigHandler(int f_sig [[maybe_unused]])
 {
@@ -59,7 +59,7 @@ int main()
     iox::vector<iox::popo::UntypedSubscriber, NUMBER_OF_SUBSCRIBERS> subscriberVector;
     for (auto i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
-        subscriberVector.emplace_back(iox::capro::ServiceDescription{"Radar", "FrontLeft", "Counter"});
+        subscriberVector.emplace_back(iox::capro::ServiceDescription{ "Radar", "FrontLeft", "Counter" });
     }
     //! [create subscribers]
 

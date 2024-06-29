@@ -120,7 +120,7 @@ SegmentManager<SegmentType>::getSegmentInformationWithWriteAccessForUser(const P
 {
     auto groupContainer = user.getGroups();
 
-    SegmentUserInformation segmentInfo{nullopt_t(), 0u};
+    SegmentUserInformation segmentInfo{ nullopt_t(), 0u };
 
     // with the groups we can search for the writable segment of this user
     for (const auto& groupID : groupContainer)
@@ -142,7 +142,7 @@ SegmentManager<SegmentType>::getSegmentInformationWithWriteAccessForUser(const P
 template <typename SegmentType>
 uint64_t SegmentManager<SegmentType>::requiredManagementMemorySize(const SegmentConfig& config) noexcept
 {
-    uint64_t memorySize{0u};
+    uint64_t memorySize{ 0u };
     for (auto segment : config.m_sharedMemorySegments)
     {
         memorySize += MemoryManager::requiredManagementMemorySize(segment.m_mempoolConfig);
@@ -153,7 +153,7 @@ uint64_t SegmentManager<SegmentType>::requiredManagementMemorySize(const Segment
 template <typename SegmentType>
 uint64_t SegmentManager<SegmentType>::requiredChunkMemorySize(const SegmentConfig& config) noexcept
 {
-    uint64_t memorySize{0u};
+    uint64_t memorySize{ 0u };
     for (auto segment : config.m_sharedMemorySegments)
     {
         memorySize += MemoryManager::requiredChunkMemorySize(segment.m_mempoolConfig);

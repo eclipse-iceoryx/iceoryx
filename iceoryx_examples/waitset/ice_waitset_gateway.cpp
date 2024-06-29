@@ -26,13 +26,13 @@
 
 constexpr uint64_t NUMBER_OF_SUBSCRIBERS = 2U;
 
-std::atomic_bool keepRunning{true};
+std::atomic_bool keepRunning{ true };
 
 //! [waitset type alias]
 using WaitSet = iox::popo::WaitSet<NUMBER_OF_SUBSCRIBERS>;
 //! [waitset type alias]
 
-volatile WaitSet* waitsetSigHandlerAccess{nullptr};
+volatile WaitSet* waitsetSigHandlerAccess{ nullptr };
 
 static void sigHandler(int f_sig [[maybe_unused]])
 {
@@ -87,7 +87,7 @@ int main()
     iox::vector<iox::popo::UntypedSubscriber, NUMBER_OF_SUBSCRIBERS> subscriberVector;
     for (auto i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
-        subscriberVector.emplace_back(iox::capro::ServiceDescription{"Radar", "FrontLeft", "Counter"});
+        subscriberVector.emplace_back(iox::capro::ServiceDescription{ "Radar", "FrontLeft", "Counter" });
         auto& subscriber = subscriberVector.back();
 
         /// important: the user has to ensure that the 'contextData' (here 'sumOfAllSamples') lives as long as

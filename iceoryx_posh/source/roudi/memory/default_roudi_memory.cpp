@@ -48,19 +48,19 @@ DefaultRouDiMemory::DefaultRouDiMemory(const IceoryxConfig& config) noexcept
 
 mepoo::MePooConfig DefaultRouDiMemory::introspectionMemPoolConfig(const uint32_t chunkCount) const noexcept
 {
-    constexpr uint32_t ALIGNMENT{mepoo::MemPool::CHUNK_MEMORY_ALIGNMENT};
+    constexpr uint32_t ALIGNMENT{ mepoo::MemPool::CHUNK_MEMORY_ALIGNMENT };
     mepoo::MePooConfig mempoolConfig;
     mempoolConfig.m_mempoolConfig.push_back(
-        {align(static_cast<uint32_t>(sizeof(roudi::MemPoolIntrospectionInfoContainer)), ALIGNMENT), chunkCount});
+        { align(static_cast<uint32_t>(sizeof(roudi::MemPoolIntrospectionInfoContainer)), ALIGNMENT), chunkCount });
     mempoolConfig.m_mempoolConfig.push_back(
-        {align(static_cast<uint32_t>(sizeof(roudi::ProcessIntrospectionFieldTopic)), ALIGNMENT), chunkCount});
+        { align(static_cast<uint32_t>(sizeof(roudi::ProcessIntrospectionFieldTopic)), ALIGNMENT), chunkCount });
     mempoolConfig.m_mempoolConfig.push_back(
-        {align(static_cast<uint32_t>(sizeof(roudi::PortIntrospectionFieldTopic)), ALIGNMENT), chunkCount});
+        { align(static_cast<uint32_t>(sizeof(roudi::PortIntrospectionFieldTopic)), ALIGNMENT), chunkCount });
     mempoolConfig.m_mempoolConfig.push_back(
-        {align(static_cast<uint32_t>(sizeof(roudi::PortThroughputIntrospectionFieldTopic)), ALIGNMENT), chunkCount});
+        { align(static_cast<uint32_t>(sizeof(roudi::PortThroughputIntrospectionFieldTopic)), ALIGNMENT), chunkCount });
     mempoolConfig.m_mempoolConfig.push_back(
-        {align(static_cast<uint32_t>(sizeof(roudi::SubscriberPortChangingIntrospectionFieldTopic)), ALIGNMENT),
-         chunkCount});
+        { align(static_cast<uint32_t>(sizeof(roudi::SubscriberPortChangingIntrospectionFieldTopic)), ALIGNMENT),
+          chunkCount });
 
     mempoolConfig.optimize();
     return mempoolConfig;
@@ -68,10 +68,10 @@ mepoo::MePooConfig DefaultRouDiMemory::introspectionMemPoolConfig(const uint32_t
 
 mepoo::MePooConfig DefaultRouDiMemory::discoveryMemPoolConfig(const uint32_t chunkCount) const noexcept
 {
-    constexpr uint32_t ALIGNMENT{mepoo::MemPool::CHUNK_MEMORY_ALIGNMENT};
+    constexpr uint32_t ALIGNMENT{ mepoo::MemPool::CHUNK_MEMORY_ALIGNMENT };
     mepoo::MePooConfig mempoolConfig;
     mempoolConfig.m_mempoolConfig.push_back(
-        {align(static_cast<uint32_t>(sizeof(roudi::ServiceRegistry)), ALIGNMENT), chunkCount});
+        { align(static_cast<uint32_t>(sizeof(roudi::ServiceRegistry)), ALIGNMENT), chunkCount });
 
     mempoolConfig.optimize();
     return mempoolConfig;

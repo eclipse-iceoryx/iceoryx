@@ -52,7 +52,7 @@ int main()
     //! [too slow policy]
 
     //! [create publisher with options]
-    iox::popo::Publisher<RadarObject> publisher({"Radar", "FrontLeft", "Object"}, publisherOptions);
+    iox::popo::Publisher<RadarObject> publisher({ "Radar", "FrontLeft", "Object" }, publisherOptions);
     //! [create publisher with options]
 
     // we have to explicitely offer the publisher for making it visible to subscribers

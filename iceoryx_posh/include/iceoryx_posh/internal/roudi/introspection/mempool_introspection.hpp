@@ -71,9 +71,9 @@ class MemPoolIntrospection
     void setSendInterval(const units::Duration interval) noexcept;
 
   protected:
-    MemoryManager* m_rouDiInternalMemoryManager{nullptr}; // mempool handler needs to outlive this class (!)
-    SegmentManager* m_segmentManager{nullptr};
-    PublisherPort m_publisherPort{nullptr};
+    MemoryManager* m_rouDiInternalMemoryManager{ nullptr }; // mempool handler needs to outlive this class (!)
+    SegmentManager* m_segmentManager{ nullptr };
+    PublisherPort m_publisherPort{ nullptr };
     void send() noexcept;
 
   private:
@@ -86,9 +86,10 @@ class MemPoolIntrospection
     void copyMemPoolInfo(const MemoryManager& memoryManager, MemPoolInfoContainer& dest) noexcept;
 
   private:
-    units::Duration m_sendInterval{units::Duration::fromSeconds(1U)};
+    units::Duration m_sendInterval{ units::Duration::fromSeconds(1U) };
     concurrent::detail::PeriodicTask<function<void()>> m_publishingTask{
-        concurrent::detail::PeriodicTaskManualStart, "MemPoolIntr", *this, &MemPoolIntrospection::send};
+        concurrent::detail::PeriodicTaskManualStart, "MemPoolIntr", *this, &MemPoolIntrospection::send
+    };
 };
 
 /// @brief typedef for the templated mempool introspection class that is used by RouDi for the

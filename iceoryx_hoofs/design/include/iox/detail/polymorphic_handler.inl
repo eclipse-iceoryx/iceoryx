@@ -100,7 +100,7 @@ bool PolymorphicHandler<Interface, Default, Hooks>::setHandler(Interface& handle
 
     // ensure we cannot miss that it was set to true concurrently
     // OK, since it will never change back from true to false
-    bool exp{true};
+    bool exp{ true };
     if (s.m_isFinal.compare_exchange_strong(exp, true, std::memory_order_relaxed))
     {
         // it must be ensured that the handlers still exist and are thread-safe,

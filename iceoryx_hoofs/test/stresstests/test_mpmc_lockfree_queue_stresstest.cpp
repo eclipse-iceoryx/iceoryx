@@ -43,8 +43,8 @@ struct Data
     {
     }
 
-    uint64_t id{0};
-    uint64_t count{0};
+    uint64_t id{ 0 };
+    uint64_t count{ 0 };
 
     void print() const
     {
@@ -288,8 +288,8 @@ void randomWork(Queue& queue,
     }
 
     bool doPop = false;
-    std::default_random_engine rng{std::random_device()()};
-    std::uniform_real_distribution<double> dist{0, 1};
+    std::default_random_engine rng{ std::random_device()() };
+    std::uniform_real_distribution<double> dist{ 0, 1 };
 
     overflowCount = 0;
     while (run)
@@ -371,8 +371,8 @@ TYPED_TEST(MpmcLockFreeQueueStressTest, SingleProducerSingleConsumer)
     using Queue = typename TestFixture::Queue;
 
     auto& queue = this->sut;
-    std::atomic<bool> run{true};
-    bool testResult{false};
+    std::atomic<bool> run{ true };
+    bool testResult{ false };
     int iterations = 10000000;
 
     std::thread consumer(consume<Queue>, std::ref(queue), std::ref(run), iterations, 1U, std::ref(testResult));
@@ -395,8 +395,8 @@ TYPED_TEST(MpmcLockFreeQueueStressTest, MultiProducerSingleConsumer)
     using Queue = typename TestFixture::Queue;
 
     auto& queue = this->sut;
-    std::atomic<bool> run{true};
-    bool testResult{false};
+    std::atomic<bool> run{ true };
+    bool testResult{ false };
     uint64_t iterations = 1000000U;
     uint64_t numProducers = 8U;
 
@@ -435,7 +435,7 @@ TYPED_TEST(MpmcLockFreeQueueStressTest, MultiProducerTwoConsumer)
     using Queue = typename TestFixture::Queue;
 
     auto& queue = this->sut;
-    std::atomic<bool> run{true};
+    std::atomic<bool> run{ true };
     uint64_t iterations = 1000000U;
     uint64_t numProducers = 4;
 
@@ -495,7 +495,7 @@ TYPED_TEST(MpmcLockFreeQueueStressTest, TimedMultiProducerMultiConsumer)
         }
     }
 
-    std::atomic<bool> run{true};
+    std::atomic<bool> run{ true };
 
     std::vector<std::thread> threads;
 
@@ -559,7 +559,7 @@ TYPED_TEST(MpmcLockFreeQueueStressTest, TimedMultiProducerMultiConsumer0verflow)
 
     auto capacity = q.capacity();
 
-    std::atomic<bool> run{true};
+    std::atomic<bool> run{ true };
 
     std::vector<std::thread> threads;
     std::vector<uint64_t> overflowCount(numThreads);

@@ -35,7 +35,7 @@ TEST(PoshTypes_test, IceoryxResourcePrefixWithMaxDomainIdWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "049e79d7-d0ca-4951-8d44-c80aebab7a88");
 
-    constexpr uint64_t CAPACITY{100};
+    constexpr uint64_t CAPACITY{ 100 };
     char expected_prefix[CAPACITY];
     snprintf(expected_prefix,
              CAPACITY,
@@ -45,7 +45,7 @@ TEST(PoshTypes_test, IceoryxResourcePrefixWithMaxDomainIdWorks)
     expected_prefix[CAPACITY - 1] = 0;
 
     EXPECT_THAT(
-        iceoryxResourcePrefix(DomainId{std::numeric_limits<uint16_t>::max()}, ResourceType::ICEORYX_DEFINED).c_str(),
+        iceoryxResourcePrefix(DomainId{ std::numeric_limits<uint16_t>::max() }, ResourceType::ICEORYX_DEFINED).c_str(),
         StrEq(expected_prefix));
 }
 
@@ -53,7 +53,7 @@ TEST(PoshTypes_test, IceoryxResourcePrefixWithMaxDomainIdAndUserDefinedResourceT
 {
     ::testing::Test::RecordProperty("TEST_ID", "b63bbdca-ff19-41bc-9f8a-c657b0ee8009");
 
-    constexpr uint64_t CAPACITY{100};
+    constexpr uint64_t CAPACITY{ 100 };
     char expected_prefix[CAPACITY];
     snprintf(expected_prefix,
              CAPACITY,
@@ -63,6 +63,6 @@ TEST(PoshTypes_test, IceoryxResourcePrefixWithMaxDomainIdAndUserDefinedResourceT
     expected_prefix[CAPACITY - 1] = 0;
 
     EXPECT_THAT(
-        iceoryxResourcePrefix(DomainId{std::numeric_limits<uint16_t>::max()}, ResourceType::USER_DEFINED).c_str(),
+        iceoryxResourcePrefix(DomainId{ std::numeric_limits<uint16_t>::max() }, ResourceType::USER_DEFINED).c_str(),
         StrEq(expected_prefix));
 }

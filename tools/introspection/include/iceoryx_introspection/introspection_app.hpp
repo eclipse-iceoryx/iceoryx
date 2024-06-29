@@ -30,15 +30,15 @@ namespace client
 {
 namespace introspection
 {
-static constexpr option longOptions[] = {{"help", no_argument, nullptr, 'h'},
-                                         {"version", no_argument, nullptr, 'v'},
-                                         {"time", required_argument, nullptr, 't'},
-                                         {"domain-id", required_argument, nullptr, 'd'},
-                                         {"mempool", no_argument, nullptr, 0},
-                                         {"port", no_argument, nullptr, 0},
-                                         {"process", no_argument, nullptr, 0},
-                                         {"all", no_argument, nullptr, 0},
-                                         {nullptr, 0, nullptr, 0}};
+static constexpr option longOptions[] = { { "help", no_argument, nullptr, 'h' },
+                                          { "version", no_argument, nullptr, 'v' },
+                                          { "time", required_argument, nullptr, 't' },
+                                          { "domain-id", required_argument, nullptr, 'd' },
+                                          { "mempool", no_argument, nullptr, 0 },
+                                          { "port", no_argument, nullptr, 0 },
+                                          { "process", no_argument, nullptr, 0 },
+                                          { "all", no_argument, nullptr, 0 },
+                                          { nullptr, 0, nullptr, 0 } };
 
 static constexpr const char* shortOptions = "hvt:d:";
 
@@ -55,11 +55,12 @@ enum class ColorPairs : uint8_t
 
 /// @brief formatting options for terminal printing
 static const std::map<PrettyOptions, uint32_t> prettyMap = {
-    {PrettyOptions::title, A_BOLD | COLOR_PAIR(static_cast<uint8_t>(ColorPairs::redOnBlack))},
-    {PrettyOptions::highlight, A_BOLD | A_UNDERLINE},
-    {PrettyOptions::error, A_BOLD | COLOR_PAIR(static_cast<uint8_t>(ColorPairs::whiteOnRed))},
-    {PrettyOptions::bold, A_BOLD},
-    {PrettyOptions::normal, A_NORMAL}};
+    { PrettyOptions::title, A_BOLD | COLOR_PAIR(static_cast<uint8_t>(ColorPairs::redOnBlack)) },
+    { PrettyOptions::highlight, A_BOLD | A_UNDERLINE },
+    { PrettyOptions::error, A_BOLD | COLOR_PAIR(static_cast<uint8_t>(ColorPairs::whiteOnRed)) },
+    { PrettyOptions::bold, A_BOLD },
+    { PrettyOptions::normal, A_NORMAL }
+};
 
 
 /// @brief base class for introspection
@@ -167,16 +168,16 @@ class IntrospectionApp
     iox::units::Duration updatePeriodMs = DEFAULT_UPDATE_PERIOD;
 
     /// @bried the domain ID to connect to RouDi
-    iox::DomainId domainId{iox::DEFAULT_DOMAIN_ID};
+    iox::DomainId domainId{ iox::DEFAULT_DOMAIN_ID };
 
     /// @brief ncurses pad
     WINDOW* pad;
 
     /// @brief first pad row to show on the ncurses window
-    int32_t yPad{0};
+    int32_t yPad{ 0 };
 
     /// @brief first pad column to show on the ncurses window
-    int32_t xPad{0};
+    int32_t xPad{ 0 };
 };
 
 } // namespace introspection

@@ -57,7 +57,7 @@ class span_iterator final
 
     explicit constexpr operator span_iterator<const T>() const noexcept
     {
-        return {m_begin, m_end, m_current};
+        return { m_begin, m_end, m_current };
     }
 
     constexpr reference operator*() const noexcept
@@ -216,9 +216,9 @@ class span_iterator final
         return !(*this < rhs);
     }
 
-    const_pointer m_begin{nullptr};
-    const_pointer m_end{nullptr};
-    pointer m_current{nullptr};
+    const_pointer m_begin{ nullptr };
+    const_pointer m_end{ nullptr };
+    pointer m_current{ nullptr };
 };
 } // namespace iox
 

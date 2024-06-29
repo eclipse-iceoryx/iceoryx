@@ -63,7 +63,7 @@ inline function_ref<ReturnType(ArgTypes...)>::function_ref(ReturnType (&function
         using PointerType = ReturnType (*)(ArgTypes...);
         // AXIVION Next Construct AutosarC++19_03-A5.2.4 : The class design ensures a cast to the actual type of target
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast,hicpp-use-auto)
-        PointerType f{reinterpret_cast<PointerType>(target)};
+        PointerType f{ reinterpret_cast<PointerType>(target) };
         // AXIVION Next Line AutosarC++19_03-A5.3.2 : Check for 'nullptr' is performed on call
         return f(args...);
     })

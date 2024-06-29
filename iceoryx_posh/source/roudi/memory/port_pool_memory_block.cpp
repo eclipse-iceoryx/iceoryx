@@ -45,7 +45,7 @@ uint64_t PortPoolMemoryBlock::alignment() const noexcept
 
 void PortPoolMemoryBlock::onMemoryAvailable(not_null<void*> memory) noexcept
 {
-    m_portPoolData = new (memory) PortPoolData{m_uniqueRouDiId};
+    m_portPoolData = new (memory) PortPoolData{ m_uniqueRouDiId };
 }
 
 void PortPoolMemoryBlock::destroy() noexcept

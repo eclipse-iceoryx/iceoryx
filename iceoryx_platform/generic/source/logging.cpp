@@ -77,8 +77,8 @@ enum class LoggerExchangeState : uint8_t
 
 struct IceoryxPlatformLogger
 {
-    std::atomic<IceoryxPlatformLogBackend> log_backend{&iox_platform_detail_default_log_backend};
-    std::atomic<LoggerExchangeState> logger_exchange_state{LoggerExchangeState::DEFAULT};
+    std::atomic<IceoryxPlatformLogBackend> log_backend{ &iox_platform_detail_default_log_backend };
+    std::atomic<LoggerExchangeState> logger_exchange_state{ LoggerExchangeState::DEFAULT };
 };
 
 IceoryxPlatformLogger& active_logger(IceoryxPlatformLogBackend new_log_backend)
@@ -97,7 +97,7 @@ IceoryxPlatformLogger& active_logger(IceoryxPlatformLogBackend new_log_backend)
         }
         else
         {
-            constexpr uint64_t YIELDS_BEFORE_SLEEP{10000};
+            constexpr uint64_t YIELDS_BEFORE_SLEEP{ 10000 };
             uint64_t yield_counter = 0;
             while (logger.logger_exchange_state.load() != LoggerExchangeState::CUSTOM)
             {

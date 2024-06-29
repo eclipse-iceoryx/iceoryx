@@ -24,10 +24,10 @@
 #include <chrono>
 #include <iostream>
 
-std::atomic_bool keepRunning{true};
+std::atomic_bool keepRunning{ true };
 
 using WaitSet = iox::popo::WaitSet<>;
-volatile iox::popo::WaitSet<>* waitsetSigHandlerAccess{nullptr};
+volatile iox::popo::WaitSet<>* waitsetSigHandlerAccess{ nullptr };
 
 static void sigHandler(int f_sig [[maybe_unused]])
 {

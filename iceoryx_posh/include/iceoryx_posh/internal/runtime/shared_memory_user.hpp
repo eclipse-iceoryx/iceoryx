@@ -41,7 +41,7 @@ enum class SharedMemoryUserError
 class SharedMemoryUser
 {
   private:
-    static constexpr uint32_t NUMBER_OF_ALL_SHM_SEGMENTS{1 /* management shm */ + MAX_SHM_SEGMENTS /* payload shm */};
+    static constexpr uint32_t NUMBER_OF_ALL_SHM_SEGMENTS{ 1 /* management shm */ + MAX_SHM_SEGMENTS /* payload shm */ };
     using ShmVector_t = vector<PosixSharedMemoryObject, NUMBER_OF_ALL_SHM_SEGMENTS>;
 
   public:

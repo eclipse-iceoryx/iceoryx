@@ -69,11 +69,11 @@ TEST(SubscriberOptions_test, DeserializingBogusDataFails)
 TEST(SubscriberOptions_test, DeserializingInvalidQueueFullPolicyFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c41116d5-315d-4921-a322-03a6a26df4e0");
-    constexpr uint64_t QUEUE_CAPACITY{73U};
-    constexpr uint64_t HISTORY_REQUEST{42U};
-    const iox::NodeName_t NODE_NAME{"harr-harr"};
-    constexpr bool SUBSCRIBE_ON_CREATE{true};
-    constexpr std::underlying_type_t<iox::popo::QueueFullPolicy> QUEUE_FULL_POLICY{111};
+    constexpr uint64_t QUEUE_CAPACITY{ 73U };
+    constexpr uint64_t HISTORY_REQUEST{ 42U };
+    const iox::NodeName_t NODE_NAME{ "harr-harr" };
+    constexpr bool SUBSCRIBE_ON_CREATE{ true };
+    constexpr std::underlying_type_t<iox::popo::QueueFullPolicy> QUEUE_FULL_POLICY{ 111 };
 
     const auto serialized =
         iox::Serialization::create(QUEUE_CAPACITY, HISTORY_REQUEST, NODE_NAME, SUBSCRIBE_ON_CREATE, QUEUE_FULL_POLICY);

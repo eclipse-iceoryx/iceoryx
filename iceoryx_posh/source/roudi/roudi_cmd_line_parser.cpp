@@ -30,21 +30,21 @@ namespace config
 expected<CmdLineArgs_t, CmdLineParserResult>
 CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cmdLineParsingMode) noexcept
 {
-    constexpr option LONG_OPTIONS[] = {{"help", no_argument, nullptr, 'h'},
-                                       {"version", no_argument, nullptr, 'v'},
-                                       {"monitoring-mode", required_argument, nullptr, 'm'},
-                                       {"log-level", required_argument, nullptr, 'l'},
-                                       {"domain-id", required_argument, nullptr, 'd'},
-                                       {"unique-roudi-id", required_argument, nullptr, 'u'},
-                                       {"compatibility", required_argument, nullptr, 'x'},
-                                       {"termination-delay", required_argument, nullptr, 't'},
-                                       {"kill-delay", required_argument, nullptr, 'k'},
-                                       {nullptr, 0, nullptr, 0}};
+    constexpr option LONG_OPTIONS[] = { { "help", no_argument, nullptr, 'h' },
+                                        { "version", no_argument, nullptr, 'v' },
+                                        { "monitoring-mode", required_argument, nullptr, 'm' },
+                                        { "log-level", required_argument, nullptr, 'l' },
+                                        { "domain-id", required_argument, nullptr, 'd' },
+                                        { "unique-roudi-id", required_argument, nullptr, 'u' },
+                                        { "compatibility", required_argument, nullptr, 'x' },
+                                        { "termination-delay", required_argument, nullptr, 't' },
+                                        { "kill-delay", required_argument, nullptr, 'k' },
+                                        { nullptr, 0, nullptr, 0 } };
 
     // colon after shortOption means it requires an argument, two colons mean optional argument
     constexpr const char* SHORT_OPTIONS = "hvm:l:d:u:x:t:k:";
     int index;
-    int32_t opt{-1};
+    int32_t opt{ -1 };
     while ((opt = getopt_long(argc, argv, SHORT_OPTIONS, LONG_OPTIONS, &index), opt != -1))
     {
         switch (opt)
@@ -113,7 +113,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
 
             if (experimental::hasExperimentalPoshFeaturesEnabled())
             {
-                m_cmdLineArgs.roudiConfig.domainId = DomainId{maybeValue.value()};
+                m_cmdLineArgs.roudiConfig.domainId = DomainId{ maybeValue.value() };
             }
             else
             {
@@ -134,7 +134,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
                 return err(CmdLineParserResult::INVALID_PARAMETER);
             }
 
-            m_cmdLineArgs.roudiConfig.uniqueRouDiId = roudi::UniqueRouDiId{maybeValue.value()};
+            m_cmdLineArgs.roudiConfig.uniqueRouDiId = roudi::UniqueRouDiId{ maybeValue.value() };
             break;
         }
         case 'm':

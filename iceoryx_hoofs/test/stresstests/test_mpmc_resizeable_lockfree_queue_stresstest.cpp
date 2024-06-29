@@ -45,8 +45,8 @@ struct Data
     {
     }
 
-    uint32_t id{0};
-    uint64_t count{0};
+    uint32_t id{ 0 };
+    uint64_t count{ 0 };
 };
 
 // global barrier is not ideal and should be changed later to a barrier per test
@@ -213,8 +213,8 @@ void randomWork(Queue& queue,
     }
 
     bool doPop = false;
-    std::default_random_engine rng{std::random_device()()};
-    std::uniform_real_distribution<double> dist{0, 1};
+    std::default_random_engine rng{ std::random_device()() };
+    std::uniform_real_distribution<double> dist{ 0, 1 };
 
     overflowCount = 0;
     while (run)
@@ -346,11 +346,11 @@ class MpmcResizeableLockFreeQueueStressTest : public ::testing::Test
     using Queue = typename Config::QueueType;
     Queue sut;
 
-    std::chrono::seconds runtime{3};
+    std::chrono::seconds runtime{ 3 };
 
   private:
     const iox::units::Duration m_fatalTimeout = 60_s + iox::units::Duration::fromSeconds(runtime.count());
-    Watchdog m_watchdog{m_fatalTimeout};
+    Watchdog m_watchdog{ m_fatalTimeout };
 };
 
 template <typename ElementType, uint64_t Capacity_, uint64_t DynamicCapacity_ = Capacity_>
@@ -408,10 +408,10 @@ TYPED_TEST(MpmcResizeableLockFreeQueueStressTest, MultiProducerMultiConsumerComp
     using Queue = typename TestFixture::Queue;
     auto& queue = this->sut;
 
-    std::atomic_bool run{true};
+    std::atomic_bool run{ true };
 
-    const int numProducers{4};
-    const int numConsumers{4};
+    const int numProducers{ 4 };
+    const int numConsumers{ 4 };
     g_barrier.reset(numProducers + numConsumers);
 
     // the producers will only send items with a count 0<=count<cycleLength
@@ -419,7 +419,7 @@ TYPED_TEST(MpmcResizeableLockFreeQueueStressTest, MultiProducerMultiConsumerComp
     // unfortunately we cannot really check out of order arrival this way, since
     // the sent counts are not monotonic themselves due to the wraparound
 
-    const uint64_t cycleLength{1000U};
+    const uint64_t cycleLength{ 1000U };
     CountArray producedCount(cycleLength);
     CountArray consumedCount(cycleLength);
 
@@ -482,15 +482,15 @@ TYPED_TEST(MpmcResizeableLockFreeQueueStressTest, MultiProducerMultiConsumerOrde
     using Queue = typename TestFixture::Queue;
     auto& queue = this->sut;
 
-    std::atomic_bool run{true};
+    std::atomic_bool run{ true };
 
-    const int numProducers{4};
-    const int numConsumers{4};
+    const int numProducers{ 4 };
+    const int numConsumers{ 4 };
     g_barrier.reset(numProducers + numConsumers);
 
     // need only one variable, any consumer that detects an error will set it to false
     // and no consumer will ever set it to true again
-    std::atomic_bool orderOk{true};
+    std::atomic_bool orderOk{ true };
 
     std::vector<std::thread> producers;
     std::vector<std::thread> consumers;
@@ -552,7 +552,7 @@ TYPED_TEST(MpmcResizeableLockFreeQueueStressTest, HybridMultiProducerMultiConsum
         }
     }
 
-    std::atomic<bool> run{true};
+    std::atomic<bool> run{ true };
 
     std::vector<std::thread> threads;
 
@@ -614,7 +614,7 @@ TYPED_TEST(MpmcResizeableLockFreeQueueStressTest, HybridMultiProducerMultiConsum
     const double popProbability = 0.45; // tends to overflow
     const auto capacity = q.capacity();
 
-    std::atomic<bool> run{true};
+    std::atomic<bool> run{ true };
 
     std::vector<std::thread> threads;
     std::vector<int> overflowCount(numThreads);
@@ -715,7 +715,7 @@ TYPED_TEST(MpmcResizeableLockFreeQueueStressTest, HybridMultiProducerMultiConsum
     const double popProbability = 0.45; // tends to overflow
     const auto capacity = q.capacity();
 
-    std::atomic<bool> run{true};
+    std::atomic<bool> run{ true };
 
     std::vector<std::thread> threads;
     std::vector<int> overflowCount(numThreads);
@@ -756,7 +756,7 @@ TYPED_TEST(MpmcResizeableLockFreeQueueStressTest, HybridMultiProducerMultiConsum
     }
 
     uint32_t id = numThreads + 1U;
-    uint64_t numChanges{0};
+    uint64_t numChanges{ 0 };
     threads.emplace_back(changeCapacity<Queue>,
                          std::ref(q),
                          std::ref(run),

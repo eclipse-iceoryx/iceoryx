@@ -104,7 +104,7 @@ class NodeBuilder
 
   private:
     NodeName_t m_name;
-    optional<DomainId> m_domain_id{DEFAULT_DOMAIN_ID};
+    optional<DomainId> m_domain_id{ DEFAULT_DOMAIN_ID };
 };
 
 /// @brief Entry point to create publisher, subscriber, wait sets, etc.
