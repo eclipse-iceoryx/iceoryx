@@ -180,7 +180,7 @@ class vector final
     ///       creates two new elements via move construction. The first one has a valid source but the second
     ///       gets an already moved parameter.
     template <typename... Targs>
-    bool resize(const uint64_t count, const Targs&... args) noexcept;
+    [[nodiscard]] bool resize(const uint64_t count, const Targs&... args) noexcept;
 
     /// @brief forwards all arguments to the constructor of the contained element
     ///         and performs a placement new at the provided position
@@ -188,24 +188,24 @@ class vector final
     /// @param[in] args arguments which are used by the constructor of the newly created argument
     /// @return true if successful, false if position is greater than size or the vector is already full
     template <typename... Targs>
-    bool emplace(const uint64_t position, Targs&&... args) noexcept;
+    [[nodiscard]] bool emplace(const uint64_t position, Targs&&... args) noexcept;
 
     /// @brief forwards all arguments to the constructor of the contained element
     ///         and performs a placement new at the end
     /// @param[in] args arguments which are used by the constructor of the newly created argument
     /// @return true if successful, false if the vector is already full
     template <typename... Targs>
-    bool emplace_back(Targs&&... args) noexcept;
+    [[nodiscard]] bool emplace_back(Targs&&... args) noexcept;
 
     /// @brief appends the given element at the end of the vector
     /// @param[in] value to append to the vector
     /// @return true if successful, false if vector already full
-    bool push_back(const T& value) noexcept;
+    [[nodiscard]] bool push_back(const T& value) noexcept;
 
     /// @brief appends the given element at the end of the vector
     /// @param[in] value to append to the vector
     /// @return true if successful, false if vector already full
-    bool push_back(T&& value) noexcept;
+    [[nodiscard]] bool push_back(T&& value) noexcept;
 
     /// @brief removes the last element of the vector; calling pop_back on an empty container does nothing
     /// @return true if the last element was removed. If the vector is empty it returns false.
