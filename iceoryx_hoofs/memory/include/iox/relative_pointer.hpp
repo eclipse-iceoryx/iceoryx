@@ -67,7 +67,7 @@ class RelativePointer final
 {
   public:
     using ptr_t = T*;
-    using offset_t = std::uintptr_t;
+    using offset_t = std::uint64_t;
 
     /// @brief Default constructs a RelativePointer as a logical nullptr
     RelativePointer() noexcept = default;

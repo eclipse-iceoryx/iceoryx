@@ -189,7 +189,7 @@ inline typename RelativePointer<T>::offset_t RelativePointer<T>::getOffset(const
     const auto* const basePtr = getBasePtr(id);
     // AXIVION Next Construct AutosarC++19_03-A5.2.4, AutosarC++19_03-M5.2.9 : Cast needed for pointer arithmetic
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    return reinterpret_cast<offset_t>(ptr) - reinterpret_cast<offset_t>(basePtr);
+    return reinterpret_cast<std::uintptr_t>(ptr) - reinterpret_cast<std::uintptr_t>(basePtr);
 }
 
 template <typename T>
@@ -206,7 +206,7 @@ inline T* RelativePointer<T>::getPtr(const segment_id_t id, const offset_t offse
     // AXIVION DISABLE STYLE AutosarC++19_03-M5.2.8 : Cast needed for pointer arithmetic
     // AXIVION DISABLE STYLE AutosarC++19_03-M5.2.9 : Cast needed for pointer arithmetic
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast, performance-no-int-to-ptr)
-    return reinterpret_cast<ptr_t>(offset + reinterpret_cast<offset_t>(basePtr));
+    return reinterpret_cast<ptr_t>(offset + reinterpret_cast<std::uintptr_t>(basePtr));
     // AXIVION ENABLE STYLE AutosarC++19_03-M5.2.9
     // AXIVION ENABLE STYLE AutosarC++19_03-M5.2.8
     // AXIVION ENABLE STYLE AutosarC++19_03-A5.2.4
