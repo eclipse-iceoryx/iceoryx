@@ -261,13 +261,13 @@ IpcRuntimeInterface::waitForRegAck(int64_t transmissionTimestamp,
                 auto topic_size_result =
                     iox::convert::from_string<uint64_t>(receiveBuffer.getElementAtIndex(1U).c_str());
                 auto segment_manager_offset_result =
-                    iox::convert::from_string<uintptr_t>(receiveBuffer.getElementAtIndex(2U).c_str());
+                    iox::convert::from_string<uint64_t>(receiveBuffer.getElementAtIndex(2U).c_str());
                 auto recv_timestamp_result =
                     iox::convert::from_string<int64_t>(receiveBuffer.getElementAtIndex(3U).c_str());
                 auto segment_id_result =
                     iox::convert::from_string<uint64_t>(receiveBuffer.getElementAtIndex(4U).c_str());
                 auto heartbeat_offset_result =
-                    iox::convert::from_string<uintptr_t>(receiveBuffer.getElementAtIndex(5U).c_str());
+                    iox::convert::from_string<uint64_t>(receiveBuffer.getElementAtIndex(5U).c_str());
 
                 // validate conversion results
                 if (!topic_size_result.has_value() || !segment_manager_offset_result.has_value()
