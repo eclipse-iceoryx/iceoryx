@@ -154,7 +154,9 @@ cc_library(
             "-lpthread",
             "-lrt",
         ],
-        ":win": [],
+        ":win": [
+            "advapi32.lib",
+        ],
         "//conditions:default": [
             "-lpthread",
             "-lrt",
