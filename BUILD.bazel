@@ -16,6 +16,8 @@
 
 load("@com_github_bazelbuild_buildtools//buildifier:def.bzl", "buildifier")
 
+exports_files(["LICENSE"])
+
 exports_files(["VERSION"])
 
 alias(

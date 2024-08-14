@@ -134,11 +134,11 @@ cc_library(
     ],
     includes = select({
         ":linux": ["linux/include"],
-        ":mac": ["mac/include/**"],
+        ":mac": ["mac/include"],
         ":qnx": ["qnx/include"],
-        ":unix": ["unix/include/**"],
-        ":win": ["win/include/**"],
-        "//conditions:default": ["linux/include/**"],
+        ":unix": ["unix/include"],
+        ":win": ["win/include"],
+        "//conditions:default": ["linux/include"],
     }) + [
         "generated/include",
         "generic/include",
@@ -154,7 +154,9 @@ cc_library(
             "-lpthread",
             "-lrt",
         ],
-        ":win": [],
+        ":win": [
+            "advapi32.lib",
+        ],
         "//conditions:default": [
             "-lpthread",
             "-lrt",
