@@ -17,7 +17,7 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-set(IOX_VERSION_STRING "2.95.1")
+set(IOX_VERSION_STRING "2.95.2")
 
 project(iceoryx_hoofs VERSION ${IOX_VERSION_STRING})
 
