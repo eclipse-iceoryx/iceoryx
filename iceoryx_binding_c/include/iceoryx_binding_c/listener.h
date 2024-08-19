@@ -1,4 +1,5 @@
 // Copyright (c) 2021 - 2022 Apex.AI Inc. All rights reserved.
+// Copyright (c) 2024 by Michael Bentley <mikebentley15@gmail.com>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,7 +27,7 @@
 #include "iceoryx_binding_c/types.h"
 #include "iceoryx_binding_c/user_trigger.h"
 
-typedef CLASS Listener* iox_listener_t;
+typedef IOX_C_CLASS Listener* iox_listener_t;
 
 
 /// @brief initializes a listener struct from a storage struct pointer
@@ -44,9 +45,9 @@ void iox_listener_deinit(iox_listener_t const self);
 /// @param[in] subscriberEvent the event which should trigger the listener
 /// @param[in] callback the callback which is called when an event triggers the listener
 /// @return when successful iox_ListenerResult::ListenerResult_SUCCESS otherwise an enum which describes the error
-ENUM iox_ListenerResult iox_listener_attach_subscriber_event(iox_listener_t const self,
+enum iox_ListenerResult iox_listener_attach_subscriber_event(iox_listener_t const self,
                                                              iox_sub_t const subscriber,
-                                                             const ENUM iox_SubscriberEvent subscriberEvent,
+                                                             const enum iox_SubscriberEvent subscriberEvent,
                                                              void (*callback)(iox_sub_t));
 
 /// @brief Attaches a subscriber event to the listener. The callback has an additional contextData argument to provide
@@ -57,10 +58,10 @@ ENUM iox_ListenerResult iox_listener_attach_subscriber_event(iox_listener_t cons
 /// @param[in] callback the callback which is called when an event triggers the listener
 /// @param[in] contextData a void pointer which is provided as second argument to the callback
 /// @return when successful iox_ListenerResult::ListenerResult_SUCCESS otherwise an enum which describes the error
-ENUM iox_ListenerResult
+enum iox_ListenerResult
 iox_listener_attach_subscriber_event_with_context_data(iox_listener_t const self,
                                                        iox_sub_t const subscriber,
-                                                       const ENUM iox_SubscriberEvent subscriberEvent,
+                                                       const enum iox_SubscriberEvent subscriberEvent,
                                                        void (*callback)(iox_sub_t, void*),
                                                        void* const contextData);
 
@@ -69,7 +70,7 @@ iox_listener_attach_subscriber_event_with_context_data(iox_listener_t const self
 /// @param[in] userTrigger user trigger which emits the event
 /// @param[in] callback the callback which is called when the user trigger triggers the listener
 /// @return when successful iox_ListenerResult::ListenerResult_SUCCESS otherwise an enum which describes the error
-ENUM iox_ListenerResult iox_listener_attach_user_trigger_event(iox_listener_t const self,
+enum iox_ListenerResult iox_listener_attach_user_trigger_event(iox_listener_t const self,
                                                                iox_user_trigger_t const userTrigger,
                                                                void (*callback)(iox_user_trigger_t));
 
@@ -80,7 +81,7 @@ ENUM iox_ListenerResult iox_listener_attach_user_trigger_event(iox_listener_t co
 /// @param[in] callback the callback which is called when the user trigger triggers the listener
 /// @param[in] contextData a void pointer which is provided as second argument to the callback
 /// @return when successful iox_ListenerResult::ListenerResult_SUCCESS otherwise an enum which describes the error
-ENUM iox_ListenerResult iox_listener_attach_user_trigger_event_with_context_data(iox_listener_t const self,
+enum iox_ListenerResult iox_listener_attach_user_trigger_event_with_context_data(iox_listener_t const self,
                                                                                  iox_user_trigger_t const userTrigger,
                                                                                  void (*callback)(iox_user_trigger_t,
                                                                                                   void*),
@@ -92,7 +93,7 @@ ENUM iox_ListenerResult iox_listener_attach_user_trigger_event_with_context_data
 /// @param[in] subscriberEvent the subscriber event which is registered at the listener
 void iox_listener_detach_subscriber_event(iox_listener_t const self,
                                           iox_sub_t const subscriber,
-                                          const ENUM iox_SubscriberEvent subscriberEvent);
+                                          const enum iox_SubscriberEvent subscriberEvent);
 
 /// @brief Detaches a user trigger from the listener
 /// @param[in] self listener from which the event should be detached
@@ -116,9 +117,9 @@ uint64_t iox_listener_capacity(iox_listener_t const self);
 /// @param[in] clientEvent the event which should trigger the listener
 /// @param[in] callback the callback which is called when an event triggers the listener
 /// @return when successful iox_ListenerResult::ListenerResult_SUCCESS otherwise an enum which describes the error
-ENUM iox_ListenerResult iox_listener_attach_client_event(iox_listener_t const self,
+enum iox_ListenerResult iox_listener_attach_client_event(iox_listener_t const self,
                                                          iox_client_t const client,
-                                                         const ENUM iox_ClientEvent clientEvent,
+                                                         const enum iox_ClientEvent clientEvent,
                                                          void (*callback)(iox_client_t));
 
 /// @brief Attaches a client event to the listener. The callback has an additional contextData argument to provide
@@ -129,9 +130,9 @@ ENUM iox_ListenerResult iox_listener_attach_client_event(iox_listener_t const se
 /// @param[in] callback the callback which is called when an event triggers the listener
 /// @param[in] contextData a void pointer which is provided as second argument to the callback
 /// @return when successful iox_ListenerResult::ListenerResult_SUCCESS otherwise an enum which describes the error
-ENUM iox_ListenerResult iox_listener_attach_client_event_with_context_data(iox_listener_t const self,
+enum iox_ListenerResult iox_listener_attach_client_event_with_context_data(iox_listener_t const self,
                                                                            iox_client_t const client,
-                                                                           const ENUM iox_ClientEvent clientEvent,
+                                                                           const enum iox_ClientEvent clientEvent,
                                                                            void (*callback)(iox_client_t, void*),
                                                                            void* const contextData);
 
@@ -141,7 +142,7 @@ ENUM iox_ListenerResult iox_listener_attach_client_event_with_context_data(iox_l
 /// @param[in] clientEvent the event which should be removed from the listener
 void iox_listener_detach_client_event(iox_listener_t const self,
                                       iox_client_t const client,
-                                      const ENUM iox_ClientEvent clientEvent);
+                                      const enum iox_ClientEvent clientEvent);
 
 /// @brief Attaches a server event to the listener
 /// @param[in] self listener to which the event should be attached to
@@ -149,9 +150,9 @@ void iox_listener_detach_client_event(iox_listener_t const self,
 /// @param[in] serverEvent the event which should trigger the listener
 /// @param[in] callback the callback which is called when an event triggers the listener
 /// @return when successful iox_ListenerResult::ListenerResult_SUCCESS otherwise an enum which describes the error
-ENUM iox_ListenerResult iox_listener_attach_server_event(iox_listener_t const self,
+enum iox_ListenerResult iox_listener_attach_server_event(iox_listener_t const self,
                                                          iox_server_t const server,
-                                                         const ENUM iox_ServerEvent serverEvent,
+                                                         const enum iox_ServerEvent serverEvent,
                                                          void (*callback)(iox_server_t));
 
 /// @brief Attaches a server event to the listener. The callback has an additional contextData argument to provide
@@ -162,9 +163,9 @@ ENUM iox_ListenerResult iox_listener_attach_server_event(iox_listener_t const se
 /// @param[in] callback the callback which is called when an event triggers the listener
 /// @param[in] contextData a void pointer which is provided as second argument to the callback
 /// @return when successful iox_ListenerResult::ListenerResult_SUCCESS otherwise an enum which describes the error
-ENUM iox_ListenerResult iox_listener_attach_server_event_with_context_data(iox_listener_t const self,
+enum iox_ListenerResult iox_listener_attach_server_event_with_context_data(iox_listener_t const self,
                                                                            iox_server_t const server,
-                                                                           const ENUM iox_ServerEvent serverEvent,
+                                                                           const enum iox_ServerEvent serverEvent,
                                                                            void (*callback)(iox_server_t, void*),
                                                                            void* const contextData);
 
@@ -174,7 +175,7 @@ ENUM iox_ListenerResult iox_listener_attach_server_event_with_context_data(iox_l
 /// @param[in] serverEvent the event which should be removed from the listener
 void iox_listener_detach_server_event(iox_listener_t const self,
                                       iox_server_t const server,
-                                      const ENUM iox_ServerEvent serverEvent);
+                                      const enum iox_ServerEvent serverEvent);
 
 /// @brief Attaches a service discovery event to the listener
 /// @param[in] self listener to which the event should be attached to
@@ -182,10 +183,10 @@ void iox_listener_detach_server_event(iox_listener_t const self,
 /// @param[in] serviceDiscoveryEvent the event which should trigger the listener
 /// @param[in] callback the callback which is called when an event triggers the listener
 /// @return when successful iox_ListenerResult::ListenerResult_SUCCESS otherwise an enum which describes the error
-ENUM iox_ListenerResult
+enum iox_ListenerResult
 iox_listener_attach_service_discovery_event(iox_listener_t const self,
                                             iox_service_discovery_t const serviceDiscovery,
-                                            const ENUM iox_ServiceDiscoveryEvent serviceDiscoveryEvent,
+                                            const enum iox_ServiceDiscoveryEvent serviceDiscoveryEvent,
                                             void (*callback)(iox_service_discovery_t));
 
 /// @brief Attaches a service discovery event to the listener. The callback has an additional contextData argument to
@@ -196,10 +197,10 @@ iox_listener_attach_service_discovery_event(iox_listener_t const self,
 /// @param[in] callback the callback which is called when an event triggers the listener
 /// @param[in] contextData a void pointer which is provided as second argument to the callback
 /// @return when successful iox_ListenerResult::ListenerResult_SUCCESS otherwise an enum which describes the error
-ENUM iox_ListenerResult iox_listener_attach_service_discovery_event_with_context_data(
+enum iox_ListenerResult iox_listener_attach_service_discovery_event_with_context_data(
     iox_listener_t const self,
     iox_service_discovery_t const serviceDiscovery,
-    const ENUM iox_ServiceDiscoveryEvent serviceDiscoveryEvent,
+    const enum iox_ServiceDiscoveryEvent serviceDiscoveryEvent,
     void (*callback)(iox_service_discovery_t, void*),
     void* const contextData);
 
@@ -209,6 +210,6 @@ ENUM iox_ListenerResult iox_listener_attach_service_discovery_event_with_context
 /// @param[in] serviceDiscoveryEvent the service discovery event which should be removed from the listener
 void iox_listener_detach_service_discovery_event(iox_listener_t const self,
                                                  iox_service_discovery_t const serviceDiscovery,
-                                                 const ENUM iox_ServiceDiscoveryEvent serviceDiscoveryEvent);
+                                                 const enum iox_ServiceDiscoveryEvent serviceDiscoveryEvent);
 
 #endif

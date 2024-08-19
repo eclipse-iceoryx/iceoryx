@@ -1,5 +1,6 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2024 by Michael Bentley <mikebentley15@gmail.com>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -40,7 +41,7 @@ typedef struct
     bool offerOnCreate;
 
     /// @brief describes whether a publisher blocks when subscriber queue is full
-    ENUM iox_ConsumerTooSlowPolicy subscriberTooSlowPolicy;
+    enum iox_ConsumerTooSlowPolicy subscriberTooSlowPolicy;
 
     /// @brief this value will be set exclusively by 'iox_pub_options_init' and is not supposed to be modified otherwise
     uint64_t initCheck;
@@ -85,9 +86,8 @@ void iox_pub_deinit(iox_pub_t const self);
 ///         describes the error
 /// @note for the user-payload alignment 'IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT' is used
 ///       for a custom user-payload alignment please use 'iox_pub_loan_aligned_chunk'
-ENUM iox_AllocationResult iox_pub_loan_chunk(iox_pub_t const self,
-                                             void** const userPayload,
-                                             const uint64_t userPayloadSize);
+enum iox_AllocationResult
+iox_pub_loan_chunk(iox_pub_t const self, void** const userPayload, const uint64_t userPayloadSize);
 
 /// @brief allocates a chunk in the shared memory with a custom alignment for the user-payload
 /// @param[in] self handle of the publisher
@@ -96,7 +96,7 @@ ENUM iox_AllocationResult iox_pub_loan_chunk(iox_pub_t const self,
 /// @param[in] userPayloadAlignment user-payload alignment of the allocated chunk
 /// @return on success it returns AllocationResult_SUCCESS otherwise a value which
 ///         describes the error
-ENUM iox_AllocationResult iox_pub_loan_aligned_chunk(iox_pub_t const self,
+enum iox_AllocationResult iox_pub_loan_aligned_chunk(iox_pub_t const self,
                                                      void** const userPayload,
                                                      const uint64_t userPayloadSize,
                                                      const uint32_t userPayloadAlignment);
@@ -111,7 +111,7 @@ ENUM iox_AllocationResult iox_pub_loan_aligned_chunk(iox_pub_t const self,
 /// @param[in] userHeaderAlignment user-header alignment of the allocated chunk
 /// @return on success it returns AllocationResult_SUCCESS otherwise a value which
 ///         describes the error
-ENUM iox_AllocationResult iox_pub_loan_aligned_chunk_with_user_header(iox_pub_t const self,
+enum iox_AllocationResult iox_pub_loan_aligned_chunk_with_user_header(iox_pub_t const self,
                                                                       void** const userPayload,
                                                                       const uint64_t userPayloadSize,
                                                                       const uint32_t userPayloadAlignment,

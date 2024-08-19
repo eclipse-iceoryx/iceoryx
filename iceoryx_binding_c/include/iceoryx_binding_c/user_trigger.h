@@ -1,5 +1,6 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2024 by Michael Bentley <mikebentley15@gmail.com>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,7 +23,7 @@
 #include "iceoryx_binding_c/types.h"
 
 /// @brief user trigger handle
-typedef CLASS UserTrigger* iox_user_trigger_t;
+typedef IOX_C_CLASS UserTrigger* iox_user_trigger_t;
 
 /// @brief initialize user trigger handle
 /// @param[in] self pointer to preallocated memory of size = sizeof(iox_user_trigger_storage_t)

@@ -1,5 +1,6 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2024 by Michael Bentley <mikebentley15@gmail.com>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -259,7 +260,7 @@ iox_WaitSetResult iox_ws_attach_client_event(const iox_ws_t self,
 
 iox_WaitSetResult iox_ws_attach_client_event_with_context_data(iox_ws_t const self,
                                                                iox_client_t const client,
-                                                               const ENUM iox_ClientEvent clientEvent,
+                                                               const enum iox_ClientEvent clientEvent,
                                                                const uint64_t eventId,
                                                                void (*callback)(iox_client_t, void*),
                                                                void* const contextData)
@@ -290,7 +291,7 @@ iox_WaitSetResult iox_ws_attach_client_state(const iox_ws_t self,
 
 iox_WaitSetResult iox_ws_attach_client_state_with_context_data(iox_ws_t const self,
                                                                iox_client_t const client,
-                                                               const ENUM iox_ClientState clientState,
+                                                               const enum iox_ClientState clientState,
                                                                const uint64_t eventId,
                                                                void (*callback)(iox_client_t, void*),
                                                                void* const contextData)
@@ -306,7 +307,7 @@ iox_WaitSetResult iox_ws_attach_client_state_with_context_data(iox_ws_t const se
     return (result.has_error()) ? cpp2c::waitSetResult(result.error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
 }
 
-void iox_ws_detach_client_event(iox_ws_t const self, iox_client_t const client, const ENUM iox_ClientEvent clientEvent)
+void iox_ws_detach_client_event(iox_ws_t const self, iox_client_t const client, const enum iox_ClientEvent clientEvent)
 {
     IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
     IOX_ENFORCE(client != nullptr, "'client' must not be a 'nullptr'");
@@ -314,7 +315,7 @@ void iox_ws_detach_client_event(iox_ws_t const self, iox_client_t const client, 
     self->detachEvent(*client, c2cpp::clientEvent(clientEvent));
 }
 
-void iox_ws_detach_client_state(iox_ws_t const self, iox_client_t const client, const ENUM iox_ClientState clientState)
+void iox_ws_detach_client_state(iox_ws_t const self, iox_client_t const client, const enum iox_ClientState clientState)
 {
     IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
     IOX_ENFORCE(client != nullptr, "'client' must not be a 'nullptr'");
@@ -324,7 +325,7 @@ void iox_ws_detach_client_state(iox_ws_t const self, iox_client_t const client, 
 
 iox_WaitSetResult iox_ws_attach_server_event(const iox_ws_t self,
                                              const iox_server_t server,
-                                             const ENUM iox_ServerEvent serverEvent,
+                                             const enum iox_ServerEvent serverEvent,
                                              const uint64_t eventId,
                                              void (*callback)(iox_server_t))
 {
@@ -337,7 +338,7 @@ iox_WaitSetResult iox_ws_attach_server_event(const iox_ws_t self,
 
 iox_WaitSetResult iox_ws_attach_server_event_with_context_data(iox_ws_t const self,
                                                                iox_server_t const server,
-                                                               const ENUM iox_ServerEvent serverEvent,
+                                                               const enum iox_ServerEvent serverEvent,
                                                                const uint64_t eventId,
                                                                void (*callback)(iox_server_t, void*),
                                                                void* const contextData)
@@ -355,7 +356,7 @@ iox_WaitSetResult iox_ws_attach_server_event_with_context_data(iox_ws_t const se
 
 iox_WaitSetResult iox_ws_attach_server_state(const iox_ws_t self,
                                              const iox_server_t server,
-                                             const ENUM iox_ServerState serverState,
+                                             const enum iox_ServerState serverState,
                                              const uint64_t eventId,
                                              void (*callback)(iox_server_t))
 {
@@ -368,7 +369,7 @@ iox_WaitSetResult iox_ws_attach_server_state(const iox_ws_t self,
 
 iox_WaitSetResult iox_ws_attach_server_state_with_context_data(iox_ws_t const self,
                                                                iox_server_t const server,
-                                                               const ENUM iox_ServerState serverState,
+                                                               const enum iox_ServerState serverState,
                                                                const uint64_t eventId,
                                                                void (*callback)(iox_server_t, void*),
                                                                void* const contextData)
@@ -384,7 +385,7 @@ iox_WaitSetResult iox_ws_attach_server_state_with_context_data(iox_ws_t const se
     return (result.has_error()) ? cpp2c::waitSetResult(result.error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
 }
 
-void iox_ws_detach_server_event(iox_ws_t const self, iox_server_t const server, const ENUM iox_ServerEvent serverEvent)
+void iox_ws_detach_server_event(iox_ws_t const self, iox_server_t const server, const enum iox_ServerEvent serverEvent)
 {
     IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
     IOX_ENFORCE(server != nullptr, "'server' must not be a 'nullptr'");
@@ -392,7 +393,7 @@ void iox_ws_detach_server_event(iox_ws_t const self, iox_server_t const server, 
     self->detachEvent(*server, c2cpp::serverEvent(serverEvent));
 }
 
-void iox_ws_detach_server_state(iox_ws_t const self, iox_server_t const server, const ENUM iox_ServerState serverState)
+void iox_ws_detach_server_state(iox_ws_t const self, iox_server_t const server, const enum iox_ServerState serverState)
 {
     IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
     IOX_ENFORCE(server != nullptr, "'server' must not be a 'nullptr'");
@@ -402,7 +403,7 @@ void iox_ws_detach_server_state(iox_ws_t const self, iox_server_t const server, 
 
 iox_WaitSetResult iox_ws_attach_service_discovery_event(const iox_ws_t self,
                                                         const iox_service_discovery_t serviceDiscovery,
-                                                        const ENUM iox_ServiceDiscoveryEvent serviceDiscoveryEvent,
+                                                        const enum iox_ServiceDiscoveryEvent serviceDiscoveryEvent,
                                                         const uint64_t eventId,
                                                         void (*callback)(iox_service_discovery_t))
 {
@@ -417,7 +418,7 @@ iox_WaitSetResult iox_ws_attach_service_discovery_event(const iox_ws_t self,
 iox_WaitSetResult
 iox_ws_attach_service_discovery_event_with_context_data(iox_ws_t const self,
                                                         iox_service_discovery_t const serviceDiscovery,
-                                                        const ENUM iox_ServiceDiscoveryEvent serviceDiscoveryEvent,
+                                                        const enum iox_ServiceDiscoveryEvent serviceDiscoveryEvent,
                                                         const uint64_t eventId,
                                                         void (*callback)(iox_service_discovery_t, void*),
                                                         void* const contextData)
@@ -436,7 +437,7 @@ iox_ws_attach_service_discovery_event_with_context_data(iox_ws_t const self,
 
 void iox_ws_detach_service_discovery_event(iox_ws_t const self,
                                            iox_service_discovery_t const serviceDiscovery,
-                                           const ENUM iox_ServiceDiscoveryEvent serviceDiscoveryEvent)
+                                           const enum iox_ServiceDiscoveryEvent serviceDiscoveryEvent)
 {
     IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
     IOX_ENFORCE(serviceDiscovery != nullptr, "'serviceDiscovery' must not be a 'nullptr'");

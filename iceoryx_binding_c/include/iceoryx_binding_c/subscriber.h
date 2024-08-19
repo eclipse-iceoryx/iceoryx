@@ -1,5 +1,6 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2024 by Michael Bentley <mikebentley15@gmail.com>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -43,7 +44,7 @@ typedef struct
     bool subscribeOnCreate;
 
     /// @brief describes whether a publisher blocks when subscriber queue is full
-    ENUM iox_QueueFullPolicy queueFullPolicy;
+    enum iox_QueueFullPolicy queueFullPolicy;
 
     /// @brief Indicates whether we require the publisher to have historyCapacity > 0.
     ///        If true and the condition is not met (i.e. historyCapacity = 0), the subscriber will
@@ -97,14 +98,14 @@ void iox_sub_unsubscribe(iox_sub_t const self);
 /// @param[in] self handle to the subscriber
 /// @return SubscribeState_SUBSCRIBED when successfully subscribed otherwise an enum which
 ///         describes the current state
-ENUM iox_SubscribeState iox_sub_get_subscription_state(iox_sub_t const self);
+enum iox_SubscribeState iox_sub_get_subscription_state(iox_sub_t const self);
 
 /// @brief retrieve a received chunk
 /// @param[in] self handle to the subscriber
 /// @param[in] userPayload pointer in which the pointer to the user-payload of the chunk is stored
 /// @return if a chunk could be received it returns ChunkReceiveResult_SUCCESS otherwise
 ///         an enum which describes the error
-ENUM iox_ChunkReceiveResult iox_sub_take_chunk(iox_sub_t const self, const void** const userPayload);
+enum iox_ChunkReceiveResult iox_sub_take_chunk(iox_sub_t const self, const void** const userPayload);
 
 /// @brief release a previously acquired chunk (via iox_sub_take_chunk)
 /// @param[in] self handle to the subscriber
