@@ -18,9 +18,9 @@
 #define IOX_POSH_ROUDI_ENVIRONMENT_RUNTIME_TEST_INTERFACE_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iox/atomic.hpp"
 #include "iox/optional.hpp"
 
-#include <atomic>
 #include <map>
 #include <mutex>
 
@@ -42,8 +42,8 @@ class RuntimeTestInterface
     bool m_doCleanupOnDestruction{true};
 
     thread_local static runtime::PoshRuntime* t_activeRuntime;
-    thread_local static std::atomic<uint64_t> t_currentRouDiContext;
-    static std::atomic<uint64_t> s_currentRouDiContext;
+    thread_local static concurrent::Atomic<uint64_t> t_currentRouDiContext;
+    static concurrent::Atomic<uint64_t> s_currentRouDiContext;
 
     static std::mutex s_runtimeAccessMutex;
 

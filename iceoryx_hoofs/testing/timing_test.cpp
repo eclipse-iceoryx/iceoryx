@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/testing/timing_test.hpp"
+#include "iox/atomic.hpp"
 
 namespace iox
 {
@@ -35,7 +36,7 @@ uint64_t Repeat::repetitions() const noexcept
 
 bool performingTimingTest(const std::function<void()>& testCallback,
                           const Repeat repeat,
-                          std::atomic_bool& testResult) noexcept
+                          concurrent::Atomic<bool>& testResult) noexcept
 {
     for (uint64_t i = 0; i < repeat.repetitions(); ++i)
     {
@@ -58,7 +59,7 @@ std::string verifyTimingTestResult(const char* file,
                                    const char* valueStr,
                                    const bool value,
                                    const bool expected,
-                                   std::atomic_bool& result) noexcept
+                                   concurrent::Atomic<bool>& result) noexcept
 {
     std::string errorMessage;
     if (value != expected)

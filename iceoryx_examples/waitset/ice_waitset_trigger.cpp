@@ -17,12 +17,13 @@
 #include "iceoryx_posh/popo/enum_trigger_type.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iox/atomic.hpp"
 #include "iox/optional.hpp"
 
 #include <iostream>
 #include <thread>
 
-std::atomic_bool keepRunning{true};
+iox::concurrent::Atomic<bool> keepRunning{true};
 
 using WaitSet = iox::popo::WaitSet<>;
 

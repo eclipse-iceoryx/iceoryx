@@ -20,8 +20,8 @@
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/internal/mepoo/shm_safe_unmanaged_chunk.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iox/atomic.hpp"
 
-#include <atomic>
 #include <cstdint>
 
 namespace iox
@@ -75,7 +75,7 @@ class UsedChunkList
     static constexpr DataElement_t DATA_ELEMENT_LOGICAL_NULLPTR{};
 
   private:
-    std::atomic_flag m_synchronizer = ATOMIC_FLAG_INIT;
+    concurrent::AtomicFlag m_synchronizer = ATOMIC_FLAG_INIT;
     uint32_t m_usedListHead{INVALID_INDEX};
     uint32_t m_freeListHead{0u};
     uint32_t m_listIndices[Capacity];

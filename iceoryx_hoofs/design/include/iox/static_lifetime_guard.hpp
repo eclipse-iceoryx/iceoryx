@@ -17,7 +17,8 @@
 #ifndef IOX_HOOFS_DESIGN_STATIC_LIFETIME_GUARD_HPP
 #define IOX_HOOFS_DESIGN_STATIC_LIFETIME_GUARD_HPP
 
-#include <atomic>
+#include "iox/atomic.hpp"
+
 #include <type_traits>
 #include <utility>
 
@@ -94,8 +95,8 @@ class StaticLifetimeGuard
     // NOLINTJUSTIFICATION these static variables are private and mutability is required
     // NOLINTBEGIN (cppcoreguidelines-avoid-non-const-global-variables)
     static storage_t s_storage;
-    static std::atomic<uint64_t> s_count;
-    static std::atomic<uint32_t> s_instanceState;
+    static concurrent::Atomic<uint64_t> s_count;
+    static concurrent::Atomic<uint32_t> s_instanceState;
     static T* s_instance;
     // NOLINTEND (cppcoreguidelines-avoid-non-const-global-variables)
 

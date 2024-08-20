@@ -51,10 +51,10 @@ TEST_F(PortManager_test, AcquireClientPortDataReturnsPort)
         .and_then([&](const auto& clientPortData) {
             EXPECT_THAT(clientPortData->m_serviceDescription, Eq(sd));
             EXPECT_THAT(clientPortData->m_runtimeName, Eq(runtimeName));
-            EXPECT_THAT(clientPortData->m_toBeDestroyed, Eq(false));
+            EXPECT_THAT(clientPortData->m_toBeDestroyed.load(), Eq(false));
             EXPECT_THAT(clientPortData->m_chunkReceiverData.m_queue.capacity(),
                         Eq(clientOptions.responseQueueCapacity));
-            EXPECT_THAT(clientPortData->m_connectRequested, Eq(clientOptions.connectOnCreate));
+            EXPECT_THAT(clientPortData->m_connectRequested.load(), Eq(clientOptions.connectOnCreate));
             EXPECT_THAT(clientPortData->m_chunkReceiverData.m_queueFullPolicy,
                         Eq(clientOptions.responseQueueFullPolicy));
             EXPECT_THAT(clientPortData->m_chunkSenderData.m_consumerTooSlowPolicy,
@@ -82,9 +82,9 @@ TEST_F(PortManager_test, AcquireServerPortDataReturnsPort)
         .and_then([&](const auto& serverPortData) {
             EXPECT_THAT(serverPortData->m_serviceDescription, Eq(sd));
             EXPECT_THAT(serverPortData->m_runtimeName, Eq(runtimeName));
-            EXPECT_THAT(serverPortData->m_toBeDestroyed, Eq(false));
+            EXPECT_THAT(serverPortData->m_toBeDestroyed.load(), Eq(false));
             EXPECT_THAT(serverPortData->m_chunkReceiverData.m_queue.capacity(), Eq(serverOptions.requestQueueCapacity));
-            EXPECT_THAT(serverPortData->m_offeringRequested, Eq(serverOptions.offerOnCreate));
+            EXPECT_THAT(serverPortData->m_offeringRequested.load(), Eq(serverOptions.offerOnCreate));
             EXPECT_THAT(serverPortData->m_chunkReceiverData.m_queueFullPolicy,
                         Eq(serverOptions.requestQueueFullPolicy));
             EXPECT_THAT(serverPortData->m_chunkSenderData.m_consumerTooSlowPolicy,

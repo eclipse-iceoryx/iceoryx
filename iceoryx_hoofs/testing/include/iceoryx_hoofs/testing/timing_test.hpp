@@ -17,7 +17,8 @@
 #ifndef IOX_HOOFS_TESTUTILS_TIMING_TEST_HPP
 #define IOX_HOOFS_TESTUTILS_TIMING_TEST_HPP
 
-#include <atomic>
+#include "iox/atomic.hpp"
+
 #include <cstdint>
 #include <functional>
 #include <string>
@@ -36,7 +37,7 @@
 /// class MyClass_test : public Test {};
 ///
 /// TIMING_TEST_F(MyClass_test, WaitForSleep, Repeat(3), [&]{
-///   std::atomic_bool threadFinished{false};
+///   iox::concurrent::Atomic<bool> threadFinished{false};
 ///   std::thread t([&]{ sleep(2); threadFinished = true; });
 ///
 ///   TIMING_TEST_EXPECT_FALSE(threadFinished.load());
@@ -70,7 +71,7 @@
 #define TIMING_TEST_CONSTRUCT(name, testcase, repetition, test, GTestType)                                             \
     GTestType(name, TimingTest_##testcase)                                                                             \
     {                                                                                                                  \
-        std::atomic_bool timingTestResult{true};                                                                       \
+        iox::concurrent::Atomic<bool> timingTestResult{true};                                                          \
         std::string errorMessages;                                                                                     \
         bool testResult =                                                                                              \
             iox::utils::testing::performingTimingTest(test, iox::utils::testing::repetition, timingTestResult);        \
@@ -129,7 +130,7 @@ class Repeat
 
 bool performingTimingTest(const std::function<void()>& testCallback,
                           const Repeat repeat,
-                          std::atomic_bool& testResult) noexcept;
+                          concurrent::Atomic<bool>& testResult) noexcept;
 
 
 std::string verifyTimingTestResult(const char* file,
@@ -137,7 +138,7 @@ std::string verifyTimingTestResult(const char* file,
                                    const char* valueStr,
                                    const bool value,
                                    const bool expected,
-                                   std::atomic_bool& result) noexcept;
+                                   concurrent::Atomic<bool>& result) noexcept;
 
 } // namespace testing
 } // namespace utils

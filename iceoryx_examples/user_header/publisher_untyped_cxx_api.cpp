@@ -24,7 +24,6 @@
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 //! [iceoryx includes]
 
-#include <atomic>
 #include <iostream>
 
 int main()

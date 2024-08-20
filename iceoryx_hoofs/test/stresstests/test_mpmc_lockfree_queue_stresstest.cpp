@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/testing/test.hpp"
+#include "iox/atomic.hpp"
 #include "iox/logging.hpp"
 
 #include "iox/detail/mpmc_lockfree_queue.hpp"
@@ -23,7 +24,6 @@ using namespace ::testing;
 
 #include "iceoryx_hoofs/testing/barrier.hpp"
 
-#include <atomic>
 #include <list>
 #include <numeric>
 #include <random>
@@ -71,8 +71,10 @@ void produce(Queue& queue, uint64_t id, uint64_t iterations)
 }
 
 template <typename Queue>
-//NOLINTNEXTLINE(bugprone-easily-swappable-parameters, readability-function-size) This is okay since it is limited to the stress test
-void consume(Queue& queue, std::atomic<bool>& run, uint64_t expectedFinalCount, uint64_t maxId, bool& testResult)
+//NOLINTBEGIN(bugprone-easily-swappable-parameters, readability-function-size) This is okay since it is limited to the stress test
+void consume(
+    Queue& queue, iox::concurrent::Atomic<bool>& run, uint64_t expectedFinalCount, uint64_t maxId, bool& testResult)
+//NOLINTEND(bugprone-easily-swappable-parameters, readability-function-size)
 {
     g_barrier.notify();
 
@@ -111,7 +113,7 @@ void consume(Queue& queue, std::atomic<bool>& run, uint64_t expectedFinalCount, 
 /// since this would allow us to run the test much longer (currently we will exhaust memory
 /// by using the list), but this rework is somewhat nontrivial
 template <typename Queue>
-void consumeAndStore(Queue& queue, std::atomic<bool>& run, std::list<Data>& consumed)
+void consumeAndStore(Queue& queue, iox::concurrent::Atomic<bool>& run, std::list<Data>& consumed)
 {
     g_barrier.notify();
 
@@ -220,7 +222,7 @@ bool checkTwoConsumerResult(std::list<Data>& consumed1,
 
 // alternates between push and pop
 template <typename Queue>
-void work(Queue& queue, uint64_t id, std::atomic<bool>& run)
+void work(Queue& queue, uint64_t id, iox::concurrent::Atomic<bool>& run)
 {
     g_barrier.notify();
 
@@ -269,7 +271,7 @@ template <typename Queue>
 //NOLINTNEXTLINE(readability-function-size) This is okay since it is limited to the stress test
 void randomWork(Queue& queue,
                 uint64_t id,
-                std::atomic<bool>& run,
+                iox::concurrent::Atomic<bool>& run,
                 uint64_t& overflowCount,
                 std::list<Data>& items,
                 double popProbability = 0.5)
@@ -371,7 +373,7 @@ TYPED_TEST(MpmcLockFreeQueueStressTest, SingleProducerSingleConsumer)
     using Queue = typename TestFixture::Queue;
 
     auto& queue = this->sut;
-    std::atomic<bool> run{true};
+    iox::concurrent::Atomic<bool> run{true};
     bool testResult{false};
     int iterations = 10000000;
 
@@ -395,7 +397,7 @@ TYPED_TEST(MpmcLockFreeQueueStressTest, MultiProducerSingleConsumer)
     using Queue = typename TestFixture::Queue;
 
     auto& queue = this->sut;
-    std::atomic<bool> run{true};
+    iox::concurrent::Atomic<bool> run{true};
     bool testResult{false};
     uint64_t iterations = 1000000U;
     uint64_t numProducers = 8U;
@@ -435,7 +437,7 @@ TYPED_TEST(MpmcLockFreeQueueStressTest, MultiProducerTwoConsumer)
     using Queue = typename TestFixture::Queue;
 
     auto& queue = this->sut;
-    std::atomic<bool> run{true};
+    iox::concurrent::Atomic<bool> run{true};
     uint64_t iterations = 1000000U;
     uint64_t numProducers = 4;
 
@@ -495,7 +497,7 @@ TYPED_TEST(MpmcLockFreeQueueStressTest, TimedMultiProducerMultiConsumer)
         }
     }
 
-    std::atomic<bool> run{true};
+    iox::concurrent::Atomic<bool> run{true};
 
     std::vector<std::thread> threads;
 
@@ -559,7 +561,7 @@ TYPED_TEST(MpmcLockFreeQueueStressTest, TimedMultiProducerMultiConsumer0verflow)
 
     auto capacity = q.capacity();
 
-    std::atomic<bool> run{true};
+    iox::concurrent::Atomic<bool> run{true};
 
     std::vector<std::thread> threads;
     std::vector<uint64_t> overflowCount(numThreads);

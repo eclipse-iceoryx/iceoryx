@@ -15,9 +15,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iox/atomic.hpp"
 #include "iox/size.hpp"
-
-#include <atomic>
 
 namespace iox
 {
@@ -47,7 +46,7 @@ namespace experimental
 {
 bool hasExperimentalPoshFeaturesEnabled(const optional<bool>& newValue) noexcept
 {
-    static std::atomic<bool> experimentalEnabled{build::IOX_EXPERIMENTAL_POSH_FLAG};
+    static concurrent::Atomic<bool> experimentalEnabled{build::IOX_EXPERIMENTAL_POSH_FLAG};
 
     if (newValue.has_value())
     {

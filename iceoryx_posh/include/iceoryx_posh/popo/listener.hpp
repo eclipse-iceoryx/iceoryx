@@ -23,6 +23,7 @@
 #include "iceoryx_posh/popo/notification_callback.hpp"
 #include "iceoryx_posh/popo/trigger_handle.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iox/atomic.hpp"
 #include "iox/detail/mpmc_loffli.hpp"
 #include "iox/expected.hpp"
 #include "iox/function.hpp"
@@ -203,7 +204,7 @@ class Listener
         MpmcLoFFLi::Index_t
             m_loffliStorage[MpmcLoFFLi::requiredIndexMemorySize(MAX_NUMBER_OF_EVENTS) / sizeof(uint32_t)];
         MpmcLoFFLi m_loffli;
-        std::atomic<uint64_t> m_indicesInUse{0U};
+        concurrent::Atomic<uint64_t> m_indicesInUse{0U};
     } m_indexManager;
 
 
@@ -211,7 +212,7 @@ class Listener
     concurrent::smart_lock<internal::Event_t, std::recursive_mutex> m_events[MAX_NUMBER_OF_EVENTS];
     std::mutex m_addEventMutex;
 
-    std::atomic_bool m_wasDtorCalled{false};
+    concurrent::Atomic<bool> m_wasDtorCalled{false};
     ConditionVariableData* m_conditionVariableData = nullptr;
     ConditionListener m_conditionListener;
 };

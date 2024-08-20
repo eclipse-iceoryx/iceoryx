@@ -19,9 +19,9 @@
 #define IOX_HOOFS_REPORTING_LOG_BUILDING_BLOCKS_LOGGER_HPP
 
 #include "iceoryx_platform/logging.hpp"
+#include "iox/atomic.hpp"
 #include "iox/iceoryx_hoofs_types.hpp"
 
-#include <atomic>
 #include <cstdint>
 #include <cstring>
 #include <mutex>
@@ -103,8 +103,8 @@ class Logger : public BaseLogger
     void initLoggerInternal(const LogLevel logLevel) noexcept;
 
   private:
-    std::atomic<bool> m_isActive{true};
-    std::atomic<bool> m_isFinalized{false};
+    concurrent::Atomic<bool> m_isActive{true};
+    concurrent::Atomic<bool> m_isFinalized{false};
 };
 
 } // namespace internal

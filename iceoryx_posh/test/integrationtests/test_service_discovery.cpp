@@ -27,6 +27,7 @@
 #include "iceoryx_posh/runtime/service_discovery.hpp"
 #include "iceoryx_posh/testing/mocks/posh_runtime_mock.hpp"
 #include "iceoryx_posh/testing/roudi_gtest.hpp"
+#include "iox/atomic.hpp"
 #include "test.hpp"
 
 #include <random>
@@ -49,7 +50,7 @@ using iox::popo::MessagingPattern;
 
 using ServiceContainer = std::vector<ServiceDescription>;
 
-static std::atomic_bool callbackWasCalled;
+static iox::concurrent::Atomic<bool> callbackWasCalled;
 ServiceContainer serviceContainer;
 
 // We use various test fixtures to group the tests and

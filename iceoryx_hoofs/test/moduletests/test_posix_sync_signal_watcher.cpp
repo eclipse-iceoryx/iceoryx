@@ -16,9 +16,9 @@
 
 #include "iceoryx_hoofs/testing/barrier.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
+#include "iox/atomic.hpp"
 #include "iox/signal_watcher.hpp"
 #include "test.hpp"
-#include <atomic>
 
 namespace
 {
@@ -88,7 +88,7 @@ void unblocksWhenSignalWasRaisedForWaiters(SignalWatcher_test& test,
                                            const std::function<void()>& wait)
 {
     Barrier isThreadStarted(numberOfWaiters);
-    std::atomic<uint64_t> isThreadFinished{0};
+    iox::concurrent::Atomic<uint64_t> isThreadFinished{0};
 
     std::vector<std::thread> threads;
 

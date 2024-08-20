@@ -27,6 +27,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/variant_queue.hpp"
 #include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iox/atomic.hpp"
 #include "iox/detail/hoofs_error_reporting.hpp"
 
 #include "iceoryx_hoofs/testing/error_reporting/testing_support.hpp"
@@ -621,7 +622,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToQueueWithBlockingOptionBlocksDelivery
 
     Barrier isThreadStarted(1U);
     auto chunk = this->allocateChunk(7373);
-    std::atomic_bool wasChunkDelivered{false};
+    iox::concurrent::Atomic<bool> wasChunkDelivered{false};
     std::thread t1([&] {
         isThreadStarted.notify();
         ASSERT_FALSE(sut.deliverToQueue(queueData->m_uniqueId, EXPECTED_QUEUE_INDEX, chunk).has_error());
@@ -738,7 +739,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToSingleQueueBlocksWhenOptionsAreSetToB
     sut.deliverToAllStoredQueues(this->allocateChunk(155U));
 
     Barrier isThreadStarted(1U);
-    std::atomic_bool wasChunkDelivered{false};
+    iox::concurrent::Atomic<bool> wasChunkDelivered{false};
     std::thread t1([&] {
         isThreadStarted.notify();
         sut.deliverToAllStoredQueues(this->allocateChunk(152U));
@@ -785,7 +786,7 @@ TYPED_TEST(ChunkDistributor_test, MultipleBlockingQueuesWillBeFilledWhenThereBec
     sut.deliverToAllStoredQueues(this->allocateChunk(425U));
 
     Barrier isThreadStarted(1U);
-    std::atomic_bool wasChunkDelivered{false};
+    iox::concurrent::Atomic<bool> wasChunkDelivered{false};
     std::thread t1([&] {
         isThreadStarted.notify();
         sut.deliverToAllStoredQueues(this->allocateChunk(1152U));

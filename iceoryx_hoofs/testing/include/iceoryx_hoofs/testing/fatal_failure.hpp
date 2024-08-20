@@ -25,7 +25,6 @@
 #include "iceoryx_hoofs/testing/error_reporting/testing_support.hpp"
 #include "test.hpp"
 
-#include <atomic>
 #include <thread>
 
 // NOLINTNEXTLINE(hicpp-deprecated-headers) required to work on some platforms

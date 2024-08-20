@@ -47,7 +47,6 @@ extern "C" {
 
 #include "test.hpp"
 
-#include <atomic>
 #include <thread>
 
 namespace

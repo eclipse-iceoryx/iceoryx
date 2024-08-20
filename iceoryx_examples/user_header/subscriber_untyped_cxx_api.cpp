@@ -22,7 +22,6 @@
 #include "iox/signal_watcher.hpp"
 //! [iceoryx includes]
 
-#include <atomic>
 #include <iostream>
 
 int main()

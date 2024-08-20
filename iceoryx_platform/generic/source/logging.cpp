@@ -15,8 +15,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_platform/logging.hpp"
+#include "iceoryx_platform/atomic.hpp"
 
-#include <atomic>
 #include <iostream>
 #include <mutex>
 #include <sstream>
@@ -77,8 +77,8 @@ enum class LoggerExchangeState : uint8_t
 
 struct IceoryxPlatformLogger
 {
-    std::atomic<IceoryxPlatformLogBackend> log_backend{&iox_platform_detail_default_log_backend};
-    std::atomic<LoggerExchangeState> logger_exchange_state{LoggerExchangeState::DEFAULT};
+    iox::concurrent::Atomic<IceoryxPlatformLogBackend> log_backend{&iox_platform_detail_default_log_backend};
+    iox::concurrent::Atomic<LoggerExchangeState> logger_exchange_state{LoggerExchangeState::DEFAULT};
 };
 
 IceoryxPlatformLogger& active_logger(IceoryxPlatformLogBackend new_log_backend)

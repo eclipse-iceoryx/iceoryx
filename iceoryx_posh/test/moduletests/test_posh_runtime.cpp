@@ -28,6 +28,7 @@
 #include "iceoryx_posh/roudi_env/roudi_env.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_posh/testing/mocks/posh_runtime_mock.hpp"
+#include "iox/atomic.hpp"
 #include "iox/detail/convert.hpp"
 #include "iox/std_string_support.hpp"
 
@@ -75,7 +76,7 @@ class PoshRuntime_test : public Test
 
         EXPECT_EQ(portData->m_serviceDescription, sd);
         EXPECT_EQ(portData->m_runtimeName, m_runtimeName);
-        EXPECT_EQ(portData->m_connectRequested, options.connectOnCreate);
+        EXPECT_EQ(portData->m_connectRequested.load(), options.connectOnCreate);
         EXPECT_EQ(portData->m_chunkReceiverData.m_queue.capacity(), options.responseQueueCapacity);
         EXPECT_EQ(portData->m_chunkReceiverData.m_queueFullPolicy, options.responseQueueFullPolicy);
         EXPECT_EQ(portData->m_chunkReceiverData.m_memoryInfo.deviceId, memoryInfo.deviceId);
@@ -95,7 +96,7 @@ class PoshRuntime_test : public Test
 
         EXPECT_EQ(portData->m_serviceDescription, sd);
         EXPECT_EQ(portData->m_runtimeName, m_runtimeName);
-        EXPECT_EQ(portData->m_offeringRequested, options.offerOnCreate);
+        EXPECT_EQ(portData->m_offeringRequested.load(), options.offerOnCreate);
         EXPECT_EQ(portData->m_chunkReceiverData.m_queue.capacity(), options.requestQueueCapacity);
         EXPECT_EQ(portData->m_chunkReceiverData.m_queueFullPolicy, options.requestQueueFullPolicy);
         EXPECT_EQ(portData->m_chunkReceiverData.m_memoryInfo.deviceId, memoryInfo.deviceId);
@@ -203,7 +204,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareInterfaceIsSuccessful)
 
     ASSERT_NE(nullptr, interfacePortData);
     EXPECT_EQ(m_runtimeName, interfacePortData->m_runtimeName);
-    EXPECT_EQ(false, interfacePortData->m_toBeDestroyed);
+    EXPECT_EQ(false, interfacePortData->m_toBeDestroyed.load());
 }
 
 TEST_F(PoshRuntime_test, GetMiddlewareInterfaceInterfacelistOverflow)
@@ -623,7 +624,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareClientWithDefaultArgsIsSuccessful)
     ASSERT_THAT(clientPort, Ne(nullptr));
 
     checkClientInitialization(clientPort, sd, defaultOptions, defaultPortConfigInfo.memoryInfo);
-    EXPECT_EQ(clientPort->m_connectionState, iox::ConnectionState::WAIT_FOR_OFFER);
+    EXPECT_EQ(clientPort->m_connectionState.load(), iox::ConnectionState::WAIT_FOR_OFFER);
 }
 
 TEST_F(PoshRuntime_test, GetMiddlewareClientWithCustomClientOptionsIsSuccessful)
@@ -643,7 +644,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareClientWithCustomClientOptionsIsSuccessful)
     ASSERT_THAT(clientPort, Ne(nullptr));
 
     checkClientInitialization(clientPort, sd, clientOptions, portConfig.memoryInfo);
-    EXPECT_EQ(clientPort->m_connectionState, iox::ConnectionState::NOT_CONNECTED);
+    EXPECT_EQ(clientPort->m_connectionState.load(), iox::ConnectionState::NOT_CONNECTED);
 }
 
 TEST_F(PoshRuntime_test, GetMiddlewareClientWithQueueGreaterMaxCapacityClampsQueueToMaximum)
@@ -720,7 +721,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareServerWithDefaultArgsIsSuccessful)
 
     ASSERT_THAT(serverPort, Ne(nullptr));
     checkServerInitialization(serverPort, sd, defaultOptions, defaultPortConfigInfo.memoryInfo);
-    EXPECT_EQ(serverPort->m_offered, true);
+    EXPECT_EQ(serverPort->m_offered.load(), true);
 }
 
 TEST_F(PoshRuntime_test, GetMiddlewareServerWithCustomServerOptionsIsSuccessful)
@@ -739,7 +740,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareServerWithCustomServerOptionsIsSuccessful)
 
     ASSERT_THAT(serverPort, Ne(nullptr));
     checkServerInitialization(serverPort, sd, serverOptions, portConfig.memoryInfo);
-    EXPECT_EQ(serverPort->m_offered, false);
+    EXPECT_EQ(serverPort->m_offered.load(), false);
 }
 
 TEST_F(PoshRuntime_test, GetMiddlewareServerWithQueueGreaterMaxCapacityClampsQueueToMaximum)
@@ -850,7 +851,7 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingPublisher)
     // send samples to fill subscriber queue
     ASSERT_FALSE(publisher.publishCopyOf(42U).has_error());
 
-    std::atomic_bool wasSampleSent{false};
+    iox::concurrent::Atomic<bool> wasSampleSent{false};
 
     constexpr iox::units::Duration DEADLOCK_TIMEOUT{5_s};
     Watchdog deadlockWatchdog{DEADLOCK_TIMEOUT};
@@ -898,7 +899,7 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingClient)
     ASSERT_TRUE(server.hasClients());
     ASSERT_THAT(client.getConnectionState(), Eq(iox::ConnectionState::CONNECTED));
 
-    std::atomic_bool wasRequestSent{false};
+    iox::concurrent::Atomic<bool> wasRequestSent{false};
 
     constexpr iox::units::Duration DEADLOCK_TIMEOUT{5_s};
     Watchdog deadlockWatchdog{DEADLOCK_TIMEOUT};
@@ -974,7 +975,7 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingServer)
         EXPECT_FALSE(client.send(clientLoanResult.value()).has_error());
     }
 
-    std::atomic_bool wasResponseSent{false};
+    iox::concurrent::Atomic<bool> wasResponseSent{false};
 
     constexpr iox::units::Duration DEADLOCK_TIMEOUT{5_s};
     Watchdog deadlockWatchdog{DEADLOCK_TIMEOUT};

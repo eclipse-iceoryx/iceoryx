@@ -339,8 +339,8 @@ TEST_F(PortPool_test, AddClientPortIsSuccessful)
         addClientPorts(NUMBER_OF_CLIENTS_TO_ADD, [&](const auto& sd, const auto& runtimeName, const auto& clientPort) {
             EXPECT_EQ(clientPort.m_serviceDescription, sd);
             EXPECT_EQ(clientPort.m_runtimeName, runtimeName);
-            EXPECT_EQ(clientPort.m_connectRequested, m_clientOptions.connectOnCreate);
-            EXPECT_EQ(clientPort.m_connectionState, ConnectionState::NOT_CONNECTED);
+            EXPECT_EQ(clientPort.m_connectRequested.load(), m_clientOptions.connectOnCreate);
+            EXPECT_EQ(clientPort.m_connectionState.load(), ConnectionState::NOT_CONNECTED);
             EXPECT_EQ(clientPort.m_chunkReceiverData.m_queue.capacity(), QUEUE_CAPACITY);
             EXPECT_EQ(clientPort.m_chunkReceiverData.m_memoryInfo.deviceId, DEFAULT_DEVICE_ID);
             EXPECT_EQ(clientPort.m_chunkReceiverData.m_memoryInfo.memoryType, DEFAULT_MEMORY_TYPE);
@@ -433,8 +433,8 @@ TEST_F(PortPool_test, AddServerPortIsSuccessful)
         addServerPorts(NUMBER_OF_SERVERS_TO_ADD, [&](const auto& sd, const auto& runtimeName, const auto& serverPort) {
             EXPECT_EQ(serverPort.m_serviceDescription, sd);
             EXPECT_EQ(serverPort.m_runtimeName, runtimeName);
-            EXPECT_EQ(serverPort.m_offeringRequested, m_serverOptions.offerOnCreate);
-            EXPECT_EQ(serverPort.m_offered, false);
+            EXPECT_EQ(serverPort.m_offeringRequested.load(), m_serverOptions.offerOnCreate);
+            EXPECT_EQ(serverPort.m_offered.load(), false);
             EXPECT_EQ(serverPort.m_chunkReceiverData.m_queue.capacity(), QUEUE_CAPACITY);
             EXPECT_EQ(serverPort.m_chunkReceiverData.m_memoryInfo.deviceId, DEFAULT_DEVICE_ID);
             EXPECT_EQ(serverPort.m_chunkReceiverData.m_memoryInfo.memoryType, DEFAULT_MEMORY_TYPE);

@@ -18,6 +18,7 @@
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iox/atomic.hpp"
 #include "iox/signal_handler.hpp"
 #include "topic_data.hpp"
 
@@ -26,7 +27,7 @@
 
 constexpr uint64_t NUMBER_OF_SUBSCRIBERS = 2U;
 
-std::atomic_bool keepRunning{true};
+iox::concurrent::Atomic<bool> keepRunning{true};
 
 //! [waitset type alias]
 using WaitSet = iox::popo::WaitSet<NUMBER_OF_SUBSCRIBERS>;

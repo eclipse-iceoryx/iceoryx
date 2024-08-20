@@ -18,10 +18,9 @@
 #ifndef IOX_HOOFS_CONCURRENT_BUFFER_SPSC_FIFO_HPP
 #define IOX_HOOFS_CONCURRENT_BUFFER_SPSC_FIFO_HPP
 
+#include "iox/atomic.hpp"
 #include "iox/optional.hpp"
 #include "iox/uninitialized_array.hpp"
-
-#include <atomic>
 
 namespace iox
 {
@@ -67,8 +66,8 @@ class SpscFifo
 
   private:
     UninitializedArray<ValueType, Capacity> m_data;
-    std::atomic<uint64_t> m_writePos{0};
-    std::atomic<uint64_t> m_readPos{0};
+    Atomic<uint64_t> m_writePos{0};
+    Atomic<uint64_t> m_readPos{0};
 };
 
 } // namespace concurrent

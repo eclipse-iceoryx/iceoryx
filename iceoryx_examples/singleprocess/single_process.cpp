@@ -26,7 +26,6 @@
 #include "iox/logging.hpp"
 #include "iox/signal_watcher.hpp"
 
-#include <atomic>
 #include <chrono>
 #include <cstdint>
 #include <iostream>

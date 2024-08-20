@@ -20,6 +20,7 @@
 
 #include "iceoryx_posh/internal/runtime/ipc_message.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_runtime_interface.hpp"
+#include "iox/atomic.hpp"
 #include "iox/duration.hpp"
 #include "iox/message_queue.hpp"
 #include "iox/posix_call.hpp"
@@ -134,7 +135,7 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMq)
     /// up and tries to use the obsolet mqueue while RouDi gets restarted and cleans its resources up and creates a new
     /// mqueue
 
-    std::atomic<bool> shutdown;
+    iox::concurrent::Atomic<bool> shutdown;
     shutdown = false;
     auto roudi = std::thread([&] {
         std::lock_guard<std::mutex> lock(m_roudiQueueMutex);
@@ -186,7 +187,7 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMqWithFullMq)
     /// up and tries to use the obsolet mqueue while RouDi gets restarted and cleans its resources up and creates a new
     /// mqueue, the obsolete mqueue was filled up to the max message size, e.g. by the KEEP_ALIVE messages
 
-    std::atomic<bool> shutdown;
+    iox::concurrent::Atomic<bool> shutdown;
     shutdown = false;
     auto roudi = std::thread([&] {
         // fill the roudi mqueue
@@ -247,7 +248,7 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRegAck)
     /// this results in a message in the application mqueue which will be read with the next command and results in a
     /// wrong response
 
-    std::atomic<bool> shutdown;
+    iox::concurrent::Atomic<bool> shutdown;
     shutdown = false;
     auto roudi = std::thread([&] {
         std::lock_guard<std::mutex> lock(m_roudiQueueMutex);

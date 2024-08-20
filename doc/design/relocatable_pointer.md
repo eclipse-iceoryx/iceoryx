@@ -224,7 +224,7 @@ the operations incur slightly more overhead compared to relocatable pointers.
 
 ## Atomic usage
 
-There is a technical problem using both `relocatable_ptr` and `RelativePointer` as a type in a `std::atomic`.
+There is a technical problem using both `relocatable_ptr` and `RelativePointer` as a type in a `iox::concurrent::Atomic`.
 This is essentially impossible as an atomic requires its type to be copyable/movable (to be loaded) but on the other hand,
 this copy constructor must be trivial, i.e. performable with a (shallow) memcpy. Therefore, the types used in atomic cannot implement
 custom copy/move. This is not possible for `relocatable_ptr` and `RelativePointer` as both require operations performed

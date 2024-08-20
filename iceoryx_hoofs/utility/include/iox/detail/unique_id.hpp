@@ -17,9 +17,8 @@
 #ifndef IOX_HOOFS_UTILITY_UNIQUE_ID_HPP
 #define IOX_HOOFS_UTILITY_UNIQUE_ID_HPP
 
+#include "iox/atomic.hpp"
 #include "iox/newtype.hpp"
-
-#include <atomic>
 
 namespace iox
 {
@@ -47,7 +46,7 @@ class UniqueId : public NewType<UniqueId,
     // NOLINTJUSTIFICATION only accessible by this class. the global variable is required to
     //                     generate a unique id from it incrementing value
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
-    static std::atomic<value_type> m_IdCounter; // initialized in corresponding cpp file
+    static concurrent::Atomic<value_type> m_IdCounter; // initialized in corresponding cpp file
 };
 
 } // namespace iox
