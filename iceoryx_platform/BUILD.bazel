@@ -145,6 +145,7 @@ cc_library(
     ],
     linkopts = select({
         ":linux": [
+            "-latomic",
             "-lpthread",
             "-lrt",
         ],
