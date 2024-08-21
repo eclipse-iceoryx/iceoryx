@@ -1,3 +1,5 @@
+./iceoryx_platform/generic/include/iceoryx_platform/atomic.hpp
+
 ./iceoryx_hoofs/**/*
 
 ./iceoryx_posh/experimental/include/iox/**/*

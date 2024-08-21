@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Copyright (c) 2022 - 2023 by Apex.AI Inc. All rights reserved.
-# Copyright (c) 2023 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
+# Copyright (c) 2023 - 2024 by ekxide IO GmbH. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -168,8 +168,9 @@ function scan() {
 
         if test -f "$FILE"; then
             SECONDS_START=${SECONDS}
-            $(${CLANG_TIDY_CMD} ${WARN_MODE_PARAM} --quiet -p build ${FILE} ; \
-            echo echo -e "${COLOR_YELLOW} $((${SECONDS}-${SECONDS_START}))s${COLOR_OFF} to scan '${FILE}'") &
+            $(${CLANG_TIDY_CMD} ${WARN_MODE_PARAM} --quiet -p build ${FILE} ${EXTRA_ARG} >&2 \
+            || exit $? \
+            && echo echo -e "${COLOR_YELLOW} $((${SECONDS}-${SECONDS_START}))s${COLOR_OFF} to scan '${FILE}'") &
             CURRENT_CONCURRENT_EXECUTIONS=$((CURRENT_CONCURRENT_EXECUTIONS + 1))
         else
             echo -e "${COLOR_RED}File does not exist! Aborting!${COLOR_OFF}"

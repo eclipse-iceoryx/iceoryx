@@ -79,7 +79,7 @@ iox_add_library(
     PROJECT_PREFIX              ${PREFIX}
     EXPORT_INCLUDE_DIRS         generic/include/
                                 ${ICEORYX_PLATFORM}/include/
-    PUBLIC_LIBS_LINUX           rt pthread
+    PUBLIC_LIBS_LINUX           atomic rt pthread
     PUBLIC_LIBS_UNIX            rt pthread
     PRIVATE_LIBS_QNX            socket
     PUBLIC_LIBS_FREERTOS        freertos_sdk::FreeRTOS_POSIX
