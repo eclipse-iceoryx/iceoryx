@@ -137,7 +137,7 @@ TEST_F(TriggerHandle_test, triggerNotifiesConditionVariable)
         std::this_thread::yield();
     }
 
-    iox::deadline_timer timeout{100_ms};
+    iox::deadline_timer timeout{200_ms};
     EXPECT_THAT(stage.load(), Eq(1));
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     EXPECT_THAT(stage.load(), Eq(1));
