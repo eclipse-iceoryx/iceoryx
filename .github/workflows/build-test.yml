@@ -55,16 +55,23 @@ jobs:
     runs-on: ubuntu-20.04
     needs: pre-flight-check
     steps:
-      - uses: actions/checkout@v4
-      - uses: egor-tensin/setup-gcc@v1.3
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install iceoryx dependencies and clang-tidy
+        uses: ./.github/actions/install-iceoryx-deps-and-clang
+      - name: Setup GCC
+        uses: egor-tensin/setup-gcc@v1.3
         with:
           # gcc 8.3 is compiler used in QNX 7.1
           version: 8
           platform: x64
-      - uses: jwlawson/actions-setup-cmake@v2.0
+      - name: Setup cmake
+        uses: jwlawson/actions-setup-cmake@v2.0
         with:
           cmake-version: '3.16.3' # version used in Ubuntu 20.04 LTS
       - run: ./tools/ci/build-test-ubuntu.sh
+
+
 
   build-test-windows-msvc:
     # prevent stuck jobs consuming runners for 6 hours
@@ -171,6 +178,18 @@ jobs:
         uses: ./.github/actions/install-iceoryx-deps-and-clang
       - name: Run Thread Sanitizer
         run: ./tools/ci/build-test-ubuntu-with-sanitizers.sh clang tsan
+
+  build-test-ubuntu-32-bit:
+    # prevent stuck jobs consuming runners for 6 hours
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    needs: pre-flight-check
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install iceoryx dependencies and clang-tidy
+        uses: ./.github/actions/install-iceoryx-deps-and-clang
+      - run: ./tools/ci/build-test-ubuntu.sh 32-bit-x86
 
   # Bazel sanity check
   build-test-ubuntu-bazel:

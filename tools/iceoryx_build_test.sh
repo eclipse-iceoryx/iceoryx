@@ -382,6 +382,8 @@ if [ "$OUT_OF_TREE_FLAG" == "ON" ]; then
             cmake -DCMAKE_INSTALL_PREFIX="$ICEORYX_INSTALL_PREFIX" \
                   -DTOML_CONFIG=$TOML_FLAG \
                   -DBINDING_C=$BINDING_C_FLAG \
+                  -DCMAKE_C_FLAGS="$CMAKE_C_FLAGS" \
+                  -DCMAKE_CXX_FLAGS="$CMAKE_CXX_FLAGS" \
                   "$WORKSPACE"/iceoryx_examples/"$ex"
             if ! cmake --build . --target install -- -j$NUM_JOBS; then
                 echo "Out of tree build failed"

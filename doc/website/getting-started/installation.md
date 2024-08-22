@@ -43,6 +43,13 @@ You will need to install the following packages:
 sudo apt install gcc g++ cmake libacl1-dev libncurses5-dev pkg-config
 ```
 
+To build iceoryx as 32-bit library, the following packages need to be installed additionally:
+
+```bash
+sudo dpkg --add-architecture i386
+sudo apt install libacl1-dev:i386 libc6-dev-i386 libc6-dev-i386-cross libstdc++6-i386-cross gcc-multilib g++-multilib
+```
+
 Additionally, there is an optional dependency to the [cpptoml](https://github.com/skystrife/cpptoml) library, which is used to parse the RouDi config file containing mempool configuration.
 
 ### QNX
