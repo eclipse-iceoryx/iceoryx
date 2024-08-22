@@ -161,6 +161,10 @@ void RouDi::shutdown() noexcept
     // Postpone the IpcChannelThread in order to receive TERMINATION
     m_runHandleRuntimeMessageThread = false;
 
+    if (listen_thread_watchdog.joinable()) {
+        listen_thread_watchdog.join();
+    }
+
     if (m_handleRuntimeMessageThread.joinable())
     {
         IOX_LOG(DEBUG, "Joining 'IPC-msg-process' thread...");
@@ -257,27 +261,25 @@ void RouDi::processRuntimeMessages(runtime::IpcInterfaceCreator&& roudiIpcInterf
     const char* invocation_id = std::getenv("INVOCATION_ID");
     if (invocation_id != nullptr)
     {
-        IOX_LOG(ERROR, "systemd");
+        IOX_LOG(WARN, "Run APP in unit(systemd)");
         listen_thread_watchdog = std::thread([this] {
             if (auto wdres = sd_notify(0, "READY=1") < 0)
             {
                 std::array<char, SIZE_ERROR_MESSAGE> buf{};
                 strerror_r(-static_cast<int>(wdres), buf.data(), buf.size());
                 IOX_LOG(ERROR, "WatchDogError: " << std::string(buf.data()));
-                shutdown();
                 return;
             }
             IOX_LOG(DEBUG, "WatchDog READY=1");
 
             IOX_LOG(INFO, "Start watchdog");
-            while (m_runHandleRuntimeMessageThread)
+            while (m_runHandleRuntimeMessageThread.load())
             {
                 if (auto wdres = sd_notify(0, "WATCHDOG=1") < 0)
                 {
                     std::array<char, SIZE_ERROR_MESSAGE> buf{};
                     strerror_r(-static_cast<int>(wdres), buf.data(), buf.size());
                     IOX_LOG(ERROR, "WatchDogError: " << std::string(buf.data()));
-                    shutdown();
                     return;
                 }
                 std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -290,6 +292,7 @@ void RouDi::processRuntimeMessages(runtime::IpcInterfaceCreator&& roudiIpcInterf
             IOX_LOG(ERROR, "Can not set name for thread watchdog: " << std::string(buf.data()));
         }
     }
+
     while (m_runHandleRuntimeMessageThread)
     {
         // read RouDi's IPC channel
