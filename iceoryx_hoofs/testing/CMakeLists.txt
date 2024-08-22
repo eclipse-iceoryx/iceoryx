@@ -38,6 +38,9 @@ iox_add_library(
         error_reporting/testing_support.cpp
 )
 
+# deactivate _FORTIFY_SOURCE since it causes issues with longjmp in the testing logger and error handler
+target_compile_options(iceoryx_hoofs_testing PRIVATE -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0)
+
 if(TEST_WITH_ADDITIONAL_USER)
     target_compile_definitions(iceoryx_hoofs_testing PUBLIC -DTEST_WITH_ADDITIONAL_USER)
 endif(TEST_WITH_ADDITIONAL_USER)

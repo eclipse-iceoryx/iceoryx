@@ -110,8 +110,9 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
     auto meWithStoragePointer = new SubscriberWithStoragePointer();
     meWithStoragePointer->subscriberStorage = self;
     auto me = &meWithStoragePointer->subscriber;
-    assert(reinterpret_cast<uint64_t>(me) - reinterpret_cast<uint64_t>(meWithStoragePointer) == sizeof(void*)
-           && "Size mismatch for SubscriberWithStoragePointer!");
+    auto ptrDiff = reinterpret_cast<size_t>(me) - reinterpret_cast<size_t>(meWithStoragePointer);
+    IOX_ENFORCE(ptrDiff >= sizeof(void*), "Size mismatch for SubscriberWithStoragePointer!");
+    IOX_ENFORCE(ptrDiff <= 2 * sizeof(void*), "Size mismatch for SubscriberWithStoragePointer!");
 
     me->m_portData =
         PoshRuntime::getInstance().getMiddlewareSubscriber(ServiceDescription{IdString_t(TruncateToCapacity, service),
