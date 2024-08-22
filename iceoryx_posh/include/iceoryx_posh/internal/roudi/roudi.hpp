@@ -33,6 +33,7 @@
 #include "iox/smart_lock.hpp"
 
 #include <cstdint>
+#include <systemd/sd-daemon.h>
 #include <thread>
 
 namespace iox
@@ -50,6 +51,8 @@ class RouDi
     RouDi(RouDiMemoryInterface& roudiMemoryInterface,
           PortManager& portManager,
           const config::RouDiConfig& roudiConfig) noexcept;
+
+    static constexpr uint16_t SIZE_ERROR_MESSAGE = 4096;
 
     virtual ~RouDi() noexcept;
 
@@ -129,6 +132,7 @@ class RouDi
   private:
     std::thread m_monitoringAndDiscoveryThread;
     std::thread m_handleRuntimeMessageThread;
+    std::thread listen_thread_watchdog; // 8
 
   protected:
     ProcessIntrospectionType m_processIntrospection;

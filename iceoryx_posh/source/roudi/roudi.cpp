@@ -161,6 +161,15 @@ void RouDi::shutdown() noexcept
     // Postpone the IpcChannelThread in order to receive TERMINATION
     m_runHandleRuntimeMessageThread = false;
 
+    /*
+     * This is necessary to prevent the main thread from exiting before
+     * the 'listen_thread_watchdog' has finished, hence ensuring a
+     * proper termination of the entire application.
+     */
+    if (listen_thread_watchdog.joinable()) {
+        listen_thread_watchdog.join();
+    }
+
     if (m_handleRuntimeMessageThread.joinable())
     {
         IOX_LOG(DEBUG, "Joining 'IPC-msg-process' thread...");
@@ -253,6 +262,45 @@ void RouDi::processRuntimeMessages(runtime::IpcInterfaceCreator&& roudiIpcInterf
     IOX_LOG(INFO, "Domain ID: " << static_cast<DomainId::value_type>(m_roudiConfig.domainId));
     IOX_LOG(INFO, "RouDi is ready for clients");
     fflush(stdout); // explicitly flush 'stdout' for 'launch_testing'
+
+    /*
+     * We get information about how they are running. If as a unit, then we launch
+     * watchdog and send a notification about the launch, otherwise we do nothing
+     */
+    const char* invocation_id = std::getenv("INVOCATION_ID");
+    if (invocation_id != nullptr)
+    {
+        IOX_LOG(WARN, "Run APP in unit(systemd)");
+        listen_thread_watchdog = std::thread([this] {
+            if (auto wdres = sd_notify(0, "READY=1") < 0)
+            {
+                std::array<char, SIZE_ERROR_MESSAGE> buf{};
+                strerror_r(-static_cast<int>(wdres), buf.data(), buf.size());
+                IOX_LOG(ERROR, "WatchDogError: " << std::string(buf.data()));
+                return;
+            }
+            IOX_LOG(DEBUG, "WatchDog READY=1");
+
+            IOX_LOG(INFO, "Start watchdog");
+            while (m_runHandleRuntimeMessageThread.load())
+            {
+                if (auto wdres = sd_notify(0, "WATCHDOG=1") < 0)
+                {
+                    std::array<char, SIZE_ERROR_MESSAGE> buf{};
+                    strerror_r(-static_cast<int>(wdres), buf.data(), buf.size());
+                    IOX_LOG(ERROR, "WatchDogError: " << std::string(buf.data()));
+                    return;
+                }
+                std::this_thread::sleep_for(std::chrono::seconds(1));
+            }
+        });
+        if (pthread_setname_np(listen_thread_watchdog.native_handle(), "watchdog") != 0)
+        {
+            std::array<char, SIZE_ERROR_MESSAGE> buf{};
+            strerror_r(errno, buf.data(), buf.size());
+            IOX_LOG(ERROR, "Can not set name for thread watchdog: " << std::string(buf.data()));
+        }
+    }
 
     while (m_runHandleRuntimeMessageThread)
     {
