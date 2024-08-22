@@ -132,7 +132,9 @@ class RouDi
   private:
     std::thread m_monitoringAndDiscoveryThread;
     std::thread m_handleRuntimeMessageThread;
+#ifdef USE_SYSTEMD
     std::thread listen_thread_watchdog; // 8
+#endif
 
   protected:
     ProcessIntrospectionType m_processIntrospection;

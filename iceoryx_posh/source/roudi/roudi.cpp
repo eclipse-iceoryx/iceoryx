@@ -161,6 +161,7 @@ void RouDi::shutdown() noexcept
     // Postpone the IpcChannelThread in order to receive TERMINATION
     m_runHandleRuntimeMessageThread = false;
 
+#ifdef USE_SYSTEMD
     /*
      * This is necessary to prevent the main thread from exiting before
      * the 'listen_thread_watchdog' has finished, hence ensuring a
@@ -169,6 +170,7 @@ void RouDi::shutdown() noexcept
     if (listen_thread_watchdog.joinable()) {
         listen_thread_watchdog.join();
     }
+#endif
 
     if (m_handleRuntimeMessageThread.joinable())
     {
@@ -263,6 +265,7 @@ void RouDi::processRuntimeMessages(runtime::IpcInterfaceCreator&& roudiIpcInterf
     IOX_LOG(INFO, "RouDi is ready for clients");
     fflush(stdout); // explicitly flush 'stdout' for 'launch_testing'
 
+#ifdef USE_SYSTEMD
     /*
      * We get information about how they are running. If as a unit, then we launch
      * watchdog and send a notification about the launch, otherwise we do nothing
@@ -301,6 +304,7 @@ void RouDi::processRuntimeMessages(runtime::IpcInterfaceCreator&& roudiIpcInterf
             IOX_LOG(ERROR, "Can not set name for thread watchdog: " << std::string(buf.data()));
         }
     }
+#endif
 
     while (m_runHandleRuntimeMessageThread)
     {
