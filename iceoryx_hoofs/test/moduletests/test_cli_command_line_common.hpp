@@ -30,10 +30,10 @@ struct CmdArgs
 
     explicit CmdArgs(const std::vector<std::string>& arguments)
         : argc{static_cast<int>(arguments.size())}
-        , argv{new char*[static_cast<uint64_t>(argc)]}
+        , argv{new char*[static_cast<size_t>(argc)]}
     {
         contents = std::make_unique<std::vector<std::string>>(arguments);
-        for (uint64_t i = 0; i < static_cast<uint64_t>(argc); ++i)
+        for (size_t i = 0; i < static_cast<size_t>(argc); ++i)
         {
             // NOLINTJUSTIFICATION required for test
             // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)

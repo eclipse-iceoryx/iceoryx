@@ -65,7 +65,7 @@ void producePeriodic(Queue& queue, const uint32_t id, CountArray& producedCount,
     {
         if (queue.tryPush(d))
         {
-            producedCount[d.count].fetch_add(1U, std::memory_order_relaxed);
+            producedCount[static_cast<size_t>(d.count)].fetch_add(1U, std::memory_order_relaxed);
             d.count = (d.count + 1U) % n;
         }
     }
@@ -83,7 +83,7 @@ void consume(Queue& queue, CountArray& consumedCount, iox::concurrent::Atomic<bo
         if (popped.has_value())
         {
             const auto& value = popped.value();
-            consumedCount[value.count].fetch_add(1U, std::memory_order_relaxed);
+            consumedCount[static_cast<size_t>(value.count)].fetch_add(1U, std::memory_order_relaxed);
         }
     }
 }
@@ -305,7 +305,7 @@ void changeCapacity(Queue& queue,
             incrementK = false;
         }
 
-        if (queue.setCapacity(capacities[static_cast<uint64_t>(k)], removeHandler))
+        if (queue.setCapacity(capacities[static_cast<size_t>(k)], removeHandler))
         {
             ++numChanges;
         }
@@ -427,7 +427,7 @@ TYPED_TEST(MpmcResizeableLockFreeQueueStressTest, MultiProducerMultiConsumerComp
     CountArray consumedCount(cycleLength);
 
     // cannot be done with the vector ctor for atomics
-    for (uint64_t i = 0; i < cycleLength; ++i)
+    for (size_t i = 0; i < cycleLength; ++i)
     {
         producedCount[i].store(0U, std::memory_order_relaxed);
         consumedCount[i].store(0U, std::memory_order_relaxed);
@@ -465,11 +465,11 @@ TYPED_TEST(MpmcResizeableLockFreeQueueStressTest, MultiProducerMultiConsumerComp
     while (const auto popped = queue.pop())
     {
         const auto& value = popped.value();
-        consumedCount[value.count].fetch_add(1U, std::memory_order_relaxed);
+        consumedCount[static_cast<size_t>(value.count)].fetch_add(1U, std::memory_order_relaxed);
     }
 
     // verify counts
-    for (uint64_t i = 0; i < cycleLength; ++i)
+    for (size_t i = 0; i < cycleLength; ++i)
     {
         EXPECT_EQ(producedCount[i].load(), consumedCount[i].load());
     }
@@ -575,11 +575,11 @@ TYPED_TEST(MpmcResizeableLockFreeQueueStressTest, HybridMultiProducerMultiConsum
     }
 
     // check whether all elements are there, but there is no specific ordering we can expect
-    std::vector<uint64_t> count(capacity, 0);
+    std::vector<uint64_t> count(static_cast<size_t>(capacity), 0);
     auto popped = q.pop();
     while (popped.has_value())
     {
-        count[popped.value().count]++;
+        count[static_cast<size_t>(popped.value().count)]++;
         popped = q.pop();
     }
 
@@ -667,12 +667,12 @@ TYPED_TEST(MpmcResizeableLockFreeQueueStressTest, HybridMultiProducerMultiConsum
     // items are either in the local lists or the queue, in total we expect each count numThreads times
     // and for each count each id exactly once
 
-    std::vector<std::vector<int>> count(capacity, std::vector<int>(numThreads + 1, 0));
+    std::vector<std::vector<int>> count(static_cast<size_t>(capacity), std::vector<int>(numThreads + 1, 0));
     auto popped = q.pop();
     while (popped.has_value())
     {
         const auto& value = popped.value();
-        count[value.count][value.id]++;
+        count[static_cast<size_t>(value.count)][value.id]++;
         popped = q.pop();
     }
 
@@ -681,7 +681,7 @@ TYPED_TEST(MpmcResizeableLockFreeQueueStressTest, HybridMultiProducerMultiConsum
     {
         for (auto& item : items)
         {
-            count[item.count][item.id]++;
+            count[static_cast<size_t>(item.count)][item.id]++;
         }
     }
 
@@ -787,12 +787,12 @@ TYPED_TEST(MpmcResizeableLockFreeQueueStressTest, HybridMultiProducerMultiConsum
     // items are either in the local lists or the queue, in total we expect each count numThreads times
     // and for each count each id exactly once
 
-    std::vector<std::vector<int>> count(capacity, std::vector<int>(numThreads + 1, 0));
+    std::vector<std::vector<int>> count(static_cast<size_t>(capacity), std::vector<int>(numThreads + 1, 0));
     auto popped = q.pop();
     while (popped.has_value())
     {
         const auto& value = popped.value();
-        count[value.count][value.id]++;
+        count[static_cast<size_t>(value.count)][value.id]++;
         popped = q.pop();
     }
 
@@ -801,17 +801,17 @@ TYPED_TEST(MpmcResizeableLockFreeQueueStressTest, HybridMultiProducerMultiConsum
     {
         for (auto& item : items)
         {
-            count[item.count][item.id]++;
+            count[static_cast<size_t>(item.count)][item.id]++;
         }
     }
 
     bool testResult = true;
-    for (uint64_t i = 0; i < capacity; ++i)
+    for (size_t i = 0; i < capacity; ++i)
     {
         // we expect each data item exactly numThreads + 1 times,
         // the extra one is for the initially full queue
         // and each count appears for all ids exactly ones
-        for (uint32_t j = 0; j <= numThreads; ++j)
+        for (size_t j = 0; j <= numThreads; ++j)
         {
             if (count[i][j] != 1)
             {

@@ -95,9 +95,9 @@ TYPED_TEST(stringTyped_test, ConcatenateThreeStringsWorks)
     string<STRINGCAP + 2U> testString2("YOD");
     auto testString3 = concatenate(testString2, this->testSubject, testString1);
 
-    std::string cmpString = std::string(testString2.c_str(), testString2.size())
-                            + std::string(this->testSubject.c_str(), this->testSubject.size())
-                            + std::string(testString1.c_str(), testString1.size());
+    std::string cmpString = std::string(testString2.c_str(), static_cast<size_t>(testString2.size()))
+                            + std::string(this->testSubject.c_str(), static_cast<size_t>(this->testSubject.size()))
+                            + std::string(testString1.c_str(), static_cast<size_t>(testString1.size()));
     EXPECT_THAT(testString3.capacity(), Eq(3U * STRINGCAP + 2U));
     EXPECT_THAT(testString3.size(), Eq(cmpString.size()));
     EXPECT_THAT(testString3.c_str(), StrEq(cmpString));
@@ -566,7 +566,7 @@ TYPED_TEST(stringTyped_test, AppendStringContainingNullWorks)
     sut.append(TruncateToCapacity, testCxxString);
     EXPECT_THAT(sut.capacity(), Eq(RESULT_CAPACITY));
     EXPECT_THAT(sut.size(), Eq(7U));
-    EXPECT_THAT(std::memcmp(sut.c_str(), expectedString.c_str(), sut.size()), Eq(0));
+    EXPECT_THAT(std::memcmp(sut.c_str(), expectedString.c_str(), static_cast<size_t>(sut.size())), Eq(0));
 }
 
 /// @note string& append(TruncateToCapacity_t, char c) noexcept

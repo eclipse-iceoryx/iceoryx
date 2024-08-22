@@ -22,7 +22,7 @@ set_global(VAR ICEORYX_CXX_FLAGS            VALUE )
 set_global(VAR ICEORYX_TEST_CXX_FLAGS       VALUE )
 
 set_global(VAR ICEORYX_C_WARNINGS           VALUE -W -Wall -Wextra -Wuninitialized -Wpedantic -Wstrict-aliasing -Wcast-align -Wconversion)
-set_global(VAR ICEORYX_CXX_WARNINGS         VALUE ${ICEORYX_C_WARNINGS} -Wno-noexcept-type -Wno-useless-cast)
+set_global(VAR ICEORYX_CXX_WARNINGS         VALUE ${ICEORYX_C_WARNINGS} -Wno-noexcept-type)
 
 if(BUILD_STRICT)
     set_global(VAR ICEORYX_C_WARNINGS       VALUE ${ICEORYX_C_WARNINGS} -Werror)

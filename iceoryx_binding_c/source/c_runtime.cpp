@@ -42,7 +42,7 @@ uint64_t iox_runtime_get_instance_name(char* const name, const uint64_t nameLeng
     }
 
     auto instanceName = PoshRuntime::getInstance().getInstanceName();
-    std::strncpy(name, instanceName.c_str(), nameLength);
+    std::strncpy(name, instanceName.c_str(), static_cast<size_t>(nameLength));
     name[nameLength - 1U] = '\0'; // strncpy doesn't add a null-termination if destination is smaller than source
 
     return instanceName.size();

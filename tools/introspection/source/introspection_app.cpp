@@ -280,6 +280,22 @@ void IntrospectionApp::printProcessIntrospectionData(const ProcessIntrospectionF
     wprintw(pad, "\n");
 }
 
+template <typename T>
+constexpr const char* format_uint64_t() noexcept;
+template <>
+constexpr const char* format_uint64_t<unsigned long>() noexcept
+{
+    return "%*lu%s";
+}
+template <>
+constexpr const char* format_uint64_t<unsigned long long>() noexcept
+{
+    return "%*llu%s";
+}
+
+template <typename T>
+static constexpr const char* FORMAT_UINT64_T{format_uint64_t<T>()};
+
 void IntrospectionApp::printMemPoolInfo(const MemPoolIntrospectionInfo& introspectionInfo)
 {
     wprintw(pad, "Segment ID: %d\n", introspectionInfo.m_id);
@@ -312,12 +328,12 @@ void IntrospectionApp::printMemPoolInfo(const MemPoolIntrospectionInfo& introspe
         auto& info = introspectionInfo.m_mempoolInfo[i];
         if (info.m_numChunks > 0u)
         {
-            wprintw(pad, "%*zd |", memPoolWidth, i + 1u);
-            wprintw(pad, "%*d |", usedchunksWidth, info.m_usedChunks);
-            wprintw(pad, "%*d |", numchunksWidth, info.m_numChunks);
-            wprintw(pad, "%*d |", minFreechunksWidth, info.m_minFreeChunks);
-            wprintw(pad, "%*ld |", chunkSizeWidth, info.m_chunkSize);
-            wprintw(pad, "%*ld\n", chunkPayloadSizeWidth, info.m_chunkPayloadSize);
+            wprintw(pad, "%*zu |", memPoolWidth, i + 1u);
+            wprintw(pad, "%*u |", usedchunksWidth, info.m_usedChunks);
+            wprintw(pad, "%*u |", numchunksWidth, info.m_numChunks);
+            wprintw(pad, "%*u |", minFreechunksWidth, info.m_minFreeChunks);
+            wprintw(pad, FORMAT_UINT64_T<uint64_t>, chunkSizeWidth, info.m_chunkSize, " |");
+            wprintw(pad, FORMAT_UINT64_T<uint64_t>, chunkPayloadSizeWidth, info.m_chunkPayloadSize, "\n");
         }
     }
     wprintw(pad, "\n");
@@ -576,7 +592,8 @@ IntrospectionApp::composePublisherPortData(const PortIntrospectionFieldTopic* po
                                            const PortThroughputIntrospectionFieldTopic* throughputData)
 {
     std::vector<ComposedPublisherPortData> publisherPortData;
-    publisherPortData.reserve(portData->m_publisherList.size());
+    auto listSize = portData->m_publisherList.size();
+    publisherPortData.reserve(static_cast<size_t>(listSize));
 
     const PortThroughputData dummyThroughputData;
 
@@ -625,7 +642,8 @@ std::vector<ComposedSubscriberPortData> IntrospectionApp::composeSubscriberPortD
     const SubscriberPortChangingIntrospectionFieldTopic* subscriberPortChangingData)
 {
     std::vector<ComposedSubscriberPortData> subscriberPortData;
-    subscriberPortData.reserve(portData->m_subscriberList.size());
+    auto listSize = portData->m_subscriberList.size();
+    subscriberPortData.reserve(static_cast<size_t>(listSize));
 
     uint32_t i = 0U;
     if (portData->m_subscriberList.size() == subscriberPortChangingData->subscriberPortChangingDataList.size())

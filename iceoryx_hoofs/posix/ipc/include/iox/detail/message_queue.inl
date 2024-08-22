@@ -40,7 +40,7 @@ MessageQueue::timedSendImpl(not_null<const Type*> msg, uint64_t msgSize, const u
     }
 
     timespec timeOut = timeout.timespec(units::TimeSpecReference::Epoch);
-    auto mqCall = IOX_POSIX_CALL(mq_timedsend)(m_mqDescriptor, msg, msgSizeToSend, 1U, &timeOut)
+    auto mqCall = IOX_POSIX_CALL(mq_timedsend)(m_mqDescriptor, msg, static_cast<size_t>(msgSizeToSend), 1U, &timeOut)
                       .failureReturnValue(ERROR_CODE)
                       // don't use the suppressErrorMessagesForErrnos method since QNX used EINTR instead of ETIMEDOUT
                       .ignoreErrnos(TIMEOUT_ERRNO)
@@ -74,8 +74,9 @@ expected<void, PosixIpcChannelError> MessageQueue::sendImpl(not_null<const Type*
         return err(PosixIpcChannelError::MESSAGE_TOO_LONG);
     }
 
-    auto mqCall =
-        IOX_POSIX_CALL(mq_send)(m_mqDescriptor, msg, msgSizeToSend, 1U).failureReturnValue(ERROR_CODE).evaluate();
+    auto mqCall = IOX_POSIX_CALL(mq_send)(m_mqDescriptor, msg, static_cast<size_t>(msgSizeToSend), 1U)
+                      .failureReturnValue(ERROR_CODE)
+                      .evaluate();
 
     if (mqCall.has_error())
     {
@@ -95,11 +96,12 @@ expected<uint64_t, PosixIpcChannelError>
 MessageQueue::timedReceiveImpl(not_null<Type*> msg, uint64_t maxMsgSize, const units::Duration& timeout) const noexcept
 {
     timespec timeOut = timeout.timespec(units::TimeSpecReference::Epoch);
-    auto mqCall = IOX_POSIX_CALL(mq_timedreceive)(m_mqDescriptor, msg, maxMsgSize, nullptr, &timeOut)
-                      .failureReturnValue(ERROR_CODE)
-                      // don't use the suppressErrorMessagesForErrnos method since QNX used EINTR instead of ETIMEDOUT
-                      .ignoreErrnos(TIMEOUT_ERRNO)
-                      .evaluate();
+    auto mqCall =
+        IOX_POSIX_CALL(mq_timedreceive)(m_mqDescriptor, msg, static_cast<size_t>(maxMsgSize), nullptr, &timeOut)
+            .failureReturnValue(ERROR_CODE)
+            // don't use the suppressErrorMessagesForErrnos method since QNX used EINTR instead of ETIMEDOUT
+            .ignoreErrnos(TIMEOUT_ERRNO)
+            .evaluate();
 
     if (mqCall.has_error())
     {
@@ -118,8 +120,9 @@ template <typename Type, MessageQueue::Termination Terminator>
 expected<uint64_t, PosixIpcChannelError> MessageQueue::receiveImpl(not_null<Type*> msg,
                                                                    uint64_t maxMsgSize) const noexcept
 {
-    auto mqCall =
-        IOX_POSIX_CALL(mq_receive)(m_mqDescriptor, msg, maxMsgSize, nullptr).failureReturnValue(ERROR_CODE).evaluate();
+    auto mqCall = IOX_POSIX_CALL(mq_receive)(m_mqDescriptor, msg, static_cast<size_t>(maxMsgSize), nullptr)
+                      .failureReturnValue(ERROR_CODE)
+                      .evaluate();
 
     if (mqCall.has_error())
     {

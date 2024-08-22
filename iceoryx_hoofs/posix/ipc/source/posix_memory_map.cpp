@@ -31,7 +31,7 @@ expected<PosixMemoryMap, PosixMemoryMapError> PosixMemoryMapBuilder::create() no
     // AXIVION Next Construct AutosarC++19_03-A5.2.3, CertC++-EXP55 : Incompatibility with POSIX definition of mmap
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) low-level memory management
     auto result = IOX_POSIX_CALL(mmap)(const_cast<void*>(m_baseAddressHint),
-                                       m_length,
+                                       static_cast<size_t>(m_length),
                                        convertToProtFlags(m_accessMode),
                                        static_cast<int32_t>(m_flags),
                                        m_fileDescriptor,
@@ -176,7 +176,8 @@ bool PosixMemoryMap::destroy() noexcept
 {
     if (m_baseAddress != nullptr)
     {
-        auto unmapResult = IOX_POSIX_CALL(munmap)(m_baseAddress, m_length).failureReturnValue(-1).evaluate();
+        auto unmapResult =
+            IOX_POSIX_CALL(munmap)(m_baseAddress, static_cast<size_t>(m_length)).failureReturnValue(-1).evaluate();
         m_baseAddress = nullptr;
         m_length = 0U;
 

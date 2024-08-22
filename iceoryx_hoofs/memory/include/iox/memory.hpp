@@ -37,7 +37,7 @@ T align(const T value, const T alignment) noexcept
 /// @param[in] alignment, alignment of the memory
 /// @param[in] size, memory size
 /// @return void pointer to the aligned memory
-void* alignedAlloc(const uint64_t alignment, const uint64_t size) noexcept;
+void* alignedAlloc(const size_t alignment, const size_t size) noexcept;
 
 /// @brief frees aligned memory allocated with alignedAlloc
 /// @param[in] memory, pointer to the aligned memory

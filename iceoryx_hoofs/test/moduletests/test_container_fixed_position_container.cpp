@@ -2455,7 +2455,7 @@ TEST_F(FixedPositionContainer_test, PartiallyFilledUpContainerCallsDestructorOnE
         }
     }
 
-    uint64_t i = 0;
+    size_t i = 0;
     for (const auto value : stats.dTorOrder)
     {
         EXPECT_THAT(value, Eq(expected_values[i]));
@@ -2586,7 +2586,7 @@ TEST_F(FixedPositionContainer_test, ClearAfterPartiallyFillingContainerUpCallsDe
         }
     }
 
-    uint64_t i = 0;
+    size_t i = 0;
     for (const auto value : stats.dTorOrder)
     {
         EXPECT_THAT(value, Eq(expected_values[i]));
