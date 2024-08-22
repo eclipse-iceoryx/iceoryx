@@ -31,7 +31,7 @@ namespace log
 {
 // NOLINTJUSTIFICATION See at declaration in header
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
-std::atomic<LogLevel> ConsoleLogger::s_activeLogLevel{LogLevel::INFO};
+concurrent::Atomic<LogLevel> ConsoleLogger::s_activeLogLevel{LogLevel::INFO};
 
 ConsoleLogger::ThreadLocalData& ConsoleLogger::getThreadLocalData() noexcept
 {

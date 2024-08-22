@@ -23,6 +23,7 @@
 #include "iceoryx_posh/roudi_env/minimal_iceoryx_config.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_posh/testing/roudi_gtest.hpp"
+#include "iox/atomic.hpp"
 #include "iox/forward_list.hpp"
 #include "iox/list.hpp"
 #include "iox/optional.hpp"
@@ -70,12 +71,14 @@ class PublisherSubscriberCommunication_test : public RouDi_GTest
     {
     }
 
-    void SetUp()
+    void SetUp() override
     {
         runtime::PoshRuntime::initRuntime("PublisherSubscriberCommunication_test");
         m_watchdog.watchAndActOnFailure([] { std::terminate(); });
     };
-    void TearDown(){};
+    void TearDown() override
+    {
+    }
 
     template <typename T>
     std::unique_ptr<iox::popo::Publisher<T>>
@@ -576,7 +579,7 @@ TEST_F(PublisherSubscriberCommunication_test, PublisherBlocksWhenBlockingActivat
     EXPECT_FALSE(publisher->publishCopyOf("start your day with a smile").has_error());
     EXPECT_FALSE(publisher->publishCopyOf("and hypnotoad will smile back").has_error());
 
-    std::atomic_bool wasSampleDelivered{false};
+    iox::concurrent::Atomic<bool> wasSampleDelivered{false};
     Barrier isThreadStarted(1U);
     std::thread t1([&] {
         isThreadStarted.notify();
@@ -617,7 +620,7 @@ TEST_F(PublisherSubscriberCommunication_test, PublisherDoesNotBlockAndDiscardsSa
     EXPECT_FALSE(publisher->publishCopyOf("first there was a blubb named mantua").has_error());
     EXPECT_FALSE(publisher->publishCopyOf("second hypnotoad ate it").has_error());
 
-    std::atomic_bool wasSampleDelivered{false};
+    iox::concurrent::Atomic<bool> wasSampleDelivered{false};
     Barrier isThreadStarted(1U);
     std::thread t1([&] {
         isThreadStarted.notify();
@@ -679,7 +682,7 @@ TEST_F(PublisherSubscriberCommunication_test, MixedOptionsSetupWorksWithBlocking
     EXPECT_FALSE(publisherBlocking->publishCopyOf("hypnotoad wants a cookie").has_error());
     EXPECT_FALSE(publisherNonBlocking->publishCopyOf("hypnotoad has a sister named hypnoodle").has_error());
 
-    std::atomic_bool wasSampleDelivered{false};
+    iox::concurrent::Atomic<bool> wasSampleDelivered{false};
     Barrier isThreadStarted(1U);
     std::thread t1([&] {
         isThreadStarted.notify();

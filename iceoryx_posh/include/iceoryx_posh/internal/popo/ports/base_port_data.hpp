@@ -21,9 +21,8 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/unique_port_id.hpp"
+#include "iox/atomic.hpp"
 #include "iox/relative_pointer.hpp"
-
-#include <atomic>
 
 namespace iox
 {
@@ -50,7 +49,7 @@ struct BasePortData
     capro::ServiceDescription m_serviceDescription;
     RuntimeName_t m_runtimeName;
     UniquePortId m_uniqueId;
-    std::atomic_bool m_toBeDestroyed{false};
+    concurrent::Atomic<bool> m_toBeDestroyed{false};
 };
 
 } // namespace popo

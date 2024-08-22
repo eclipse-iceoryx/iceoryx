@@ -21,11 +21,11 @@
 #include "iceoryx_posh/internal/popo/ports/publisher_port_data.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iox/assertions.hpp"
+#include "iox/atomic.hpp"
 #include "iox/detail/periodic_task.hpp"
 #include "iox/fixed_position_container.hpp"
 #include "iox/function.hpp"
 
-#include <atomic>
 #include <mutex>
 
 #include <map>
@@ -221,7 +221,7 @@ class PortIntrospection
         PublisherContainer m_publisherContainer;
         ConnectionContainer m_connectionContainer;
 
-        std::atomic<bool> m_newData;
+        concurrent::Atomic<bool> m_newData;
         std::mutex m_mutex;
     };
 

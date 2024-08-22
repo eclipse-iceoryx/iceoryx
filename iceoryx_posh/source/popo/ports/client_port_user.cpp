@@ -113,7 +113,7 @@ void ClientPortUser::disconnect() noexcept
 
 ConnectionState ClientPortUser::getConnectionState() const noexcept
 {
-    return getMembers()->m_connectionState;
+    return getMembers()->m_connectionState.load(std::memory_order_relaxed);
 }
 
 expected<const ResponseHeader*, ChunkReceiveResult> ClientPortUser::getResponse() noexcept

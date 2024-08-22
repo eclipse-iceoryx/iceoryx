@@ -27,6 +27,7 @@
 #include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
 #include "iceoryx_posh/roudi/roudi_app.hpp"
 #include "iceoryx_posh/roudi/roudi_config.hpp"
+#include "iox/atomic.hpp"
 #include "iox/posix_user.hpp"
 #include "iox/relative_pointer.hpp"
 #include "iox/scope_guard.hpp"
@@ -104,8 +105,8 @@ class RouDi
 
     ScopeGuard m_unregisterRelativePtr{[] { UntypedRelativePointer::unregisterAll(); }};
     const config::RouDiConfig m_roudiConfig;
-    std::atomic_bool m_runMonitoringAndDiscoveryThread;
-    std::atomic_bool m_runHandleRuntimeMessageThread;
+    concurrent::Atomic<bool> m_runMonitoringAndDiscoveryThread;
+    concurrent::Atomic<bool> m_runHandleRuntimeMessageThread;
 
     popo::UserTrigger m_discoveryLoopTrigger;
     optional<UnnamedSemaphore> m_discoveryFinishedSemaphore;

@@ -14,13 +14,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-
 #include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/popo/listener.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
+#include "iox/atomic.hpp"
 #include "iox/optional.hpp"
 #include "iox/smart_lock.hpp"
 #include "iox/unnamed_semaphore.hpp"
@@ -147,8 +147,8 @@ struct EventAndSutPair_t
 
 struct TriggerSourceAndCount
 {
-    std::atomic<SimpleEventClass*> m_source{nullptr};
-    std::atomic<uint64_t> m_count{0U};
+    iox::concurrent::Atomic<SimpleEventClass*> m_source{nullptr};
+    iox::concurrent::Atomic<uint64_t> m_count{0U};
 };
 
 iox::concurrent::smart_lock<std::vector<EventAndSutPair_t>> g_toBeAttached;
@@ -209,7 +209,7 @@ class Listener_test : public Test
     }
 
 
-    void SetUp()
+    void SetUp() override
     {
         g_callbackBlocker.reset();
         for (auto& e : g_triggerCallbackArg)
@@ -272,9 +272,9 @@ class Listener_test : public Test
         return true;
     }
 
-
-    void TearDown(){};
-
+    void TearDown() override
+    {
+    }
 
     static constexpr uint64_t OVERFLOW_TEST_APPENDIX = 1U;
     using eventArray_t = SimpleEventClass[iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER + OVERFLOW_TEST_APPENDIX];
@@ -664,8 +664,8 @@ TIMING_TEST_F(Listener_test, CallbackIsCalledAfterNotify, Repeat(5), [&] {
     fuu.triggerStoepsel();
     std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS));
 
-    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_source == &fuu);
-    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_count == 1U);
+    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_source.load() == &fuu);
+    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_count.load() == 1U);
 })
 
 TIMING_TEST_F(Listener_test, CallbackWithEventAndUserTypeIsCalledAfterNotify, Repeat(5), [&] {
@@ -682,7 +682,7 @@ TIMING_TEST_F(Listener_test, CallbackWithEventAndUserTypeIsCalledAfterNotify, Re
     fuu.triggerStoepsel();
     std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS));
 
-    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_source == &fuu);
+    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_source.load() == &fuu);
     TIMING_TEST_EXPECT_TRUE(userType == 1U);
 })
 
@@ -698,7 +698,7 @@ TIMING_TEST_F(Listener_test, CallbackWithUserTypeIsCalledAfterNotify, Repeat(5),
     fuu.triggerNoEventType();
     std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS));
 
-    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_source == &fuu);
+    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_source.load() == &fuu);
     TIMING_TEST_EXPECT_TRUE(userType == 1U);
 })
 
@@ -723,10 +723,10 @@ TIMING_TEST_F(Listener_test, CallbackIsCalledOnlyOnceWhenTriggered, Repeat(5), [
     fuu2.triggerStoepsel();
     std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS));
 
-    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_source == &fuu1);
-    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_count == 1U);
-    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[1U].m_source == &fuu2);
-    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[1U].m_count == 1U);
+    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_source.load() == &fuu1);
+    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_count.load() == 1U);
+    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[1U].m_source.load() == &fuu2);
+    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[1U].m_count.load() == 1U);
 })
 
 TIMING_TEST_F(Listener_test, TriggerWhileInCallbackLeadsToAnotherCallback, Repeat(5), [&] {
@@ -750,8 +750,8 @@ TIMING_TEST_F(Listener_test, TriggerWhileInCallbackLeadsToAnotherCallback, Repea
     unblockTriggerCallback(NUMBER_OF_TRIGGER_UNBLOCKS);
     std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS));
 
-    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_source == &fuu);
-    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_count == 2U);
+    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_source.load() == &fuu);
+    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_count.load() == 2U);
 })
 
 TIMING_TEST_F(Listener_test, TriggerWhileInCallbackLeadsToAnotherCallbackOnce, Repeat(5), [&] {
@@ -782,10 +782,10 @@ TIMING_TEST_F(Listener_test, TriggerWhileInCallbackLeadsToAnotherCallbackOnce, R
     unblockTriggerCallback(NUMBER_OF_TRIGGER_UNBLOCKS);
     std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS));
 
-    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_source == &fuu);
-    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_count == 2U);
-    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[1U].m_source == &bar);
-    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[1U].m_count == 1U);
+    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_source.load() == &fuu);
+    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_count.load() == 2U);
+    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[1U].m_source.load() == &bar);
+    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[1U].m_count.load() == 1U);
 })
 
 TIMING_TEST_F(Listener_test, TriggerMultipleTimesWhileInCallbackLeadsToAnotherCallback, Repeat(5), [&] {
@@ -812,8 +812,8 @@ TIMING_TEST_F(Listener_test, TriggerMultipleTimesWhileInCallbackLeadsToAnotherCa
     unblockTriggerCallback(NUMBER_OF_RETRIGGERS);
     std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS));
 
-    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_source == &fuu);
-    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_count == 2U);
+    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_source.load() == &fuu);
+    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_count.load() == 2U);
 })
 
 TIMING_TEST_F(Listener_test, TriggerMultipleTimesWhileInCallbackLeadsToAnotherCallbackOnce, Repeat(5), [&] {
@@ -847,10 +847,10 @@ TIMING_TEST_F(Listener_test, TriggerMultipleTimesWhileInCallbackLeadsToAnotherCa
     unblockTriggerCallback(NUMBER_OF_RETRIGGERS + 1U);
     std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS));
 
-    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_source == &fuu);
-    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_count == 2U);
-    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[1U].m_source == &bar);
-    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[1U].m_count == 1U);
+    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_source.load() == &fuu);
+    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_count.load() == 2U);
+    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[1U].m_source.load() == &bar);
+    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[1U].m_count.load() == 1U);
 })
 
 TIMING_TEST_F(Listener_test, NoTriggerLeadsToNoCallback, Repeat(5), [&] {
@@ -865,8 +865,8 @@ TIMING_TEST_F(Listener_test, NoTriggerLeadsToNoCallback, Repeat(5), [&] {
 
     std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS));
 
-    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_source == nullptr);
-    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_count == 0U);
+    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_source.load() == nullptr);
+    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_count.load() == 0U);
 })
 
 TIMING_TEST_F(Listener_test, TriggeringAllEventsCallsAllCallbacks, Repeat(5), [&] {
@@ -890,12 +890,12 @@ TIMING_TEST_F(Listener_test, TriggeringAllEventsCallsAllCallbacks, Repeat(5), [&
     unblockTriggerCallback(10U * iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER);
     std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS));
 
-    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0].m_source == &events[0U]);
-    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0].m_count == 2U);
+    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0].m_source.load() == &events[0U]);
+    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0].m_count.load() == 2U);
     for (uint64_t i = 1U; i < iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER; ++i)
     {
-        TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[i].m_source == &events[i]);
-        TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[i].m_count == 1U);
+        TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[i].m_source.load() == &events[i]);
+        TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[i].m_count.load() == 1U);
     }
 })
 
@@ -923,12 +923,12 @@ TIMING_TEST_F(Listener_test, TriggeringAllEventsCallsAllCallbacksOnce, Repeat(5)
     events[0U].triggerStoepsel();
     std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS));
 
-    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0].m_source == &events[0U]);
-    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0].m_count == 3U);
+    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0].m_source.load() == &events[0U]);
+    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0].m_count.load() == 3U);
     for (uint64_t i = 1U; i < iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER; ++i)
     {
-        TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[i].m_source == &events[i]);
-        TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[i].m_count == 1U);
+        TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[i].m_source.load() == &events[i]);
+        TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[i].m_count.load() == 1U);
     }
 })
 //////////////////////////////////
@@ -961,8 +961,8 @@ TIMING_TEST_F(Listener_test, AttachingWhileCallbackIsRunningWorks, Repeat(5), [&
     events[1U].triggerStoepsel();
     std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS * 2U));
 
-    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[1U].m_source == &events[1U]);
-    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[1U].m_count == 1U);
+    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[1U].m_source.load() == &events[1U]);
+    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[1U].m_count.load() == 1U);
 })
 
 TIMING_TEST_F(Listener_test, AttachingMultipleWhileCallbackIsRunningWorks, Repeat(5), [&] {
@@ -992,8 +992,8 @@ TIMING_TEST_F(Listener_test, AttachingMultipleWhileCallbackIsRunningWorks, Repea
 
     for (uint64_t i = 0U; i + 1U < iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER; ++i)
     {
-        TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[i].m_source == &events[i]);
-        TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[i].m_count == 1U);
+        TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[i].m_source.load() == &events[i]);
+        TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[i].m_count.load() == 1U);
     }
 })
 
@@ -1017,8 +1017,8 @@ TIMING_TEST_F(Listener_test, DetachingWhileCallbackIsRunningWorks, Repeat(5), [&
     events[0U].triggerStoepsel();
     std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS));
 
-    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_count == 1U);
-    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_source == nullptr);
+    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_count.load() == 1U);
+    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_source.load() == nullptr);
 })
 
 TIMING_TEST_F(Listener_test, DetachingWhileCallbackIsRunningBlocksDetach, Repeat(5), [&] {
@@ -1091,7 +1091,7 @@ TIMING_TEST_F(Listener_test, DetachingMultipleWhileCallbackIsRunningWorks, Repea
 
     for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER; ++i)
     {
-        TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[i].m_source == nullptr);
+        TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[i].m_source.load() == nullptr);
     }
 })
 
@@ -1207,10 +1207,10 @@ TIMING_TEST_F(Listener_test, DetachedCallbacksAreNotBeingCalledWhenTriggeredBefo
 
     std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS));
 
-    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_source == nullptr);
-    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[1U].m_source == nullptr);
-    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_count == 0U);
-    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[1U].m_count == 1U);
+    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_source.load() == nullptr);
+    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[1U].m_source.load() == nullptr);
+    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_count.load() == 0U);
+    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[1U].m_count.load() == 1U);
 })
 
 TIMING_TEST_F(Listener_test, AttachingInCallbackWorks, Repeat(5), [&] {
@@ -1230,8 +1230,8 @@ TIMING_TEST_F(Listener_test, AttachingInCallbackWorks, Repeat(5), [&] {
 
     std::this_thread::sleep_for(std::chrono::milliseconds(CALLBACK_WAIT_IN_MS / 2U));
 
-    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_source == &events[1U]);
-    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_count == 1U);
+    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_source.load() == &events[1U]);
+    TIMING_TEST_EXPECT_TRUE(g_triggerCallbackArg[0U].m_count.load() == 1U);
 })
 //////////////////////////////////
 // END

@@ -17,11 +17,10 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_SIGNAL_WATCHER_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_SIGNAL_WATCHER_HPP
 
+#include "iox/atomic.hpp"
 #include "iox/optional.hpp"
 #include "iox/signal_handler.hpp"
 #include "iox/unnamed_semaphore.hpp"
-
-#include <atomic>
 
 namespace iox
 {
@@ -68,10 +67,10 @@ class SignalWatcher
 
   private:
     friend void internalSignalHandler(int) noexcept;
-    mutable std::atomic<uint64_t> m_numberOfWaiters{0U};
+    mutable concurrent::Atomic<uint64_t> m_numberOfWaiters{0U};
     mutable optional<UnnamedSemaphore> m_semaphore;
 
-    std::atomic_bool m_hasSignalOccurred{false};
+    concurrent::Atomic<bool> m_hasSignalOccurred{false};
     SignalGuard m_sigTermGuard;
     SignalGuard m_sigIntGuard;
 };

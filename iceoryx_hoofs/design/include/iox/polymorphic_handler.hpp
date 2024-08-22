@@ -17,10 +17,10 @@
 #ifndef IOX_HOOFS_DESIGN_POLYMORPHIC_HANDLER_HPP
 #define IOX_HOOFS_DESIGN_POLYMORPHIC_HANDLER_HPP
 
-#include <atomic>
-#include <type_traits>
-
+#include "iox/atomic.hpp"
 #include "iox/static_lifetime_guard.hpp"
+
+#include <type_traits>
 
 namespace iox
 {
@@ -118,8 +118,8 @@ class PolymorphicHandler
 
     // should a defaultHandler be created, the guard prevents its destruction
     StaticLifetimeGuard<Default> m_defaultGuard;
-    std::atomic_bool m_isFinal{false};
-    std::atomic<Interface*> m_current{nullptr};
+    concurrent::Atomic<bool> m_isFinal{false};
+    concurrent::Atomic<Interface*> m_current{nullptr};
 };
 
 } // namespace iox

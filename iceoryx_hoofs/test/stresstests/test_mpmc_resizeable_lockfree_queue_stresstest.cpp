@@ -16,6 +16,7 @@
 
 #include "iceoryx_hoofs/testing/test.hpp"
 
+#include "iox/atomic.hpp"
 #include "iox/detail/mpmc_resizeable_lockfree_queue.hpp"
 
 // Remark: It would be nice to have way to configure the (maximum) runtime in a general way.
@@ -25,8 +26,6 @@ using namespace ::testing;
 #include "iceoryx_hoofs/testing/barrier.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 
-#include <array>
-#include <atomic>
 #include <list>
 #include <numeric>
 #include <random>
@@ -53,10 +52,10 @@ struct Data
 // (requires lambdas and/or modification of the functions run by the threads)
 Barrier g_barrier;
 
-using CountArray = std::vector<std::atomic<uint64_t>>;
+using CountArray = std::vector<iox::concurrent::Atomic<uint64_t>>;
 
 template <typename Queue>
-void producePeriodic(Queue& queue, const uint32_t id, CountArray& producedCount, std::atomic_bool& run)
+void producePeriodic(Queue& queue, const uint32_t id, CountArray& producedCount, iox::concurrent::Atomic<bool>& run)
 {
     g_barrier.notify();
 
@@ -73,7 +72,7 @@ void producePeriodic(Queue& queue, const uint32_t id, CountArray& producedCount,
 }
 
 template <typename Queue>
-void consume(Queue& queue, CountArray& consumedCount, std::atomic_bool& run)
+void consume(Queue& queue, CountArray& consumedCount, iox::concurrent::Atomic<bool>& run)
 {
     g_barrier.notify();
 
@@ -90,7 +89,7 @@ void consume(Queue& queue, CountArray& consumedCount, std::atomic_bool& run)
 }
 
 template <typename Queue>
-void produceMonotonic(Queue& queue, const uint32_t id, std::atomic_bool& run)
+void produceMonotonic(Queue& queue, const uint32_t id, iox::concurrent::Atomic<bool>& run)
 {
     g_barrier.notify();
 
@@ -104,9 +103,13 @@ void produceMonotonic(Queue& queue, const uint32_t id, std::atomic_bool& run)
     }
 }
 
+//NOLINTBEGIN(bugprone-easily-swappable-parameters) This is okay since it is limited to the stress test
 template <typename Queue>
-//NOLINTNEXTLINE(bugprone-easily-swappable-parameters) This is okay since it is limited to the stress test
-void consumeAndCheckOrder(Queue& queue, const uint32_t maxId, std::atomic_bool& run, std::atomic_bool& orderOk)
+void consumeAndCheckOrder(Queue& queue,
+                          const uint32_t maxId,
+                          iox::concurrent::Atomic<bool>& run,
+                          iox::concurrent::Atomic<bool>& orderOk)
+//NOLINTEND(bugprone-easily-swappable-parameters)
 {
     g_barrier.notify();
 
@@ -147,7 +150,7 @@ void consumeAndCheckOrder(Queue& queue, const uint32_t maxId, std::atomic_bool& 
 
 // alternates between push and pop
 template <typename Queue>
-void work(Queue& queue, uint32_t id, std::atomic<bool>& run)
+void work(Queue& queue, uint32_t id, iox::concurrent::Atomic<bool>& run)
 {
     g_barrier.notify();
 
@@ -195,7 +198,7 @@ template <typename Queue>
 //NOLINTNEXTLINE(readability-function-size) This is okay since it is limited to the stress test
 void randomWork(Queue& queue,
                 uint32_t id,
-                std::atomic<bool>& run,
+                iox::concurrent::Atomic<bool>& run,
                 uint64_t numItems,
                 int& overflowCount,
                 std::list<Data>& items,
@@ -257,7 +260,7 @@ void randomWork(Queue& queue,
 template <typename Queue>
 //NOLINTNEXTLINE(readability-function-size) This is okay since it is limited to the stress test
 void changeCapacity(Queue& queue,
-                    std::atomic<bool>& run,
+                    iox::concurrent::Atomic<bool>& run,
                     std::list<Data>& items,
                     std::vector<uint64_t>& capacities,
                     uint64_t& numChanges)
@@ -408,7 +411,7 @@ TYPED_TEST(MpmcResizeableLockFreeQueueStressTest, MultiProducerMultiConsumerComp
     using Queue = typename TestFixture::Queue;
     auto& queue = this->sut;
 
-    std::atomic_bool run{true};
+    iox::concurrent::Atomic<bool> run{true};
 
     const int numProducers{4};
     const int numConsumers{4};
@@ -482,7 +485,7 @@ TYPED_TEST(MpmcResizeableLockFreeQueueStressTest, MultiProducerMultiConsumerOrde
     using Queue = typename TestFixture::Queue;
     auto& queue = this->sut;
 
-    std::atomic_bool run{true};
+    iox::concurrent::Atomic<bool> run{true};
 
     const int numProducers{4};
     const int numConsumers{4};
@@ -490,7 +493,7 @@ TYPED_TEST(MpmcResizeableLockFreeQueueStressTest, MultiProducerMultiConsumerOrde
 
     // need only one variable, any consumer that detects an error will set it to false
     // and no consumer will ever set it to true again
-    std::atomic_bool orderOk{true};
+    iox::concurrent::Atomic<bool> orderOk{true};
 
     std::vector<std::thread> producers;
     std::vector<std::thread> consumers;
@@ -552,7 +555,7 @@ TYPED_TEST(MpmcResizeableLockFreeQueueStressTest, HybridMultiProducerMultiConsum
         }
     }
 
-    std::atomic<bool> run{true};
+    iox::concurrent::Atomic<bool> run{true};
 
     std::vector<std::thread> threads;
 
@@ -614,7 +617,7 @@ TYPED_TEST(MpmcResizeableLockFreeQueueStressTest, HybridMultiProducerMultiConsum
     const double popProbability = 0.45; // tends to overflow
     const auto capacity = q.capacity();
 
-    std::atomic<bool> run{true};
+    iox::concurrent::Atomic<bool> run{true};
 
     std::vector<std::thread> threads;
     std::vector<int> overflowCount(numThreads);
@@ -715,7 +718,7 @@ TYPED_TEST(MpmcResizeableLockFreeQueueStressTest, HybridMultiProducerMultiConsum
     const double popProbability = 0.45; // tends to overflow
     const auto capacity = q.capacity();
 
-    std::atomic<bool> run{true};
+    iox::concurrent::Atomic<bool> run{true};
 
     std::vector<std::thread> threads;
     std::vector<int> overflowCount(numThreads);

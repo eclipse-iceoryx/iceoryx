@@ -19,10 +19,10 @@
 #define IOX_HOOFS_CONCURRENT_BUFFER_SPSC_SOFI_HPP
 
 #include "iceoryx_platform/platform_correction.hpp"
+#include "iox/atomic.hpp"
 #include "iox/type_traits.hpp"
 #include "iox/uninitialized_array.hpp"
 
-#include <atomic>
 #include <cstdint>
 #include <cstring>
 
@@ -159,8 +159,8 @@ class SpscSofi
 
     /// @brief the write/read pointers are "atomic pointers" so that they are not
     /// reordered (read or written too late)
-    std::atomic<uint64_t> m_readPosition{0};
-    std::atomic<uint64_t> m_writePosition{0};
+    Atomic<uint64_t> m_readPosition{0};
+    Atomic<uint64_t> m_writePosition{0};
 };
 
 } // namespace concurrent

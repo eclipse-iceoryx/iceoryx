@@ -19,7 +19,7 @@
 
 #include "iox/polymorphic_handler.hpp"
 #include "iox/static_lifetime_guard.hpp"
-#include <atomic>
+
 #include <cstdlib>
 #include <type_traits>
 

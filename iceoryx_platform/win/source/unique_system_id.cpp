@@ -15,13 +15,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_platform/unique_system_id.hpp"
+#include "iceoryx_platform/atomic.hpp"
 #include "iceoryx_platform/windows.hpp"
 
 #include <chrono>
 #include <processthreadsapi.h>
 
 
-std::atomic<uint64_t> UniqueSystemId::sequenceCounter{0U};
+iox::concurrent::Atomic<uint64_t> UniqueSystemId::sequenceCounter{0U};
 
 UniqueSystemId::UniqueSystemId() noexcept
     : m_processId{GetCurrentProcessId()}

@@ -18,13 +18,13 @@
 #if !defined(_WIN32)
 #include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "iceoryx_platform/socket.hpp"
+#include "iox/atomic.hpp"
 #include "iox/posix_call.hpp"
 #include "iox/string.hpp"
 #include "iox/unix_domain_socket.hpp"
 
 #include "test.hpp"
 
-#include <atomic>
 #include <chrono>
 #include <thread>
 
@@ -128,7 +128,7 @@ class UnixDomainSocket_test : public Test
     }
 
     const std::chrono::milliseconds WAIT_IN_MS{10};
-    std::atomic_bool doWaitForThread{true};
+    iox::concurrent::Atomic<bool> doWaitForThread{true};
     static constexpr uint64_t MaxMsgNumber = 10U;
     UnixDomainSocket server{UnixDomainSocketBuilder()
                                 .name(goodName)

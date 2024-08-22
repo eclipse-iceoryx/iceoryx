@@ -82,7 +82,8 @@ class ClientPort_test : public Test
     void tryAdvanceToState(SutClientPort& clientPort, const iox::ConnectionState targetState)
     {
         auto maybeCaProMessage = clientPort.portRouDi.tryGetCaProMessage();
-        if (targetState == iox::ConnectionState::NOT_CONNECTED && clientPort.portData.m_connectionState == targetState)
+        if (targetState == iox::ConnectionState::NOT_CONNECTED
+            && clientPort.portData.m_connectionState.load() == targetState)
         {
             return;
         }
@@ -91,8 +92,8 @@ class ClientPort_test : public Test
         auto& clientMessage = maybeCaProMessage.value();
         ASSERT_THAT(clientMessage.m_type, Eq(CaproMessageType::CONNECT));
         ASSERT_THAT(clientMessage.m_chunkQueueData, Ne(nullptr));
-        ASSERT_THAT(clientPort.portData.m_connectionState, Eq(iox::ConnectionState::CONNECT_REQUESTED));
-        if (clientPort.portData.m_connectionState == targetState)
+        ASSERT_THAT(clientPort.portData.m_connectionState.load(), Eq(iox::ConnectionState::CONNECT_REQUESTED));
+        if (clientPort.portData.m_connectionState.load() == targetState)
         {
             return;
         }
@@ -101,23 +102,23 @@ class ClientPort_test : public Test
         {
             CaproMessage serverMessageNack{CaproMessageType::NACK, m_serviceDescription};
             clientPort.portRouDi.dispatchCaProMessageAndGetPossibleResponse(serverMessageNack);
-            ASSERT_THAT(clientPort.portData.m_connectionState, Eq(targetState));
+            ASSERT_THAT(clientPort.portData.m_connectionState.load(), Eq(targetState));
             return;
         }
 
         CaproMessage serverMessageAck{CaproMessageType::ACK, m_serviceDescription};
         serverMessageAck.m_chunkQueueData = &serverChunkQueueData;
         clientPort.portRouDi.dispatchCaProMessageAndGetPossibleResponse(serverMessageAck);
-        ASSERT_THAT(clientPort.portData.m_connectionState, Eq(iox::ConnectionState::CONNECTED));
-        if (clientPort.portData.m_connectionState == targetState)
+        ASSERT_THAT(clientPort.portData.m_connectionState.load(), Eq(iox::ConnectionState::CONNECTED));
+        if (clientPort.portData.m_connectionState.load() == targetState)
         {
             return;
         }
 
         CaproMessage serverMessageDisconnect{CaproMessageType::DISCONNECT, m_serviceDescription};
         clientPort.portRouDi.dispatchCaProMessageAndGetPossibleResponse(serverMessageDisconnect);
-        ASSERT_THAT(clientPort.portData.m_connectionState, Eq(iox::ConnectionState::DISCONNECT_REQUESTED));
-        if (clientPort.portData.m_connectionState == targetState)
+        ASSERT_THAT(clientPort.portData.m_connectionState.load(), Eq(iox::ConnectionState::DISCONNECT_REQUESTED));
+        if (clientPort.portData.m_connectionState.load() == targetState)
         {
             return;
         }

@@ -110,6 +110,7 @@ preflight_check_task:
   clang_format_script: tools/scripts/clang_format.sh check
   check_test_ids_script: tools/scripts/check_test_ids.sh
   check_invalid_characters_script: tools/scripts/check_invalid_characters.sh
+  check_atomic_usage: tools/scripts/check_atomic_usage.sh
   cmake_linter_script: tools/ci/cmake-linter.sh
 
 #

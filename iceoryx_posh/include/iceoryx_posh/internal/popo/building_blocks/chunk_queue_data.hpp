@@ -22,6 +22,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/variant_queue.hpp"
 #include "iceoryx_posh/popo/port_queue_policies.hpp"
+#include "iox/atomic.hpp"
 #include "iox/detail/unique_id.hpp"
 #include "iox/relative_pointer.hpp"
 
@@ -44,7 +45,7 @@ struct ChunkQueueData : public LockingPolicy
 
     static constexpr uint64_t MAX_CAPACITY = ChunkQueueDataProperties_t::MAX_QUEUE_CAPACITY;
     VariantQueue<mepoo::ShmSafeUnmanagedChunk, MAX_CAPACITY> m_queue;
-    std::atomic_bool m_queueHasLostChunks{false};
+    concurrent::Atomic<bool> m_queueHasLostChunks{false};
 
     RelativePointer<ConditionVariableData> m_conditionVariableDataPtr;
     optional<uint64_t> m_conditionVariableNotificationIndex;

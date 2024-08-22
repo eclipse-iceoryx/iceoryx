@@ -17,7 +17,6 @@
 #ifndef IOX_HOOFS_MAC_PLATFORM_TIME_HPP
 #define IOX_HOOFS_MAC_PLATFORM_TIME_HPP
 
-#include <atomic>
 #include <condition_variable>
 #include <mutex>
 #include <sys/time.h>

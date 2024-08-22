@@ -21,6 +21,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
+#include "iox/atomic.hpp"
 #include "iox/optional.hpp"
 #include "iox/vector.hpp"
 #include "test.hpp"
@@ -432,7 +433,7 @@ class WaitSet_test : public Test
 
         iox::popo::TriggerHandle m_eventHandle;
         iox::popo::TriggerHandle m_stateHandle;
-        mutable std::atomic_bool m_hasTriggered{false};
+        mutable iox::concurrent::Atomic<bool> m_hasTriggered{false};
         static std::vector<uint64_t> m_invalidateTriggerId;
 
         static SimpleEvent1 m_simpleEvent1;
@@ -1133,8 +1134,8 @@ TEST_F(WaitSet_test, AttachmentsGoingOutOfScopeReducesSize)
 TEST_F(WaitSet_test, WaitBlocksWhenNothingTriggered)
 {
     ::testing::Test::RecordProperty("TEST_ID", "66c4d11f-f330-4629-b74a-faa87440a9a0");
-    std::atomic_bool doStartWaiting{false};
-    std::atomic_bool isThreadFinished{false};
+    iox::concurrent::Atomic<bool> doStartWaiting{false};
+    iox::concurrent::Atomic<bool> isThreadFinished{false};
     for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
     {
         ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[i], 5U + i).has_error());
@@ -1707,8 +1708,8 @@ TEST_F(WaitSet_test, MixingEventAndStateBasedTriggerHandlesEventTriggeresWithWai
 TEST_F(WaitSet_test, WaitUnblocksAfterMarkForDestructionCall)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a7c0b153-65da-4603-bd82-5f5db5841a2b");
-    std::atomic_bool doStartWaiting{false};
-    std::atomic_bool isThreadFinished{false};
+    iox::concurrent::Atomic<bool> doStartWaiting{false};
+    iox::concurrent::Atomic<bool> isThreadFinished{false};
     ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[0U], 0U).has_error());
 
     std::thread t([&] {
@@ -1735,8 +1736,8 @@ TEST_F(WaitSet_test, WaitUnblocksAfterMarkForDestructionCall)
 TEST_F(WaitSet_test, TimedWaitUnblocksAfterMarkForDestructionCall)
 {
     ::testing::Test::RecordProperty("TEST_ID", "63573915-bb36-4ece-93be-2adc853582e6");
-    std::atomic_bool doStartWaiting{false};
-    std::atomic_bool isThreadFinished{false};
+    iox::concurrent::Atomic<bool> doStartWaiting{false};
+    iox::concurrent::Atomic<bool> isThreadFinished{false};
     ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[0U], 0U).has_error());
 
     std::thread t([&] {

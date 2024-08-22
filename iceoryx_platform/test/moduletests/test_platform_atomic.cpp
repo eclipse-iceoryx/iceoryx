@@ -381,7 +381,7 @@ TYPED_TEST(Atomic_test, CompareExchangeWeakWorks)
     EXPECT_THAT(sut_struct.load(), Eq(EXPECTED_NEW_STRUCT));
 }
 
-TYPED_TEST(Atomic_test, CompareExchangeStronWorks)
+TYPED_TEST(Atomic_test, CompareExchangeStrongWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9f39293c-5d84-4d59-ab91-58fb738b5386");
 

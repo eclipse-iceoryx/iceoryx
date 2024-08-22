@@ -18,12 +18,10 @@
 #ifndef IOX_HOOFS_CONCURRENT_BUFFER_MPMC_LOCKFREE_QUEUE_HPP
 #define IOX_HOOFS_CONCURRENT_BUFFER_MPMC_LOCKFREE_QUEUE_HPP
 
+#include "iox/atomic.hpp"
 #include "iox/detail/mpmc_lockfree_queue/mpmc_index_queue.hpp"
 #include "iox/optional.hpp"
 #include "iox/uninitialized_array.hpp"
-
-#include <atomic>
-
 
 namespace iox
 {
@@ -112,7 +110,7 @@ class MpmcLockFreeQueue
 
     UninitializedArray<ElementType, Capacity> m_buffer;
 
-    std::atomic<uint64_t> m_size{0U};
+    Atomic<uint64_t> m_size{0U};
 
     // template is needed to distinguish between lvalue and rvalue T references
     // (universal reference type deduction)

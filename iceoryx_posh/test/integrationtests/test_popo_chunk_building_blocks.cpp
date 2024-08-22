@@ -21,6 +21,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
 #include "iceoryx_posh/internal/popo/ports/base_port.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
+#include "iox/atomic.hpp"
 #include "iox/scope_guard.hpp"
 
 #include "test.hpp"
@@ -82,12 +83,14 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
         EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
     }
 
-    void SetUp()
+    void SetUp() override
     {
         ASSERT_FALSE(m_chunkSender.tryAddQueue(&m_chunkQueueData).has_error());
         ASSERT_FALSE(m_chunkDistributor.tryAddQueue(&m_chunkReceiverData).has_error());
     }
-    void TearDown(){};
+    void TearDown() override
+    {
+    }
 
     void publish()
     {
@@ -198,8 +201,8 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
 
     uint64_t m_sendCounter{0};
     uint64_t m_receiveCounter{0};
-    std::atomic<bool> m_publisherRun{true};
-    std::atomic<bool> m_forwarderRun{true};
+    iox::concurrent::Atomic<bool> m_publisherRun{true};
+    iox::concurrent::Atomic<bool> m_forwarderRun{true};
 
     // Memory objects
     iox::BumpAllocator m_memoryAllocator{g_memory, MEMORY_SIZE};

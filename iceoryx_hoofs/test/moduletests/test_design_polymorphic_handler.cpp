@@ -14,11 +14,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iox/atomic.hpp"
 #include "iox/polymorphic_handler.hpp"
 #include "iox/static_lifetime_guard.hpp"
 
 #include "test.hpp"
-#include <atomic>
+
 #include <chrono>
 #include <iostream>
 #include <thread>
@@ -180,7 +181,7 @@ TEST_F(PolymorphicHandler_test, defaultHandlerIsVisibleInAllThreads)
 
     Handler::set(defaultGuard);
 
-    std::atomic<uint32_t> count{0};
+    iox::concurrent::Atomic<uint32_t> count{0};
 
     auto checkHandler = [&]() {
         auto& h = Handler::get();
@@ -198,7 +199,7 @@ TEST_F(PolymorphicHandler_test, defaultHandlerIsVisibleInAllThreads)
 
     checkHandler();
 
-    EXPECT_EQ(count, NUM_THREADS);
+    EXPECT_EQ(count.load(), NUM_THREADS);
 }
 
 TEST_F(PolymorphicHandler_test, handlerChangePropagatesBetweenThreads)

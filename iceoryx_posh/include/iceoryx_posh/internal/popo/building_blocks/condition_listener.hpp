@@ -20,6 +20,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/mepoo/memory_info.hpp"
 #include "iox/algorithm.hpp"
+#include "iox/atomic.hpp"
 
 namespace iox
 {
@@ -76,7 +77,7 @@ class ConditionListener
 
   private:
     ConditionVariableData* m_condVarDataPtr{nullptr};
-    std::atomic_bool m_toBeDestroyed{false};
+    concurrent::Atomic<bool> m_toBeDestroyed{false};
 };
 
 } // namespace popo

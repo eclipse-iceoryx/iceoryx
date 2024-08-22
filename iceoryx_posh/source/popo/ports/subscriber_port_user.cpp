@@ -60,7 +60,7 @@ void SubscriberPortUser::unsubscribe() noexcept
 
 SubscribeState SubscriberPortUser::getSubscriptionState() const noexcept
 {
-    return getMembers()->m_subscriptionState;
+    return getMembers()->m_subscriptionState.load(std::memory_order_relaxed);
 }
 
 expected<const mepoo::ChunkHeader*, ChunkReceiveResult> SubscriberPortUser::tryGetChunk() noexcept

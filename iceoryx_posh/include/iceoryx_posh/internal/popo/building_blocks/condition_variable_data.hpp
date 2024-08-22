@@ -19,9 +19,8 @@
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/posh_error_reporting.hpp"
+#include "iox/atomic.hpp"
 #include "iox/unnamed_semaphore.hpp"
-
-#include <atomic>
 
 namespace iox
 {
@@ -40,9 +39,9 @@ struct ConditionVariableData
 
     optional<UnnamedSemaphore> m_semaphore;
     RuntimeName_t m_runtimeName;
-    std::atomic_bool m_toBeDestroyed{false};
-    std::atomic_bool m_activeNotifications[MAX_NUMBER_OF_NOTIFIERS];
-    std::atomic_bool m_wasNotified{false};
+    concurrent::Atomic<bool> m_toBeDestroyed{false};
+    concurrent::Atomic<bool> m_activeNotifications[MAX_NUMBER_OF_NOTIFIERS];
+    concurrent::Atomic<bool> m_wasNotified{false};
 };
 
 } // namespace popo

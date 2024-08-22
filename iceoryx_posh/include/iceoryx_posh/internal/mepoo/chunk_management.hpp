@@ -17,10 +17,10 @@
 #ifndef IOX_POSH_MEPOO_CHUNK_MANAGEMENT_HPP
 #define IOX_POSH_MEPOO_CHUNK_MANAGEMENT_HPP
 
+#include "iox/atomic.hpp"
 #include "iox/not_null.hpp"
 #include "iox/relative_pointer.hpp"
 
-#include <atomic>
 #include <cstdint>
 
 namespace iox
@@ -34,7 +34,7 @@ struct ChunkManagement
 {
     using base_t = ChunkHeader;
     using referenceCounterBase_t = uint64_t;
-    using referenceCounter_t = std::atomic<referenceCounterBase_t>;
+    using referenceCounter_t = concurrent::Atomic<referenceCounterBase_t>;
 
     ChunkManagement(const not_null<base_t*> chunkHeader,
                     const not_null<MemPool*> mempool,

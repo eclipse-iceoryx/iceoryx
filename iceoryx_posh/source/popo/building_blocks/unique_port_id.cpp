@@ -18,13 +18,14 @@
 #include "iceoryx_posh/internal/popo/building_blocks/unique_port_id.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/posh_error_reporting.hpp"
+#include "iox/atomic.hpp"
 
 namespace iox
 {
 namespace popo
 {
 // start with 1 to prevent accidentally generating an invalid ID when unique roudi ID is 0
-std::atomic<UniquePortId::value_type> UniquePortId::globalIDCounter{1U};
+concurrent::Atomic<UniquePortId::value_type> UniquePortId::globalIDCounter{1U};
 
 UniquePortId::UniquePortId(const roudi::UniqueRouDiId uniqueRouDiId) noexcept
     : ThisType(newtype::internal::ProtectedConstructor,

@@ -15,9 +15,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iox/atomic.hpp"
 #include "iox/duration.hpp"
 
-#include <atomic>
 #include <chrono>
 #include <iomanip>
 #include <string>
@@ -37,7 +37,7 @@ std::string compiler = "msvc-" + std::to_string(_MSC_VER);
 template <typename Return>
 void PerformBenchmark(Return (&f)(), const char* functionName, const iox::units::Duration& duration)
 {
-    std::atomic_bool keepRunning{true};
+    iox::concurrent::Atomic<bool> keepRunning{true};
     uint64_t numberOfCalls{0U};
     uint64_t actualDurationNanoSeconds{0};
     std::thread t([&] {

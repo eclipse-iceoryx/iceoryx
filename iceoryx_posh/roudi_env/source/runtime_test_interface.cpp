@@ -18,6 +18,7 @@
 #include "iceoryx_posh/roudi_env/runtime_test_interface.hpp"
 #include "iceoryx_posh/internal/runtime/posh_runtime_impl.hpp"
 #include "iox/assertions.hpp"
+#include "iox/atomic.hpp"
 
 namespace iox
 {
@@ -26,8 +27,8 @@ namespace roudi_env
 using runtime::PoshRuntime;
 
 thread_local PoshRuntime* RuntimeTestInterface::t_activeRuntime{nullptr};
-thread_local std::atomic<uint64_t> RuntimeTestInterface::t_currentRouDiContext{0};
-std::atomic<uint64_t> RuntimeTestInterface::s_currentRouDiContext{0};
+thread_local concurrent::Atomic<uint64_t> RuntimeTestInterface::t_currentRouDiContext{0};
+concurrent::Atomic<uint64_t> RuntimeTestInterface::s_currentRouDiContext{0};
 
 std::mutex RuntimeTestInterface::s_runtimeAccessMutex;
 

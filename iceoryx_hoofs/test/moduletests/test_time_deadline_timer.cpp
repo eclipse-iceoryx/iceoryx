@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/testing/timing_test.hpp"
+#include "iox/atomic.hpp"
 #include "iox/deadline_timer.hpp"
 #include "iox/duration.hpp"
 #include "test.hpp"
@@ -46,7 +47,7 @@ class DeadlineTimer_test : public Test
 
     Duration second{1_s};
 
-    std::atomic<int> numberOfCalls{0};
+    iox::concurrent::Atomic<int> numberOfCalls{0};
     static const Duration TIMEOUT;
     static const uint64_t SLEEPTIME;
 };

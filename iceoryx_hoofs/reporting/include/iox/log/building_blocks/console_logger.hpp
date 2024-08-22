@@ -18,10 +18,10 @@
 #ifndef IOX_HOOFS_REPORTING_LOG_BUILDING_BLOCKS_CONSOLE_LOGGER_HPP
 #define IOX_HOOFS_REPORTING_LOG_BUILDING_BLOCKS_CONSOLE_LOGGER_HPP
 
+#include "iox/atomic.hpp"
 #include "iox/iceoryx_hoofs_types.hpp"
 #include "iox/log/building_blocks/logformat.hpp"
 
-#include <atomic>
 #include <cstdint>
 #include <cstdio>
 #include <mutex>
@@ -138,7 +138,7 @@ class ConsoleLogger
   private:
     // NOLINTJUSTIFICATION needed for the functionality and a private member of the class
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
-    static std::atomic<LogLevel> s_activeLogLevel; // initialized in corresponding cpp file
+    static concurrent::Atomic<LogLevel> s_activeLogLevel; // initialized in corresponding cpp file
 };
 
 } // namespace log

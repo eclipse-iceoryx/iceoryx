@@ -16,13 +16,14 @@
 
 #include "topic_data.hpp"
 
+#include "iox/atomic.hpp"
 #include "iox/optional.hpp"
 #include "iox/posh/experimental/node.hpp"
 #include "iox/signal_handler.hpp"
 
 #include <iostream>
 
-std::atomic_bool keep_running{true};
+iox::concurrent::Atomic<bool> keep_running{true};
 
 using WaitSet = iox::popo::WaitSet<>;
 volatile WaitSet* waitsetSigHandlerAccess{nullptr};

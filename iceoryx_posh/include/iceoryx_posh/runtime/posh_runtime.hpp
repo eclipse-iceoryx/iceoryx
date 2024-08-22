@@ -30,10 +30,9 @@
 #include "iceoryx_posh/popo/server_options.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
+#include "iox/atomic.hpp"
 #include "iox/optional.hpp"
 #include "iox/scope_guard.hpp"
-
-#include <atomic>
 
 namespace iox
 {
@@ -181,7 +180,7 @@ class PoshRuntime
     const RuntimeName_t& verifyInstanceName(optional<const RuntimeName_t*> name) noexcept;
 
     const RuntimeName_t m_appName;
-    std::atomic<bool> m_shutdownRequested{false};
+    concurrent::Atomic<bool> m_shutdownRequested{false};
 };
 
 } // namespace runtime
