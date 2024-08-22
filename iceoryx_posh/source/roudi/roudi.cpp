@@ -167,8 +167,8 @@ void RouDi::shutdown() noexcept
      * the 'listen_thread_watchdog' has finished, hence ensuring a
      * proper termination of the entire application.
      */
-    if (listen_thread_watchdog.joinable()) {
-        listen_thread_watchdog.join();
+    if (m_listen_thread_watchdog.joinable()) {
+        m_listen_thread_watchdog.join();
     }
 #endif
 
@@ -274,7 +274,7 @@ void RouDi::processRuntimeMessages(runtime::IpcInterfaceCreator&& roudiIpcInterf
     if (invocation_id != nullptr)
     {
         IOX_LOG(WARN, "Run APP in unit(systemd)");
-        listen_thread_watchdog = std::thread([this] {
+        m_listen_thread_watchdog = std::thread([this] {
             if (auto wdres = sd_notify(0, "READY=1") < 0)
             {
                 std::array<char, SIZE_ERROR_MESSAGE> buf{};
@@ -297,7 +297,7 @@ void RouDi::processRuntimeMessages(runtime::IpcInterfaceCreator&& roudiIpcInterf
                 std::this_thread::sleep_for(std::chrono::seconds(1));
             }
         });
-        if (pthread_setname_np(listen_thread_watchdog.native_handle(), "watchdog") != 0)
+        if (pthread_setname_np(m_listen_thread_watchdog.native_handle(), "watchdog") != 0)
         {
             std::array<char, SIZE_ERROR_MESSAGE> buf{};
             strerror_r(errno, buf.data(), buf.size());
