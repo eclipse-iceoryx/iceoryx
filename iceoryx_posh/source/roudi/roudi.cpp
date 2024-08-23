@@ -280,12 +280,14 @@ void RouDi::processRuntimeMessages(runtime::IpcInterfaceCreator&& roudiIpcInterf
             if (!status_change_name)
             {
                 IOX_LOG(ERROR, "Can not set name for thread watchdog");
+                return;
             }
             auto result_ready = IOX_POSIX_CALL(sd_notify)(0, "READY=1").successReturnValue(1).evaluate();
             if (result_ready.has_error())
             {
                 IOX_LOG(ERROR,
                         "Failed to send READY=1 signal. Error: " + result_ready.get_error().getHumanReadableErrnum());
+                return;
             }
             IOX_LOG(DEBUG, "WatchDog READY=1");
 
@@ -298,6 +300,7 @@ void RouDi::processRuntimeMessages(runtime::IpcInterfaceCreator&& roudiIpcInterf
                     IOX_LOG(ERROR,
                             "Failed to send WATCHDOG=1 signal. Error: "
                                 + result_watchdog.get_error().getHumanReadableErrnum());
+                    return;
                 }
                 std::this_thread::sleep_for(std::chrono::seconds(1));
             }
