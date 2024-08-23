@@ -271,8 +271,30 @@ void RouDi::processRuntimeMessages(runtime::IpcInterfaceCreator&& roudiIpcInterf
      * We get information about how they are running. If as a unit, then we launch
      * watchdog and send a notification about the launch, otherwise we do nothing
      */
-    const char* invocation_id = std::getenv("INVOCATION_ID");
-    if (invocation_id != nullptr)
+    iox::string<SIZE_STRING> invocation_id_str;
+    auto const* const ENV_VAR = "INVOCATION_ID";
+    invocation_id_str.unsafe_raw_access([&](auto* buffer, auto const info) {
+        size_t actual_size_with_null{0};
+        auto result = IOX_POSIX_CALL(iox_getenv_s)(&actual_size_with_null, buffer, info.total_size, ENV_VAR)
+                          .failureReturnValue(-1)
+                          .evaluate();
+
+        if (result.has_error() && result.error().errnum == ERANGE)
+        {
+            IOX_LOG(ERROR, "Invalid value for 'INVOCATION_ID' environment variable!");
+        }
+
+        size_t actual_size{0};
+        constexpr size_t NULL_TERMINATOR_SIZE{1};
+        if (actual_size_with_null > 0)
+        {
+            actual_size = actual_size_with_null - NULL_TERMINATOR_SIZE;
+        }
+        buffer[actual_size] = 0;
+        return actual_size;
+    });
+
+    if (!invocation_id_str.empty())
     {
         IOX_LOG(WARN, "Run APP in unit(systemd)");
         m_listen_thread_watchdog = std::thread([this] {

@@ -18,6 +18,7 @@
 #define IOX_POSH_ROUDI_ROUDI_MULTI_PROCESS_HPP
 
 #include "iceoryx_platform/file.hpp"
+#include "iceoryx_platform/stdlib.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/roudi/introspection/mempool_introspection.hpp"
 #include "iceoryx_posh/internal/roudi/process_manager.hpp"
@@ -31,6 +32,7 @@
 #include "iox/relative_pointer.hpp"
 #include "iox/scope_guard.hpp"
 #include "iox/smart_lock.hpp"
+
 
 #include <cstdint>
 #include <systemd/sd-daemon.h>
@@ -52,7 +54,7 @@ class RouDi
           PortManager& portManager,
           const config::RouDiConfig& roudiConfig) noexcept;
 
-    static constexpr uint16_t SIZE_ERROR_MESSAGE = 4096;
+    static constexpr uint16_t SIZE_STRING = 4096;
 
     virtual ~RouDi() noexcept;
 
