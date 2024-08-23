@@ -269,6 +269,9 @@ void RouDi::processRuntimeMessages(runtime::IpcInterfaceCreator&& roudiIpcInterf
             processMessage(message, cmd, runtimeName);
         }
     }
+    if (!m_runHandleRuntimeMessageThread.load()){
+        roudi_systemd.shutdown();
+    }
 }
 
 version::VersionInfo RouDi::parseRegisterMessage(const runtime::IpcMessage& message,

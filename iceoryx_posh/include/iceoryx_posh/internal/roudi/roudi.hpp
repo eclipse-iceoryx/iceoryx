@@ -56,6 +56,7 @@ class I_systemd
     I_systemd& operator=(I_systemd&& other) = default;
 
     virtual void process_notify() = 0;
+    virtual void shutdown() = 0;
 
   protected:
     I_systemd() = default;
@@ -67,10 +68,9 @@ class Systemd_service_handler final : public I_systemd
   public:
     Systemd_service_handler() = default;
     Systemd_service_handler(Systemd_service_handler const& other) = delete;
-    Systemd_service_handler(Systemd_service_handler&& other) = default;
+    Systemd_service_handler(Systemd_service_handler&& other) = delete;
     Systemd_service_handler& operator=(Systemd_service_handler const& other) = delete;
     Systemd_service_handler& operator=(Systemd_service_handler&& other) = default;
-    static constexpr uint16_t SIZE_STRING = 4096;
 
     ~Systemd_service_handler() final
     {
@@ -84,6 +84,12 @@ class Systemd_service_handler final : public I_systemd
             m_listen_thread_watchdog.join();
         }
     }
+
+    void shutdown() final
+    {
+        m_shutdown.store(true);
+    }
+
     void process_notify() final
     {
         /*
@@ -134,7 +140,7 @@ class Systemd_service_handler final : public I_systemd
                 IOX_LOG(DEBUG, "WatchDog READY=1");
 
                 IOX_LOG(INFO, "Start watchdog");
-                while (true)
+                while (!m_shutdown.load())
                 {
                     auto result_watchdog = IOX_POSIX_CALL(sd_notify)(0, "WATCHDOG=1").successReturnValue(1).evaluate();
                     if (result_watchdog.has_error())
@@ -152,6 +158,10 @@ class Systemd_service_handler final : public I_systemd
 
   private:
     std::thread m_listen_thread_watchdog; // 8
+  public:
+    static constexpr uint16_t SIZE_STRING = 4096; // 2
+  private:
+    std::atomic_bool m_shutdown{false}; // 1
 };
 #else
 class Systemd_service_handler final : public I_systemd
@@ -163,14 +173,16 @@ class Systemd_service_handler final : public I_systemd
     Systemd_service_handler& operator=(Systemd_service_handler const& other) = delete;
     Systemd_service_handler& operator=(Systemd_service_handler&& other) = default;
 
-    ~Systemd_service_handler() final
-    {
-    }
+    ~Systemd_service_handler() final = default;
     void process_notify() final
     {
         // empty implementation
     }
-}
+    void shutdown() final
+    {
+        // empty implementation
+    }
+};
 #endif
 } // namespace systemd
 
