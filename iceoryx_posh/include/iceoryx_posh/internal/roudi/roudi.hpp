@@ -44,6 +44,136 @@ namespace roudi
 {
 using namespace iox::units::duration_literals;
 
+namespace systemd
+{
+class I_systemd
+{
+  public:
+    virtual ~I_systemd() = default;
+    I_systemd(I_systemd const& other) = delete;
+    I_systemd(I_systemd&& other) = default;
+    I_systemd& operator=(I_systemd const& other) = delete;
+    I_systemd& operator=(I_systemd&& other) = default;
+
+    virtual void process_notify() = 0;
+
+  protected:
+    I_systemd() = default;
+};
+
+#ifdef USE_SYSTEMD
+class Systemd_service_handler final : public I_systemd
+{
+  public:
+    Systemd_service_handler() = default;
+    Systemd_service_handler(Systemd_service_handler const& other) = delete;
+    Systemd_service_handler(Systemd_service_handler&& other) = default;
+    Systemd_service_handler& operator=(Systemd_service_handler const& other) = delete;
+    Systemd_service_handler& operator=(Systemd_service_handler&& other) = default;
+    static constexpr uint16_t SIZE_STRING = 4096;
+
+    ~Systemd_service_handler() final
+    {
+        /*
+         * This is necessary to prevent the main thread from exiting before
+         * the 'listen_thread_watchdog' has finished, hence ensuring a
+         * proper termination of the entire application.
+         */
+        if (m_listen_thread_watchdog.joinable())
+        {
+            m_listen_thread_watchdog.join();
+        }
+    }
+    void process_notify() final
+    {
+        /*
+         * We get information about how they are running. If as a unit, then we launch
+         * watchdog and send a notification about the launch, otherwise we do nothing
+         */
+        iox::string<SIZE_STRING> invocation_id_str;
+        auto const* const ENV_VAR = "INVOCATION_ID";
+        invocation_id_str.unsafe_raw_access([&](auto* buffer, auto const info) {
+            size_t actual_size_with_null{0};
+            auto result = IOX_POSIX_CALL(iox_getenv_s)(&actual_size_with_null, buffer, info.total_size, ENV_VAR)
+                              .failureReturnValue(-1)
+                              .evaluate();
+
+            if (result.has_error() && result.error().errnum == ERANGE)
+            {
+                IOX_LOG(ERROR, "Invalid value for 'INVOCATION_ID' environment variable!");
+            }
+
+            size_t actual_size{0};
+            constexpr size_t NULL_TERMINATOR_SIZE{1};
+            if (actual_size_with_null > 0)
+            {
+                actual_size = actual_size_with_null - NULL_TERMINATOR_SIZE;
+            }
+            buffer[actual_size] = 0;
+            return actual_size;
+        });
+
+        if (!invocation_id_str.empty())
+        {
+            IOX_LOG(WARN, "Run APP in unit(systemd)");
+            m_listen_thread_watchdog = std::thread([this] {
+                bool status_change_name = iox::setThreadName("watchdog");
+                if (!status_change_name)
+                {
+                    IOX_LOG(ERROR, "Can not set name for thread watchdog");
+                    return;
+                }
+                auto result_ready = IOX_POSIX_CALL(sd_notify)(0, "READY=1").successReturnValue(1).evaluate();
+                if (result_ready.has_error())
+                {
+                    IOX_LOG(ERROR,
+                            "Failed to send READY=1 signal. Error: "
+                                + result_ready.get_error().getHumanReadableErrnum());
+                    return;
+                }
+                IOX_LOG(DEBUG, "WatchDog READY=1");
+
+                IOX_LOG(INFO, "Start watchdog");
+                while (true)
+                {
+                    auto result_watchdog = IOX_POSIX_CALL(sd_notify)(0, "WATCHDOG=1").successReturnValue(1).evaluate();
+                    if (result_watchdog.has_error())
+                    {
+                        IOX_LOG(ERROR,
+                                "Failed to send WATCHDOG=1 signal. Error: "
+                                    + result_watchdog.get_error().getHumanReadableErrnum());
+                        return;
+                    }
+                    std::this_thread::sleep_for(std::chrono::seconds(1));
+                }
+            });
+        }
+    }
+
+  private:
+    std::thread m_listen_thread_watchdog; // 8
+};
+#else
+class Systemd_service_handler final : public I_systemd
+{
+  public:
+    Systemd_service_handler() = default;
+    Systemd_service_handler(Systemd_service_handler const& other) = delete;
+    Systemd_service_handler(Systemd_service_handler&& other) = default;
+    Systemd_service_handler& operator=(Systemd_service_handler const& other) = delete;
+    Systemd_service_handler& operator=(Systemd_service_handler&& other) = default;
+
+    ~Systemd_service_handler() final
+    {
+    }
+    void process_notify() final
+    {
+        // empty implementation
+    }
+}
+#endif
+} // namespace systemd
+
 class RouDi
 {
   public:
@@ -53,8 +183,6 @@ class RouDi
     RouDi(RouDiMemoryInterface& roudiMemoryInterface,
           PortManager& portManager,
           const config::RouDiConfig& roudiConfig) noexcept;
-
-    static constexpr uint16_t SIZE_STRING = 4096;
 
     virtual ~RouDi() noexcept;
 
@@ -134,9 +262,6 @@ class RouDi
   private:
     std::thread m_monitoringAndDiscoveryThread;
     std::thread m_handleRuntimeMessageThread;
-#ifdef USE_SYSTEMD
-    std::thread m_listen_thread_watchdog; // 8
-#endif
 
   protected:
     ProcessIntrospectionType m_processIntrospection;
