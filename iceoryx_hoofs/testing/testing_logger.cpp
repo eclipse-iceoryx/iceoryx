@@ -83,6 +83,7 @@ void TestingLogger::printLogBuffer() noexcept
         puts(log.c_str());
     }
     puts("#### Log end ####");
+    loggerData->buffer.clear();
 }
 
 uint64_t TestingLogger::getNumberOfLogMessages() noexcept
