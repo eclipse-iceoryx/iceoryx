@@ -254,8 +254,8 @@ void RouDi::processRuntimeMessages(runtime::IpcInterfaceCreator&& roudiIpcInterf
     IOX_LOG(INFO, "RouDi is ready for clients");
     fflush(stdout); // explicitly flush 'stdout' for 'launch_testing'
 
-    iox::roudi::systemd::Systemd_service_handler roudi_systemd;
-    roudi_systemd.process_notify();
+    iox::roudi::systemd::SystemdServiceHandler roudiSystemd;
+    roudiSystemd.processNotify();
 
     while (m_runHandleRuntimeMessageThread)
     {
@@ -270,7 +270,7 @@ void RouDi::processRuntimeMessages(runtime::IpcInterfaceCreator&& roudiIpcInterf
         }
     }
     if (!m_runHandleRuntimeMessageThread.load()){
-        roudi_systemd.shutdown();
+        roudiSystemd.shutdown();
     }
 }
 
