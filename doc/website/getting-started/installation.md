@@ -177,6 +177,32 @@ The `CMakeLists.txt` from `iceoryx_meta` can be used to easily develop iceoryx w
 Please take a look at the CMake file [build_options.cmake](../../../iceoryx_meta/build_options.cmake)
 to get an overview of the available build options for enabling additional features.
 
+If systemd support is enabled `-DUSE_SYSTEMD=ON`, the unit file may look like this:
+
+````bash
+#$ vim /usr/lib/systemd/system/test_iceoryx.service
+[Unit]
+Description=Test application roudi
+
+[Service]
+Type=notify
+User=roma
+RestartSec=10
+Restart=always
+ExecStart=/usr/bin/iox-roudi
+TimeoutStartSec=10
+WatchdogSec=5
+
+[Install]
+WantedBy=multi-user.target
+
+````
+Do not forget to do this after adding the unit file `systemctl daemon-reload`
+
+Launch example `systemctl start test_iceoryx`
+
+Example of a stop `systemctl stop test_iceoryx`
+
 ## Build with script
 
 As an alternative, we provide a build-test script which we use to integrate iceoryx into our infrastructure.
