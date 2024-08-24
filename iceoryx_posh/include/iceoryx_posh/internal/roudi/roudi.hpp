@@ -50,6 +50,10 @@ using namespace iox::units::duration_literals;
 
 namespace systemd
 {
+/**
+ * @brief Interface class for systemd service handling
+ *
+ **/
 class ISystemd
 {
   public:
@@ -59,7 +63,9 @@ class ISystemd
     ISystemd& operator=(ISystemd const& other) = delete;
     ISystemd& operator=(ISystemd&& other) = default;
 
+    /// dbus signal handler
     virtual void processNotify() = 0;
+    /// Sets a shutdown flag
     virtual void shutdown() = 0;
 
   protected:
@@ -67,8 +73,22 @@ class ISystemd
 };
 
 #ifdef USE_SYSTEMD
+/**
+ * @brief Class to handle systemd service notifications
+ *
+ **/
 class SystemdServiceHandler final : public ISystemd
 {
+  private:
+    std::condition_variable watchdogNotifyCondition; ///< watch dog notification condition // 48
+    std::mutex watchdogMutex; ///< watch dog mutex // 40
+    std::thread m_listenThreadWatchdog; ///< thread that listens to systemd watchdog signals // 8
+  public:
+    static constexpr const uint16_t SIZE_STRING = 4096; ///< maximum size of string // 2
+    static constexpr const uint8_t SIZE_THREAD_NAME = 15; ///< max size for thread name // 1
+  private:
+    std::atomic_bool m_shutdown{false}; ///< indicates if service is being shutdown // 1
+
   public:
     SystemdServiceHandler() = default;
     SystemdServiceHandler(SystemdServiceHandler const& other) = delete;
@@ -76,24 +96,30 @@ class SystemdServiceHandler final : public ISystemd
     SystemdServiceHandler& operator=(SystemdServiceHandler const& other) = delete;
     SystemdServiceHandler& operator=(SystemdServiceHandler&& other) = delete;
 
+    /**
+     * @brief Destructor joins the listenThreadWatchdog if it is still joinable, to ensure a proper termination
+     **/
     ~SystemdServiceHandler() final
     {
-        /*
-         * This is necessary to prevent the main thread from exiting before
-         * the 'listen_thread_watchdog' has finished, hence ensuring a
-         * proper termination of the entire application.
-         */
         if (m_listenThreadWatchdog.joinable())
         {
             m_listenThreadWatchdog.join();
         }
     }
 
+    /**
+     * @brief Sets the shutdown flag to true, causing the systemd handler to stop.
+    **/
     void shutdown() final
     {
         m_shutdown.store(true);
     }
 
+    /**
+     * @brief Fetch required environment variable as a string
+     * @param env_var Pointer to environment variable
+     * @return Environment variable as std::string
+     **/
     static std::string getEnvironmentVariable(const char* const env_var) {
         iox::string<SIZE_STRING> str;
 
@@ -121,6 +147,62 @@ class SystemdServiceHandler final : public ISystemd
         return std::string(str.c_str());
     }
 
+    /**
+     * @brief Helper function to set thread name
+     * @param threadName Thread name to be set
+     * @return True if successfully set, otherwise false
+     **/
+    static bool setThreadNameHelper(iox::string<SIZE_THREAD_NAME>& threadName)
+    {
+        bool status_change_name = iox::setThreadName(threadName);
+        if (!status_change_name)
+        {
+            IOX_LOG(ERROR, "Cannot set name for thread " << threadName);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * @brief Helper function to send SDNotify signals
+     * @param state SDNotify state to be sent
+     * @return True if signal sending is successful, otherwise false
+     **/
+    static bool sendSDNotifySignalHelper(const std::string_view state)
+    {
+        auto result = IOX_POSIX_CALL(sd_notify)(0, state.data()).successReturnValue(1).evaluate();
+        if (result.has_error())
+        {
+            IOX_LOG(ERROR,
+                    "Failed to send " << state.data() << " signal. Error: " << result.get_error().getHumanReadableErrnum());
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * @brief Function to manage the watchdog loop
+    **/
+    void watchdogLoopHelper()
+    {
+        IOX_LOG(INFO, "Start watchdog");
+        while (!m_shutdown.load())
+        {
+            std::unique_lock<std::mutex> lock(watchdogMutex);
+            if (watchdogNotifyCondition.wait_for(lock, std::chrono::seconds(1), [this] { return m_shutdown.load(); }))
+            {
+                break;
+            }
+            if (!sendSDNotifySignalHelper("WATCHDOG=1"))
+            {
+                return;
+            }
+        }
+    }
+
+    /**
+     * @brief Method to process systemd notification logic
+     **/
     void processNotify() final
     {
         std::string invocationIdStr = getEnvironmentVariable("INVOCATION_ID");
@@ -128,57 +210,27 @@ class SystemdServiceHandler final : public ISystemd
         if (!invocationIdStr.empty())
         {
             IOX_LOG(WARN, "Run APP in unit(systemd)");
+
             m_listenThreadWatchdog = std::thread([this] {
-                bool status_change_name = iox::setThreadName("watchdog");
-                if (!status_change_name)
-                {
-                    IOX_LOG(ERROR, "Can not set name for thread watchdog");
+                iox::string<SIZE_THREAD_NAME> nameThread = "Watchdog";
+                if ( !setThreadNameHelper(nameThread) ||
+                    !sendSDNotifySignalHelper("READY=1") ) {
                     return;
                 }
-                auto resultReady = IOX_POSIX_CALL(sd_notify)(0, "READY=1").successReturnValue(1).evaluate();
-                if (resultReady.has_error())
-                {
-                    IOX_LOG(ERROR,
-                            "Failed to send READY=1 signal. Error: "
-                                + resultReady.get_error().getHumanReadableErrnum());
-                    return;
-                }
+
                 IOX_LOG(DEBUG, "Notify READY=1 successful");
 
-                IOX_LOG(INFO, "Start watchdog");
-                while (!m_shutdown.load())
-                {
-                    std::unique_lock<std::mutex> lock(watchdogMutex);
-                    if (watchdogNotifyCondition.wait_for(
-                            lock, std::chrono::seconds(1), [this] { return m_shutdown.load(); }))
-                    {
-                        break;
-                    }
-                    auto resultWatchdog = IOX_POSIX_CALL(sd_notify)(0, "WATCHDOG=1").successReturnValue(1).evaluate();
-                    if (resultWatchdog.has_error())
-                    {
-                        IOX_LOG(ERROR,
-                                "Failed to send WATCHDOG=1 signal. Error: "
-                                    + resultWatchdog.get_error().getHumanReadableErrnum());
-                        return;
-                    }
-                    /* maybe it's better to use sleep than mutex */
-                    //                    std::this_thread::sleep_for(std::chrono::seconds(1));
-                }
+                /* Start the watchdog loop */
+                watchdogLoopHelper();
             });
         }
     }
-
-  private:
-    std::condition_variable watchdogNotifyCondition; // 48
-    std::mutex watchdogMutex; // 40
-    std::thread m_listenThreadWatchdog; // 8
-  public:
-    static constexpr uint16_t SIZE_STRING = 4096; // 2
-  private:
-    std::atomic_bool m_shutdown{false}; // 1
 };
 #else
+/**
+* @brief Empty implementation handler for non-systemd systems
+*
+**/
 class SystemdServiceHandler final : public ISystemd
 {
   public:
@@ -188,11 +240,22 @@ class SystemdServiceHandler final : public ISystemd
     SystemdServiceHandler& operator=(SystemdServiceHandler const& other) = delete;
     SystemdServiceHandler& operator=(SystemdServiceHandler&& other) = default;
 
+    /**
+     * @brief Empty implementation of destructor
+     **/
     ~SystemdServiceHandler() final = default;
+
+    /**
+     * @brief Empty implementation of processNotify
+     **/
     void processNotify() final
     {
         // empty implementation
     }
+
+    /**
+     * @brief Empty implementation of shutdown
+     **/
     void shutdown() final
     {
         // empty implementation
