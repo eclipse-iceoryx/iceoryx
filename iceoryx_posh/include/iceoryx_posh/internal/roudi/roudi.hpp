@@ -49,42 +49,42 @@ using namespace iox::units::duration_literals;
 
 namespace systemd
 {
-class I_systemd
+class ISystemd
 {
   public:
-    virtual ~I_systemd() = default;
-    I_systemd(I_systemd const& other) = delete;
-    I_systemd(I_systemd&& other) = default;
-    I_systemd& operator=(I_systemd const& other) = delete;
-    I_systemd& operator=(I_systemd&& other) = default;
+    virtual ~ISystemd() = default;
+    ISystemd(ISystemd const& other) = delete;
+    ISystemd(ISystemd&& other) = default;
+    ISystemd& operator=(ISystemd const& other) = delete;
+    ISystemd& operator=(ISystemd&& other) = default;
 
-    virtual void process_notify() = 0;
+    virtual void processNotify() = 0;
     virtual void shutdown() = 0;
 
   protected:
-    I_systemd() = default;
+    ISystemd() = default;
 };
 
 #ifdef USE_SYSTEMD
-class Systemd_service_handler final : public I_systemd
+class SystemdServiceHandler final : public ISystemd
 {
   public:
-    Systemd_service_handler() = default;
-    Systemd_service_handler(Systemd_service_handler const& other) = delete;
-    Systemd_service_handler(Systemd_service_handler&& other) = delete;
-    Systemd_service_handler& operator=(Systemd_service_handler const& other) = delete;
-    Systemd_service_handler& operator=(Systemd_service_handler&& other) = default;
+    SystemdServiceHandler() = default;
+    SystemdServiceHandler(SystemdServiceHandler const& other) = delete;
+    SystemdServiceHandler(SystemdServiceHandler&& other) = delete;
+    SystemdServiceHandler& operator=(SystemdServiceHandler const& other) = delete;
+    SystemdServiceHandler& operator=(SystemdServiceHandler&& other) = delete;
 
-    ~Systemd_service_handler() final
+    ~SystemdServiceHandler() final
     {
         /*
          * This is necessary to prevent the main thread from exiting before
          * the 'listen_thread_watchdog' has finished, hence ensuring a
          * proper termination of the entire application.
          */
-        if (m_listen_thread_watchdog.joinable())
+        if (m_listenThreadWatchdog.joinable())
         {
-            m_listen_thread_watchdog.join();
+            m_listenThreadWatchdog.join();
         }
     }
 
@@ -93,17 +93,17 @@ class Systemd_service_handler final : public I_systemd
         m_shutdown.store(true);
     }
 
-    void process_notify() final
+    void processNotify() final
     {
         /*
          * We get information about how they are running. If as a unit, then we launch
          * watchdog and send a notification about the launch, otherwise we do nothing
          */
-        iox::string<SIZE_STRING> invocation_id_str;
+        iox::string<SIZE_STRING> invocationIdStr;
         auto const* const ENV_VAR = "INVOCATION_ID";
-        invocation_id_str.unsafe_raw_access([&](auto* buffer, auto const info) {
-            size_t actual_size_with_null{0};
-            auto result = IOX_POSIX_CALL(iox_getenv_s)(&actual_size_with_null, buffer, info.total_size, ENV_VAR)
+        invocationIdStr.unsafe_raw_access([&](auto* buffer, auto const info) {
+            size_t actualSizeWithNull{0};
+            auto result = IOX_POSIX_CALL(iox_getenv_s)(&actualSizeWithNull, buffer, info.total_size, ENV_VAR)
                               .failureReturnValue(-1)
                               .evaluate();
 
@@ -114,30 +114,30 @@ class Systemd_service_handler final : public I_systemd
 
             size_t actual_size{0};
             constexpr size_t NULL_TERMINATOR_SIZE{1};
-            if (actual_size_with_null > 0)
+            if (actualSizeWithNull > 0)
             {
-                actual_size = actual_size_with_null - NULL_TERMINATOR_SIZE;
+                actual_size = actualSizeWithNull - NULL_TERMINATOR_SIZE;
             }
             buffer[actual_size] = 0;
             return actual_size;
         });
 
-        if (!invocation_id_str.empty())
+        if (!invocationIdStr.empty())
         {
             IOX_LOG(WARN, "Run APP in unit(systemd)");
-            m_listen_thread_watchdog = std::thread([this] {
+            m_listenThreadWatchdog = std::thread([this] {
                 bool status_change_name = iox::setThreadName("watchdog");
                 if (!status_change_name)
                 {
                     IOX_LOG(ERROR, "Can not set name for thread watchdog");
                     return;
                 }
-                auto result_ready = IOX_POSIX_CALL(sd_notify)(0, "READY=1").successReturnValue(1).evaluate();
-                if (result_ready.has_error())
+                auto resultReady = IOX_POSIX_CALL(sd_notify)(0, "READY=1").successReturnValue(1).evaluate();
+                if (resultReady.has_error())
                 {
                     IOX_LOG(ERROR,
                             "Failed to send READY=1 signal. Error: "
-                                + result_ready.get_error().getHumanReadableErrnum());
+                                + resultReady.get_error().getHumanReadableErrnum());
                     return;
                 }
                 IOX_LOG(DEBUG, "WatchDog READY=1");
@@ -145,12 +145,12 @@ class Systemd_service_handler final : public I_systemd
                 IOX_LOG(INFO, "Start watchdog");
                 while (!m_shutdown.load())
                 {
-                    auto result_watchdog = IOX_POSIX_CALL(sd_notify)(0, "WATCHDOG=1").successReturnValue(1).evaluate();
-                    if (result_watchdog.has_error())
+                    auto resultWatchdog = IOX_POSIX_CALL(sd_notify)(0, "WATCHDOG=1").successReturnValue(1).evaluate();
+                    if (resultWatchdog.has_error())
                     {
                         IOX_LOG(ERROR,
                                 "Failed to send WATCHDOG=1 signal. Error: "
-                                    + result_watchdog.get_error().getHumanReadableErrnum());
+                                    + resultWatchdog.get_error().getHumanReadableErrnum());
                         return;
                     }
                     std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -160,24 +160,24 @@ class Systemd_service_handler final : public I_systemd
     }
 
   private:
-    std::thread m_listen_thread_watchdog; // 8
+    std::thread m_listenThreadWatchdog; // 8
   public:
     static constexpr uint16_t SIZE_STRING = 4096; // 2
   private:
     std::atomic_bool m_shutdown{false}; // 1
 };
 #else
-class Systemd_service_handler final : public I_systemd
+class SystemdServiceHandler final : public ISystemd
 {
   public:
-    Systemd_service_handler() = default;
-    Systemd_service_handler(Systemd_service_handler const& other) = delete;
-    Systemd_service_handler(Systemd_service_handler&& other) = default;
-    Systemd_service_handler& operator=(Systemd_service_handler const& other) = delete;
-    Systemd_service_handler& operator=(Systemd_service_handler&& other) = default;
+    SystemdServiceHandler() = default;
+    SystemdServiceHandler(SystemdServiceHandler const& other) = delete;
+    SystemdServiceHandler(SystemdServiceHandler&& other) = default;
+    SystemdServiceHandler& operator=(SystemdServiceHandler const& other) = delete;
+    SystemdServiceHandler& operator=(SystemdServiceHandler&& other) = default;
 
-    ~Systemd_service_handler() final = default;
-    void process_notify() final
+    ~SystemdServiceHandler() final = default;
+    void processNotify() final
     {
         // empty implementation
     }
