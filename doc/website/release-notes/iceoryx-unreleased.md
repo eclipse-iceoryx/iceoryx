@@ -66,6 +66,10 @@
 - Make iceoryx resource prefix a compile time option [#2272](https://github.com/eclipse-iceoryx/iceoryx/issues/2272)
 - Improve introspection-client interface by adding the number of ports in parentheses [#2299](https://github.com/eclipse-iceoryx/iceoryx/issues/2299)
 - Add std::atomic abstraction [#2329](https://github.com/eclipse-iceoryx/iceoryx/issues/2329)
+- The class is intended for the integration of iceoryx with systemd, 
+supporting functions for systemd interaction like sending signal 
+notifications and monitoring service status. Users can utilize this 
+class to enable or disable systemd support when running iceoryx [#2330](https://github.com/eclipse-iceoryx/iceoryx/issues/2330)
 
 **Bugfixes:**
 
