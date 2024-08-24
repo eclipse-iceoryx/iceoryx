@@ -94,23 +94,18 @@ class SystemdServiceHandler final : public ISystemd
         m_shutdown.store(true);
     }
 
-    void processNotify() final
-    {
-        /*
-         * We get information about how they are running. If as a unit, then we launch
-         * watchdog and send a notification about the launch, otherwise we do nothing
-         */
-        iox::string<SIZE_STRING> invocationIdStr;
-        auto const* const ENV_VAR = "INVOCATION_ID";
-        invocationIdStr.unsafe_raw_access([&](auto* buffer, auto const info) {
+    static std::string getEnvironmentVariable(const char* const env_var) {
+        iox::string<SIZE_STRING> str;
+
+        str.unsafe_raw_access([&](auto* buffer, auto const info) {
             size_t actualSizeWithNull{0};
-            auto result = IOX_POSIX_CALL(iox_getenv_s)(&actualSizeWithNull, buffer, info.total_size, ENV_VAR)
+            auto result = IOX_POSIX_CALL(iox_getenv_s)(&actualSizeWithNull, buffer, info.total_size, env_var)
                               .failureReturnValue(-1)
                               .evaluate();
 
             if (result.has_error() && result.error().errnum == ERANGE)
             {
-                IOX_LOG(ERROR, "Invalid value for 'INVOCATION_ID' environment variable!");
+                IOX_LOG(ERROR, "Invalid value for '" + std::string(env_var) + "' environment variable!");
             }
 
             size_t actual_size{0};
@@ -122,6 +117,13 @@ class SystemdServiceHandler final : public ISystemd
             buffer[actual_size] = 0;
             return actual_size;
         });
+
+        return std::string(str.c_str());
+    }
+
+    void processNotify() final
+    {
+        std::string invocationIdStr = getEnvironmentVariable("INVOCATION_ID");
 
         if (!invocationIdStr.empty())
         {
@@ -141,11 +143,9 @@ class SystemdServiceHandler final : public ISystemd
                                 + resultReady.get_error().getHumanReadableErrnum());
                     return;
                 }
-                IOX_LOG(DEBUG, "WatchDog READY=1");
+                IOX_LOG(DEBUG, "Notify READY=1 successful");
 
                 IOX_LOG(INFO, "Start watchdog");
-                IOX_LOG(INFO, "std::condition_variable: " << sizeof(std::condition_variable));
-                IOX_LOG(INFO, "std::mutex: " << sizeof(std::mutex));
                 while (!m_shutdown.load())
                 {
                     std::unique_lock<std::mutex> lock(watchdogMutex);
