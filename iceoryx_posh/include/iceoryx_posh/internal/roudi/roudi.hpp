@@ -38,6 +38,7 @@
 #include <thread>
 
 #ifdef USE_SYSTEMD
+#include <condition_variable>
 #include <systemd/sd-daemon.h>
 #endif
 
@@ -143,8 +144,16 @@ class SystemdServiceHandler final : public ISystemd
                 IOX_LOG(DEBUG, "WatchDog READY=1");
 
                 IOX_LOG(INFO, "Start watchdog");
+                IOX_LOG(INFO, "std::condition_variable: " << sizeof(std::condition_variable));
+                IOX_LOG(INFO, "std::mutex: " << sizeof(std::mutex));
                 while (!m_shutdown.load())
                 {
+                    std::unique_lock<std::mutex> lock(watchdogMutex);
+                    if (watchdogNotifyCondition.wait_for(
+                            lock, std::chrono::seconds(1), [this] { return m_shutdown.load(); }))
+                    {
+                        break;
+                    }
                     auto resultWatchdog = IOX_POSIX_CALL(sd_notify)(0, "WATCHDOG=1").successReturnValue(1).evaluate();
                     if (resultWatchdog.has_error())
                     {
@@ -153,13 +162,16 @@ class SystemdServiceHandler final : public ISystemd
                                     + resultWatchdog.get_error().getHumanReadableErrnum());
                         return;
                     }
-                    std::this_thread::sleep_for(std::chrono::seconds(1));
+                    /* maybe it's better to use sleep than mutex */
+                    //                    std::this_thread::sleep_for(std::chrono::seconds(1));
                 }
             });
         }
     }
 
   private:
+    std::condition_variable watchdogNotifyCondition; // 48
+    std::mutex watchdogMutex; // 40
     std::thread m_listenThreadWatchdog; // 8
   public:
     static constexpr uint16_t SIZE_STRING = 4096; // 2
