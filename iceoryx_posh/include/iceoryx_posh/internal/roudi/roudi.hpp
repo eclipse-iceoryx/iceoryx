@@ -35,8 +35,11 @@
 
 
 #include <cstdint>
-#include <systemd/sd-daemon.h>
 #include <thread>
+
+#ifdef USE_SYSTEMD
+#include <systemd/sd-daemon.h>
+#endif
 
 namespace iox
 {
