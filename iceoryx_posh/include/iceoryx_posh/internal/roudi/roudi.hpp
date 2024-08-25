@@ -36,8 +36,11 @@
 
 #include <condition_variable>
 #include <cstdint>
-#include <systemd/sd-daemon.h>
 #include <thread>
+
+#ifdef USE_SYSTEMD
+#include <systemd/sd-daemon.h>
+#endif
 
 #ifdef USE_SYSTEMD
 namespace iox::roudi::systemd
