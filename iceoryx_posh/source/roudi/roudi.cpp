@@ -640,19 +640,6 @@ bool SystemdServiceHandler::setThreadNameHelper(iox::string<SIZE_THREAD_NAME>& t
     return true;
 }
 
-bool SystemdServiceHandler::sendSDNotifySignalHelper(const std::string_view state)
-{
-    auto result = IOX_POSIX_CALL(sd_notify)(0, state.data()).successReturnValue(1).evaluate();
-    if (result.has_error())
-    {
-        IOX_LOG(ERROR,
-                "Failed to send " << state.data()
-                                  << " signal. Error: " << result.get_error().getHumanReadableErrnum());
-        return false;
-    }
-    return true;
-}
-
 void SystemdServiceHandler::watchdogLoopHelper()
 {
     IOX_LOG(INFO, "Start watchdog");
@@ -694,6 +681,5 @@ void SystemdServiceHandler::processNotify()
 }
 
 } // namespace systemd
-
 } // namespace roudi
 } // namespace iox

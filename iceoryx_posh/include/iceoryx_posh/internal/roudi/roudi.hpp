@@ -34,12 +34,23 @@
 #include "iox/smart_lock.hpp"
 
 
+#include <condition_variable>
 #include <cstdint>
+#include <systemd/sd-daemon.h>
 #include <thread>
 
 #ifdef USE_SYSTEMD
-#include <condition_variable>
-#include <systemd/sd-daemon.h>
+namespace iox::roudi::systemd
+{
+class SystemdServiceHandler;
+} // namespace iox::roudi::systemd
+using SendMessageStatusApplication = iox::roudi::systemd::SystemdServiceHandler;
+#else
+namespace iox::roudi::systemd
+{
+class NoSystemdServiceHandler;
+} // namespace iox::roudi::systemd
+using SendMessageStatusApplication = iox::roudi::systemd::NoSystemdServiceHandler;
 #endif
 
 namespace iox
@@ -119,13 +130,31 @@ class SystemdServiceHandler final : public ISystemd
      **/
     static bool setThreadNameHelper(iox::string<SIZE_THREAD_NAME>& threadName);
 
+#ifdef USE_SYSTEMD
     /**
      * @brief Helper function to send SDNotify signals
      * @param state SDNotify state to be sent
      * @return True if signal sending is successful, otherwise false
      **/
-    static bool sendSDNotifySignalHelper(const std::string_view state);
-
+    static bool sendSDNotifySignalHelper(const std::string_view state)
+    {
+        auto result = IOX_POSIX_CALL(sd_notify)(0, state.data()).successReturnValue(1).evaluate();
+        if (result.has_error())
+        {
+            IOX_LOG(ERROR,
+                    "Failed to send " << state.data()
+                                      << " signal. Error: " << result.get_error().getHumanReadableErrnum());
+            return false;
+        }
+        return true;
+    }
+#else
+    static bool sendSDNotifySignalHelper([[maybe_unused]] const std::string_view state)
+    {
+        // empty implementation
+        return true;
+    }
+#endif
     /**
      * @brief Function to manage the watchdog loop
      **/
@@ -172,12 +201,6 @@ class NoSystemdServiceHandler final : public ISystemd
     }
 };
 } // namespace systemd
-
-#ifdef USE_SYSTEMD
-using SendMessageStatusApplication = iox::roudi::systemd::SystemdServiceHandler;
-#else
-using SendMessageStatusApplication = iox::roudi::systemd::NoSystemdServiceHandler;
-#endif
 
 class RouDi
 {
