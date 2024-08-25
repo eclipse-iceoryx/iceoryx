@@ -72,7 +72,6 @@ class ISystemd
     ISystemd() = default;
 };
 
-#ifdef USE_SYSTEMD
 /**
  * @brief Class to handle systemd service notifications
  *
@@ -81,10 +80,10 @@ class SystemdServiceHandler final : public ISystemd
 {
   private:
     std::condition_variable watchdogNotifyCondition; ///< watch dog notification condition // 48
-    std::mutex watchdogMutex; ///< watch dog mutex // 40
-    std::thread m_listenThreadWatchdog; ///< thread that listens to systemd watchdog signals // 8
+    std::mutex watchdogMutex;                        ///< watch dog mutex // 40
+    std::thread m_listenThreadWatchdog;              ///< thread that listens to systemd watchdog signals // 8
   public:
-    static constexpr const uint16_t SIZE_STRING = 4096; ///< maximum size of string // 2
+    static constexpr const uint16_t SIZE_STRING = 4096;   ///< maximum size of string // 2
     static constexpr const uint8_t SIZE_THREAD_NAME = 15; ///< max size for thread name // 1
   private:
     std::atomic_bool m_shutdown{false}; ///< indicates if service is being shutdown // 1
@@ -99,151 +98,62 @@ class SystemdServiceHandler final : public ISystemd
     /**
      * @brief Destructor joins the listenThreadWatchdog if it is still joinable, to ensure a proper termination
      **/
-    ~SystemdServiceHandler() final
-    {
-        if (m_listenThreadWatchdog.joinable())
-        {
-            m_listenThreadWatchdog.join();
-        }
-    }
+    ~SystemdServiceHandler() final;
 
     /**
      * @brief Sets the shutdown flag to true, causing the systemd handler to stop.
-    **/
-    void shutdown() final
-    {
-        m_shutdown.store(true);
-    }
+     **/
+    void shutdown() final;
 
     /**
      * @brief Fetch required environment variable as a string
      * @param env_var Pointer to environment variable
      * @return Environment variable as std::string
      **/
-    static std::string getEnvironmentVariable(const char* const env_var) {
-        iox::string<SIZE_STRING> str;
-
-        str.unsafe_raw_access([&](auto* buffer, auto const info) {
-            size_t actualSizeWithNull{0};
-            auto result = IOX_POSIX_CALL(iox_getenv_s)(&actualSizeWithNull, buffer, info.total_size, env_var)
-                              .failureReturnValue(-1)
-                              .evaluate();
-
-            if (result.has_error() && result.error().errnum == ERANGE)
-            {
-                IOX_LOG(ERROR, "Invalid value for '" + std::string(env_var) + "' environment variable!");
-            }
-
-            size_t actual_size{0};
-            constexpr size_t NULL_TERMINATOR_SIZE{1};
-            if (actualSizeWithNull > 0)
-            {
-                actual_size = actualSizeWithNull - NULL_TERMINATOR_SIZE;
-            }
-            buffer[actual_size] = 0;
-            return actual_size;
-        });
-
-        return std::string(str.c_str());
-    }
+    static std::string getEnvironmentVariable(const char* const env_var);
 
     /**
      * @brief Helper function to set thread name
      * @param threadName Thread name to be set
      * @return True if successfully set, otherwise false
      **/
-    static bool setThreadNameHelper(iox::string<SIZE_THREAD_NAME>& threadName)
-    {
-        bool status_change_name = iox::setThreadName(threadName);
-        if (!status_change_name)
-        {
-            IOX_LOG(ERROR, "Cannot set name for thread " << threadName);
-            return false;
-        }
-        return true;
-    }
+    static bool setThreadNameHelper(iox::string<SIZE_THREAD_NAME>& threadName);
 
     /**
      * @brief Helper function to send SDNotify signals
      * @param state SDNotify state to be sent
      * @return True if signal sending is successful, otherwise false
      **/
-    static bool sendSDNotifySignalHelper(const std::string_view state)
-    {
-        auto result = IOX_POSIX_CALL(sd_notify)(0, state.data()).successReturnValue(1).evaluate();
-        if (result.has_error())
-        {
-            IOX_LOG(ERROR,
-                    "Failed to send " << state.data() << " signal. Error: " << result.get_error().getHumanReadableErrnum());
-            return false;
-        }
-        return true;
-    }
+    static bool sendSDNotifySignalHelper(const std::string_view state);
 
     /**
      * @brief Function to manage the watchdog loop
-    **/
-    void watchdogLoopHelper()
-    {
-        IOX_LOG(INFO, "Start watchdog");
-        while (!m_shutdown.load())
-        {
-            std::unique_lock<std::mutex> lock(watchdogMutex);
-            if (watchdogNotifyCondition.wait_for(lock, std::chrono::seconds(1), [this] { return m_shutdown.load(); }))
-            {
-                break;
-            }
-            if (!sendSDNotifySignalHelper("WATCHDOG=1"))
-            {
-                return;
-            }
-        }
-    }
+     **/
+    void watchdogLoopHelper();
 
     /**
      * @brief Method to process systemd notification logic
      **/
-    void processNotify() final
-    {
-        std::string invocationIdStr = getEnvironmentVariable("INVOCATION_ID");
-
-        if (!invocationIdStr.empty())
-        {
-            IOX_LOG(WARN, "Run APP in unit(systemd)");
-
-            m_listenThreadWatchdog = std::thread([this] {
-                iox::string<SIZE_THREAD_NAME> nameThread = "Watchdog";
-                if ( !setThreadNameHelper(nameThread) ||
-                    !sendSDNotifySignalHelper("READY=1") ) {
-                    return;
-                }
-
-                IOX_LOG(DEBUG, "Notify READY=1 successful");
-
-                /* Start the watchdog loop */
-                watchdogLoopHelper();
-            });
-        }
-    }
+    void processNotify() final;
 };
-#else
+
 /**
-* @brief Empty implementation handler for non-systemd systems
-*
-**/
-class SystemdServiceHandler final : public ISystemd
+ * @brief Empty implementation handler for non-systemd systems
+ *
+ **/
+class NoSystemdServiceHandler final : public ISystemd
 {
   public:
-    SystemdServiceHandler() = default;
-    SystemdServiceHandler(SystemdServiceHandler const& other) = delete;
-    SystemdServiceHandler(SystemdServiceHandler&& other) = default;
-    SystemdServiceHandler& operator=(SystemdServiceHandler const& other) = delete;
-    SystemdServiceHandler& operator=(SystemdServiceHandler&& other) = default;
+    NoSystemdServiceHandler() = default;
+    NoSystemdServiceHandler(NoSystemdServiceHandler const& other) = delete;
+    NoSystemdServiceHandler(NoSystemdServiceHandler&& other) = default;
+    NoSystemdServiceHandler& operator=(NoSystemdServiceHandler const& other) = delete;
+    NoSystemdServiceHandler& operator=(NoSystemdServiceHandler&& other) = default;
 
     /**
      * @brief Empty implementation of destructor
      **/
-    ~SystemdServiceHandler() final = default;
+    ~NoSystemdServiceHandler() final = default;
 
     /**
      * @brief Empty implementation of processNotify
@@ -261,8 +171,13 @@ class SystemdServiceHandler final : public ISystemd
         // empty implementation
     }
 };
-#endif
 } // namespace systemd
+
+#ifdef USE_SYSTEMD
+using SendMessageStatusApplication = iox::roudi::systemd::SystemdServiceHandler;
+#else
+using SendMessageStatusApplication = iox::roudi::systemd::NoSystemdServiceHandler;
+#endif
 
 class RouDi
 {

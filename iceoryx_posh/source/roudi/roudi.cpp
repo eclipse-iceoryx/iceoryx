@@ -254,8 +254,8 @@ void RouDi::processRuntimeMessages(runtime::IpcInterfaceCreator&& roudiIpcInterf
     IOX_LOG(INFO, "RouDi is ready for clients");
     fflush(stdout); // explicitly flush 'stdout' for 'launch_testing'
 
-    iox::roudi::systemd::SystemdServiceHandler roudiSystemd;
-    roudiSystemd.processNotify();
+    SendMessageStatusApplication roudiSendMessage;
+    roudiSendMessage.processNotify();
 
     while (m_runHandleRuntimeMessageThread)
     {
@@ -269,8 +269,9 @@ void RouDi::processRuntimeMessages(runtime::IpcInterfaceCreator&& roudiIpcInterf
             processMessage(message, cmd, runtimeName);
         }
     }
-    if (!m_runHandleRuntimeMessageThread.load()){
-        roudiSystemd.shutdown();
+    if (!m_runHandleRuntimeMessageThread.load())
+    {
+        roudiSendMessage.shutdown();
     }
 }
 
@@ -583,6 +584,116 @@ uint64_t RouDi::getUniqueSessionIdForProcess() noexcept
 void RouDi::IpcMessageErrorHandler() noexcept
 {
 }
+
+namespace systemd
+{
+
+SystemdServiceHandler::~SystemdServiceHandler()
+{
+    if (m_listenThreadWatchdog.joinable())
+    {
+        m_listenThreadWatchdog.join();
+    }
+}
+
+void SystemdServiceHandler::shutdown()
+{
+    m_shutdown.store(true);
+}
+
+std::string SystemdServiceHandler::getEnvironmentVariable(const char* const env_var)
+{
+    iox::string<SIZE_STRING> str;
+
+    str.unsafe_raw_access([&](auto* buffer, auto const info) {
+        size_t actualSizeWithNull{0};
+        auto result = IOX_POSIX_CALL(iox_getenv_s)(&actualSizeWithNull, buffer, info.total_size, env_var)
+                          .failureReturnValue(-1)
+                          .evaluate();
+
+        if (result.has_error() && result.error().errnum == ERANGE)
+        {
+            IOX_LOG(ERROR, "Invalid value for '" + std::string(env_var) + "' environment variable!");
+        }
+
+        size_t actual_size{0};
+        constexpr size_t NULL_TERMINATOR_SIZE{1};
+        if (actualSizeWithNull > 0)
+        {
+            actual_size = actualSizeWithNull - NULL_TERMINATOR_SIZE;
+        }
+        buffer[actual_size] = 0;
+        return actual_size;
+    });
+
+    return std::string(str.c_str());
+}
+
+bool SystemdServiceHandler::setThreadNameHelper(iox::string<SIZE_THREAD_NAME>& threadName)
+{
+    bool status_change_name = iox::setThreadName(threadName);
+    if (!status_change_name)
+    {
+        IOX_LOG(ERROR, "Cannot set name for thread " << threadName);
+        return false;
+    }
+    return true;
+}
+
+bool SystemdServiceHandler::sendSDNotifySignalHelper(const std::string_view state)
+{
+    auto result = IOX_POSIX_CALL(sd_notify)(0, state.data()).successReturnValue(1).evaluate();
+    if (result.has_error())
+    {
+        IOX_LOG(ERROR,
+                "Failed to send " << state.data()
+                                  << " signal. Error: " << result.get_error().getHumanReadableErrnum());
+        return false;
+    }
+    return true;
+}
+
+void SystemdServiceHandler::watchdogLoopHelper()
+{
+    IOX_LOG(INFO, "Start watchdog");
+    while (!m_shutdown.load())
+    {
+        std::unique_lock<std::mutex> lock(watchdogMutex);
+        if (watchdogNotifyCondition.wait_for(lock, std::chrono::seconds(1), [this] { return m_shutdown.load(); }))
+        {
+            break;
+        }
+        if (!sendSDNotifySignalHelper("WATCHDOG=1"))
+        {
+            return;
+        }
+    }
+}
+
+void SystemdServiceHandler::processNotify()
+{
+    std::string invocationIdStr = getEnvironmentVariable("INVOCATION_ID");
+
+    if (!invocationIdStr.empty())
+    {
+        IOX_LOG(WARN, "Run APP in unit(systemd)");
+
+        m_listenThreadWatchdog = std::thread([this] {
+            iox::string<SIZE_THREAD_NAME> nameThread = "Watchdog";
+            if (!setThreadNameHelper(nameThread) || !sendSDNotifySignalHelper("READY=1"))
+            {
+                return;
+            }
+
+            IOX_LOG(DEBUG, "Notify READY=1 successful");
+
+            /* Start the watchdog loop */
+            watchdogLoopHelper();
+        });
+    }
+}
+
+} // namespace systemd
 
 } // namespace roudi
 } // namespace iox
