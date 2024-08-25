@@ -16,3 +16,4 @@ tools/website/generated/
 *.project
 __pycache__
 /bazel-*
+MODULE.bazel.lock
