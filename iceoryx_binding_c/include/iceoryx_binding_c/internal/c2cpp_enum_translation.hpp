@@ -1,4 +1,5 @@
 // Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2024 by Michael Bentley <mikebentley15@gmail.com>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,8 +25,8 @@
 
 namespace c2cpp
 {
-iox::popo::ConsumerTooSlowPolicy consumerTooSlowPolicy(const ENUM iox_ConsumerTooSlowPolicy policy) noexcept;
-iox::popo::QueueFullPolicy queueFullPolicy(const ENUM iox_QueueFullPolicy policy) noexcept;
+iox::popo::ConsumerTooSlowPolicy consumerTooSlowPolicy(const enum iox_ConsumerTooSlowPolicy policy) noexcept;
+iox::popo::QueueFullPolicy queueFullPolicy(const enum iox_QueueFullPolicy policy) noexcept;
 iox::popo::SubscriberEvent subscriberEvent(const iox_SubscriberEvent value) noexcept;
 iox::popo::SubscriberState subscriberState(const iox_SubscriberState value) noexcept;
 

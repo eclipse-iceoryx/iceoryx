@@ -1,4 +1,5 @@
 // Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2024 by Michael Bentley <mikebentley15@gmail.com>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,7 +26,7 @@
 #include "iceoryx_binding_c/user_trigger.h"
 
 /// @brief notification info handle
-typedef const CLASS NotificationInfo* iox_notification_info_t;
+typedef const IOX_C_CLASS NotificationInfo* iox_notification_info_t;
 
 /// @brief returns the id of the notification
 /// @param[in] self handle to notification info

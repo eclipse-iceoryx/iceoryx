@@ -1,4 +1,5 @@
 // Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2024 by Michael Bentley <mikebentley15@gmail.com>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,7 +24,7 @@
 #include "service_description.h"
 
 /// @brief service discovery handle
-typedef CLASS ServiceDiscovery* iox_service_discovery_t;
+typedef IOX_C_CLASS ServiceDiscovery* iox_service_discovery_t;
 
 /// @brief initializes a service discovery from a storage struct pointer
 /// @param[in] self pointer to raw memory which can hold a service discovery
@@ -53,7 +54,7 @@ uint64_t iox_service_discovery_find_service(iox_service_discovery_t const self,
                                             iox_service_description_t* const serviceContainer,
                                             const uint64_t serviceContainerCapacity,
                                             uint64_t* missedServices,
-                                            const ENUM iox_MessagingPattern pattern);
+                                            const enum iox_MessagingPattern pattern);
 
 /// @brief Searches all services with the given messaging pattern that match the provided service description and
 /// applies a function to each of them
@@ -68,7 +69,7 @@ void iox_service_discovery_find_service_apply_callable(iox_service_discovery_t c
                                                        const char* const instance,
                                                        const char* const event,
                                                        void (*callable)(const iox_service_description_t),
-                                                       const ENUM iox_MessagingPattern pattern);
+                                                       const enum iox_MessagingPattern pattern);
 
 /// @brief Searches all services with the given messaging pattern that match the provided service description and
 /// applies a function to each of them. A second parameter for the function can be provided as contextData.
@@ -86,6 +87,6 @@ void iox_service_discovery_find_service_apply_callable_with_context_data(
     const char* const event,
     void (*callable)(const iox_service_description_t, void*),
     void* const contextData,
-    const ENUM iox_MessagingPattern pattern);
+    const enum iox_MessagingPattern pattern);
 
 #endif

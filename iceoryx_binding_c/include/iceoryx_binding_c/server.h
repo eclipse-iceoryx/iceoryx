@@ -1,4 +1,5 @@
 // Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2024 by Michael Bentley <mikebentley15@gmail.com>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,7 +24,7 @@
 #include "iceoryx_binding_c/types.h"
 
 /// @brief server handle
-typedef CLASS UntypedServer* iox_server_t;
+typedef IOX_C_CLASS UntypedServer* iox_server_t;
 
 /// @brief options to be set for a server
 typedef struct
@@ -38,10 +39,10 @@ typedef struct
     bool offerOnCreate;
 
     /// @brief Sets whether the client blocks when the server request queue is full
-    ENUM iox_QueueFullPolicy requestQueueFullPolicy;
+    enum iox_QueueFullPolicy requestQueueFullPolicy;
 
     /// @brief Sets whether the server blocks when the client response queue is full
-    ENUM iox_ConsumerTooSlowPolicy clientTooSlowPolicy;
+    enum iox_ConsumerTooSlowPolicy clientTooSlowPolicy;
 
     /// @brief this value will be set exclusively by 'iox_server_options_init' and is not supposed to be modified
     /// otherwise
@@ -84,7 +85,7 @@ void iox_server_deinit(iox_server_t const self);
 /// @param[in] payload pointer in which the pointer to the user-payload of the request is stored
 /// @return if a chunk could be received it returns ChunkReceiveResult_SUCCESS otherwise
 ///         an enum which describes the error
-ENUM iox_ServerRequestResult iox_server_take_request(iox_server_t const self, const void** const payload);
+enum iox_ServerRequestResult iox_server_take_request(iox_server_t const self, const void** const payload);
 
 /// @brief release a previously acquired request (via iox_server_take_request)
 /// @param[in] self handle to the server
@@ -100,7 +101,7 @@ void iox_server_release_request(iox_server_t const self, const void* const paylo
 ///         describes the error
 /// @note for the user-payload alignment 'IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT' is used
 ///       for a custom user-payload alignment please use 'iox_server_loan_aligned_response'
-ENUM iox_AllocationResult iox_server_loan_response(iox_server_t const self,
+enum iox_AllocationResult iox_server_loan_response(iox_server_t const self,
                                                    const void* const requestPayload,
                                                    void** const payload,
                                                    const uint64_t payloadSize);
@@ -113,7 +114,7 @@ ENUM iox_AllocationResult iox_server_loan_response(iox_server_t const self,
 /// @param[in] payloadAlignment user-payload alignment of the allocated request
 /// @return on success it returns AllocationResult_SUCCESS otherwise a value which
 ///         describes the error
-ENUM iox_AllocationResult iox_server_loan_aligned_response(iox_server_t const self,
+enum iox_AllocationResult iox_server_loan_aligned_response(iox_server_t const self,
                                                            const void* const requestPayload,
                                                            void** const payload,
                                                            const uint64_t payloadSize,
@@ -124,7 +125,7 @@ ENUM iox_AllocationResult iox_server_loan_aligned_response(iox_server_t const se
 /// @param[in] payload pointer to the user-payload of the response which should be send
 /// @return on success it returns ServerSendResult_SUCCESS otherwise a value which
 ///         describes the error
-ENUM iox_ServerSendResult iox_server_send(iox_server_t const self, void* const payload);
+enum iox_ServerSendResult iox_server_send(iox_server_t const self, void* const payload);
 
 /// @brief releases ownership of a previously allocated loaned response without sending it
 /// @param[in] self handle of the server

@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2024 by Michael Bentley <mikebentley15@gmail.com>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,16 +22,14 @@
 
 #include <cstdint>
 
-#define CLASS class
-#define ENUM
+#define IOX_C_CLASS class
 
 #else
 
 #include <stdbool.h>
 #include <stdint.h>
 
-#define CLASS struct
-#define ENUM enum
+#define IOX_C_CLASS struct
 
 #endif
 

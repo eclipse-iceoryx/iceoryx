@@ -70,6 +70,7 @@
 
 **Bugfixes:**
 
+- Fix compile-time conflict with Apache Arrow [\#2327](https://github.com/eclipse-iceoryx/iceoryx/issues/2327)
 - FreeBSD CI build is broken [\#1338](https://github.com/eclipse-iceoryx/iceoryx/issues/1338)
 - High CPU load in blocked publisher is reduced by introducing smart busy loop waiting (adaptive_wait) [\#1347](https://github.com/eclipse-iceoryx/iceoryx/issues/1347)
 - Compile Error : iceoryx_dds/Mempool.hpp: No such file or directory [\#1364](https://github.com/eclipse-iceoryx/iceoryx/issues/1364)
