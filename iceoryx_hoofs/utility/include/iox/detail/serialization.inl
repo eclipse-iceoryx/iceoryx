@@ -107,13 +107,13 @@ inline bool Serialization::deserialize(const std::string& serializedString, T& t
 
 inline bool Serialization::removeFirstEntry(std::string& firstEntry, std::string& remainder) noexcept
 {
-    uint64_t pos = remainder.find_first_of(SEPARATOR);
+    auto pos = remainder.find_first_of(SEPARATOR);
     if (pos == std::string::npos)
     {
         return false;
     }
 
-    auto result = convert::from_string<uint64_t>(remainder.substr(0, pos).c_str());
+    auto result = convert::from_string<decltype(pos)>(remainder.substr(0U, pos).c_str());
 
     if (!result.has_value())
     {

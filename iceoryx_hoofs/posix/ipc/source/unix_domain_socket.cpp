@@ -75,7 +75,8 @@ expected<UnixDomainSocket, PosixIpcChannelError> UnixDomainSocketBuilderNoPathPr
     {
         return err(PosixIpcChannelError::INVALID_CHANNEL_NAME);
     }
-    strncpy(&(sockAddr.sun_path[0]), m_name.c_str(), m_name.size());
+    auto nameSize = m_name.size();
+    strncpy(&(sockAddr.sun_path[0]), m_name.c_str(), static_cast<size_t>(nameSize));
 
     // the mask will be applied to the permissions, we only allow users and group members to have read and write access
     // the system call always succeeds, no need to check for errors

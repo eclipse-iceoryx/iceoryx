@@ -90,7 +90,7 @@ class MePooSegment_test : public Test
         uint64_t m_memorySizeInBytes{0};
         void* m_baseAddressHint{nullptr};
         static constexpr int MEM_SIZE = 100000;
-        char memory[MEM_SIZE];
+        alignas(8) char memory[MEM_SIZE];
         shm_handle_t filehandle;
         static createFct createVerificator;
     };

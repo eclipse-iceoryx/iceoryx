@@ -87,7 +87,8 @@ class UnixDomainSocket_test : public Test
 
         memset(&sockAddr, 0, sizeof(sockAddr));
         sockAddr.sun_family = AF_LOCAL;
-        strncpy(&(sockAddr.sun_path[0]), name.c_str(), name.size());
+        auto nameSize = name.size();
+        strncpy(&(sockAddr.sun_path[0]), name.c_str(), static_cast<size_t>(nameSize));
 
         IOX_POSIX_CALL(iox_socket)
         (AF_LOCAL, SOCK_DGRAM, 0)

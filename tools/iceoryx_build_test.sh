@@ -56,6 +56,7 @@ BUILD_SHARED="OFF"
 TOML_FLAG="ON"
 COMPONENTS="iceoryx_platform iceoryx_hoofs iceoryx_posh iceoryx_introspection iceoryx_binding_c iceoryx_component"
 TOOLCHAIN_FILE=""
+CMAKE_C_FLAGS=""
 CMAKE_CXX_FLAGS=""
 
 while (( "$#" )); do
@@ -206,12 +207,25 @@ while (( "$#" )); do
         ;;
     "libcxx")
         echo " [i] Build with libc++ library"
-        CMAKE_CXX_FLAGS="-stdlib=libc++"
+        CMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -stdlib=libc++"
         shift 1
         ;;
     "doc")
         echo " [i] Build and generate doxygen"
         BUILD_DOC="ON"
+        shift 1
+        ;;
+    "32-bit-x86")
+        echo " [i] Build as 32 bit x86 library"
+        CMAKE_C_FLAGS="${CMAKE_C_FLAGS} -m32 -malign-double"
+        CMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -m32 -malign-double"
+        shift 1
+        ;;
+    "32-bit-arm")
+        echo " [i] Build as 32 bit ARM library"
+        # NOTE: there is no '-m32' flag on ARM; the architecture is selected via the externally defined toolchain
+        CMAKE_C_FLAGS="${CMAKE_C_FLAGS} -malign-double"
+        CMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -malign-double"
         shift 1
         ;;
     "help")
@@ -250,6 +264,8 @@ while (( "$#" )); do
         echo "    test-add-user         Create additional useraccounts in system for testing access control (default off)"
         echo "    toml-config-off       Build without TOML File support"
         echo "    roudi-env             Build the roudi environment"
+        echo "    32-bit-x86            Build as 32 bit library for x64"
+        echo "    32-bit-arm            Build as 32 bit library for arm"
         echo ""
         echo "e.g. iceoryx_build_test.sh -b ./build-scripted clean test"
         echo "for gcov report: iceoryx_build_test.sh clean -c unit"
@@ -324,7 +340,8 @@ if [ "$NO_BUILD" == false ]; then
           -DTHREAD_SANITIZER=$THREAD_SANITIZER_FLAG \
           -DTEST_WITH_ADDITIONAL_USER=$TEST_ADD_USER $TOOLCHAIN_FILE \
           -DTEST_WITH_HUGE_PAYLOAD=$TEST_HUGE_PAYLOAD \
-          -DCMAKE_CXX_FLAGS=$CMAKE_CXX_FLAGS \
+          -DCMAKE_C_FLAGS="$CMAKE_C_FLAGS" \
+          -DCMAKE_CXX_FLAGS="$CMAKE_CXX_FLAGS" \
           "$WORKSPACE"/iceoryx_meta
 
     cmake --build . --target install -- -j$NUM_JOBS
@@ -365,6 +382,8 @@ if [ "$OUT_OF_TREE_FLAG" == "ON" ]; then
             cmake -DCMAKE_INSTALL_PREFIX="$ICEORYX_INSTALL_PREFIX" \
                   -DTOML_CONFIG=$TOML_FLAG \
                   -DBINDING_C=$BINDING_C_FLAG \
+                  -DCMAKE_C_FLAGS="$CMAKE_C_FLAGS" \
+                  -DCMAKE_CXX_FLAGS="$CMAKE_CXX_FLAGS" \
                   "$WORKSPACE"/iceoryx_examples/"$ex"
             if ! cmake --build . --target install -- -j$NUM_JOBS; then
                 echo "Out of tree build failed"

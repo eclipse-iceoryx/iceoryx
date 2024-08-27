@@ -498,7 +498,7 @@ TEST_F(vector_test, ReverseDestructionOrderInCopyAssignment)
 
     EXPECT_THAT(stats.dTor, Eq(VECTOR_CAPACITY));
     ASSERT_THAT(stats.dTorOrder.size(), Eq(VECTOR_CAPACITY));
-    for (uint64_t i{0}; i < VECTOR_CAPACITY; ++i)
+    for (size_t i{0}; i < VECTOR_CAPACITY; ++i)
     {
         EXPECT_THAT(stats.dTorOrder[i], Eq(VECTOR_CAPACITY - 1 - i));
     }
@@ -518,7 +518,7 @@ TEST_F(vector_test, ReverseDestructionOrderInMoveAssignment)
 
     EXPECT_THAT(stats.dTor, Eq(VECTOR_CAPACITY));
     ASSERT_THAT(stats.dTorOrder.size(), Eq(VECTOR_CAPACITY));
-    for (uint64_t i{0}; i < VECTOR_CAPACITY; ++i)
+    for (size_t i{0}; i < VECTOR_CAPACITY; ++i)
     {
         EXPECT_THAT(stats.dTorOrder[i], Eq(VECTOR_CAPACITY - i));
     }
@@ -1262,7 +1262,7 @@ TEST_F(vector_test, FullVectorDestroysElementsInReverseOrder)
     }
 
     ASSERT_THAT(stats.dTorOrder.size(), Eq(VECTOR_CAPACITY));
-    for (uint64_t i = 0U; i < VECTOR_CAPACITY; ++i)
+    for (size_t i = 0U; i < VECTOR_CAPACITY; ++i)
     {
         EXPECT_THAT(stats.dTorOrder[i], Eq(INDEX_END - i + SOME_OFFSET));
     }
@@ -1286,7 +1286,7 @@ TEST_F(vector_test, PartiallyFullVectorDestroysElementsInReverseOrder)
     }
 
     ASSERT_THAT(stats.dTorOrder.size(), Eq(VECTOR_SIZE));
-    for (uint64_t i = 0U; i < VECTOR_SIZE; ++i)
+    for (size_t i = 0U; i < VECTOR_SIZE; ++i)
     {
         EXPECT_THAT(stats.dTorOrder[i], Eq(INDEX_END - i + SOME_OFFSET));
     }

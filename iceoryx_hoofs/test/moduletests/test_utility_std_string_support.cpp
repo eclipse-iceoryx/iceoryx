@@ -543,7 +543,7 @@ TYPED_TEST(StdString_test, AppendStdStringContainingNullWorks)
     sut.append(TruncateToCapacity, testStdString);
     EXPECT_THAT(sut.capacity(), Eq(RESULT_CAPACITY));
     EXPECT_THAT(sut.size(), Eq(7U));
-    EXPECT_THAT(std::memcmp(sut.c_str(), expectedString.c_str(), sut.size()), Eq(0));
+    EXPECT_THAT(std::memcmp(sut.c_str(), expectedString.c_str(), static_cast<size_t>(sut.size())), Eq(0));
 }
 
 TYPED_TEST(StdString_test, FindStdStringInEmptyStringFails)

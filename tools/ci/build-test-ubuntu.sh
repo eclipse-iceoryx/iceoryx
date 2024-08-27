@@ -19,15 +19,25 @@
 
 set -e
 
+COMPILER=gcc
+SANITIZER=asan
+BUILD_32BIT=""
+
+while (( "$#" )); do
+  case "$1" in
+    "32-bit-x86")
+        BUILD_32BIT="32-bit-x86"
+        shift 1
+        ;;
+  esac
+done
+
 msg() {
     printf "\033[1;32m%s: %s\033[0m\n" ${FUNCNAME[1]} "$1"
 }
 
 WORKSPACE=$(git rev-parse --show-toplevel)
 cd ${WORKSPACE}
-
-msg "installing build dependencies"
-sudo apt-get update && sudo apt-get install -y libacl1-dev libncurses5-dev
 
 msg "creating local test users and groups for testing access control"
 sudo ./tools/scripts/add_test_users.sh
@@ -37,10 +47,10 @@ $(gcc --version)
 $(clang --version)"
 
 msg "building sources"
-./tools/iceoryx_build_test.sh build-strict build-all out-of-tree build-shared test-add-user
+./tools/iceoryx_build_test.sh build-strict build-all out-of-tree build-shared test-add-user ${BUILD_32BIT}
 
 msg "building debian package"
-./tools/iceoryx_build_test.sh package
+./tools/iceoryx_build_test.sh package ${BUILD_32BIT}
 
 # there are tests which open quite a lot of file descriptors simultaneously to exhaust the creation of some resources
 # therefore the limits needs to be increased
@@ -53,4 +63,4 @@ cd ./build
 cd -
 
 msg "building roudi examples without toml support"
-./tools/iceoryx_build_test.sh relwithdebinfo out-of-tree examples toml-config-off clean
+./tools/iceoryx_build_test.sh relwithdebinfo out-of-tree examples toml-config-off clean ${BUILD_32BIT}

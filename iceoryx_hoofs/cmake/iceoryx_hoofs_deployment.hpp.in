@@ -35,8 +35,6 @@ constexpr iox::log::LogLevel IOX_MINIMAL_LOG_LEVEL = iox::log::LogLevel::@IOX_MI
 constexpr uint64_t IOX_MAX_NAMED_PIPE_MESSAGE_SIZE = static_cast<uint64_t>(@IOX_MAX_NAMED_PIPE_MESSAGE_SIZE@);
 constexpr uint32_t IOX_MAX_NAMED_PIPE_NUMBER_OF_MESSAGES = static_cast<uint32_t>(@IOX_MAX_NAMED_PIPE_NUMBER_OF_MESSAGES@);
 
-constexpr bool IOX_IGNORE_32_BIT_CHECK_FLAG = @IOX_IGNORE_32_BIT_CHECK_FLAG@;
-
 } // namespace build
 } // namespace iox
 

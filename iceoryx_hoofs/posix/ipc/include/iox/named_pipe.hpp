@@ -213,7 +213,7 @@ class NamedPipeBuilder
     IOX_BUILDER_PARAMETER(PosixIpcChannelSide, channelSide, PosixIpcChannelSide::CLIENT)
 
     /// @brief Defines the max message size of the named pipe
-    IOX_BUILDER_PARAMETER(size_t, maxMsgSize, NamedPipe::MAX_MESSAGE_SIZE)
+    IOX_BUILDER_PARAMETER(uint64_t, maxMsgSize, NamedPipe::MAX_MESSAGE_SIZE)
 
     /// @brief Defines the max number of messages for the named pipe.
     IOX_BUILDER_PARAMETER(uint64_t, maxMsgNumber, NamedPipe::MAX_NUMBER_OF_MESSAGES)

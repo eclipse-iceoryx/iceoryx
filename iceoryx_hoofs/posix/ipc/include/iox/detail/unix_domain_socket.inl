@@ -53,7 +53,7 @@ expected<void, PosixIpcChannelError> UnixDomainSocket::timedSendImpl(not_null<co
     {
         msgSizeToSend += NULL_TERMINATOR_SIZE;
     }
-    auto sendCall = IOX_POSIX_CALL(iox_sendto)(m_sockfd, msg, msgSizeToSend, 0, nullptr, 0)
+    auto sendCall = IOX_POSIX_CALL(iox_sendto)(m_sockfd, msg, static_cast<size_t>(msgSizeToSend), 0, nullptr, 0)
                         .failureReturnValue(ERROR_CODE)
                         .evaluate();
 
@@ -85,7 +85,7 @@ expected<uint64_t, PosixIpcChannelError> UnixDomainSocket::timedReceiveImpl(
         return err(errnoToEnum(setsockoptCall.error().errnum));
     }
 
-    auto recvCall = IOX_POSIX_CALL(iox_recvfrom)(m_sockfd, msg, maxMsgSize, 0, nullptr, nullptr)
+    auto recvCall = IOX_POSIX_CALL(iox_recvfrom)(m_sockfd, msg, static_cast<size_t>(maxMsgSize), 0, nullptr, nullptr)
                         .failureReturnValue(ERROR_CODE)
                         .suppressErrorMessagesForErrnos(EAGAIN, EWOULDBLOCK)
                         .evaluate();

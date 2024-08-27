@@ -798,7 +798,7 @@ TYPED_TEST(ChunkDistributor_test, MultipleBlockingQueuesWillBeFilledWhenThereBec
     std::this_thread::sleep_for(this->BLOCKING_DURATION);
     EXPECT_THAT(wasChunkDelivered.load(), Eq(false));
 
-    for (uint64_t i = 0U; i < NUMBER_OF_QUEUES; ++i)
+    for (size_t i = 0U; i < NUMBER_OF_QUEUES; ++i)
     {
         auto maybeSharedChunk = queues[i].tryPop();
         ASSERT_THAT(maybeSharedChunk.has_value(), Eq(true));

@@ -21,18 +21,18 @@
 
 namespace iox
 {
-void* alignedAlloc(const uint64_t alignment, const uint64_t size) noexcept
+void* alignedAlloc(const size_t alignment, const size_t size) noexcept
 {
     // -1 == since the max alignment addition is alignment - 1 otherwise the
     // memory is already aligned and we have to do nothing
     // low-level memory management, no other approach then to use malloc to acquire heap memory
     // NOLINTNEXTLINE(cppcoreguidelines-owning-memory,cppcoreguidelines-pro-type-reinterpret-cast,hicpp-no-malloc,cppcoreguidelines-no-malloc)
-    auto memory = reinterpret_cast<uint64_t>(std::malloc(size + alignment + sizeof(void*) - 1));
+    auto memory = reinterpret_cast<size_t>(std::malloc(size + alignment + sizeof(void*) - 1));
     if (memory == 0)
     {
         return nullptr;
     }
-    uint64_t alignedMemory = align(memory + sizeof(void*), alignment);
+    size_t alignedMemory = align(memory + sizeof(void*), alignment);
     assert(alignedMemory >= memory + 1);
     // low-level memory management, we have to store the actual start of the memory a position before the
     // returned aligned address to be able to release the actual memory address again with free when we

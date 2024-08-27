@@ -20,6 +20,7 @@
 #include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iox/bump_allocator.hpp"
 #include "iox/detail/hoofs_error_reporting.hpp"
+#include "iox/detail/system_configuration.hpp"
 
 #include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "test.hpp"
@@ -45,9 +46,6 @@ class MemPool_test : public Test
         , sut(CHUNK_SIZE, NUMBER_OF_CHUNKS, allocator, allocator)
     {
     }
-
-    void SetUp(){};
-    void TearDown(){};
 
     alignas(MemPool::CHUNK_MEMORY_ALIGNMENT) uint8_t
         m_rawMemory[NUMBER_OF_CHUNKS * CHUNK_SIZE + LOFFLI_MEMORY_REQUIREMENT];
@@ -138,14 +136,23 @@ TEST_F(MemPool_test, MempoolPointeToIndexConversionForMemoryOffsetsLargerThan4GB
     constexpr uint64_t GB{1ULL << 30};
     constexpr uint64_t CHUNK_SIZE{128 * MB};
     constexpr uint64_t RAW_MEMORY_BASE{0x7f60d90c5000ULL};
-    uint8_t* const RAW_MEMORY_PTR{reinterpret_cast<uint8_t*>(RAW_MEMORY_BASE)};
-    constexpr uint32_t EXPECTED_INDEX{42};
-    uint8_t* const CHUNK_PTR{RAW_MEMORY_PTR + static_cast<uint64_t>(EXPECTED_INDEX) * CHUNK_SIZE};
 
-    const auto index = MemPool::pointerToIndex(CHUNK_PTR, CHUNK_SIZE, RAW_MEMORY_PTR);
+    if constexpr (iox::detail::isCompiledOn32BitSystem())
+    {
+        GTEST_SKIP() << "This test does not work on 32 bit builds since it requires pointer larger than the 32 bit "
+                        "address space";
+    }
+    else
+    {
+        uint8_t* const RAW_MEMORY_PTR{reinterpret_cast<uint8_t*>(RAW_MEMORY_BASE)};
+        constexpr uint32_t EXPECTED_INDEX{42};
+        uint8_t* const CHUNK_PTR{RAW_MEMORY_PTR + static_cast<uint64_t>(EXPECTED_INDEX) * CHUNK_SIZE};
 
-    EXPECT_THAT(index, Eq(EXPECTED_INDEX));
-    EXPECT_THAT(reinterpret_cast<uint64_t>(CHUNK_PTR) - RAW_MEMORY_BASE, Gt(5 * GB));
+        const auto index = MemPool::pointerToIndex(CHUNK_PTR, CHUNK_SIZE, RAW_MEMORY_PTR);
+
+        EXPECT_THAT(index, Eq(EXPECTED_INDEX));
+        EXPECT_THAT(reinterpret_cast<uint64_t>(CHUNK_PTR) - RAW_MEMORY_BASE, Gt(5 * GB));
+    }
 }
 
 TEST_F(MemPool_test, MempoolCtorInitialisesTheObjectWithValuesPassedToTheCtor)
