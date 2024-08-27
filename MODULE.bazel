@@ -1,10 +1,9 @@
 module(name = "org_eclipse_iceroyx", version = "2.95.0")
 
-bazel_dep(name = "buildtools", dev_dependency = True, repo_name = "com_github_bazelbuild_buildtools")
-git_override(
-    module_name = 'buildtools',
-    remote = 'https://github.com/bazelbuild/buildtools.git',
-    commit = '37932ddd72301f8ca6075ee6b24e9e5d333c96a5', # Jun 28, 2024
+bazel_dep(
+    name = "buildifier_prebuilt",
+    version = "7.1.2",
+    dev_dependency = True,
 )
 bazel_dep(name = "cpptoml", version = "0.1.1")
 bazel_dep(name = "googletest", version = "1.15.2")
