@@ -254,7 +254,7 @@ void RouDi::processRuntimeMessages(runtime::IpcInterfaceCreator&& roudiIpcInterf
     IOX_LOG(INFO, "RouDi is ready for clients");
     fflush(stdout); // explicitly flush 'stdout' for 'launch_testing'
 
-    SendMessageStatusApplication roudiSendMessage;
+    SendMessageServiceManagement roudiSendMessage;
     roudiSendMessage.processNotify();
 
     while (m_runHandleRuntimeMessageThread)
@@ -585,10 +585,10 @@ void RouDi::IpcMessageErrorHandler() noexcept
 {
 }
 
-namespace systemd
+namespace service_management
 {
 
-SystemdServiceHandler::~SystemdServiceHandler()
+ServiceManagementSystemd::~ServiceManagementSystemd()
 {
     if (m_listenThreadWatchdog.joinable())
     {
@@ -596,12 +596,12 @@ SystemdServiceHandler::~SystemdServiceHandler()
     }
 }
 
-void SystemdServiceHandler::shutdown()
+void ServiceManagementSystemd::shutdown()
 {
     m_shutdown.store(true);
 }
 
-std::string SystemdServiceHandler::getEnvironmentVariable(const char* const env_var)
+std::string ServiceManagementSystemd::getEnvironmentVariable(const char* const env_var)
 {
     iox::string<SIZE_STRING> str;
 
@@ -629,7 +629,7 @@ std::string SystemdServiceHandler::getEnvironmentVariable(const char* const env_
     return std::string(str.c_str());
 }
 
-bool SystemdServiceHandler::setThreadNameHelper(iox::string<SIZE_THREAD_NAME>& threadName)
+bool ServiceManagementSystemd::setThreadNameHelper(iox::string<SIZE_THREAD_NAME>& threadName)
 {
     bool status_change_name = iox::setThreadName(threadName);
     if (!status_change_name)
@@ -640,7 +640,7 @@ bool SystemdServiceHandler::setThreadNameHelper(iox::string<SIZE_THREAD_NAME>& t
     return true;
 }
 
-void SystemdServiceHandler::watchdogLoopHelper()
+void ServiceManagementSystemd::watchdogLoopHelper()
 {
     IOX_LOG(INFO, "Start watchdog");
     while (!m_shutdown.load())
@@ -657,13 +657,13 @@ void SystemdServiceHandler::watchdogLoopHelper()
     }
 }
 
-void SystemdServiceHandler::processNotify()
+void ServiceManagementSystemd::processNotify()
 {
     std::string invocationIdStr = getEnvironmentVariable("INVOCATION_ID");
 
     if (!invocationIdStr.empty())
     {
-        IOX_LOG(WARN, "Run APP in unit(systemd)");
+        IOX_LOG(WARN, "Run application in system management");
 
         m_listenThreadWatchdog = std::thread([this] {
             iox::string<SIZE_THREAD_NAME> nameThread = "Watchdog";
@@ -680,6 +680,6 @@ void SystemdServiceHandler::processNotify()
     }
 }
 
-} // namespace systemd
+} // namespace service_management
 } // namespace roudi
 } // namespace iox

@@ -43,17 +43,17 @@
 #endif
 
 #ifdef USE_SYSTEMD
-namespace iox::roudi::systemd
+namespace iox::roudi::service_management
 {
-class SystemdServiceHandler;
+class ServiceManagementSystemd;
 } // namespace iox::roudi::systemd
-using SendMessageStatusApplication = iox::roudi::systemd::SystemdServiceHandler;
+using SendMessageServiceManagement = iox::roudi::service_management::ServiceManagementSystemd;
 #else
-namespace iox::roudi::systemd
+namespace iox::roudi::service_management
 {
-class NoSystemdServiceHandler;
-} // namespace iox::roudi::systemd
-using SendMessageStatusApplication = iox::roudi::systemd::NoSystemdServiceHandler;
+class NoServiceManagementSystemd;
+} // namespace iox::roudi::service_management
+using SendMessageServiceManagement = iox::roudi::service_management::NoServiceManagementSystemd;
 #endif
 
 namespace iox
@@ -62,20 +62,20 @@ namespace roudi
 {
 using namespace iox::units::duration_literals;
 
-namespace systemd
+namespace service_management
 {
 /**
  * @brief Interface class for systemd service handling
  *
  **/
-class ISystemd
+class ServiceManagement
 {
   public:
-    virtual ~ISystemd() = default;
-    ISystemd(ISystemd const& other) = delete;
-    ISystemd(ISystemd&& other) = default;
-    ISystemd& operator=(ISystemd const& other) = delete;
-    ISystemd& operator=(ISystemd&& other) = default;
+    virtual ~ServiceManagement() = default;
+    ServiceManagement(ServiceManagement const& other) = delete;
+    ServiceManagement(ServiceManagement&& other) = default;
+    ServiceManagement& operator=(ServiceManagement const& other) = delete;
+    ServiceManagement& operator=(ServiceManagement&& other) = default;
 
     /// dbus signal handler
     virtual void processNotify() = 0;
@@ -83,14 +83,14 @@ class ISystemd
     virtual void shutdown() = 0;
 
   protected:
-    ISystemd() = default;
+    ServiceManagement() = default;
 };
 
 /**
  * @brief Class to handle systemd service notifications
  *
  **/
-class SystemdServiceHandler final : public ISystemd
+class ServiceManagementSystemd final : public ServiceManagement
 {
   private:
     std::condition_variable watchdogNotifyCondition; ///< watch dog notification condition // 48
@@ -103,16 +103,16 @@ class SystemdServiceHandler final : public ISystemd
     std::atomic_bool m_shutdown{false}; ///< indicates if service is being shutdown // 1
 
   public:
-    SystemdServiceHandler() = default;
-    SystemdServiceHandler(SystemdServiceHandler const& other) = delete;
-    SystemdServiceHandler(SystemdServiceHandler&& other) = delete;
-    SystemdServiceHandler& operator=(SystemdServiceHandler const& other) = delete;
-    SystemdServiceHandler& operator=(SystemdServiceHandler&& other) = delete;
+    ServiceManagementSystemd() = default;
+    ServiceManagementSystemd(ServiceManagementSystemd const& other) = delete;
+    ServiceManagementSystemd(ServiceManagementSystemd&& other) = delete;
+    ServiceManagementSystemd& operator=(ServiceManagementSystemd const& other) = delete;
+    ServiceManagementSystemd& operator=(ServiceManagementSystemd&& other) = delete;
 
     /**
      * @brief Destructor joins the listenThreadWatchdog if it is still joinable, to ensure a proper termination
      **/
-    ~SystemdServiceHandler() final;
+    ~ServiceManagementSystemd() final;
 
     /**
      * @brief Sets the shutdown flag to true, causing the systemd handler to stop.
@@ -173,19 +173,19 @@ class SystemdServiceHandler final : public ISystemd
  * @brief Empty implementation handler for non-systemd systems
  *
  **/
-class NoSystemdServiceHandler final : public ISystemd
+class NoServiceManagementSystemd final : public ServiceManagement
 {
   public:
-    NoSystemdServiceHandler() = default;
-    NoSystemdServiceHandler(NoSystemdServiceHandler const& other) = delete;
-    NoSystemdServiceHandler(NoSystemdServiceHandler&& other) = default;
-    NoSystemdServiceHandler& operator=(NoSystemdServiceHandler const& other) = delete;
-    NoSystemdServiceHandler& operator=(NoSystemdServiceHandler&& other) = default;
+    NoServiceManagementSystemd() = default;
+    NoServiceManagementSystemd(NoServiceManagementSystemd const& other) = delete;
+    NoServiceManagementSystemd(NoServiceManagementSystemd&& other) = default;
+    NoServiceManagementSystemd& operator=(NoServiceManagementSystemd const& other) = delete;
+    NoServiceManagementSystemd& operator=(NoServiceManagementSystemd&& other) = default;
 
     /**
      * @brief Empty implementation of destructor
      **/
-    ~NoSystemdServiceHandler() final = default;
+    ~NoServiceManagementSystemd() final = default;
 
     /**
      * @brief Empty implementation of processNotify
@@ -203,7 +203,7 @@ class NoSystemdServiceHandler final : public ISystemd
         // empty implementation
     }
 };
-} // namespace systemd
+} // namespace service_management
 
 class RouDi
 {
