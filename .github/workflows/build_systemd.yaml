@@ -2,7 +2,7 @@ name: Build for systemd
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main , iox-*]
   pull_request:
     branches: [ main, release*, iox-* ]
 
