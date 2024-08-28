@@ -33,6 +33,8 @@ jobs:
         run: cat /usr/lib/systemd/system/test_iox.service
       - name: Daemon reload
         run: sudo systemctl daemon-reload
+      - name: Status roudi
+        run: sudo systemctl status test_iox
       - name: Start roudi
         run: sudo systemctl start test_iox
       - name: Stop roudi
