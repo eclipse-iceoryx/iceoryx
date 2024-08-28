@@ -32,4 +32,8 @@ jobs:
       - name: Show unit
         run: cat /usr/lib/systemd/system/test_iox.service
       - name: Daemon reload
-        run: systemctl daemon-reload
+        run: sudo systemctl daemon-reload
+      - name: Start roudi
+        run: sudo systemctl start test_iox
+      - name: Stop roudi
+        run: sudo systemctl stop test_iox
