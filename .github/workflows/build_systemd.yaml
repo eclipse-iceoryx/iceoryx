@@ -13,16 +13,11 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container:
-      image: jrei/systemd-ubuntu:22.04
-      options: --privileged --volume /sys/fs/cgroup:/sys/fs/cgroup:ro
     steps:
       - name: Update
         run: apt update
       - name: Install depends
-        run: apt install -y git dbus gcc g++ cmake libacl1-dev libncurses5-dev pkg-config libsystemd-dev
-      - name: Start dbus
-        run: service dbus start
+        run: apt install -y gcc g++ cmake libacl1-dev libncurses5-dev pkg-config libsystemd-dev
       - name: Checkout
         uses: actions/checkout@v4
       - name: Cmake cache
@@ -39,9 +34,9 @@ jobs:
         run: cat /etc/systemd/system/test_iox.service
       - name: Daemon reload
         run: systemctl daemon-reload
-      - name: Start roudi
-        run: systemctl start test_iox
       - name: Check status
         run: systemctl status test_iox || true
+      - name: Start roudi
+        run: systemctl start test_iox
       - name: Stop roudi
         run: systemctl stop test_iox
