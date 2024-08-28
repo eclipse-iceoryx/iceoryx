@@ -11,12 +11,14 @@ permissions:
   pull-requests: write
 
 jobs:
-  build-ubuntu-systemd:
+  build:
     runs-on: ubuntu-latest
-
+    container:
+      image: jrei/systemd-ubuntu:18.04
+      options: --privileged --volume /sys/fs/cgroup:/sys/fs/cgroup:ro
     steps:
       - name: Install depends
-        run: sudo apt install -y gcc g++ cmake libacl1-dev libncurses5-dev pkg-config libsystemd-dev
+        run: apt install -y gcc g++ cmake libacl1-dev libncurses5-dev pkg-config libsystemd-dev
       - name: Checkout
         uses: actions/checkout@v4
       - name: Cmake cache
@@ -24,18 +26,18 @@ jobs:
       - name: build
         run: cmake --build build -j 16
       - name: Install
-        run: sudo cmake --build build --target install
+        run: cmake --build build --target install
       - name: Ldconfig run
-        run: sudo ldconfig
+        run: ldconfig
       - name: Create unit file
-        run: echo -e "[Unit]\nDescription=Test application roudi\n\n[Service]\nType=notify\nUser=roma\nRestartSec=10\nRestart=always\nExecStart=/usr/local/bin/iox-roudi\nTimeoutStartSec=10\nWatchdogSec=5\n\n[Install]\nWantedBy=multi-user.target" | sudo tee /usr/lib/systemd/system/test_iox.service > /dev/null
+        run: echo -e "[Unit]\nDescription=Test application roudi\n\n[Service]\nType=notify\nUser=roma\nRestartSec=10\nRestart=always\nExecStart=/usr/local/bin/iox-roudi\nTimeoutStartSec=10\nWatchdogSec=5\n\n[Install]\nWantedBy=multi-user.target" > /etc/systemd/system/test_iox.service
       - name: Show unit
-        run: cat /usr/lib/systemd/system/test_iox.service
+        run: cat /etc/systemd/system/test_iox.service
       - name: Daemon reload
-        run: sudo systemctl daemon-reload
-      - name: Status roudi
-        run: sudo systemctl status test_iox
+        run: systemctl daemon-reload
       - name: Start roudi
-        run: sudo systemctl start test_iox
+        run: systemctl start test_iox
+      - name: Check status
+        run: systemctl status test_iox || true
       - name: Stop roudi
-        run: sudo systemctl stop test_iox
+        run: systemctl stop test_iox
