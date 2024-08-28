@@ -16,10 +16,10 @@ limitations under the License.
 SPDX-License-Identifier: Apache-2.0
 """
 
-load("//bazel/bazelbuild:setup.bzl", "setup_go_protobuf_for_bazelbuild")
+load("//bazel/buildifier_prebuilt:setup.bzl", "setup_buildifier_prebuilt")
 
 def setup_repositories():
     """
     Loads repositories for iceoryx dependencies
     """
-    setup_go_protobuf_for_bazelbuild()
+    setup_buildifier_prebuilt()
