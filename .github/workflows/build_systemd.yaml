@@ -18,7 +18,7 @@ jobs:
       options: --privileged --volume /sys/fs/cgroup:/sys/fs/cgroup:ro
     steps:
       - name: Update
-        uses: apt update
+        run: apt update
       - name: Install depends
         run: apt install -y gcc g++ cmake libacl1-dev libncurses5-dev pkg-config libsystemd-dev
       - name: Checkout
