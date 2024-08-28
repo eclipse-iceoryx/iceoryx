@@ -1,0 +1,31 @@
+name: Build for systemd
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main, release*, iox-* ]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  build-ubuntu-systemd:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Cmake cache
+        run: cmake -Bbuild -Hiceoryx_meta -DBUILD_SHARED_LIBS=ON -DUSE_SYSTEMD=ON
+      - name: build
+        run: cmake --build build -j 16
+      - name: Install
+        run: sudo cmake --build build --target install
+      - name: Ldconfig run
+        run: sudo ldconfig
+      - name: Create unit file
+        run: echo -e "[Unit]\nDescription=Test application roudi\n\n[Service]\nType=notify\nUser=roma\nRestartSec=10\nRestart=always\nExecStart=/usr/bin/iox-roudi\nTimeoutStartSec=10\nWatchdogSec=5\n\n[Install]\nWantedBy=multi-user.target" > /usr/lib/systemd/system/test_iox.service
+      - name: Daemon reload
+        run: systemctl daemon-reload

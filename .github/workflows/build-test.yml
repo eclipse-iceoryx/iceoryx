@@ -96,17 +96,17 @@ jobs:
     needs: pre-flight-check
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - name: Unix (FreeBSD) test
-      id: Test
-      uses: vmactions/freebsd-vm@v1
-      with:
-        release: "14.0"
-        copyback: false
-        prepare: pkg install -y cmake git ncurses bash wget bison
-        run: |
-         git config --global --add safe.directory /home/runner/work/iceoryx/iceoryx
-         ./tools/ci/build-test-freebsd.sh
+      - uses: actions/checkout@v4
+      - name: Unix (FreeBSD) test
+        id: Test
+        uses: vmactions/freebsd-vm@v1
+        with:
+          release: "14.0"
+          copyback: false
+          prepare: pkg install -y cmake git ncurses bash wget bison
+          run: |
+            git config --global --add safe.directory /home/runner/work/iceoryx/iceoryx
+            ./tools/ci/build-test-freebsd.sh
 
   run-integration-test:
     # prevent stuck jobs consuming runners for 6 hours
@@ -184,21 +184,6 @@ jobs:
         uses: ./.github/actions/install-iceoryx-deps-and-clang
       - run: ./tools/ci/build-test-ubuntu-bazel.sh
 
-  # Check work systemd
-  build-ubuntu-systemd:
-    # prevent stuck jobs consuming runners for 6 hours
-    timeout-minutes: 60
-    runs-on: ubuntu-latest
-    needs: pre-flight-check
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Cmake cache
-        run: cmake -Bbuild -Hiceoryx_meta -DBUILD_SHARED_LIBS=ON -DUSE_SYSTEMD=ON
-      - name: build
-        run: cmake --build build -j 16
-      - name: Install
-        run: sudo cmake --build build --target install
 
   coverage-and-docs:
     # prevent stuck jobs consuming runners for 6 hours
