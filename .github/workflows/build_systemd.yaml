@@ -28,7 +28,7 @@ jobs:
       - name: Ldconfig run
         run: sudo ldconfig
       - name: Create unit file
-        run: echo -e "[Unit]\nDescription=Test application roudi\n\n[Service]\nType=notify\nUser=roma\nRestartSec=10\nRestart=always\nExecStart=/usr/bin/iox-roudi\nTimeoutStartSec=10\nWatchdogSec=5\n\n[Install]\nWantedBy=multi-user.target" | sudo tee /usr/lib/systemd/system/test_iox.service > /dev/null
+        run: echo -e "[Unit]\nDescription=Test application roudi\n\n[Service]\nType=notify\nUser=roma\nRestartSec=10\nRestart=always\nExecStart=/usr/local/bin/iox-roudi\nTimeoutStartSec=10\nWatchdogSec=5\n\n[Install]\nWantedBy=multi-user.target" | sudo tee /usr/lib/systemd/system/test_iox.service > /dev/null
       - name: Show unit
         run: cat /usr/lib/systemd/system/test_iox.service
       - name: Daemon reload
