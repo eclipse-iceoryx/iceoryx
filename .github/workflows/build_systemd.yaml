@@ -15,9 +15,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Update
-        run: apt update
+        run: sudo apt update
       - name: Install depends
-        run: apt install -y gcc g++ cmake libacl1-dev libncurses5-dev pkg-config libsystemd-dev
+        run: sudo apt install -y gcc g++ cmake libacl1-dev libncurses5-dev pkg-config libsystemd-dev
       - name: Checkout
         uses: actions/checkout@v4
       - name: Cmake cache
@@ -25,18 +25,18 @@ jobs:
       - name: build
         run: cmake --build build -j 16
       - name: Install
-        run: cmake --build build --target install
+        run: sudo  cmake --build build --target install
       - name: Ldconfig run
-        run: ldconfig
+        run: sudo  ldconfig
       - name: Create unit file
-        run: echo -e "[Unit]\nDescription=Test application roudi\n\n[Service]\nType=notify\nUser=roma\nRestartSec=10\nRestart=always\nExecStart=/usr/local/bin/iox-roudi\nTimeoutStartSec=10\nWatchdogSec=5\n\n[Install]\nWantedBy=multi-user.target" > /etc/systemd/system/test_iox.service
+        run: echo -e "[Unit]\nDescription=Test application roudi\n\n[Service]\nType=notify\nUser=roma\nRestartSec=10\nRestart=always\nExecStart=/usr/bin/iox-roudi\nTimeoutStartSec=10\nWatchdogSec=5\n\n[Install]\nWantedBy=multi-user.target" | sudo tee /usr/lib/systemd/system/test_iox.service > /dev/null
       - name: Show unit
         run: cat /etc/systemd/system/test_iox.service
       - name: Daemon reload
-        run: systemctl daemon-reload
+        run: sudo systemctl daemon-reload
       - name: Check status
-        run: systemctl status test_iox || true
+        run: sudo systemctl status test_iox || true
       - name: Start roudi
-        run: systemctl start test_iox
+        run: sudo systemctl start test_iox
       - name: Stop roudi
-        run: systemctl stop test_iox
+        run: sudo systemctl stop test_iox
