@@ -20,7 +20,7 @@ jobs:
       - name: Update
         run: apt update
       - name: Install depends
-        run: apt install -y gcc g++ cmake libacl1-dev libncurses5-dev pkg-config libsystemd-dev
+        run: apt install -y git gcc g++ cmake libacl1-dev libncurses5-dev pkg-config libsystemd-dev
       - name: Checkout
         uses: actions/checkout@v4
       - name: Cmake cache
