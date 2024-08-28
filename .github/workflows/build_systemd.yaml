@@ -39,5 +39,9 @@ jobs:
       - name: Start roudi
         run: |
           sudo systemctl start test_iox || (echo "Failed to start service"; sudo journalctl -u test_iox -n 50)
+      - name: Show journal
+        run: sudo journalctl -u test_iox -n 100
       - name: Stop roudi
         run: sudo systemctl stop test_iox
+      - name: Show journal
+        run: sudo journalctl -u test_iox -n 100
