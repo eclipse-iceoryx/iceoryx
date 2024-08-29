@@ -46,7 +46,7 @@
 namespace iox::roudi::service_management
 {
 class ServiceManagementSystemd;
-} // namespace iox::roudi::systemd
+} // namespace iox::roudi::service_management
 using SendMessageServiceManagement = iox::roudi::service_management::ServiceManagementSystemd;
 #else
 namespace iox::roudi::service_management
