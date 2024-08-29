@@ -30,9 +30,9 @@ using sa_family_t = int;
 int iox_bind(int sockfd, const struct sockaddr* addr, socklen_t addrlen);
 int iox_socket(int domain, int type, int protocol);
 int iox_setsockopt(int sockfd, int level, int optname, const void* optval, socklen_t optlen);
-ssize_t
+iox_ssize_t
 iox_sendto(int sockfd, const void* buf, size_t len, int flags, const struct sockaddr* dest_addr, socklen_t addrlen);
-ssize_t iox_recvfrom(int sockfd, void* buf, size_t len, int flags, struct sockaddr* src_addr, socklen_t* addrlen);
+iox_ssize_t iox_recvfrom(int sockfd, void* buf, size_t len, int flags, struct sockaddr* src_addr, socklen_t* addrlen);
 int iox_connect(int sockfd, const struct sockaddr* addr, socklen_t addrlen);
 int iox_closesocket(int sockfd);
 

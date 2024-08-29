@@ -138,7 +138,7 @@
 - 'iox::string' tests can exceed the translation unit compilation timeout [#2278](https://github.com/eclipse-iceoryx/iceoryx/issues/2278)
 -  Building iceoryx with bazel on Windows is broken [#2320](https://github.com/eclipse-iceoryx/iceoryx/issues/2320)
 - Fix wrong memory orders in SpscSoFi [#2177](https://github.com/eclipse-iceoryx/iceoryx/issues/2177)
--
+- ssize_t: redefinition; different basic types [#2209](https://github.com/eclipse-iceoryx/iceoryx/issues/2209)
 
 **Refactoring:**
 

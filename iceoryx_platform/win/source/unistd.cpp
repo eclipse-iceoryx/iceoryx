@@ -20,6 +20,7 @@
 #include "iceoryx_platform/mman.hpp"
 #include "iceoryx_platform/win32_errorHandling.hpp"
 
+
 int iox_ftruncate(int fildes, off_t length)
 {
     internal_iox_shm_set_size(fildes, length);

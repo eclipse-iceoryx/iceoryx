@@ -35,7 +35,6 @@
 #endif
 
 using iox_off_t = long;
-using iox_ssize_t = int;
 
 #define IOX_F_OK 0
 #define IOX_X_OK 1
@@ -54,5 +53,6 @@ iox_ssize_t iox_read(int fd, void* buf, size_t count);
 iox_ssize_t iox_write(int fd, const void* buf, size_t count);
 iox_gid_t iox_getgid(void);
 iox_uid_t iox_geteuid(void);
+
 
 #endif // IOX_HOOFS_WIN_PLATFORM_UNISTD_HPP

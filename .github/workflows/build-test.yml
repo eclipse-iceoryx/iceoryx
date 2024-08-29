@@ -104,17 +104,17 @@ jobs:
     needs: pre-flight-check
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - name: Unix (FreeBSD) test
-      id: Test
-      uses: vmactions/freebsd-vm@v1
-      with:
-        release: "14.0"
-        copyback: false
-        prepare: pkg install -y cmake git ncurses bash wget bison
-        run: |
-         git config --global --add safe.directory /home/runner/work/iceoryx/iceoryx
-         ./tools/ci/build-test-freebsd.sh
+      - uses: actions/checkout@v4
+      - name: Unix (FreeBSD) test
+        id: Test
+        uses: vmactions/freebsd-vm@v1
+        with:
+          release: "14.0"
+          copyback: false
+          prepare: pkg install -y cmake git ncurses bash wget bison
+          run: |
+            git config --global --add safe.directory /home/runner/work/iceoryx/iceoryx
+            ./tools/ci/build-test-freebsd.sh
 
   run-integration-test:
     # prevent stuck jobs consuming runners for 6 hours
