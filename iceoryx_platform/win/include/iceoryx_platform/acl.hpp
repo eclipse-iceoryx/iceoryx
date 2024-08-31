@@ -83,7 +83,7 @@ inline int acl_add_perm(acl_permset_t permset_d, acl_perm_t perm)
     return 0;
 }
 
-inline char* acl_to_text(acl_t acl, ssize_t* len_p)
+inline char* acl_to_text(acl_t acl, iox_ssize_t* len_p)
 {
     return nullptr;
 }

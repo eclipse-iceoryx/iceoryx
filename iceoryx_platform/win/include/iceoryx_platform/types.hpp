@@ -23,8 +23,10 @@ using iox_gid_t = int;
 using iox_uid_t = int;
 #if defined(_MSC_VER)
 using mode_t = int;
-using ssize_t = size_t;
+using iox_ssize_t = int;
 using pid_t = int;
+#elif defined(__MINGW32__) || defined(__MINGW64__)
+using iox_ssize_t = ssize_t;
 #endif
 using nlink_t = int;
 using blksize_t = int;

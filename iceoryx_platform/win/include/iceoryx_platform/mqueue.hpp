@@ -52,12 +52,12 @@ inline int mq_close(mqd_t mqdes)
 //{
 //}
 
-inline ssize_t mq_receive(mqd_t mqdes, char* msg_ptr, size_t msg_len, unsigned int* msg_prio)
+inline iox_ssize_t mq_receive(mqd_t mqdes, char* msg_ptr, size_t msg_len, unsigned int* msg_prio)
 {
     return 0;
 }
 
-inline ssize_t
+inline iox_ssize_t
 mq_timedreceive(mqd_t mqdes, char* msg_ptr, size_t msg_len, unsigned int* msg_prio, const struct timespec* abs_timeout)
 {
     return 0;

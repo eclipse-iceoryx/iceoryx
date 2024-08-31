@@ -16,6 +16,7 @@
 
 #include "iceoryx_platform/socket.hpp"
 #include "iceoryx_platform/logging.hpp"
+#include "iceoryx_platform/types.hpp"
 #include <cstdio>
 
 int iox_bind(int sockfd, const struct sockaddr* addr, socklen_t addrlen)
@@ -36,14 +37,14 @@ int iox_setsockopt(int sockfd, int level, int optname, const void* optval, sockl
     return 0;
 }
 
-ssize_t
+iox_ssize_t
 iox_sendto(int sockfd, const void* buf, size_t len, int flags, const struct sockaddr* dest_addr, socklen_t addrlen)
 {
     IOX_PLATFORM_LOG(IOX_PLATFORM_LOG_LEVEL_ERROR, "'iox_sendto' is not implemented in windows!");
     return 0;
 }
 
-ssize_t iox_recvfrom(int sockfd, void* buf, size_t len, int flags, struct sockaddr* src_addr, socklen_t* addrlen)
+iox_ssize_t iox_recvfrom(int sockfd, void* buf, size_t len, int flags, struct sockaddr* src_addr, socklen_t* addrlen)
 {
     IOX_PLATFORM_LOG(IOX_PLATFORM_LOG_LEVEL_ERROR, "'iox_recvfrom' is not implemented in windows!");
     return 0;
