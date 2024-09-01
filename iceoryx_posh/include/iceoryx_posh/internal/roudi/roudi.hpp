@@ -78,10 +78,15 @@ class ServiceManagement
     ServiceManagement& operator=(ServiceManagement const& other) = delete;
     ServiceManagement& operator=(ServiceManagement&& other) = default;
 
-    /// dbus signal handler
-    virtual void processNotify() = 0;
-    /// Sets a shutdown flag
-    virtual void shutdown() = 0;
+    static constexpr const uint16_t SIZE_STRING = 4096;   ///< maximum size of string // 2
+    static constexpr const uint8_t SIZE_THREAD_NAME = 15; ///< max size for thread name // 1
+
+
+    virtual void processNotify() = 0;                                                /// dbus signal handler
+    virtual void shutdown() = 0;                                                     /// Sets a shutdown flag
+    virtual bool setThreadNameHelper(iox::string<SIZE_THREAD_NAME>& threadName) = 0; /// Sets a thread name
+    virtual std::string getEnvironmentVariable(const char* const env_var) = 0;       /// Get environment variable
+    virtual bool sendSDNotifySignalHelper(const std::string_view state) = 0;         /// Send notify
 
   protected:
     ServiceManagement() = default;
@@ -97,11 +102,7 @@ class ServiceManagementSystemd final : public ServiceManagement
     std::condition_variable watchdogNotifyCondition; ///< watch dog notification condition // 48
     std::mutex watchdogMutex;                        ///< watch dog mutex // 40
     std::thread m_listenThreadWatchdog;              ///< thread that listens to systemd watchdog signals // 8
-  public:
-    static constexpr const uint16_t SIZE_STRING = 4096;   ///< maximum size of string // 2
-    static constexpr const uint8_t SIZE_THREAD_NAME = 15; ///< max size for thread name // 1
-  private:
-    std::atomic_bool m_shutdown{false}; ///< indicates if service is being shutdown // 1
+    std::atomic_bool m_shutdown{false};              ///< indicates if service is being shutdown // 1
 
   public:
     ServiceManagementSystemd() = default;
@@ -125,22 +126,22 @@ class ServiceManagementSystemd final : public ServiceManagement
      * @param env_var Pointer to environment variable
      * @return Environment variable as std::string
      **/
-    static std::string getEnvironmentVariable(const char* const env_var);
+    std::string getEnvironmentVariable(const char* const env_var) final;
 
     /**
      * @brief Helper function to set thread name
      * @param threadName Thread name to be set
      * @return True if successfully set, otherwise false
      **/
-    static bool setThreadNameHelper(iox::string<SIZE_THREAD_NAME>& threadName);
+    bool setThreadNameHelper(iox::string<SIZE_THREAD_NAME>& threadName) final;
 
-#ifdef USE_SYSTEMD
     /**
      * @brief Helper function to send SDNotify signals
      * @param state SDNotify state to be sent
      * @return True if signal sending is successful, otherwise false
      **/
-    static bool sendSDNotifySignalHelper(const std::string_view state)
+#ifdef USE_SYSTEMD
+    bool sendSDNotifySignalHelper(const std::string_view state) final
     {
         auto result = IOX_POSIX_CALL(sd_notify)(0, state.data()).successReturnValue(1).evaluate();
         if (result.has_error())
@@ -153,7 +154,7 @@ class ServiceManagementSystemd final : public ServiceManagement
         return true;
     }
 #else
-    static bool sendSDNotifySignalHelper([[maybe_unused]] const std::string_view state)
+    bool sendSDNotifySignalHelper([[maybe_unused]] const std::string_view state) final
     {
         // empty implementation
         return true;
@@ -202,6 +203,33 @@ class NoServiceManagementSystemd final : public ServiceManagement
     void shutdown() final
     {
         // empty implementation
+    }
+
+    /**
+     * @brief Empty implementation of get environment variable
+     **/
+    std::string getEnvironmentVariable([[maybe_unused]] const char* const env_var) final
+    {
+        // empty implementation
+        return "no implement";
+    }
+
+    /**
+     * @brief Empty implementation set thread name
+     **/
+    bool setThreadNameHelper([[maybe_unused]] iox::string<SIZE_THREAD_NAME>& threadName) final
+    {
+        // empty implementation
+        return true;
+    }
+
+    /**
+     * @brief Empty implementation send SDNotify signals
+     **/
+    bool sendSDNotifySignalHelper([[maybe_unused]] const std::string_view state) final
+    {
+        // empty implementation
+        return true;
     }
 };
 } // namespace service_management

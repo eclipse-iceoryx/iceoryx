@@ -58,6 +58,7 @@ COMPONENTS="iceoryx_platform iceoryx_hoofs iceoryx_posh iceoryx_introspection ic
 TOOLCHAIN_FILE=""
 CMAKE_C_FLAGS=""
 CMAKE_CXX_FLAGS=""
+USE_SYSTEMD_FLAGS="OFF"
 
 while (( "$#" )); do
   case "$1" in
@@ -228,6 +229,11 @@ while (( "$#" )); do
         CMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -malign-double"
         shift 1
         ;;
+    "systemd")
+        echo " [i] Build with support systemd"
+        USE_SYSTEMD_FLAGS="ON"
+        shift 1
+        ;;
     "help")
         echo "Build script for iceoryx."
         echo "By default, iceoryx with C-Binding and TOML-config is built."
@@ -266,6 +272,7 @@ while (( "$#" )); do
         echo "    roudi-env             Build the roudi environment"
         echo "    32-bit-x86            Build as 32 bit library for x64"
         echo "    32-bit-arm            Build as 32 bit library for arm"
+        echo "    systemd               Build with support systemd"
         echo ""
         echo "e.g. iceoryx_build_test.sh -b ./build-scripted clean test"
         echo "for gcov report: iceoryx_build_test.sh clean -c unit"
@@ -342,6 +349,7 @@ if [ "$NO_BUILD" == false ]; then
           -DTEST_WITH_HUGE_PAYLOAD=$TEST_HUGE_PAYLOAD \
           -DCMAKE_C_FLAGS="$CMAKE_C_FLAGS" \
           -DCMAKE_CXX_FLAGS="$CMAKE_CXX_FLAGS" \
+          -DUSE_SYSTEMD="$USE_SYSTEMD_FLAGS" \
           "$WORKSPACE"/iceoryx_meta
 
     cmake --build . --target install -- -j$NUM_JOBS

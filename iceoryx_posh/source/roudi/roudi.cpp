@@ -607,9 +607,10 @@ std::string ServiceManagementSystemd::getEnvironmentVariable(const char* const e
 
     str.unsafe_raw_access([&](auto* buffer, auto const info) {
         size_t actualSizeWithNull{0};
-        auto result = IOX_POSIX_CALL(iox_getenv_s)(&actualSizeWithNull, buffer, info.total_size, env_var)
-                          .failureReturnValue(-1)
-                          .evaluate();
+        auto result =
+            IOX_POSIX_CALL(iox_getenv_s)(&actualSizeWithNull, buffer, static_cast<size_t>(info.total_size), env_var)
+                .failureReturnValue(-1)
+                .evaluate();
 
         if (result.has_error() && result.error().errnum == ERANGE)
         {
@@ -679,6 +680,7 @@ void ServiceManagementSystemd::processNotify()
         });
     }
 }
+
 
 } // namespace service_management
 } // namespace roudi

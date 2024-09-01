@@ -237,6 +237,11 @@ Macro(iox_add_executable)
         target_compile_options(${IOX_TARGET} PRIVATE ${ICEORYX_CXX_FLAGS} ${ICEORYX_CXX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} ${ICEORYX_GRCOV_FLAGS})
     endif()
 
+    if(USE_SYSTEMD AND ("${IOX_TARGET}" STREQUAL "posh_moduletests"))
+        target_compile_definitions(${IOX_TARGET} PRIVATE USE_SYSTEMD_TEST=1)
+        message(STATUS "[i] Configuring ${IOX_TARGET} with systemd support.")
+    endif ()
+
     if ( IOX_STACK_SIZE )
         if(APPLE)
             # @todo iox-#1287 not yet supported
@@ -341,7 +346,7 @@ Macro(iox_add_library)
 
     if ( LINUX )
         if(USE_SYSTEMD AND ("${IOX_TARGET}" STREQUAL "iceoryx_posh_roudi"))
-            message(STATUS "[i] Configuring iceoryx_posh_roudi with systemd support.")
+            message(STATUS "[i] Configuring ${IOX_TARGET} with systemd support.")
             target_compile_definitions(${IOX_TARGET} PRIVATE USE_SYSTEMD=1)
             target_link_libraries(${IOX_TARGET} PUBLIC ${IOX_PUBLIC_LIBS_LINUX} PRIVATE ${IOX_PRIVATE_LIBS_LINUX} systemd)
         else()

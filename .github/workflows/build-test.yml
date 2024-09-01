@@ -205,45 +205,20 @@ jobs:
       - run: ./tools/ci/build-test-ubuntu-bazel.sh
 
   # Check run systemd
-  build-and-run-roudi-with-systemd-ubuntu:
+  build-and-run-roudi-with-systemd-and-build-test-and-run-ubuntu:
     # prevent stuck jobs consuming runners for 6 hours
     timeout-minutes: 60
     runs-on: ubuntu-latest
     needs: pre-flight-check
     steps:
-      - name: Update
-        run: sudo apt update
-      - name: Install depends
-        run: sudo apt install -y gcc g++ cmake libacl1-dev libncurses5-dev pkg-config libsystemd-dev
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Cmake cache
-        run: cmake -Bbuild -Hiceoryx_meta -DBUILD_SHARED_LIBS=ON -DUSE_SYSTEMD=ON
-      - name: build
-        run: cmake --build build -j 16
-      - name: Install
-        run: sudo  cmake --build build --target install
-      - name: Ldconfig run
-        run: sudo  ldconfig
-      - name: Create unit file
-        run: echo -e "[Unit]\nDescription=Test application roudi\n\n[Service]\nType=notify\nRestartSec=10\nRestart=always\nExecStart=/usr/local/bin/iox-roudi\nTimeoutStartSec=10\nWatchdogSec=5\n\n[Install]\nWantedBy=multi-user.target" | sudo tee /usr/lib/systemd/system/test_iox.service > /dev/null
-      - name: Show unit
-        run: cat /usr/lib/systemd/system/test_iox.service
-      - name: Daemon reload
-        run: sudo systemctl daemon-reload
-      - name: Check status
-        run: sudo systemctl status test_iox || true
-      - name: Start roudi
-        run: |
-          sudo systemctl start test_iox || (echo "Failed to start service"; sudo journalctl -u test_iox -n 50; exit 1)
-      - name: Wait for 30 seconds
-        run: sleep 30
-      - name: Check roudi
-        run: sudo systemctl status test_iox || (echo "Failed to start service"; sudo journalctl -u test_iox -n 50; exit 1)
-      - name: Stop roudi
-        run: sudo systemctl stop test_iox
-      - name: Show journal
-        run: sudo journalctl -u test_iox -n 100
+      - name: Install iceoryx dependencies and clang-tidy
+        uses: ./.github/actions/install-iceoryx-deps-and-clang
+      - name: Build project and test and run unit test
+        run: sudo ./tools/ci/build-test-ubuntu-support-systemd-unit.sh
+      - name: Run integration test
+        run: sudo ./tools/ci/build-test-ubuntu-support-systemd-integrations.sh
 
   coverage-and-docs:
     # prevent stuck jobs consuming runners for 6 hours
