@@ -22,7 +22,6 @@
 #include "iox/signal_handler.hpp"
 #include "topic_data.hpp"
 
-#include <atomic>
 #include <iostream>
 
 //! [sig handler]

@@ -17,7 +17,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 CONTAINER_NAME_PREFIX="ice_env_"
-CONTAINER_MEMORY_SIZE="6g"
+CONTAINER_MEMORY_SIZE="8g"
 CONTAINER_SHM_MEMORY_SIZE="2g"
 DEFAULT_OS_VERSION="ubuntu:22.04"
 CMAKE_VERSION="cmake-3.23.1-linux-x86_64"
@@ -48,8 +48,10 @@ setup_docker_image() {
 
     # ubuntu/debian and derivatives
     if command -v apt &>/dev/null; then
+        dpkg --add-architecture i386
         apt update
         apt -y install g++ gcc sudo cmake git fish gdb lldb llvm clang clang-format wget libncurses5-dev libacl1-dev wget lsb-release software-properties-common vim
+        apt -y install libacl1-dev:i386 libc6-dev-i386 libc6-dev-i386-cross libstdc++6-i386-cross gcc-multilib g++-multilib
         install_cmake
 
         # install newest clang
@@ -67,7 +69,10 @@ setup_docker_image() {
 
     # archlinux based ones
     elif command -v pacman &>/dev/null; then
+        echo "[multilib]" >> /etc/pacman.conf
+        echo "Include = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf
         pacman -Syu --noconfirm base base-devel clang cmake git fish gdb lldb llvm wget ncurses vim
+        pacman -Syu --noconfirm lib32-acl lib32-gcc-libs lib32-ncurses
         install_cmake
     else
         echo Please install the following packages to have a working iceoryx environment:

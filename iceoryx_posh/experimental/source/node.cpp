@@ -41,7 +41,8 @@ NodeBuilder&& NodeBuilder::domain_id_from_env() && noexcept
     iox::string<10> domain_id_string;
     domain_id_string.unsafe_raw_access([](auto* buffer, const auto info) {
         size_t actual_size_with_null{0};
-        auto result = IOX_POSIX_CALL(iox_getenv_s)(&actual_size_with_null, buffer, info.total_size, "IOX_DOMAIN_ID")
+        auto result = IOX_POSIX_CALL(iox_getenv_s)(
+                          &actual_size_with_null, buffer, static_cast<size_t>(info.total_size), "IOX_DOMAIN_ID")
                           .failureReturnValue(-1)
                           .evaluate();
         if (result.has_error() && result.error().errnum == ERANGE)

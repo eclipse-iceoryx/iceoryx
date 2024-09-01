@@ -18,6 +18,7 @@
 #ifndef IOX_HOOFS_TESTING_ERROR_REPORTING_TESTING_ERROR_HANDLER_HPP
 #define IOX_HOOFS_TESTING_ERROR_REPORTING_TESTING_ERROR_HANDLER_HPP
 
+#include "iox/atomic.hpp"
 #include "iox/error_reporting/custom/default/error_handler_interface.hpp"
 #include "iox/error_reporting/error_logging.hpp"
 #include "iox/error_reporting/source_location.hpp"
@@ -28,7 +29,6 @@
 
 #include "iceoryx_hoofs/testing/test.hpp"
 
-#include <atomic>
 #include <vector>
 
 // we can use this for test code
@@ -110,7 +110,7 @@ class TestingErrorHandler : public iox::er::ErrorHandlerInterface
     static constexpr int JUMPED_INDICATOR{1};
 
     mutable std::mutex m_mutex;
-    std::atomic<bool> m_panicked{false};
+    iox::concurrent::Atomic<bool> m_panicked{false};
     std::vector<er::ErrorDescriptor> m_errors;
 
     // we track violations separately (leads to simple search)
@@ -129,7 +129,7 @@ class TestingErrorHandler : public iox::er::ErrorHandlerInterface
     // (longjmp does not support this)
     // We need to ensure though that only one jump buffer is considered by panic and controlling
     // ownership of the buffer is one way to accomplish that.
-    std::atomic<JumpState> m_jumpState{JumpState::Obtainable};
+    iox::concurrent::Atomic<JumpState> m_jumpState{JumpState::Obtainable};
 };
 
 /// @brief This class hooks into gTest to automatically resets the error handler on the start of a test

@@ -1,4 +1,5 @@
 // Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2024 by Michael Bentley <mikebentley15@gmail.com>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,10 +22,10 @@
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
 
 /// @brief request header handle
-typedef CLASS RequestHeader* iox_request_header_t;
+typedef IOX_C_CLASS RequestHeader* iox_request_header_t;
 
 /// @brief const request header handle
-typedef const CLASS RequestHeader* iox_const_request_header_t;
+typedef const IOX_C_CLASS RequestHeader* iox_const_request_header_t;
 
 /// @brief extract the request header from a given payload
 /// @param[in] payload the pointer to the payload

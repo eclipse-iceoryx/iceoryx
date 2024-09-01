@@ -254,7 +254,7 @@ class Mepoo_IntegrationTest : public Test
                 {
                     if (info.m_chunkSize != 0)
                     {
-                        info.m_chunkSize = info.m_chunkSize - static_cast<uint32_t>(sizeof(iox::mepoo::ChunkHeader));
+                        info.m_chunkSize = info.m_chunkSize - sizeof(iox::mepoo::ChunkHeader);
                     }
                 }
             });

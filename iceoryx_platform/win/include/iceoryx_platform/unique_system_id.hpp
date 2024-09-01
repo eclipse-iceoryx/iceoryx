@@ -16,7 +16,8 @@
 #ifndef IOX_HOOFS_WIN_PLATFORM_UNIQUE_SYSTEM_ID_HPP
 #define IOX_HOOFS_WIN_PLATFORM_UNIQUE_SYSTEM_ID_HPP
 
-#include <atomic>
+#include "iceoryx_platform/atomic.hpp"
+
 #include <cstdint>
 #include <string>
 
@@ -44,7 +45,7 @@ class UniqueSystemId
     uint64_t m_timestamp = 0U;
     uint64_t m_sequenceNumber = 0U;
 
-    static std::atomic<uint64_t> sequenceCounter;
+    static iox::concurrent::Atomic<uint64_t> sequenceCounter;
 };
 
 #endif

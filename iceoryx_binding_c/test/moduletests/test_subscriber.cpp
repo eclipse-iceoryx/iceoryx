@@ -25,6 +25,7 @@
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iox/detail/hoofs_error_reporting.hpp"
+#include "iox/detail/system_configuration.hpp"
 
 #include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "iceoryx_posh/roudi_env/minimal_iceoryx_config.hpp"
@@ -98,8 +99,8 @@ class iox_sub_test : public Test
     }
 
     static iox_sub_t m_triggerCallbackLatestArgument;
-    static constexpr size_t MEMORY_SIZE = 1024 * 1024 * 100;
-    uint8_t m_memory[MEMORY_SIZE];
+    static constexpr size_t MEMORY_SIZE = 1024 * 1024;
+    alignas(8) uint8_t m_memory[MEMORY_SIZE];
     static constexpr uint32_t NUM_CHUNKS_IN_POOL = MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY + 2U;
     static constexpr uint64_t CHUNK_SIZE = 128U;
 
@@ -145,6 +146,12 @@ TEST_F(iox_sub_test, initSubscriberWithNotInitializedSubscriberOptionsTerminates
 TEST_F(iox_sub_test, initSubscriberWithDefaultOptionsWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "40eaa006-4781-46cd-bde3-40fa7d572f29");
+
+    if (iox::detail::isCompiledOn32BitSystem())
+    {
+        GTEST_SKIP() << "@todo iox-#2301 This test does not work on 32 bit builds due to the usage of RouDiEnv";
+    }
+
     RouDiEnv roudiEnv;
 
     iox_runtime_init("hypnotoad");
@@ -402,6 +409,12 @@ TEST_F(iox_sub_test, hasDataTriggersWaitSetWithCorrectCallback)
 TEST_F(iox_sub_test, deinitSubscriberDetachesTriggerFromWaitSet)
 {
     ::testing::Test::RecordProperty("TEST_ID", "93e350fb-5430-43ff-982b-b43c6ae9b890");
+
+    if (iox::detail::isCompiledOn32BitSystem())
+    {
+        GTEST_SKIP() << "@todo iox-#2301 This test does not work on 32 bit builds due to the usage of RouDiEnv";
+    }
+
     RouDiEnv roudiEnv;
     iox_runtime_init("hypnotoad");
 

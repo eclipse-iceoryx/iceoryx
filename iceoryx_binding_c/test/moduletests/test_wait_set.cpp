@@ -24,6 +24,7 @@
 #include "iceoryx_posh/popo/untyped_server.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/runtime/service_discovery.hpp"
+#include "iox/atomic.hpp"
 #include "iox/detail/hoofs_error_reporting.hpp"
 
 #include "iceoryx_hoofs/testing/fatal_failure.hpp"
@@ -45,7 +46,6 @@ extern "C" {
 
 #include "test.hpp"
 
-#include <atomic>
 #include <thread>
 
 namespace
@@ -986,7 +986,7 @@ TIMING_TEST_F(iox_ws_test, WaitIsBlockingTillTriggered, Repeat(5), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "6d8a476d-5bcd-45a5-bbd4-7b3b709ac967");
     iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[0U], 0U, userTriggerCallback);
 
-    std::atomic_bool waitWasCalled{false};
+    iox::concurrent::Atomic<bool> waitWasCalled{false};
     std::thread t([&] {
         iox_ws_wait(m_sut, NULL, 0U, &m_missedElements);
         waitWasCalled.store(true);
@@ -1003,7 +1003,7 @@ TIMING_TEST_F(iox_ws_test, WaitIsBlockingTillTriggered, Repeat(5), [&] {
 
 TIMING_TEST_F(iox_ws_test, WaitIsNonBlockingAfterMarkForDestruction, Repeat(5), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "4e576665-fda1-4f3c-8588-e9d2cffcb3f4");
-    std::atomic_bool waitWasCalled{false};
+    iox::concurrent::Atomic<bool> waitWasCalled{false};
     std::thread t([&] {
         iox_ws_wait(m_sut, NULL, 0U, &m_missedElements);
         iox_ws_wait(m_sut, NULL, 0U, &m_missedElements);
@@ -1025,7 +1025,7 @@ TIMING_TEST_F(iox_ws_test, TimedWaitIsBlockingTillTriggered, Repeat(5), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "e79edc1d-8b8a-4dd0-97ba-e2f41c9c8b31");
     iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[0U], 0U, userTriggerCallback);
 
-    std::atomic_bool waitWasCalled{false};
+    iox::concurrent::Atomic<bool> waitWasCalled{false};
     std::thread t([&] {
         iox_ws_timed_wait(m_sut, {1000, 1000}, NULL, 0U, &m_missedElements);
         waitWasCalled.store(true);
@@ -1042,7 +1042,7 @@ TIMING_TEST_F(iox_ws_test, TimedWaitIsBlockingTillTriggered, Repeat(5), [&] {
 
 TIMING_TEST_F(iox_ws_test, TimedWaitIsNonBlockingAfterMarkForDestruction, Repeat(5), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "a6da4f49-b162-4c70-b0fa-c4ef1f988c57");
-    std::atomic_bool waitWasCalled{false};
+    iox::concurrent::Atomic<bool> waitWasCalled{false};
     std::thread t([&] {
         iox_ws_timed_wait(m_sut, {1000, 1000}, NULL, 0U, &m_missedElements);
         iox_ws_timed_wait(m_sut, {1000, 1000}, NULL, 0U, &m_missedElements);
@@ -1063,7 +1063,7 @@ TIMING_TEST_F(iox_ws_test, TimedWaitBlocksTillTimeout, Repeat(5), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "12fbbbc8-80b2-4e7e-af41-1376b2e48f4a");
     iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[0U], 0U, userTriggerCallback);
 
-    std::atomic_bool waitWasCalled{false};
+    iox::concurrent::Atomic<bool> waitWasCalled{false};
     std::thread t([&] {
         constexpr long hundredMsInNanoSeconds = 100000000L;
         iox_ws_timed_wait(m_sut, {0, hundredMsInNanoSeconds}, NULL, 0U, &m_missedElements);

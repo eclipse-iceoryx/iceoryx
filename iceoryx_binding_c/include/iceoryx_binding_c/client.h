@@ -1,4 +1,5 @@
 // Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2024 by Michael Bentley <mikebentley15@gmail.com>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,7 +24,7 @@
 #include "iceoryx_binding_c/types.h"
 
 /// @brief client handle
-typedef CLASS UntypedClient* iox_client_t;
+typedef IOX_C_CLASS UntypedClient* iox_client_t;
 
 /// @brief options to be set for a client
 typedef struct
@@ -38,10 +39,10 @@ typedef struct
     bool connectOnCreate;
 
     /// @brief Sets whether the server blocks when the client response queue is full
-    ENUM iox_QueueFullPolicy responseQueueFullPolicy;
+    enum iox_QueueFullPolicy responseQueueFullPolicy;
 
     /// @brief Sets whether the client blocks when the server request queue is full
-    ENUM iox_ConsumerTooSlowPolicy serverTooSlowPolicy;
+    enum iox_ConsumerTooSlowPolicy serverTooSlowPolicy;
 
     /// @brief this value will be set exclusively by 'iox_client_options_init' and is not supposed to be modified
     /// otherwise
@@ -87,9 +88,8 @@ void iox_client_deinit(iox_client_t const self);
 ///         describes the error
 /// @note for the user-payload alignment 'IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT' is used
 ///       for a custom user-payload alignment please use 'iox_client_loan_aligned_request'
-ENUM iox_AllocationResult iox_client_loan_request(iox_client_t const self,
-                                                  void** const payload,
-                                                  const uint64_t payloadSize);
+enum iox_AllocationResult
+iox_client_loan_request(iox_client_t const self, void** const payload, const uint64_t payloadSize);
 
 /// @brief allocates a request in the shared memory with a custom alignment for the user-payload
 /// @param[in] self handle of the client
@@ -98,7 +98,7 @@ ENUM iox_AllocationResult iox_client_loan_request(iox_client_t const self,
 /// @param[in] payloadAlignment user-payload alignment of the allocated request
 /// @return on success it returns AllocationResult_SUCCESS otherwise a value which
 ///         describes the error
-ENUM iox_AllocationResult iox_client_loan_aligned_request(iox_client_t const self,
+enum iox_AllocationResult iox_client_loan_aligned_request(iox_client_t const self,
                                                           void** const payload,
                                                           const uint64_t payloadSize,
                                                           const uint32_t payloadAlignment);
@@ -114,7 +114,7 @@ void iox_client_release_request(iox_client_t const self, void* const payload);
 /// @param[in] payload pointer to the user-payload of the request which should be send
 /// @return on success it returns ClientSendResult_SUCCESS otherwise a value which
 ///         describes the error
-ENUM iox_ClientSendResult iox_client_send(iox_client_t const self, void* const payload);
+enum iox_ClientSendResult iox_client_send(iox_client_t const self, void* const payload);
 
 /// @brief connects to the service
 /// @param[in] self handle to the client
@@ -128,14 +128,14 @@ void iox_client_disconnect(iox_client_t const self);
 /// @param[in] self handle to the client
 /// @return ConnectionState_CONNECTED when successfully connected otherwise an enum which
 ///         describes the current state
-ENUM iox_ConnectionState iox_client_get_connection_state(iox_client_t const self);
+enum iox_ConnectionState iox_client_get_connection_state(iox_client_t const self);
 
 /// @brief retrieve a received respone
 /// @param[in] self handle to the client
 /// @param[in] payload pointer in which the pointer to the user-payload of the response is stored
 /// @return if a chunk could be received it returns ChunkReceiveResult_SUCCESS otherwise
 ///         an enum which describes the error
-ENUM iox_ChunkReceiveResult iox_client_take_response(iox_client_t const self, const void** const payload);
+enum iox_ChunkReceiveResult iox_client_take_response(iox_client_t const self, const void** const payload);
 
 /// @brief release a previously acquired response (via iox_client_take_response)
 /// @param[in] self handle to the client

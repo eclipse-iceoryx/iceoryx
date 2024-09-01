@@ -388,7 +388,7 @@ TEST_F(SpscSofiTest, ResizeAndSizeFillUp)
     }
 }
 
-TEST_F(SpscSofiTest, PopIfWithValidCondition)
+TEST_F(SpscSofiTest, Pop)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f149035c-21cc-4f7d-ba4d-564a645e933b");
     sofi.push(10, returnVal);
@@ -396,33 +396,22 @@ TEST_F(SpscSofiTest, PopIfWithValidCondition)
     sofi.push(12, returnVal);
 
     int output{-1};
-    bool result = sofi.popIf(output, [](const int& peek) { return peek < 20; });
+    bool result = sofi.pop(output);
 
     EXPECT_EQ(result, true);
     EXPECT_EQ(output, 10);
 }
 
-TEST_F(SpscSofiTest, PopIfWithInvalidCondition)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "1a494c28-928f-48f4-8b01-e68dfbd7563e");
-    sofi.push(15, returnVal);
-    sofi.push(16, returnVal);
-    sofi.push(17, returnVal);
 
-    bool result = sofi.popIf(returnVal, [](const int& peek) { return peek < 5; });
-
-    EXPECT_EQ(result, false);
-}
-
-TEST_F(SpscSofiTest, PopIfOnEmpty)
+TEST_F(SpscSofiTest, PopOnEmpty)
 {
     ::testing::Test::RecordProperty("TEST_ID", "960ad78f-cb9b-4c34-a077-6adb343a841c");
-    bool result = sofi.popIf(returnVal, [](const int& peek) { return peek < 7; });
+    bool result = sofi.pop(returnVal);
 
     EXPECT_EQ(result, false);
 }
 
-TEST_F(SpscSofiTest, PopIfFullWithValidCondition)
+TEST_F(SpscSofiTest, PopFull)
 {
     ::testing::Test::RecordProperty("TEST_ID", "167f2f01-f926-4442-bc4f-ff5e7cfe9fe0");
     constexpr int INITIAL_VALUE = 100;
@@ -432,42 +421,21 @@ TEST_F(SpscSofiTest, PopIfFullWithValidCondition)
         sofi.push(i + INITIAL_VALUE, returnVal);
     }
 
-    bool result = sofi.popIf(returnVal, [](const int& peek) { return peek < 150; });
+    bool result = sofi.pop(returnVal);
 
     EXPECT_EQ(result, true);
     EXPECT_EQ(returnVal, INITIAL_VALUE + OFFSET);
 }
 
-TEST_F(SpscSofiTest, PopIfFullWithInvalidCondition)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "672881b9-eebd-471d-9d62-e792a8b8013f");
-    for (int i = 0; i < static_cast<int>(sofi.capacity()) + 2; i++)
-    {
-        sofi.push(i + 100, returnVal);
-    }
-
-    bool result = sofi.popIf(returnVal, [](const int& peek) { return peek < 50; });
-
-    EXPECT_EQ(result, false);
-}
-
-TEST_F(SpscSofiTest, PopIfValidEmptyAfter)
+TEST_F(SpscSofiTest, PopEmptyAfter)
 {
     ::testing::Test::RecordProperty("TEST_ID", "19444dcd-7746-4e6b-a3b3-398c9d62317d");
+
     sofi.push(2, returnVal);
 
-    sofi.popIf(returnVal, [](const int& peek) { return peek < 50; });
+    sofi.pop(returnVal);
 
     EXPECT_EQ(sofi.empty(), true);
 }
 
-TEST_F(SpscSofiTest, PopIfInvalidNotEmptyAfter)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "cadd7f02-6fe5-49a5-bd5d-837f5fcb2a71");
-    sofi.push(200, returnVal);
-
-    sofi.popIf(returnVal, [](const int& peek) { return peek < 50; });
-
-    EXPECT_EQ(sofi.empty(), false);
-}
 } // namespace

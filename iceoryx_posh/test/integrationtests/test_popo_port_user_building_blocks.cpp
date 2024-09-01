@@ -24,6 +24,7 @@
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_single_producer.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
+#include "iox/atomic.hpp"
 #include "iox/scope_guard.hpp"
 #include "iox/smart_lock.hpp"
 #include "test.hpp"
@@ -112,9 +113,9 @@ class PortUser_IntegrationTest : public Test
 
     Watchdog m_deadlockWatchdog{DEADLOCK_TIMEOUT};
 
-    std::atomic<uint64_t> m_receiveCounter{0U};
-    std::atomic<uint64_t> m_sendCounter{0U};
-    std::atomic<bool> m_publisherRunFinished{false};
+    iox::concurrent::Atomic<uint64_t> m_receiveCounter{0U};
+    iox::concurrent::Atomic<uint64_t> m_sendCounter{0U};
+    iox::concurrent::Atomic<bool> m_publisherRunFinished{false};
 
     // Memory objects
     iox::BumpAllocator m_memoryAllocator{g_memory, MEMORY_SIZE};

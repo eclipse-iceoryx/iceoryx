@@ -19,9 +19,9 @@
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/posh_error_reporting.hpp"
+#include "iox/atomic.hpp"
 #include "iox/newtype.hpp"
 
-#include <atomic>
 #include <cstdint>
 
 namespace iox
@@ -77,7 +77,7 @@ class UniquePortId : public NewType<UniquePortId,
     static constexpr ThisType::value_type INVALID_UNIQUE_ID = 0u;
     static constexpr ThisType::value_type ROUDI_ID_BIT_LENGTH = 16u;
     static constexpr ThisType::value_type UNIQUE_ID_BIT_LENGTH = 48u;
-    static std::atomic<ThisType::value_type> globalIDCounter; // initialized in cpp file
+    static concurrent::Atomic<ThisType::value_type> globalIDCounter; // initialized in cpp file
 };
 
 } // namespace popo

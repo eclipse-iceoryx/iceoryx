@@ -18,11 +18,11 @@
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iceoryx_posh/internal/runtime/posh_runtime_impl.hpp"
+#include "iox/atomic.hpp"
 #include "iox/detail/system_configuration.hpp"
 #include "iox/filesystem.hpp"
 #include "iox/logging.hpp"
 
-#include <atomic>
 #include <cstdint>
 #include <new>
 #include <type_traits>
@@ -37,9 +37,9 @@ namespace
 // A refcount for use in getLifetimeParticipant(). The refcount being > 0 does not
 // necessarily mean that the runtime is initialized yet, it only controls the point
 // at which the runtime is destroyed.
-std::atomic<uint64_t>& poshRuntimeStaticRefCount()
+concurrent::Atomic<uint64_t>& poshRuntimeStaticRefCount()
 {
-    static std::atomic<uint64_t> s_refcount{0U};
+    static concurrent::Atomic<uint64_t> s_refcount{0U};
     return s_refcount;
 }
 // Tracks whether the refcount lifetime mechanism is used by the factory function.
@@ -49,9 +49,9 @@ std::atomic<uint64_t>& poshRuntimeStaticRefCount()
 // classes that are not PoshRuntimeImpl, and also guards against the destructor
 // being called on a non-existent object in the case where a lifetime participant
 // goes out of scope before the PoshRuntimeImpl instance was constructed.
-std::atomic<bool>& poshRuntimeNeedsManualDestruction()
+concurrent::Atomic<bool>& poshRuntimeNeedsManualDestruction()
 {
-    static std::atomic<bool> s_needsManualDestruction{false};
+    static concurrent::Atomic<bool> s_needsManualDestruction{false};
     return s_needsManualDestruction;
 }
 
@@ -123,7 +123,7 @@ PoshRuntime::PoshRuntime(optional<const RuntimeName_t*> name) noexcept
 {
     if (detail::isCompiledOn32BitSystem())
     {
-        IOX_LOG(WARN, "Running applications on 32-bit architectures is not supported! Use at your own risk!");
+        IOX_LOG(WARN, "Running applications on 32-bit architectures is experimental! Use at your own risk!");
     }
 }
 

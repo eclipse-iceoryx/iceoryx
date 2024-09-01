@@ -147,7 +147,7 @@ inline string<Capacity>::string(TruncateToCapacity_t, const char* const other, c
     }
     else
     {
-        std::memcpy(m_rawstring, other, count);
+        std::memcpy(m_rawstring, other, static_cast<size_t>(count));
         m_rawstring[count] = '\0';
         m_rawstringSize = count;
     }
@@ -187,7 +187,7 @@ inline string<Capacity>& string<Capacity>::operator=(const char (&rhs)[N]) noexc
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-    std::memcpy(m_rawstring, rhs, m_rawstringSize);
+    std::memcpy(m_rawstring, rhs, static_cast<size_t>(m_rawstringSize));
 #if (defined(__GNUC__) && (__GNUC__ == 8)) && (__GNUC_MINOR__ >= 3)
 #pragma GCC diagnostic pop
 #endif
@@ -234,7 +234,7 @@ inline bool string<Capacity>::unsafe_assign(const char* const str) noexcept
                                                                    << ") of the fixed string.");
         return false;
     }
-    std::memcpy(m_rawstring, str, strSize);
+    std::memcpy(m_rawstring, str, static_cast<size_t>(strSize));
     m_rawstring[strSize] = '\0';
     m_rawstringSize = strSize;
     return true;
@@ -264,7 +264,8 @@ template <typename T>
 inline IsStringOrCharArray<T, int64_t> string<Capacity>::compare(const T& other) const noexcept
 {
     const uint64_t otherSize{internal::GetSize<T>::call(other)};
-    const auto result = memcmp(c_str(), internal::GetData<T>::call(other), std::min(m_rawstringSize, otherSize));
+    const auto result =
+        memcmp(c_str(), internal::GetData<T>::call(other), static_cast<size_t>(std::min(m_rawstringSize, otherSize)));
     if (result == 0)
     {
         if (m_rawstringSize < otherSize)
@@ -330,7 +331,7 @@ inline string<Capacity>& string<Capacity>::copy(const string<N>& rhs) noexcept
     static_assert(N <= Capacity,
                   "Assignment failed. The capacity of the given fixed string is larger than the capacity of this.");
     const uint64_t strSize{rhs.size()};
-    std::memcpy(m_rawstring, rhs.c_str(), strSize);
+    std::memcpy(m_rawstring, rhs.c_str(), static_cast<size_t>(strSize));
     m_rawstring[strSize] = '\0';
     m_rawstringSize = strSize;
     return *this;
@@ -344,7 +345,7 @@ inline string<Capacity>& string<Capacity>::move(string<N>&& rhs) noexcept
     static_assert(N <= Capacity,
                   "Assignment failed. The capacity of the given fixed string is larger than the capacity of this.");
     const uint64_t strSize{rhs.size()};
-    std::memcpy(m_rawstring, rhs.c_str(), strSize);
+    std::memcpy(m_rawstring, rhs.c_str(), static_cast<size_t>(strSize));
     m_rawstring[strSize] = '\0';
     m_rawstringSize = strSize;
     rhs.clear();
@@ -379,8 +380,8 @@ concatenate(const T1& str1, const T2& str2) noexcept
     uint64_t size2{internal::GetSize<T2>::call(str2)};
     using NewStringType = string<internal::SumCapa<T1, T2>::value>;
     NewStringType newString;
-    std::memcpy(newString.m_rawstring, internal::GetData<T1>::call(str1), size1);
-    std::memcpy(&newString.m_rawstring[size1], internal::GetData<T2>::call(str2), size2);
+    std::memcpy(newString.m_rawstring, internal::GetData<T1>::call(str1), static_cast<size_t>(size1));
+    std::memcpy(&newString.m_rawstring[size1], internal::GetData<T2>::call(str2), static_cast<size_t>(size2));
     newString.m_rawstring[size1 + size2] = '\0';
     newString.m_rawstringSize = size1 + size2;
 
@@ -417,7 +418,7 @@ inline IsStringOrCharArrayOrChar<T, bool> string<Capacity>::unsafe_append(const 
         return false;
     }
 
-    std::memcpy(&(m_rawstring[m_rawstringSize]), tData, clampedTSize);
+    std::memcpy(&(m_rawstring[m_rawstringSize]), tData, static_cast<size_t>(clampedTSize));
     m_rawstringSize += clampedTSize;
     m_rawstring[m_rawstringSize] = '\0';
     return true;
@@ -434,7 +435,7 @@ inline IsStringOrCharArrayOrChar<T, string<Capacity>&> string<Capacity>::append(
     const char* const tData{internal::GetData<T>::call(str)};
     uint64_t const clampedTSize{std::min(Capacity - m_rawstringSize, tSize)};
 
-    std::memcpy(&(m_rawstring[m_rawstringSize]), tData, clampedTSize);
+    std::memcpy(&(m_rawstring[m_rawstringSize]), tData, static_cast<size_t>(clampedTSize));
     if (tSize > clampedTSize)
     {
         IOX_LOG(WARN,
@@ -487,8 +488,9 @@ string<Capacity>::insert(const uint64_t pos, const T& str, const uint64_t count)
     {
         return false;
     }
-    std::memmove(&m_rawstring[pos + count], &m_rawstring[pos], m_rawstringSize - pos);
-    std::memcpy(&m_rawstring[pos], internal::GetData<T>::call(str), count);
+    auto number_of_characters_to_move = static_cast<size_t>(m_rawstringSize) - static_cast<size_t>(pos);
+    std::memmove(&m_rawstring[pos + count], &m_rawstring[pos], number_of_characters_to_move);
+    std::memcpy(&m_rawstring[pos], internal::GetData<T>::call(str), static_cast<size_t>(count));
 
     m_rawstring[new_size] = '\0';
     m_rawstringSize = new_size;
@@ -506,7 +508,7 @@ inline optional<string<Capacity>> string<Capacity>::substr(const uint64_t pos, c
 
     const uint64_t length{std::min(count, m_rawstringSize - pos)};
     string subString;
-    std::memcpy(subString.m_rawstring, &m_rawstring[pos], length);
+    std::memcpy(subString.m_rawstring, &m_rawstring[pos], static_cast<size_t>(length));
     subString.m_rawstring[length] = '\0';
     subString.m_rawstringSize = length;
     return subString;
@@ -549,7 +551,7 @@ inline IsStringOrCharArray<T, optional<uint64_t>> string<Capacity>::find_first_o
     const uint64_t dataSize{internal::GetSize<T>::call(str)};
     for (auto p = pos; p < m_rawstringSize; ++p)
     {
-        const void* const found{memchr(data, m_rawstring[p], dataSize)};
+        const void* const found{memchr(data, m_rawstring[p], static_cast<size_t>(dataSize))};
         if (found != nullptr)
         {
             return p;
@@ -577,13 +579,13 @@ inline IsStringOrCharArray<T, optional<uint64_t>> string<Capacity>::find_last_of
     const uint64_t dataSize{internal::GetSize<T>::call(str)};
     for (; p > 0U; --p)
     {
-        const void* const found{memchr(data, m_rawstring[p], dataSize)};
+        const void* const found{memchr(data, m_rawstring[p], static_cast<size_t>(dataSize))};
         if (found != nullptr)
         {
             return p;
         }
     }
-    const void* const found{memchr(data, m_rawstring[p], dataSize)};
+    const void* const found{memchr(data, m_rawstring[p], static_cast<size_t>(dataSize))};
     if (found != nullptr)
     {
         return 0U;

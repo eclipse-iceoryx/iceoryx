@@ -23,6 +23,7 @@
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/roudi/heartbeat_pool.hpp"
 #include "iceoryx_posh/version/version_info.hpp"
+#include "iox/atomic.hpp"
 #include "iox/posix_user.hpp"
 
 #include <cstdint>
@@ -79,7 +80,7 @@ class Process
     runtime::IpcInterfaceUser m_ipcChannel;
     HeartbeatPoolIndexType m_heartbeatPoolIndex;
     PosixUser m_user;
-    std::atomic<uint64_t> m_sessionId{0U};
+    concurrent::Atomic<uint64_t> m_sessionId{0U};
 };
 
 } // namespace roudi

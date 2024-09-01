@@ -17,9 +17,9 @@
 #include "test.hpp"
 using namespace ::testing;
 
+#include "iox/atomic.hpp"
 #include "iox/detail/adaptive_wait.hpp"
 
-#include <atomic>
 #include <thread>
 
 using namespace iox::detail;
@@ -88,8 +88,8 @@ TEST(AdaptiveWaitTest, wait_loopWaitsAtLeastAsLongAsTheConditionsReturnsTrue)
         using adaptive_wait::INITIAL_REPETITIONS;
     };
 
-    std::atomic_bool continueToWait{true};
-    std::atomic_bool threadIsStarted{false};
+    iox::concurrent::Atomic<bool> continueToWait{true};
+    iox::concurrent::Atomic<bool> threadIsStarted{false};
     std::thread waitThread{[&] {
         threadIsStarted = true;
         AdaptiveWaitSut().wait_loop([&] { return continueToWait.load(); });

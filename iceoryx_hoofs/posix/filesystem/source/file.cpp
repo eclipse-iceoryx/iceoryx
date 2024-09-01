@@ -340,7 +340,9 @@ File::read_at(const uint64_t offset, uint8_t* const buffer, const uint64_t buffe
         return err(FileReadError::OffsetFailure);
     }
 
-    auto result = IOX_POSIX_CALL(iox_read)(m_file_descriptor, buffer, buffer_len).failureReturnValue(-1).evaluate();
+    auto result = IOX_POSIX_CALL(iox_read)(m_file_descriptor, buffer, static_cast<size_t>(buffer_len))
+                      .failureReturnValue(-1)
+                      .evaluate();
 
     if (!result.has_error())
     {
@@ -394,7 +396,9 @@ File::write_at(const uint64_t offset, const uint8_t* const buffer, const uint64_
         return err(FileWriteError::OffsetFailure);
     }
 
-    auto result = IOX_POSIX_CALL(iox_write)(m_file_descriptor, buffer, buffer_len).failureReturnValue(-1).evaluate();
+    auto result = IOX_POSIX_CALL(iox_write)(m_file_descriptor, buffer, static_cast<size_t>(buffer_len))
+                      .failureReturnValue(-1)
+                      .evaluate();
 
     if (!result.has_error())
     {

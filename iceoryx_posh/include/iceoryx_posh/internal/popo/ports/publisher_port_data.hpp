@@ -27,8 +27,8 @@
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_data.hpp"
 #include "iceoryx_posh/mepoo/memory_info.hpp"
 #include "iceoryx_posh/popo/publisher_options.hpp"
+#include "iox/atomic.hpp"
 
-#include <atomic>
 #include <cstdint>
 
 namespace iox
@@ -54,8 +54,8 @@ struct PublisherPortData : public BasePortData
 
     PublisherOptions m_options;
 
-    std::atomic_bool m_offeringRequested{false};
-    std::atomic_bool m_offered{false};
+    concurrent::Atomic<bool> m_offeringRequested{false};
+    concurrent::Atomic<bool> m_offered{false};
 };
 
 } // namespace popo

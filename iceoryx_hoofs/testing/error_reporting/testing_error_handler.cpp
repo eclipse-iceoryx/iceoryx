@@ -62,7 +62,7 @@ void TestingErrorHandler::onReportViolation(er::ErrorDescriptor desc)
 
 bool TestingErrorHandler::hasPanicked() const noexcept
 {
-    return m_panicked;
+    return m_panicked.load(std::memory_order_relaxed);
 }
 
 void TestingErrorHandler::reset() noexcept
@@ -133,7 +133,7 @@ bool TestingErrorHandler::fatalFailureTestContext(const function_ref<void()> tes
 
 void TestingErrorHandler::jump() noexcept
 {
-    if (m_jumpState == JumpState::Pending)
+    if (m_jumpState.load(std::memory_order_relaxed) == JumpState::Pending)
     {
         // NOLINTNEXTLINE(cert-err52-cpp) exception handling is not used by design
         longjmp(&m_jumpBuffer[0], JUMPED_INDICATOR);

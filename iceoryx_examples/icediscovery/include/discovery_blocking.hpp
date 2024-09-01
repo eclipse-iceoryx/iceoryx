@@ -19,8 +19,8 @@
 
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/runtime/service_discovery.hpp"
+#include "iox/atomic.hpp"
 
-#include <atomic>
 #include <vector>
 
 namespace discovery
@@ -61,7 +61,7 @@ class Discovery
   private:
     ServiceDiscovery* m_discovery{nullptr};
     iox::popo::WaitSet<1> m_waitset;
-    std::atomic_bool m_blocking{true};
+    iox::concurrent::Atomic<bool> m_blocking{true};
 };
 
 //! [wait until condition]

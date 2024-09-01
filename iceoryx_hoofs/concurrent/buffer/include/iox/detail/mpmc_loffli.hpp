@@ -18,10 +18,10 @@
 #ifndef IOX_HOOFS_CONCURRENT_BUFFER_MPMC_LOFFLI_HPP
 #define IOX_HOOFS_CONCURRENT_BUFFER_MPMC_LOFFLI_HPP
 
+#include "iox/atomic.hpp"
 #include "iox/not_null.hpp"
 #include "iox/relative_pointer.hpp"
 
-#include <atomic>
 #include <cstdint>
 
 namespace iox
@@ -71,7 +71,7 @@ class MpmcLoFFLi
 
     uint32_t m_size{0U};
     Index_t m_invalidIndex{0U};
-    std::atomic<Node> m_head{{0U, 1U}};
+    Atomic<Node> m_head{{0U, 1U}};
     iox::RelativePointer<Index_t> m_nextFreeIndex;
 
   public:

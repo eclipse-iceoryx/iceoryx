@@ -106,7 +106,7 @@ bool CommandLineParser::doesNotExceedLongOptionDash(const char* option) const no
 
 bool CommandLineParser::doesFitIntoString(const char* value, const uint64_t maxLength) noexcept
 {
-    return (strnlen(value, maxLength + 1) <= maxLength);
+    return (strnlen(value, static_cast<size_t>(maxLength) + 1) <= maxLength);
 }
 
 bool CommandLineParser::doesOptionNameFitIntoString(const char* option) const noexcept

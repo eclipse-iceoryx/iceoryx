@@ -20,11 +20,11 @@
 
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iox/algorithm.hpp"
+#include "iox/atomic.hpp"
 #include "iox/bump_allocator.hpp"
 #include "iox/detail/mpmc_loffli.hpp"
 #include "iox/relative_pointer.hpp"
 
-#include <atomic>
 #include <cstdint>
 
 
@@ -96,8 +96,8 @@ class MemPool
     /// (cas is only 64 bit and we need the other 32 bit for the aba counter)
     uint32_t m_numberOfChunks{0U};
 
-    std::atomic<uint32_t> m_usedChunks{0U};
-    std::atomic<uint32_t> m_minFree{0U};
+    concurrent::Atomic<uint32_t> m_usedChunks{0U};
+    concurrent::Atomic<uint32_t> m_minFree{0U};
 
     freeList_t m_freeIndices;
 };

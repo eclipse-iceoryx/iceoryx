@@ -24,8 +24,8 @@
 #include "iceoryx_posh/internal/popo/ports/client_server_port_types.hpp"
 #include "iceoryx_posh/popo/client_options.hpp"
 #include "iceoryx_posh/popo/rpc_header.hpp"
+#include "iox/atomic.hpp"
 
-#include <atomic>
 #include <cstdint>
 
 namespace iox
@@ -45,8 +45,8 @@ struct ClientPortData : public BasePortData
 
     ClientChunkSenderData_t m_chunkSenderData;
     ClientChunkReceiverData_t m_chunkReceiverData;
-    std::atomic_bool m_connectRequested{false};
-    std::atomic<ConnectionState> m_connectionState{ConnectionState::NOT_CONNECTED};
+    concurrent::Atomic<bool> m_connectRequested{false};
+    concurrent::Atomic<ConnectionState> m_connectionState{ConnectionState::NOT_CONNECTED};
 };
 
 } // namespace popo

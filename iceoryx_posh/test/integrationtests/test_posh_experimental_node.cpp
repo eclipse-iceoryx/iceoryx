@@ -18,6 +18,7 @@
 
 #include "iceoryx_platform/stdlib.hpp"
 #include "iox/deadline_timer.hpp"
+#include "iox/detail/system_configuration.hpp"
 #include "iox/duration.hpp"
 #include "iox/vector.hpp"
 
@@ -254,6 +255,12 @@ TEST(Node_test, ExhaustingNodesLeadsToError)
     {
         GTEST_SKIP() << "Set the 'IOX_RUN_ULIMIT_TESTS' env variable to 'on' to run this test. It might fail if "
                         "number of file descriptors is not increased with 'ulimit -n 2000'!";
+    }
+
+    if (iox::detail::isCompiledOn32BitSystem())
+    {
+        GTEST_SKIP() << "@todo iox-#2301 This test fails on 32 bit builds on the CI after ~240 created Nodes. "
+                        "Potentially some issues with the amount of file descriptors.";
     }
 
     RouDiEnv roudi;

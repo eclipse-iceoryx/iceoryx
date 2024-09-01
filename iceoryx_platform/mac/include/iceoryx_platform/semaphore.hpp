@@ -17,7 +17,8 @@
 #ifndef IOX_HOOFS_MAC_PLATFORM_SEMAPHORE_HPP
 #define IOX_HOOFS_MAC_PLATFORM_SEMAPHORE_HPP
 
-#include <atomic>
+#include "iceoryx_platform/atomic.hpp"
+
 #include <cstdint>
 #include <dispatch/dispatch.h>
 #include <semaphore.h>
@@ -47,7 +48,7 @@ struct iox_sem_t
     } m_handle;
 
     bool m_hasPosixHandle{true};
-    std::atomic<uint32_t> m_value{0U};
+    iox::concurrent::Atomic<uint32_t> m_value{0U};
 };
 
 int iox_sem_getvalue(iox_sem_t* sem, int* sval);

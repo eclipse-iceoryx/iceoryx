@@ -97,7 +97,7 @@ class iox_pub_test : public Test
     }
 
     static constexpr size_t MEMORY_SIZE = 1024 * 1024;
-    uint8_t m_memory[MEMORY_SIZE];
+    alignas(8) uint8_t m_memory[MEMORY_SIZE];
     static constexpr uint32_t NUM_CHUNKS_IN_POOL = 20;
     static constexpr uint64_t CHUNK_SIZE = 256;
 

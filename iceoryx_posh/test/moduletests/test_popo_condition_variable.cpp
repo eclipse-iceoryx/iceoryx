@@ -22,9 +22,9 @@
 #include "iceoryx_posh/internal/popo/building_blocks/condition_notifier.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iox/algorithm.hpp"
+#include "iox/atomic.hpp"
 #include "test.hpp"
 
-#include <atomic>
 #include <memory>
 #include <thread>
 #include <type_traits>
@@ -100,7 +100,7 @@ TEST_F(ConditionVariable_test, WaitResetsAllNotificationsInWait)
     m_signaler.notify();
     m_waiter.wait();
 
-    std::atomic_bool isThreadFinished{false};
+    iox::concurrent::Atomic<bool> isThreadFinished{false};
     std::thread t([&] {
         m_waiter.wait();
         isThreadFinished = true;
@@ -116,13 +116,13 @@ TEST_F(ConditionVariable_test, WaitResetsAllNotificationsInWait)
 TEST_F(ConditionVariable_test, WaitAndNotifyResultsInImmediateTriggerMultiThreaded)
 {
     ::testing::Test::RecordProperty("TEST_ID", "39b40c73-3dcc-4af6-9682-b62816c69854");
-    std::atomic<int> counter{0};
+    iox::concurrent::Atomic<int> counter{0};
     Barrier isThreadStarted(1U);
     std::thread waiter([&] {
-        EXPECT_THAT(counter, Eq(0));
+        EXPECT_THAT(counter.load(), Eq(0));
         isThreadStarted.notify();
         m_waiter.wait();
-        EXPECT_THAT(counter, Eq(1));
+        EXPECT_THAT(counter.load(), Eq(1));
     });
     isThreadStarted.wait();
 
@@ -137,7 +137,7 @@ TEST_F(ConditionVariable_test, AllNotificationsAreFalseAfterConstruction)
     ConditionVariableData sut;
     for (auto& notification : sut.m_activeNotifications)
     {
-        EXPECT_THAT(notification, Eq(false));
+        EXPECT_THAT(notification.load(), Eq(false));
     }
 }
 
@@ -152,7 +152,7 @@ TEST_F(ConditionVariable_test, AllNotificationsAreFalseAfterConstructionWithRunt
     ::testing::Test::RecordProperty("TEST_ID", "4825e152-08e3-414e-a34f-d93d048f84b8");
     for (auto& notification : m_condVarData.m_activeNotifications)
     {
-        EXPECT_THAT(notification, Eq(false));
+        EXPECT_THAT(notification.load(), Eq(false));
     }
 }
 
@@ -166,11 +166,11 @@ TEST_F(ConditionVariable_test, NotifyActivatesCorrectIndex)
     {
         if (i == EVENT_INDEX)
         {
-            EXPECT_THAT(m_condVarData.m_activeNotifications[i], Eq(true));
+            EXPECT_THAT(m_condVarData.m_activeNotifications[i].load(), Eq(true));
         }
         else
         {
-            EXPECT_THAT(m_condVarData.m_activeNotifications[i], Eq(false));
+            EXPECT_THAT(m_condVarData.m_activeNotifications[i].load(), Eq(false));
         }
     }
 }
@@ -237,7 +237,7 @@ TIMING_TEST_F(ConditionVariable_test, TimedWaitBlocksUntilTimeout, Repeat(5), [&
     ::testing::Test::RecordProperty("TEST_ID", "c755aec9-43c3-4bf4-bec4-5672c76561ef");
     ConditionListener listener(m_condVarData);
     NotificationVector_t activeNotifications;
-    std::atomic_bool hasWaited{false};
+    iox::concurrent::Atomic<bool> hasWaited{false};
 
     std::thread waiter([&] {
         activeNotifications = listener.timedWait(m_timingTestTime);
@@ -246,9 +246,9 @@ TIMING_TEST_F(ConditionVariable_test, TimedWaitBlocksUntilTimeout, Repeat(5), [&
     });
 
     std::this_thread::sleep_for(std::chrono::milliseconds(2 * m_timingTestTime.toMilliseconds() / 3));
-    EXPECT_THAT(hasWaited, Eq(false));
+    EXPECT_THAT(hasWaited.load(), Eq(false));
     std::this_thread::sleep_for(std::chrono::milliseconds(2 * m_timingTestTime.toMilliseconds() / 3));
-    EXPECT_THAT(hasWaited, Eq(true));
+    EXPECT_THAT(hasWaited.load(), Eq(true));
     waiter.join();
 })
 
@@ -256,7 +256,7 @@ TIMING_TEST_F(ConditionVariable_test, TimedWaitBlocksUntilNotification, Repeat(5
     ::testing::Test::RecordProperty("TEST_ID", "b2999ddd-d072-4c9f-975e-fc8acc31397d");
     ConditionListener listener(m_condVarData);
     NotificationVector_t activeNotifications;
-    std::atomic_bool hasWaited{false};
+    iox::concurrent::Atomic<bool> hasWaited{false};
 
     std::thread waiter([&] {
         activeNotifications = listener.timedWait(m_timingTestTime);
@@ -266,10 +266,10 @@ TIMING_TEST_F(ConditionVariable_test, TimedWaitBlocksUntilNotification, Repeat(5
     });
 
     std::this_thread::sleep_for(std::chrono::milliseconds(m_timingTestTime.toMilliseconds() / 4));
-    EXPECT_THAT(hasWaited, Eq(false));
+    EXPECT_THAT(hasWaited.load(), Eq(false));
     ConditionNotifier(m_condVarData, 13U).notify();
     std::this_thread::sleep_for(std::chrono::milliseconds(m_timingTestTime.toMilliseconds() / 4));
-    EXPECT_THAT(hasWaited, Eq(true));
+    EXPECT_THAT(hasWaited.load(), Eq(true));
     waiter.join();
 })
 
@@ -370,7 +370,7 @@ TIMING_TEST_F(ConditionVariable_test, WaitBlocks, Repeat(5), [&] {
     ConditionListener listener(m_condVarData);
     NotificationVector_t activeNotifications;
     Barrier isThreadStarted(1U);
-    std::atomic_bool hasWaited{false};
+    iox::concurrent::Atomic<bool> hasWaited{false};
 
     std::thread waiter([&] {
         isThreadStarted.notify();
@@ -383,10 +383,10 @@ TIMING_TEST_F(ConditionVariable_test, WaitBlocks, Repeat(5), [&] {
     isThreadStarted.wait();
 
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    EXPECT_THAT(hasWaited, Eq(false));
+    EXPECT_THAT(hasWaited.load(), Eq(false));
     notifier.notify();
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    EXPECT_THAT(hasWaited, Eq(true));
+    EXPECT_THAT(hasWaited.load(), Eq(true));
     waiter.join();
 })
 
@@ -397,7 +397,7 @@ TIMING_TEST_F(ConditionVariable_test, SecondWaitBlocksUntilNewNotification, Repe
     ConditionNotifier notifier1(m_condVarData, FIRST_EVENT_INDEX);
     ConditionNotifier notifier2(m_condVarData, SECOND_EVENT_INDEX);
     ConditionListener listener(m_condVarData);
-    std::atomic_bool hasWaited{false};
+    iox::concurrent::Atomic<bool> hasWaited{false};
 
     Watchdog watchdogFirstWait(m_timeToWait);
     watchdogFirstWait.watchAndActOnFailure([&] { listener.destroy(); });
@@ -422,17 +422,17 @@ TIMING_TEST_F(ConditionVariable_test, SecondWaitBlocksUntilNewNotification, Repe
         EXPECT_THAT(activeNotifications[0], Eq(FIRST_EVENT_INDEX));
         for (const auto& notification : m_condVarData.m_activeNotifications)
         {
-            EXPECT_THAT(notification, Eq(false));
+            EXPECT_THAT(notification.load(), Eq(false));
         }
     });
 
     isThreadStarted.wait();
 
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    EXPECT_THAT(hasWaited, Eq(false));
+    EXPECT_THAT(hasWaited.load(), Eq(false));
     notifier1.notify();
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    EXPECT_THAT(hasWaited, Eq(true));
+    EXPECT_THAT(hasWaited.load(), Eq(true));
     waiter.join();
 })
 

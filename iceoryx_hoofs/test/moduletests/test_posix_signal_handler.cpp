@@ -14,17 +14,17 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iox/atomic.hpp"
 #include "iox/signal_handler.hpp"
 #include "test.hpp"
-#include <atomic>
 
 namespace
 {
 using namespace ::testing;
 using namespace iox;
 
-std::atomic_int signalOfCallback1{0};
-std::atomic_int signalOfCallback2{0};
+iox::concurrent::Atomic<int> signalOfCallback1{0};
+iox::concurrent::Atomic<int> signalOfCallback2{0};
 
 template <PosixSignal SignalValue>
 struct SignalType
@@ -88,8 +88,8 @@ TYPED_TEST(SignalHandler_test, RegisteringSignalGuardCallbackWorks)
 
     ASSERT_EQ(raise(static_cast<int>(signalValue)), 0);
 
-    EXPECT_THAT(signalOfCallback1, Eq(static_cast<int>(signalValue)));
-    EXPECT_THAT(signalOfCallback2, Eq(this->INVALID_SIGNAL));
+    EXPECT_THAT(signalOfCallback1.load(), Eq(static_cast<int>(signalValue)));
+    EXPECT_THAT(signalOfCallback2.load(), Eq(this->INVALID_SIGNAL));
 }
 
 TYPED_TEST(SignalHandler_test, WhenSignalGuardGoesOutOfScopePreviousStateIsRestored)
@@ -103,8 +103,8 @@ TYPED_TEST(SignalHandler_test, WhenSignalGuardGoesOutOfScopePreviousStateIsResto
 
     ASSERT_EQ(raise(static_cast<int>(signalValue)), 0);
 
-    EXPECT_THAT(signalOfCallback1, Eq(this->INVALID_SIGNAL));
-    EXPECT_THAT(signalOfCallback2, Eq(static_cast<int>(signalValue)));
+    EXPECT_THAT(signalOfCallback1.load(), Eq(this->INVALID_SIGNAL));
+    EXPECT_THAT(signalOfCallback2.load(), Eq(static_cast<int>(signalValue)));
 }
 
 TYPED_TEST(SignalHandler_test, MoveConstructedSignalGuardCallbackWorks)
@@ -118,8 +118,8 @@ TYPED_TEST(SignalHandler_test, MoveConstructedSignalGuardCallbackWorks)
 
     ASSERT_EQ(raise(static_cast<int>(signalValue)), 0);
 
-    EXPECT_THAT(signalOfCallback1, Eq(static_cast<int>(signalValue)));
-    EXPECT_THAT(signalOfCallback2, Eq(this->INVALID_SIGNAL));
+    EXPECT_THAT(signalOfCallback1.load(), Eq(static_cast<int>(signalValue)));
+    EXPECT_THAT(signalOfCallback2.load(), Eq(this->INVALID_SIGNAL));
 }
 
 TYPED_TEST(SignalHandler_test, MoveConstructedSignalGuardRestoresPreviousState)
@@ -136,7 +136,7 @@ TYPED_TEST(SignalHandler_test, MoveConstructedSignalGuardRestoresPreviousState)
 
     ASSERT_EQ(raise(static_cast<int>(signalValue)), 0);
 
-    EXPECT_THAT(signalOfCallback1, Eq(this->INVALID_SIGNAL));
-    EXPECT_THAT(signalOfCallback2, Eq(static_cast<int>(signalValue)));
+    EXPECT_THAT(signalOfCallback1.load(), Eq(this->INVALID_SIGNAL));
+    EXPECT_THAT(signalOfCallback2.load(), Eq(static_cast<int>(signalValue)));
 }
 } // namespace

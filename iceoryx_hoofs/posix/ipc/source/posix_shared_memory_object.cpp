@@ -163,7 +163,7 @@ expected<PosixSharedMemoryObject, PosixSharedMemoryObjectError> PosixSharedMemor
                 (m_baseAddressHint) ? *m_baseAddressHint : nullptr,
                 m_permissions.value()));
 
-            memset(memoryMap->getBaseAddress(), 0, m_memorySizeInBytes);
+            memset(memoryMap->getBaseAddress(), 0, static_cast<size_t>(m_memorySizeInBytes));
         }
         IOX_LOG(DEBUG,
                 "Acquired " << m_memorySizeInBytes << " bytes successfully in the shared memory [" << m_name << "]");

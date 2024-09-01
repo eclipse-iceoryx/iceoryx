@@ -17,7 +17,9 @@
 #ifndef IOX_POSH_RUNTIME_HEARTBEAT_HPP
 #define IOX_POSH_RUNTIME_HEARTBEAT_HPP
 
-#include <atomic>
+#include "iox/atomic.hpp"
+
+#include <cstdint>
 
 namespace iox
 {
@@ -45,7 +47,7 @@ class Heartbeat
     static uint64_t milliseconds_since_epoch() noexcept;
 
   private:
-    std::atomic<uint64_t> m_timestamp_last_beat{0};
+    concurrent::Atomic<uint64_t> m_timestamp_last_beat{0};
 };
 } // namespace runtime
 } // namespace iox

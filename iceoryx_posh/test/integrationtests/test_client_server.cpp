@@ -24,6 +24,7 @@
 #include "iceoryx_posh/roudi_env/minimal_iceoryx_config.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_posh/testing/roudi_gtest.hpp"
+#include "iox/atomic.hpp"
 
 #include "test.hpp"
 
@@ -392,7 +393,7 @@ TEST_F(ClientServer_test, ServerTakeRequestUnblocksClientSendingRequest)
     ASSERT_TRUE(server.hasClients());
     ASSERT_THAT(client.getConnectionState(), Eq(iox::ConnectionState::CONNECTED));
 
-    std::atomic_bool wasRequestSent{false};
+    iox::concurrent::Atomic<bool> wasRequestSent{false};
 
     // block in a separate thread
     Barrier isThreadStarted(1U);
@@ -453,7 +454,7 @@ TEST_F(ClientServer_test, ClientTakesResponseUnblocksServerSendingResponse)
         EXPECT_FALSE(clientLoanResult.value().send().has_error());
     }
 
-    std::atomic_bool wasResponseSent{false};
+    iox::concurrent::Atomic<bool> wasResponseSent{false};
 
     // block in a separate thread
     Barrier isThreadStarted(1U);

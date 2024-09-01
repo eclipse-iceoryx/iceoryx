@@ -23,6 +23,7 @@
 #include "iceoryx_posh/gateway/gateway_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iox/atomic.hpp"
 #include "iox/duration.hpp"
 #include "iox/expected.hpp"
 #include "iox/function_ref.hpp"
@@ -31,7 +32,6 @@
 #include "iox/string.hpp"
 #include "iox/vector.hpp"
 
-#include <atomic>
 #include <thread>
 
 namespace iox
@@ -140,7 +140,7 @@ class GatewayGeneric : public gateway_t
   private:
     ConcurrentChannelVector m_channels;
 
-    std::atomic_bool m_isRunning{false};
+    concurrent::Atomic<bool> m_isRunning{false};
 
     units::Duration m_discoveryPeriod;
     units::Duration m_forwardingPeriod;

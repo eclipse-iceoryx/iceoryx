@@ -48,9 +48,10 @@ class ChunkMock
         auto& chunkSettings = chunkSettingsResult.value();
         auto chunkSize = chunkSettings.requiredChunkSize();
 
-        m_rawMemory = static_cast<uint8_t*>(iox::alignedAlloc(alignof(iox::mepoo::ChunkHeader), chunkSize));
+        m_rawMemory =
+            static_cast<uint8_t*>(iox::alignedAlloc(alignof(iox::mepoo::ChunkHeader), static_cast<size_t>(chunkSize)));
         assert(m_rawMemory != nullptr && "Could not get aligned memory");
-        memset(m_rawMemory, 0xFF, chunkSize);
+        memset(m_rawMemory, 0xFF, static_cast<size_t>(chunkSize));
 
 
         m_chunkHeader = new (m_rawMemory) iox::mepoo::ChunkHeader(chunkSize, chunkSettings);

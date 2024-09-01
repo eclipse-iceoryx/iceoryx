@@ -23,8 +23,7 @@
 #include "iceoryx_posh/internal/popo/ports/base_port_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/pub_sub_port_types.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
-
-#include <atomic>
+#include "iox/atomic.hpp"
 
 namespace iox
 {
@@ -50,8 +49,8 @@ struct SubscriberPortData : public BasePortData
 
     SubscriberOptions m_options;
 
-    std::atomic_bool m_subscribeRequested{false};
-    std::atomic<SubscribeState> m_subscriptionState{SubscribeState::NOT_SUBSCRIBED};
+    concurrent::Atomic<bool> m_subscribeRequested{false};
+    concurrent::Atomic<SubscribeState> m_subscriptionState{SubscribeState::NOT_SUBSCRIBED};
 };
 
 } // namespace popo

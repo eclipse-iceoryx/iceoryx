@@ -15,6 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iox/atomic.hpp"
 #include "iox/detail/spsc_sofi.hpp"
 #include "iox/logging.hpp"
 
@@ -90,10 +91,10 @@ TEST_F(SpscSofiStress, SimultaneouslyPushAndPopOnEmptySoFi)
     SoFiData popCounter{0};
     SoFiData tryPopCounter{0};
     SoFiData pushCounter{0};
-    std::atomic<bool> allowPush{false};
-    std::atomic<bool> isPushing{false};
-    std::atomic<bool> stopPushThread{false};
-    std::atomic<bool> stopPopThread{false};
+    iox::concurrent::Atomic<bool> allowPush{false};
+    iox::concurrent::Atomic<bool> isPushing{false};
+    iox::concurrent::Atomic<bool> stopPushThread{false};
+    iox::concurrent::Atomic<bool> stopPopThread{false};
 
     auto popThread = std::thread([&] {
         allowPush = true;
@@ -222,11 +223,11 @@ TEST_F(SpscSofiStress, PopFromContinuouslyOverflowingSoFi)
     SoFiData pushCounter{0};
     SoFiData dataCounter{0};
     SoFiData popCounter{0};
-    std::atomic<SoFiData> lastPopValue{INVALID_SOFI_DATA};
-    std::atomic<bool> allowPop{false};
-    std::atomic<bool> isPopping{false};
-    std::atomic<bool> stopPushThread{false};
-    std::atomic<bool> stopPopThread{false};
+    iox::concurrent::Atomic<SoFiData> lastPopValue{INVALID_SOFI_DATA};
+    iox::concurrent::Atomic<bool> allowPop{false};
+    iox::concurrent::Atomic<bool> isPopping{false};
+    iox::concurrent::Atomic<bool> stopPushThread{false};
+    iox::concurrent::Atomic<bool> stopPopThread{false};
 
     auto pushThread = std::thread([&] {
         SoFiData valOut{INVALID_SOFI_DATA};
@@ -278,9 +279,10 @@ TEST_F(SpscSofiStress, PopFromContinuouslyOverflowingSoFi)
 
                     // the popped value must match our data counter, because our data counter already didn't match with
                     // the overflow value
-                    if (lastPopValue != dataCounter)
+                    if (lastPopValue.load(std::memory_order_relaxed) != dataCounter)
                     {
-                        EXPECT_THAT(lastPopValue, Eq(dataCounter)) << "There was a data loss!";
+                        EXPECT_THAT(lastPopValue.load(std::memory_order_relaxed), Eq(dataCounter))
+                            << "There was a data loss!";
                         stopPushThread = true;
                         stopPopThread = true;
                     }
@@ -371,9 +373,9 @@ TEST_F(SpscSofiStress, PopFromContinuouslyOverflowingSoFi)
 
     // after stopping the threads, there might still be values in the SpscSofi and an unchecked popped value; get them
     // out and check for validity
-    if (lastPopValue >= 0)
+    if (lastPopValue.load() >= 0)
     {
-        EXPECT_THAT(lastPopValue, Eq(dataCounter)) << "There was a data loss!";
+        EXPECT_THAT(lastPopValue.load(), Eq(dataCounter)) << "There was a data loss!";
         dataCounter++;
     }
     auto valOut{INVALID_SOFI_DATA};
@@ -418,12 +420,12 @@ TEST_F(SpscSofiStress, PushAndPopFromNonOverflowingNonEmptySoFi)
     using SoFi_t = iox::concurrent::SpscSofi<SoFiData, 1000000>;
     std::unique_ptr<SoFi_t> sofi{new SoFi_t};
 
-    std::atomic<SoFiData> pushCounter{0};
-    std::atomic<SoFiData> popCounter{0};
+    iox::concurrent::Atomic<SoFiData> pushCounter{0};
+    iox::concurrent::Atomic<SoFiData> popCounter{0};
     bool slowDownPush{false};
     bool slowDownPop{false};
-    std::atomic<bool> stopPushThread{false};
-    std::atomic<bool> stopPopThread{false};
+    iox::concurrent::Atomic<bool> stopPushThread{false};
+    iox::concurrent::Atomic<bool> stopPopThread{false};
 
     auto pushThread = std::thread([&] {
         auto localPushCounter = pushCounter.load();
@@ -530,7 +532,7 @@ TEST_F(SpscSofiStress, PushAndPopFromNonOverflowingNonEmptySoFi)
     SoFiData valOut{INVALID_SOFI_DATA};
     while (sofi->pop(valOut))
     {
-        if (valOut != popCounter)
+        if (valOut != popCounter.load())
         {
             EXPECT_THAT(valOut, Eq(popCounter.load())) << "There was a data loss!";
             break;
@@ -539,8 +541,9 @@ TEST_F(SpscSofiStress, PushAndPopFromNonOverflowingNonEmptySoFi)
         popCounter++;
     }
 
-    EXPECT_THAT(pushCounter / 1000, Gt(STRESS_TIME.count())) << "There should be at least 1000 pushes per millisecond!";
-    EXPECT_THAT(pushCounter, Eq(popCounter.load())) << "Push and Pop Counter should be Equal after the Test!";
+    EXPECT_THAT(pushCounter.load() / 1000, Gt(STRESS_TIME.count()))
+        << "There should be at least 1000 pushes per millisecond!";
+    EXPECT_THAT(pushCounter.load(), Eq(popCounter.load())) << "Push and Pop Counter should be Equal after the Test!";
 
     IOX_LOG(INFO, "push & pop counter: " << pushCounter.load());
 }

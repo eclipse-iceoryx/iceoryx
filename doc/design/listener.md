@@ -75,22 +75,22 @@ which event is attached, like in the _WaitSet_.
                                    |   - m_toBeDestroyed       |
                                    |   - m_activeNotifications |
                                    +---------------------------+
-                                        | 1               | 1
-                                        |                 |
-                                        | 1               | n
-+-----------------------------------------------+ +--------------------------------------------------+
-| ConditionListener                             | | ConditionNotifier                                |
-|   ConditionListener(ConditionVariableData & ) | |   ConditionNotifier(ConditionVariableData &,     |
-|                                               | |                 uint64_t notificationIndex)      |
-|   bool                  wasNotified()         | |                                                  |
-|   void                  destroy()             | |   void notify()                                  |
-|   NotificationVector_t  wait()                | |                                                  |
-|   NotificationVector_t  timedWait()           | |   - m_condVarDataPtr    : ConditionVariableData* |
-|                                               | |   - m_notificationIndex                          |
-|   - m_condVarDataPtr : ConditionVariableData* | +--------------------------------------------------+
-|   - m_toBeDestroyed  : std::atomic_bool       |        | 1
-+-----------------------------------------------+        |
-        | 1                                              | n
+                                        | 1                | 1
+                                        |                  |
+                                        | 1                | n
++------------------------------------------------------+ +--------------------------------------------------+
+| ConditionListener                                    | | ConditionNotifier                                |
+|   ConditionListener(ConditionVariableData & )        | |   ConditionNotifier(ConditionVariableData &,     |
+|                                                      | |                 uint64_t notificationIndex)      |
+|   bool                  wasNotified()                | |                                                  |
+|   void                  destroy()                    | |   void notify()                                  |
+|   NotificationVector_t  wait()                       | |                                                  |
+|   NotificationVector_t  timedWait()                  | |   - m_condVarDataPtr    : ConditionVariableData* |
+|                                                      | |   - m_notificationIndex                          |
+|   - m_condVarDataPtr : ConditionVariableData*        | +--------------------------------------------------+
+|   - m_toBeDestroyed  : iox::concurrent::Atomic<bool> |   | 1
++------------------------------------------------------+   |
+        | 1                                                | n
         |                                           +--------------------------------+
         | 1                                         | TriggerHandle                  |
 +-------------------------------------------------+ |   bool isValid()               |
@@ -171,8 +171,8 @@ Triggerable     TriggerHandle  ConditionNotifier    ConditionListener           
      |                |                |                    |                            |  m_events[notificationId] |
 ```
 
-- **Triggerable goes out of scope:** The TriggerHandle is a member of the 
-    Triggerable, therefore the d'tor of the TriggerHandle is called which removes 
+- **Triggerable goes out of scope:** The TriggerHandle is a member of the
+    Triggerable, therefore the d'tor of the TriggerHandle is called which removes
     the trigger from the Listener via the `resetCallback`
 
 ```
@@ -183,7 +183,7 @@ Triggerable        TriggerHandle         Listener         Event_t
      |                   | via resetCallback | ------------> |
 ```
 
-- **Listener goes out of scope:** The d'tor of the `Event_t` invalidates the 
+- **Listener goes out of scope:** The d'tor of the `Event_t` invalidates the
     Trigger inside the Triggerable via the `invalidationCallback`
 
 ```

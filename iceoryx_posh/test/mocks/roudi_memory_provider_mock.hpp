@@ -46,7 +46,7 @@ class MemoryProviderTestImpl : public iox::roudi::MemoryProvider
             createMemoryMock(size, alignment);
         }
 
-        dummyMemory = iox::alignedAlloc(alignment, size);
+        dummyMemory = iox::alignedAlloc(static_cast<size_t>(alignment), static_cast<size_t>(size));
         return iox::ok(dummyMemory);
     }
     MOCK_METHOD(void, createMemoryMock, (uint64_t, uint64_t), (noexcept));

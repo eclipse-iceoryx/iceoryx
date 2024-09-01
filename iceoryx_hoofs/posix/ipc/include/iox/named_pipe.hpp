@@ -19,6 +19,7 @@
 #define IOX_HOOFS_POSIX_IPC_NAMED_PIPE_HPP
 
 #include "iceoryx_platform/semaphore.hpp"
+#include "iox/atomic.hpp"
 #include "iox/builder.hpp"
 #include "iox/detail/mpmc_lockfree_queue.hpp"
 #include "iox/duration.hpp"
@@ -193,7 +194,7 @@ class NamedPipe
         static constexpr units::Duration WAIT_FOR_INIT_TIMEOUT = units::Duration::fromSeconds(1);
         static constexpr units::Duration WAIT_FOR_INIT_SLEEP_TIME = units::Duration::fromMilliseconds(1);
 
-        std::atomic<uint64_t> initializationGuard{INVALID_DATA};
+        concurrent::Atomic<uint64_t> initializationGuard{INVALID_DATA};
         optional<UnnamedSemaphore> m_sendSemaphore;
         optional<UnnamedSemaphore> m_receiveSemaphore;
     };
@@ -212,7 +213,7 @@ class NamedPipeBuilder
     IOX_BUILDER_PARAMETER(PosixIpcChannelSide, channelSide, PosixIpcChannelSide::CLIENT)
 
     /// @brief Defines the max message size of the named pipe
-    IOX_BUILDER_PARAMETER(size_t, maxMsgSize, NamedPipe::MAX_MESSAGE_SIZE)
+    IOX_BUILDER_PARAMETER(uint64_t, maxMsgSize, NamedPipe::MAX_MESSAGE_SIZE)
 
     /// @brief Defines the max number of messages for the named pipe.
     IOX_BUILDER_PARAMETER(uint64_t, maxMsgNumber, NamedPipe::MAX_NUMBER_OF_MESSAGES)

@@ -18,10 +18,10 @@
 #ifndef IOX_HOOFS_CONCURRENT_BUFFER_MPMC_LOCKFREE_QUEUE_MPMC_INDEX_QUEUE_HPP
 #define IOX_HOOFS_CONCURRENT_BUFFER_MPMC_LOCKFREE_QUEUE_MPMC_INDEX_QUEUE_HPP
 
+#include "iox/atomic.hpp"
 #include "iox/detail/mpmc_lockfree_queue/cyclic_index.hpp"
 #include "iox/optional.hpp"
 
-#include <atomic>
 #include <type_traits>
 
 namespace iox
@@ -109,7 +109,7 @@ class MpmcIndexQueue
     // remark: a compile time check whether Index is actually lock free would be nice
     // note: there is a way  with is_always_lock_free in c++17 (which we cannot use here)
     using Index = CyclicIndex<Capacity>;
-    using Cell = std::atomic<Index>;
+    using Cell = Atomic<Index>;
 
     /// the array entries have to be initialized explicitly in the constructor since
     /// the default atomic constructor does not call the default constructor of the
@@ -119,8 +119,8 @@ class MpmcIndexQueue
     // NOLINTNEXTLINE(*avoid-c-arrays)
     Cell m_cells[Capacity];
 
-    std::atomic<Index> m_readPosition;
-    std::atomic<Index> m_writePosition;
+    Atomic<Index> m_readPosition;
+    Atomic<Index> m_writePosition;
 
     /// @brief load the value from m_cells at a position with a given memory order
     /// @param position position to load the value from

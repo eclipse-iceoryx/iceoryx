@@ -24,7 +24,6 @@
 #include "iox/signal_watcher.hpp"
 //! [iceoryx includes]
 
-#include <atomic>
 #include <iostream>
 
 constexpr char APP_NAME[] = "iox-cpp-request-response-client-waitset";

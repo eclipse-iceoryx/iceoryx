@@ -17,11 +17,10 @@
 #ifndef IOX_HOOFS_CONCURRENT_BUFFER_MPMC_RESIZEABLE_LOCKFREE_QUEUE_HPP
 #define IOX_HOOFS_CONCURRENT_BUFFER_MPMC_RESIZEABLE_LOCKFREE_QUEUE_HPP
 
+#include "iox/atomic.hpp"
 #include "iox/detail/mpmc_lockfree_queue.hpp"
 #include "iox/type_traits.hpp"
 #include "iox/vector.hpp"
-
-#include <atomic>
 
 namespace iox
 {
@@ -123,9 +122,9 @@ class MpmcResizeableLockFreeQueue : protected MpmcLockFreeQueue<ElementType, Max
 
   private:
     using BufferIndex = uint64_t;
-    std::atomic<uint64_t> m_capacity{MaxCapacity};
+    Atomic<uint64_t> m_capacity{MaxCapacity};
     // must be operator= otherwise it is undefined, see https://en.cppreference.com/w/cpp/atomic/ATOMIC_FLAG_INIT
-    std::atomic_flag m_resizeInProgress = ATOMIC_FLAG_INIT;
+    AtomicFlag m_resizeInProgress = ATOMIC_FLAG_INIT;
     iox::vector<BufferIndex, MaxCapacity> m_unusedIndices;
 
     /// @brief      Increase the capacity by some value.

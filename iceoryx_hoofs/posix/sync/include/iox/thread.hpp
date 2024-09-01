@@ -24,7 +24,6 @@
 #include "iox/posix_call.hpp"
 #include "iox/string.hpp"
 
-#include <atomic>
 #include <thread>
 
 namespace iox

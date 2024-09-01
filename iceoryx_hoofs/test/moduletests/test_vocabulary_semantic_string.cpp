@@ -500,7 +500,7 @@ TYPED_TEST(SemanticString_test, InsertValidContentToValidStringWorks)
     {
         for (auto& add_value : TestValues<SutType>::VALID_VALUES)
         {
-            for (uint64_t insert_position = 0; insert_position < value.size(); ++insert_position)
+            for (size_t insert_position = 0; insert_position < value.size(); ++insert_position)
             {
                 auto sut = SutType::create(string<SutType::capacity()>(TruncateToCapacity, value.c_str()));
                 ASSERT_THAT(sut.has_error(), Eq(false));

@@ -1050,7 +1050,7 @@ TEST(Duration_test, ConvertTimespecWithNoneReferenceFromDurationMoreThanOneSecon
 TEST(Duration_test, ConvertTimespecWithNoneReferenceFromDurationResultsNotYetInSaturation)
 {
     ::testing::Test::RecordProperty("TEST_ID", "70f11b99-78ec-442a-aefe-4dd9152b7903");
-    constexpr int64_t SECONDS{std::numeric_limits<int64_t>::max()};
+    constexpr int64_t SECONDS{std::numeric_limits<decltype(timespec::tv_sec)>::max()};
     constexpr int64_t NANOSECONDS{NANOSECS_PER_SECOND - 1U};
 
     auto duration = createDuration(SECONDS, NANOSECONDS);
@@ -1064,7 +1064,7 @@ TEST(Duration_test, ConvertTimespecWithNoneReferenceFromDurationResultsNotYetInS
 TEST(Duration_test, ConvertTimespecWithNoneReferenceFromMaxDurationResultsInSaturation)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3bf4bb34-46f3-4889-84f5-9220b32fff73");
-    constexpr int64_t SECONDS{std::numeric_limits<int64_t>::max()};
+    constexpr int64_t SECONDS{std::numeric_limits<decltype(timespec::tv_sec)>::max()};
     constexpr int64_t NANOSECONDS{NANOSECS_PER_SECOND - 1U};
 
     const timespec sut = DurationAccessor::max().timespec(iox::units::TimeSpecReference::None);
@@ -1101,7 +1101,7 @@ TEST(Duration_test, ConvertTimespecWithMonotonicReference)
 TEST(Duration_test, ConvertTimespecWithMonotonicReferenceFromMaxDurationResultsInSaturation)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ff5a1fe2-65c8-490a-b31d-4d8ea615c91a");
-    constexpr int64_t SECONDS{std::numeric_limits<int64_t>::max()};
+    constexpr int64_t SECONDS{std::numeric_limits<decltype(timespec::tv_sec)>::max()};
     constexpr int64_t NANOSECONDS{NANOSECS_PER_SECOND - 1U};
 
     const timespec sut = DurationAccessor::max().timespec(iox::units::TimeSpecReference::Monotonic);
@@ -1129,7 +1129,7 @@ TEST(Duration_test, ConvertTimespecWithEpochReference)
 TEST(Duration_test, ConvertTimespecWithEpochReferenceFromMaxDurationResultsInSaturation)
 {
     ::testing::Test::RecordProperty("TEST_ID", "97ff4204-a7f7-43ef-b81e-0e359d1dce93");
-    constexpr int64_t SECONDS{std::numeric_limits<int64_t>::max()};
+    constexpr int64_t SECONDS{std::numeric_limits<decltype(timespec::tv_sec)>::max()};
     constexpr int64_t NANOSECONDS{NANOSECS_PER_SECOND - 1U};
 
     const timespec sut = DurationAccessor::max().timespec(iox::units::TimeSpecReference::Epoch);

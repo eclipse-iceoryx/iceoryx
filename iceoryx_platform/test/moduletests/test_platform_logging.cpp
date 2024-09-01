@@ -14,11 +14,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_platform/atomic.hpp"
 #include "iceoryx_platform/logging.hpp"
 
 #include "test.hpp"
 
-#include <atomic>
 #include <iostream>
 #include <mutex>
 #include <sstream>
@@ -30,9 +30,9 @@ namespace
 using namespace ::testing;
 
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables) for testing only
-std::atomic<bool> has_custom_backend{false};
+iox::concurrent::Atomic<bool> has_custom_backend{false};
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables) for testing only
-std::atomic<uint64_t> dummy_backend_output_counter{0};
+iox::concurrent::Atomic<uint64_t> dummy_backend_output_counter{0};
 
 class LogOutput
 {
@@ -143,13 +143,13 @@ TEST(Logging_test, SettingCustomBackendTwiceFails)
     ASSERT_TRUE(has_custom_backend);
 
     constexpr uint64_t DUMMY_MESSAGE_COUNT_AFTER_FAILED_SETUP{1};
-    ASSERT_THAT(dummy_backend_output_counter, Eq(0));
+    ASSERT_THAT(dummy_backend_output_counter.load(), Eq(0));
     iox_platform_set_log_backend(&dummy_log_backend);
-    ASSERT_THAT(dummy_backend_output_counter, Eq(DUMMY_MESSAGE_COUNT_AFTER_FAILED_SETUP));
+    ASSERT_THAT(dummy_backend_output_counter.load(), Eq(DUMMY_MESSAGE_COUNT_AFTER_FAILED_SETUP));
 
     IOX_PLATFORM_LOG(IOX_PLATFORM_LOG_LEVEL_INFO, "Hypnotoad");
 
-    ASSERT_THAT(dummy_backend_output_counter, Eq(DUMMY_MESSAGE_COUNT_AFTER_FAILED_SETUP));
+    ASSERT_THAT(dummy_backend_output_counter.load(), Eq(DUMMY_MESSAGE_COUNT_AFTER_FAILED_SETUP));
 }
 
 } // namespace

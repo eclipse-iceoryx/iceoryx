@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/testing/test.hpp"
+#include "iox/atomic.hpp"
 #include "iox/logging.hpp"
 
 #include "iox/detail/mpmc_lockfree_queue.hpp"
@@ -23,7 +24,6 @@ using namespace ::testing;
 
 #include "iceoryx_hoofs/testing/barrier.hpp"
 
-#include <atomic>
 #include <list>
 #include <numeric>
 #include <random>
@@ -71,14 +71,16 @@ void produce(Queue& queue, uint64_t id, uint64_t iterations)
 }
 
 template <typename Queue>
-//NOLINTNEXTLINE(bugprone-easily-swappable-parameters, readability-function-size) This is okay since it is limited to the stress test
-void consume(Queue& queue, std::atomic<bool>& run, uint64_t expectedFinalCount, uint64_t maxId, bool& testResult)
+//NOLINTBEGIN(bugprone-easily-swappable-parameters, readability-function-size) This is okay since it is limited to the stress test
+void consume(
+    Queue& queue, iox::concurrent::Atomic<bool>& run, uint64_t expectedFinalCount, uint64_t maxId, bool& testResult)
+//NOLINTEND(bugprone-easily-swappable-parameters, readability-function-size)
 {
     g_barrier.notify();
 
     bool error = false;
 
-    std::vector<uint64_t> lastCount(maxId + 1, 0);
+    std::vector<uint64_t> lastCount(static_cast<size_t>(maxId) + 1U, 0);
 
     while (run || !queue.empty())
     {
@@ -86,16 +88,16 @@ void consume(Queue& queue, std::atomic<bool>& run, uint64_t expectedFinalCount, 
         if (popped.has_value())
         {
             auto& value = popped.value();
-            if (lastCount[value.id] + 1 != value.count)
+            if (lastCount[static_cast<size_t>(value.id)] + 1 != value.count)
             {
                 error = true;
             }
 
-            lastCount[value.id] = value.count;
+            lastCount[static_cast<size_t>(value.id)] = value.count;
         }
     }
 
-    for (uint64_t i = 1; i <= maxId; ++i)
+    for (size_t i = 1; i <= maxId; ++i)
     {
         if (lastCount[i] != expectedFinalCount)
         {
@@ -111,7 +113,7 @@ void consume(Queue& queue, std::atomic<bool>& run, uint64_t expectedFinalCount, 
 /// since this would allow us to run the test much longer (currently we will exhaust memory
 /// by using the list), but this rework is somewhat nontrivial
 template <typename Queue>
-void consumeAndStore(Queue& queue, std::atomic<bool>& run, std::list<Data>& consumed)
+void consumeAndStore(Queue& queue, iox::concurrent::Atomic<bool>& run, std::list<Data>& consumed)
 {
     g_barrier.notify();
 
@@ -148,7 +150,7 @@ bool isStrictlyMonotonic(std::list<Data>& list)
         return true;
     }
 
-    size_t prev = iter->count;
+    auto prev = iter->count;
     iter++;
 
     while (iter != list.end())
@@ -169,12 +171,12 @@ bool isComplete(std::list<Data>& list1, std::list<Data>& list2, size_t finalCoun
     std::vector<int> count(finalCount + 1);
     for (auto& data : list1)
     {
-        count[data.count]++;
+        count[static_cast<size_t>(data.count)]++;
     }
 
     for (auto& data : list2)
     {
-        count[data.count]++;
+        count[static_cast<size_t>(data.count)]++;
     }
 
     for (size_t i = 1; i <= finalCount; ++i)
@@ -194,7 +196,7 @@ bool checkTwoConsumerResult(std::list<Data>& consumed1,
                             uint64_t expectedFinalCount,
                             uint64_t maxId)
 {
-    std::vector<std::list<Data>> consumed(maxId + 1U);
+    std::vector<std::list<Data>> consumed(static_cast<size_t>(maxId) + 1U);
 
     for (uint64_t id = 1; id <= maxId; ++id)
     {
@@ -207,7 +209,7 @@ bool checkTwoConsumerResult(std::list<Data>& consumed1,
             return false;
         }
 
-        if (!isComplete(filtered1, filtered2, expectedFinalCount))
+        if (!isComplete(filtered1, filtered2, static_cast<size_t>(expectedFinalCount)))
         {
             IOX_LOG(INFO, "id " << id << " incomplete");
             return false;
@@ -220,7 +222,7 @@ bool checkTwoConsumerResult(std::list<Data>& consumed1,
 
 // alternates between push and pop
 template <typename Queue>
-void work(Queue& queue, uint64_t id, std::atomic<bool>& run)
+void work(Queue& queue, uint64_t id, iox::concurrent::Atomic<bool>& run)
 {
     g_barrier.notify();
 
@@ -269,7 +271,7 @@ template <typename Queue>
 //NOLINTNEXTLINE(readability-function-size) This is okay since it is limited to the stress test
 void randomWork(Queue& queue,
                 uint64_t id,
-                std::atomic<bool>& run,
+                iox::concurrent::Atomic<bool>& run,
                 uint64_t& overflowCount,
                 std::list<Data>& items,
                 double popProbability = 0.5)
@@ -371,7 +373,7 @@ TYPED_TEST(MpmcLockFreeQueueStressTest, SingleProducerSingleConsumer)
     using Queue = typename TestFixture::Queue;
 
     auto& queue = this->sut;
-    std::atomic<bool> run{true};
+    iox::concurrent::Atomic<bool> run{true};
     bool testResult{false};
     int iterations = 10000000;
 
@@ -395,7 +397,7 @@ TYPED_TEST(MpmcLockFreeQueueStressTest, MultiProducerSingleConsumer)
     using Queue = typename TestFixture::Queue;
 
     auto& queue = this->sut;
-    std::atomic<bool> run{true};
+    iox::concurrent::Atomic<bool> run{true};
     bool testResult{false};
     uint64_t iterations = 1000000U;
     uint64_t numProducers = 8U;
@@ -435,7 +437,7 @@ TYPED_TEST(MpmcLockFreeQueueStressTest, MultiProducerTwoConsumer)
     using Queue = typename TestFixture::Queue;
 
     auto& queue = this->sut;
-    std::atomic<bool> run{true};
+    iox::concurrent::Atomic<bool> run{true};
     uint64_t iterations = 1000000U;
     uint64_t numProducers = 4;
 
@@ -495,7 +497,7 @@ TYPED_TEST(MpmcLockFreeQueueStressTest, TimedMultiProducerMultiConsumer)
         }
     }
 
-    std::atomic<bool> run{true};
+    iox::concurrent::Atomic<bool> run{true};
 
     std::vector<std::thread> threads;
 
@@ -515,11 +517,11 @@ TYPED_TEST(MpmcLockFreeQueueStressTest, TimedMultiProducerMultiConsumer)
     }
 
     // check whether all elements are there, but there is no specific ordering we can expect
-    std::vector<int> count(capacity, 0);
+    std::vector<int> count(static_cast<size_t>(capacity), 0);
     auto popped = q.pop();
     while (popped.has_value())
     {
-        count[popped.value().count]++;
+        count[static_cast<size_t>(popped.value().count)]++;
         popped = q.pop();
     }
 
@@ -559,7 +561,7 @@ TYPED_TEST(MpmcLockFreeQueueStressTest, TimedMultiProducerMultiConsumer0verflow)
 
     auto capacity = q.capacity();
 
-    std::atomic<bool> run{true};
+    iox::concurrent::Atomic<bool> run{true};
 
     std::vector<std::thread> threads;
     std::vector<uint64_t> overflowCount(numThreads);
@@ -583,8 +585,8 @@ TYPED_TEST(MpmcLockFreeQueueStressTest, TimedMultiProducerMultiConsumer0verflow)
                              std::ref(q),
                              id,
                              std::ref(run),
-                             std::ref(overflowCount[id - 1]),
-                             std::ref(itemVec[id - 1]),
+                             std::ref(overflowCount[static_cast<size_t>(id) - 1]),
+                             std::ref(itemVec[static_cast<size_t>(id) - 1]),
                              popProbability);
     }
 
@@ -601,11 +603,11 @@ TYPED_TEST(MpmcLockFreeQueueStressTest, TimedMultiProducerMultiConsumer0verflow)
     // check whether all elements are there, but there is no specific ordering we can expect
     // items are either in the local lists or the queue, in total we expect each count numThreads times
 
-    std::vector<uint64_t> count(capacity, 0U);
+    std::vector<uint64_t> count(static_cast<size_t>(capacity), 0U);
     auto popped = q.pop();
     while (popped.has_value())
     {
-        count[popped.value().count]++;
+        count[static_cast<size_t>(popped.value().count)]++;
         popped = q.pop();
     }
 
@@ -614,14 +616,14 @@ TYPED_TEST(MpmcLockFreeQueueStressTest, TimedMultiProducerMultiConsumer0verflow)
     {
         for (auto& item : items)
         {
-            count[item.count]++;
+            count[static_cast<size_t>(item.count)]++;
         }
     }
 
     // we expect at least one overflow in the test (since the queue is full in the beginning)
     // we cannot expect one overflow in each thread due to thread scheduling
     auto numOverflows = std::accumulate(overflowCount.begin(), overflowCount.end(), 0ULL);
-    EXPECT_GT(numOverflows, 0LL);
+    EXPECT_GT(numOverflows, 0ULL);
 
     bool testResult = true;
     for (size_t i = 0; i < capacity; ++i)

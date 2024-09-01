@@ -1,4 +1,5 @@
 // Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2024 by Michael Bentley <mikebentley15@gmail.com>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -50,7 +51,7 @@ uint64_t iox_service_discovery_find_service(iox_service_discovery_t const self,
                                             iox_service_description_t* const serviceContainer,
                                             const uint64_t serviceContainerCapacity,
                                             uint64_t* missedServices,
-                                            const ENUM iox_MessagingPattern pattern)
+                                            const enum iox_MessagingPattern pattern)
 {
     IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
     IOX_ENFORCE(serviceContainer != nullptr, "'serviceContainer' must not be a 'nullptr'");
@@ -94,7 +95,7 @@ void iox_service_discovery_find_service_apply_callable(iox_service_discovery_t c
                                                        const char* const instance,
                                                        const char* const event,
                                                        void (*callable)(const iox_service_description_t),
-                                                       const ENUM iox_MessagingPattern pattern)
+                                                       const enum iox_MessagingPattern pattern)
 {
     IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
     IOX_ENFORCE(callable != nullptr, "'callable' must not be a 'nullptr'");
@@ -126,7 +127,7 @@ void iox_service_discovery_find_service_apply_callable_with_context_data(
     const char* const event,
     void (*callable)(const iox_service_description_t, void*),
     void* const contextData,
-    const ENUM iox_MessagingPattern pattern)
+    const enum iox_MessagingPattern pattern)
 {
     IOX_ENFORCE(self != nullptr, "'self' must not be a 'nullptr'");
     IOX_ENFORCE(callable != nullptr, "'callable' must not be a 'nullptr'");

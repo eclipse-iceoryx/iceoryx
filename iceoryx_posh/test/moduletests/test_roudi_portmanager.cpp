@@ -17,6 +17,7 @@
 
 #include "iceoryx_hoofs/testing/barrier.hpp"
 #include "iceoryx_posh/internal/posh_error_reporting.hpp"
+#include "iox/atomic.hpp"
 #include "iox/std_string_support.hpp"
 #include "test_roudi_portmanager_fixture.hpp"
 
@@ -747,7 +748,7 @@ void PortManager_test::setupAndTestBlockingPublisher(const iox::RuntimeName_t& p
     ASSERT_FALSE(maybeChunk.has_error());
     publisher.sendChunk(maybeChunk.value());
 
-    std::atomic_bool wasChunkSent{false};
+    iox::concurrent::Atomic<bool> wasChunkSent{false};
 
     constexpr iox::units::Duration DEADLOCK_TIMEOUT{5_s};
     Watchdog deadlockWatchdog{DEADLOCK_TIMEOUT};

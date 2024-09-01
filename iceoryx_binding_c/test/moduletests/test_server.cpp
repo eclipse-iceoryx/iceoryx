@@ -104,7 +104,7 @@ class iox_server_test : public Test
     char managementMemory[MANAGEMENT_MEMORY_SIZE];
     iox::BumpAllocator mgmtAllocator{managementMemory, MANAGEMENT_MEMORY_SIZE};
     static constexpr uint64_t DATA_MEMORY_SIZE = 1024 * 1024;
-    char dataMemory[DATA_MEMORY_SIZE];
+    alignas(8) char dataMemory[DATA_MEMORY_SIZE];
     iox::BumpAllocator dataAllocator{dataMemory, DATA_MEMORY_SIZE};
     iox::mepoo::MemoryManager memoryManager;
     iox::mepoo::MePooConfig memoryConfig;

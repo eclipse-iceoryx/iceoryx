@@ -90,7 +90,7 @@ inline vector<T, Capacity>& vector<T, Capacity>::operator=(const vector& rhs) no
 
         if constexpr (std::is_trivially_copyable<T>::value)
         {
-            std::memcpy(data(), rhs.data(), rhsSize * sizeof(T));
+            std::memcpy(data(), rhs.data(), static_cast<size_t>(rhsSize) * sizeof(T));
             i = rhsSize;
         }
         else
@@ -129,7 +129,7 @@ inline vector<T, Capacity>& vector<T, Capacity>::operator=(vector&& rhs) noexcep
 
         if constexpr (std::is_trivially_copyable<T>::value)
         {
-            std::memcpy(data(), rhs.data(), rhsSize * sizeof(T));
+            std::memcpy(data(), rhs.data(), static_cast<size_t>(rhsSize) * sizeof(T));
             i = rhsSize;
         }
         else
@@ -220,7 +220,7 @@ inline bool vector<T, Capacity>::emplace(const uint64_t position, Targs&&... arg
     if constexpr (std::is_trivial<T>::value)
     {
         resize(size() + 1U);
-        const uint64_t dataLen{sizeBeforeEmplace - position};
+        const size_t dataLen{static_cast<size_t>(sizeBeforeEmplace) - static_cast<size_t>(position)};
         std::memmove(data() + position + 1U, data() + position, dataLen * sizeof(T));
         at_unchecked(position) = T{std::forward<Targs>(args)...};
     }
@@ -414,7 +414,7 @@ inline bool vector<T, Capacity>::erase(iterator position) noexcept
                 at_unchecked(n).~T();
             }
             uint64_t dataLen{size() - n - 1U};
-            std::memmove(data() + n, data() + n + 1U, dataLen * sizeof(T));
+            std::memmove(data() + n, data() + n + 1U, static_cast<size_t>(dataLen) * sizeof(T));
         }
         else
         {

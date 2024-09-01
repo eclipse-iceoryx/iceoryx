@@ -8,6 +8,7 @@
 
 - The minimal supported GCC compiler is now 8.3
 - The required C++ standard is now C++17
+- Experimental 32-bit support for all platforms supporting 64-bit atomic operations
 
 **Features:**
 
@@ -73,6 +74,7 @@ class to enable or disable systemd support when running iceoryx [#2330](https://
 
 **Bugfixes:**
 
+- Fix compile-time conflict with Apache Arrow [\#2327](https://github.com/eclipse-iceoryx/iceoryx/issues/2327)
 - FreeBSD CI build is broken [\#1338](https://github.com/eclipse-iceoryx/iceoryx/issues/1338)
 - High CPU load in blocked publisher is reduced by introducing smart busy loop waiting (adaptive_wait) [\#1347](https://github.com/eclipse-iceoryx/iceoryx/issues/1347)
 - Compile Error : iceoryx_dds/Mempool.hpp: No such file or directory [\#1364](https://github.com/eclipse-iceoryx/iceoryx/issues/1364)
@@ -139,6 +141,8 @@ class to enable or disable systemd support when running iceoryx [#2330](https://
 - Listener examples need to take all samples in the callback [#2251](https://github.com/eclipse-iceoryx/iceoryx/issues/2251)
 - 'iox::string' tests can exceed the translation unit compilation timeout [#2278](https://github.com/eclipse-iceoryx/iceoryx/issues/2278)
 -  Building iceoryx with bazel on Windows is broken [#2320](https://github.com/eclipse-iceoryx/iceoryx/issues/2320)
+- Fix wrong memory orders in SpscSoFi [#2177](https://github.com/eclipse-iceoryx/iceoryx/issues/2177)
+- ssize_t: redefinition; different basic types [#2209](https://github.com/eclipse-iceoryx/iceoryx/issues/2209)
 
 **Refactoring:**
 
@@ -1471,5 +1475,3 @@ class to enable or disable systemd support when running iceoryx [#2330](https://
     ```
 
 64. The non-functional `iox::popo::Node` was removed
-
-65. 32-bit support is disabled by default. For development purposes iceoryx can be build with the `-DIOX_IGNORE_32_BIT_CHECK=ON`

@@ -17,10 +17,10 @@
 
 #include "iceoryx_hoofs/testing/test.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
+#include "iox/atomic.hpp"
 #include "iox/deadline_timer.hpp"
 #include "iox/mutex.hpp"
 
-#include <atomic>
 #include <thread>
 
 namespace
@@ -63,7 +63,7 @@ class Mutex_test : public Test
         return std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
     }
 
-    std::atomic_bool doWaitForThread{true};
+    iox::concurrent::Atomic<bool> doWaitForThread{true};
     iox::optional<mutex> sutNonRecursive;
     iox::optional<mutex> sutRecursive;
     iox::units::Duration watchdogTimeout = 5_s;
@@ -109,7 +109,7 @@ TEST_F(Mutex_test, RepeatedLockAndUnlockWithNonRecursiveMutexWorks)
 
 void tryLockReturnsFalseWhenMutexLockedInOtherThread(mutex& mutex)
 {
-    std::atomic<MutexTryLock> tryLockState = {MutexTryLock::LOCK_SUCCEEDED};
+    iox::concurrent::Atomic<MutexTryLock> tryLockState{MutexTryLock::LOCK_SUCCEEDED};
     ASSERT_FALSE(mutex.lock().has_error());
     std::thread lockThread([&] {
         auto tryLockResult = mutex.try_lock();

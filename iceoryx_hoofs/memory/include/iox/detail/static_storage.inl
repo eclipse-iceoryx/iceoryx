@@ -67,7 +67,7 @@ constexpr void* static_storage<Capacity, Align>::allocate(const uint64_t align, 
 
     size_t space{Capacity};
     m_ptr = m_bytes;
-    if (std::align(align, size, m_ptr, space) != nullptr)
+    if (std::align(static_cast<size_t>(align), static_cast<size_t>(size), m_ptr, space) != nullptr)
     {
         // fits, ptr was potentially modified to reflect alignment
         return m_ptr;

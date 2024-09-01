@@ -18,6 +18,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/condition_listener.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/popo/trigger_handle.hpp"
+#include "iox/atomic.hpp"
 #include "iox/deadline_timer.hpp"
 
 #include "test.hpp"
@@ -122,7 +123,7 @@ TEST_F(TriggerHandle_test, triggerNotifiesConditionVariable)
 {
     ::testing::Test::RecordProperty("TEST_ID", "11e752c8-d473-4bfd-b973-869c3b2d9fbc");
 
-    std::atomic_int stage{0};
+    iox::concurrent::Atomic<int> stage{0};
 
     std::thread t([&] {
         stage.store(1);
@@ -136,7 +137,7 @@ TEST_F(TriggerHandle_test, triggerNotifiesConditionVariable)
         std::this_thread::yield();
     }
 
-    iox::deadline_timer timeout{100_ms};
+    iox::deadline_timer timeout{200_ms};
     EXPECT_THAT(stage.load(), Eq(1));
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     EXPECT_THAT(stage.load(), Eq(1));

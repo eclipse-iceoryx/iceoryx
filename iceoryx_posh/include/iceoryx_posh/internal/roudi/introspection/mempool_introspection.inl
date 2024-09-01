@@ -163,7 +163,7 @@ MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::copyMemPoolI
         dst.m_minFreeChunks = src.m_minFreeChunks;
         dst.m_numChunks = src.m_numChunks;
         dst.m_chunkSize = src.m_chunkSize;
-        dst.m_chunkPayloadSize = src.m_chunkSize - static_cast<uint32_t>(sizeof(mepoo::ChunkHeader));
+        dst.m_chunkPayloadSize = src.m_chunkSize - sizeof(mepoo::ChunkHeader);
     }
 }
 
