@@ -1,6 +1,6 @@
-load("@buildifier_prebuilt//:deps.bzl", "buildifier_prebuilt_deps")
 load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
 load("@buildifier_prebuilt//:defs.bzl", "buildifier_prebuilt_register_toolchains")
+load("@buildifier_prebuilt//:deps.bzl", "buildifier_prebuilt_deps")
 
 def setup_buildifier_prebuilt():
     buildifier_prebuilt_deps()
