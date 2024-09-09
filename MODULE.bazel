@@ -1,0 +1,15 @@
+module(
+    name = "org_eclipse_iceroyx",
+    version = "2.95.0",
+)
+
+bazel_dep(name = "cpptoml", version = "0.1.1")
+bazel_dep(name = "platforms", version = "0.0.10")
+bazel_dep(name = "rules_cc", version = "0.0.9")
+
+bazel_dep(
+    name = "buildifier_prebuilt",
+    version = "7.1.2",
+    dev_dependency = True,
+)
+bazel_dep(name = "googletest", version = "1.15.2", dev_dependency = True)

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+Copyright 2024, Eclipse Foundation and the iceoryx contributors. All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,12 +14,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 SPDX-License-Identifier: Apache-2.0
+
+This module prepares the buildifier prebuilt project and its deps: https://github.com/keith/buildifier-prebuilt
 """
 
-load("//bazel/buildifier_prebuilt:setup.bzl", "setup_buildifier_prebuilt")
+load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
+load("@buildifier_prebuilt//:defs.bzl", "buildifier_prebuilt_register_toolchains")
+load("@buildifier_prebuilt//:deps.bzl", "buildifier_prebuilt_deps")
 
-def setup_repositories():
-    """
-    Loads repositories for iceoryx dependencies
-    """
-    setup_buildifier_prebuilt()
+def setup_buildifier_prebuilt():
+    buildifier_prebuilt_deps()
+
+    bazel_skylib_workspace()
+
+    buildifier_prebuilt_register_toolchains()

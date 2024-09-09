@@ -67,6 +67,7 @@
 - Make iceoryx resource prefix a compile time option [#2272](https://github.com/eclipse-iceoryx/iceoryx/issues/2272)
 - Improve introspection-client interface by adding the number of ports in parentheses [#2299](https://github.com/eclipse-iceoryx/iceoryx/issues/2299)
 - Add std::atomic abstraction [#2329](https://github.com/eclipse-iceoryx/iceoryx/issues/2329)
+- Port iceoryx to bzlmod [#2325](https://github.com/eclipse-iceoryx/iceoryx/issues/2325)
 
 **Bugfixes:**
 
