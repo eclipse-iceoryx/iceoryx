@@ -183,6 +183,11 @@ iox_add_library(
 #
 ########## posh roudi lib ##########
 #
+set(SYSTEMD_LIB "")
+if (USE_SYSTEMD_FLAG)
+    set(SYSTEMD_LIB systemd)
+endif ()
+
 iox_add_library(
     NO_EXPORT
     NO_PACKAGE_SETUP
@@ -198,7 +203,7 @@ iox_add_library(
                         source/capro
                         source/roudi
     PRIVATE_LIBS_QNX    socket
-    PRIVATE_LIBS_LINUX  systemd
+    PRIVATE_LIBS_LINUX  ${SYSTEMD_LIB}
     BUILD_INTERFACE     ${CMAKE_CURRENT_SOURCE_DIR}/include
     INSTALL_INTERFACE   include/${PREFIX}
     FILES
