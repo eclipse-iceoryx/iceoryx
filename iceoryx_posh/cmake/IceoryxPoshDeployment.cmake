@@ -144,5 +144,12 @@ else()
 endif()
 message(STATUS "[i] IOX_EXPERIMENTAL_POSH_FLAG: ${IOX_EXPERIMENTAL_POSH_FLAG}")
 
+if(USE_SYSTEMD)
+    set(USE_SYSTEMD_FLAG true)
+else()
+    set(USE_SYSTEMD_FLAG false)
+endif()
+message(STATUS "[i] USE_SYSTEMD_FLAG: ${USE_SYSTEMD_FLAG}")
+
 message(STATUS "[i] <<<<<<<<<<<<<< End iceoryx_posh configuration: >>>>>>>>>>>>>>")
 

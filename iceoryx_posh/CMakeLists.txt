@@ -198,6 +198,7 @@ iox_add_library(
                         source/capro
                         source/roudi
     PRIVATE_LIBS_QNX    socket
+    PRIVATE_LIBS_LINUX  systemd
     BUILD_INTERFACE     ${CMAKE_CURRENT_SOURCE_DIR}/include
     INSTALL_INTERFACE   include/${PREFIX}
     FILES
