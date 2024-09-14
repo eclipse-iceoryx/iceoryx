@@ -26,8 +26,12 @@ version_file="{version_file}"
 input_file="{input_file}"
 output_file="{output_file}"
 
-IFS="-" read version_number version_suffix <<< $(<"$version_file")
-IFS="." read major_version minor_version patch_version tweak_version <<< $version_number
+version=$(<"$version_file")
+version_number=$(echo "$version" | cut -d'-' -f1)
+major_version=$(echo "$version_number" | cut -d'.' -f1)
+minor_version=$(echo "$version_number" | cut -d'.' -f2)
+patch_version=$(echo "$version_number" | cut -d'.' -f3)
+tweak_version=$(echo "$version_number" | cut -d'.' -f4)
 [ -z "$version_suffix" ] && version_delim="" || version_delim="-"
 
 data="$(<"$input_file")"
