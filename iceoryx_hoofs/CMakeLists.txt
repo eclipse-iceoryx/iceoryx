@@ -104,6 +104,7 @@ iox_add_library(
         cli/source/option_definition.cpp
         cli/source/option_manager.cpp
         concurrent/buffer/source/mpmc_loffli.cpp
+        concurrent/sync/source/spin_lock.cpp
         filesystem/source/file_reader.cpp
         filesystem/source/filesystem.cpp
         memory/source/bump_allocator.cpp

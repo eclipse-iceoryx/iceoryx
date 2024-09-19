@@ -25,16 +25,16 @@ namespace popo
 {
 ThreadSafePolicy::ThreadSafePolicy() noexcept
 {
-    MutexBuilder()
-        .isInterProcessCapable(true)
-        .mutexType(MutexType::RECURSIVE)
-        .create(m_mutex)
+    InterProcessLock::Builder()
+        .is_inter_process_capable(true)
+        .lock_behavior(LockBehavior::RECURSIVE)
+        .create(m_lock)
         .expect("Failed to create Mutex");
 }
 
 void ThreadSafePolicy::lock() const noexcept
 {
-    if (!m_mutex->lock())
+    if (!m_lock->lock())
     {
         IOX_LOG(FATAL,
                 "Locking of an inter-process mutex failed! This indicates that the application holding the lock "
@@ -45,7 +45,7 @@ void ThreadSafePolicy::lock() const noexcept
 
 void ThreadSafePolicy::unlock() const noexcept
 {
-    if (!m_mutex->unlock())
+    if (!m_lock->unlock())
     {
         IOX_LOG(FATAL,
                 "Unlocking of an inter-process mutex failed! This indicates that the resources were cleaned up "
@@ -56,12 +56,12 @@ void ThreadSafePolicy::unlock() const noexcept
 
 bool ThreadSafePolicy::tryLock() const noexcept
 {
-    auto tryLockResult = m_mutex->try_lock();
+    auto tryLockResult = m_lock->try_lock();
     if (tryLockResult.has_error())
     {
         IOX_REPORT_FATAL(PoshError::POPO__CHUNK_TRY_LOCK_ERROR);
     }
-    return *tryLockResult == MutexTryLock::LOCK_SUCCEEDED;
+    return *tryLockResult == TryLock::LOCK_SUCCEEDED;
 }
 
 void SingleThreadedPolicy::lock() const noexcept

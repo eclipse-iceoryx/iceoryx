@@ -726,7 +726,7 @@
     // after
     iox::optional<iox::mutex> myMutex;
     iox::MutexBuilder()
-        .mutexType(iox::MutexType::RECURSIVE)
+        .lock_behavior(iox::LockBehavior::RECURSIVE)
         .create(myMutex);
     myMutex->lock();
     ```
