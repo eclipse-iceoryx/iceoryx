@@ -1,4 +1,5 @@
 // Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2024 by ekxide IO GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,12 +19,14 @@
 #define IOX_HOOFS_POSIX_SYNC_UNNAMED_SEMAPHORE_HPP
 
 #include "iox/builder.hpp"
-#include "iox/detail/semaphore_interface.hpp"
 #include "iox/expected.hpp"
 #include "iox/optional.hpp"
+#include "iox/semaphore_interface.hpp"
 
 namespace iox
 {
+class UnnamedSemaphoreBuilder;
+
 /// @brief A unnamed posix semaphore.
 // NOLINTJUSTIFICATION m_handle is always initialized during create in the UnnamedSemaphoreBuilder
 //                     hence it is impossible to create a UnnamedSemaphore without an initialized
@@ -32,6 +35,8 @@ namespace iox
 class UnnamedSemaphore final : public detail::SemaphoreInterface<UnnamedSemaphore>
 {
   public:
+    using Builder = UnnamedSemaphoreBuilder;
+
     UnnamedSemaphore(const UnnamedSemaphore&) noexcept = delete;
     UnnamedSemaphore(UnnamedSemaphore&&) noexcept = delete;
     UnnamedSemaphore& operator=(const UnnamedSemaphore&) noexcept = delete;
@@ -44,7 +49,11 @@ class UnnamedSemaphore final : public detail::SemaphoreInterface<UnnamedSemaphor
     friend class detail::SemaphoreInterface<UnnamedSemaphore>;
 
     UnnamedSemaphore() noexcept = default;
-    iox_sem_t* getHandle() noexcept;
+
+    expected<void, SemaphoreError> post_impl() noexcept;
+    expected<void, SemaphoreError> wait_impl() noexcept;
+    expected<bool, SemaphoreError> try_wait_impl() noexcept;
+    expected<SemaphoreWaitState, SemaphoreError> timed_wait_impl(const units::Duration& timeout) noexcept;
 
     iox_sem_t m_handle;
     bool m_destroyHandle = true;

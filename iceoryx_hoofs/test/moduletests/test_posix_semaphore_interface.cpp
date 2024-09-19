@@ -20,9 +20,10 @@
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_platform/platform_settings.hpp"
 #include "iceoryx_platform/time.hpp"
-#include "iox/detail/semaphore_interface.hpp"
 #include "iox/duration.hpp"
 #include "iox/named_semaphore.hpp"
+#include "iox/semaphore_interface.hpp"
+#include "iox/spin_semaphore.hpp"
 #include "iox/unnamed_semaphore.hpp"
 
 #include "test.hpp"
@@ -96,7 +97,16 @@ struct NamedSemaphoreTest
     }
 };
 
-using Implementations = Types<UnnamedSemaphoreTest, NamedSemaphoreTest>;
+struct SpinSemaphoreTest
+{
+    using SutType = iox::optional<concurrent::SpinSemaphore>;
+    static iox::expected<void, SemaphoreError> create(SutType& sut, const uint32_t initialValue)
+    {
+        return concurrent::SpinSemaphoreBuilder().initialValue(initialValue).isInterProcessCapable(false).create(sut);
+    }
+};
+
+using Implementations = Types<UnnamedSemaphoreTest, NamedSemaphoreTest, SpinSemaphoreTest>;
 
 TYPED_TEST_SUITE(SemaphoreInterfaceTest, Implementations, );
 

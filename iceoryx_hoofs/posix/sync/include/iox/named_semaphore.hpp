@@ -1,4 +1,5 @@
 // Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2024 by ekxide IO GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,18 +20,22 @@
 
 #include "iceoryx_platform/platform_settings.hpp"
 #include "iox/builder.hpp"
-#include "iox/detail/semaphore_interface.hpp"
 #include "iox/expected.hpp"
 #include "iox/filesystem.hpp"
 #include "iox/optional.hpp"
+#include "iox/semaphore_interface.hpp"
 #include "iox/string.hpp"
 
 namespace iox
 {
+class NamedSemaphoreBuilder;
+
 /// @brief A named posix semaphore.
 class NamedSemaphore final : public detail::SemaphoreInterface<NamedSemaphore>
 {
   public:
+    using Builder = NamedSemaphoreBuilder;
+
     static constexpr uint64_t LENGTH_OF_SEMAPHORE_SLASH_PREFIX = 1U;
     using Name_t = string<platform::IOX_MAX_SEMAPHORE_NAME_LENGTH - LENGTH_OF_SEMAPHORE_SLASH_PREFIX>;
 
@@ -46,7 +51,11 @@ class NamedSemaphore final : public detail::SemaphoreInterface<NamedSemaphore>
     friend class detail::SemaphoreInterface<NamedSemaphore>;
 
     NamedSemaphore(iox_sem_t* handle, const Name_t& name, const bool hasOwnership) noexcept;
-    iox_sem_t* getHandle() noexcept;
+
+    expected<void, SemaphoreError> post_impl() noexcept;
+    expected<void, SemaphoreError> wait_impl() noexcept;
+    expected<bool, SemaphoreError> try_wait_impl() noexcept;
+    expected<SemaphoreWaitState, SemaphoreError> timed_wait_impl(const units::Duration& timeout) noexcept;
 
     iox_sem_t* m_handle = nullptr;
     Name_t m_name;

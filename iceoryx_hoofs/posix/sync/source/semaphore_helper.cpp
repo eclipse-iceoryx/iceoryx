@@ -1,4 +1,5 @@
 // Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2024 by ekxide IO GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,17 +15,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iox/detail/semaphore_interface.hpp"
+#include "iox/detail/semaphore_helper.hpp"
 #include "iox/logging.hpp"
-#include "iox/named_semaphore.hpp"
 #include "iox/posix_call.hpp"
-#include "iox/unnamed_semaphore.hpp"
 
 namespace iox
 {
 namespace detail
 {
-SemaphoreError errnoToEnum(const int32_t errnum) noexcept
+SemaphoreError sem_errno_to_enum(const int32_t errnum) noexcept
 {
     switch (errnum)
     {
@@ -44,70 +43,57 @@ SemaphoreError errnoToEnum(const int32_t errnum) noexcept
     return SemaphoreError::UNDEFINED;
 }
 
-template <typename SemaphoreChild>
-iox_sem_t* SemaphoreInterface<SemaphoreChild>::getHandle() noexcept
+expected<void, SemaphoreError> sem_post(iox_sem_t* handle) noexcept
 {
-    return static_cast<SemaphoreChild*>(this)->getHandle();
-}
-
-template <typename SemaphoreChild>
-expected<void, SemaphoreError> SemaphoreInterface<SemaphoreChild>::post() noexcept
-{
-    auto result = IOX_POSIX_CALL(iox_sem_post)(getHandle()).failureReturnValue(-1).evaluate();
+    auto result = IOX_POSIX_CALL(iox_sem_post)(handle).failureReturnValue(-1).evaluate();
 
     if (result.has_error())
     {
-        return err(errnoToEnum(result.error().errnum));
+        return err(sem_errno_to_enum(result.error().errnum));
     }
 
     return ok<void>();
 }
 
-template <typename SemaphoreChild>
-expected<SemaphoreWaitState, SemaphoreError>
-SemaphoreInterface<SemaphoreChild>::timedWait(const units::Duration& timeout) noexcept
+expected<SemaphoreWaitState, SemaphoreError> sem_timed_wait(iox_sem_t* handle, const units::Duration& timeout) noexcept
 {
     const timespec timeoutAsTimespec = timeout.timespec(units::TimeSpecReference::Epoch);
-    auto result = IOX_POSIX_CALL(iox_sem_timedwait)(getHandle(), &timeoutAsTimespec)
+    auto result = IOX_POSIX_CALL(iox_sem_timedwait)(handle, &timeoutAsTimespec)
                       .failureReturnValue(-1)
                       .ignoreErrnos(ETIMEDOUT)
                       .evaluate();
 
     if (result.has_error())
     {
-        return err(errnoToEnum(result.error().errnum));
+        return err(sem_errno_to_enum(result.error().errnum));
     }
 
     return ok((result.value().errnum == ETIMEDOUT) ? SemaphoreWaitState::TIMEOUT : SemaphoreWaitState::NO_TIMEOUT);
 }
 
-template <typename SemaphoreChild>
-expected<bool, SemaphoreError> SemaphoreInterface<SemaphoreChild>::tryWait() noexcept
+expected<bool, SemaphoreError> sem_try_wait(iox_sem_t* handle) noexcept
 {
-    auto result = IOX_POSIX_CALL(iox_sem_trywait)(getHandle()).failureReturnValue(-1).ignoreErrnos(EAGAIN).evaluate();
+    auto result = IOX_POSIX_CALL(iox_sem_trywait)(handle).failureReturnValue(-1).ignoreErrnos(EAGAIN).evaluate();
 
     if (result.has_error())
     {
-        return err(errnoToEnum(result.error().errnum));
+        return err(sem_errno_to_enum(result.error().errnum));
     }
 
     return ok(result.value().errnum != EAGAIN);
 }
 
-template <typename SemaphoreChild>
-expected<void, SemaphoreError> SemaphoreInterface<SemaphoreChild>::wait() noexcept
+expected<void, SemaphoreError> sem_wait(iox_sem_t* handle) noexcept
 {
-    auto result = IOX_POSIX_CALL(iox_sem_wait)(getHandle()).failureReturnValue(-1).evaluate();
+    auto result = IOX_POSIX_CALL(iox_sem_wait)(handle).failureReturnValue(-1).evaluate();
 
     if (result.has_error())
     {
-        return err(errnoToEnum(result.error().errnum));
+        return err(sem_errno_to_enum(result.error().errnum));
     }
 
     return ok<void>();
 }
 
-template class SemaphoreInterface<UnnamedSemaphore>;
-template class SemaphoreInterface<NamedSemaphore>;
 } // namespace detail
 } // namespace iox
