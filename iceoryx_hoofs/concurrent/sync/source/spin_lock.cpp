@@ -41,9 +41,10 @@ SpinLock::SpinLock(const LockBehavior lock_behavior) noexcept
 
 expected<void, LockError> SpinLock::lock_impl() noexcept
 {
+    auto pid = getpid();
     auto tid = std::this_thread::get_id();
 
-    if (m_tid.load() == tid)
+    if (m_pid.load() == pid && m_tid.load() == tid)
     {
         if (m_recursive.load(std::memory_order_relaxed))
         {
@@ -58,6 +59,7 @@ expected<void, LockError> SpinLock::lock_impl() noexcept
     detail::adaptive_wait spinner;
     spinner.wait_loop([this] { return this->m_lock_flag.test_and_set(std::memory_order_acquire); });
 
+    m_pid.store(pid);
     m_tid.store(tid);
     m_recursive_count.store(1);
 
@@ -66,9 +68,10 @@ expected<void, LockError> SpinLock::lock_impl() noexcept
 
 expected<void, UnlockError> SpinLock::unlock_impl() noexcept
 {
+    auto pid = getpid();
     auto tid = std::this_thread::get_id();
 
-    if (m_tid.load() != tid)
+    if (m_pid.load() != pid || m_tid.load() != tid)
     {
         return err(UnlockError::NOT_OWNED_BY_THREAD);
     }
@@ -81,6 +84,7 @@ expected<void, UnlockError> SpinLock::unlock_impl() noexcept
     auto old_recursive_count = m_recursive_count.fetch_sub(1);
     if (old_recursive_count == 1)
     {
+        m_pid.store(0);
         m_tid.store(std::thread::id());
         m_lock_flag.clear(std::memory_order_release);
     }
@@ -90,9 +94,10 @@ expected<void, UnlockError> SpinLock::unlock_impl() noexcept
 
 expected<TryLock, TryLockError> SpinLock::try_lock_impl() noexcept
 {
+    auto pid = getpid();
     auto tid = std::this_thread::get_id();
 
-    if (m_tid.load() == tid)
+    if (m_pid.load() == pid && m_tid.load() == tid)
     {
         if (m_recursive.load(std::memory_order_relaxed))
         {
@@ -105,6 +110,7 @@ expected<TryLock, TryLockError> SpinLock::try_lock_impl() noexcept
 
     if (!m_lock_flag.test_and_set(std::memory_order_acquire))
     {
+        m_pid.store(pid);
         m_tid.store(tid);
         m_recursive_count.store(1);
 

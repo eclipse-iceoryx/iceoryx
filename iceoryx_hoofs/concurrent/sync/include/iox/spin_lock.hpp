@@ -17,6 +17,7 @@
 #ifndef IOX_HOOFS_CONCURRENT_SYNC_SPIN_LOCK_HPP
 #define IOX_HOOFS_CONCURRENT_SYNC_SPIN_LOCK_HPP
 
+#include "iceoryx_platform/unistd.hpp"
 #include "iox/atomic.hpp"
 #include "iox/lock_interface.hpp"
 
@@ -63,6 +64,7 @@ class SpinLock : public LockInterface<SpinLock>
     concurrent::AtomicFlag m_lock_flag =
         ATOMIC_FLAG_INIT; // NOTE: only initialization via assignment is guaranteed to work
     const concurrent::Atomic<bool> m_recursive{false};
+    concurrent::Atomic<pid_t> m_pid{0};
     concurrent::Atomic<uint64_t> m_recursive_count{0};
     concurrent::Atomic<std::thread::id> m_tid{};
 };
