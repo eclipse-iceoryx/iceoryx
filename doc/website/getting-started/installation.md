@@ -6,7 +6,7 @@ All iceoryx libraries are deployed as independent CMake packages. Posh is using 
 
 ### Dependencies
 
-- 64-bit hardware (e.g. x86_64 or aarch64; 32-bit hardware might work, but is not supported)
+- 64-bit hardware (e.g. x86_64 or aarch64; 32-bit hardware works, but only as technology preview and not meant for production)
 - [CMake](https://cmake.org), 3.16 or later
 - One of the following compilers:
     - [GCC](https://gcc.gnu.org), 8.3 or later
