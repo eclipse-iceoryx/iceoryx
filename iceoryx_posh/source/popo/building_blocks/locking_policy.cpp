@@ -25,7 +25,7 @@ namespace popo
 {
 ThreadSafePolicy::ThreadSafePolicy() noexcept
 {
-    InterProcessLock::Builder()
+    build::InterProcessLock::Builder()
         .is_inter_process_capable(true)
         .lock_behavior(LockBehavior::RECURSIVE)
         .create(m_lock)

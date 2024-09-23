@@ -17,6 +17,7 @@
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CONDITION_VARIABLE_DATA_HPP
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CONDITION_VARIABLE_DATA_HPP
 
+#include "iceoryx_posh/iceoryx_posh_deployment.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iox/atomic.hpp"
@@ -27,12 +28,6 @@ namespace iox
 {
 namespace popo
 {
-#ifdef IOX_EXPERIMENTAL_32_64_BIT_MIX_MODE
-using InterProcessSemaphore = concurrent::SpinSemaphore;
-#else
-using InterProcessSemaphore = UnnamedSemaphore;
-#endif
-
 struct ConditionVariableData
 {
     ConditionVariableData() noexcept;
@@ -44,7 +39,7 @@ struct ConditionVariableData
     ConditionVariableData& operator=(ConditionVariableData&& rhs) = delete;
     ~ConditionVariableData() noexcept = default;
 
-    optional<InterProcessSemaphore> m_semaphore;
+    optional<build::InterProcessSemaphore> m_semaphore;
     RuntimeName_t m_runtimeName;
     concurrent::Atomic<bool> m_toBeDestroyed{false};
     concurrent::Atomic<bool> m_activeNotifications[MAX_NUMBER_OF_NOTIFIERS];
