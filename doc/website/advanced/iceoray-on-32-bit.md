@@ -17,7 +17,7 @@ sudo apt install libacl1-dev:i386 libc6-dev-i386 libc6-dev-i386-cross libstdc++6
 
 ## Build steps
 
-The most simple way to build iceoryx is via the `iceoryx_build_test.sh` script
+The simplest way to build iceoryx is via the `iceoryx_build_test.sh` script
 
 ```bash
 tools/iceoryx_build_test.sh release 32-bit-x86
@@ -56,14 +56,15 @@ struct Foo {
 };
 ```
 
-As long as the bitness it the same, one does not have to care and but with shared memory, both applications have to agree to a common layout, else the applications will misbehave.
+As long as the bitness it the same, one does not have to care.
+But when 32-bit and 64-bit applications are connected via shared memory, both applications have to agree to a common layout, otherwise the applications will misbehave.
 In the worst case, the application keeps running with invalid data and in the best case it leads to an immediate segmentation fault.
 
-The most simple way to fix this specific alignment issue, is to use the `-malign-double` flag, which enforces an 8 byte alignment boundary for 64-bit data types on 32-bit architectures.
+The simplest way to fix this specific alignment issue, is to use the `-malign-double` flag, which enforces an 8 byte alignment boundary for 64-bit data types on 32-bit architectures.
 
 ## Build steps
 
-Similar to the 32-bit build, the most simple way to build for the 32-64 bit mix-mode is the `iceoryx_build_test.sh` script
+Similar to the 32-bit build, the simplest way to build for the 32-64 bit mix-mode is the `iceoryx_build_test.sh` script
 
 ```bash
 tools/iceoryx_build_test.sh release examples 32-bit-x86 experimental-32-64-bit-mix-mode --build-dir build-32
