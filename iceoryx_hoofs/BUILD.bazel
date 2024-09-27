@@ -34,6 +34,7 @@ cc_library(
     srcs = glob([
         "cli/source/*.cpp",
         "concurrent/buffer/source/*.cpp",
+        "concurrent/sync/source/*.cpp",
         "design/source/*.cpp",
         "filesystem/source/*.cpp",
         "memory/source/*.cpp",

@@ -9,6 +9,7 @@
 - The minimal supported GCC compiler is now 8.3
 - The required C++ standard is now C++17
 - Experimental 32-bit support for all platforms supporting 64-bit atomic operations
+- Experimental support for communication between 32-bit and 64-bit applications
 
 **Features:**
 
@@ -726,7 +727,7 @@
     // after
     iox::optional<iox::mutex> myMutex;
     iox::MutexBuilder()
-        .mutexType(iox::MutexType::RECURSIVE)
+        .lock_behavior(iox::LockBehavior::RECURSIVE)
         .create(myMutex);
     myMutex->lock();
     ```

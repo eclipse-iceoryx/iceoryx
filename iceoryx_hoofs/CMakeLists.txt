@@ -104,6 +104,8 @@ iox_add_library(
         cli/source/option_definition.cpp
         cli/source/option_manager.cpp
         concurrent/buffer/source/mpmc_loffli.cpp
+        concurrent/sync/source/spin_lock.cpp
+        concurrent/sync/source/spin_semaphore.cpp
         filesystem/source/file_reader.cpp
         filesystem/source/filesystem.cpp
         memory/source/bump_allocator.cpp
@@ -134,7 +136,7 @@ iox_add_library(
         posix/sync/source/named_semaphore.cpp
         posix/sync/source/signal_handler.cpp
         posix/sync/source/signal_watcher.cpp
-        posix/sync/source/semaphore_interface.cpp
+        posix/sync/source/semaphore_helper.cpp
         posix/sync/source/thread.cpp
         posix/sync/source/unnamed_semaphore.cpp
         posix/time/source/adaptive_wait.cpp

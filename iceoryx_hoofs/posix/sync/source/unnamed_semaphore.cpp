@@ -1,4 +1,5 @@
 // Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2024 by ekxide IO GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iox/unnamed_semaphore.hpp"
+#include "iox/detail/semaphore_helper.hpp"
 #include "iox/logging.hpp"
 #include "iox/posix_call.hpp"
 
@@ -65,7 +67,7 @@ UnnamedSemaphore::~UnnamedSemaphore() noexcept
 {
     if (m_destroyHandle)
     {
-        auto result = IOX_POSIX_CALL(iox_sem_destroy)(getHandle()).failureReturnValue(-1).evaluate();
+        auto result = IOX_POSIX_CALL(iox_sem_destroy)(&m_handle).failureReturnValue(-1).evaluate();
         if (result.has_error())
         {
             switch (result.error().errnum)
@@ -81,8 +83,25 @@ UnnamedSemaphore::~UnnamedSemaphore() noexcept
     }
 }
 
-iox_sem_t* UnnamedSemaphore::getHandle() noexcept
+
+expected<void, SemaphoreError> UnnamedSemaphore::post_impl() noexcept
 {
-    return &m_handle;
+    return detail::sem_post(&m_handle);
 }
+
+expected<void, SemaphoreError> UnnamedSemaphore::wait_impl() noexcept
+{
+    return detail::sem_wait(&m_handle);
+}
+
+expected<bool, SemaphoreError> UnnamedSemaphore::try_wait_impl() noexcept
+{
+    return detail::sem_try_wait(&m_handle);
+}
+
+expected<SemaphoreWaitState, SemaphoreError> UnnamedSemaphore::timed_wait_impl(const units::Duration& timeout) noexcept
+{
+    return detail::sem_timed_wait(&m_handle, timeout);
+}
+
 } // namespace iox

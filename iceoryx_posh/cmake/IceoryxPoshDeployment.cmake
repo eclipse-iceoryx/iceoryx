@@ -142,6 +142,15 @@ if(IOX_EXPERIMENTAL_POSH)
 else()
      set(IOX_EXPERIMENTAL_POSH_FLAG false)
 endif()
+
+if(IOX_EXPERIMENTAL_32_64_BIT_MIX_MODE)
+    set(IOX_INTERPROCESS_LOCK concurrent::SpinLock)
+    set(IOX_INTERPROCESS_SEMAPHORE concurrent::SpinSemaphore)
+else()
+    set(IOX_INTERPROCESS_LOCK mutex)
+    set(IOX_INTERPROCESS_SEMAPHORE UnnamedSemaphore)
+endif()
+
 message(STATUS "[i] IOX_EXPERIMENTAL_POSH_FLAG: ${IOX_EXPERIMENTAL_POSH_FLAG}")
 
 message(STATUS "[i] <<<<<<<<<<<<<< End iceoryx_posh configuration: >>>>>>>>>>>>>>")

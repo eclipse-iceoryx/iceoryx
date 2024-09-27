@@ -51,6 +51,7 @@ TEST_HUGE_PAYLOAD="OFF"
 OUT_OF_TREE_FLAG="OFF"
 EXAMPLE_FLAG="OFF"
 EXPERIMENTAL_FLAG="OFF"
+EXPERIMENTAL_32_64_MIX_MODE_FLAG="OFF"
 BUILD_ALL_FLAG="OFF"
 BUILD_SHARED="OFF"
 TOML_FLAG="ON"
@@ -170,6 +171,11 @@ while (( "$#" )); do
         EXPERIMENTAL_FLAG="ON"
         shift 1
         ;;
+    "experimental-32-64-bit-mix-mode")
+        echo " [i] Build experimental 32<->64 bit mix mode zero-copy communication"
+        EXPERIMENTAL_32_64_MIX_MODE_FLAG="ON"
+        shift 1
+        ;;
     "out-of-tree")
         echo " [i] Out-of-tree build"
         OUT_OF_TREE_FLAG="ON"
@@ -253,6 +259,8 @@ while (( "$#" )); do
         echo "    doc                   Build and generate doxygen"
         echo "    help                  Print this help"
         echo "    examples              Build all examples"
+        echo "    experimental          Build experimental features"
+        echo "    experimental-32-64-bit-mix-mode   Enable experimental 32<->64 bit mix mode zero-copy communication"
         echo "    one-to-many-only      Restrict to 1:n communication only"
         echo "    out-of-tree           Out-of-tree build for CI"
         echo "    package               Create a debian package from clean build in build_package"
@@ -331,6 +339,7 @@ if [ "$NO_BUILD" == false ]; then
           -DROUDI_ENVIRONMENT=$ROUDI_ENV_FLAG \
           -DEXAMPLES=$EXAMPLE_FLAG \
           -DIOX_EXPERIMENTAL_POSH=$EXPERIMENTAL_FLAG \
+          -DIOX_EXPERIMENTAL_32_64_BIT_MIX_MODE=$EXPERIMENTAL_32_64_MIX_MODE_FLAG \
           -DTOML_CONFIG=$TOML_FLAG \
           -DBUILD_DOC=$BUILD_DOC \
           -DBINDING_C=$BINDING_C_FLAG \

@@ -16,7 +16,9 @@
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_LOCKING_POLICY_HPP
 #define IOX_POSH_POPO_BUILDING_BLOCKS_LOCKING_POLICY_HPP
 
+#include "iceoryx_posh/iceoryx_posh_deployment.hpp"
 #include "iox/mutex.hpp"
+#include "iox/spin_lock.hpp"
 
 namespace iox
 {
@@ -33,7 +35,7 @@ class ThreadSafePolicy
     bool tryLock() const noexcept;
 
   private:
-    mutable optional<mutex> m_mutex;
+    mutable optional<build::InterProcessLock> m_lock;
 };
 
 class SingleThreadedPolicy
