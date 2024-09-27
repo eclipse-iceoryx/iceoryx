@@ -56,9 +56,9 @@ struct Foo {
 };
 ```
 
-As long as the bitness it the same, one does not have to care.
-But when 32-bit and 64-bit applications are connected via shared memory, both applications have to agree to a common layout, otherwise the applications will misbehave.
-In the worst case, the application keeps running with invalid data and in the best case it leads to an immediate segmentation fault.
+As long as the applications share the same bitness, there is no need for special consideration.
+However, when connecting 32-bit and 64-bit applications via shared memory, both must adhere to a common memory layout.
+If the layout differs, it can lead to unpredictable behavior and errors in the applications.
 
 The simplest way to fix this specific alignment issue, is to use the `-malign-double` flag, which enforces an 8 byte alignment boundary for 64-bit data types on 32-bit architectures.
 
