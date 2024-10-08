@@ -59,7 +59,7 @@ bool MpmcLoFFLi::pop(Index_t& index) noexcept
 
         // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic) upper limit of index set by m_size
         newHead.indexToNextFreeIndex = m_nextFreeIndex.get()[oldHead.indexToNextFreeIndex];
-        newHead.abaCounter += 1;
+        newHead.abaCounter = oldHead.abaCounter + 1;
     } while (!m_head.compare_exchange_weak(oldHead, newHead, std::memory_order_acq_rel, std::memory_order_acquire));
 
     /// comes from outside, is not shared and therefore no synchronization is needed
@@ -105,7 +105,7 @@ bool MpmcLoFFLi::push(const Index_t index) noexcept
         // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic) index is limited by capacity
         m_nextFreeIndex.get()[index] = oldHead.indexToNextFreeIndex;
         newHead.indexToNextFreeIndex = index;
-        newHead.abaCounter += 1;
+        newHead.abaCounter = oldHead.abaCounter + 1;
     } while (!m_head.compare_exchange_weak(oldHead, newHead, std::memory_order_acq_rel, std::memory_order_acquire));
 
     return true;
