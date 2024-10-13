@@ -152,6 +152,8 @@ else()
 endif()
 
 message(STATUS "[i] IOX_EXPERIMENTAL_POSH_FLAG: ${IOX_EXPERIMENTAL_POSH_FLAG}")
+message(STATUS "[i] IOX_INTERPROCESS_LOCK: ${IOX_INTERPROCESS_LOCK}")
+message(STATUS "[i] IOX_INTERPROCESS_SEMAPHORE: ${IOX_INTERPROCESS_SEMAPHORE}")
 
 message(STATUS "[i] <<<<<<<<<<<<<< End iceoryx_posh configuration: >>>>>>>>>>>>>>")
 

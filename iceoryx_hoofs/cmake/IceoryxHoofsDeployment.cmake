@@ -31,6 +31,4 @@ configure_option(
     DEFAULT_VALUE 10
 )
 
-message(STATUS "[i] IOX_EXPERIMENTAL_POSH_FLAG: ${IOX_EXPERIMENTAL_POSH_FLAG}")
-
 message(STATUS "[i] <<<<<<<<<<<<<< End iceoryx_hoofs configuration: >>>>>>>>>>>>>>")
