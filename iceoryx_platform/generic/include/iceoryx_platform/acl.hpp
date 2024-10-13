@@ -1,5 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2024 by ekxide IO GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,9 +13,14 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_LINUX_PLATFORM_ACL_HPP
-#define IOX_HOOFS_LINUX_PLATFORM_ACL_HPP
 
-#include <sys/acl.h>
+#ifndef IOX_PLATFORM_ACL_HPP
+#define IOX_PLATFORM_ACL_HPP
 
-#endif // IOX_HOOFS_LINUX_PLATFORM_ACL_HPP
+#if __has_include("iceoryx_platform/override/acl.hpp")
+#include "iceoryx_platform/override/acl.hpp"
+#else
+#include "iceoryx_platform/generic/acl.hpp"
+#endif // __has_include
+
+#endif // IOX_PLATFORM_ACL_HPP

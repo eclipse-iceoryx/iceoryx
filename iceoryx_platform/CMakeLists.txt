@@ -73,12 +73,19 @@ file ( GLOB_RECURSE ICEORYX_PLATFORM_FILES
     ${ICEORYX_PLATFORM}/source/*.cpp
 )
 
+
+set(ACL_LIB)
+if(IOX_PLATFORM_FEATURE_ACL)
+    set(ACL_LIB acl)
+endif()
+
 iox_add_library(
     TARGET                      iceoryx_platform
     NAMESPACE                   iceoryx_platform
     PROJECT_PREFIX              ${PREFIX}
     EXPORT_INCLUDE_DIRS         generic/include/
                                 ${ICEORYX_PLATFORM}/include/
+    PUBLIC_LIBS                 ${ACL_LIB}
     PUBLIC_LIBS_LINUX           atomic rt pthread
     PUBLIC_LIBS_UNIX            rt pthread
     PRIVATE_LIBS_QNX            socket

@@ -15,10 +15,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#if defined(__linux__)
+#include "iox/detail/posix_acl.hpp"
+
+#if IOX_FEATURE_ACL
+
 #include "iceoryx_platform/pwd.hpp"
 #include "iceoryx_platform/stat.hpp"
-#include "iox/detail/posix_acl.hpp"
 #include "iox/posix_call.hpp"
 #include "test.hpp"
 
@@ -300,4 +302,5 @@ TEST_F(PosixAcl_test, addStrangeNames)
     EXPECT_FALSE(entryAdded);
 }
 } // namespace
-#endif
+
+#endif // IOX_FEATURE_ACL
