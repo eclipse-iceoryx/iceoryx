@@ -69,6 +69,7 @@
 - Improve introspection-client interface by adding the number of ports in parentheses [#2299](https://github.com/eclipse-iceoryx/iceoryx/issues/2299)
 - Add std::atomic abstraction [#2329](https://github.com/eclipse-iceoryx/iceoryx/issues/2329)
 - Port iceoryx to bzlmod [#2325](https://github.com/eclipse-iceoryx/iceoryx/issues/2325)
+- Make ACL support optional [#1176](https://github.com/eclipse-iceoryx/iceoryx/issues/1176)
 
 **Bugfixes:**
 
