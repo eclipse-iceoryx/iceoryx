@@ -19,12 +19,13 @@ The configure_file rule imitates the similar CMake function for template expansi
 """
 
 def _configure_file_impl(ctx):
+    config_all = dict(ctx.attr.config_constants, **ctx.attr.config_acl)
     ctx.actions.expand_template(
         template = ctx.file.src,
         output = ctx.outputs.out,
         substitutions = {
             "@" + k + "@": v
-            for k, v in ctx.attr.config.items()
+            for k, v in config_all.items()
         },
     )
     files = depset(direct = [ctx.outputs.out])
@@ -35,7 +36,8 @@ configure_file = rule(
     implementation = _configure_file_impl,
     provides = [DefaultInfo],
     attrs = {
-        "config": attr.string_dict(mandatory = True),
+        "config_acl": attr.string_dict(mandatory = False),
+        "config_constants": attr.string_dict(mandatory = True),
         "out": attr.output(mandatory = True),
         "src": attr.label(mandatory = True, allow_single_file = True),
     },

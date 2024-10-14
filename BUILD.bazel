@@ -44,6 +44,12 @@ alias(
     visibility = ["//visibility:public"],
 )
 
+alias(
+    name = "feature_acl",
+    actual = "//iceoryx_platform:feature_acl",
+    visibility = ["//visibility:public"],
+)
+
 # Execute `bazel run //:buildifier` to fix formating of all starlark files in the workspace
 buildifier(
     name = "buildifier",

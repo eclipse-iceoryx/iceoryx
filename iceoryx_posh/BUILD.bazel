@@ -25,7 +25,7 @@ configure_file(
     name = "iceoryx_posh_deployment_hpp",
     src = "cmake/iceoryx_posh_deployment.hpp.in",
     out = "include/iceoryx_posh/iceoryx_posh_deployment.hpp",
-    config = select({
+    config_constants = select({
         # FIXME: for values see "iceoryx_posh/cmake/IceoryxPoshDeployment.cmake" ... for now some nice defaults
         "@platforms//os:macos": {
             "IOX_COMMUNICATION_POLICY": "ManyToManyPolicy",

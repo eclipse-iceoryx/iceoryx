@@ -37,3 +37,11 @@ build:tsan --linkopt="-fsanitize=thread"
 
 # tsan clang
 build:clang_tsan --config=clang --config=tsan
+
+#
+# feature flags
+#
+
+# value [auto, on, off]
+# 'auto' is platform dependent ('on' on Linux and QNX, 'off' on other OS) and the default value if the flag is not set
+#build --//:feature_acl=off
