@@ -22,7 +22,7 @@ set -e
 
 WORKSPACE=$(git rev-parse --show-toplevel)
 
-echo "Did you updated the changelogs?"
+echo "Did you update the changelogs?"
 select yn in "Yes" "No"; do
     case $yn in
         Yes ) break;;
@@ -30,7 +30,7 @@ select yn in "Yes" "No"; do
     esac
 done
 
-echo "Did you updated the VERSION file with the new version number?"
+echo "Did you update the VERSION file with the new version number?"
 select yn in "Yes" "No"; do
     case $yn in
         Yes ) break;;
@@ -38,7 +38,7 @@ select yn in "Yes" "No"; do
     esac
 done
 
-echo "Did you updated the VERSION in MODULE.bazel?"
+echo "Did you update the version number in MODULE.bazel?"
 select yn in "Yes" "No"; do
     case $yn in
         Yes ) break;;
