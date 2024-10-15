@@ -17,11 +17,6 @@
 workspace(name = "org_eclipse_iceoryx")
 
 # Load dependency googletest
-load("//bazel:load_repositories.bzl", "load_repositories")
+load("//bazel:deps.bzl", "iceoryx_deps")
 
-load_repositories()
-
-# Load dependency cpptoml
-load("//bazel:setup_repositories.bzl", "setup_repositories")
-
-setup_repositories()
+iceoryx_deps()
