@@ -38,6 +38,14 @@ select yn in "Yes" "No"; do
     esac
 done
 
+echo "Did you updated the VERSION in MODULE.bazel?"
+select yn in "Yes" "No"; do
+    case $yn in
+        Yes ) break;;
+        No ) exit 0;;
+    esac
+done
+
 target_version=$(head -n 1 "$WORKSPACE/VERSION")
 echo "The new version number will be: $target_version"
 
