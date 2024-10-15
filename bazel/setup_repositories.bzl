@@ -17,9 +17,11 @@ SPDX-License-Identifier: Apache-2.0
 """
 
 load("//bazel/buildifier_prebuilt:setup.bzl", "setup_buildifier_prebuilt")
+load("//bazel/skylib:setup.bzl", "setup_skylib")
 
 def setup_repositories():
     """
     Loads repositories for iceoryx dependencies
     """
+    setup_skylib()
     setup_buildifier_prebuilt()

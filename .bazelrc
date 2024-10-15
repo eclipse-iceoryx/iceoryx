@@ -38,6 +38,9 @@ build:tsan --linkopt="-fsanitize=thread"
 # tsan clang
 build:clang_tsan --config=clang --config=tsan
 
+# do not use bzlmod for now
+build --noenable_bzlmod
+
 #
 # feature flags
 #
