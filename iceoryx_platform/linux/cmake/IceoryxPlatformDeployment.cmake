@@ -34,15 +34,7 @@ configure_option(
     DEFAULT_VALUE "/tmp/"
 )
 
-configure_option(
-    NAME IOX_PLATFORM_FEATURE_ACL
-    DEFAULT_VALUE ON
-)
-
-if(IOX_PLATFORM_FEATURE_ACL)
-     set(IOX_CFG_FEATURE_ACL "1")
-else()
-     set(IOX_CFG_FEATURE_ACL "0")
-endif()
+option(IOX_PLATFORM_FEATURE_ACL "Use ACLs for access control" ON)
+message(STATUS "[i] IOX_PLATFORM_FEATURE_ACL: ${IOX_PLATFORM_FEATURE_ACL}")
 
 message(STATUS "[i] <<<<<<<<<<<<<< End iceoryx_platform configuration: >>>>>>>>>>>>>>")

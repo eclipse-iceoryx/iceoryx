@@ -73,10 +73,12 @@ file ( GLOB_RECURSE ICEORYX_PLATFORM_FILES
     ${ICEORYX_PLATFORM}/source/*.cpp
 )
 
-
-set(ACL_LIB)
 if(IOX_PLATFORM_FEATURE_ACL)
+    set(IOX_CFG_FEATURE_ACL "1")
     set(ACL_LIB acl)
+else()
+    set(IOX_CFG_FEATURE_ACL "0")
+    set(ACL_LIB)
 endif()
 
 iox_add_library(
