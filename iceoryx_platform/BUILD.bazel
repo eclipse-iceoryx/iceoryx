@@ -15,7 +15,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 load("@bazel_skylib//lib:selects.bzl", "selects")
-load("@bazel_skylib//rules:common_settings.bzl", "string_flag")
 load("@rules_cc//cc:defs.bzl", "cc_library")
 load("//bazel:configure_file.bzl", "configure_file")
 load("//bazel:configure_version.bzl", "configure_version")
@@ -67,23 +66,17 @@ configure_version(
     version_from = "//:VERSION",
 )
 
-string_flag(
-    name = "feature_acl",
-    build_setting_default = "auto",
-    visibility = ["//visibility:public"],
-)
-
 config_setting(
     name = "acl_auto",
     flag_values = {
-        ":feature_acl": "auto",
+        "//:feature_acl": "auto",
     },
 )
 
 config_setting(
     name = "acl_enabled",
     flag_values = {
-        ":feature_acl": "on",
+        "//:feature_acl": "on",
     },
 )
 
