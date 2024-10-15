@@ -27,7 +27,6 @@
 #define IOX_SC_PAGESIZE _SC_PAGESIZE
 
 using iox_off_t = off_t;
-using iox_ssize_t = ssize_t;
 
 #define IOX_F_OK F_OK
 #define IOX_X_OK X_OK

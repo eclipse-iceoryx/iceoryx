@@ -64,7 +64,7 @@ bool PosixAcl::writePermissionsToFile(const int32_t fileDescriptor) const noexce
     }
 
     // check if acl is valid
-    auto aclCheckCall = IOX_POSIX_CALL(acl_valid)(workingACL.get()).successReturnValue(0).evaluate();
+    auto aclCheckCall = IOX_POSIX_CALL(iox_acl_valid)(workingACL.get()).successReturnValue(0).evaluate();
 
     if (aclCheckCall.has_error())
     {
@@ -73,7 +73,8 @@ bool PosixAcl::writePermissionsToFile(const int32_t fileDescriptor) const noexce
     }
 
     // set acl in the file given by descriptor
-    auto aclSetFdCall = IOX_POSIX_CALL(acl_set_fd)(fileDescriptor, workingACL.get()).successReturnValue(0).evaluate();
+    auto aclSetFdCall =
+        IOX_POSIX_CALL(iox_acl_set_fd)(fileDescriptor, workingACL.get()).successReturnValue(0).evaluate();
     if (aclSetFdCall.has_error())
     {
         IOX_LOG(ERROR, "Error: Could not set file ACL.");
@@ -86,7 +87,7 @@ bool PosixAcl::writePermissionsToFile(const int32_t fileDescriptor) const noexce
 expected<PosixAcl::smartAclPointer_t, PosixAcl::Error> PosixAcl::createACL(const int32_t numEntries) noexcept
 {
     // allocate memory for a new ACL
-    auto aclInitCall = IOX_POSIX_CALL(acl_init)(numEntries).failureReturnValue(nullptr).evaluate();
+    auto aclInitCall = IOX_POSIX_CALL(iox_acl_init)(numEntries).failureReturnValue(nullptr).evaluate();
 
     if (aclInitCall.has_error())
     {
@@ -95,7 +96,7 @@ expected<PosixAcl::smartAclPointer_t, PosixAcl::Error> PosixAcl::createACL(const
 
     // define how to free the memory (custom deleter for the smart pointer)
     function<void(acl_t)> freeACL = [&](acl_t acl) {
-        auto aclFreeCall = IOX_POSIX_CALL(acl_free)(acl).successReturnValue(0).evaluate();
+        auto aclFreeCall = IOX_POSIX_CALL(iox_acl_free)(acl).successReturnValue(0).evaluate();
         // We ensure here instead of returning as this lambda will be called by unique_ptr
         IOX_ENFORCE(!aclFreeCall.has_error(), "Could not free ACL memory");
     };
@@ -186,7 +187,7 @@ bool PosixAcl::createACLEntry(const acl_t ACL, const PermissionEntry& entry) noe
     acl_entry_t newEntry{};
     acl_t l_ACL{ACL};
 
-    auto aclCreateEntryCall = IOX_POSIX_CALL(acl_create_entry)(&l_ACL, &newEntry).successReturnValue(0).evaluate();
+    auto aclCreateEntryCall = IOX_POSIX_CALL(iox_acl_create_entry)(&l_ACL, &newEntry).successReturnValue(0).evaluate();
 
     if (aclCreateEntryCall.has_error())
     {
@@ -196,7 +197,7 @@ bool PosixAcl::createACLEntry(const acl_t ACL, const PermissionEntry& entry) noe
 
     // set tag type for new entry (user, group, ...)
     auto tagType = static_cast<acl_tag_t>(entry.m_category);
-    auto aclSetTagTypeCall = IOX_POSIX_CALL(acl_set_tag_type)(newEntry, tagType).successReturnValue(0).evaluate();
+    auto aclSetTagTypeCall = IOX_POSIX_CALL(iox_acl_set_tag_type)(newEntry, tagType).successReturnValue(0).evaluate();
 
     if (aclSetTagTypeCall.has_error())
     {
@@ -210,7 +211,7 @@ bool PosixAcl::createACLEntry(const acl_t ACL, const PermissionEntry& entry) noe
     case ACL_USER:
     {
         auto aclSetQualifierCall =
-            IOX_POSIX_CALL(acl_set_qualifier)(newEntry, &(entry.m_id)).successReturnValue(0).evaluate();
+            IOX_POSIX_CALL(iox_acl_set_qualifier)(newEntry, &(entry.m_id)).successReturnValue(0).evaluate();
 
         if (aclSetQualifierCall.has_error())
         {
@@ -223,7 +224,7 @@ bool PosixAcl::createACLEntry(const acl_t ACL, const PermissionEntry& entry) noe
     case ACL_GROUP:
     {
         auto aclSetQualifierCall =
-            IOX_POSIX_CALL(acl_set_qualifier)(newEntry, &(entry.m_id)).successReturnValue(0).evaluate();
+            IOX_POSIX_CALL(iox_acl_set_qualifier)(newEntry, &(entry.m_id)).successReturnValue(0).evaluate();
 
         if (aclSetQualifierCall.has_error())
         {
@@ -241,7 +242,7 @@ bool PosixAcl::createACLEntry(const acl_t ACL, const PermissionEntry& entry) noe
     acl_permset_t entryPermissionSet{};
 
     auto aclGetPermsetCall =
-        IOX_POSIX_CALL(acl_get_permset)(newEntry, &entryPermissionSet).successReturnValue(0).evaluate();
+        IOX_POSIX_CALL(iox_acl_get_permset)(newEntry, &entryPermissionSet).successReturnValue(0).evaluate();
 
     if (aclGetPermsetCall.has_error())
     {
@@ -280,7 +281,7 @@ bool PosixAcl::createACLEntry(const acl_t ACL, const PermissionEntry& entry) noe
 
 bool PosixAcl::addAclPermission(acl_permset_t permset, acl_perm_t perm) noexcept
 {
-    auto aclAddPermCall = IOX_POSIX_CALL(acl_add_perm)(permset, perm).successReturnValue(0).evaluate();
+    auto aclAddPermCall = IOX_POSIX_CALL(iox_acl_add_perm)(permset, perm).successReturnValue(0).evaluate();
 
     if (aclAddPermCall.has_error())
     {

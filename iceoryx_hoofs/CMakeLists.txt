@@ -43,7 +43,7 @@ iox_add_library(
     NAMESPACE                   iceoryx_hoofs
     PROJECT_PREFIX              ${PREFIX}
     PUBLIC_LIBS                 iceoryx_platform::iceoryx_platform
-    PRIVATE_LIBS_LINUX          acl atomic ${CODE_COVERAGE_LIBS}
+    PRIVATE_LIBS_LINUX          atomic ${CODE_COVERAGE_LIBS}
     BUILD_INTERFACE             ${PROJECT_SOURCE_DIR}/buffer/include
                                 ${PROJECT_SOURCE_DIR}/cli/include
                                 ${PROJECT_SOURCE_DIR}/concurrent/buffer/include

@@ -19,6 +19,9 @@
 
 #include <cstdlib>
 
+// NOTE: The functions can be individually overwritten by setting the corresponding 'IOX_PLATFORM_OVERRIDE_*' define in
+// the respective platform specific 'override/*.h' header
+
 /// @brief Implementation of 'getenv_s'
 /// @param[out] actual_size_with_null of the value of the env variable including null-termination or 0 if the
 /// environment variable does not exist

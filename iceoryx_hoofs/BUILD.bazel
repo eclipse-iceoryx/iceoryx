@@ -21,7 +21,7 @@ configure_file(
     name = "iceoryx_hoofs_deployment_hpp",
     src = "cmake/iceoryx_hoofs_deployment.hpp.in",
     out = "generated/include/iox/iceoryx_hoofs_deployment.hpp",
-    config = {
+    config_constants = {
         "IOX_MAX_NAMED_PIPE_MESSAGE_SIZE": "4096",
         "IOX_MAX_NAMED_PIPE_NUMBER_OF_MESSAGES": "10",
         # FIXME: for values see "iceoryx_hoofs/cmake/IceoryxHoofsDeployment.cmake" ... for now some nice defaults
@@ -84,14 +84,13 @@ cc_library(
     linkopts = select({
         "//iceoryx_platform:linux-clang": [
             "-latomic",
-            "-lacl",
         ],
-        "//iceoryx_platform:linux-gcc": ["-lacl"],
+        "//iceoryx_platform:linux-gcc": [],
         "//iceoryx_platform:mac": [],
         "//iceoryx_platform:qnx": [],
         "//iceoryx_platform:unix": [],
         "//iceoryx_platform:win": [],
-        "//conditions:default": ["-lacl"],
+        "//conditions:default": [],
     }),
     visibility = ["//visibility:public"],
     deps = ["//iceoryx_platform"],

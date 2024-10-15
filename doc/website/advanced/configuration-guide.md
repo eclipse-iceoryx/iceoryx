@@ -39,6 +39,46 @@ With that change, the footprint of the management segment is reduced to ~52.7 MB
 For larger use cases you can increase the value to avoid that samples are dropped
 on the subscriber side (see also [#615](https://github.com/eclipse-iceoryx/iceoryx/issues/615)).
 
+## ACL Feature Flag
+
+The ACL (Access Control List) feature is enabled by default on Linux and QNX platforms.
+If you want to disable this feature, you can control it through a build option.
+
+### Using CMake
+
+To disable the ACL feature in a CMake build, pass the following flag when configuring the project:
+
+```
+-DIOX_PLATFORM_FEATURE_ACL=OFF
+```
+
+### Using Bazel
+
+To disable the ACL feature in a Bazel build, use the following flag:
+```
+--//:feature_acl=off
+```
+
+For example:
+```
+bazel build --//:feature_acl=off //...
+```
+
+Alternatively, you can persist this setting in a `.bazelrc` file to apply it automatically in all builds:
+```
+build --//:feature_acl=off
+```
+
+This way, the ACL feature is disabled across builds without needing to pass the flag manually each time.
+
+> [!NOTE]
+> When using this flag in an external repository, you must prefix it with the repository's target name. For example:
+> ```
+> --@iceoryx//:feature_acl=off
+> ```
+>
+> This ensures that the flag is applied to the correct target from the imported repository.
+
 ## Configuring Mempools for RouDi
 
 RouDi supports several shared memory segments with different access rights, to

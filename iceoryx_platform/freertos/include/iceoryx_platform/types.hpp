@@ -21,6 +21,8 @@
 
 #include <sys/types.h>
 
+using iox_ssize_t = ssize_t;
+
 using iox_gid_t = gid_t;
 using iox_uid_t = uid_t;
 

@@ -19,6 +19,8 @@
 #include <cstdint>
 #include <limits.h>
 
+#define IOX_FEATURE_ACL @IOX_CFG_FEATURE_ACL@
+
 namespace iox
 {
 namespace platform

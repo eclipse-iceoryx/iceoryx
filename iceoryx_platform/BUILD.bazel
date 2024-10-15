@@ -14,6 +14,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+load("@bazel_skylib//lib:selects.bzl", "selects")
 load("@rules_cc//cc:defs.bzl", "cc_library")
 load("//bazel:configure_file.bzl", "configure_file")
 load("//bazel:configure_version.bzl", "configure_version")
@@ -65,6 +66,45 @@ configure_version(
     version_from = "//:VERSION",
 )
 
+config_setting(
+    name = "acl_auto",
+    flag_values = {
+        "//:feature_acl": "auto",
+    },
+)
+
+config_setting(
+    name = "acl_enabled",
+    flag_values = {
+        "//:feature_acl": "on",
+    },
+)
+
+selects.config_setting_group(
+    name = "acl_linux_enabled",
+    match_all = [
+        ":linux",
+        ":acl_auto",
+    ],
+)
+
+selects.config_setting_group(
+    name = "acl_qnx_enabled",
+    match_all = [
+        ":qnx",
+        ":acl_auto",
+    ],
+)
+
+selects.config_setting_group(
+    name = "cfg_feature_acl",
+    match_any = [
+        ":acl_enabled",
+        ":acl_linux_enabled",
+        ":acl_qnx_enabled",
+    ],
+)
+
 configure_file(
     name = "platform_settings_hpp",
     src = select({
@@ -76,7 +116,15 @@ configure_file(
         "//conditions:default": "linux/cmake/platform_settings.hpp.in",
     }),
     out = "generated/include/iceoryx_platform/platform_settings.hpp",
-    config = select({
+    config_acl = select({
+        ":cfg_feature_acl": {
+            "IOX_CFG_FEATURE_ACL": "1",
+        },
+        "//conditions:default": {
+            "IOX_CFG_FEATURE_ACL": "0",
+        },
+    }),
+    config_constants = select({
         ":qnx": {
             "IOX_PLATFORM_LOCK_FILE_PATH_PREFIX": "/var/lock/",
             "IOX_PLATFORM_TEMP_DIR": "/tmp/",
@@ -162,6 +210,11 @@ cc_library(
             "-lpthread",
             "-lrt",
         ],
+    }) + select({
+        ":cfg_feature_acl": [
+            "-lacl",
+        ],
+        "//conditions:default": [],
     }),
     visibility = ["//visibility:public"],
     deps = [],

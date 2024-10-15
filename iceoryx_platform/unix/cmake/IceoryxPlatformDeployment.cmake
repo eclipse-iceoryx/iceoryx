@@ -34,4 +34,15 @@ configure_option(
     DEFAULT_VALUE "/tmp/"
 )
 
+configure_option(
+    NAME IOX_PLATFORM_FEATURE_ACL
+    DEFAULT_VALUE OFF
+)
+
+if(IOX_PLATFORM_FEATURE_ACL)
+     message(FATAL_ERROR "ACLs are not supported on this platform! Don't use 'IOX_PLATFORM_FEATURE_ACL=ON'")
+else()
+     set(IOX_CFG_FEATURE_ACL "0")
+endif()
+
 message(STATUS "[i] <<<<<<<<<<<<<< End iceoryx_platform configuration: >>>>>>>>>>>>>>")

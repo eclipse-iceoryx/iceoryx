@@ -119,7 +119,7 @@ jobs:
   run-integration-test:
     # prevent stuck jobs consuming runners for 6 hours
     timeout-minutes: 60
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: pre-flight-check
     steps:
       - name: Setup ROS
@@ -219,7 +219,7 @@ jobs:
   coverage-and-docs:
     # prevent stuck jobs consuming runners for 6 hours
     timeout-minutes: 60
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: pre-flight-check
     steps:
       - uses: actions/checkout@v4
