@@ -1,5 +1,5 @@
 """
-Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+Copyright (c) 2024 by ekxide IO GmbH. All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,15 +15,10 @@ limitations under the License.
 
 SPDX-License-Identifier: Apache-2.0
 
-Macro for setting the dependencies for the buildtools of bazel
+This module prepares the skylib dependency
 """
 
-load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
-load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
+load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
 
-def setup_go_protobuf_for_bazelbuild():
-    go_rules_dependencies()
-
-    go_register_toolchains(version = "1.17.2")
-
-    protobuf_deps()
+def setup_skylib():
+    bazel_skylib_workspace()
