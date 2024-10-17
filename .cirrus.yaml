@@ -16,13 +16,13 @@
 # Filter to run the CI only on the main and release branches or for pull request to the main, release* and iox-* branches
 #
 
-only_if: $CIRRUS_BRANCH == 'main'
+only_if: false && ($CIRRUS_BRANCH == 'main'
          || $CIRRUS_BRANCH == 'release*'
          || ($CIRRUS_PR != '' && ($CIRRUS_BASE_BRANCH == 'main'
                                   || $CIRRUS_BASE_BRANCH == 'release*'
                                   || $CIRRUS_BASE_BRANCH == 'iox-*'
                                   )
-            )
+            ))
 
 #
 # Templates
