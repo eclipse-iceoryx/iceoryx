@@ -1,5 +1,5 @@
 module(
-    name = "org_eclipse_iceroyx",
+    name = "org_eclipse_iceoryx",
     version = "2.95.3",
 )
 
