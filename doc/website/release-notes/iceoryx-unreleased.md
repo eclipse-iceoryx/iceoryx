@@ -144,6 +144,7 @@
 - ssize_t: redefinition; different basic types [#2209](https://github.com/eclipse-iceoryx/iceoryx/issues/2209)
 - Fix bazel build on macos [#2345](https://github.com/eclipse-iceoryx/iceoryx/issues/2345)
 - Fix Bzlmod module name typo [#2364](https://github.com/eclipse-iceoryx/iceoryx/issues/2364)
+- Fix Bzlmod dev_dependency setup [#2370](https://github.com/eclipse-iceoryx/iceoryx/issues/2370)
 
 **Refactoring:**
 
