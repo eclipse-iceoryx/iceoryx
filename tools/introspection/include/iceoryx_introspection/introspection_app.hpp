@@ -20,8 +20,8 @@
 #include "iceoryx_platform/getopt.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 
+#include <curses.h>
 #include <map>
-#include <ncurses.h>
 #include <vector>
 
 namespace iox

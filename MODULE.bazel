@@ -14,3 +14,5 @@ bazel_dep(
     dev_dependency = True,
 )
 bazel_dep(name = "googletest", version = "1.15.2", dev_dependency = True)
+
+bazel_dep(name = "ncurses", version = "6.4.20221231")

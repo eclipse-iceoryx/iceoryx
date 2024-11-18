@@ -23,7 +23,6 @@ cc_library(
         "source/introspection_app.cpp",
     ],
     hdrs = glob(["include/iceoryx_introspection/**"]),
-    linkopts = ["-lncurses"],
     strip_include_prefix = "include",
     #Windows does not offer ncurses, therefore we do not build the lib
     target_compatible_with = select({
@@ -33,6 +32,7 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         "//iceoryx_posh",
+        "@ncurses",
     ],
 )
 

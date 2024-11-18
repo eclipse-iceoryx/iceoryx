@@ -145,6 +145,7 @@
 - Fix bazel build on macos [#2345](https://github.com/eclipse-iceoryx/iceoryx/issues/2345)
 - Fix Bzlmod module name typo [#2364](https://github.com/eclipse-iceoryx/iceoryx/issues/2364)
 - Add //:iceoryx Bazel alias [#2368](https://github.com/eclipse-iceoryx/iceoryx/issues/2368)
+- Depend on @ncurses when building with Bazel [#2372](https://github.com/eclipse-iceoryx/iceoryx/issues/2372)
 
 **Refactoring:**
 
