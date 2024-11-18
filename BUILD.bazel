@@ -29,6 +29,12 @@ string_flag(
 )
 
 alias(
+    name = "iceoryx",
+    actual = "//:iceoryx_binding_c",
+    visibility = ["//visibility:public"],
+)
+
+alias(
     name = "iceoryx_hoofs",
     actual = "//iceoryx_hoofs",
     visibility = ["//visibility:public"],
