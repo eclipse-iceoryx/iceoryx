@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_platform/time.hpp"
+#include <chrono>
 
 static std::chrono::nanoseconds getNanoSeconds(const timespec& value)
 {
