@@ -146,6 +146,7 @@
 - Fix Bzlmod module name typo [#2364](https://github.com/eclipse-iceoryx/iceoryx/issues/2364)
 - Add //:iceoryx Bazel alias [#2368](https://github.com/eclipse-iceoryx/iceoryx/issues/2368)
 - Depend on @ncurses when building with Bazel [#2372](https://github.com/eclipse-iceoryx/iceoryx/issues/2372)
+- Fix windows performance issue [#2377](https://github.com/eclipse-iceoryx/iceoryx/issues/2377)
 
 **Refactoring:**
 
