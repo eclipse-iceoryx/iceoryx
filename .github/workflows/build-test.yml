@@ -214,7 +214,12 @@ jobs:
         uses: actions/checkout@v4
       - name: Install iceoryx dependencies and clang-tidy
         uses: ./.github/actions/install-iceoryx-deps-and-clang
-      - run: ./tools/ci/build-test-ubuntu-bazel.sh
+      - name: Set up Bazel
+        uses: bazel-contrib/setup-bazel@0.9.1
+      - name: Build & test with bazel
+        env:
+          USE_BAZEL_VERSION: "7.4.1"
+        run: ./tools/ci/build-test-ubuntu-bazel.sh
 
   coverage-and-docs:
     # prevent stuck jobs consuming runners for 6 hours
