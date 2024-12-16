@@ -73,6 +73,8 @@ constexpr uint32_t IOX_MAX_NUMBER_OF_CONDITION_VARIABLES =
 constexpr uint32_t IOX_MAX_NODE_NAME_LENGTH = static_cast<uint32_t>(@IOX_MAX_NODE_NAME_LENGTH@);
 constexpr uint32_t IOX_MAX_ID_STRING_LENGTH = static_cast<uint32_t>(@IOX_MAX_ID_STRING_LENGTH@);
 constexpr uint32_t IOX_MAX_RUNTIME_NAME_LENGTH = static_cast<uint32_t>(@IOX_MAX_RUNTIME_NAME_LENGTH@);
+constexpr uint32_t IOX_MAX_CLIENTS = static_cast<uint32_t>(@IOX_MAX_CLIENTS@);
+constexpr uint32_t IOX_MAX_SERVERS = static_cast<uint32_t>(@IOX_MAX_SERVERS@);
 constexpr uint32_t IOX_MAX_RESPONSES_PROCESSED_SIMULTANEOUSLY =
     static_cast<uint32_t>(@IOX_MAX_RESPONSES_PROCESSED_SIMULTANEOUSLY@);
 constexpr uint32_t IOX_MAX_RESPONSE_QUEUE_CAPACITY = static_cast<uint32_t>(@IOX_MAX_RESPONSE_QUEUE_CAPACITY@);
