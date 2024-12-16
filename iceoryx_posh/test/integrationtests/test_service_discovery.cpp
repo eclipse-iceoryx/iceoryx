@@ -1002,11 +1002,11 @@ TYPED_TEST(ServiceDiscoveryFindService_test, FindInMaximumMixedServices)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e0b292c2-49ce-47b4-b38e-456732240c41");
     // maximum number of producers to generate
-    auto constexpr MAX = TestFixture::maxProducers(TestFixture::Variation::PATTERN);
+    auto constexpr SUT_MAX = TestFixture::maxProducers(TestFixture::Variation::PATTERN);
     // first threshold to change generation strategy at (about 1/3 of max)
-    auto constexpr N1 = MAX / 3;
+    auto constexpr SUT_N1 = SUT_MAX / 3;
     // second threshold to change generation strategy at (about 2/3 of max)
-    auto constexpr N2 = 2 * N1;
+    auto constexpr SUT_N2 = 2 * SUT_N1;
 
     // phase 1 : generate random services (no Umlaut)
     auto s1 = randomService();
@@ -1014,7 +1014,7 @@ TYPED_TEST(ServiceDiscoveryFindService_test, FindInMaximumMixedServices)
 
     uint32_t created = 1;
 
-    for (; created < N1; ++created)
+    for (; created < SUT_N1; ++created)
     {
         this->add(randomService());
     }
@@ -1025,13 +1025,13 @@ TYPED_TEST(ServiceDiscoveryFindService_test, FindInMaximumMixedServices)
     ++created;
 
     // phase 2 : fix service, generate random instances (no Umlaut)
-    for (; created < N2; ++created)
+    for (; created < SUT_N2; ++created)
     {
         this->add(randomService("Ferdinand"));
     }
 
     // phase 3 : fix service and instance, generate random events (no Umlaut)
-    for (; created < MAX - 1; ++created)
+    for (; created < SUT_MAX - 1; ++created)
     {
         this->add(randomService("Ferdinand", "Spitz"));
     }
@@ -1040,21 +1040,23 @@ TYPED_TEST(ServiceDiscoveryFindService_test, FindInMaximumMixedServices)
     this->add(s3);
     ++created;
 
-    EXPECT_EQ(created, MAX);
+    EXPECT_EQ(created, SUT_MAX);
 
     // create some services of the other kind
     created = 0;
 
     auto constexpr OTHER_MAX = TestFixture::maxProducers(TestFixture::otherPattern());
+    auto constexpr OTHER_N1 = OTHER_MAX / 3;
+    auto constexpr OTHER_N2 = 2 * OTHER_N1;
 
     // same phases, but now for the other service type
     // note that thresholds N1, N2 are chosen in a way that we can reuse them
-    for (; created < N1; ++created)
+    for (; created < OTHER_N1; ++created)
     {
         this->addOther(randomService());
     }
 
-    for (; created < N2; ++created)
+    for (; created < OTHER_N2; ++created)
     {
         this->addOther(randomService("Spitz"));
     }
