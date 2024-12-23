@@ -9,10 +9,10 @@
                     {% include ".icons/material/arrow-left.svg" %}
                 </div>
                 <div class="md-footer__title">
+                    <span class="md-footer__direction">
+                        {{ lang.t("footer.previous") }}
+                    </span>
                     <div class="md-ellipsis">
-                        <span class="md-footer__direction">
-                            {{ lang.t("footer.previous") }}
-                        </span>
                         {{ page.previous_page.title }}
                     </div>
                 </div>
@@ -21,10 +21,10 @@
             {% if page.next_page %}
             <a href="{{ page.next_page.url | url }}" class="md-footer__link md-footer__link--next" rel="next">
                 <div class="md-footer__title">
+                    <span class="md-footer__direction">
+                        {{ lang.t("footer.next") }}
+                    </span>
                     <div class="md-ellipsis">
-                        <span class="md-footer__direction">
-                            {{ lang.t("footer.next") }}
-                        </span>
                         {{ page.next_page.title }}
                     </div>
                 </div>
@@ -65,6 +65,8 @@
                         src="{{ base_url }}/images/bosch-logo.png" width="100px"></img></a><br>
                 <a href="https://www.apex.ai/" target="_blank" rel="noopener" title="Apex.AI Inc."><img
                         src="{{ base_url }}/images/apex-logo.webp" width="100px"></img></a><br>
+                <a href="https://www.ekxide.io/" target="_blank" rel="noopener" title="ekxide IO GmbH"><img
+                        src="{{ base_url }}/images/ekxide-logo.svg" width="100px"></img></a><br>
             </div>
         </div>
         <div class="md-footer-meta__inner md-grid">
