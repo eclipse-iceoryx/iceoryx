@@ -18,22 +18,44 @@
 
 param(
     [Parameter()]
-    [String]$toolchain = "MSVC"
+    [String]$toolchain = "MSVC",
+
+    [Parameter()]
+    [String]$architecture = "64-bit"
 )
 
 $ErrorActionPreference = "Stop"
 $NumCPUs = (Get-WmiObject Win32_processor).NumberOfLogicalProcessors
+
+$ARCHITECTURE_FLAG_MSVC = ""
+$C_FLGAS_MINGW = ""
+$CXX_FLAGS_MINGW = ""
+
+switch ($architecture) {
+    "64-bit" {
+        # nothing to do
+    }
+    "32-bit" {
+        $ARCHITECTURE_FLAG_MSVC = "-DCMAKE_GENERATOR_PLATFORM=Win32"
+        $C_FLAGS_MINGW = '-DCMAKE_C_FLAGS="-m32"'
+        $CXX_FLAGS_MINGW = '-DCMAKE_CXX_FLAGS="-m32"'
+    }
+    default {
+        if ($?) { Write-Host "## The '$architecture' architecture is not supported. Currently only '64-bit' and '32-bit' is supported to build iceoryx." }
+        exit 1
+    }
+}
 
 switch ($toolchain) {
     "MSVC" {
         if ($?) { Write-Host "## Building sources with MSVC toolchain" }
         # We require the Windows SDK Version 10.0.18362.0 since a previous version had a bug which caused a fatal compilation error within iceoryx and was
         # fixed with this version, see: https://github.com/microsoft/vcpkg/issues/15035#issuecomment-742427969.
-        if ($?) { cmake -Bbuild -Hiceoryx_meta -DBUILD_TEST=ON -DINTROSPECTION=OFF -DBINDING_C=ON -DEXAMPLES=ON -DCMAKE_CXX_FLAGS="/MP" -DCMAKE_SYSTEM_VERSION="10.0.18362.0" }
+        if ($?) { cmake -Bbuild -Hiceoryx_meta -DBUILD_TEST=ON -DINTROSPECTION=OFF -DBINDING_C=ON -DEXAMPLES=ON -DCMAKE_CXX_FLAGS="/MP" -DCMAKE_SYSTEM_VERSION="10.0.18362.0" $ARCHITECTURE_FLAG_MSVC }
     }
     "MinGW" {
         if ($?) { Write-Host "## Building sources with MinGW toolchain" }
-        if ($?) { cmake -Bbuild -Hiceoryx_meta -DBUILD_TEST=ON -DINTROSPECTION=OFF -DBINDING_C=ON -DEXAMPLES=ON -DCMAKE_SYSTEM_VERSION="10.0.18362.0" -G "MinGW Makefiles" }
+        if ($?) { cmake -Bbuild -Hiceoryx_meta -DBUILD_TEST=ON -DINTROSPECTION=OFF -DBINDING_C=ON -DEXAMPLES=ON -DCMAKE_SYSTEM_VERSION="10.0.18362.0" -G "MinGW Makefiles" $C_FLAGS_MINGW $CXX_FLAGS_MINGW }
     }
     default {
         if ($?) { Write-Host "## The '$toolchain' toolchain is not supported. Currently only 'MSVC' and 'MingGW' is supported to build iceoryx." }
