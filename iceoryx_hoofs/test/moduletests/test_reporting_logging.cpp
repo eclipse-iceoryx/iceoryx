@@ -41,12 +41,12 @@ void testLogLevelThreshold(const iox::log::LogLevel loggerLogLevel,
         std::string string;
     };
 
-    const std::initializer_list<LogLevel> logEntryLogLevels{{iox::log::LogLevel::FATAL, "Fatal"},
-                                                            {iox::log::LogLevel::ERROR, "Error"},
-                                                            {iox::log::LogLevel::WARN, "Warn"},
-                                                            {iox::log::LogLevel::INFO, "Info"},
-                                                            {iox::log::LogLevel::DEBUG, "Debug"},
-                                                            {iox::log::LogLevel::TRACE, "Trace"}};
+    const std::initializer_list<LogLevel> logEntryLogLevels{{iox::log::LogLevel::Fatal, "Fatal"},
+                                                            {iox::log::LogLevel::Error, "Error"},
+                                                            {iox::log::LogLevel::Warn, "Warn"},
+                                                            {iox::log::LogLevel::Info, "Info"},
+                                                            {iox::log::LogLevel::Debug, "Debug"},
+                                                            {iox::log::LogLevel::Trace, "Trace"}};
 
     for (const auto& logEntryLogLevel : logEntryLogLevels)
     {
@@ -77,13 +77,13 @@ void testLogLevelThreshold(const iox::log::LogLevel loggerLogLevel,
 TEST(LoggingLogLevelThreshold_test, LogLevel)
 {
     ::testing::Test::RecordProperty("TEST_ID", "829a6634-43be-4fa4-94bf-18d53ce816a9");
-    for (const auto loggerLogLevel : {iox::log::LogLevel::OFF,
-                                      iox::log::LogLevel::FATAL,
-                                      iox::log::LogLevel::ERROR,
-                                      iox::log::LogLevel::WARN,
-                                      iox::log::LogLevel::INFO,
-                                      iox::log::LogLevel::DEBUG,
-                                      iox::log::LogLevel::TRACE})
+    for (const auto loggerLogLevel : {iox::log::LogLevel::Off,
+                                      iox::log::LogLevel::Fatal,
+                                      iox::log::LogLevel::Error,
+                                      iox::log::LogLevel::Warn,
+                                      iox::log::LogLevel::Info,
+                                      iox::log::LogLevel::Debug,
+                                      iox::log::LogLevel::Trace})
     {
         SCOPED_TRACE(std::string("Logger LogLevel: ") + iox::log::asStringLiteral(loggerLogLevel));
 
@@ -94,13 +94,13 @@ TEST(LoggingLogLevelThreshold_test, LogLevel)
 TEST(LoggingLogLevelThreshold_test, LogLevelForPlatform)
 {
     ::testing::Test::RecordProperty("TEST_ID", "574007ac-62ed-4cd1-95e8-e18a9f20e1e1");
-    for (const auto loggerLogLevel : {iox::log::LogLevel::OFF,
-                                      iox::log::LogLevel::FATAL,
-                                      iox::log::LogLevel::ERROR,
-                                      iox::log::LogLevel::WARN,
-                                      iox::log::LogLevel::INFO,
-                                      iox::log::LogLevel::DEBUG,
-                                      iox::log::LogLevel::TRACE})
+    for (const auto loggerLogLevel : {iox::log::LogLevel::Off,
+                                      iox::log::LogLevel::Fatal,
+                                      iox::log::LogLevel::Error,
+                                      iox::log::LogLevel::Warn,
+                                      iox::log::LogLevel::Info,
+                                      iox::log::LogLevel::Debug,
+                                      iox::log::LogLevel::Trace})
     {
         SCOPED_TRACE(std::string("Logger LogLevel: ") + iox::log::asStringLiteral(loggerLogLevel));
 

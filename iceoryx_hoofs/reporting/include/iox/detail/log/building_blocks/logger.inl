@@ -84,10 +84,10 @@ inline Logger<BaseLogger>& Logger<BaseLogger>::activeLogger(Logger<BaseLogger>* 
     {
         if (logger->m_isFinalized.load(std::memory_order_relaxed))
         {
-            logger->createLogMessageHeader(__FILE__, __LINE__, __FUNCTION__, LogLevel::ERROR);
+            logger->createLogMessageHeader(__FILE__, __LINE__, __FUNCTION__, LogLevel::Error);
             logger->logString("Trying to replace logger after already initialized!");
             logger->flush();
-            newLogger->createLogMessageHeader(__FILE__, __LINE__, __FUNCTION__, LogLevel::ERROR);
+            newLogger->createLogMessageHeader(__FILE__, __LINE__, __FUNCTION__, LogLevel::Error);
             logger->logString("Trying to replace logger after already initialized!");
             newLogger->flush();
             /// @todo iox-#1755 call error handler after the error handler refactoring was merged
@@ -115,7 +115,7 @@ inline void Logger<BaseLogger>::initLoggerInternal(const LogLevel logLevel) noex
     }
     else
     {
-        BaseLogger::createLogMessageHeader(__FILE__, __LINE__, __FUNCTION__, LogLevel::ERROR);
+        BaseLogger::createLogMessageHeader(__FILE__, __LINE__, __FUNCTION__, LogLevel::Error);
         BaseLogger::logString("Multiple initLogger calls");
         BaseLogger::flush();
         /// @todo iox-#1755 call error handler after the error handler refactoring was merged

@@ -47,7 +47,7 @@ void SignalGuard::restorePreviousAction() noexcept
         m_doRestorePreviousAction = false;
         IOX_POSIX_CALL(sigaction)
         (static_cast<int>(m_signal), &m_previousAction, nullptr).successReturnValue(0).evaluate().or_else([](auto&) {
-            IOX_LOG(ERROR, "Unable to restore the previous signal handling state!");
+            IOX_LOG(Error, "Unable to restore the previous signal handling state!");
         });
     }
 }
@@ -61,7 +61,7 @@ expected<SignalGuard, SignalGuardError> registerSignalHandler(const PosixSignal 
     // sigemptyset fails when a nullptr is provided and this should never happen with this logic
     if (IOX_POSIX_CALL(sigemptyset)(&action.sa_mask).successReturnValue(0).evaluate().has_error())
     {
-        IOX_LOG(ERROR,
+        IOX_LOG(Error,
                 "This should never happen! Unable to create an empty sigaction set while registering a signal handler "
                 "for the signal ["
                     << static_cast<int>(signal) << "]. No signal handler will be registered!");
@@ -83,7 +83,7 @@ expected<SignalGuard, SignalGuardError> registerSignalHandler(const PosixSignal 
             .evaluate()
             .has_error())
     {
-        IOX_LOG(ERROR,
+        IOX_LOG(Error,
                 "This should never happen! An error occurred while registering a signal handler for the signal ["
                     << static_cast<int>(signal) << "]. ");
         return err(SignalGuardError::UNDEFINED_ERROR_IN_SYSTEM_CALL);

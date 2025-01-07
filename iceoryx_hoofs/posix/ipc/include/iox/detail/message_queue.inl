@@ -35,7 +35,7 @@ MessageQueue::timedSendImpl(not_null<const Type*> msg, uint64_t msgSize, const u
 
     if (msgSizeToSend > static_cast<uint64_t>(m_attributes.mq_msgsize))
     {
-        IOX_LOG(ERROR, "the message which should be sent to the message queue '" << m_name << "' is too long");
+        IOX_LOG(Error, "the message which should be sent to the message queue '" << m_name << "' is too long");
         return err(PosixIpcChannelError::MESSAGE_TOO_LONG);
     }
 
@@ -70,7 +70,7 @@ expected<void, PosixIpcChannelError> MessageQueue::sendImpl(not_null<const Type*
 
     if (msgSizeToSend > static_cast<uint64_t>(m_attributes.mq_msgsize))
     {
-        IOX_LOG(ERROR, "the message which should be sent to the message queue '" << m_name << "' is too long");
+        IOX_LOG(Error, "the message which should be sent to the message queue '" << m_name << "' is too long");
         return err(PosixIpcChannelError::MESSAGE_TOO_LONG);
     }
 

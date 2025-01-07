@@ -46,13 +46,13 @@ FileReader::FileReader(const std::string& fileName, const std::string& filePath,
         }
         case ErrorMode::Inform:
         {
-            IOX_LOG(ERROR, "Could not open file '" << fileName << "' from path '" << filePath << "'.");
+            IOX_LOG(Error, "Could not open file '" << fileName << "' from path '" << filePath << "'.");
             return;
         }
         case ErrorMode::Terminate:
         {
             m_fileStream.close();
-            IOX_LOG(FATAL, "Could not open file '" << fileName << "' from path '" << filePath << "'!");
+            IOX_LOG(Fatal, "Could not open file '" << fileName << "' from path '" << filePath << "'!");
             IOX_PANIC("Exiting due to file open failure!");
             return;
         }

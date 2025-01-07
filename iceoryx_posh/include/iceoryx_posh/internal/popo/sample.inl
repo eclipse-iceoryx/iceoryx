@@ -34,7 +34,7 @@ void Sample<T, H>::publish() noexcept
     }
     else
     {
-        IOX_LOG(ERROR, "Tried to publish empty Sample! Might be an already published or moved Sample!");
+        IOX_LOG(Error, "Tried to publish empty Sample! Might be an already published or moved Sample!");
         IOX_REPORT(PoshError::POSH__PUBLISHING_EMPTY_SAMPLE, iox::er::RUNTIME_ERROR);
     }
 }

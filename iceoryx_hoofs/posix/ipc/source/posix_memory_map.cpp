@@ -49,7 +49,7 @@ expected<PosixMemoryMap, PosixMemoryMapError> PosixMemoryMapBuilder::create() no
     }
 
     constexpr uint64_t FLAGS_BIT_SIZE = 32U;
-    IOX_LOG(ERROR,
+    IOX_LOG(Error,
             "Unable to map memory with the following properties [ baseAddressHint = "
                 << iox::log::hex(m_baseAddressHint) << ", length = " << m_length
                 << ", fileDescriptor = " << m_fileDescriptor << ", access mode = " << asStringLiteral(m_accessMode)
@@ -72,7 +72,7 @@ PosixMemoryMapError PosixMemoryMap::errnoToEnum(const int32_t errnum) noexcept
     switch (errnum)
     {
     case EACCES:
-        IOX_LOG(ERROR,
+        IOX_LOG(Error,
                 "One or more of the following failures happened:\n"
                     << "  1. The file descriptor belongs to a non-regular file.\n"
                     << "  2. The file descriptor is not opened for reading.\n"
@@ -81,30 +81,30 @@ PosixMemoryMapError PosixMemoryMap::errnoToEnum(const int32_t errnum) noexcept
                     << "  4. PROT_WRITE is set but the file descriptor is set to append-only.");
         return PosixMemoryMapError::ACCESS_FAILED;
     case EAGAIN:
-        IOX_LOG(ERROR, "Either too much memory has been locked or the file is already locked.");
+        IOX_LOG(Error, "Either too much memory has been locked or the file is already locked.");
         return PosixMemoryMapError::UNABLE_TO_LOCK;
     case EBADF:
-        IOX_LOG(ERROR, "Invalid file descriptor provided.");
+        IOX_LOG(Error, "Invalid file descriptor provided.");
         return PosixMemoryMapError::INVALID_FILE_DESCRIPTOR;
     case EEXIST:
-        IOX_LOG(ERROR, "The mapped range that is requested is overlapping with an already mapped memory range.");
+        IOX_LOG(Error, "The mapped range that is requested is overlapping with an already mapped memory range.");
         return PosixMemoryMapError::MAP_OVERLAP;
     case EINVAL:
-        IOX_LOG(ERROR,
+        IOX_LOG(Error,
                 "One or more of the following failures happened:\n"
                     << "  1. The address, length or the offset is not aligned on a page boundary.\n"
                     << "  2. The provided length is 0.\n"
                     << "  3. One of the flags of MAP_PRIVATE, MAP_SHARED or MAP_SHARED_VALIDATE is missing.");
         return PosixMemoryMapError::INVALID_PARAMETERS;
     case ENFILE:
-        IOX_LOG(ERROR, "System limit of maximum open files reached");
+        IOX_LOG(Error, "System limit of maximum open files reached");
         return PosixMemoryMapError::OPEN_FILES_SYSTEM_LIMIT_EXCEEDED;
     case ENODEV:
-        IOX_LOG(ERROR, "Memory mappings are not supported by the underlying filesystem.");
+        IOX_LOG(Error, "Memory mappings are not supported by the underlying filesystem.");
         return PosixMemoryMapError::FILESYSTEM_DOES_NOT_SUPPORT_MEMORY_MAPPING;
     case ENOMEM:
         IOX_LOG(
-            ERROR,
+            Error,
             "One or more of the following failures happened:\n"
                 << "  1. Not enough memory available.\n"
                 << "  2. The maximum supported number of mappings is exceeded.\n"
@@ -114,19 +114,19 @@ PosixMemoryMapError PosixMemoryMap::errnoToEnum(const int32_t errnum) noexcept
                    "and unsigned long. (only 32-bit architecture)");
         return PosixMemoryMapError::NOT_ENOUGH_MEMORY_AVAILABLE;
     case EOVERFLOW:
-        IOX_LOG(ERROR, "The sum of the number of pages and offset are overflowing. (only 32-bit architecture)");
+        IOX_LOG(Error, "The sum of the number of pages and offset are overflowing. (only 32-bit architecture)");
         return PosixMemoryMapError::OVERFLOWING_PARAMETERS;
     case EPERM:
-        IOX_LOG(ERROR,
+        IOX_LOG(Error,
                 "One or more of the following failures happened:\n"
                     << "  1. Mapping a memory region with PROT_EXEC which belongs to a filesystem that has no-exec.\n"
                     << "  2. The corresponding file is sealed.");
         return PosixMemoryMapError::PERMISSION_FAILURE;
     case ETXTBSY:
-        IOX_LOG(ERROR, "The memory region was set up with MAP_DENYWRITE but write access was requested.");
+        IOX_LOG(Error, "The memory region was set up with MAP_DENYWRITE but write access was requested.");
         return PosixMemoryMapError::NO_WRITE_PERMISSION;
     default:
-        IOX_LOG(ERROR, "This should never happened. An unknown error occurred!\n");
+        IOX_LOG(Error, "This should never happened. An unknown error occurred!\n");
         return PosixMemoryMapError::UNKNOWN_ERROR;
     };
 }
@@ -142,7 +142,7 @@ PosixMemoryMap& PosixMemoryMap::operator=(PosixMemoryMap&& rhs) noexcept
     {
         if (!destroy())
         {
-            IOX_LOG(ERROR, "move assignment failed to unmap mapped memory");
+            IOX_LOG(Error, "move assignment failed to unmap mapped memory");
         }
 
         m_baseAddress = rhs.m_baseAddress;
@@ -158,7 +158,7 @@ PosixMemoryMap::~PosixMemoryMap() noexcept
 {
     if (!destroy())
     {
-        IOX_LOG(ERROR, "destructor failed to unmap mapped memory");
+        IOX_LOG(Error, "destructor failed to unmap mapped memory");
     }
 }
 
@@ -184,7 +184,7 @@ bool PosixMemoryMap::destroy() noexcept
         if (unmapResult.has_error())
         {
             errnoToEnum(unmapResult.error().errnum);
-            IOX_LOG(ERROR,
+            IOX_LOG(Error,
                     "unable to unmap mapped memory [ address = " << iox::log::hex(m_baseAddress)
                                                                  << ", size = " << m_length << " ]");
             return false;

@@ -41,7 +41,7 @@ TEST_F(IoxLogStream_test, CTorDelegatesParameterToLogger)
     constexpr const char* EXPECTED_FILE{"hypnotoad.hpp"};
     constexpr const char* EXPECTED_FUNCTION{"void all_glory_to_the_hypnotoad()"};
     constexpr int EXPECTED_LINE{42};
-    constexpr auto EXPECTED_LOG_LEVEL{iox::log::LogLevel::WARN};
+    constexpr auto EXPECTED_LOG_LEVEL{iox::log::LogLevel::Warn};
     iox::log::LogStream(loggerMock, EXPECTED_FILE, EXPECTED_LINE, EXPECTED_FUNCTION, EXPECTED_LOG_LEVEL) << "";
 
     ASSERT_THAT(loggerMock.logs.size(), Eq(1U));
@@ -159,10 +159,10 @@ TEST_F(IoxLogStream_test, StreamOperatorLogLevel)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d85b7ef4-35de-4e11-b0fd-f0de6581a9e6");
     std::string logValue{"This is the iceoryx logger!"};
-    const auto logLevel = iox::log::LogLevel::WARN;
+    const auto logLevel = iox::log::LogLevel::Warn;
     LogStreamSut(loggerMock) << logValue << logLevel;
 
-    EXPECT_THAT(loggerMock.logs[0].message, StrEq("This is the iceoryx logger!LogLevel::WARN"));
+    EXPECT_THAT(loggerMock.logs[0].message, StrEq("This is the iceoryx logger!LogLevel::Warn"));
 }
 
 constexpr bool isBigEndian()

@@ -46,13 +46,13 @@ void MemoryManager::addMemPool(BumpAllocator& managementAllocator,
     uint64_t adjustedChunkSize = sizeWithChunkHeaderStruct(static_cast<uint64_t>(chunkPayloadSize));
     if (m_denyAddMemPool)
     {
-        IOX_LOG(FATAL, "After the generation of the chunk management pool you are not allowed to create new mempools.");
+        IOX_LOG(Fatal, "After the generation of the chunk management pool you are not allowed to create new mempools.");
         IOX_REPORT_FATAL(iox::PoshError::MEPOO__MEMPOOL_ADDMEMPOOL_AFTER_GENERATECHUNKMANAGEMENTPOOL);
     }
     else if (m_memPoolVector.size() > 0 && adjustedChunkSize <= m_memPoolVector.back().getChunkSize())
     {
         IOX_LOG(
-            FATAL,
+            Fatal,
             "The following mempools were already added to the mempool handler:" << [this](auto& log) -> auto& {
                 this->printMemPoolVector(log);
                 return log;
@@ -165,7 +165,7 @@ expected<SharedChunk, MemoryManager::Error> MemoryManager::getChunk(const ChunkS
 
     if (m_memPoolVector.size() == 0)
     {
-        IOX_LOG(ERROR, "There are no mempools available!");
+        IOX_LOG(Error, "There are no mempools available!");
 
         IOX_REPORT(iox::PoshError::MEPOO__MEMPOOL_GETCHUNK_CHUNK_WITHOUT_MEMPOOL, iox::er::RUNTIME_ERROR);
         return err(Error::NO_MEMPOOLS_AVAILABLE);
@@ -173,7 +173,7 @@ expected<SharedChunk, MemoryManager::Error> MemoryManager::getChunk(const ChunkS
     else if (memPoolPointer == nullptr)
     {
         IOX_LOG(
-            ERROR,
+            Error,
             "The following mempools are available:" << [this](auto& log) -> auto& {
                 this->printMemPoolVector(log);
                 return log;
@@ -186,7 +186,7 @@ expected<SharedChunk, MemoryManager::Error> MemoryManager::getChunk(const ChunkS
     else if (chunk == nullptr)
     {
         IOX_LOG(
-            ERROR,
+            Error,
             "MemoryManager: unable to acquire a chunk with a chunk-payload size of "
                 << chunkSettings.userPayloadSize()
                 << "The following mempools are available:" << [this](auto& log) -> auto& {

@@ -27,7 +27,7 @@ UnnamedSemaphoreBuilder::create(optional<UnnamedSemaphore>& uninitializedSemapho
 {
     if (m_initialValue > IOX_SEM_VALUE_MAX)
     {
-        IOX_LOG(ERROR,
+        IOX_LOG(Error,
                 "The unnamed semaphore initial value of " << m_initialValue << " exceeds the maximum semaphore value "
                                                           << IOX_SEM_VALUE_MAX);
         return err(SemaphoreError::SEMAPHORE_OVERFLOW);
@@ -49,13 +49,13 @@ UnnamedSemaphoreBuilder::create(optional<UnnamedSemaphore>& uninitializedSemapho
         switch (result.error().errnum)
         {
         case EINVAL:
-            IOX_LOG(ERROR, "The initial value of " << m_initialValue << " exceeds " << IOX_SEM_VALUE_MAX);
+            IOX_LOG(Error, "The initial value of " << m_initialValue << " exceeds " << IOX_SEM_VALUE_MAX);
             break;
         case ENOSYS:
-            IOX_LOG(ERROR, "The system does not support process-shared semaphores");
+            IOX_LOG(Error, "The system does not support process-shared semaphores");
             break;
         default:
-            IOX_LOG(ERROR, "This should never happen. An unknown error occurred.");
+            IOX_LOG(Error, "This should never happen. An unknown error occurred.");
             break;
         }
     }
@@ -73,10 +73,10 @@ UnnamedSemaphore::~UnnamedSemaphore() noexcept
             switch (result.error().errnum)
             {
             case EINVAL:
-                IOX_LOG(ERROR, "The semaphore handle was no longer valid. This can indicate a corrupted system.");
+                IOX_LOG(Error, "The semaphore handle was no longer valid. This can indicate a corrupted system.");
                 break;
             default:
-                IOX_LOG(ERROR, "This should never happen. An unknown error occurred.");
+                IOX_LOG(Error, "This should never happen. An unknown error occurred.");
                 break;
             }
         }

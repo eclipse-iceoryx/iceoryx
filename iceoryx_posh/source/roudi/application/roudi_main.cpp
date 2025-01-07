@@ -30,7 +30,7 @@ int main(int argc, char* argv[]) noexcept
     auto cmdLineArgs = cmdLineParser.parse(argc, argv);
     if (cmdLineArgs.has_error())
     {
-        IOX_LOG(FATAL, "Unable to parse command line arguments!");
+        IOX_LOG(Fatal, "Unable to parse command line arguments!");
         return EXIT_FAILURE;
     }
 
@@ -46,7 +46,7 @@ int main(int argc, char* argv[]) noexcept
     if (config.has_error())
     {
         auto errorStringIndex = static_cast<uint64_t>(config.error());
-        IOX_LOG(FATAL,
+        IOX_LOG(Fatal,
                 "Couldn't parse config file. Error: "
                     << iox::roudi::ROUDI_CONFIG_FILE_PARSE_ERROR_STRINGS[errorStringIndex]);
         return EXIT_FAILURE;

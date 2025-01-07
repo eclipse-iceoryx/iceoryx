@@ -71,7 +71,7 @@ ChunkDistributor<ChunkDistributorDataType>::tryAddQueue(not_null<ChunkQueueData_
 
             if (requestedHistory > getMembers()->m_historyCapacity)
             {
-                IOX_LOG(WARN,
+                IOX_LOG(Warn,
                         "Chunk history request exceeds history capacity! Request is "
                             << requestedHistory << ". Capacity is " << getMembers()->m_historyCapacity << ".");
             }

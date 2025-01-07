@@ -72,7 +72,7 @@ expected<void, ClientSendError> ClientPortUser::sendRequest(RequestHeader* const
 {
     if (requestHeader == nullptr)
     {
-        IOX_LOG(ERROR, "Attempted to send a nullptr request!");
+        IOX_LOG(Error, "Attempted to send a nullptr request!");
         IOX_REPORT(PoshError::POPO__CLIENT_PORT_INVALID_REQUEST_TO_SEND_FROM_USER, iox::er::RUNTIME_ERROR);
         return err(ClientSendError::INVALID_REQUEST);
     }
@@ -81,14 +81,14 @@ expected<void, ClientSendError> ClientPortUser::sendRequest(RequestHeader* const
     if (!connectRequested)
     {
         releaseRequest(requestHeader);
-        IOX_LOG(WARN, "Try to send request without being connected!");
+        IOX_LOG(Warn, "Try to send request without being connected!");
         return err(ClientSendError::NO_CONNECT_REQUESTED);
     }
 
     auto numberOfReceiver = m_chunkSender.send(requestHeader->getChunkHeader());
     if (numberOfReceiver == 0U)
     {
-        IOX_LOG(WARN, "Try to send request but server is not available!");
+        IOX_LOG(Warn, "Try to send request but server is not available!");
         return err(ClientSendError::SERVER_NOT_AVAILABLE);
     }
 

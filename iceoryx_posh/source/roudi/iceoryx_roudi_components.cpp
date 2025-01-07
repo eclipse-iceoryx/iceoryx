@@ -32,7 +32,7 @@ IceOryxRouDiComponents::IceOryxRouDiComponents(const IceoryxConfig& config) noex
         runtime::IpcInterfaceBase::cleanupOutdatedIpcChannel(roudi::IPC_CHANNEL_ROUDI_NAME);
 
         rouDiMemoryManager.createAndAnnounceMemory().or_else([](RouDiMemoryManagerError error) {
-            IOX_LOG(FATAL, "Could not create SharedMemory! Error: " << error);
+            IOX_LOG(Fatal, "Could not create SharedMemory! Error: " << error);
             IOX_REPORT_FATAL(PoshError::ROUDI_COMPONENTS__SHARED_MEMORY_UNAVAILABLE);
         });
         return &rouDiMemoryManager;

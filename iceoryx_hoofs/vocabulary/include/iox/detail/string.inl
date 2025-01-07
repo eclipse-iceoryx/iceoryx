@@ -141,7 +141,7 @@ inline string<Capacity>::string(TruncateToCapacity_t, const char* const other, c
 
         m_rawstring[Capacity] = '\0';
         m_rawstringSize = Capacity;
-        IOX_LOG(WARN,
+        IOX_LOG(Warn,
                 "Constructor truncates the last " << count - Capacity << " characters of " << other
                                                   << ", because the char array length is larger than the capacity.");
     }
@@ -177,7 +177,7 @@ inline string<Capacity>& string<Capacity>::operator=(const char (&rhs)[N]) noexc
         m_rawstringSize = Capacity;
 
         IOX_LOG(
-            WARN,
+            Warn,
             "iox::string: Assignment of array which is not zero-terminated! Last value of array overwritten with 0!");
     }
 
@@ -229,7 +229,7 @@ inline bool string<Capacity>::unsafe_assign(const char* const str) noexcept
     const uint64_t strSize{strnlen(str, Capacity + 1U)};
     if (Capacity < strSize)
     {
-        IOX_LOG(DEBUG,
+        IOX_LOG(Debug,
                 "Assignment failed. The given cstring is larger (" << strSize << ") than the capacity (" << Capacity
                                                                    << ") of the fixed string.");
         return false;
@@ -414,7 +414,7 @@ inline IsStringOrCharArrayOrChar<T, bool> string<Capacity>::unsafe_append(const 
 
     if (tSize > clampedTSize)
     {
-        IOX_LOG(DEBUG, "Appending failed because the sum of sizes exceeds this' capacity.");
+        IOX_LOG(Debug, "Appending failed because the sum of sizes exceeds this' capacity.");
         return false;
     }
 
@@ -438,7 +438,7 @@ inline IsStringOrCharArrayOrChar<T, string<Capacity>&> string<Capacity>::append(
     std::memcpy(&(m_rawstring[m_rawstringSize]), tData, static_cast<size_t>(clampedTSize));
     if (tSize > clampedTSize)
     {
-        IOX_LOG(WARN,
+        IOX_LOG(Warn,
                 "The last " << (tSize - clampedTSize) << " characters of " << tData
                             << " are truncated, because the length is larger than the capacity.");
     }
@@ -455,7 +455,7 @@ inline string<Capacity>& string<Capacity>::append(TruncateToCapacity_t, char cst
 {
     if (m_rawstringSize == Capacity)
     {
-        IOX_LOG(WARN,
+        IOX_LOG(Warn,
                 "Appending of " << static_cast<unsigned char>(cstr)
                                 << " failed because this' capacity would be exceeded.");
         return *this;

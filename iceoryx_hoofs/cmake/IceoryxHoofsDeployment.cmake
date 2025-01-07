@@ -20,7 +20,7 @@ message(STATUS "[i] <<<<<<<<<<<<< Start iceoryx_hoofs configuration: >>>>>>>>>>>
 
 configure_option(
     NAME IOX_MINIMAL_LOG_LEVEL
-    DEFAULT_VALUE "TRACE"
+    DEFAULT_VALUE "Trace"
 )
 configure_option(
     NAME IOX_MAX_NAMED_PIPE_MESSAGE_SIZE

@@ -53,7 +53,7 @@ expected<MessageQueue, PosixIpcChannelError> MessageQueueBuilder::create() const
             .and_then([&sanitizedName](auto& r) {
                 if (r.errnum != ENOENT)
                 {
-                    IOX_LOG(DEBUG, "MQ still there, doing an unlink of '" << sanitizedName << "'");
+                    IOX_LOG(Debug, "MQ still there, doing an unlink of '" << sanitizedName << "'");
                 }
             });
     }
@@ -99,7 +99,7 @@ MessageQueue::~MessageQueue() noexcept
 {
     if (destroy().has_error())
     {
-        IOX_LOG(ERROR, "unable to cleanup message queue '" << m_name << "' in the destructor");
+        IOX_LOG(Error, "unable to cleanup message queue '" << m_name << "' in the destructor");
     }
 }
 
@@ -109,7 +109,7 @@ MessageQueue& MessageQueue::operator=(MessageQueue&& other) noexcept
     {
         if (destroy().has_error())
         {
-            IOX_LOG(ERROR,
+            IOX_LOG(Error,
                     "unable to cleanup message queue '" << m_name
                                                         << "' during move operation - resource leaks are possible!");
         }
@@ -300,12 +300,12 @@ PosixIpcChannelError MessageQueue::errnoToEnum(const PosixIpcChannelName_t& name
     {
     case EACCES:
     {
-        IOX_LOG(ERROR, "access denied to message queue '" << name << "'");
+        IOX_LOG(Error, "access denied to message queue '" << name << "'");
         return PosixIpcChannelError::ACCESS_DENIED;
     }
     case EAGAIN:
     {
-        IOX_LOG(ERROR, "the message queue '" << name << "' is full");
+        IOX_LOG(Error, "the message queue '" << name << "' is full");
         return PosixIpcChannelError::CHANNEL_FULL;
     }
     case ETIMEDOUT:
@@ -315,12 +315,12 @@ PosixIpcChannelError MessageQueue::errnoToEnum(const PosixIpcChannelName_t& name
     }
     case EEXIST:
     {
-        IOX_LOG(ERROR, "message queue '" << name << "' already exists");
+        IOX_LOG(Error, "message queue '" << name << "' already exists");
         return PosixIpcChannelError::CHANNEL_ALREADY_EXISTS;
     }
     case EINVAL:
     {
-        IOX_LOG(ERROR, "provided invalid arguments for message queue '" << name << "'");
+        IOX_LOG(Error, "provided invalid arguments for message queue '" << name << "'");
         return PosixIpcChannelError::INVALID_ARGUMENTS;
     }
     case ENOENT:
@@ -330,12 +330,12 @@ PosixIpcChannelError MessageQueue::errnoToEnum(const PosixIpcChannelName_t& name
     }
     case ENAMETOOLONG:
     {
-        IOX_LOG(ERROR, "message queue name '" << name << "' is too long");
+        IOX_LOG(Error, "message queue name '" << name << "' is too long");
         return PosixIpcChannelError::INVALID_CHANNEL_NAME;
     }
     default:
     {
-        IOX_LOG(ERROR, "internal logic error in message queue '" << name << "' occurred");
+        IOX_LOG(Error, "internal logic error in message queue '" << name << "' occurred");
         return PosixIpcChannelError::INTERNAL_LOGIC_ERROR;
     }
     }

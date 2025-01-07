@@ -41,17 +41,17 @@ RouDiApp::RouDiApp(const IceoryxConfig& config) noexcept
         iox::log::Logger::setLogLevel(m_config.logLevel);
 
         auto& roudiConfig = static_cast<config::RouDiConfig&>(m_config);
-        IOX_LOG(TRACE, "RouDi config is:");
-        IOX_LOG(TRACE, "  Domain ID = " << static_cast<DomainId::value_type>(roudiConfig.domainId));
-        IOX_LOG(TRACE,
+        IOX_LOG(Trace, "RouDi config is:");
+        IOX_LOG(Trace, "  Domain ID = " << static_cast<DomainId::value_type>(roudiConfig.domainId));
+        IOX_LOG(Trace,
                 "  Unique RouDi ID = " << static_cast<roudi::UniqueRouDiId::value_type>(roudiConfig.uniqueRouDiId));
-        IOX_LOG(TRACE, "  Monitoring Mode = " << roudiConfig.monitoringMode);
-        IOX_LOG(TRACE, "  Shares Address Space With Applications = " << roudiConfig.sharesAddressSpaceWithApplications);
-        IOX_LOG(TRACE, "  Process Termination Delay = " << roudiConfig.processTerminationDelay);
-        IOX_LOG(TRACE, "  Process Kill Delay = " << roudiConfig.processKillDelay);
-        IOX_LOG(TRACE, "  Compatibility Check Level = " << roudiConfig.compatibilityCheckLevel);
-        IOX_LOG(TRACE, "  Introspection Chunk Count = " << roudiConfig.introspectionChunkCount);
-        IOX_LOG(TRACE, "  Discovery Chunk Count = " << roudiConfig.discoveryChunkCount);
+        IOX_LOG(Trace, "  Monitoring Mode = " << roudiConfig.monitoringMode);
+        IOX_LOG(Trace, "  Shares Address Space With Applications = " << roudiConfig.sharesAddressSpaceWithApplications);
+        IOX_LOG(Trace, "  Process Termination Delay = " << roudiConfig.processTerminationDelay);
+        IOX_LOG(Trace, "  Process Kill Delay = " << roudiConfig.processKillDelay);
+        IOX_LOG(Trace, "  Compatibility Check Level = " << roudiConfig.compatibilityCheckLevel);
+        IOX_LOG(Trace, "  Introspection Chunk Count = " << roudiConfig.introspectionChunkCount);
+        IOX_LOG(Trace, "  Discovery Chunk Count = " << roudiConfig.discoveryChunkCount);
     }
 }
 
@@ -59,7 +59,7 @@ bool RouDiApp::checkAndOptimizeConfig(const IceoryxConfig& config) noexcept
 {
     if (config.m_sharedMemorySegments.empty())
     {
-        IOX_LOG(ERROR, "A IceoryxConfig without segments was specified! Please provide a valid config!");
+        IOX_LOG(Error, "A IceoryxConfig without segments was specified! Please provide a valid config!");
         return false;
     }
 
@@ -67,7 +67,7 @@ bool RouDiApp::checkAndOptimizeConfig(const IceoryxConfig& config) noexcept
     {
         if (segment.m_mempoolConfig.m_mempoolConfig.empty())
         {
-            IOX_LOG(ERROR,
+            IOX_LOG(Error,
                     "A IceoryxConfig with segments without mempools was specified! Please provide a valid config!");
             return false;
         }

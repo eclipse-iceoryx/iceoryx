@@ -71,7 +71,7 @@ expected<PosixSharedMemoryObject, PosixSharedMemoryObjectError> PosixSharedMemor
             return stream;
         };
 
-        IOX_LOG(ERROR,
+        IOX_LOG(Error,
                 "Unable to create a shared memory object with the following properties [ name = "
                     << m_name << ", sizeInBytes = " << m_memorySizeInBytes
                     << ", access mode = " << asStringLiteral(m_accessMode)
@@ -90,7 +90,7 @@ expected<PosixSharedMemoryObject, PosixSharedMemoryObjectError> PosixSharedMemor
     if (!sharedMemory)
     {
         printErrorDetails();
-        IOX_LOG(ERROR, "Unable to create SharedMemoryObject since we could not acquire a SharedMemory resource");
+        IOX_LOG(Error, "Unable to create SharedMemoryObject since we could not acquire a SharedMemory resource");
         return err(PosixSharedMemoryObjectError::SHARED_MEMORY_CREATION_FAILED);
     }
 
@@ -98,7 +98,7 @@ expected<PosixSharedMemoryObject, PosixSharedMemoryObjectError> PosixSharedMemor
     if (!realSizeResult)
     {
         printErrorDetails();
-        IOX_LOG(ERROR,
+        IOX_LOG(Error,
                 "Unable to create SharedMemoryObject since we could not acquire the memory size of the "
                 "underlying object.");
         return err(PosixSharedMemoryObjectError::UNABLE_TO_VERIFY_MEMORY_SIZE);
@@ -108,7 +108,7 @@ expected<PosixSharedMemoryObject, PosixSharedMemoryObjectError> PosixSharedMemor
     if (realSize < m_memorySizeInBytes)
     {
         printErrorDetails();
-        IOX_LOG(ERROR,
+        IOX_LOG(Error,
                 "Unable to create SharedMemoryObject since a size of "
                     << m_memorySizeInBytes << " was requested but the object has only a size of " << realSize);
         return err(PosixSharedMemoryObjectError::REQUESTED_SIZE_EXCEEDS_ACTUAL_SIZE);
@@ -126,13 +126,13 @@ expected<PosixSharedMemoryObject, PosixSharedMemoryObjectError> PosixSharedMemor
     if (!memoryMap)
     {
         printErrorDetails();
-        IOX_LOG(ERROR, "Failed to map created shared memory into process!");
+        IOX_LOG(Error, "Failed to map created shared memory into process!");
         return err(PosixSharedMemoryObjectError::MAPPING_SHARED_MEMORY_FAILED);
     }
 
     if (sharedMemory->hasOwnership())
     {
-        IOX_LOG(DEBUG, "Trying to reserve " << m_memorySizeInBytes << " bytes in the shared memory [" << m_name << "]");
+        IOX_LOG(Debug, "Trying to reserve " << m_memorySizeInBytes << " bytes in the shared memory [" << m_name << "]");
         if (platform::IOX_SHM_WRITE_ZEROS_ON_CREATION)
         {
             // this lock is required for the case that multiple threads are creating multiple
@@ -142,7 +142,7 @@ expected<PosixSharedMemoryObject, PosixSharedMemoryObjectError> PosixSharedMemor
             if (memsetSigbusGuard.has_error())
             {
                 printErrorDetails();
-                IOX_LOG(ERROR, "Failed to temporarily override SIGBUS to safely zero the shared memory");
+                IOX_LOG(Error, "Failed to temporarily override SIGBUS to safely zero the shared memory");
                 return err(PosixSharedMemoryObjectError::INTERNAL_LOGIC_FAILURE);
             }
 
@@ -165,7 +165,7 @@ expected<PosixSharedMemoryObject, PosixSharedMemoryObjectError> PosixSharedMemor
 
             memset(memoryMap->getBaseAddress(), 0, static_cast<size_t>(m_memorySizeInBytes));
         }
-        IOX_LOG(DEBUG,
+        IOX_LOG(Debug,
                 "Acquired " << m_memorySizeInBytes << " bytes successfully in the shared memory [" << m_name << "]");
     }
 

@@ -89,7 +89,7 @@ class Logger : public BaseLogger
     /// @note The function uses 'getenv' which is not thread safe and can result in undefined behavior when it is called
     /// from multiple threads or the env variable is changed while the function holds a pointer to the data. For this
     /// reason the function should only be used in the startup phase of the application and only in the main thread.
-    static void init(const LogLevel logLevel = logLevelFromEnvOr(LogLevel::INFO)) noexcept;
+    static void init(const LogLevel logLevel = logLevelFromEnvOr(LogLevel::Info)) noexcept;
 
     /// @brief Replaces the default logger with the specified one
     /// @param[in] newLogger is the logger which shall be used after the call

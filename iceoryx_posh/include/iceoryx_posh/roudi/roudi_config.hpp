@@ -35,7 +35,7 @@ struct RouDiConfig
     /// RouDiEnv
     bool sharesAddressSpaceWithApplications{false};
     /// @brief the log level used by RouDi
-    iox::log::LogLevel logLevel{iox::log::LogLevel::INFO};
+    iox::log::LogLevel logLevel{iox::log::LogLevel::Info};
     /// @brief Specifies whether RouDi monitors the process for abnormal termination
     roudi::MonitoringMode monitoringMode{roudi::MonitoringMode::OFF};
     /// @brief Specifies to which level the compatibility of applications trying to register with RouDi should be

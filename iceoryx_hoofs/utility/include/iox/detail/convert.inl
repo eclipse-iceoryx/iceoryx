@@ -84,7 +84,7 @@ inline iox::optional<char> convert::from_string<char>(const char* v) noexcept
 {
     if (strlen(v) != 1U)
     {
-        IOX_LOG(DEBUG, v << " is not a char");
+        IOX_LOG(Debug, v << " is not a char");
         return iox::nullopt;
     }
 
@@ -342,14 +342,14 @@ inline bool convert::is_valid_input(const char* end_ptr, const char* v, const So
     // invalid string
     if (v == end_ptr && source_val == 0)
     {
-        IOX_LOG(DEBUG, "invalid input");
+        IOX_LOG(Debug, "invalid input");
         return false;
     }
 
     // end_ptr is not '\0' which means conversion failure at end_ptr
     if (end_ptr != nullptr && v != end_ptr && *end_ptr != '\0')
     {
-        IOX_LOG(DEBUG, "conversion failed at " << end_ptr - v << " : " << *end_ptr);
+        IOX_LOG(Debug, "conversion failed at " << end_ptr - v << " : " << *end_ptr);
         return false;
     }
 
@@ -380,7 +380,7 @@ inline bool convert::is_within_range(const SourceType& source_val) noexcept
     // out of range (upper bound)
     if (source_val > std::numeric_limits<TargetType>::max())
     {
-        IOX_LOG(DEBUG,
+        IOX_LOG(Debug,
                 source_val << " is out of range (upper bound), should be less than "
                            << std::numeric_limits<TargetType>::max());
         return false;
@@ -388,7 +388,7 @@ inline bool convert::is_within_range(const SourceType& source_val) noexcept
     // out of range (lower bound)
     if (source_val < std::numeric_limits<TargetType>::lowest())
     {
-        IOX_LOG(DEBUG,
+        IOX_LOG(Debug,
                 source_val << " is out of range (lower bound), should be larger than "
                            << std::numeric_limits<TargetType>::lowest());
         return false;
@@ -417,19 +417,19 @@ inline bool convert::is_valid_errno(decltype(errno) errno_cache, const char* v) 
 {
     if (errno_cache == ERANGE)
     {
-        IOX_LOG(DEBUG, "ERANGE triggered during conversion of string: '" << v << "'");
+        IOX_LOG(Debug, "ERANGE triggered during conversion of string: '" << v << "'");
         return false;
     }
 
     if (errno_cache == EINVAL)
     {
-        IOX_LOG(DEBUG, "EINVAL triggered during conversion of string: " << v);
+        IOX_LOG(Debug, "EINVAL triggered during conversion of string: " << v);
         return false;
     }
 
     if (errno_cache != 0)
     {
-        IOX_LOG(DEBUG, "Unexpected errno: " << errno_cache << ". The input string is: " << v);
+        IOX_LOG(Debug, "Unexpected errno: " << errno_cache << ". The input string is: " << v);
         return false;
     }
 

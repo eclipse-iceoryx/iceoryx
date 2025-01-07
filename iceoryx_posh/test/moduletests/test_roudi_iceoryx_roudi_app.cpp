@@ -105,7 +105,7 @@ TEST_F(IceoryxRoudiApp_test, VerifyConstructorIsSuccessful)
     IceoryxRoudiApp_Child roudi(iox::IceoryxConfig().setDefaults());
 
     EXPECT_TRUE(roudi.getVariableRun());
-    EXPECT_EQ(roudi.getLogLevel(), iox::log::LogLevel::INFO);
+    EXPECT_EQ(roudi.getLogLevel(), iox::log::LogLevel::Info);
     EXPECT_EQ(roudi.getMonitoringMode(), roudi::MonitoringMode::OFF);
 }
 
@@ -146,7 +146,7 @@ TEST_F(IceoryxRoudiApp_test, VerifyConstructorWithEmptyConfigSetRunVariableToFal
     EXPECT_FALSE(roudi.getVariableRun());
 
     iox::testing::TestingLogger::checkLogMessageIfLogLevelIsSupported(
-        iox::log::LogLevel::ERROR, [&](const auto& logMessages) {
+        iox::log::LogLevel::Error, [&](const auto& logMessages) {
             ASSERT_THAT(logMessages.size(), Eq(1U));
             EXPECT_THAT(logMessages[0], HasSubstr(expectedOutput));
         });
@@ -171,7 +171,7 @@ TEST_F(IceoryxRoudiApp_test, VerifyConstructorUsingConfigWithSegmentWithoutMemPo
     EXPECT_FALSE(roudi.getVariableRun());
 
     iox::testing::TestingLogger::checkLogMessageIfLogLevelIsSupported(
-        iox::log::LogLevel::ERROR, [&](const auto& logMessages) {
+        iox::log::LogLevel::Error, [&](const auto& logMessages) {
             ASSERT_THAT(logMessages.size(), Eq(1U));
             EXPECT_THAT(logMessages[0], HasSubstr(expectedOutput));
         });

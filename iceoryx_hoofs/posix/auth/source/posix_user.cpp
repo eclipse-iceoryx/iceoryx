@@ -35,7 +35,7 @@ optional<iox_uid_t> PosixUser::getUserID(const userName_t& name) noexcept
 
     if (getpwnamCall.has_error())
     {
-        IOX_LOG(ERROR, "Error: Could not find user '" << name << "'.");
+        IOX_LOG(Error, "Error: Could not find user '" << name << "'.");
         return nullopt_t();
     }
     return make_optional<iox_uid_t>(getpwnamCall->value->pw_uid);
@@ -47,7 +47,7 @@ optional<PosixUser::userName_t> PosixUser::getUserName(iox_uid_t id) noexcept
 
     if (getpwuidCall.has_error())
     {
-        IOX_LOG(ERROR, "Error: Could not find user with id'" << id << "'.");
+        IOX_LOG(Error, "Error: Could not find user with id'" << id << "'.");
         return nullopt_t();
     }
     return make_optional<userName_t>(userName_t(iox::TruncateToCapacity, getpwuidCall->value->pw_name));
@@ -64,7 +64,7 @@ PosixUser::groupVector_t PosixUser::getGroups() const noexcept
     auto getpwnamCall = IOX_POSIX_CALL(getpwnam)(userName->c_str()).failureReturnValue(nullptr).evaluate();
     if (getpwnamCall.has_error())
     {
-        IOX_LOG(ERROR, "Error: getpwnam call failed");
+        IOX_LOG(Error, "Error: getpwnam call failed");
         return groupVector_t();
     }
 
@@ -78,13 +78,13 @@ PosixUser::groupVector_t PosixUser::getGroups() const noexcept
             .evaluate();
     if (getgrouplistCall.has_error())
     {
-        IOX_LOG(ERROR, "Error: Could not obtain group list");
+        IOX_LOG(Error, "Error: Could not obtain group list");
         return groupVector_t();
     }
 
     if (numGroups == -1)
     {
-        IOX_LOG(ERROR, "Error: List with negative size returned");
+        IOX_LOG(Error, "Error: List with negative size returned");
         return groupVector_t();
     }
 
@@ -112,7 +112,7 @@ PosixUser::PosixUser(const PosixUser::userName_t& name) noexcept
     }
     else
     {
-        IOX_LOG(ERROR, "Error: User name not found");
+        IOX_LOG(Error, "Error: User name not found");
         m_id = std::numeric_limits<iox_gid_t>::max();
     }
 }

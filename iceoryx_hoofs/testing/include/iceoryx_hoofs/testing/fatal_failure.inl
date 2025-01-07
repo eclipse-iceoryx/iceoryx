@@ -41,7 +41,7 @@ inline bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction,
         hasExpectedError = hasPanicked;
         if (!hasExpectedError)
         {
-            IOX_LOG(ERROR, "Expected '" << iox::er::FatalKind::name << "' but it did not happen!");
+            IOX_LOG(Error, "Expected '" << iox::er::FatalKind::name << "' but it did not happen!");
         }
     }
     else if constexpr (std::is_same_v<ErrorType, iox::er::EnforceViolationKind>)
@@ -49,7 +49,7 @@ inline bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction,
         hasExpectedError = iox::testing::hasEnforceViolation();
         if (!hasExpectedError)
         {
-            IOX_LOG(ERROR, "Expected '" << iox::er::EnforceViolationKind::name << "' but it did not happen!");
+            IOX_LOG(Error, "Expected '" << iox::er::EnforceViolationKind::name << "' but it did not happen!");
         }
     }
     else if constexpr (std::is_same_v<ErrorType, iox::er::AssertViolationKind>)
@@ -57,7 +57,7 @@ inline bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction,
         hasExpectedError = iox::testing::hasAssertViolation();
         if (!hasExpectedError)
         {
-            IOX_LOG(ERROR, "Expected '" << iox::er::AssertViolationKind::name << "' but it did not happen!");
+            IOX_LOG(Error, "Expected '" << iox::er::AssertViolationKind::name << "' but it did not happen!");
         }
     }
     else
@@ -65,7 +65,7 @@ inline bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction,
         hasExpectedError = iox::testing::hasError(expectedError);
         if (!hasExpectedError)
         {
-            IOX_LOG(ERROR, "Expected an '" << expectedError << "' error but it did not happen!");
+            IOX_LOG(Error, "Expected an '" << expectedError << "' error but it did not happen!");
         }
     }
 

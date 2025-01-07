@@ -31,7 +31,7 @@ inline vector<T, Capacity>::vector(const uint64_t count, const T& value) noexcep
 {
     if (count > Capacity)
     {
-        IOX_LOG(ERROR,
+        IOX_LOG(Error,
                 "Attempting to initialize a vector of capacity "
                     << Capacity << " with " << count << " elements. This exceeds the capacity and only " << Capacity
                     << " elements will be created!");
@@ -48,7 +48,7 @@ inline vector<T, Capacity>::vector(const uint64_t count) noexcept
 {
     if (count > Capacity)
     {
-        IOX_LOG(ERROR,
+        IOX_LOG(Error,
                 "Attempting to initialize a vector of capacity "
                     << Capacity << " with " << count << " elements. This exceeds the capacity and only " << Capacity
                     << " elements will be created!");

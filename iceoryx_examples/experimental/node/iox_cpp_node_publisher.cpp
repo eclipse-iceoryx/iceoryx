@@ -26,7 +26,7 @@ constexpr char APP_NAME[] = "iox-cpp-node-publisher";
 
 int main()
 {
-    iox::log::Logger::init(iox::log::logLevelFromEnvOr(iox::log::LogLevel::INFO));
+    iox::log::Logger::init(iox::log::logLevelFromEnvOr(iox::log::LogLevel::Info));
 
     double value = 0.0;
     while (!iox::hasTerminationRequested())

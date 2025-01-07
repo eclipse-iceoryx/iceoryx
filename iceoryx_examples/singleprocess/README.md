@@ -27,7 +27,7 @@ transmit and receive data.
 
 <!--[geoffrey][iceoryx_examples/singleprocess/single_process.cpp][log level]-->
 ```cpp
-iox::log::Logger::init(iox::log::LogLevel::INFO);
+iox::log::Logger::init(iox::log::LogLevel::Info);
 ```
 
  2. To start RouDi we have to create a configuration for him. We are choosing the

@@ -34,7 +34,7 @@ namespace testing
 /// also be used to check for the occurrence on specific log messages, e.g. when a function is expected to log an error.
 /// @code
 /// callToFunctionWhichLogsAnError();
-/// iox::testing::TestingLogger::checkLogMessageIfLogLevelIsSupported(iox::log::LogLevel::ERROR, [](const auto&
+/// iox::testing::TestingLogger::checkLogMessageIfLogLevelIsSupported(iox::log::LogLevel::Error, [](const auto&
 /// logMessages){
 ///     ASSERT_THAT(logMessages.size(), Eq(1U));
 ///     EXPECT_THAT(logMessages[0], HasSubstr(expectedOutput));

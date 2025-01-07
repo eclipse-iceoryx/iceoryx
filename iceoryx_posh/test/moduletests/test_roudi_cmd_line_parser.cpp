@@ -51,7 +51,7 @@ namespace
 class CmdLineParser_test : public Test
 {
   public:
-    void SetUp(){};
+    void SetUp() {};
     void TearDown()
     {
         // Reset optind to be able to parse again
@@ -246,13 +246,13 @@ TEST_F(CmdLineParser_test, LogLevelOptionsLeadToCorrectLogLevel)
 {
     ::testing::Test::RecordProperty("TEST_ID", "25799d7a-9f34-4bcd-bb01-f6dbe270fac3");
     constexpr uint8_t NUMBER_OF_ARGS{3U};
-    LogLevel loglevelArray[] = {LogLevel::OFF,
-                                LogLevel::FATAL,
-                                LogLevel::ERROR,
-                                LogLevel::WARN,
-                                LogLevel::INFO,
-                                LogLevel::DEBUG,
-                                LogLevel::TRACE};
+    LogLevel loglevelArray[] = {LogLevel::Off,
+                                LogLevel::Fatal,
+                                LogLevel::Error,
+                                LogLevel::Warn,
+                                LogLevel::Info,
+                                LogLevel::Debug,
+                                LogLevel::Trace};
     char* args[NUMBER_OF_ARGS];
     char appName[] = "./foo";
     char optionArray[][20] = {"-l", "--log-level"};

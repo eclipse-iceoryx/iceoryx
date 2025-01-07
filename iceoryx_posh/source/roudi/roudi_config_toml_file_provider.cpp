@@ -46,12 +46,12 @@ TomlRouDiConfigFileProvider::TomlRouDiConfigFileProvider(config::CmdLineArgs_t& 
             FileReader configFile(defaultConfigFilePath, "", FileReader::ErrorMode::Ignore);
             if (configFile.isOpen())
             {
-                IOX_LOG(INFO, "No config file provided. Using '" << defaultConfigFilePath << "'");
+                IOX_LOG(Info, "No config file provided. Using '" << defaultConfigFilePath << "'");
                 m_customConfigFilePath = defaultConfigFilePath;
             }
             else
             {
-                IOX_LOG(INFO,
+                IOX_LOG(Info,
                         "No config file provided and also not found at '" << defaultConfigFilePath
                                                                           << "'. Falling back to built-in config.");
             }
@@ -77,7 +77,7 @@ iox::expected<iox::IceoryxConfig, iox::roudi::RouDiConfigFileParseError> TomlRou
     std::ifstream fileStream{m_customConfigFilePath.c_str()};
     if (!fileStream.is_open())
     {
-        IOX_LOG(ERROR, "Could not open config file from path '" << m_customConfigFilePath << "'");
+        IOX_LOG(Error, "Could not open config file from path '" << m_customConfigFilePath << "'");
         return iox::err(iox::roudi::RouDiConfigFileParseError::FILE_OPEN_FAILED);
     }
 
@@ -100,7 +100,7 @@ TomlRouDiConfigFileProvider::parse(std::istream& stream) noexcept
     {
         auto parserError = iox::roudi::RouDiConfigFileParseError::EXCEPTION_IN_PARSER;
         auto errorStringIndex = static_cast<uint64_t>(parserError);
-        IOX_LOG(WARN,
+        IOX_LOG(Warn,
                 iox::roudi::ROUDI_CONFIG_FILE_PARSE_ERROR_STRINGS[errorStringIndex] << ": " << parserException.what());
 
         return iox::err(parserError);

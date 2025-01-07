@@ -30,7 +30,7 @@
     IOX_LOG_INTERNAL(location.file,                                                                                    \
                      location.line,                                                                                    \
                      location.function,                                                                                \
-                     iox::log::LogLevel::ERROR,                                                                        \
+                     iox::log::LogLevel::Error,                                                                        \
                      location.file << ":" << location.line << " " << msg_stream)
 
 /// @brief Log the location of a fatal error.
@@ -40,7 +40,7 @@
     IOX_LOG_INTERNAL(location.file,                                                                                    \
                      location.line,                                                                                    \
                      location.function,                                                                                \
-                     iox::log::LogLevel::FATAL,                                                                        \
+                     iox::log::LogLevel::Fatal,                                                                        \
                      location.file << ":" << location.line << " " << msg_stream)
 
 /// @brief Log a panic invocation.

@@ -132,7 +132,7 @@ expected<void, SharedMemoryUserError> SharedMemoryUser::openShmSegment(ShmVector
     }
 
     IOX_LOG(
-        DEBUG,
+        Debug,
         "Application registered " << ((resourceType == ResourceType::ICEORYX_DEFINED) ? "management" : "payload data")
                                   << " segment " << iox::log::hex(shm.getBaseAddress()) << " with size "
                                   << shm.get_size().expect("Failed to acquire SHM size.") << " to id " << segmentId);

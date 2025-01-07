@@ -36,7 +36,7 @@ void MePooConfig::addMemPool(MePooConfig::Entry entry) noexcept
     }
     else
     {
-        IOX_LOG(FATAL, "Maxmimum number of mempools reached, no more mempools available");
+        IOX_LOG(Fatal, "Maxmimum number of mempools reached, no more mempools available");
         IOX_REPORT_FATAL(PoshError::MEPOO__MAXIMUM_NUMBER_OF_MEMPOOLS_REACHED);
     }
 }

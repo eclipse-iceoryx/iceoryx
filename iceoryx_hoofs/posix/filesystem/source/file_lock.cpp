@@ -35,13 +35,13 @@ expected<FileLock, FileLockError> FileLockBuilder::create() noexcept
 {
     if (!isValidFileName(m_name))
     {
-        IOX_LOG(ERROR, "Unable to create FileLock since the name \"" << m_name << "\" is not a valid file name.");
+        IOX_LOG(Error, "Unable to create FileLock since the name \"" << m_name << "\" is not a valid file name.");
         return err(FileLockError::INVALID_FILE_NAME);
     }
 
     if (!isValidPathToDirectory(m_path))
     {
-        IOX_LOG(ERROR, "Unable to create FileLock since the path \"" << m_path << "\" is not a valid path.");
+        IOX_LOG(Error, "Unable to create FileLock since the path \"" << m_path << "\" is not a valid path.");
         return err(FileLockError::INVALID_PATH);
     }
 
@@ -77,7 +77,7 @@ expected<FileLock, FileLockError> FileLockBuilder::create() noexcept
         IOX_POSIX_CALL(iox_ext_close)
         (fileDescriptor).failureReturnValue(-1).evaluate().or_else([&](auto& result) {
             IOX_DISCARD_RESULT(FileLock::convertErrnoToFileLockError(result.errnum, fileLockPath));
-            IOX_LOG(ERROR,
+            IOX_LOG(Error,
                     "Unable to close file lock \"" << fileLockPath
                                                    << "\" in error related cleanup during initialization.");
         });
@@ -106,7 +106,7 @@ FileLock& FileLock::operator=(FileLock&& rhs) noexcept
     {
         if (closeFileDescriptor().has_error())
         {
-            IOX_LOG(ERROR,
+            IOX_LOG(Error,
                     "Unable to cleanup file lock \"" << m_fileLockPath
                                                      << "\" in the move constructor/move assingment operator");
         }
@@ -124,7 +124,7 @@ FileLock::~FileLock() noexcept
 {
     if (closeFileDescriptor().has_error())
     {
-        IOX_LOG(ERROR, "unable to cleanup file lock \"" << m_fileLockPath << "\" in the destructor");
+        IOX_LOG(Error, "unable to cleanup file lock \"" << m_fileLockPath << "\" in the destructor");
     }
 }
 
@@ -141,21 +141,21 @@ expected<void, FileLockError> FileLock::closeFileDescriptor() noexcept
             .or_else([&](auto& result) {
                 cleanupFailed = true;
                 IOX_DISCARD_RESULT(FileLock::convertErrnoToFileLockError(result.errnum, m_fileLockPath));
-                IOX_LOG(ERROR, "Unable to unlock the file lock \"" << m_fileLockPath << '"');
+                IOX_LOG(Error, "Unable to unlock the file lock \"" << m_fileLockPath << '"');
             });
 
         IOX_POSIX_CALL(iox_ext_close)
         (m_fd).failureReturnValue(-1).evaluate().or_else([&](auto& result) {
             cleanupFailed = true;
             IOX_DISCARD_RESULT(FileLock::convertErrnoToFileLockError(result.errnum, m_fileLockPath));
-            IOX_LOG(ERROR, "Unable to close the file handle to the file lock \"" << m_fileLockPath << '"');
+            IOX_LOG(Error, "Unable to close the file handle to the file lock \"" << m_fileLockPath << '"');
         });
 
         IOX_POSIX_CALL(remove)
         (m_fileLockPath.c_str()).failureReturnValue(-1).evaluate().or_else([&](auto& result) {
             cleanupFailed = true;
             IOX_DISCARD_RESULT(FileLock::convertErrnoToFileLockError(result.errnum, m_fileLockPath));
-            IOX_LOG(ERROR, "Unable to remove the file lock \"" << m_fileLockPath << '"');
+            IOX_LOG(Error, "Unable to remove the file lock \"" << m_fileLockPath << '"');
         });
 
         if (cleanupFailed)
@@ -181,83 +181,83 @@ FileLockError FileLock::convertErrnoToFileLockError(const int32_t errnum, const 
     {
     case EACCES:
     {
-        IOX_LOG(ERROR, "permission denied for file lock \"" << fileLockPath << '"');
+        IOX_LOG(Error, "permission denied for file lock \"" << fileLockPath << '"');
         return FileLockError::ACCESS_DENIED;
     }
     case EDQUOT:
     {
-        IOX_LOG(ERROR, "user disk quota exhausted for file lock \"" << fileLockPath << '"');
+        IOX_LOG(Error, "user disk quota exhausted for file lock \"" << fileLockPath << '"');
         return FileLockError::QUOTA_EXHAUSTED;
     }
     case EFAULT:
     {
-        IOX_LOG(ERROR, "outside address space error for file lock \"" << fileLockPath << '"');
+        IOX_LOG(Error, "outside address space error for file lock \"" << fileLockPath << '"');
         return FileLockError::ACCESS_DENIED;
     }
     case EFBIG:
     case EOVERFLOW:
     {
-        IOX_LOG(ERROR, "file lock \"" << fileLockPath << '"' << " is too large to be openend");
+        IOX_LOG(Error, "file lock \"" << fileLockPath << '"' << " is too large to be openend");
         return FileLockError::FILE_TOO_LARGE;
     }
     case ELOOP:
     {
-        IOX_LOG(ERROR, "too many symbolic links for file lock \"" << fileLockPath << '"');
+        IOX_LOG(Error, "too many symbolic links for file lock \"" << fileLockPath << '"');
         return FileLockError::INVALID_FILE_NAME;
     }
     case EMFILE:
     {
-        IOX_LOG(ERROR, "process limit reached for file lock \"" << fileLockPath << '"');
+        IOX_LOG(Error, "process limit reached for file lock \"" << fileLockPath << '"');
         return FileLockError::PROCESS_LIMIT;
     }
     case ENFILE:
     {
-        IOX_LOG(ERROR, "system limit reached for file lock \"" << fileLockPath << '"');
+        IOX_LOG(Error, "system limit reached for file lock \"" << fileLockPath << '"');
         return FileLockError::SYSTEM_LIMIT;
     }
     case ENODEV:
     {
-        IOX_LOG(ERROR, "permission to access file lock denied \"" << fileLockPath << '"');
+        IOX_LOG(Error, "permission to access file lock denied \"" << fileLockPath << '"');
         return FileLockError::ACCESS_DENIED;
     }
     case ENOENT:
     {
-        IOX_LOG(ERROR, "directory \"" << &platform::IOX_LOCK_FILE_PATH_PREFIX[0] << '"' << " does not exist.");
+        IOX_LOG(Error, "directory \"" << &platform::IOX_LOCK_FILE_PATH_PREFIX[0] << '"' << " does not exist.");
         return FileLockError::NO_SUCH_DIRECTORY;
     }
     case ENOMEM:
     {
-        IOX_LOG(ERROR, "out of memory for file lock \"" << fileLockPath << '"');
+        IOX_LOG(Error, "out of memory for file lock \"" << fileLockPath << '"');
         return FileLockError::OUT_OF_MEMORY;
     }
     case ENOSPC:
     {
-        IOX_LOG(ERROR, "Device has no space for file lock \"" << fileLockPath << '"');
+        IOX_LOG(Error, "Device has no space for file lock \"" << fileLockPath << '"');
         return FileLockError::QUOTA_EXHAUSTED;
     }
     case ENOSYS:
     {
-        IOX_LOG(ERROR, "open() not implemented for filesystem to \"" << fileLockPath << '"');
+        IOX_LOG(Error, "open() not implemented for filesystem to \"" << fileLockPath << '"');
         return FileLockError::SYS_CALL_NOT_IMPLEMENTED;
     }
     case ENXIO:
     {
-        IOX_LOG(ERROR, '"' << fileLockPath << '"' << " is a special file and no corresponding device exists");
+        IOX_LOG(Error, '"' << fileLockPath << '"' << " is a special file and no corresponding device exists");
         return FileLockError::SPECIAL_FILE;
     }
     case EPERM:
     {
-        IOX_LOG(ERROR, "permission denied to file lock \"" << fileLockPath << '"');
+        IOX_LOG(Error, "permission denied to file lock \"" << fileLockPath << '"');
         return FileLockError::ACCESS_DENIED;
     }
     case EROFS:
     {
-        IOX_LOG(ERROR, "read only error for file lock \"" << fileLockPath << '"');
+        IOX_LOG(Error, "read only error for file lock \"" << fileLockPath << '"');
         return FileLockError::INVALID_FILE_NAME;
     }
     case ETXTBSY:
     {
-        IOX_LOG(ERROR, "write access requested for file lock \"" << fileLockPath << '"' << " in use");
+        IOX_LOG(Error, "write access requested for file lock \"" << fileLockPath << '"' << " in use");
         return FileLockError::FILE_IN_USE;
     }
     case EWOULDBLOCK:
@@ -267,17 +267,17 @@ FileLockError FileLock::convertErrnoToFileLockError(const int32_t errnum, const 
     }
     case ENOLCK:
     {
-        IOX_LOG(ERROR, "system limit for locks reached for file lock \"" << fileLockPath << '"');
+        IOX_LOG(Error, "system limit for locks reached for file lock \"" << fileLockPath << '"');
         return FileLockError::SYSTEM_LIMIT;
     }
     case EIO:
     {
-        IOX_LOG(ERROR, "I/O for file lock \"" << fileLockPath << '"');
+        IOX_LOG(Error, "I/O for file lock \"" << fileLockPath << '"');
         return FileLockError::I_O_ERROR;
     }
     default:
     {
-        IOX_LOG(ERROR, "internal logic error in file lock \"" << fileLockPath << "\" occurred");
+        IOX_LOG(Error, "internal logic error in file lock \"" << fileLockPath << "\" occurred");
         return FileLockError::INTERNAL_LOGIC_ERROR;
     }
     }

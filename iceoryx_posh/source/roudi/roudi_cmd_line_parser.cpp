@@ -107,7 +107,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             auto maybeValue = convert::from_string<uint16_t>(optarg);
             if (!maybeValue.has_value())
             {
-                IOX_LOG(ERROR, "The domain ID must be in the range of [0, " << MAX_DOMAIN_ID << "]");
+                IOX_LOG(Error, "The domain ID must be in the range of [0, " << MAX_DOMAIN_ID << "]");
                 return err(CmdLineParserResult::INVALID_PARAMETER);
             }
 
@@ -117,7 +117,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             }
             else
             {
-                IOX_LOG(WARN,
+                IOX_LOG(Warn,
                         "The domain ID is an experimental feature and iceoryx must be compiled with the "
                         "'IOX_EXPERIMENTAL_POSH' cmake option to use it!");
             }
@@ -130,7 +130,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             auto maybeValue = convert::from_string<uint16_t>(optarg);
             if (!maybeValue.has_value())
             {
-                IOX_LOG(ERROR, "The RouDi ID must be in the range of [0, " << MAX_ROUDI_ID << "]");
+                IOX_LOG(Error, "The RouDi ID must be in the range of [0, " << MAX_ROUDI_ID << "]");
                 return err(CmdLineParserResult::INVALID_PARAMETER);
             }
 
@@ -149,7 +149,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             }
             else
             {
-                IOX_LOG(ERROR, "Options for monitoring-mode are 'on' and 'off'!");
+                IOX_LOG(Error, "Options for monitoring-mode are 'on' and 'off'!");
                 return err(CmdLineParserResult::INVALID_PARAMETER);
             }
             break;
@@ -158,35 +158,35 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
         {
             if (strcmp(optarg, "off") == 0)
             {
-                m_cmdLineArgs.roudiConfig.logLevel = iox::log::LogLevel::OFF;
+                m_cmdLineArgs.roudiConfig.logLevel = iox::log::LogLevel::Off;
             }
             else if (strcmp(optarg, "fatal") == 0)
             {
-                m_cmdLineArgs.roudiConfig.logLevel = iox::log::LogLevel::FATAL;
+                m_cmdLineArgs.roudiConfig.logLevel = iox::log::LogLevel::Fatal;
             }
             else if (strcmp(optarg, "error") == 0)
             {
-                m_cmdLineArgs.roudiConfig.logLevel = iox::log::LogLevel::ERROR;
+                m_cmdLineArgs.roudiConfig.logLevel = iox::log::LogLevel::Error;
             }
             else if (strcmp(optarg, "warning") == 0)
             {
-                m_cmdLineArgs.roudiConfig.logLevel = iox::log::LogLevel::WARN;
+                m_cmdLineArgs.roudiConfig.logLevel = iox::log::LogLevel::Warn;
             }
             else if (strcmp(optarg, "info") == 0)
             {
-                m_cmdLineArgs.roudiConfig.logLevel = iox::log::LogLevel::INFO;
+                m_cmdLineArgs.roudiConfig.logLevel = iox::log::LogLevel::Info;
             }
             else if (strcmp(optarg, "debug") == 0)
             {
-                m_cmdLineArgs.roudiConfig.logLevel = iox::log::LogLevel::DEBUG;
+                m_cmdLineArgs.roudiConfig.logLevel = iox::log::LogLevel::Debug;
             }
             else if (strcmp(optarg, "trace") == 0)
             {
-                m_cmdLineArgs.roudiConfig.logLevel = iox::log::LogLevel::TRACE;
+                m_cmdLineArgs.roudiConfig.logLevel = iox::log::LogLevel::Trace;
             }
             else
             {
-                IOX_LOG(ERROR,
+                IOX_LOG(Error,
                         "Options for log-level are 'off', 'fatal', 'error', 'warning', 'info', 'debug' and 'trace'!");
                 return err(CmdLineParserResult::INVALID_PARAMETER);
             }
@@ -198,7 +198,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             auto maybeValue = convert::from_string<uint32_t>(optarg);
             if (!maybeValue.has_value())
             {
-                IOX_LOG(ERROR,
+                IOX_LOG(Error,
                         "The process termination delay must be in the range of [0, " << MAX_PROCESS_TERMINATION_DELAY
                                                                                      << "]");
                 return err(CmdLineParserResult::INVALID_PARAMETER);
@@ -213,7 +213,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             auto maybeValue = convert::from_string<uint32_t>(optarg);
             if (!maybeValue.has_value())
             {
-                IOX_LOG(ERROR, "The process kill delay must be in the range of [0, " << MAX_PROCESS_KILL_DELAY << "]");
+                IOX_LOG(Error, "The process kill delay must be in the range of [0, " << MAX_PROCESS_KILL_DELAY << "]");
                 return err(CmdLineParserResult::INVALID_PARAMETER);
             }
 
@@ -248,7 +248,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             }
             else
             {
-                IOX_LOG(ERROR,
+                IOX_LOG(Error,
                         "Options for compatibility are 'off', 'major', 'minor', 'patch', 'commitId' and 'buildDate'!");
                 return err(CmdLineParserResult::INVALID_PARAMETER);
             }

@@ -45,7 +45,7 @@ expected<popo::InterfacePortData*, PortPoolError> PortPool::addInterfacePort(con
         getInterfacePortDataList().emplace(runtimeName, m_portPoolData->m_uniqueRouDiId, interface);
     if (interfacePortData == getInterfacePortDataList().end())
     {
-        IOX_LOG(WARN, "Out of interface ports! Requested by runtime '" << runtimeName << "'");
+        IOX_LOG(Warn, "Out of interface ports! Requested by runtime '" << runtimeName << "'");
         IOX_REPORT(PoshError::PORT_POOL__INTERFACELIST_OVERFLOW, iox::er::RUNTIME_ERROR);
         return err(PortPoolError::INTERFACE_PORT_LIST_FULL);
     }
@@ -58,7 +58,7 @@ PortPool::addConditionVariableData(const RuntimeName_t& runtimeName) noexcept
     auto conditionVariableData = getConditionVariableDataList().emplace(runtimeName);
     if (conditionVariableData == getConditionVariableDataList().end())
     {
-        IOX_LOG(WARN, "Out of condition variables! Requested by runtime '" << runtimeName << "'");
+        IOX_LOG(Warn, "Out of condition variables! Requested by runtime '" << runtimeName << "'");
         IOX_REPORT(PoshError::PORT_POOL__CONDITION_VARIABLE_LIST_OVERFLOW, iox::er::RUNTIME_ERROR);
         return err(PortPoolError::CONDITION_VARIABLE_LIST_FULL);
     }
@@ -96,7 +96,7 @@ PortPool::addPublisherPort(const capro::ServiceDescription& serviceDescription,
         serviceDescription, runtimeName, m_portPoolData->m_uniqueRouDiId, memoryManager, publisherOptions, memoryInfo);
     if (publisherPortData == getPublisherPortDataList().end())
     {
-        IOX_LOG(WARN,
+        IOX_LOG(Warn,
                 "Out of publisher ports! Requested by runtime '" << runtimeName << "' and with service description '"
                                                                  << serviceDescription << "'");
         IOX_REPORT(PoshError::PORT_POOL__PUBLISHERLIST_OVERFLOW, iox::er::RUNTIME_ERROR);
@@ -115,7 +115,7 @@ PortPool::addSubscriberPort(const capro::ServiceDescription& serviceDescription,
         serviceDescription, runtimeName, m_portPoolData->m_uniqueRouDiId, subscriberOptions, memoryInfo);
     if (subscriberPortData == nullptr)
     {
-        IOX_LOG(WARN,
+        IOX_LOG(Warn,
                 "Out of subscriber ports! Requested by runtime '" << runtimeName << "' and with service description '"
                                                                   << serviceDescription << "'");
         IOX_REPORT(PoshError::PORT_POOL__SUBSCRIBERLIST_OVERFLOW, iox::er::RUNTIME_ERROR);
@@ -145,7 +145,7 @@ PortPool::addClientPort(const capro::ServiceDescription& serviceDescription,
         serviceDescription, runtimeName, m_portPoolData->m_uniqueRouDiId, clientOptions, memoryManager, memoryInfo);
     if (clientPortData == getClientPortDataList().end())
     {
-        IOX_LOG(WARN,
+        IOX_LOG(Warn,
                 "Out of client ports! Requested by runtime '" << runtimeName << "' and with service description '"
                                                               << serviceDescription << "'");
         IOX_REPORT(PoshError::PORT_POOL__CLIENTLIST_OVERFLOW, iox::er::RUNTIME_ERROR);
@@ -165,7 +165,7 @@ PortPool::addServerPort(const capro::ServiceDescription& serviceDescription,
         serviceDescription, runtimeName, m_portPoolData->m_uniqueRouDiId, serverOptions, memoryManager, memoryInfo);
     if (serverPortData == getServerPortDataList().end())
     {
-        IOX_LOG(WARN,
+        IOX_LOG(Warn,
                 "Out of server ports! Requested by runtime '" << runtimeName << "' and with service description '"
                                                               << serviceDescription << "'");
         IOX_REPORT(PoshError::PORT_POOL__SERVERLIST_OVERFLOW, iox::er::RUNTIME_ERROR);

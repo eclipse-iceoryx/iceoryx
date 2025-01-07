@@ -53,7 +53,7 @@ PoshRuntimeImpl::PoshRuntimeImpl(optional<const RuntimeName_t*> name,
                             *this,
                             &PoshRuntimeImpl::sendKeepAliveAndHandleShutdownPreparation);
 
-    IOX_LOG(DEBUG, "Resource prefix: " << IOX_DEFAULT_RESOURCE_PREFIX);
+    IOX_LOG(Debug, "Resource prefix: " << IOX_DEFAULT_RESOURCE_PREFIX);
 }
 
 PoshRuntimeImpl::PoshRuntimeImpl(optional<const RuntimeName_t*> name,
@@ -69,7 +69,7 @@ PoshRuntimeImpl::PoshRuntimeImpl(optional<const RuntimeName_t*> name,
             case IpcRuntimeInterfaceError::CANNOT_CREATE_APPLICATION_CHANNEL:
                 IOX_REPORT_FATAL(PoshError::IPC_INTERFACE__UNABLE_TO_CREATE_APPLICATION_CHANNEL);
             case IpcRuntimeInterfaceError::TIMEOUT_WAITING_FOR_ROUDI:
-                IOX_LOG(FATAL, "Timeout registering at RouDi. Is RouDi running?");
+                IOX_LOG(Fatal, "Timeout registering at RouDi. Is RouDi running?");
                 IOX_REPORT_FATAL(PoshError::IPC_INTERFACE__REG_ROUDI_NOT_AVAILABLE);
             case IpcRuntimeInterfaceError::SENDING_REQUEST_TO_ROUDI_FAILED:
                 IOX_REPORT_FATAL(PoshError::IPC_INTERFACE__REG_UNABLE_TO_WRITE_TO_ROUDI_CHANNEL);
@@ -115,7 +115,7 @@ PoshRuntimeImpl::PoshRuntimeImpl(optional<const RuntimeName_t*> name,
                                                                           std::move(shmInterface)};
     }())
 {
-    IOX_LOG(INFO, "Domain ID: " << static_cast<DomainId::value_type>(domainId));
+    IOX_LOG(Info, "Domain ID: " << static_cast<DomainId::value_type>(domainId));
 }
 
 PoshRuntimeImpl::~PoshRuntimeImpl() noexcept
@@ -132,18 +132,18 @@ PoshRuntimeImpl::~PoshRuntimeImpl() noexcept
 
         if (stringToIpcMessageType(IpcMessage.c_str()) == IpcMessageType::TERMINATION_ACK)
         {
-            IOX_LOG(TRACE, "RouDi cleaned up resources of " << m_appName << ". Shutting down gracefully.");
+            IOX_LOG(Trace, "RouDi cleaned up resources of " << m_appName << ". Shutting down gracefully.");
         }
         else
         {
-            IOX_LOG(ERROR,
+            IOX_LOG(Error,
                     "Got wrong response from IPC channel for IpcMessageType::TERMINATION:'"
                         << receiveBuffer.getMessage() << "'");
         }
     }
     else
     {
-        IOX_LOG(ERROR, "Sending IpcMessageType::TERMINATION to RouDi failed:'" << receiveBuffer.getMessage() << "'");
+        IOX_LOG(Error, "Sending IpcMessageType::TERMINATION to RouDi failed:'" << receiveBuffer.getMessage() << "'");
     }
 }
 
@@ -158,7 +158,7 @@ PoshRuntimeImpl::getMiddlewarePublisher(const capro::ServiceDescription& service
     auto options = publisherOptions;
     if (options.historyCapacity > MAX_HISTORY_CAPACITY)
     {
-        IOX_LOG(WARN,
+        IOX_LOG(Warn,
                 "Requested history capacity "
                     << options.historyCapacity << " exceeds the maximum possible one for this publisher"
                     << ", limiting from " << publisherOptions.historyCapacity << " to " << MAX_HISTORY_CAPACITY);
@@ -181,24 +181,24 @@ PoshRuntimeImpl::getMiddlewarePublisher(const capro::ServiceDescription& service
         switch (maybePublisher.error())
         {
         case IpcMessageErrorType::NO_UNIQUE_CREATED:
-            IOX_LOG(WARN, "Service '" << service << "' already in use by another process.");
+            IOX_LOG(Warn, "Service '" << service << "' already in use by another process.");
             IOX_REPORT(PoshError::POSH__RUNTIME_PUBLISHER_PORT_NOT_UNIQUE, iox::er::RUNTIME_ERROR);
             break;
         case IpcMessageErrorType::INTERNAL_SERVICE_DESCRIPTION_IS_FORBIDDEN:
-            IOX_LOG(WARN, "Usage of internal service '" << service << "' is forbidden.");
+            IOX_LOG(Warn, "Usage of internal service '" << service << "' is forbidden.");
             IOX_REPORT(PoshError::POSH__RUNTIME_SERVICE_DESCRIPTION_FORBIDDEN, iox::er::RUNTIME_ERROR);
             break;
         case IpcMessageErrorType::PUBLISHER_LIST_FULL:
-            IOX_LOG(WARN,
+            IOX_LOG(Warn,
                     "Service '" << service << "' could not be created since we are out of memory for publishers.");
             IOX_REPORT(PoshError::POSH__RUNTIME_ROUDI_PUBLISHER_LIST_FULL, iox::er::RUNTIME_ERROR);
             break;
         case IpcMessageErrorType::REQUEST_PUBLISHER_INVALID_RESPONSE:
-            IOX_LOG(WARN, "Service '" << service << "' could not be created. Request publisher got invalid response.");
+            IOX_LOG(Warn, "Service '" << service << "' could not be created. Request publisher got invalid response.");
             IOX_REPORT(PoshError::POSH__RUNTIME_ROUDI_REQUEST_PUBLISHER_INVALID_RESPONSE, iox::er::RUNTIME_ERROR);
             break;
         case IpcMessageErrorType::REQUEST_PUBLISHER_WRONG_IPC_MESSAGE_RESPONSE:
-            IOX_LOG(WARN,
+            IOX_LOG(Warn,
                     "Service '" << service
                                 << "' could not be created. Request publisher got wrong IPC channel response.");
             IOX_REPORT(PoshError::POSH__RUNTIME_ROUDI_REQUEST_PUBLISHER_WRONG_IPC_MESSAGE_RESPONSE,
@@ -206,7 +206,7 @@ PoshRuntimeImpl::getMiddlewarePublisher(const capro::ServiceDescription& service
             break;
         case IpcMessageErrorType::REQUEST_PUBLISHER_NO_WRITABLE_SHM_SEGMENT:
             IOX_LOG(
-                WARN,
+                Warn,
                 "Service '"
                     << service
                     << "' could not be created. RouDi did not find a writable shared memory segment for the current "
@@ -214,7 +214,7 @@ PoshRuntimeImpl::getMiddlewarePublisher(const capro::ServiceDescription& service
             IOX_REPORT(PoshError::POSH__RUNTIME_NO_WRITABLE_SHM_SEGMENT, iox::er::RUNTIME_ERROR);
             break;
         default:
-            IOX_LOG(WARN, "Unknown error occurred while creating service '" << service << "'.");
+            IOX_LOG(Warn, "Unknown error occurred while creating service '" << service << "'.");
             IOX_REPORT(PoshError::POSH__RUNTIME_PUBLISHER_PORT_CREATION_UNKNOWN_ERROR, iox::er::RUNTIME_ERROR);
             break;
         }
@@ -229,7 +229,7 @@ PoshRuntimeImpl::requestPublisherFromRoudi(const IpcMessage& sendBuffer) noexcep
     IpcMessage receiveBuffer;
     if (sendRequestToRouDi(sendBuffer, receiveBuffer) == false)
     {
-        IOX_LOG(ERROR, "Request publisher got invalid response!");
+        IOX_LOG(Error, "Request publisher got invalid response!");
         return err(IpcMessageErrorType::REQUEST_PUBLISHER_INVALID_RESPONSE);
     }
     else if (receiveBuffer.getNumberOfElements() == 3U)
@@ -257,12 +257,12 @@ PoshRuntimeImpl::requestPublisherFromRoudi(const IpcMessage& sendBuffer) noexcep
         std::string IpcMessage2 = receiveBuffer.getElementAtIndex(1U);
         if (stringToIpcMessageType(IpcMessage1.c_str()) == IpcMessageType::ERROR)
         {
-            IOX_LOG(ERROR, "Request publisher received no valid publisher port from RouDi.");
+            IOX_LOG(Error, "Request publisher received no valid publisher port from RouDi.");
             return err(stringToIpcMessageErrorType(IpcMessage2.c_str()));
         }
     }
 
-    IOX_LOG(ERROR, "Request publisher got wrong response from IPC channel :'" << receiveBuffer.getMessage() << "'");
+    IOX_LOG(Error, "Request publisher got wrong response from IPC channel :'" << receiveBuffer.getMessage() << "'");
     return err(IpcMessageErrorType::REQUEST_PUBLISHER_WRONG_IPC_MESSAGE_RESPONSE);
 }
 
@@ -276,7 +276,7 @@ PoshRuntimeImpl::getMiddlewareSubscriber(const capro::ServiceDescription& servic
     auto options = subscriberOptions;
     if (options.queueCapacity > MAX_QUEUE_CAPACITY)
     {
-        IOX_LOG(WARN,
+        IOX_LOG(Warn,
                 "Requested queue capacity "
                     << options.queueCapacity << " exceeds the maximum possible one for this subscriber"
                     << ", limiting from " << subscriberOptions.queueCapacity << " to " << MAX_QUEUE_CAPACITY);
@@ -284,7 +284,7 @@ PoshRuntimeImpl::getMiddlewareSubscriber(const capro::ServiceDescription& servic
     }
     else if (0U == options.queueCapacity)
     {
-        IOX_LOG(WARN,
+        IOX_LOG(Warn,
                 "Requested queue capacity of 0 doesn't make sense as no data would be received,"
                     << " the capacity is set to 1");
         options.queueCapacity = 1U;
@@ -292,7 +292,7 @@ PoshRuntimeImpl::getMiddlewareSubscriber(const capro::ServiceDescription& servic
 
     if (subscriberOptions.historyRequest > options.queueCapacity)
     {
-        IOX_LOG(WARN,
+        IOX_LOG(Warn,
                 "Requested historyRequest for "
                     << service << " is larger than queueCapacity. Clamping historyRequest to queueCapacity!");
         options.historyRequest = options.queueCapacity;
@@ -315,23 +315,23 @@ PoshRuntimeImpl::getMiddlewareSubscriber(const capro::ServiceDescription& servic
         switch (maybeSubscriber.error())
         {
         case IpcMessageErrorType::SUBSCRIBER_LIST_FULL:
-            IOX_LOG(WARN,
+            IOX_LOG(Warn,
                     "Service '" << service << "' could not be created since we are out of memory for subscribers.");
             IOX_REPORT(PoshError::POSH__RUNTIME_ROUDI_SUBSCRIBER_LIST_FULL, iox::er::RUNTIME_ERROR);
             break;
         case IpcMessageErrorType::REQUEST_SUBSCRIBER_INVALID_RESPONSE:
-            IOX_LOG(WARN, "Service '" << service << "' could not be created. Request subscriber got invalid response.");
+            IOX_LOG(Warn, "Service '" << service << "' could not be created. Request subscriber got invalid response.");
             IOX_REPORT(PoshError::POSH__RUNTIME_ROUDI_REQUEST_SUBSCRIBER_INVALID_RESPONSE, iox::er::RUNTIME_ERROR);
             break;
         case IpcMessageErrorType::REQUEST_SUBSCRIBER_WRONG_IPC_MESSAGE_RESPONSE:
-            IOX_LOG(WARN,
+            IOX_LOG(Warn,
                     "Service '" << service
                                 << "' could not be created. Request subscriber got wrong IPC channel response.");
             IOX_REPORT(PoshError::POSH__RUNTIME_ROUDI_REQUEST_SUBSCRIBER_WRONG_IPC_MESSAGE_RESPONSE,
                        iox::er::RUNTIME_ERROR);
             break;
         default:
-            IOX_LOG(WARN, "Unknown error occurred while creating service '" << service << "'.");
+            IOX_LOG(Warn, "Unknown error occurred while creating service '" << service << "'.");
             IOX_REPORT(PoshError::POSH__RUNTIME_SUBSCRIBER_PORT_CREATION_UNKNOWN_ERROR, iox::er::RUNTIME_ERROR);
             break;
         }
@@ -346,7 +346,7 @@ PoshRuntimeImpl::requestSubscriberFromRoudi(const IpcMessage& sendBuffer) noexce
     IpcMessage receiveBuffer;
     if (sendRequestToRouDi(sendBuffer, receiveBuffer) == false)
     {
-        IOX_LOG(ERROR, "Request subscriber got invalid response!");
+        IOX_LOG(Error, "Request subscriber got invalid response!");
         return err(IpcMessageErrorType::REQUEST_SUBSCRIBER_INVALID_RESPONSE);
     }
     else if (receiveBuffer.getNumberOfElements() == 3U)
@@ -375,12 +375,12 @@ PoshRuntimeImpl::requestSubscriberFromRoudi(const IpcMessage& sendBuffer) noexce
 
         if (stringToIpcMessageType(IpcMessage1.c_str()) == IpcMessageType::ERROR)
         {
-            IOX_LOG(ERROR, "Request subscriber received no valid subscriber port from RouDi.");
+            IOX_LOG(Error, "Request subscriber received no valid subscriber port from RouDi.");
             return err(stringToIpcMessageErrorType(IpcMessage2.c_str()));
         }
     }
 
-    IOX_LOG(ERROR, "Request subscriber got wrong response from IPC channel :'" << receiveBuffer.getMessage() << "'");
+    IOX_LOG(Error, "Request subscriber got wrong response from IPC channel :'" << receiveBuffer.getMessage() << "'");
     return err(IpcMessageErrorType::REQUEST_SUBSCRIBER_WRONG_IPC_MESSAGE_RESPONSE);
 }
 
@@ -392,7 +392,7 @@ popo::ClientPortUser::MemberType_t* PoshRuntimeImpl::getMiddlewareClient(const c
     auto options = clientOptions;
     if (options.responseQueueCapacity > MAX_QUEUE_CAPACITY)
     {
-        IOX_LOG(WARN,
+        IOX_LOG(Warn,
                 "Requested response queue capacity "
                     << options.responseQueueCapacity << " exceeds the maximum possible one for this client"
                     << ", limiting from " << options.responseQueueCapacity << " to " << MAX_QUEUE_CAPACITY);
@@ -400,7 +400,7 @@ popo::ClientPortUser::MemberType_t* PoshRuntimeImpl::getMiddlewareClient(const c
     }
     else if (options.responseQueueCapacity == 0U)
     {
-        IOX_LOG(WARN,
+        IOX_LOG(Warn,
                 "Requested response queue capacity of 0 doesn't make sense as no data would be received,"
                     << " the capacity is set to 1");
         options.responseQueueCapacity = 1U;
@@ -417,18 +417,18 @@ popo::ClientPortUser::MemberType_t* PoshRuntimeImpl::getMiddlewareClient(const c
         switch (maybeClient.error())
         {
         case IpcMessageErrorType::CLIENT_LIST_FULL:
-            IOX_LOG(WARN,
+            IOX_LOG(Warn,
                     "Could not create client with service description '" << service
                                                                          << "' as we are out of memory for clients.");
             IOX_REPORT(PoshError::POSH__RUNTIME_ROUDI_OUT_OF_CLIENTS, iox::er::RUNTIME_ERROR);
             break;
         case IpcMessageErrorType::REQUEST_CLIENT_INVALID_RESPONSE:
-            IOX_LOG(WARN,
+            IOX_LOG(Warn,
                     "Could not create client with service description '" << service << "'; received invalid response.");
             IOX_REPORT(PoshError::POSH__RUNTIME_ROUDI_REQUEST_CLIENT_INVALID_RESPONSE, iox::er::RUNTIME_ERROR);
             break;
         case IpcMessageErrorType::REQUEST_CLIENT_WRONG_IPC_MESSAGE_RESPONSE:
-            IOX_LOG(WARN,
+            IOX_LOG(Warn,
                     "Could not create client with service description '" << service
                                                                          << "'; received wrong IPC channel response.");
             IOX_REPORT(PoshError::POSH__RUNTIME_ROUDI_REQUEST_CLIENT_WRONG_IPC_MESSAGE_RESPONSE,
@@ -436,7 +436,7 @@ popo::ClientPortUser::MemberType_t* PoshRuntimeImpl::getMiddlewareClient(const c
             break;
         case IpcMessageErrorType::REQUEST_CLIENT_NO_WRITABLE_SHM_SEGMENT:
             IOX_LOG(
-                WARN,
+                Warn,
                 "Service '"
                     << service
                     << "' could not be created. RouDi did not find a writable shared memory segment for the current "
@@ -444,7 +444,7 @@ popo::ClientPortUser::MemberType_t* PoshRuntimeImpl::getMiddlewareClient(const c
             IOX_REPORT(PoshError::POSH__RUNTIME_NO_WRITABLE_SHM_SEGMENT, iox::er::RUNTIME_ERROR);
             break;
         default:
-            IOX_LOG(WARN, "Unknown error occurred while creating client with service description '" << service << "'");
+            IOX_LOG(Warn, "Unknown error occurred while creating client with service description '" << service << "'");
             IOX_REPORT(PoshError::POSH__RUNTIME_CLIENT_PORT_CREATION_UNKNOWN_ERROR, iox::er::RUNTIME_ERROR);
             break;
         }
@@ -459,7 +459,7 @@ PoshRuntimeImpl::requestClientFromRoudi(const IpcMessage& sendBuffer) noexcept
     IpcMessage receiveBuffer;
     if (sendRequestToRouDi(sendBuffer, receiveBuffer) == false)
     {
-        IOX_LOG(ERROR, "Request client got invalid response!");
+        IOX_LOG(Error, "Request client got invalid response!");
         return err(IpcMessageErrorType::REQUEST_CLIENT_INVALID_RESPONSE);
     }
     else if (receiveBuffer.getNumberOfElements() == 3U)
@@ -487,13 +487,13 @@ PoshRuntimeImpl::requestClientFromRoudi(const IpcMessage& sendBuffer) noexcept
         std::string IpcMessage2 = receiveBuffer.getElementAtIndex(1U);
         if (stringToIpcMessageType(IpcMessage1.c_str()) == IpcMessageType::ERROR)
         {
-            IOX_LOG(ERROR, "Request client received no valid client port from RouDi.");
+            IOX_LOG(Error, "Request client received no valid client port from RouDi.");
             return err(stringToIpcMessageErrorType(IpcMessage2.c_str()));
         }
     }
 
 
-    IOX_LOG(ERROR, "Request client got wrong response from IPC channel :'" << receiveBuffer.getMessage() << "'");
+    IOX_LOG(Error, "Request client got wrong response from IPC channel :'" << receiveBuffer.getMessage() << "'");
     return err(IpcMessageErrorType::REQUEST_CLIENT_WRONG_IPC_MESSAGE_RESPONSE);
 }
 
@@ -505,7 +505,7 @@ popo::ServerPortUser::MemberType_t* PoshRuntimeImpl::getMiddlewareServer(const c
     auto options = serverOptions;
     if (options.requestQueueCapacity > MAX_QUEUE_CAPACITY)
     {
-        IOX_LOG(WARN,
+        IOX_LOG(Warn,
                 "Requested request queue capacity "
                     << options.requestQueueCapacity << " exceeds the maximum possible one for this server"
                     << ", limiting from " << options.requestQueueCapacity << " to " << MAX_QUEUE_CAPACITY);
@@ -513,7 +513,7 @@ popo::ServerPortUser::MemberType_t* PoshRuntimeImpl::getMiddlewareServer(const c
     }
     else if (options.requestQueueCapacity == 0U)
     {
-        IOX_LOG(WARN,
+        IOX_LOG(Warn,
                 "Requested request queue capacity of 0 doesn't make sense as no data would be received,"
                     << " the capacity is set to 1");
         options.requestQueueCapacity = 1U;
@@ -530,18 +530,18 @@ popo::ServerPortUser::MemberType_t* PoshRuntimeImpl::getMiddlewareServer(const c
         switch (maybeServer.error())
         {
         case IpcMessageErrorType::SERVER_LIST_FULL:
-            IOX_LOG(WARN,
+            IOX_LOG(Warn,
                     "Could not create server with service description '" << service
                                                                          << "' as we are out of memory for servers.");
             IOX_REPORT(PoshError::POSH__RUNTIME_ROUDI_OUT_OF_SERVERS, iox::er::RUNTIME_ERROR);
             break;
         case IpcMessageErrorType::REQUEST_SERVER_INVALID_RESPONSE:
-            IOX_LOG(WARN,
+            IOX_LOG(Warn,
                     "Could not create server with service description '" << service << "'; received invalid response.");
             IOX_REPORT(PoshError::POSH__RUNTIME_ROUDI_REQUEST_SERVER_INVALID_RESPONSE, iox::er::RUNTIME_ERROR);
             break;
         case IpcMessageErrorType::REQUEST_SERVER_WRONG_IPC_MESSAGE_RESPONSE:
-            IOX_LOG(WARN,
+            IOX_LOG(Warn,
                     "Could not create server with service description '" << service
                                                                          << "'; received wrong IPC channel response.");
             IOX_REPORT(PoshError::POSH__RUNTIME_ROUDI_REQUEST_SERVER_WRONG_IPC_MESSAGE_RESPONSE,
@@ -549,7 +549,7 @@ popo::ServerPortUser::MemberType_t* PoshRuntimeImpl::getMiddlewareServer(const c
             break;
         case IpcMessageErrorType::REQUEST_SERVER_NO_WRITABLE_SHM_SEGMENT:
             IOX_LOG(
-                WARN,
+                Warn,
                 "Service '"
                     << service
                     << "' could not be created. RouDi did not find a writable shared memory segment for the current "
@@ -557,7 +557,7 @@ popo::ServerPortUser::MemberType_t* PoshRuntimeImpl::getMiddlewareServer(const c
             IOX_REPORT(PoshError::POSH__RUNTIME_NO_WRITABLE_SHM_SEGMENT, iox::er::RUNTIME_ERROR);
             break;
         default:
-            IOX_LOG(WARN, "Unknown error occurred while creating server with service description '" << service << "'");
+            IOX_LOG(Warn, "Unknown error occurred while creating server with service description '" << service << "'");
             IOX_REPORT(PoshError::POSH__RUNTIME_SERVER_PORT_CREATION_UNKNOWN_ERROR, iox::er::RUNTIME_ERROR);
             break;
         }
@@ -572,7 +572,7 @@ PoshRuntimeImpl::requestServerFromRoudi(const IpcMessage& sendBuffer) noexcept
     IpcMessage receiveBuffer;
     if (sendRequestToRouDi(sendBuffer, receiveBuffer) == false)
     {
-        IOX_LOG(ERROR, "Request server got invalid response!");
+        IOX_LOG(Error, "Request server got invalid response!");
         return err(IpcMessageErrorType::REQUEST_SERVER_INVALID_RESPONSE);
     }
     else if (receiveBuffer.getNumberOfElements() == 3U)
@@ -600,12 +600,12 @@ PoshRuntimeImpl::requestServerFromRoudi(const IpcMessage& sendBuffer) noexcept
         std::string IpcMessage2 = receiveBuffer.getElementAtIndex(1U);
         if (stringToIpcMessageType(IpcMessage1.c_str()) == IpcMessageType::ERROR)
         {
-            IOX_LOG(ERROR, "Request server received no valid server port from RouDi.");
+            IOX_LOG(Error, "Request server received no valid server port from RouDi.");
             return err(stringToIpcMessageErrorType(IpcMessage2.c_str()));
         }
     }
 
-    IOX_LOG(ERROR, "Request server got wrong response from IPC channel :'" << receiveBuffer.getMessage() << "'");
+    IOX_LOG(Error, "Request server got wrong response from IPC channel :'" << receiveBuffer.getMessage() << "'");
     return err(IpcMessageErrorType::REQUEST_SERVER_WRONG_IPC_MESSAGE_RESPONSE);
 }
 
@@ -620,7 +620,7 @@ popo::InterfacePortData* PoshRuntimeImpl::getMiddlewareInterface(const capro::In
 
     if (sendRequestToRouDi(sendBuffer, receiveBuffer) == false)
     {
-        IOX_LOG(ERROR, "Request interface got invalid response!");
+        IOX_LOG(Error, "Request interface got invalid response!");
         IOX_REPORT(PoshError::POSH__RUNTIME_ROUDI_GET_MW_INTERFACE_INVALID_RESPONSE, iox::er::RUNTIME_ERROR);
         return nullptr;
     }
@@ -644,7 +644,7 @@ popo::InterfacePortData* PoshRuntimeImpl::getMiddlewareInterface(const capro::In
         }
     }
 
-    IOX_LOG(ERROR, "Get mw interface got wrong response from IPC channel :'" << receiveBuffer.getMessage() << "'");
+    IOX_LOG(Error, "Get mw interface got wrong response from IPC channel :'" << receiveBuffer.getMessage() << "'");
     IOX_REPORT(PoshError::POSH__RUNTIME_ROUDI_GET_MW_INTERFACE_WRONG_IPC_MESSAGE_RESPONSE, iox::er::RUNTIME_ERROR);
     return nullptr;
 }
@@ -655,7 +655,7 @@ PoshRuntimeImpl::requestConditionVariableFromRoudi(const IpcMessage& sendBuffer)
     IpcMessage receiveBuffer;
     if (sendRequestToRouDi(sendBuffer, receiveBuffer) == false)
     {
-        IOX_LOG(ERROR, "Request condition variable got invalid response!");
+        IOX_LOG(Error, "Request condition variable got invalid response!");
         return err(IpcMessageErrorType::REQUEST_CONDITION_VARIABLE_INVALID_RESPONSE);
     }
     else if (receiveBuffer.getNumberOfElements() == 3U)
@@ -683,12 +683,12 @@ PoshRuntimeImpl::requestConditionVariableFromRoudi(const IpcMessage& sendBuffer)
         std::string IpcMessage2 = receiveBuffer.getElementAtIndex(1U);
         if (stringToIpcMessageType(IpcMessage1.c_str()) == IpcMessageType::ERROR)
         {
-            IOX_LOG(ERROR, "Request condition variable received no valid condition variable port from RouDi.");
+            IOX_LOG(Error, "Request condition variable received no valid condition variable port from RouDi.");
             return err(stringToIpcMessageErrorType(IpcMessage2.c_str()));
         }
     }
 
-    IOX_LOG(ERROR,
+    IOX_LOG(Error,
             "Request condition variable got wrong response from IPC channel :'" << receiveBuffer.getMessage() << "'");
     return err(IpcMessageErrorType::REQUEST_CONDITION_VARIABLE_WRONG_IPC_MESSAGE_RESPONSE);
 }
@@ -704,21 +704,21 @@ popo::ConditionVariableData* PoshRuntimeImpl::getMiddlewareConditionVariable() n
         switch (maybeConditionVariable.error())
         {
         case IpcMessageErrorType::CONDITION_VARIABLE_LIST_FULL:
-            IOX_LOG(WARN, "Could not create condition variable as we are out of memory for condition variables.");
+            IOX_LOG(Warn, "Could not create condition variable as we are out of memory for condition variables.");
             IOX_REPORT(PoshError::POSH__RUNTIME_ROUDI_CONDITION_VARIABLE_LIST_FULL, iox::er::RUNTIME_ERROR);
             break;
         case IpcMessageErrorType::REQUEST_CONDITION_VARIABLE_INVALID_RESPONSE:
-            IOX_LOG(WARN, "Could not create condition variables; received invalid IPC channel response.");
+            IOX_LOG(Warn, "Could not create condition variables; received invalid IPC channel response.");
             IOX_REPORT(PoshError::POSH__RUNTIME_ROUDI_REQUEST_CONDITION_VARIABLE_INVALID_RESPONSE,
                        iox::er::RUNTIME_ERROR);
             break;
         case IpcMessageErrorType::REQUEST_CONDITION_VARIABLE_WRONG_IPC_MESSAGE_RESPONSE:
-            IOX_LOG(WARN, "Could not create condition variables; received wrong IPC channel response.");
+            IOX_LOG(Warn, "Could not create condition variables; received wrong IPC channel response.");
             IOX_REPORT(PoshError::POSH__RUNTIME_ROUDI_REQUEST_CONDITION_VARIABLE_WRONG_IPC_MESSAGE_RESPONSE,
                        iox::er::RUNTIME_ERROR);
             break;
         default:
-            IOX_LOG(WARN, "Unknown error occurred while creating condition variable");
+            IOX_LOG(Warn, "Unknown error occurred while creating condition variable");
             IOX_REPORT(PoshError::POSH__RUNTIME_ROUDI_CONDITION_VARIABLE_CREATION_UNKNOWN_ERROR,
                        iox::er::RUNTIME_ERROR);
             break;
@@ -756,18 +756,18 @@ void PoshRuntimeImpl::sendKeepAliveAndHandleShutdownPreparation() noexcept
 
             if (stringToIpcMessageType(IpcMessage.c_str()) == IpcMessageType::PREPARE_APP_TERMINATION_ACK)
             {
-                IOX_LOG(TRACE, "RouDi unblocked shutdown of " << m_appName << ".");
+                IOX_LOG(Trace, "RouDi unblocked shutdown of " << m_appName << ".");
             }
             else
             {
-                IOX_LOG(ERROR,
+                IOX_LOG(Error,
                         "Got wrong response from IPC channel for PREPARE_APP_TERMINATION:'"
                             << receiveBuffer.getMessage() << "'");
             }
         }
         else
         {
-            IOX_LOG(ERROR,
+            IOX_LOG(Error,
                     "Sending IpcMessageType::PREPARE_APP_TERMINATION to RouDi failed:'" << receiveBuffer.getMessage()
                                                                                         << "'");
         }
@@ -782,13 +782,13 @@ PoshRuntimeImpl::convert_id_and_offset(IpcMessage& msg)
 
     if (!id.has_value())
     {
-        IOX_LOG(ERROR, "segment_id conversion failed");
+        IOX_LOG(Error, "segment_id conversion failed");
         return err(IpcMessageErrorType::SEGMENT_ID_CONVERSION_FAILURE);
     }
 
     if (!offset.has_value())
     {
-        IOX_LOG(ERROR, "offset conversion failed");
+        IOX_LOG(Error, "offset conversion failed");
         return err(IpcMessageErrorType::OFFSET_CONVERSION_FAILURE);
     }
 

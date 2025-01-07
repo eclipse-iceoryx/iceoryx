@@ -92,7 +92,7 @@ ServerPortRouDi::dispatchCaProMessageAndGetPossibleResponse(const capro::CaproMe
 void ServerPortRouDi::handleCaProProtocolViolation(const capro::CaproMessageType messageType) const noexcept
 {
     // this shouldn't be reached
-    IOX_LOG(FATAL,
+    IOX_LOG(Fatal,
             "CaPro Protocol Violation! Got '" << messageType << "' with offer state '"
                                               << (getMembers()->m_offered ? "OFFERED" : "NOT OFFERED") << "'!");
     IOX_REPORT_FATAL(PoshError::POPO__CAPRO_PROTOCOL_ERROR);
@@ -114,7 +114,7 @@ ServerPortRouDi::handleCaProMessageForStateOffered(const capro::CaproMessage& ca
     case capro::CaproMessageType::CONNECT:
         if (caProMessage.m_chunkQueueData == nullptr)
         {
-            IOX_LOG(WARN, "No client response queue passed to server");
+            IOX_LOG(Warn, "No client response queue passed to server");
             IOX_REPORT(PoshError::POPO__SERVER_PORT_NO_CLIENT_RESPONSE_QUEUE_TO_CONNECT, iox::er::RUNTIME_ERROR);
         }
         else

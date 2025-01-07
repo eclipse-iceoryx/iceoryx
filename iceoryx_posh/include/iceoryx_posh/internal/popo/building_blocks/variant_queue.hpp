@@ -59,12 +59,12 @@ enum class VariantQueueTypes : uint64_t
 ///     // overflow case
 ///     auto status = nonOverflowingQueue.push(123);
 ///     if ( !status ) {
-///         IOX_LOG(INFO, "queue is full");
+///         IOX_LOG(Info, "queue is full");
 ///     }
 ///
 ///     auto overriddenElement = overflowingQueue.push(123);
 ///     if ( overriddenElement->has_value() ) {
-///         IOX_LOG(INFO, "element " << overriddenElement->value() << " was overridden");
+///         IOX_LOG(Info, "element " << overriddenElement->value() << " was overridden");
 ///     }
 /// @endcode
 template <typename ValueType, uint64_t Capacity>

@@ -34,7 +34,7 @@ constexpr auto size(const Container& container) -> decltype(container.size())
 /// @brief Get the capacity of a C array at compile time
 /// @code
 /// constexpr uint32_t FOO[42]{};
-/// IOX_LOG(INFO, size(FOO)); // will print 42
+/// IOX_LOG(Info, size(FOO)); // will print 42
 /// @endcode
 /// @tparam T the type of the array filled out by the compiler.
 /// @tparam CapacityValue the capacity of the array filled out by the compiler.
@@ -44,7 +44,7 @@ template <typename T, uint64_t CapacityValue>
 // AXIVION Next Construct AutosarC++19_03-A2.10.5, AutosarC++19_03-M17.0.3 : The function is in the 'iox' namespace which prevents easy misuse
 // AXIVION Next Construct AutosarC++19_03-A18.1.1 : returning capacity of C array at compile time is safe, no possibility of out of bounds access
 // NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
-static constexpr uint64_t size(T const (&/*notInterested*/)[CapacityValue]) noexcept
+static constexpr uint64_t size(T const (& /*notInterested*/)[CapacityValue]) noexcept
 {
     return CapacityValue;
 }

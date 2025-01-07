@@ -23,32 +23,32 @@ namespace iox::log::internal
 void platform_log_backend(
     const char* file, int line, const char* function, IceoryxPlatformLogLevel log_level, const char* msg)
 {
-    auto level = LogLevel::TRACE;
+    auto level = LogLevel::Trace;
     switch (log_level)
     {
     case IceoryxPlatformLogLevel::IOX_PLATFORM_LOG_LEVEL_OFF:
-        level = LogLevel::OFF;
+        level = LogLevel::Off;
         break;
     case IceoryxPlatformLogLevel::IOX_PLATFORM_LOG_LEVEL_FATAL:
-        level = LogLevel::FATAL;
+        level = LogLevel::Fatal;
         break;
     case IceoryxPlatformLogLevel::IOX_PLATFORM_LOG_LEVEL_ERROR:
-        level = LogLevel::ERROR;
+        level = LogLevel::Error;
         break;
     case IceoryxPlatformLogLevel::IOX_PLATFORM_LOG_LEVEL_WARN:
-        level = LogLevel::WARN;
+        level = LogLevel::Warn;
         break;
     case IceoryxPlatformLogLevel::IOX_PLATFORM_LOG_LEVEL_INFO:
-        level = LogLevel::INFO;
+        level = LogLevel::Info;
         break;
     case IceoryxPlatformLogLevel::IOX_PLATFORM_LOG_LEVEL_DEBUG:
-        level = LogLevel::DEBUG;
+        level = LogLevel::Debug;
         break;
     case IceoryxPlatformLogLevel::IOX_PLATFORM_LOG_LEVEL_TRACE:
-        level = LogLevel::TRACE;
+        level = LogLevel::Trace;
         break;
     default:
-        level = LogLevel::TRACE;
+        level = LogLevel::Trace;
     }
     IOX_LOG_INTERNAL(file, line, function, level, msg);
 }
