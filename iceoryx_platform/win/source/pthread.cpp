@@ -24,9 +24,6 @@
 #include <sstream>
 #include <vector>
 
-HRESULT GetThreadDescription(HANDLE hThread, PWSTR* ppszThreadDescription);
-HRESULT SetThreadDescription(HANDLE hThread, PCWSTR lpThreadDescription);
-
 int iox_pthread_setname_np(iox_pthread_t thread [[maybe_unused]], const char* name [[maybe_unused]])
 {
 #if defined(__GNUC__) || defined(__GNUG__)
