@@ -33,8 +33,8 @@ namespace
 using namespace ::testing;
 using namespace iox::er;
 
-constexpr auto CODE{module_a::errors::Code::OutOfBounds};
-constexpr module_a::errors::Error ERROR{CODE};
+constexpr auto ERROR_CODE{module_a::errors::Code::OutOfBounds};
+constexpr module_a::errors::Error ERROR_MODULE{ERROR_CODE};
 
 // Here we test the custom API that the public API forwards to.
 // To observe the side effects, this requires using the TestingErrorHandler (similar to the public API).
@@ -90,13 +90,13 @@ TEST_F(ErrorReporting_test, reportNonFatalErrorWorks)
 
     auto f = []() {
         constexpr const char* STRINGIFIED_CONDITION{""};
-        report(IOX_CURRENT_SOURCE_LOCATION, RUNTIME_ERROR, ERROR, STRINGIFIED_CONDITION);
+        report(IOX_CURRENT_SOURCE_LOCATION, RUNTIME_ERROR, ERROR_MODULE, STRINGIFIED_CONDITION);
     };
 
     iox::testing::runInTestThread(f);
 
     IOX_TESTING_EXPECT_NO_PANIC();
-    IOX_TESTING_EXPECT_ERROR(CODE);
+    IOX_TESTING_EXPECT_ERROR(ERROR_CODE);
 }
 
 TEST_F(ErrorReporting_test, reportFatalErrorWorks)
@@ -105,7 +105,7 @@ TEST_F(ErrorReporting_test, reportFatalErrorWorks)
 
     auto f = []() {
         constexpr const char* STRINGIFIED_CONDITION{""};
-        report(IOX_CURRENT_SOURCE_LOCATION, FATAL, ERROR, STRINGIFIED_CONDITION);
+        report(IOX_CURRENT_SOURCE_LOCATION, FATAL, ERROR_MODULE, STRINGIFIED_CONDITION);
     };
 
     iox::testing::runInTestThread(f);
@@ -113,7 +113,7 @@ TEST_F(ErrorReporting_test, reportFatalErrorWorks)
     // panic is not required at this level as we cannot trust the custom API to enforce it
     // While we could also call panic in the custom API, there should only be one decison point
     // for it at a higher level
-    IOX_TESTING_EXPECT_ERROR(CODE);
+    IOX_TESTING_EXPECT_ERROR(ERROR_CODE);
 }
 
 TEST_F(ErrorReporting_test, reportAssertViolatonWorks)

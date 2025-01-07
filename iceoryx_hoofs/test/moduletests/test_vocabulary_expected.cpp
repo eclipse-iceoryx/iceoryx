@@ -429,10 +429,9 @@ TEST_F(expected_test, CreateWithOkFreeFunctionByForwardingIsSuccessful)
 TEST_F(expected_test, CreateWithErrFreeFunctionByCopyIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "bb641919-e319-4e9c-af67-e1e8d5dab682");
-    constexpr TestError ERROR = TestError::ERROR1;
-    expected<int, TestError> sut = err(ERROR);
+    expected<int, TestError> sut = err(TestError::ERROR1);
     ASSERT_THAT(sut.has_error(), Eq(true));
-    EXPECT_THAT(sut.error(), Eq(ERROR));
+    EXPECT_THAT(sut.error(), Eq(TestError::ERROR1));
 }
 
 TEST_F(expected_test, CreateWithErrFreeFunctionByMoveIsSuccessful)
@@ -694,10 +693,9 @@ TEST_F(expected_test, CreateFromInPlaceTypeLeadsToValidSut)
 TEST_F(expected_test, CreateFromUnexpectTypeLeadsToValidSutWithError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "20ddbfc0-2235-46c3-9618-dd75e9d3c699");
-    constexpr TestError ERROR = TestError::ERROR3;
-    expected<int, TestError> sut{unexpect, ERROR};
+    expected<int, TestError> sut{unexpect, TestError::ERROR3};
     ASSERT_THAT(sut.has_error(), Eq(true));
-    EXPECT_THAT(sut.error(), Eq(ERROR));
+    EXPECT_THAT(sut.error(), Eq(TestError::ERROR3));
 }
 
 TEST_F(expected_test, CreateFromEmptySuccessTypeLeadsToValidSut)

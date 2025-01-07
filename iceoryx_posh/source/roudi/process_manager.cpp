@@ -439,7 +439,7 @@ void ProcessManager::addSubscriberForProcess(const RuntimeName_t& name,
             else
             {
                 runtime::IpcMessage sendBuffer;
-                sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR);
+                sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR_RESPONSE);
                 sendBuffer << runtime::IpcMessageErrorTypeToString(runtime::IpcMessageErrorType::SUBSCRIBER_LIST_FULL);
                 process->sendViaIpcChannel(sendBuffer);
                 IOX_LOG(Error,
@@ -467,7 +467,7 @@ void ProcessManager::addPublisherForProcess(const RuntimeName_t& name,
             {
                 // Tell the app no writable shared memory segment was found
                 runtime::IpcMessage sendBuffer;
-                sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR);
+                sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR_RESPONSE);
                 sendBuffer << runtime::IpcMessageErrorTypeToString(
                     runtime::IpcMessageErrorType::REQUEST_PUBLISHER_NO_WRITABLE_SHM_SEGMENT);
                 process->sendViaIpcChannel(sendBuffer);
@@ -494,7 +494,7 @@ void ProcessManager::addPublisherForProcess(const RuntimeName_t& name,
             else
             {
                 runtime::IpcMessage sendBuffer;
-                sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR);
+                sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR_RESPONSE);
 
                 std::string error;
                 switch (maybePublisher.error())
@@ -544,7 +544,7 @@ void ProcessManager::addClientForProcess(const RuntimeName_t& name,
             {
                 // Tell the app no writable shared memory segment was found
                 runtime::IpcMessage sendBuffer;
-                sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR);
+                sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR_RESPONSE);
                 sendBuffer << runtime::IpcMessageErrorTypeToString(
                     runtime::IpcMessageErrorType::REQUEST_CLIENT_NO_WRITABLE_SHM_SEGMENT);
                 process->sendViaIpcChannel(sendBuffer);
@@ -569,7 +569,7 @@ void ProcessManager::addClientForProcess(const RuntimeName_t& name,
                 })
                 .or_else([&](auto&) {
                     runtime::IpcMessage sendBuffer;
-                    sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR);
+                    sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR_RESPONSE);
                     sendBuffer << runtime::IpcMessageErrorTypeToString(runtime::IpcMessageErrorType::CLIENT_LIST_FULL);
                     process->sendViaIpcChannel(sendBuffer);
 
@@ -598,7 +598,7 @@ void ProcessManager::addServerForProcess(const RuntimeName_t& name,
             {
                 // Tell the app no writable shared memory segment was found
                 runtime::IpcMessage sendBuffer;
-                sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR);
+                sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR_RESPONSE);
                 sendBuffer << runtime::IpcMessageErrorTypeToString(
                     runtime::IpcMessageErrorType::REQUEST_SERVER_NO_WRITABLE_SHM_SEGMENT);
                 process->sendViaIpcChannel(sendBuffer);
@@ -623,7 +623,7 @@ void ProcessManager::addServerForProcess(const RuntimeName_t& name,
                 })
                 .or_else([&](auto&) {
                     runtime::IpcMessage sendBuffer;
-                    sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR);
+                    sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR_RESPONSE);
                     sendBuffer << runtime::IpcMessageErrorTypeToString(runtime::IpcMessageErrorType::SERVER_LIST_FULL);
                     process->sendViaIpcChannel(sendBuffer);
 
@@ -657,7 +657,7 @@ void ProcessManager::addConditionVariableForProcess(const RuntimeName_t& runtime
                 })
                 .or_else([&](PortPoolError error) {
                     runtime::IpcMessage sendBuffer;
-                    sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR);
+                    sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR_RESPONSE);
                     if (error == PortPoolError::CONDITION_VARIABLE_LIST_FULL)
                     {
                         sendBuffer << runtime::IpcMessageErrorTypeToString(
