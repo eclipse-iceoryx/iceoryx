@@ -191,6 +191,16 @@ jobs:
         uses: ./.github/actions/install-iceoryx-deps-and-clang
       - run: ./tools/ci/build-test-ubuntu.sh 32-bit-x86
 
+  build-test-windows-32-bit:
+    # prevent stuck jobs consuming runners for 6 hours
+    timeout-minutes: 60
+    runs-on: windows-latest
+    needs: pre-flight-check
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./tools/ci/build-test-windows.ps1 -toolchain MSVC -architecture 32-bit
+        shell: powershell
+
   build-test-ubuntu-32-64-bit-mix-mode:
     # prevent stuck jobs consuming runners for 6 hours
     timeout-minutes: 60

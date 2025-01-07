@@ -34,6 +34,9 @@ The `-m32` flag tells GCC to build iceoryx as 32-bit library on a 64-bit system.
 The `-malign-double` flag is required to have 64-bit atomics on an 8 byte boundary.
 Furthermore, it is required for the 32-64 bit mix-mode to enforce the same data layout when 32-bit application communicate with 64-bit applications.
 
+> [!NOTE]
+> On Windows with MSVC, the `-DCMAKE_GENERATOR_PLATFORM=Win32` cmake flag must be set instead of the `-DCMAKE_C_FLAGS` and `-DCMAKE_CXX_FLAGS`.
+
 ## Limitations
 
 An internal data structure, the `UsedChunkList`, might be left in a corrupt state when an application terminates abnormally when writing to this data structure.
@@ -80,6 +83,9 @@ cmake --build build-32
 cmake -S iceoryx_meta -B build-64 -DCMAKE_BUILD_TYPE=Release -DEXAMPLES=ON -DIOX_EXPERIMENTAL_32_64_BIT_MIX_MODE=ON
 cmake --build build-64
 ```
+
+> [!NOTE]
+> On Windows with MSVC, there is now counterpart for `-malign-double` and therefore the 32-64 bit mix-mode does not yet work on Windows.
 
 ## Running the examples
 

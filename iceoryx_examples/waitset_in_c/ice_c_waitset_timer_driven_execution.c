@@ -60,7 +60,11 @@ void cyclicRun(iox_user_trigger_t trigger)
     fflush(stdout);
 }
 
+#if defined(_WIN32)
+DWORD WINAPI cyclicTriggerCallback(LPVOID dontCare)
+#else
 void* cyclicTriggerCallback(void* dontCare)
+#endif
 {
     // Ignore unused variable warning
     (void)dontCare;
@@ -78,13 +82,13 @@ void* cyclicTriggerCallback(void* dontCare)
     return NULL;
 }
 
-bool createThread(pthread_t* threadHandle, void* (*callback)(void*))
+bool createThread(pthread_t* threadHandle)
 {
 #if defined(_WIN32)
-    threadHandle = CreateThread(NULL, 8192, callback, NULL, 0, NULL);
+    threadHandle = CreateThread(NULL, 8192, cyclicTriggerCallback, NULL, 0, NULL);
     return threadHandle != NULL;
 #else
-    return pthread_create(threadHandle, NULL, callback, NULL) == 0;
+    return pthread_create(threadHandle, NULL, cyclicTriggerCallback, NULL) == 0;
 #endif
 }
 
@@ -121,7 +125,7 @@ int main(void)
     // start a thread which triggers cyclicTrigger every second
     //! [cyclic trigger thread]
     pthread_t cyclicTriggerThread;
-    if (!createThread(&cyclicTriggerThread, cyclicTriggerCallback))
+    if (!createThread(&cyclicTriggerThread))
     {
         printf("failed to create thread\n");
         return -1;
