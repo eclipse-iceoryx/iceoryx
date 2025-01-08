@@ -7,16 +7,16 @@ runs:
       run: |
         sudo dpkg --add-architecture i386
         sudo wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-        sudo add-apt-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-15 main"
+        sudo add-apt-repository "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-18 main"
         sudo apt-get update
         sudo apt-get install -y libacl1-dev libncurses5-dev
         sudo apt-get install -y libacl1-dev:i386 libc6-dev-i386 libc6-dev-i386-cross libstdc++6-i386-cross gcc-multilib g++-multilib
-        sudo apt-get install -y clang-format-15 clang-tidy-15 clang-tools-15 clang-15 lld
+        sudo apt-get install -y clang-format-18 clang-tidy-18 clang-tools-18 clang-18 lld
         sudo rm /usr/bin/clang
         sudo rm /usr/bin/clang++
         sudo rm /usr/bin/clang-tidy
         sudo rm /usr/bin/clang-format
-        sudo ln -s /usr/bin/clang-15 /usr/bin/clang
-        sudo ln -s /usr/bin/clang++-15 /usr/bin/clang++
-        sudo ln -s /usr/bin/clang-tidy-15 /usr/bin/clang-tidy
-        sudo ln -s /usr/bin/clang-format-15 /usr/bin/clang-format
+        sudo ln -s /usr/bin/clang-18 /usr/bin/clang
+        sudo ln -s /usr/bin/clang++-18 /usr/bin/clang++
+        sudo ln -s /usr/bin/clang-tidy-18 /usr/bin/clang-tidy
+        sudo ln -s /usr/bin/clang-format-18 /usr/bin/clang-format

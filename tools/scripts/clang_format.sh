@@ -29,7 +29,7 @@ fail() {
 hash git || fail "git not found"
 
 # Check if we have at least a specific clang-format version installed
-CLANG_FORMAT_VERSION=12
+CLANG_FORMAT_VERSION=18
 CLANG_FORMAT_CMD="clang-format-$CLANG_FORMAT_VERSION"
 if ! command -v $CLANG_FORMAT_CMD &> /dev/null
 then

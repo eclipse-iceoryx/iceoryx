@@ -15,7 +15,7 @@ jobs:
       - run: ./tools/ci/build-test-macos.sh
 
   clang-tidy-full-scan:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout

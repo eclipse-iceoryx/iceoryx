@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # Select base image
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 # Disable prompt during packages installation
 ARG DEBIAN_FRONTEND=noninteractive
@@ -11,8 +11,8 @@ ARG DEBIAN_FRONTEND=noninteractive
 # Install additional packages
 RUN apt update && apt install -y \
   clang \
-  clang-format-15 \
-  clang-tidy-15 \
+  clang-format-18 \
+  clang-tidy-18 \
   cmake \
   g++ \
   git \

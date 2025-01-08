@@ -13,7 +13,7 @@ jobs:
   pre-flight-check:
     # prevent stuck jobs consuming runners for 6 hours
     timeout-minutes: 60
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - name: Install iceoryx dependencies and clang-tidy
@@ -25,7 +25,7 @@ jobs:
       - run: ./tools/ci/cmake-linter.sh
 
   check-status-of-nightly-action:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: pre-flight-check
     steps:
       - name: Install dependencies
@@ -102,7 +102,7 @@ jobs:
     # prevent stuck jobs consuming runners for 6 hours
     timeout-minutes: 60
     needs: pre-flight-check
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - name: Unix (FreeBSD) test
@@ -132,7 +132,7 @@ jobs:
   build-test-ubuntu-with-address-sanitizer-gcc-latest:
     # prevent stuck jobs consuming runners for 1 hour
     timeout-minutes: 60
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: pre-flight-check
     steps:
       - uses: egor-tensin/setup-gcc@v1.3
@@ -146,7 +146,7 @@ jobs:
   build-test-ubuntu-with-address-sanitizer-clang-latest:
     # prevent stuck jobs consuming runners for 1 hour
     timeout-minutes: 60
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: pre-flight-check
     steps:
       - name: Checkout
@@ -169,7 +169,7 @@ jobs:
   build-test-ubuntu-with-thread-sanitizer-clang-latest:
     # prevent stuck jobs consuming runners for 3 hours
     timeout-minutes: 180
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: pre-flight-check
     steps:
       - name: Checkout
@@ -182,7 +182,7 @@ jobs:
   build-test-ubuntu-32-bit:
     # prevent stuck jobs consuming runners for 6 hours
     timeout-minutes: 60
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: pre-flight-check
     steps:
       - name: Checkout
@@ -204,7 +204,7 @@ jobs:
   build-test-ubuntu-32-64-bit-mix-mode:
     # prevent stuck jobs consuming runners for 6 hours
     timeout-minutes: 60
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: pre-flight-check
     steps:
       - name: Checkout
@@ -217,7 +217,7 @@ jobs:
   build-test-ubuntu-bazel:
     # prevent stuck jobs consuming runners for 6 hours
     timeout-minutes: 60
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: pre-flight-check
     steps:
       - name: Checkout
