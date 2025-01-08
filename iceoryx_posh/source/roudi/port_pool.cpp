@@ -38,11 +38,11 @@ PortPoolData::CondVarContainer& PortPool::getConditionVariableDataList() noexcep
     return m_portPoolData->m_conditionVariableMembers;
 }
 
-expected<popo::InterfacePortData*, PortPoolError> PortPool::addInterfacePort(const RuntimeName_t& runtimeName,
-                                                                             const capro::Interfaces interface) noexcept
+expected<popo::InterfacePortData*, PortPoolError>
+PortPool::addInterfacePort(const RuntimeName_t& runtimeName, const capro::Interfaces commInterface) noexcept
 {
     auto interfacePortData =
-        getInterfacePortDataList().emplace(runtimeName, m_portPoolData->m_uniqueRouDiId, interface);
+        getInterfacePortDataList().emplace(runtimeName, m_portPoolData->m_uniqueRouDiId, commInterface);
     if (interfacePortData == getInterfacePortDataList().end())
     {
         IOX_LOG(Warn, "Out of interface ports! Requested by runtime '" << runtimeName << "'");

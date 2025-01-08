@@ -90,7 +90,7 @@ class GatewayGeneric : public gateway_t
     uint64_t getNumberOfChannels() const noexcept;
 
   protected:
-    GatewayGeneric(capro::Interfaces interface,
+    GatewayGeneric(capro::Interfaces commInterface,
                    units::Duration discoveryPeriod = 1000_ms,
                    units::Duration forwardingPeriod = 50_ms) noexcept;
 

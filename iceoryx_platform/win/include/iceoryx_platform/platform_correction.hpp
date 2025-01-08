@@ -37,4 +37,3 @@
 
 #undef max
 #undef min
-#undef interface

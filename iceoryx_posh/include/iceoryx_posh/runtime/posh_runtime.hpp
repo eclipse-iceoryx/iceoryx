@@ -132,10 +132,10 @@ class PoshRuntime
                         const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept = 0;
 
     /// @brief request the RouDi daemon to create an interface port
-    /// @param[in] interface interface to create
+    /// @param[in] commInterface of the interface to create
     /// @param[in] nodeName name of the node where the interface should belong to
     /// @return pointer to a created interface port data
-    virtual popo::InterfacePortData* getMiddlewareInterface(const capro::Interfaces interface,
+    virtual popo::InterfacePortData* getMiddlewareInterface(const capro::Interfaces commInterface,
                                                             const NodeName_t& nodeName = {}) noexcept = 0;
 
     /// @brief request the RouDi daemon to create a condition variable

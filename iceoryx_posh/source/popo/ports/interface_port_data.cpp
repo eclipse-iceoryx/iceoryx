@@ -23,8 +23,8 @@ namespace popo
 {
 InterfacePortData::InterfacePortData(const RuntimeName_t& runtimeName,
                                      const roudi::UniqueRouDiId uniqueRoudiId,
-                                     const capro::Interfaces interface) noexcept
-    : BasePortData(capro::ServiceDescription("", "", "", {0, 0, 0, 0}, interface), runtimeName, uniqueRoudiId)
+                                     const capro::Interfaces commInterface) noexcept
+    : BasePortData(capro::ServiceDescription("", "", "", {0, 0, 0, 0}, commInterface), runtimeName, uniqueRoudiId)
 {
 }
 } // namespace popo

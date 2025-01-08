@@ -380,12 +380,12 @@ bool ProcessManager::removeProcessAndDeleteRespectiveSharedMemoryObjects(Process
     return false;
 }
 
-void ProcessManager::addInterfaceForProcess(const RuntimeName_t& name, capro::Interfaces interface) noexcept
+void ProcessManager::addInterfaceForProcess(const RuntimeName_t& name, capro::Interfaces commInterface) noexcept
 {
     findProcess(name)
         .and_then([&](auto& process) {
             // create a ReceiverPort
-            popo::InterfacePortData* port = m_portManager.acquireInterfacePortData(interface, name);
+            popo::InterfacePortData* port = m_portManager.acquireInterfacePortData(commInterface, name);
 
             // send ReceiverPort to app as a serialized relative pointer
             auto offset = UntypedRelativePointer::getOffset(segment_id_t{m_mgmtSegmentId}, port);

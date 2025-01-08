@@ -30,7 +30,7 @@ struct InterfacePortData : public BasePortData
 {
     InterfacePortData(const RuntimeName_t& runtimeName,
                       const roudi::UniqueRouDiId uniqueRoudiId,
-                      const capro::Interfaces interface) noexcept;
+                      const capro::Interfaces commInterface) noexcept;
 
     concurrent::SpscFifo<capro::CaproMessage, MAX_INTERFACE_CAPRO_FIFO_SIZE> m_caproMessageFiFo;
     bool m_doInitialOfferForward{true};

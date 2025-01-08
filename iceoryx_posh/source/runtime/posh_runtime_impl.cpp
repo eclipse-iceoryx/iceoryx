@@ -609,12 +609,12 @@ PoshRuntimeImpl::requestServerFromRoudi(const IpcMessage& sendBuffer) noexcept
     return err(IpcMessageErrorType::REQUEST_SERVER_WRONG_IPC_MESSAGE_RESPONSE);
 }
 
-popo::InterfacePortData* PoshRuntimeImpl::getMiddlewareInterface(const capro::Interfaces interface,
+popo::InterfacePortData* PoshRuntimeImpl::getMiddlewareInterface(const capro::Interfaces commInterface,
                                                                  const NodeName_t& nodeName) noexcept
 {
     IpcMessage sendBuffer;
     sendBuffer << IpcMessageTypeToString(IpcMessageType::CREATE_INTERFACE) << m_appName
-               << static_cast<uint32_t>(interface) << nodeName;
+               << static_cast<uint32_t>(commInterface) << nodeName;
 
     IpcMessage receiveBuffer;
 

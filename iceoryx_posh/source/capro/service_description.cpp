@@ -80,12 +80,12 @@ ServiceDescription::ServiceDescription(const IdString_t& service,
                                        const IdString_t& instance,
                                        const IdString_t& event,
                                        ClassHash classHash,
-                                       Interfaces interfaceSource) noexcept
+                                       Interfaces commInterface) noexcept
     : m_serviceString{service}
     , m_instanceString{instance}
     , m_eventString{event}
     , m_classHash(classHash)
-    , m_interfaceSource(interfaceSource)
+    , m_interfaceSource(commInterface)
 {
 }
 
@@ -139,7 +139,7 @@ bool ServiceDescription::operator<(const ServiceDescription& rhs) const noexcept
 ServiceDescription::operator Serialization() const noexcept
 {
     std::underlying_type<Scope>::type scope = static_cast<std::underlying_type<Scope>::type>(m_scope);
-    std::underlying_type<Interfaces>::type interface =
+    std::underlying_type<Interfaces>::type commInterface =
         static_cast<std::underlying_type<Interfaces>::type>(m_interfaceSource);
     return Serialization::create(m_serviceString,
                                  m_instanceString,
@@ -149,7 +149,7 @@ ServiceDescription::operator Serialization() const noexcept
                                  m_classHash[2U],
                                  m_classHash[3U],
                                  scope,
-                                 interface);
+                                 commInterface);
 }
 
 expected<ServiceDescription, Serialization::Error>
@@ -161,7 +161,7 @@ ServiceDescription::deserialize(const Serialization& serialized) noexcept
     using InterfaceUnderlyingType = std::underlying_type<Interfaces>::type;
 
     ScopeUnderlyingType scope{0};
-    InterfaceUnderlyingType interfaceSource{0};
+    InterfaceUnderlyingType commInterface{0};
 
     auto deserializationSuccessful = serialized.extract(deserializedObject.m_serviceString,
                                                         deserializedObject.m_instanceString,
@@ -171,15 +171,15 @@ ServiceDescription::deserialize(const Serialization& serialized) noexcept
                                                         deserializedObject.m_classHash[2U],
                                                         deserializedObject.m_classHash[3U],
                                                         scope,
-                                                        interfaceSource);
+                                                        commInterface);
     if (!deserializationSuccessful || scope >= static_cast<ScopeUnderlyingType>(Scope::INVALID)
-        || interfaceSource >= static_cast<InterfaceUnderlyingType>(Interfaces::INTERFACE_END))
+        || commInterface >= static_cast<InterfaceUnderlyingType>(Interfaces::INTERFACE_END))
     {
         return err(Serialization::Error::DESERIALIZATION_FAILED);
     }
 
     deserializedObject.m_scope = static_cast<Scope>(scope);
-    deserializedObject.m_interfaceSource = static_cast<Interfaces>(interfaceSource);
+    deserializedObject.m_interfaceSource = static_cast<Interfaces>(commInterface);
 
     return ok(deserializedObject);
 }
