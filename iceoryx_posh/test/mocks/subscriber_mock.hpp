@@ -42,7 +42,7 @@ class MockSubscriberPortUser
     {
     }
 
-    MockSubscriberPortUser(iox::popo::SubscriberPortData*){};
+    MockSubscriberPortUser(iox::popo::SubscriberPortData*) {};
     iox::capro::ServiceDescription getCaProServiceDescription() const noexcept
     {
         return getServiceDescription();
@@ -70,7 +70,7 @@ class MockBaseSubscriber
     using SelfType = MockBaseSubscriber<T, Port>;
     using PortType = Port;
 
-    MockBaseSubscriber(const iox::capro::ServiceDescription&, const iox::popo::SubscriberOptions&){};
+    MockBaseSubscriber(const iox::capro::ServiceDescription&, const iox::popo::SubscriberOptions&) {};
     MOCK_CONST_METHOD0(getUid, iox::popo::uid_t());
     MOCK_CONST_METHOD0(getServiceDescription, iox::capro::ServiceDescription());
     MOCK_METHOD1(subscribe, void(uint64_t));

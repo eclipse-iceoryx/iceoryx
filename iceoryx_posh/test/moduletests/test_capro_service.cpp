@@ -43,8 +43,8 @@ class ServiceDescription_test : public Test
     IdString_t testService;
     IdString_t testInstance;
     IdString_t testEvent;
-    void SetUp(){};
-    void TearDown(){};
+    void SetUp() {};
+    void TearDown() {};
 };
 
 /// BEGIN CLASSHASH TESTS

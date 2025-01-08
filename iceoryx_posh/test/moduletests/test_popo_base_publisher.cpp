@@ -30,7 +30,7 @@ class StubbedBasePublisher : public iox::popo::BasePublisher<port_t>
 {
   public:
     StubbedBasePublisher(iox::capro::ServiceDescription)
-        : iox::popo::BasePublisher<port_t>::BasePublisher(){};
+        : iox::popo::BasePublisher<port_t>::BasePublisher() {};
 
     using iox::popo::BasePublisher<port_t>::port;
 };

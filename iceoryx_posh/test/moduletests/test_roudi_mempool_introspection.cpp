@@ -55,7 +55,7 @@ class SegmentMock
 {
   public:
     SegmentMock() = default;
-    SegmentMock(const SegmentMock&){};
+    SegmentMock(const SegmentMock&) {};
 
     MePooMemoryManager_MOCK& getMemoryManager()
     {
@@ -91,7 +91,7 @@ class MemPoolIntrospectionAccess
                                SegmentManagerMock& segmentManager,
                                MockPublisherPortUserAccess&& publisherPort)
         : iox::roudi::MemPoolIntrospection<MePooMemoryManager_MOCK, SegmentManagerMock, MockPublisherPortUserAccess>(
-            memoryManager, segmentManager, std::move(publisherPort))
+              memoryManager, segmentManager, std::move(publisherPort))
     {
     }
     MockPublisherPortUserAccess& getPublisherPort()

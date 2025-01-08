@@ -39,8 +39,8 @@ class InterfacePortRequestStackBlowup_test : public RouDi_GTest
     {
     }
 
-    void SetUp(){};
-    void TearDown(){};
+    void SetUp() {};
+    void TearDown() {};
 };
 
 TEST_F(InterfacePortRequestStackBlowup_test, RouDiMustContinue)

@@ -32,7 +32,7 @@ using namespace iox::config;
 class CmdLineParserConfigFileOption_test : public Test
 {
   public:
-    void SetUp(){};
+    void SetUp() {};
     void TearDown()
     {
         // Reset optind to be able to parse again

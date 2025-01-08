@@ -75,15 +75,15 @@ inline Trigger::Trigger(EventBasedTrigger_t,
                         const uint64_t notificationType,
                         const uint64_t notificationTypeHash) noexcept
     : Trigger(
-        notificationOrigin,
-        []() { return false; },
-        resetCallback,
-        notificationId,
-        callback,
-        uniqueId,
-        TriggerType::EVENT_BASED,
-        notificationType,
-        notificationTypeHash)
+          notificationOrigin,
+          []() { return false; },
+          resetCallback,
+          notificationId,
+          callback,
+          uniqueId,
+          TriggerType::EVENT_BASED,
+          notificationType,
+          notificationTypeHash)
 {
 }
 } // namespace popo

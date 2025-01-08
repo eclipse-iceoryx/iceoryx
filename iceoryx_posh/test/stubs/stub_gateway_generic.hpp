@@ -39,7 +39,7 @@ class StubbedGatewayGeneric : public TestGatewayGeneric<channel_t>
 {
   public:
     StubbedGatewayGeneric()
-        : TestGatewayGeneric<channel_t>(iox::capro::Interfaces::INTERNAL){};
+        : TestGatewayGeneric<channel_t>(iox::capro::Interfaces::INTERNAL) {};
 
     void loadConfiguration(const config::GatewayConfig&) noexcept
     {

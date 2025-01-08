@@ -62,11 +62,8 @@ TEST_F(MePooConfig_Test, AddingMempoolWhenTheMemPoolConfigContainerIsFullReturns
     {
         sut.addMemPool({SIZE, CHUNK_COUNT});
     }
-    IOX_EXPECT_FATAL_FAILURE(
-        [&] {
-            sut.addMemPool({SIZE, CHUNK_COUNT});
-        },
-        iox::PoshError::MEPOO__MAXIMUM_NUMBER_OF_MEMPOOLS_REACHED);
+    IOX_EXPECT_FATAL_FAILURE([&] { sut.addMemPool({SIZE, CHUNK_COUNT}); },
+                             iox::PoshError::MEPOO__MAXIMUM_NUMBER_OF_MEMPOOLS_REACHED);
 }
 
 TEST_F(MePooConfig_Test, SetDefaultMethodAddsTheDefaultMemPoolConfigurationToTheMemPoolConfigContainer)

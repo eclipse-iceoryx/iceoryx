@@ -45,9 +45,9 @@ class PoshRuntimeSingleProcess_test : public Test
     {
     }
 
-    virtual void SetUp(){};
+    virtual void SetUp() {};
 
-    virtual void TearDown(){};
+    virtual void TearDown() {};
 };
 
 TEST_F(PoshRuntimeSingleProcess_test, ConstructorPoshRuntimeSingleProcessIsSuccess)

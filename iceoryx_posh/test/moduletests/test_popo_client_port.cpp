@@ -48,7 +48,7 @@ class ClientPort_test : public Test
                       const ClientOptions& clientOptions,
                       iox::mepoo::MemoryManager& memoryManager)
             : portData(
-                serviceDescription, runtimeName, iox::roudi::DEFAULT_UNIQUE_ROUDI_ID, clientOptions, &memoryManager)
+                  serviceDescription, runtimeName, iox::roudi::DEFAULT_UNIQUE_ROUDI_ID, clientOptions, &memoryManager)
         {
         }
 

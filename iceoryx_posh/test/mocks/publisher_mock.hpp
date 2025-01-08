@@ -36,10 +36,10 @@ class MockPublisherPortUser
     MockPublisherPortUser(std::nullptr_t)
     {
     }
-    MockPublisherPortUser(MemberType_t*){};
+    MockPublisherPortUser(MemberType_t*) {};
 
-    MockPublisherPortUser(const MockPublisherPortUser& rhs [[maybe_unused]]){};
-    MockPublisherPortUser(MockPublisherPortUser&& rhs [[maybe_unused]]){};
+    MockPublisherPortUser(const MockPublisherPortUser& rhs [[maybe_unused]]) {};
+    MockPublisherPortUser(MockPublisherPortUser&& rhs [[maybe_unused]]) {};
     MockPublisherPortUser& operator=(const MockPublisherPortUser& rhs [[maybe_unused]])
     {
         return *this;
@@ -79,7 +79,7 @@ class MockBasePublisher
   public:
     using PortType = MockPublisherPortUser;
 
-    MockBasePublisher(const iox::capro::ServiceDescription&, const iox::popo::PublisherOptions&){};
+    MockBasePublisher(const iox::capro::ServiceDescription&, const iox::popo::PublisherOptions&) {};
     MOCK_CONST_METHOD0(getUid, iox::popo::uid_t());
     MOCK_CONST_METHOD0(getServiceDescription, iox::capro::ServiceDescription());
     MOCK_METHOD0(offer, void(void));

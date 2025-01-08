@@ -43,7 +43,7 @@ class UsedChunkList_test : public Test
         memoryManager.configureMemoryManager(mempoolconf, memoryAllocator, memoryAllocator);
     };
 
-    void TearDown() override{};
+    void TearDown() override {};
 
     SharedChunk getChunkFromMemoryManager()
     {
