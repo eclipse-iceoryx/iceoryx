@@ -35,11 +35,8 @@
 #pragma pointers_to_members(full_generality)
 #endif
 
-#undef CreateMutex
 #undef max
 #undef min
 #undef interface
-#undef CreateSemaphore
 #undef OPEN_EXISTING
-#undef IGNORE
 #undef OPTIONAL
