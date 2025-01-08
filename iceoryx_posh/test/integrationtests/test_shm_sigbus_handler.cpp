@@ -45,7 +45,7 @@ TEST(ShmCreatorDeathTest, AllocatingTooMuchMemoryLeadsToExitWithSIGBUS)
         badconfig.addMemPool({1 << 30, 100});
         iox::roudi::MemPoolCollectionMemoryBlock badmempools(badconfig);
         iox::roudi::PosixShmMemoryProvider badShmProvider(
-            TEST_SHM_NAME, iox::DEFAULT_DOMAIN_ID, iox::AccessMode::READ_WRITE, iox::OpenMode::PURGE_AND_CREATE);
+            TEST_SHM_NAME, iox::DEFAULT_DOMAIN_ID, iox::AccessMode::ReadWrite, iox::OpenMode::PurgeAndCreate);
         ASSERT_FALSE(badShmProvider.addMemoryBlock(&badmempools).has_error());
 
         GTEST_FLAG(death_test_style) = "threadsafe";
@@ -58,7 +58,7 @@ TEST(ShmCreatorDeathTest, AllocatingTooMuchMemoryLeadsToExitWithSIGBUS)
     goodconfig.addMemPool({1024, 1});
     iox::roudi::MemPoolCollectionMemoryBlock goodmempools(goodconfig);
     iox::roudi::PosixShmMemoryProvider goodShmProvider(
-        TEST_SHM_NAME, iox::DEFAULT_DOMAIN_ID, iox::AccessMode::READ_WRITE, iox::OpenMode::PURGE_AND_CREATE);
+        TEST_SHM_NAME, iox::DEFAULT_DOMAIN_ID, iox::AccessMode::ReadWrite, iox::OpenMode::PurgeAndCreate);
     ASSERT_FALSE(goodShmProvider.addMemoryBlock(&goodmempools).has_error());
     ASSERT_FALSE(goodShmProvider.create().has_error());
 }

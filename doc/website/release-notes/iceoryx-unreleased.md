@@ -309,7 +309,7 @@
     iox::optional<iox::NamedSemaphore> semaphore;
     auto result = iox::NamedSemaphoreBuilder()
                     .name("mySemaphoreName")
-                    .openMode(iox::OpenMode::OPEN_OR_CREATE)
+                    .openMode(iox::OpenMode::OpenOrCreate)
                     .permissions(iox::perms::owner_all)
                     .initialValue(0U)
                     .create(semaphore);

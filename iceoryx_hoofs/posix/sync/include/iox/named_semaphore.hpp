@@ -68,7 +68,7 @@ class NamedSemaphoreBuilder
     IOX_BUILDER_PARAMETER(NamedSemaphore::Name_t, name, "")
 
     /// @brief Defines how the semaphore is opened
-    IOX_BUILDER_PARAMETER(OpenMode, openMode, OpenMode::OPEN_EXISTING)
+    IOX_BUILDER_PARAMETER(OpenMode, openMode, OpenMode::OpenExisting)
 
     /// @brief Defines the access permissions of the semaphore
     IOX_BUILDER_PARAMETER(access_rights, permissions, perms::owner_all)

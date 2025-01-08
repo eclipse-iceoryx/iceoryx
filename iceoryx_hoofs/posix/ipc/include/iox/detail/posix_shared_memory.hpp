@@ -76,7 +76,7 @@ class PosixSharedMemory : public FileManagementInterface<PosixSharedMemory>
 
     /// @brief this class has the ownership of the shared memory when the shared
     ///        memory was created by this class. This is the case when this class
-    ///        was successful created with EXCLUSIVE_CREATE, PURGE_AND_CREATE or OPEN_OR_CREATE
+    ///        was successful created with ExclusiveCreate, PurgeAndCreate or OpenOrCreate
     ///        and the shared memory was created. If an already available shared memory
     ///        is opened then this class does not have the ownership.
     bool hasOwnership() const noexcept;
@@ -116,10 +116,10 @@ class PosixSharedMemoryBuilder
 
     /// @brief Defines if the memory should be mapped read only or with write access.
     ///        A read only memory section will cause a segmentation fault when written to.
-    IOX_BUILDER_PARAMETER(AccessMode, accessMode, AccessMode::READ_ONLY)
+    IOX_BUILDER_PARAMETER(AccessMode, accessMode, AccessMode::ReadOnly)
 
     /// @brief Defines how the shared memory is acquired
-    IOX_BUILDER_PARAMETER(OpenMode, openMode, OpenMode::OPEN_EXISTING)
+    IOX_BUILDER_PARAMETER(OpenMode, openMode, OpenMode::OpenExisting)
 
     /// @brief Defines the access permissions of the shared memory
     IOX_BUILDER_PARAMETER(access_rights, filePermissions, perms::none)

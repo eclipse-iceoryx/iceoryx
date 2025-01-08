@@ -29,7 +29,7 @@ inline bool isValidPathEntry(const iox::string<StringCapacity>& name,
 
     if ((name == currentDirectory) || (name == parentDirectory))
     {
-        return relativePathComponents == RelativePathComponents::ACCEPT;
+        return relativePathComponents == RelativePathComponents::Accept;
     }
 
     const auto nameSize = name.size();
@@ -75,7 +75,7 @@ inline bool isValidFileName(const iox::string<StringCapacity>& name) noexcept
     }
 
     // check if the file contains only valid characters
-    return isValidPathEntry(name, RelativePathComponents::REJECT);
+    return isValidPathEntry(name, RelativePathComponents::Reject);
 }
 
 template <uint64_t StringCapacity>
@@ -160,7 +160,7 @@ inline bool isValidPathToDirectory(const iox::string<StringCapacity>& name) noex
         }
         else // we reached the last entry, if its a valid file name the path is valid
         {
-            return isValidPathEntry(remaining, RelativePathComponents::ACCEPT);
+            return isValidPathEntry(remaining, RelativePathComponents::Accept);
         }
     }
 
@@ -191,32 +191,32 @@ inline constexpr const char* asStringLiteral(const OpenMode mode) noexcept
 {
     switch (mode)
     {
-    case OpenMode::EXCLUSIVE_CREATE:
-        return "OpenMode::EXCLUSIVE_CREATE";
-    case OpenMode::PURGE_AND_CREATE:
-        return "OpenMode::PURGE_AND_CREATE";
-    case OpenMode::OPEN_OR_CREATE:
-        return "OpenMode::OPEN_OR_CREATE";
-    case OpenMode::OPEN_EXISTING:
-        return "OpenMode::OPEN_EXISTING";
+    case OpenMode::ExclusiveCreate:
+        return "OpenMode::ExclusiveCreate";
+    case OpenMode::PurgeAndCreate:
+        return "OpenMode::PurgeAndCreate";
+    case OpenMode::OpenOrCreate:
+        return "OpenMode::OpenOrCreate";
+    case OpenMode::OpenExisting:
+        return "OpenMode::OpenExisting";
     }
 
-    return "OpenMode::UNDEFINED_VALUE";
+    return "OpenMode::UndefinedValue";
 }
 
 inline constexpr const char* asStringLiteral(const AccessMode mode) noexcept
 {
     switch (mode)
     {
-    case AccessMode::READ_ONLY:
-        return "AccessMode::READ_ONLY";
-    case AccessMode::READ_WRITE:
-        return "AccessMode::READ_WRITE";
-    case AccessMode::WRITE_ONLY:
-        return "AccessMode::WRITE_ONLY";
+    case AccessMode::ReadOnly:
+        return "AccessMode::ReadOnly";
+    case AccessMode::ReadWrite:
+        return "AccessMode::ReadWrite";
+    case AccessMode::WriteOnly:
+        return "AccessMode::WriteOnly";
     }
 
-    return "AccessMode::UNDEFINED_VALUE";
+    return "AccessMode::UndefinedValue";
 }
 
 

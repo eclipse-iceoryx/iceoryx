@@ -83,7 +83,7 @@ SharedMemory still there, doing an unlink of /root
 Reserving 27902400 bytes in the shared memory [/root]
 While setting the acquired shared memory to zero a fatal SIGBUS signal appeared
 caused by memset. The shared memory object with the following properties
-[ name = /root, sizeInBytes = 27902400, access mode = AccessMode::READ_WRITE,
+[ name = /root, sizeInBytes = 27902400, access mode = AccessMode::ReadWrite,
 ownership = OwnerShip::MINE, baseAddressHint = (nil), permissions = 0 ] maybe
 requires more memory than it is currently available in the system.
 ```

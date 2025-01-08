@@ -26,7 +26,7 @@ namespace iox
 {
 expected<File, FileCreationError> FileBuilder::create(const FilePath& name) noexcept
 {
-    if (m_open_mode == OpenMode::PURGE_AND_CREATE)
+    if (m_open_mode == OpenMode::PurgeAndCreate)
     {
         if (File::remove(name).has_error())
         {
@@ -59,7 +59,7 @@ expected<File, FileCreationError> FileBuilder::open(const FilePath& name) noexce
             return err(FileCreationError::PermissionDenied);
         }
 
-        if (m_access_mode == AccessMode::READ_ONLY || m_access_mode == AccessMode::READ_WRITE)
+        if (m_access_mode == AccessMode::ReadOnly || m_access_mode == AccessMode::ReadWrite)
         {
             if ((perms->value() & perms::owner_read.value()) == 0)
             {
@@ -69,7 +69,7 @@ expected<File, FileCreationError> FileBuilder::open(const FilePath& name) noexce
             }
         }
 
-        if (m_access_mode == AccessMode::WRITE_ONLY || m_access_mode == AccessMode::READ_WRITE)
+        if (m_access_mode == AccessMode::WriteOnly || m_access_mode == AccessMode::ReadWrite)
         {
             if ((perms->value() & perms::owner_write.value()) == 0)
             {
@@ -328,7 +328,7 @@ expected<uint64_t, FileReadError> File::read(uint8_t* const buffer, const uint64
 expected<uint64_t, FileReadError>
 File::read_at(const uint64_t offset, uint8_t* const buffer, const uint64_t buffer_len) const noexcept
 {
-    if (m_access_mode == AccessMode::WRITE_ONLY)
+    if (m_access_mode == AccessMode::WriteOnly)
     {
         IOX_LOG(Error, "Unable to read from file since it is opened for writing only.");
         return err(FileReadError::NotOpenedForReading);
@@ -384,7 +384,7 @@ expected<uint64_t, FileWriteError> File::write(const uint8_t* const buffer, cons
 expected<uint64_t, FileWriteError>
 File::write_at(const uint64_t offset, const uint8_t* const buffer, const uint64_t buffer_len) const noexcept
 {
-    if (m_access_mode == AccessMode::READ_ONLY)
+    if (m_access_mode == AccessMode::ReadOnly)
     {
         IOX_LOG(Error, "Unable to write to file since it is opened for reading only.");
         return err(FileWriteError::NotOpenedForWriting);

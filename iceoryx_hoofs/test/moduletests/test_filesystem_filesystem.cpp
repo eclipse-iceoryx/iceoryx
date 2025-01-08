@@ -321,13 +321,13 @@ TEST(filesystem_test_isValidPathToFile_isValidPathToDirectory_isValidPathEntry,
         EXPECT_FALSE(isValidPathToDirectory(invalidCharacterMiddleTest));
         EXPECT_FALSE(isValidPathToDirectory(invalidCharacterEndTest));
 
-        EXPECT_FALSE(isValidPathEntry(invalidCharacterFrontTest, iox::RelativePathComponents::ACCEPT));
-        EXPECT_FALSE(isValidPathEntry(invalidCharacterMiddleTest, iox::RelativePathComponents::ACCEPT));
-        EXPECT_FALSE(isValidPathEntry(invalidCharacterEndTest, iox::RelativePathComponents::ACCEPT));
+        EXPECT_FALSE(isValidPathEntry(invalidCharacterFrontTest, iox::RelativePathComponents::Accept));
+        EXPECT_FALSE(isValidPathEntry(invalidCharacterMiddleTest, iox::RelativePathComponents::Accept));
+        EXPECT_FALSE(isValidPathEntry(invalidCharacterEndTest, iox::RelativePathComponents::Accept));
 
-        EXPECT_FALSE(isValidPathEntry(invalidCharacterFrontTest, iox::RelativePathComponents::REJECT));
-        EXPECT_FALSE(isValidPathEntry(invalidCharacterMiddleTest, iox::RelativePathComponents::REJECT));
-        EXPECT_FALSE(isValidPathEntry(invalidCharacterEndTest, iox::RelativePathComponents::REJECT));
+        EXPECT_FALSE(isValidPathEntry(invalidCharacterFrontTest, iox::RelativePathComponents::Reject));
+        EXPECT_FALSE(isValidPathEntry(invalidCharacterMiddleTest, iox::RelativePathComponents::Reject));
+        EXPECT_FALSE(isValidPathEntry(invalidCharacterEndTest, iox::RelativePathComponents::Reject));
     }
 }
 
@@ -493,53 +493,53 @@ TEST(filesystem_test_isValidPathEntry, EmptyPathEntryIsValid)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1280b360-f26c-4ddf-8305-e01a99d58178");
     EXPECT_TRUE(
-        isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>(""), iox::RelativePathComponents::ACCEPT));
+        isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>(""), iox::RelativePathComponents::Accept));
 }
 
 TEST(filesystem_test_isValidPathEntry, PathEntryWithOnlyValidCharactersIsValid)
 {
     ::testing::Test::RecordProperty("TEST_ID", "166fb334-05c6-4b8c-a117-223d6cadb29b");
     EXPECT_TRUE(
-        isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("a"), iox::RelativePathComponents::ACCEPT));
+        isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("a"), iox::RelativePathComponents::Accept));
     EXPECT_TRUE(
-        isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("agc"), iox::RelativePathComponents::ACCEPT));
+        isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("agc"), iox::RelativePathComponents::Accept));
     EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("a.213jkgc"),
-                                 iox::RelativePathComponents::ACCEPT));
+                                 iox::RelativePathComponents::Accept));
 }
 
 TEST(filesystem_test_isValidPathEntry, RelativePathEntriesAreValid)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d3432692-7cee-416a-a3f3-c246a02ad1a2");
     EXPECT_TRUE(
-        isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("."), iox::RelativePathComponents::ACCEPT));
+        isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("."), iox::RelativePathComponents::Accept));
     EXPECT_TRUE(
-        isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>(".."), iox::RelativePathComponents::ACCEPT));
+        isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>(".."), iox::RelativePathComponents::Accept));
 }
 
 TEST(filesystem_test_isValidPathEntry, EntriesWithEndingDotAreInvalid)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f937de46-19fc-48da-bce6-51292cd9d75e");
     EXPECT_FALSE(
-        isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("abc."), iox::RelativePathComponents::ACCEPT));
+        isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("abc."), iox::RelativePathComponents::Accept));
     EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("19283912asdb.."),
-                                  iox::RelativePathComponents::ACCEPT));
+                                  iox::RelativePathComponents::Accept));
     EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("..19283912asdb.."),
-                                  iox::RelativePathComponents::ACCEPT));
+                                  iox::RelativePathComponents::Accept));
     EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("..192839.12a.sdb.."),
-                                  iox::RelativePathComponents::ACCEPT));
+                                  iox::RelativePathComponents::Accept));
 }
 
 TEST(filesystem_test_isValidPathEntry, EntriesWithDotsNotAtTheEndAreValid)
 {
     ::testing::Test::RecordProperty("TEST_ID", "569aa328-2c47-418d-96e2-ddf73925e52f");
     EXPECT_TRUE(
-        isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>(".abc"), iox::RelativePathComponents::ACCEPT));
+        isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>(".abc"), iox::RelativePathComponents::Accept));
     EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>(".19283912asdb"),
-                                 iox::RelativePathComponents::ACCEPT));
+                                 iox::RelativePathComponents::Accept));
     EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("..19283912asdb"),
-                                 iox::RelativePathComponents::ACCEPT));
+                                 iox::RelativePathComponents::Accept));
     EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("..192839.12a.sdb"),
-                                 iox::RelativePathComponents::ACCEPT));
+                                 iox::RelativePathComponents::Accept));
 }
 
 TEST(filesystem_test_isValidPathEntry, StringContainingAllValidCharactersIsValid)
@@ -547,53 +547,53 @@ TEST(filesystem_test_isValidPathEntry, StringContainingAllValidCharactersIsValid
     ::testing::Test::RecordProperty("TEST_ID", "b2c19516-e8fb-4fb8-a366-2b7b5fd9a84b");
     EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>(
                                      "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-.:_"),
-                                 iox::RelativePathComponents::ACCEPT));
+                                 iox::RelativePathComponents::Accept));
 }
 
 TEST(filesystem_test_isValidPathEntry, StringWithSlashIsInvalid)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b1119db1-f897-48a5-af92-9a92eb3f9832");
     EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("/fuuuu/"),
-                                  iox::RelativePathComponents::ACCEPT));
+                                  iox::RelativePathComponents::Accept));
     EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("fuu/uu"),
-                                  iox::RelativePathComponents::ACCEPT));
+                                  iox::RelativePathComponents::Accept));
     EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("/fuuuu"),
-                                  iox::RelativePathComponents::ACCEPT));
+                                  iox::RelativePathComponents::Accept));
     EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("uuuubbuu/"),
-                                  iox::RelativePathComponents::ACCEPT));
+                                  iox::RelativePathComponents::Accept));
 }
 
 TEST(filesystem_test_isValidPathEntry, StringWithRelativeComponentsIsInvalidWhenItContainsRelativeComponents)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6c73e08e-3b42-446e-b8d4-a4ed7685f28e");
     EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("../to/be"),
-                                  iox::RelativePathComponents::REJECT));
+                                  iox::RelativePathComponents::Reject));
     EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("../../or/not"),
-                                  iox::RelativePathComponents::REJECT));
+                                  iox::RelativePathComponents::Reject));
     EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("to/../be"),
-                                  iox::RelativePathComponents::REJECT));
+                                  iox::RelativePathComponents::Reject));
     EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("that/../../is/the/question"),
-                                  iox::RelativePathComponents::REJECT));
+                                  iox::RelativePathComponents::Reject));
     EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("whether/tis/nobler/.."),
-                                  iox::RelativePathComponents::REJECT));
+                                  iox::RelativePathComponents::Reject));
     EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("in/the/mind/to/suffer//../.."),
-                                  iox::RelativePathComponents::REJECT));
+                                  iox::RelativePathComponents::Reject));
     EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("../the/slings/and/arrows/../.."),
-                                  iox::RelativePathComponents::REJECT));
+                                  iox::RelativePathComponents::Reject));
     EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("../of/../outrageous/fortune/../.."),
-                                  iox::RelativePathComponents::REJECT));
+                                  iox::RelativePathComponents::Reject));
     EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("./or/to/take/../arms/../.."),
-                                  iox::RelativePathComponents::REJECT));
+                                  iox::RelativePathComponents::Reject));
     EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("./agains/a/see/./of/troubles/../.."),
-                                  iox::RelativePathComponents::REJECT));
+                                  iox::RelativePathComponents::Reject));
     EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("./and/by/../opposing/./."),
-                                  iox::RelativePathComponents::REJECT));
+                                  iox::RelativePathComponents::Reject));
     EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("./end/them"),
-                                  iox::RelativePathComponents::REJECT));
+                                  iox::RelativePathComponents::Reject));
     EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("to/./die"),
-                                  iox::RelativePathComponents::REJECT));
+                                  iox::RelativePathComponents::Reject));
     EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("to/./sleep/."),
-                                  iox::RelativePathComponents::REJECT));
+                                  iox::RelativePathComponents::Reject));
 }
 
 // END file and directory path tests
@@ -609,18 +609,18 @@ constexpr OpenMode INVALID_OPEN_MODE =
 TEST(TypesTest, ConvertToOflagFromAccessModeWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9eb74e8c-7498-4400-9248-92aa6bd15142");
-    EXPECT_THAT(convertToOflags(AccessMode::READ_ONLY), Eq(O_RDONLY));
-    EXPECT_THAT(convertToOflags(AccessMode::READ_WRITE), Eq(O_RDWR));
-    EXPECT_THAT(convertToOflags(AccessMode::WRITE_ONLY), Eq(O_WRONLY));
+    EXPECT_THAT(convertToOflags(AccessMode::ReadOnly), Eq(O_RDONLY));
+    EXPECT_THAT(convertToOflags(AccessMode::ReadWrite), Eq(O_RDWR));
+    EXPECT_THAT(convertToOflags(AccessMode::WriteOnly), Eq(O_WRONLY));
     EXPECT_THAT(convertToOflags(INVALID_ACCESS_MODE), Eq(0U));
 }
 
 TEST(TypesTest, ConvertToProtflagFromAccessModeWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7a5c699e-16e6-471f-80b6-a325644e60d3");
-    EXPECT_THAT(convertToProtFlags(AccessMode::READ_ONLY), Eq(PROT_READ));
-    EXPECT_THAT(convertToProtFlags(AccessMode::READ_WRITE), Eq(PROT_READ | PROT_WRITE));
-    EXPECT_THAT(convertToProtFlags(AccessMode::WRITE_ONLY), Eq(PROT_WRITE));
+    EXPECT_THAT(convertToProtFlags(AccessMode::ReadOnly), Eq(PROT_READ));
+    EXPECT_THAT(convertToProtFlags(AccessMode::ReadWrite), Eq(PROT_READ | PROT_WRITE));
+    EXPECT_THAT(convertToProtFlags(AccessMode::WriteOnly), Eq(PROT_WRITE));
     EXPECT_THAT(convertToProtFlags(INVALID_ACCESS_MODE), Eq(PROT_NONE));
 }
 
@@ -629,11 +629,11 @@ TEST(TypesTest, ConvertToOflagFromOpenModeWorks)
     ::testing::Test::RecordProperty("TEST_ID", "95fa55c9-2d64-4296-8bbb-41ff3c9dac3f");
     // used for test purposes; operands have positive values and result is within integer range
     // NOLINTBEGIN(hicpp-signed-bitwise)
-    EXPECT_THAT(convertToOflags(OpenMode::EXCLUSIVE_CREATE), Eq(O_CREAT | O_EXCL));
-    EXPECT_THAT(convertToOflags(OpenMode::PURGE_AND_CREATE), Eq(O_CREAT | O_EXCL));
+    EXPECT_THAT(convertToOflags(OpenMode::ExclusiveCreate), Eq(O_CREAT | O_EXCL));
+    EXPECT_THAT(convertToOflags(OpenMode::PurgeAndCreate), Eq(O_CREAT | O_EXCL));
     // NOLINTEND(hicpp-signed-bitwise)
-    EXPECT_THAT(convertToOflags(OpenMode::OPEN_OR_CREATE), Eq(O_CREAT));
-    EXPECT_THAT(convertToOflags(OpenMode::OPEN_EXISTING), Eq(0));
+    EXPECT_THAT(convertToOflags(OpenMode::OpenOrCreate), Eq(O_CREAT));
+    EXPECT_THAT(convertToOflags(OpenMode::OpenExisting), Eq(0));
     EXPECT_THAT(convertToOflags(INVALID_OPEN_MODE), Eq(0));
 }
 
@@ -642,49 +642,49 @@ TEST(TypesTest, ConvertToOflagFromAccessAndOpenModeWorks)
     ::testing::Test::RecordProperty("TEST_ID", "4ea6823c-2ecd-48a5-bcea-0ea0585bee72");
     // used for test purposes; operands have positive values and result is within integer range
     // NOLINTBEGIN(hicpp-signed-bitwise)
-    EXPECT_THAT(convertToOflags(AccessMode::READ_ONLY, OpenMode::EXCLUSIVE_CREATE), Eq(O_RDONLY | O_CREAT | O_EXCL));
-    EXPECT_THAT(convertToOflags(AccessMode::READ_ONLY, OpenMode::PURGE_AND_CREATE), Eq(O_RDONLY | O_CREAT | O_EXCL));
-    EXPECT_THAT(convertToOflags(AccessMode::READ_ONLY, OpenMode::OPEN_OR_CREATE), Eq(O_RDONLY | O_CREAT));
-    EXPECT_THAT(convertToOflags(AccessMode::READ_ONLY, OpenMode::OPEN_EXISTING), Eq(O_RDONLY));
-    EXPECT_THAT(convertToOflags(AccessMode::READ_ONLY, INVALID_OPEN_MODE), Eq(O_RDONLY));
+    EXPECT_THAT(convertToOflags(AccessMode::ReadOnly, OpenMode::ExclusiveCreate), Eq(O_RDONLY | O_CREAT | O_EXCL));
+    EXPECT_THAT(convertToOflags(AccessMode::ReadOnly, OpenMode::PurgeAndCreate), Eq(O_RDONLY | O_CREAT | O_EXCL));
+    EXPECT_THAT(convertToOflags(AccessMode::ReadOnly, OpenMode::OpenOrCreate), Eq(O_RDONLY | O_CREAT));
+    EXPECT_THAT(convertToOflags(AccessMode::ReadOnly, OpenMode::OpenExisting), Eq(O_RDONLY));
+    EXPECT_THAT(convertToOflags(AccessMode::ReadOnly, INVALID_OPEN_MODE), Eq(O_RDONLY));
 
-    EXPECT_THAT(convertToOflags(AccessMode::READ_WRITE, OpenMode::EXCLUSIVE_CREATE), Eq(O_RDWR | O_CREAT | O_EXCL));
-    EXPECT_THAT(convertToOflags(AccessMode::READ_WRITE, OpenMode::PURGE_AND_CREATE), Eq(O_RDWR | O_CREAT | O_EXCL));
-    EXPECT_THAT(convertToOflags(AccessMode::READ_WRITE, OpenMode::OPEN_OR_CREATE), Eq(O_RDWR | O_CREAT));
-    EXPECT_THAT(convertToOflags(AccessMode::READ_WRITE, OpenMode::OPEN_EXISTING), Eq(O_RDWR));
-    EXPECT_THAT(convertToOflags(AccessMode::READ_WRITE, INVALID_OPEN_MODE), Eq(O_RDWR));
+    EXPECT_THAT(convertToOflags(AccessMode::ReadWrite, OpenMode::ExclusiveCreate), Eq(O_RDWR | O_CREAT | O_EXCL));
+    EXPECT_THAT(convertToOflags(AccessMode::ReadWrite, OpenMode::PurgeAndCreate), Eq(O_RDWR | O_CREAT | O_EXCL));
+    EXPECT_THAT(convertToOflags(AccessMode::ReadWrite, OpenMode::OpenOrCreate), Eq(O_RDWR | O_CREAT));
+    EXPECT_THAT(convertToOflags(AccessMode::ReadWrite, OpenMode::OpenExisting), Eq(O_RDWR));
+    EXPECT_THAT(convertToOflags(AccessMode::ReadWrite, INVALID_OPEN_MODE), Eq(O_RDWR));
 
-    EXPECT_THAT(convertToOflags(AccessMode::WRITE_ONLY, OpenMode::EXCLUSIVE_CREATE), Eq(O_WRONLY | O_CREAT | O_EXCL));
-    EXPECT_THAT(convertToOflags(AccessMode::WRITE_ONLY, OpenMode::PURGE_AND_CREATE), Eq(O_WRONLY | O_CREAT | O_EXCL));
-    EXPECT_THAT(convertToOflags(AccessMode::WRITE_ONLY, OpenMode::OPEN_OR_CREATE), Eq(O_WRONLY | O_CREAT));
-    EXPECT_THAT(convertToOflags(AccessMode::WRITE_ONLY, OpenMode::OPEN_EXISTING), Eq(O_WRONLY));
-    EXPECT_THAT(convertToOflags(AccessMode::WRITE_ONLY, INVALID_OPEN_MODE), Eq(O_WRONLY));
+    EXPECT_THAT(convertToOflags(AccessMode::WriteOnly, OpenMode::ExclusiveCreate), Eq(O_WRONLY | O_CREAT | O_EXCL));
+    EXPECT_THAT(convertToOflags(AccessMode::WriteOnly, OpenMode::PurgeAndCreate), Eq(O_WRONLY | O_CREAT | O_EXCL));
+    EXPECT_THAT(convertToOflags(AccessMode::WriteOnly, OpenMode::OpenOrCreate), Eq(O_WRONLY | O_CREAT));
+    EXPECT_THAT(convertToOflags(AccessMode::WriteOnly, OpenMode::OpenExisting), Eq(O_WRONLY));
+    EXPECT_THAT(convertToOflags(AccessMode::WriteOnly, INVALID_OPEN_MODE), Eq(O_WRONLY));
 
-    EXPECT_THAT(convertToOflags(INVALID_ACCESS_MODE, OpenMode::EXCLUSIVE_CREATE), Eq(O_CREAT | O_EXCL));
-    EXPECT_THAT(convertToOflags(INVALID_ACCESS_MODE, OpenMode::PURGE_AND_CREATE), Eq(O_CREAT | O_EXCL));
+    EXPECT_THAT(convertToOflags(INVALID_ACCESS_MODE, OpenMode::ExclusiveCreate), Eq(O_CREAT | O_EXCL));
+    EXPECT_THAT(convertToOflags(INVALID_ACCESS_MODE, OpenMode::PurgeAndCreate), Eq(O_CREAT | O_EXCL));
     // NOLINTEND(hicpp-signed-bitwise)
-    EXPECT_THAT(convertToOflags(INVALID_ACCESS_MODE, OpenMode::OPEN_OR_CREATE), Eq(O_CREAT));
-    EXPECT_THAT(convertToOflags(INVALID_ACCESS_MODE, OpenMode::OPEN_EXISTING), Eq(0));
+    EXPECT_THAT(convertToOflags(INVALID_ACCESS_MODE, OpenMode::OpenOrCreate), Eq(O_CREAT));
+    EXPECT_THAT(convertToOflags(INVALID_ACCESS_MODE, OpenMode::OpenExisting), Eq(0));
     EXPECT_THAT(convertToOflags(INVALID_ACCESS_MODE, INVALID_OPEN_MODE), Eq(0));
 }
 
 TEST(TypesTest, OpenModeAsStringLiteral)
 {
     ::testing::Test::RecordProperty("TEST_ID", "830756de-b3c9-4285-b42a-e0c6c5a315a9");
-    EXPECT_THAT(asStringLiteral(OpenMode::EXCLUSIVE_CREATE), StrEq("OpenMode::EXCLUSIVE_CREATE"));
-    EXPECT_THAT(asStringLiteral(OpenMode::PURGE_AND_CREATE), StrEq("OpenMode::PURGE_AND_CREATE"));
-    EXPECT_THAT(asStringLiteral(OpenMode::OPEN_OR_CREATE), StrEq("OpenMode::OPEN_OR_CREATE"));
-    EXPECT_THAT(asStringLiteral(OpenMode::OPEN_EXISTING), StrEq("OpenMode::OPEN_EXISTING"));
-    EXPECT_THAT(asStringLiteral(INVALID_OPEN_MODE), StrEq("OpenMode::UNDEFINED_VALUE"));
+    EXPECT_THAT(asStringLiteral(OpenMode::ExclusiveCreate), StrEq("OpenMode::ExclusiveCreate"));
+    EXPECT_THAT(asStringLiteral(OpenMode::PurgeAndCreate), StrEq("OpenMode::PurgeAndCreate"));
+    EXPECT_THAT(asStringLiteral(OpenMode::OpenOrCreate), StrEq("OpenMode::OpenOrCreate"));
+    EXPECT_THAT(asStringLiteral(OpenMode::OpenExisting), StrEq("OpenMode::OpenExisting"));
+    EXPECT_THAT(asStringLiteral(INVALID_OPEN_MODE), StrEq("OpenMode::UndefinedValue"));
 }
 
 TEST(TypesTest, AccessModeAsStringLiteral)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c5a09ee7-df2c-4a28-929c-7de743f1e423");
-    EXPECT_THAT(asStringLiteral(AccessMode::READ_ONLY), StrEq("AccessMode::READ_ONLY"));
-    EXPECT_THAT(asStringLiteral(AccessMode::READ_WRITE), StrEq("AccessMode::READ_WRITE"));
-    EXPECT_THAT(asStringLiteral(AccessMode::WRITE_ONLY), StrEq("AccessMode::WRITE_ONLY"));
-    EXPECT_THAT(asStringLiteral(INVALID_ACCESS_MODE), StrEq("AccessMode::UNDEFINED_VALUE"));
+    EXPECT_THAT(asStringLiteral(AccessMode::ReadOnly), StrEq("AccessMode::ReadOnly"));
+    EXPECT_THAT(asStringLiteral(AccessMode::ReadWrite), StrEq("AccessMode::ReadWrite"));
+    EXPECT_THAT(asStringLiteral(AccessMode::WriteOnly), StrEq("AccessMode::WriteOnly"));
+    EXPECT_THAT(asStringLiteral(INVALID_ACCESS_MODE), StrEq("AccessMode::UndefinedValue"));
 }
 
 // END AccessMode and OpenMode tests

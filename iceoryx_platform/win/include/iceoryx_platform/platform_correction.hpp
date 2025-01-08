@@ -38,4 +38,3 @@
 #undef max
 #undef min
 #undef interface
-#undef OPEN_EXISTING

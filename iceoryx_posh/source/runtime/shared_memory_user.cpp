@@ -46,7 +46,7 @@ SharedMemoryUser::create(const DomainId domainId,
                                   ResourceType::ICEORYX_DEFINED,
                                   {roudi::SHM_NAME},
                                   managementShmSize,
-                                  AccessMode::READ_WRITE);
+                                  AccessMode::ReadWrite);
     if (shmOpen.has_error())
     {
         return err(shmOpen.error());
@@ -70,7 +70,7 @@ SharedMemoryUser::create(const DomainId domainId,
                                       ResourceType::USER_DEFINED,
                                       segment.m_sharedMemoryName,
                                       segment.m_size,
-                                      segment.m_isWritable ? AccessMode::READ_WRITE : AccessMode::READ_ONLY);
+                                      segment.m_isWritable ? AccessMode::ReadWrite : AccessMode::ReadOnly);
         if (shmOpen.has_error())
         {
             return err(shmOpen.error());
@@ -114,7 +114,7 @@ expected<void, SharedMemoryUserError> SharedMemoryUser::openShmSegment(ShmVector
                          .name(concatenate(iceoryxResourcePrefix(domainId, resourceType), shmName))
                          .memorySizeInBytes(shmSize)
                          .accessMode(accessMode)
-                         .openMode(OpenMode::OPEN_EXISTING)
+                         .openMode(OpenMode::OpenExisting)
                          .create();
 
     if (shmResult.has_error())
