@@ -27,9 +27,8 @@ using ::testing::_;
 class MockTriggeHandle
 {
   public:
-    MockTriggeHandle(iox::popo::ConditionVariableData&,
-                     const iox::function<void(uint64_t)>,
-                     const uint64_t) noexcept {};
+    MockTriggeHandle(iox::popo::ConditionVariableData&, const iox::function<void(uint64_t)>, const uint64_t) noexcept {
+    };
     MockTriggeHandle() noexcept
     {
     }

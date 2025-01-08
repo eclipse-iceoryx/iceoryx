@@ -36,7 +36,7 @@ void ThreadSafePolicy::lock() const noexcept
 {
     if (!m_lock->lock())
     {
-        IOX_LOG(FATAL,
+        IOX_LOG(Fatal,
                 "Locking of an inter-process mutex failed! This indicates that the application holding the lock "
                 "was terminated or the resources were cleaned up by RouDi due to an unresponsive application.");
         IOX_REPORT_FATAL(PoshError::POPO__CHUNK_LOCKING_ERROR);
@@ -47,7 +47,7 @@ void ThreadSafePolicy::unlock() const noexcept
 {
     if (!m_lock->unlock())
     {
-        IOX_LOG(FATAL,
+        IOX_LOG(Fatal,
                 "Unlocking of an inter-process mutex failed! This indicates that the resources were cleaned up "
                 "by RouDi due to an unresponsive application.");
         IOX_REPORT_FATAL(PoshError::POPO__CHUNK_UNLOCKING_ERROR);

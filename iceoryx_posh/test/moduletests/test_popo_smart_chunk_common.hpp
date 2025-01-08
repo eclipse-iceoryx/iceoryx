@@ -55,7 +55,7 @@ class MockPublisherInterface : public PublisherInterface<DummyData, DummyHeader>
         return mockSend(std::move(s));
     }
 
-    MOCK_METHOD(void, mockSend, (SampleProducerType &&), (noexcept));
+    MOCK_METHOD(void, mockSend, (SampleProducerType&&), (noexcept));
 };
 
 struct SampleTestCase
@@ -92,7 +92,7 @@ class MockRequestInterface : public RpcInterface<RequestProducerType, ClientSend
         return mockSend(std::move(req));
     }
 
-    MOCK_METHOD((iox::expected<void, ClientSendError>), mockSend, (RequestProducerType &&), (noexcept));
+    MOCK_METHOD((iox::expected<void, ClientSendError>), mockSend, (RequestProducerType&&), (noexcept));
 };
 
 class RequestTestCase
@@ -130,7 +130,7 @@ class MockResponseInterface : public RpcInterface<ResponseProducerType, ServerSe
         return mockSend(std::move(res));
     }
 
-    MOCK_METHOD((iox::expected<void, ServerSendError>), mockSend, (ResponseProducerType &&), (noexcept));
+    MOCK_METHOD((iox::expected<void, ServerSendError>), mockSend, (ResponseProducerType&&), (noexcept));
 };
 
 class ResponseTestCase

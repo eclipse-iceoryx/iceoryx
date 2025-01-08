@@ -30,7 +30,7 @@ namespace testing
 {
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage) required to be able to easily test custom types
 #define IOX_LOGSTREAM_MOCK(logger)                                                                                     \
-    iox::log::LogStream((logger), "file", 42, "function", iox::log::LogLevel::TRACE).self()
+    iox::log::LogStream((logger), "file", 42, "function", iox::log::LogLevel::Trace).self()
 
 /// @brief This mock can be used to test implementations of LogStream::operator<< for custom types. It should be used
 /// with the 'IOX_LOGSTREAM_MOCK' macro
@@ -55,7 +55,7 @@ class Logger_Mock : public log::TestingLoggerBase
         std::string file;
         int line{0};
         std::string function;
-        log::LogLevel logLevel{iox::log::LogLevel::OFF};
+        log::LogLevel logLevel{iox::log::LogLevel::Off};
         std::string message;
     };
 

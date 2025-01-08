@@ -34,7 +34,7 @@ bool PosixAcl::writePermissionsToFile(const int32_t fileDescriptor) const noexce
 {
     if (m_permissions.empty())
     {
-        IOX_LOG(ERROR, "Error: No ACL entries defined.");
+        IOX_LOG(Error, "Error: No ACL entries defined.");
         return false;
     }
 
@@ -42,7 +42,7 @@ bool PosixAcl::writePermissionsToFile(const int32_t fileDescriptor) const noexce
 
     if (maybeWorkingACL.has_error())
     {
-        IOX_LOG(ERROR, "Error: Creating ACL failed.");
+        IOX_LOG(Error, "Error: Creating ACL failed.");
         return false;
     }
 
@@ -68,7 +68,7 @@ bool PosixAcl::writePermissionsToFile(const int32_t fileDescriptor) const noexce
 
     if (aclCheckCall.has_error())
     {
-        IOX_LOG(ERROR, "Error: Invalid ACL, cannot write to file.");
+        IOX_LOG(Error, "Error: Invalid ACL, cannot write to file.");
         return false;
     }
 
@@ -77,7 +77,7 @@ bool PosixAcl::writePermissionsToFile(const int32_t fileDescriptor) const noexce
         IOX_POSIX_CALL(iox_acl_set_fd)(fileDescriptor, workingACL.get()).successReturnValue(0).evaluate();
     if (aclSetFdCall.has_error())
     {
-        IOX_LOG(ERROR, "Error: Could not set file ACL.");
+        IOX_LOG(Error, "Error: Could not set file ACL.");
         return false;
     }
 
@@ -108,7 +108,7 @@ bool PosixAcl::addUserPermission(const Permission permission, const PosixUser::u
 {
     if (name.empty())
     {
-        IOX_LOG(ERROR, "Error: specific users must have an explicit name.");
+        IOX_LOG(Error, "Error: specific users must have an explicit name.");
         return false;
     }
 
@@ -125,7 +125,7 @@ bool PosixAcl::addGroupPermission(const Permission permission, const PosixGroup:
 {
     if (name.empty())
     {
-        IOX_LOG(ERROR, "Error: specific groups must have an explicit name.");
+        IOX_LOG(Error, "Error: specific groups must have an explicit name.");
         return false;
     }
 
@@ -142,7 +142,7 @@ bool PosixAcl::addPermissionEntry(const Category category, const Permission perm
 {
     if (m_permissions.size() >= m_permissions.capacity())
     {
-        IOX_LOG(ERROR, "Error: Number of allowed permission entries exceeded.");
+        IOX_LOG(Error, "Error: Number of allowed permission entries exceeded.");
         return false;
     }
 
@@ -152,7 +152,7 @@ bool PosixAcl::addPermissionEntry(const Category category, const Permission perm
     {
         if (!PosixUser::getUserName(id).has_value())
         {
-            IOX_LOG(ERROR, "Error: No such user");
+            IOX_LOG(Error, "Error: No such user");
             return false;
         }
 
@@ -163,7 +163,7 @@ bool PosixAcl::addPermissionEntry(const Category category, const Permission perm
     {
         if (!PosixGroup::getGroupName(id).has_value())
         {
-            IOX_LOG(ERROR, "Error: No such group");
+            IOX_LOG(Error, "Error: No such group");
             return false;
         }
 
@@ -191,7 +191,7 @@ bool PosixAcl::createACLEntry(const acl_t ACL, const PermissionEntry& entry) noe
 
     if (aclCreateEntryCall.has_error())
     {
-        IOX_LOG(ERROR, "Error: Could not create new ACL entry.");
+        IOX_LOG(Error, "Error: Could not create new ACL entry.");
         return false;
     }
 
@@ -201,7 +201,7 @@ bool PosixAcl::createACLEntry(const acl_t ACL, const PermissionEntry& entry) noe
 
     if (aclSetTagTypeCall.has_error())
     {
-        IOX_LOG(ERROR, "Error: Could not add tag type to ACL entry.");
+        IOX_LOG(Error, "Error: Could not add tag type to ACL entry.");
         return false;
     }
 
@@ -215,7 +215,7 @@ bool PosixAcl::createACLEntry(const acl_t ACL, const PermissionEntry& entry) noe
 
         if (aclSetQualifierCall.has_error())
         {
-            IOX_LOG(ERROR, "Error: Could not set ACL qualifier of user " << entry.m_id);
+            IOX_LOG(Error, "Error: Could not set ACL qualifier of user " << entry.m_id);
             return false;
         }
 
@@ -228,7 +228,7 @@ bool PosixAcl::createACLEntry(const acl_t ACL, const PermissionEntry& entry) noe
 
         if (aclSetQualifierCall.has_error())
         {
-            IOX_LOG(ERROR, "Error: Could not set ACL qualifier of group " << entry.m_id);
+            IOX_LOG(Error, "Error: Could not set ACL qualifier of group " << entry.m_id);
             return false;
         }
         break;
@@ -246,7 +246,7 @@ bool PosixAcl::createACLEntry(const acl_t ACL, const PermissionEntry& entry) noe
 
     if (aclGetPermsetCall.has_error())
     {
-        IOX_LOG(ERROR, "Error: Could not obtain ACL permission set of new ACL entry.");
+        IOX_LOG(Error, "Error: Could not obtain ACL permission set of new ACL entry.");
         return false;
     }
 
@@ -285,7 +285,7 @@ bool PosixAcl::addAclPermission(acl_permset_t permset, acl_perm_t perm) noexcept
 
     if (aclAddPermCall.has_error())
     {
-        IOX_LOG(ERROR, "Error: Could not add permission to ACL permission set.");
+        IOX_LOG(Error, "Error: Could not add permission to ACL permission set.");
         return false;
     }
     return true;

@@ -35,12 +35,12 @@ struct StubbedIceoryxTerminal
     struct Options
     {
     };
-    StubbedIceoryxTerminal(const iox::capro::ServiceDescription&, const Options&){};
+    StubbedIceoryxTerminal(const iox::capro::ServiceDescription&, const Options&) {};
 };
 
 struct StubbedExternalTerminal
 {
-    StubbedExternalTerminal(IdString_t, IdString_t, IdString_t){};
+    StubbedExternalTerminal(IdString_t, IdString_t, IdString_t) {};
 };
 
 using TestChannel = iox::gw::Channel<StubbedIceoryxTerminal, StubbedExternalTerminal>;
@@ -49,8 +49,8 @@ using TestChannel = iox::gw::Channel<StubbedIceoryxTerminal, StubbedExternalTerm
 class ChannelTest : public Test
 {
   public:
-    void SetUp(){};
-    void TearDown(){};
+    void SetUp() {};
+    void TearDown() {};
 };
 
 // ======================================== Tests ======================================== //

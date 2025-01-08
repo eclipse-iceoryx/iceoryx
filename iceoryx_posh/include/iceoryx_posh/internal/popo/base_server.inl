@@ -112,7 +112,7 @@ inline void BaseServer<PortT, TriggerHandleT>::enableState(TriggerHandleT&& trig
         if (m_trigger)
         {
             IOX_LOG(
-                WARN,
+                Warn,
                 "The server is already attached with either the ServerState::HAS_REQUEST or "
                 "ServerEvent::REQUEST_RECEIVED to a WaitSet/Listener. Detaching it from previous one and "
                 "attaching it to the new one with ServerState::HAS_REQUEST. Best practice is to call detach first.");
@@ -161,7 +161,7 @@ inline void BaseServer<PortT, TriggerHandleT>::enableEvent(TriggerHandleT&& trig
     case ServerEvent::REQUEST_RECEIVED:
         if (m_trigger)
         {
-            IOX_LOG(WARN,
+            IOX_LOG(Warn,
                     "The server is already attached with either the ServerState::HAS_REQUEST or "
                     "ServerEvent::REQUEST_RECEIVED to a WaitSet/Listener. Detaching it from previous one and "
                     "attaching it to the new one with ServerEvent::REQUEST_RECEIVED. Best practice is to call detach "

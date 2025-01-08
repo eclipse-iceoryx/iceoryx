@@ -103,7 +103,7 @@ iox_run_tests_template: &IOX_RUN_TESTS
 
 preflight_check_task:
   container:
-    dockerfile: tools/ci/docker/ubuntu-22.04
+    dockerfile: tools/ci/docker/ubuntu-24.04
     cpu: 1
     memory: 4GB
   <<: *IOX_TASK_TIMEOUT
@@ -114,13 +114,13 @@ preflight_check_task:
   cmake_linter_script: tools/ci/cmake-linter.sh
 
 #
-# Ubuntu 22.04 aarch64
+# Ubuntu 24.04 aarch64
 #
 
 ubuntu_22_04_aarch64_build_task:
   depends_on: preflight_check
   arm_container:
-    dockerfile: tools/ci/docker/ubuntu-22.04
+    dockerfile: tools/ci/docker/ubuntu-24.04
     <<: *IOX_COMMON_CPU_AND_MEMORY_CONFIG_FOR_BUILDS
   <<: *IOX_TASK_TIMEOUT
   test_binaries_cache:
@@ -135,7 +135,7 @@ ubuntu_22_04_aarch64_build_task:
 ubuntu_22_04_aarch64_test_task:
   depends_on: ubuntu_22_04_aarch64_build
   arm_container:
-    dockerfile: tools/ci/docker/ubuntu-22.04
+    dockerfile: tools/ci/docker/ubuntu-24.04
     <<: *IOX_COMMON_CPU_AND_MEMORY_CONFIG_FOR_TESTS
   <<: *IOX_TASK_TIMEOUT
   test_binaries_cache:

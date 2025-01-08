@@ -43,7 +43,7 @@ struct MutexAttributes
                 IOX_POSIX_CALL(iox_pthread_mutexattr_destroy)(&*m_attributes).returnValueMatchesErrno().evaluate();
             if (destroyResult.has_error())
             {
-                IOX_LOG(ERROR,
+                IOX_LOG(Error,
                         "This should never happen. An unknown error occurred while cleaning up the mutex attributes.");
             }
         }
@@ -58,10 +58,10 @@ struct MutexAttributes
             switch (result.error().errnum)
             {
             case ENOMEM:
-                IOX_LOG(ERROR, "Not enough memory to initialize required mutex attributes");
+                IOX_LOG(Error, "Not enough memory to initialize required mutex attributes");
                 return err(MutexBuilder::Error::INSUFFICIENT_MEMORY);
             default:
-                IOX_LOG(ERROR,
+                IOX_LOG(Error,
                         "This should never happen. An unknown error occurred while initializing the mutex attributes.");
                 return err(MutexBuilder::Error::UNKNOWN_ERROR);
             }
@@ -83,10 +83,10 @@ struct MutexAttributes
             switch (result.error().errnum)
             {
             case ENOTSUP:
-                IOX_LOG(ERROR, "The platform does not support shared mutex (inter process mutex)");
+                IOX_LOG(Error, "The platform does not support shared mutex (inter process mutex)");
                 return err(MutexBuilder::Error::INTER_PROCESS_LOCK_UNSUPPORTED_BY_PLATFORM);
             default:
-                IOX_LOG(ERROR,
+                IOX_LOG(Error,
                         "This should never happen. An unknown error occurred while setting up the inter process "
                         "configuration.");
                 return err(MutexBuilder::Error::UNKNOWN_ERROR);
@@ -103,7 +103,7 @@ struct MutexAttributes
                           .evaluate();
         if (result.has_error())
         {
-            IOX_LOG(ERROR, "This should never happen. An unknown error occurred while setting up the mutex type.");
+            IOX_LOG(Error, "This should never happen. An unknown error occurred while setting up the mutex type.");
             return err(MutexBuilder::Error::UNKNOWN_ERROR);
         }
 
@@ -121,16 +121,16 @@ struct MutexAttributes
             switch (result.error().errnum)
             {
             case ENOSYS:
-                IOX_LOG(ERROR, "The system does not support mutex priorities");
+                IOX_LOG(Error, "The system does not support mutex priorities");
                 return err(MutexBuilder::Error::PRIORITIES_UNSUPPORTED_BY_PLATFORM);
             case ENOTSUP:
-                IOX_LOG(ERROR, "The used mutex priority is not supported by the platform");
+                IOX_LOG(Error, "The used mutex priority is not supported by the platform");
                 return err(MutexBuilder::Error::USED_PRIORITY_UNSUPPORTED_BY_PLATFORM);
             case EPERM:
-                IOX_LOG(ERROR, "Insufficient permissions to set mutex priorities");
+                IOX_LOG(Error, "Insufficient permissions to set mutex priorities");
                 return err(MutexBuilder::Error::PERMISSION_DENIED);
             default:
-                IOX_LOG(ERROR,
+                IOX_LOG(Error,
                         "This should never happen. An unknown error occurred while setting up the mutex priority.");
                 return err(MutexBuilder::Error::UNKNOWN_ERROR);
             }
@@ -150,17 +150,17 @@ struct MutexAttributes
             switch (result.error().errnum)
             {
             case EPERM:
-                IOX_LOG(ERROR, "Insufficient permissions to set the mutex priority ceiling.");
+                IOX_LOG(Error, "Insufficient permissions to set the mutex priority ceiling.");
                 return err(MutexBuilder::Error::PERMISSION_DENIED);
             case ENOSYS:
-                IOX_LOG(ERROR, "The platform does not support mutex priority ceiling.");
+                IOX_LOG(Error, "The platform does not support mutex priority ceiling.");
                 return err(MutexBuilder::Error::PRIORITIES_UNSUPPORTED_BY_PLATFORM);
             case EINVAL:
             {
                 auto minimumPriority = detail::getSchedulerPriorityMinimum(detail::Scheduler::FIFO);
                 auto maximumPriority = detail::getSchedulerPriorityMaximum(detail::Scheduler::FIFO);
 
-                IOX_LOG(ERROR,
+                IOX_LOG(Error,
                         "The priority ceiling \"" << priorityCeiling << "\" is not in the valid priority range [ "
                                                   << minimumPriority << ", " << maximumPriority
                                                   << "] of the Scheduler::FIFO.");
@@ -168,7 +168,7 @@ struct MutexAttributes
             }
             default:
                 IOX_LOG(
-                    ERROR,
+                    Error,
                     "This should never happen. An unknown error occurred while setting up the mutex priority ceiling.");
                 return err(MutexBuilder::Error::UNKNOWN_ERROR);
             }
@@ -185,7 +185,7 @@ struct MutexAttributes
                           .evaluate();
         if (result.has_error())
         {
-            IOX_LOG(ERROR,
+            IOX_LOG(Error,
                     "This should never happen. An unknown error occurred while setting up the mutex thread "
                     "termination behavior.");
             return err(MutexBuilder::Error::UNKNOWN_ERROR);
@@ -206,16 +206,16 @@ expected<void, MutexBuilder::Error> initializeMutex(iox_pthread_mutex_t* const h
         switch (initResult.error().errnum)
         {
         case EAGAIN:
-            IOX_LOG(ERROR, "Not enough resources to initialize another mutex.");
+            IOX_LOG(Error, "Not enough resources to initialize another mutex.");
             return err(MutexBuilder::Error::INSUFFICIENT_RESOURCES);
         case ENOMEM:
-            IOX_LOG(ERROR, "Not enough memory to initialize mutex.");
+            IOX_LOG(Error, "Not enough memory to initialize mutex.");
             return err(MutexBuilder::Error::INSUFFICIENT_MEMORY);
         case EPERM:
-            IOX_LOG(ERROR, "Insufficient permissions to create mutex.");
+            IOX_LOG(Error, "Insufficient permissions to create mutex.");
             return err(MutexBuilder::Error::PERMISSION_DENIED);
         default:
-            IOX_LOG(ERROR,
+            IOX_LOG(Error,
                     "This should never happen. An unknown error occurred while initializing the mutex handle. "
                     "This is possible when the handle is an already initialized mutex handle.");
             return err(MutexBuilder::Error::UNKNOWN_ERROR);
@@ -229,7 +229,7 @@ expected<void, MutexBuilder::Error> MutexBuilder::create(optional<mutex>& uninit
 {
     if (uninitializedMutex.has_value())
     {
-        IOX_LOG(ERROR, "Unable to override an already initialized mutex with a new mutex");
+        IOX_LOG(Error, "Unable to override an already initialized mutex with a new mutex");
         return err(Error::LOCK_ALREADY_INITIALIZED);
     }
 
@@ -299,12 +299,12 @@ mutex::~mutex() noexcept
             switch (destroyCall.error().errnum)
             {
             case EBUSY:
-                IOX_LOG(ERROR,
+                IOX_LOG(Error,
                         "Tried to remove a locked mutex which failed. The mutex handle is now leaked and "
                         "cannot be removed anymore!");
                 break;
             default:
-                IOX_LOG(ERROR, "This should never happen. An unknown error occurred while cleaning up the mutex.");
+                IOX_LOG(Error, "This should never happen. An unknown error occurred while cleaning up the mutex.");
                 break;
             }
         }
@@ -321,7 +321,7 @@ void mutex::make_consistent() noexcept
             .evaluate()
             .and_then([&](auto) { this->m_hasInconsistentState = false; })
             .or_else([](auto) {
-                IOX_LOG(ERROR, "This should never happen. Unable to put robust mutex in a consistent state!");
+                IOX_LOG(Error, "This should never happen. Unable to put robust mutex in a consistent state!");
             });
     }
 }
@@ -334,24 +334,24 @@ expected<void, LockError> mutex::lock_impl() noexcept
         switch (result.error().errnum)
         {
         case EINVAL:
-            IOX_LOG(ERROR,
+            IOX_LOG(Error,
                     "The mutex has the attribute MutexPriorityInheritance::PROTECT set and the calling threads "
                     "priority is greater than the mutex priority.");
             return err(LockError::PRIORITY_MISMATCH);
         case EAGAIN:
-            IOX_LOG(ERROR, "Maximum number of recursive locks exceeded.");
+            IOX_LOG(Error, "Maximum number of recursive locks exceeded.");
             return err(LockError::MAXIMUM_NUMBER_OF_RECURSIVE_LOCKS_EXCEEDED);
         case EDEADLK:
-            IOX_LOG(ERROR, "Deadlock in mutex detected.");
+            IOX_LOG(Error, "Deadlock in mutex detected.");
             return err(LockError::DEADLOCK_CONDITION);
         case EOWNERDEAD:
-            IOX_LOG(ERROR,
+            IOX_LOG(Error,
                     "The thread/process which owned the mutex died. The mutex is now in an inconsistent state "
                     "and must be put into a consistent state again with Mutex::make_consistent()");
             this->m_hasInconsistentState = true;
             return err(LockError::LOCK_ACQUIRED_BUT_HAS_INCONSISTENT_STATE_SINCE_OWNER_DIED);
         default:
-            IOX_LOG(ERROR,
+            IOX_LOG(Error,
                     "This should never happen. An unknown error occurred while locking the mutex. "
                     "This can indicate a either corrupted or non-POSIX compliant system.");
             return err(LockError::UNKNOWN_ERROR);
@@ -368,12 +368,12 @@ expected<void, UnlockError> mutex::unlock_impl() noexcept
         switch (result.error().errnum)
         {
         case EPERM:
-            IOX_LOG(ERROR,
+            IOX_LOG(Error,
                     "The mutex is not owned by the current thread. The mutex must be unlocked by the same "
                     "thread it was locked by.");
             return err(UnlockError::NOT_OWNED_BY_THREAD);
         default:
-            IOX_LOG(ERROR,
+            IOX_LOG(Error,
                     "This should never happen. An unknown error occurred while unlocking the mutex. "
                     "This can indicate a either corrupted or non-POSIX compliant system.");
             return err(UnlockError::UNKNOWN_ERROR);
@@ -393,21 +393,21 @@ expected<TryLock, TryLockError> mutex::try_lock_impl() noexcept
         switch (result.error().errnum)
         {
         case EAGAIN:
-            IOX_LOG(ERROR, "Maximum number of recursive locks exceeded.");
+            IOX_LOG(Error, "Maximum number of recursive locks exceeded.");
             return err(TryLockError::MAXIMUM_NUMBER_OF_RECURSIVE_LOCKS_EXCEEDED);
         case EINVAL:
-            IOX_LOG(ERROR,
+            IOX_LOG(Error,
                     "The mutex has the attribute MutexPriorityInheritance::PROTECT set and the calling threads "
                     "priority is greater than the mutex priority.");
             return err(TryLockError::PRIORITY_MISMATCH);
         case EOWNERDEAD:
-            IOX_LOG(ERROR,
+            IOX_LOG(Error,
                     "The thread/process which owned the mutex died. The mutex is now in an inconsistent state and must "
                     "be put into a consistent state again with Mutex::make_consistent()");
             this->m_hasInconsistentState = true;
             return err(TryLockError::LOCK_ACQUIRED_BUT_HAS_INCONSISTENT_STATE_SINCE_OWNER_DIED);
         default:
-            IOX_LOG(ERROR,
+            IOX_LOG(Error,
                     "This should never happen. An unknown error occurred while trying to lock the mutex. This can "
                     "indicate a either corrupted or non-POSIX compliant system.");
             return err(TryLockError::UNKNOWN_ERROR);

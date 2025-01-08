@@ -188,7 +188,7 @@ int convertToOflags(const AccessMode accessMode) noexcept
         return O_WRONLY;
     }
 
-    IOX_LOG(ERROR, "Unable to convert to O_ flag since an undefined iox::AccessMode was provided");
+    IOX_LOG(Error, "Unable to convert to O_ flag since an undefined iox::AccessMode was provided");
     return 0;
 }
 
@@ -208,7 +208,7 @@ int convertToOflags(const OpenMode openMode) noexcept
         return O_CREAT | O_EXCL;
     }
 
-    IOX_LOG(ERROR, "Unable to convert to O_ flag since an undefined iox::OpenMode was provided");
+    IOX_LOG(Error, "Unable to convert to O_ flag since an undefined iox::OpenMode was provided");
     return 0;
 }
 
@@ -225,7 +225,7 @@ int convertToProtFlags(const AccessMode accessMode) noexcept
         return PROT_WRITE;
     }
 
-    IOX_LOG(ERROR, "Unable to convert to PROT_ flag since an undefined iox::AccessMode was provided");
+    IOX_LOG(Error, "Unable to convert to PROT_ flag since an undefined iox::AccessMode was provided");
     return PROT_NONE;
 }
 

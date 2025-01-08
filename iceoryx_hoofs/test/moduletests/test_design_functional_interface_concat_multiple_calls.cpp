@@ -51,8 +51,7 @@ struct AndThenOrElseConcatenatedWorksWhenInvalid<TYPE_HAS_NO_VALUE_METHOD, TYPE_
         auto sut = TestFactory::createInvalidObject();
         bool wasAndThenCalled = false;
         bool wasOrElseCalled = false;
-        sutCall(
-            sut, [&] { wasAndThenCalled = true; }, [&] { wasOrElseCalled = true; });
+        sutCall(sut, [&] { wasAndThenCalled = true; }, [&] { wasOrElseCalled = true; });
 
         EXPECT_FALSE(wasAndThenCalled);
         EXPECT_TRUE(wasOrElseCalled);
@@ -68,8 +67,7 @@ struct AndThenOrElseConcatenatedWorksWhenInvalid<TYPE_HAS_VALUE_METHOD, TYPE_HAS
         auto sut = TestFactory::createInvalidObject();
         bool wasAndThenCalled = false;
         bool wasOrElseCalled = false;
-        sutCall(
-            sut, [&](auto&) { wasAndThenCalled = true; }, [&] { wasOrElseCalled = true; });
+        sutCall(sut, [&](auto&) { wasAndThenCalled = true; }, [&] { wasOrElseCalled = true; });
 
         EXPECT_FALSE(wasAndThenCalled);
         EXPECT_TRUE(wasOrElseCalled);
@@ -161,8 +159,7 @@ struct AndThenOrElseConcatenatedWorkWhenValid<TYPE_HAS_NO_VALUE_METHOD, TYPE_HAS
         auto sut = TestFactory::createValidObject();
         bool wasAndThenCalled = false;
         bool wasOrElseCalled = false;
-        sutCall(
-            sut, [&] { wasAndThenCalled = true; }, [&] { wasOrElseCalled = true; });
+        sutCall(sut, [&] { wasAndThenCalled = true; }, [&] { wasOrElseCalled = true; });
 
         EXPECT_TRUE(wasAndThenCalled);
         EXPECT_FALSE(wasOrElseCalled);
@@ -200,8 +197,7 @@ struct AndThenOrElseConcatenatedWorkWhenValid<TYPE_HAS_NO_VALUE_METHOD, TYPE_HAS
         auto sut = TestFactory::createValidObject();
         bool wasAndThenCalled = false;
         bool wasOrElseCalled = false;
-        sutCall(
-            sut, [&] { wasAndThenCalled = true; }, [&](auto&) { wasOrElseCalled = true; });
+        sutCall(sut, [&] { wasAndThenCalled = true; }, [&](auto&) { wasOrElseCalled = true; });
 
         EXPECT_TRUE(wasAndThenCalled);
         EXPECT_FALSE(wasOrElseCalled);

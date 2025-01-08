@@ -34,7 +34,7 @@ expected<void, PosixIpcChannelError> UnixDomainSocket::timedSendImpl(not_null<co
 
     if (PosixIpcChannelSide::SERVER == m_channelSide)
     {
-        IOX_LOG(ERROR, "sending on server side not supported for unix domain socket \"" << m_name << "\"");
+        IOX_LOG(Error, "sending on server side not supported for unix domain socket \"" << m_name << "\"");
         return err(PosixIpcChannelError::INTERNAL_LOGIC_ERROR);
     }
 
@@ -70,7 +70,7 @@ expected<uint64_t, PosixIpcChannelError> UnixDomainSocket::timedReceiveImpl(
 {
     if (PosixIpcChannelSide::CLIENT == m_channelSide)
     {
-        IOX_LOG(ERROR, "receiving on client side not supported for unix domain socket \"" << m_name << "\"");
+        IOX_LOG(Error, "receiving on client side not supported for unix domain socket \"" << m_name << "\"");
         return err(PosixIpcChannelError::INTERNAL_LOGIC_ERROR);
     }
 

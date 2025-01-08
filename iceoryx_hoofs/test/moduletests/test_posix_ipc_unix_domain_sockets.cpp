@@ -104,12 +104,12 @@ class UnixDomainSocket_test : public Test
                     .failureReturnValue(ERROR_CODE)
                     .evaluate()
                     .or_else([&](auto&) {
-                        IOX_LOG(ERROR, "unable to bind socket");
+                        IOX_LOG(Error, "unable to bind socket");
                         socketCreationSuccess = false;
                     });
             })
             .or_else([&](auto&) {
-                IOX_LOG(ERROR, "unable to create socket");
+                IOX_LOG(Error, "unable to create socket");
                 socketCreationSuccess = false;
             });
         return socketCreationSuccess;
@@ -300,8 +300,7 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfNonEmptyMessageWithSendAn
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfEmptyMessageWithSendAndReceive)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1cbb2b57-5bde-4d36-b11d-879f55a313c0");
-    successfulSendAndReceive(
-        {""}, [&](auto& msg) { return client.send(msg); }, [&]() { return server.receive(); });
+    successfulSendAndReceive({""}, [&](auto& msg) { return client.send(msg); }, [&]() { return server.receive(); });
 }
 
 TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfEmptyMessageWithTimedSendAndReceive)

@@ -140,7 +140,7 @@ struct Arg : Counter<Arg>
 {
     Arg() = default;
     explicit Arg(int32_t value)
-        : value(value){};
+        : value(value) {};
     Arg(const Arg&) = default;
     Arg& operator=(const Arg&) = default;
 
@@ -557,7 +557,7 @@ TEST_F(function_test, CallWithRValueReferenceArgumentsWorks)
 
     // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved) this is okay for this test
     auto lambda = [](Arg&& a) { return a.value + 1; };
-    function<int32_t(Arg &&), 128> sut(lambda);
+    function<int32_t(Arg&&), 128> sut(lambda);
 
     auto result = sut(std::move(arg));
 

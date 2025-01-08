@@ -113,7 +113,7 @@ ClientPortRouDi::dispatchCaProMessageAndGetPossibleResponse(const capro::CaproMe
 void ClientPortRouDi::handleCaProProtocolViolation(const iox::capro::CaproMessageType messageType) noexcept
 {
     // this shouldn't be reached
-    IOX_LOG(FATAL,
+    IOX_LOG(Fatal,
             "CaPro Protocol Violation! Got '"
                 << messageType << "' in '" << getMembers()->m_connectionState.load(std::memory_order_relaxed) << "'");
     IOX_REPORT_FATAL(PoshError::POPO__CAPRO_PROTOCOL_ERROR);

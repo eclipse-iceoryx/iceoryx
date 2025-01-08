@@ -57,7 +57,7 @@ inline bool isLogLevelActive(LogLevel logLevel) noexcept
 /// @param[in] level is the log level to be used for the log message
 /// @param[in] msg_stream is the log message stream; multiple items can be logged by using the '<<' operator
 /// @code
-///     IOX_LOG(INFO, "Hello" << " World");
+///     IOX_LOG(Info, "Hello" << " World");
 /// @endcode
 // AXIVION Next Construct AutosarC++19_03-A16.0.1 needed for source code location, safely wrapped in macro
 // AXIVION Next Construct AutosarC++19_03-M16.0.6 brackets around macro parameter would lead to compile time failures in this case

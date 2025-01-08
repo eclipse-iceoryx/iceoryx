@@ -35,7 +35,7 @@ inline SegmentManager<SegmentType>::SegmentManager(const SegmentConfig& segmentC
 {
     if (segmentConfig.m_sharedMemorySegments.capacity() > m_segmentContainer.capacity())
     {
-        IOX_LOG(FATAL,
+        IOX_LOG(Fatal,
                 "Trying to add " << segmentConfig.m_sharedMemorySegments.capacity()
                                  << " segments while the 'SegmentManager' can manage only "
                                  << m_segmentContainer.capacity());

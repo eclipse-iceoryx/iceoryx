@@ -111,7 +111,7 @@ int main()
 {
     // set the log level to info to to have the output for launch_testing
     //! [log level]
-    iox::log::Logger::init(iox::log::LogLevel::INFO);
+    iox::log::Logger::init(iox::log::LogLevel::Info);
     //! [log level]
 
     //! [roudi config]

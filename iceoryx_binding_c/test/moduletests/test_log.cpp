@@ -33,25 +33,25 @@ TEST(iox_log_test, LogLevelIsSetCorrectly)
     auto& logger = iox::log::Logger::get();
 
     iox_set_loglevel(Iceoryx_LogLevel_Off);
-    EXPECT_EQ(logger.getLogLevel(), LogLevel::OFF);
+    EXPECT_EQ(logger.getLogLevel(), LogLevel::Off);
 
     iox_set_loglevel(Iceoryx_LogLevel_Fatal);
-    EXPECT_EQ(logger.getLogLevel(), LogLevel::FATAL);
+    EXPECT_EQ(logger.getLogLevel(), LogLevel::Fatal);
 
     iox_set_loglevel(Iceoryx_LogLevel_Error);
-    EXPECT_EQ(logger.getLogLevel(), LogLevel::ERROR);
+    EXPECT_EQ(logger.getLogLevel(), LogLevel::Error);
 
     iox_set_loglevel(Iceoryx_LogLevel_Warn);
-    EXPECT_EQ(logger.getLogLevel(), LogLevel::WARN);
+    EXPECT_EQ(logger.getLogLevel(), LogLevel::Warn);
 
     iox_set_loglevel(Iceoryx_LogLevel_Info);
-    EXPECT_EQ(logger.getLogLevel(), LogLevel::INFO);
+    EXPECT_EQ(logger.getLogLevel(), LogLevel::Info);
 
     iox_set_loglevel(Iceoryx_LogLevel_Debug);
-    EXPECT_EQ(logger.getLogLevel(), LogLevel::DEBUG);
+    EXPECT_EQ(logger.getLogLevel(), LogLevel::Debug);
 
     iox_set_loglevel(Iceoryx_LogLevel_Trace);
-    EXPECT_EQ(logger.getLogLevel(), LogLevel::TRACE);
+    EXPECT_EQ(logger.getLogLevel(), LogLevel::Trace);
 }
 
 } // namespace

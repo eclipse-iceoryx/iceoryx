@@ -33,13 +33,13 @@ namespace log
 /// @brief This enum defines the log levels used for logging.
 enum class LogLevel : uint8_t
 {
-    OFF = IceoryxPlatformLogLevel::IOX_PLATFORM_LOG_LEVEL_OFF,
-    FATAL = IceoryxPlatformLogLevel::IOX_PLATFORM_LOG_LEVEL_FATAL,
-    ERROR = IceoryxPlatformLogLevel::IOX_PLATFORM_LOG_LEVEL_ERROR,
-    WARN = IceoryxPlatformLogLevel::IOX_PLATFORM_LOG_LEVEL_WARN,
-    INFO = IceoryxPlatformLogLevel::IOX_PLATFORM_LOG_LEVEL_INFO,
-    DEBUG = IceoryxPlatformLogLevel::IOX_PLATFORM_LOG_LEVEL_DEBUG,
-    TRACE = IceoryxPlatformLogLevel::IOX_PLATFORM_LOG_LEVEL_TRACE,
+    Off = IceoryxPlatformLogLevel::IOX_PLATFORM_LOG_LEVEL_OFF,
+    Fatal = IceoryxPlatformLogLevel::IOX_PLATFORM_LOG_LEVEL_FATAL,
+    Error = IceoryxPlatformLogLevel::IOX_PLATFORM_LOG_LEVEL_ERROR,
+    Warn = IceoryxPlatformLogLevel::IOX_PLATFORM_LOG_LEVEL_WARN,
+    Info = IceoryxPlatformLogLevel::IOX_PLATFORM_LOG_LEVEL_INFO,
+    Debug = IceoryxPlatformLogLevel::IOX_PLATFORM_LOG_LEVEL_DEBUG,
+    Trace = IceoryxPlatformLogLevel::IOX_PLATFORM_LOG_LEVEL_TRACE,
 };
 
 /// @brief converts LogLevel into a string literal

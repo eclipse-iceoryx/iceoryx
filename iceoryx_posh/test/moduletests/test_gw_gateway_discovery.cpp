@@ -53,8 +53,8 @@ class InterfacePort_mock
 class GatewayDiscovery_test : public Test
 {
   public:
-    void SetUp(){};
-    void TearDown(){};
+    void SetUp() {};
+    void TearDown() {};
 };
 
 TEST_F(GatewayDiscovery_test, GetCaproMessage)

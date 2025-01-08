@@ -27,21 +27,21 @@ LogLevel toLogLevel(enum iox_LogLevel level)
     switch (level)
     {
     case Iceoryx_LogLevel_Off:
-        return LogLevel::OFF;
+        return LogLevel::Off;
     case Iceoryx_LogLevel_Trace:
-        return LogLevel::TRACE;
+        return LogLevel::Trace;
     case Iceoryx_LogLevel_Debug:
-        return LogLevel::DEBUG;
+        return LogLevel::Debug;
     case Iceoryx_LogLevel_Info:
-        return LogLevel::INFO;
+        return LogLevel::Info;
     case Iceoryx_LogLevel_Warn:
-        return LogLevel::WARN;
+        return LogLevel::Warn;
     case Iceoryx_LogLevel_Error:
-        return LogLevel::ERROR;
+        return LogLevel::Error;
     case Iceoryx_LogLevel_Fatal:
-        return LogLevel::FATAL;
+        return LogLevel::Fatal;
     default:
-        return LogLevel::TRACE;
+        return LogLevel::Trace;
     }
 }
 

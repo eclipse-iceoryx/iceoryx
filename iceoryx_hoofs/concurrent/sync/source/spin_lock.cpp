@@ -26,7 +26,7 @@ SpinLockBuilder::create(optional<concurrent::SpinLock>& uninitializedLock) noexc
 {
     if (uninitializedLock.has_value())
     {
-        IOX_LOG(ERROR, "Unable to override an already initialized SpinLock with a new SpinLock");
+        IOX_LOG(Error, "Unable to override an already initialized SpinLock with a new SpinLock");
         return err(Error::LOCK_ALREADY_INITIALIZED);
     }
 

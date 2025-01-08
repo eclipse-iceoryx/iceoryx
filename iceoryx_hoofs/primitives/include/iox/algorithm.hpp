@@ -181,7 +181,7 @@ struct greater_or_equal
     {
         if (t < Minimum)
         {
-            IOX_LOG(FATAL, "The value '" << t << "' is below '" << Minimum << "'");
+            IOX_LOG(Fatal, "The value '" << t << "' is below '" << Minimum << "'");
             IOX_PANIC("Violating invariant of 'greater_or_equal'");
         }
     }
@@ -210,7 +210,7 @@ struct range
     {
         if (t < Minimum || t > Maximum)
         {
-            IOX_LOG(FATAL, "The value '" << t << "' is out of the range [" << Minimum << ", " << Maximum << "]");
+            IOX_LOG(Fatal, "The value '" << t << "' is out of the range [" << Minimum << ", " << Maximum << "]");
             IOX_PANIC("Violating invariant of 'range'");
         }
     }

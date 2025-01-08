@@ -41,7 +41,7 @@ template <typename port_t>
 inline BaseSubscriber<port_t>::BaseSubscriber(const capro::ServiceDescription& service,
                                               const SubscriberOptions& subscriberOptions) noexcept
     : BaseSubscriber(
-        port_t{iox::runtime::PoshRuntime::getInstance().getMiddlewareSubscriber(service, subscriberOptions)})
+          port_t{iox::runtime::PoshRuntime::getInstance().getMiddlewareSubscriber(service, subscriberOptions)})
 {
 }
 
@@ -126,7 +126,7 @@ inline void BaseSubscriber<port_t>::enableState(iox::popo::TriggerHandle&& trigg
         if (m_trigger)
         {
             IOX_LOG(
-                WARN,
+                Warn,
                 "The subscriber is already attached with either the SubscriberState::HAS_DATA or "
                 "SubscriberEvent::DATA_RECEIVED to a WaitSet/Listener. Detaching it from previous one and "
                 "attaching it to the new one with SubscriberState::HAS_DATA. Best practice is to call detach first.");
@@ -175,7 +175,7 @@ inline void BaseSubscriber<port_t>::enableEvent(iox::popo::TriggerHandle&& trigg
     case SubscriberEvent::DATA_RECEIVED:
         if (m_trigger)
         {
-            IOX_LOG(WARN,
+            IOX_LOG(Warn,
                     "The subscriber is already attached with either the SubscriberState::HAS_DATA or "
                     "SubscriberEvent::DATA_RECEIVED to a WaitSet/Listener. Detaching it from previous one and "
                     "attaching it to the new one with SubscriberEvent::DATA_RECEIVED. Best practice is to call detach "

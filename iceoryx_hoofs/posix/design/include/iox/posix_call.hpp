@@ -192,14 +192,14 @@ class [[nodiscard]] PosixCallBuilder
 ///             .ignoreErrnos(ETIMEDOUT) // can be a comma separated list of errnos
 ///             .evaluate()
 ///             .and_then([](auto & result){
-///                 IOX_LOG(INFO, result.value); // return value of sem_timedwait
-///                 IOX_LOG(INFO, result.errno); // errno which was set by sem_timedwait
-///                 IOX_LOG(INFO, result.getHumanReadableErrnum()); // get string returned by strerror_r(errno, ...)
+///                 IOX_LOG(Info, result.value); // return value of sem_timedwait
+///                 IOX_LOG(Info, result.errno); // errno which was set by sem_timedwait
+///                 IOX_LOG(Info, result.getHumanReadableErrnum()); // get string returned by strerror_r(errno, ...)
 ///             })
 ///             .or_else([](auto & result){
-///                 IOX_LOG(INFO, result.value); // return value of sem_timedwait
-///                 IOX_LOG(INFO, result.errno); // errno which was set by sem_timedwait
-///                 IOX_LOG(INFO, result.getHumanReadableErrnum()); // get string returned by strerror_r(errno, ...)
+///                 IOX_LOG(Info, result.value); // return value of sem_timedwait
+///                 IOX_LOG(Info, result.errno); // errno which was set by sem_timedwait
+///                 IOX_LOG(Info, result.getHumanReadableErrnum()); // get string returned by strerror_r(errno, ...)
 ///             })
 ///
 ///        // when your posix call signals failure with one specific return value use

@@ -47,7 +47,7 @@ NodeBuilder&& NodeBuilder::domain_id_from_env() && noexcept
                           .evaluate();
         if (result.has_error() && result.error().errnum == ERANGE)
         {
-            IOX_LOG(INFO,
+            IOX_LOG(Info,
                     "Invalid value for 'IOX_DOMAIN_ID' environment variable! Must be in the range of '0' to '65535'!");
         }
 
@@ -66,8 +66,8 @@ NodeBuilder&& NodeBuilder::domain_id_from_env() && noexcept
         iox::convert::from_string<uint16_t>(domain_id_string.c_str())
             .and_then([this](const auto& env_domain_id) { m_domain_id.emplace(env_domain_id); })
             .or_else([&domain_id_string]() {
-                IOX_LOG(INFO, "Invalid value for 'IOX_DOMAIN_ID' environment variable!'");
-                IOX_LOG(INFO, "Found: '" << domain_id_string << "'! Allowed are integer from '0' to '65535'!");
+                IOX_LOG(Info, "Invalid value for 'IOX_DOMAIN_ID' environment variable!'");
+                IOX_LOG(Info, "Found: '" << domain_id_string << "'! Allowed are integer from '0' to '65535'!");
             });
     }
     return std::move(*this);
@@ -78,7 +78,7 @@ NodeBuilder&& NodeBuilder::domain_id_from_env_or(const DomainId domainId) && noe
     std::move(*this).domain_id_from_env();
     if (!m_domain_id.has_value())
     {
-        IOX_LOG(INFO,
+        IOX_LOG(Info,
                 "Could not get domain ID from 'IOX_DOMAIN_ID' and using '"
                     << static_cast<DomainId::value_type>(domainId) << "' as fallback!");
         m_domain_id.emplace(domainId);
@@ -134,9 +134,9 @@ Node::Node(const NodeName_t& name,
            runtime::IpcRuntimeInterface&& runtime_interface,
            optional<runtime::SharedMemoryUser>&& ipc_interface) noexcept
     : m_runtime(unique_ptr<runtime::PoshRuntime>{
-        new runtime::PoshRuntimeImpl{make_optional<const NodeName_t*>(&name),
-                                     {std::move(runtime_interface), std::move(ipc_interface)}},
-        [&](auto* const rt) { delete rt; }})
+          new runtime::PoshRuntimeImpl{make_optional<const NodeName_t*>(&name),
+                                       {std::move(runtime_interface), std::move(ipc_interface)}},
+          [&](auto* const rt) { delete rt; }})
 {
 }
 

@@ -35,7 +35,7 @@ capro::Interfaces StringToCaProInterface(const capro::IdString_t& str) noexcept
     auto result = convert::from_string<int32_t>(str.c_str());
     if (!result.has_value())
     {
-        IOX_LOG(WARN, "conversion failure");
+        IOX_LOG(Warn, "conversion failure");
         return capro::Interfaces::INTERNAL;
     }
 
@@ -43,7 +43,7 @@ capro::Interfaces StringToCaProInterface(const capro::IdString_t& str) noexcept
 
     if (i >= static_cast<int32_t>(capro::Interfaces::INTERFACE_END))
     {
-        IOX_LOG(WARN, "invalid enum (out of range: " << i << ")");
+        IOX_LOG(Warn, "invalid enum (out of range: " << i << ")");
         return capro::Interfaces::INTERNAL;
     }
     return static_cast<capro::Interfaces>(i);
@@ -56,7 +56,7 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
     auto maybePortPool = m_roudiMemoryInterface->portPool();
     if (!maybePortPool.has_value())
     {
-        IOX_LOG(FATAL, "Could not get PortPool!");
+        IOX_LOG(Fatal, "Could not get PortPool!");
         IOX_REPORT_FATAL(PoshError::PORT_MANAGER__PORT_POOL_UNAVAILABLE);
     }
     m_portPool = maybePortPool.value();
@@ -64,7 +64,7 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
     auto maybeDiscoveryMemoryManager = m_roudiMemoryInterface->discoveryMemoryManager();
     if (!maybeDiscoveryMemoryManager.has_value())
     {
-        IOX_LOG(FATAL, "Could not get MemoryManager for discovery!");
+        IOX_LOG(Fatal, "Could not get MemoryManager for discovery!");
         IOX_REPORT_FATAL(PoshError::PORT_MANAGER__DISCOVERY_MEMORY_MANAGER_UNAVAILABLE);
     }
     auto& discoveryMemoryManager = maybeDiscoveryMemoryManager.value();
@@ -87,7 +87,7 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
     auto maybeIntrospectionMemoryManager = m_roudiMemoryInterface->introspectionMemoryManager();
     if (!maybeIntrospectionMemoryManager.has_value())
     {
-        IOX_LOG(FATAL, "Could not get MemoryManager for introspection!");
+        IOX_LOG(Fatal, "Could not get MemoryManager for introspection!");
         IOX_REPORT_FATAL(PoshError::PORT_MANAGER__INTROSPECTION_MEMORY_MANAGER_UNAVAILABLE);
     }
     auto& introspectionMemoryManager = maybeIntrospectionMemoryManager.value();
@@ -167,7 +167,7 @@ void PortManager::doDiscoveryForPublisherPort(PublisherPortRouDiType& publisherP
         }
         else
         {
-            IOX_LOG(WARN,
+            IOX_LOG(Warn,
                     "CaPro protocol error for publisher from runtime '"
                         << publisherPort.getRuntimeName() << "' and with service description '"
                         << publisherPort.getCaProServiceDescription() << "'! Cannot handle CaProMessageType '"
@@ -211,21 +211,21 @@ void PortManager::doDiscoveryForSubscriberPort(SubscriberPortType& subscriberPor
             m_portIntrospection.reportMessage(caproMessage, subscriberPort.getUniqueID());
             if (!this->sendToAllMatchingPublisherPorts(caproMessage, subscriberPort))
             {
-                IOX_LOG(DEBUG,
+                IOX_LOG(Debug,
                         "capro::SUB/UNSUB, no matching publisher for subscriber from runtime '"
                             << subscriberPort.getRuntimeName() << "' and with service description '"
                             << caproMessage.m_serviceDescription << "'!");
                 capro::CaproMessage nackMessage(capro::CaproMessageType::NACK,
                                                 subscriberPort.getCaProServiceDescription());
                 subscriberPort.dispatchCaProMessageAndGetPossibleResponse(nackMessage).and_then([](auto& response) {
-                    IOX_LOG(FATAL, "Got response '" << response.m_type << "'");
+                    IOX_LOG(Fatal, "Got response '" << response.m_type << "'");
                     IOX_PANIC("Expected no response on NACK messages");
                 });
             }
         }
         else
         {
-            IOX_LOG(WARN,
+            IOX_LOG(Warn,
                     "CaPro protocol error for subscriber from runtime '"
                         << subscriberPort.getRuntimeName() << "' and with service description '"
                         << subscriberPort.getCaProServiceDescription() << "'! Cannot handle CaProMessageType '"
@@ -258,7 +258,7 @@ void PortManager::destroyClientPort(popo::ClientPortData* const clientPortData) 
 
     /// @todo iox-#1128 remove from to port introspection
 
-    IOX_LOG(DEBUG,
+    IOX_LOG(Debug,
             "Destroy client port from runtime '" << clientPortData->m_runtimeName << "' and with service description '"
                                                  << clientPortData->m_serviceDescription << "'");
 
@@ -295,20 +295,20 @@ void PortManager::doDiscoveryForClientPort(popo::ClientPortRouDi& clientPort) no
             /// @todo iox-#1128 report to port introspection
             if (!this->sendToAllMatchingServerPorts(caproMessage, clientPort))
             {
-                IOX_LOG(DEBUG,
+                IOX_LOG(Debug,
                         "capro::CONNECT/DISCONNECT, no matching server for client from runtime '"
                             << clientPort.getRuntimeName() << "' and with service description '"
                             << caproMessage.m_serviceDescription << "'!");
                 capro::CaproMessage nackMessage(capro::CaproMessageType::NACK, clientPort.getCaProServiceDescription());
                 clientPort.dispatchCaProMessageAndGetPossibleResponse(nackMessage).and_then([](auto& response) {
-                    IOX_LOG(FATAL, "Got response '" << response.m_type << "'");
+                    IOX_LOG(Fatal, "Got response '" << response.m_type << "'");
                     IOX_PANIC("Expected no response on NACK messages");
                 });
             }
         }
         else
         {
-            IOX_LOG(WARN,
+            IOX_LOG(Warn,
                     "CaPro protocol error for client from runtime '"
                         << clientPort.getRuntimeName() << "' and with service description '"
                         << clientPort.getCaProServiceDescription() << "'! Cannot handle CaProMessageType '"
@@ -356,7 +356,7 @@ void PortManager::destroyServerPort(popo::ServerPortData* const serverPortData) 
 
     /// @todo iox-#1128 remove from port introspection
 
-    IOX_LOG(DEBUG,
+    IOX_LOG(Debug,
             "Destroy server port from runtime '" << serverPortData->m_runtimeName << "' and with service description '"
                                                  << serverPortData->m_serviceDescription << "'");
 
@@ -399,7 +399,7 @@ void PortManager::doDiscoveryForServerPort(popo::ServerPortRouDi& serverPort) no
         }
         else
         {
-            IOX_LOG(WARN,
+            IOX_LOG(Warn,
                     "CaPro protocol error for server from runtime '"
                         << serverPort.getRuntimeName() << "' and with service description '"
                         << serverPort.getCaProServiceDescription() << "'! Cannot handle CaProMessageType '"
@@ -433,7 +433,7 @@ void PortManager::handleInterfaces() noexcept
         // check if we have to destroy this interface port
         if (currentPort->m_toBeDestroyed.load(std::memory_order_relaxed))
         {
-            IOX_LOG(DEBUG,
+            IOX_LOG(Debug,
                     "Destroy interface port from runtime '" << currentPort->m_runtimeName
                                                             << "' and with service description '"
                                                             << currentPort->m_serviceDescription << "'");
@@ -497,7 +497,7 @@ void PortManager::handleConditionVariables() noexcept
         auto currentCondVar = condVar++;
         if (currentCondVar->m_toBeDestroyed.load(std::memory_order_relaxed))
         {
-            IOX_LOG(DEBUG, "Destroy ConditionVariableData from runtime '" << currentCondVar->m_runtimeName << "'");
+            IOX_LOG(Debug, "Destroy ConditionVariableData from runtime '" << currentCondVar->m_runtimeName << "'");
             m_portPool->removeConditionVariableData(currentCondVar.to_ptr());
         }
     }
@@ -550,7 +550,7 @@ bool PortManager::sendToAllMatchingPublisherPorts(const capro::CaproMessage& mes
                 // send response to subscriber port
                 subscriberSource.dispatchCaProMessageAndGetPossibleResponse(publisherResponse.value())
                     .and_then([](auto& response) {
-                        IOX_LOG(FATAL, "Got response '" << response.m_type << "'");
+                        IOX_LOG(Fatal, "Got response '" << response.m_type << "'");
                         IOX_PANIC("Expected no response on ACK or NACK messages");
                     });
 
@@ -600,7 +600,7 @@ void PortManager::sendToAllMatchingSubscriberPorts(const capro::CaproMessage& me
                     // sende responsee to subscriber port
                     subscriberPort.dispatchCaProMessageAndGetPossibleResponse(publisherResponse.value())
                         .and_then([](auto& response) {
-                            IOX_LOG(FATAL, "Got response '" << response.m_type << "'");
+                            IOX_LOG(Fatal, "Got response '" << response.m_type << "'");
                             IOX_PANIC("Expected no response on ACK or NACK messages");
                         });
 
@@ -655,7 +655,7 @@ void PortManager::sendToAllMatchingClientPorts(const capro::CaproMessage& messag
                     // send response to client port
                     clientPort.dispatchCaProMessageAndGetPossibleResponse(serverResponse.value())
                         .and_then([](auto& response) {
-                            IOX_LOG(FATAL, "Got response '" << response.m_type << "'");
+                            IOX_LOG(Fatal, "Got response '" << response.m_type << "'");
                             IOX_PANIC("Expected no response on ACK or NACK messages");
                         });
 
@@ -684,7 +684,7 @@ bool PortManager::sendToAllMatchingServerPorts(const capro::CaproMessage& messag
                 // send response to client port
                 clientSource.dispatchCaProMessageAndGetPossibleResponse(serverResponse.value())
                     .and_then([](auto& response) {
-                        IOX_LOG(FATAL, "Got response '" << response.m_type << "'");
+                        IOX_LOG(Fatal, "Got response '" << response.m_type << "'");
                         IOX_PANIC("Expected no response on ACK or NACK messages");
                     });
 
@@ -813,7 +813,7 @@ void PortManager::deletePortsOfProcess(const RuntimeName_t& runtimeName) noexcep
         popo::InterfacePort interface(currentPort.to_ptr());
         if (runtimeName == interface.getRuntimeName())
         {
-            IOX_LOG(DEBUG, "Deleted Interface of application " << runtimeName);
+            IOX_LOG(Debug, "Deleted Interface of application " << runtimeName);
             m_portPool->removeInterfacePort(currentPort.to_ptr());
         }
     }
@@ -825,7 +825,7 @@ void PortManager::deletePortsOfProcess(const RuntimeName_t& runtimeName) noexcep
         auto currentCondVar = condVar++;
         if (runtimeName == currentCondVar->m_runtimeName)
         {
-            IOX_LOG(DEBUG, "Deleted condition variable of application" << runtimeName);
+            IOX_LOG(Debug, "Deleted condition variable of application" << runtimeName);
             m_portPool->removeConditionVariableData(currentCondVar.to_ptr());
         }
     }
@@ -853,7 +853,7 @@ void PortManager::destroyPublisherPort(PublisherPortRouDiType::MemberType_t* con
 
     m_portIntrospection.removePublisher(publisherPortUser);
 
-    IOX_LOG(DEBUG,
+    IOX_LOG(Debug,
             "Destroy publisher port from runtime '" << publisherPortData->m_runtimeName
                                                     << "' and with service description '"
                                                     << publisherPortData->m_serviceDescription << "'");
@@ -881,7 +881,7 @@ void PortManager::destroySubscriberPort(SubscriberPortType::MemberType_t* const 
 
     m_portIntrospection.removeSubscriber(subscriberPortUser);
 
-    IOX_LOG(DEBUG,
+    IOX_LOG(Debug,
             "Destroy subscriber port from runtime '" << subscriberPortData->m_runtimeName
                                                      << "' and with service description '"
                                                      << subscriberPortData->m_serviceDescription << "'");
@@ -914,7 +914,7 @@ PortManager::acquirePublisherPortDataWithoutDiscovery(const capro::ServiceDescri
     if (doesViolateCommunicationPolicy<iox::build::CommunicationPolicy>(service).and_then([&](const auto&
                                                                                                   usedByProcess) {
             IOX_LOG(
-                WARN,
+                Warn,
                 "Process '"
                     << runtimeName
                     << "' violates the communication policy by requesting a PublisherPort which is already used by '"
@@ -959,7 +959,7 @@ PortManager::acquireInternalPublisherPortData(const capro::ServiceDescription& s
     return acquirePublisherPortDataWithoutDiscovery(
                service, publisherOptions, IPC_CHANNEL_ROUDI_NAME, payloadDataSegmentMemoryManager, PortConfigInfo())
         .or_else([&service](auto&) {
-            IOX_LOG(FATAL, "Could not create PublisherPort for internal service " << service);
+            IOX_LOG(Fatal, "Could not create PublisherPort for internal service " << service);
             IOX_REPORT_FATAL(PoshError::PORT_MANAGER__NO_PUBLISHER_PORT_FOR_INTERNAL_SERVICE);
         })
         .and_then([&](auto publisherPortData) {
@@ -978,7 +978,7 @@ PublisherPortRouDiType::MemberType_t* PortManager::acquireInternalPublisherPortD
     return acquirePublisherPortDataWithoutDiscovery(
                service, publisherOptions, IPC_CHANNEL_ROUDI_NAME, payloadDataSegmentMemoryManager, PortConfigInfo())
         .or_else([&service](auto&) {
-            IOX_LOG(FATAL, "Could not create PublisherPort for internal service " << service);
+            IOX_LOG(Fatal, "Could not create PublisherPort for internal service " << service);
             IOX_REPORT_FATAL(PoshError::PORT_MANAGER__NO_PUBLISHER_PORT_FOR_INTERNAL_SERVICE);
         })
         .value();
@@ -1049,7 +1049,7 @@ PortManager::acquireServerPortData(const capro::ServiceDescription& service,
                 destroyServerPort(currentPort.to_ptr());
                 continue;
             }
-            IOX_LOG(WARN,
+            IOX_LOG(Warn,
                     "Process '"
                         << runtimeName
                         << "' violates the communication policy by requesting a ServerPort which is already used by '"
@@ -1098,7 +1098,7 @@ void PortManager::publishServiceRegistry() noexcept
     {
         // should not happen (except during RouDi shutdown)
         // the port always exists, otherwise we would terminate during startup
-        IOX_LOG(WARN, "Could not publish service registry!");
+        IOX_LOG(Warn, "Could not publish service registry!");
         return;
     }
     PublisherPortUserType publisher(m_serviceRegistryPublisherPortData.value());
@@ -1113,7 +1113,7 @@ void PortManager::publishServiceRegistry() noexcept
 
             publisher.sendChunk(chunk);
         })
-        .or_else([](auto&) { IOX_LOG(WARN, "Could not allocate a chunk for the service registry!"); });
+        .or_else([](auto&) { IOX_LOG(Warn, "Could not allocate a chunk for the service registry!"); });
 }
 
 const ServiceRegistry& PortManager::serviceRegistry() const noexcept
@@ -1124,7 +1124,7 @@ const ServiceRegistry& PortManager::serviceRegistry() const noexcept
 void PortManager::addPublisherToServiceRegistry(const capro::ServiceDescription& service) noexcept
 {
     m_serviceRegistry.addPublisher(service).or_else([&](auto&) {
-        IOX_LOG(WARN, "Could not add publisher with service description '" << service << "' to service registry!");
+        IOX_LOG(Warn, "Could not add publisher with service description '" << service << "' to service registry!");
         IOX_REPORT(PoshError::POSH__PORT_MANAGER_COULD_NOT_ADD_SERVICE_TO_REGISTRY, iox::er::RUNTIME_ERROR);
     });
 }
@@ -1137,7 +1137,7 @@ void PortManager::removePublisherFromServiceRegistry(const capro::ServiceDescrip
 void PortManager::addServerToServiceRegistry(const capro::ServiceDescription& service) noexcept
 {
     m_serviceRegistry.addServer(service).or_else([&](auto&) {
-        IOX_LOG(WARN, "Could not add server with service description '" << service << "' to service registry!");
+        IOX_LOG(Warn, "Could not add server with service description '" << service << "' to service registry!");
         IOX_REPORT(PoshError::POSH__PORT_MANAGER_COULD_NOT_ADD_SERVICE_TO_REGISTRY, iox::er::RUNTIME_ERROR);
     });
 }

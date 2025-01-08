@@ -36,7 +36,7 @@ PoshRuntime& singleProcessRuntimeFactory(optional<const RuntimeName_t*>) noexcep
 
 PoshRuntimeSingleProcess::PoshRuntimeSingleProcess(const RuntimeName_t& name) noexcept
     : PoshRuntimeImpl(
-        make_optional<const RuntimeName_t*>(&name), DEFAULT_DOMAIN_ID, RuntimeLocation::SAME_PROCESS_LIKE_ROUDI)
+          make_optional<const RuntimeName_t*>(&name), DEFAULT_DOMAIN_ID, RuntimeLocation::SAME_PROCESS_LIKE_ROUDI)
 {
     auto currentFactory = PoshRuntime::getRuntimeFactory();
     if (currentFactory != nullptr && *currentFactory == PoshRuntime::defaultRuntimeFactory)
@@ -46,7 +46,7 @@ PoshRuntimeSingleProcess::PoshRuntimeSingleProcess(const RuntimeName_t& name) no
     }
     else
     {
-        IOX_LOG(ERROR,
+        IOX_LOG(Error,
                 "PoshRuntimeSingleProcess can only created once per process and only if the default PoshRuntime "
                 "factory method is set!");
         IOX_REPORT_FATAL(PoshError::POSH__RUNTIME_IS_CREATED_MULTIPLE_TIMES);

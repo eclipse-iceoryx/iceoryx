@@ -90,13 +90,12 @@ inline void report(const SourceLocation& location, Kind, const Error& error, con
     auto moduleName = toModuleName(error);
     auto errorName = toErrorName(error);
 
-    IOX_ERROR_INTERNAL_LOG(
-        location,
-        [stringifiedCondition](auto& stream) -> auto& {
-            return detail::logStringifiedCondition(stream, stringifiedCondition);
-        } << "["
-          << errorName << " (code = " << code.value << ")] in module [" << moduleName << " (id = " << module.value
-          << ")]");
+    IOX_ERROR_INTERNAL_LOG(location,
+                           [stringifiedCondition](auto& stream) -> auto& {
+                               return detail::logStringifiedCondition(stream, stringifiedCondition);
+                           } << "["
+                             << errorName << " (code = " << code.value << ")] in module [" << moduleName
+                             << " (id = " << module.value << ")]");
     auto& h = ErrorHandler::get();
     h.onReportError(ErrorDescriptor(location, code, module));
 }
@@ -115,13 +114,12 @@ report(const SourceLocation& location, iox::er::FatalKind kind, const Error& err
     auto moduleName = toModuleName(error);
     auto errorName = toErrorName(error);
 
-    IOX_ERROR_INTERNAL_LOG_FATAL(
-        location,
-        [stringifiedCondition](auto& stream) -> auto& {
-            return detail::logStringifiedCondition(stream, stringifiedCondition);
-        } << "["
-          << kind.name << "] [" << errorName << " (code = " << code.value << ")] in module [" << moduleName
-          << " (id = " << module.value << ")]");
+    IOX_ERROR_INTERNAL_LOG_FATAL(location,
+                                 [stringifiedCondition](auto& stream) -> auto& {
+                                     return detail::logStringifiedCondition(stream, stringifiedCondition);
+                                 } << "["
+                                   << kind.name << "] [" << errorName << " (code = " << code.value << ")] in module ["
+                                   << moduleName << " (id = " << module.value << ")]");
     auto& h = ErrorHandler::get();
     h.onReportError(ErrorDescriptor(location, code, module));
 }
@@ -141,21 +139,19 @@ report(const SourceLocation& location, Kind kind, const Error& error, const char
     auto module = toModule(error);
     if constexpr (std::is_same<NoMessage, Message>::value)
     {
-        IOX_ERROR_INTERNAL_LOG_FATAL(
-            location,
-            [stringifiedCondition](auto& stream) -> auto& {
-                return detail::logStringifiedCondition(stream, stringifiedCondition);
-            } << "["
-              << kind.name << "]");
+        IOX_ERROR_INTERNAL_LOG_FATAL(location,
+                                     [stringifiedCondition](auto& stream) -> auto& {
+                                         return detail::logStringifiedCondition(stream, stringifiedCondition);
+                                     } << "["
+                                       << kind.name << "]");
     }
     else
     {
-        IOX_ERROR_INTERNAL_LOG_FATAL(
-            location,
-            [stringifiedCondition](auto& stream) -> auto& {
-                return detail::logStringifiedCondition(stream, stringifiedCondition);
-            } << "["
-              << kind.name << "] " << std::forward<Message>(msg));
+        IOX_ERROR_INTERNAL_LOG_FATAL(location,
+                                     [stringifiedCondition](auto& stream) -> auto& {
+                                         return detail::logStringifiedCondition(stream, stringifiedCondition);
+                                     } << "["
+                                       << kind.name << "] " << std::forward<Message>(msg));
     }
     auto& h = ErrorHandler::get();
     h.onReportViolation(ErrorDescriptor(location, code, module));

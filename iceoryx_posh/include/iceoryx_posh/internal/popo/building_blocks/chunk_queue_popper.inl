@@ -58,7 +58,7 @@ inline optional<mepoo::SharedChunk> ChunkQueuePopper<ChunkQueueDataType>::tryPop
         auto receivedChunkHeaderVersion = chunk.getChunkHeader()->chunkHeaderVersion();
         if (receivedChunkHeaderVersion != mepoo::ChunkHeader::CHUNK_HEADER_VERSION)
         {
-            IOX_LOG(ERROR,
+            IOX_LOG(Error,
                     "Received chunk with CHUNK_HEADER_VERSION '" << receivedChunkHeaderVersion << "' but expected '"
                                                                  << mepoo::ChunkHeader::CHUNK_HEADER_VERSION
                                                                  << "'! Dropping chunk!");

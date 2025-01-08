@@ -92,8 +92,8 @@ template <typename TestTypes>
 class ChunkQueue_test : public Test, public ChunkQueue_testBase
 {
   public:
-    void SetUp() override{};
-    void TearDown() override{};
+    void SetUp() override {};
+    void TearDown() override {};
 
     using ChunkQueueData_t = ChunkQueueData<iox::DefaultChunkQueueConfig, typename TestTypes::PolicyType_t>;
 
@@ -268,8 +268,8 @@ template <typename PolicyType>
 class ChunkQueueFiFo_test : public Test, public ChunkQueue_testBase
 {
   public:
-    void SetUp() override{};
-    void TearDown() override{};
+    void SetUp() override {};
+    void TearDown() override {};
 
     using ChunkQueueData_t = ChunkQueueData<iox::DefaultChunkQueueConfig, PolicyType>;
 
@@ -332,8 +332,8 @@ template <typename PolicyType>
 class ChunkQueueSoFi_test : public Test, public ChunkQueue_testBase
 {
   public:
-    void SetUp() override{};
-    void TearDown() override{};
+    void SetUp() override {};
+    void TearDown() override {};
 
     using ChunkQueueData_t = ChunkQueueData<iox::DefaultChunkQueueConfig, PolicyType>;
 

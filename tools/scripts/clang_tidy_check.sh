@@ -36,7 +36,7 @@ fail() {
     exit 1
 }
 
-CLANG_TIDY_VERSION=15
+CLANG_TIDY_VERSION=18
 CLANG_TIDY_CMD="clang-tidy-$CLANG_TIDY_VERSION"
 if ! command -v $CLANG_TIDY_CMD &> /dev/null
 then

@@ -3,13 +3,13 @@
 package building_blocks <<Frame>> {
 
 enum LogLevel {
-    OFF = 0,
-    FATAL,
-    ERROR,
-    WARN,
-    INFO,
-    DEBUG,
-    TRACE,
+    Off = 0,
+    Fatal,
+    Error,
+    Warn,
+    Info,
+    Debug,
+    Trace,
 }
 
 class Logger <BaseLogger> {

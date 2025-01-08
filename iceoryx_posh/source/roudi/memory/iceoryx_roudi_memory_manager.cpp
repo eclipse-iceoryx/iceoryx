@@ -24,23 +24,23 @@ namespace roudi
 {
 IceOryxRouDiMemoryManager::IceOryxRouDiMemoryManager(const IceoryxConfig& config) noexcept
     : m_fileLock(std::move(
-        FileLockBuilder()
-            .name(concatenate(iceoryxResourcePrefix(config.domainId, ResourceType::ICEORYX_DEFINED), ROUDI_LOCK_NAME))
-            .permission(iox::perms::owner_read | iox::perms::owner_write)
-            .create()
-            .or_else([](auto& error) {
-                if (error == FileLockError::LOCKED_BY_OTHER_PROCESS)
-                {
-                    IOX_LOG(FATAL, "Could not acquire lock, is RouDi still running?");
-                    IOX_REPORT_FATAL(PoshError::ICEORYX_ROUDI_MEMORY_MANAGER__ROUDI_STILL_RUNNING);
-                }
-                else
-                {
-                    IOX_LOG(FATAL, "Error occurred while acquiring file lock named " << ROUDI_LOCK_NAME);
-                    IOX_REPORT_FATAL(PoshError::ICEORYX_ROUDI_MEMORY_MANAGER__COULD_NOT_ACQUIRE_FILE_LOCK);
-                }
-            })
-            .value()))
+          FileLockBuilder()
+              .name(concatenate(iceoryxResourcePrefix(config.domainId, ResourceType::ICEORYX_DEFINED), ROUDI_LOCK_NAME))
+              .permission(iox::perms::owner_read | iox::perms::owner_write)
+              .create()
+              .or_else([](auto& error) {
+                  if (error == FileLockError::LOCKED_BY_OTHER_PROCESS)
+                  {
+                      IOX_LOG(Fatal, "Could not acquire lock, is RouDi still running?");
+                      IOX_REPORT_FATAL(PoshError::ICEORYX_ROUDI_MEMORY_MANAGER__ROUDI_STILL_RUNNING);
+                  }
+                  else
+                  {
+                      IOX_LOG(Fatal, "Error occurred while acquiring file lock named " << ROUDI_LOCK_NAME);
+                      IOX_REPORT_FATAL(PoshError::ICEORYX_ROUDI_MEMORY_MANAGER__COULD_NOT_ACQUIRE_FILE_LOCK);
+                  }
+              })
+              .value()))
     , m_portPoolBlock(config.uniqueRouDiId)
     , m_defaultMemory(config)
 {

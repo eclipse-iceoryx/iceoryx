@@ -48,7 +48,7 @@ TEST(ConsoleLogger_test, TestOutput)
 TEST(ConsoleLogger_test, SettingTheLogLevelWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e8225d29-ee35-4864-8528-b1e290a83311");
-    constexpr auto LOG_LEVEL{iox::log::LogLevel::INFO};
+    constexpr auto LOG_LEVEL{iox::log::LogLevel::Info};
     EXPECT_THAT(LoggerSUT::getLogLevel(), Ne(LOG_LEVEL));
 
     LoggerSUT::setLogLevel(LOG_LEVEL);

@@ -777,13 +777,13 @@
 
     | before     | after   |
     |:----------:|:-------:|
-    | `kOff`     | `OFF`   |
-    | `kFatal`   | `FATAL` |
-    | `kError`   | `ERROR` |
-    | `kWarn`    | `WARN`  |
-    | `kInfo`    | `INFO`  |
-    | `kDebug`   | `DEBUG` |
-    | `kVerbose` | `TRACE` |
+    | `kOff`     | `Off`   |
+    | `kFatal`   | `Fatal` |
+    | `kError`   | `Error` |
+    | `kWarn`    | `Warn`  |
+    | `kInfo`    | `Info`  |
+    | `kDebug`   | `Debug` |
+    | `kVerbose` | `Trace` |
 
     In the C binding the `Iceoryx_LogLevel_Verbose` changed to `Iceoryx_LogLevel_Trace`.
 
@@ -802,9 +802,9 @@
     // after
     #include "iox/logging.hpp"
 
-    iox::log::Logger::init(iox::log::LogLevel::INFO);
+    iox::log::Logger::init(iox::log::LogLevel::Info);
 
-    IOX_LOG(INFO, "Hello World " << 42);
+    IOX_LOG(Info, "Hello World " << 42);
     ```
 
 31. Setting the default log level changed
@@ -818,7 +818,7 @@
     // after
     #include "iox/logging.hpp"
 
-    iox::log::Logger::init(iox::log::LogLevel::ERROR);
+    iox::log::Logger::init(iox::log::LogLevel::Error);
     ```
 
     Please look at the logger design document for more details like setting the log level via environment variables.
@@ -830,7 +830,7 @@
     logger.SetLogLevel(); // directly on the instance
 
     // after
-    iox::log::Logger::setLogLevel(iox::log::LogLevel::DEBUG);
+    iox::log::Logger::setLogLevel(iox::log::LogLevel::Debug);
     ```
 
 33. Using the logger in libraries is massively simplified
@@ -890,7 +890,7 @@
     {
         void myFunc()
         {
-            IOX_LOG(INFO, "Hello World " << 42);
+            IOX_LOG(Info, "Hello World " << 42);
         }
     }
     ```
@@ -899,12 +899,12 @@
 
     | before                      | after                       |
     |:---------------------------:|:---------------------------:|
-    | `LogFatal() << "x" << 42`   | `IOX_LOG(FATAL, "x" << 42)` |
-    | `LogError() << "x" << 42`   | `IOX_LOG(ERROR, "x" << 42)` |
-    | `LogWarn() << "x" << 42`    | `IOX_LOG(WARN, "x" << 42)`  |
-    | `LogInfo() << "x" << 42`    | `IOX_LOG(INFO, "x" << 42)`  |
-    | `LogDebug() << "x" << 42`   | `IOX_LOG(DEBUG, "x" << 42)` |
-    | `LogVerbose() << "x" << 42` | `IOX_LOG(TRACE, "x" << 42)` |
+    | `LogFatal() << "x" << 42`   | `IOX_LOG(Fatal, "x" << 42)` |
+    | `LogError() << "x" << 42`   | `IOX_LOG(Error, "x" << 42)` |
+    | `LogWarn() << "x" << 42`    | `IOX_LOG(Warn, "x" << 42)`  |
+    | `LogInfo() << "x" << 42`    | `IOX_LOG(Info, "x" << 42)`  |
+    | `LogDebug() << "x" << 42`   | `IOX_LOG(Debug, "x" << 42)` |
+    | `LogVerbose() << "x" << 42` | `IOX_LOG(Trace, "x" << 42)` |
 
 35. Logger formatting changed
 
@@ -915,10 +915,10 @@
     LogInfo() << iox::log::RawBuffer(buf);
 
     // after
-    IOX_LOG(INFO, iox::log::hex(42));
-    IOX_LOG(INFO, iox::log::oct(37));
-    IOX_LOG(INFO, iox::log::bin(73));
-    IOX_LOG(INFO, iox::log::raw(buf));
+    IOX_LOG(Info, iox::log::hex(42));
+    IOX_LOG(Info, iox::log::oct(37));
+    IOX_LOG(Info, iox::log::bin(73));
+    IOX_LOG(Info, iox::log::raw(buf));
     ```
 
 36. Creating an instance of `LogStream` does not work anymore
@@ -935,7 +935,7 @@
     stream.Flush();
 
     // after
-    IOX_LOG(INFO, [] (auto& stream) -> auto& {
+    IOX_LOG(Info, [] (auto& stream) -> auto& {
         stream << "fibonacci: "
         for(auto fib : {1, 1, 2, 3, 5, 8})
         {
@@ -1005,7 +1005,7 @@
     #include "iceoryx_hoofs/testing/testing_logger.hpp"
 
     sut.methodCallWithLogOutput();
-    if (iox::testing::TestingLogger::doesLoggerSupportLogLevel(iox::log::LogLevel::ERROR))
+    if (iox::testing::TestingLogger::doesLoggerSupportLogLevel(iox::log::LogLevel::Error))
     {
         auto logMessages = iox::testing::TestingLogger::getLogMessages();
         ASSERT_THAT(logMessages.size(), Eq(1U));

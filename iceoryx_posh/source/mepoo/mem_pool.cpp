@@ -64,7 +64,7 @@ MemPool::MemPool(const greater_or_equal<uint64_t, CHUNK_MEMORY_ALIGNMENT> chunkS
     }
     else
     {
-        IOX_LOG(FATAL,
+        IOX_LOG(Fatal,
                 "Chunk size must be multiple of '" << CHUNK_MEMORY_ALIGNMENT << "'! Requested size is " << chunkSize
                                                    << " for " << numberOfChunks << " chunks!");
         IOX_REPORT_FATAL(PoshError::MEPOO__MEMPOOL_CHUNKSIZE_MUST_BE_MULTIPLE_OF_CHUNK_MEMORY_ALIGNMENT);
@@ -88,7 +88,7 @@ void* MemPool::getChunk() noexcept
     uint32_t index{0U};
     if (!m_freeIndices.pop(index))
     {
-        IOX_LOG(WARN,
+        IOX_LOG(Warn,
                 "Mempool [m_chunkSize = " << m_chunkSize << ", numberOfChunks = " << m_numberOfChunks
                                           << ", used_chunks = " << m_usedChunks.load() << " ] has no more space left");
         return nullptr;
@@ -115,7 +115,7 @@ MemPool::pointerToIndex(const void* const chunk, const uint64_t chunkSize, const
         static_cast<uint64_t>(static_cast<const uint8_t*>(chunk) - static_cast<const uint8_t*>(rawMemoryBase));
     if (offset % chunkSize != 0)
     {
-        IOX_LOG(FATAL,
+        IOX_LOG(Fatal,
                 "Trying to convert a pointer to an index which is not aligned to the array! Base address: "
                     << iox::log::hex(rawMemoryBase) << "; item size: " << chunkSize
                     << "; pointer address: " << iox::log::hex(chunk));
@@ -132,7 +132,7 @@ void MemPool::freeChunk(const void* chunk) noexcept
     const auto offsetToLastChunk = m_chunkSize * (m_numberOfChunks - 1U);
     if (chunk < memPoolStartAddress)
     {
-        IOX_LOG(FATAL,
+        IOX_LOG(Fatal,
                 "Try to free chunk with address " << iox::log::hex(chunk) << " while the memory pool starts at address "
                                                   << iox::log::hex(memPoolStartAddress));
         IOX_PANIC("Invalid chunk to free");
@@ -140,7 +140,7 @@ void MemPool::freeChunk(const void* chunk) noexcept
 
     if (chunk > static_cast<uint8_t*>(memPoolStartAddress) + offsetToLastChunk)
     {
-        IOX_LOG(FATAL,
+        IOX_LOG(Fatal,
                 "Try to free chunk with address " << iox::log::hex(chunk)
                                                   << " while the last valid memory pool address is "
                                                   << iox::log::hex(memPoolStartAddress));

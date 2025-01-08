@@ -142,7 +142,7 @@ TEST_F(FileReader_test, errorIgnoreMode)
     iox::FileReader reader("FileNotAvailable.readme", "PathThatNeverHasBeen", iox::FileReader::ErrorMode::Ignore);
 
     iox::testing::TestingLogger::checkLogMessageIfLogLevelIsSupported(
-        iox::log::LogLevel::ERROR, [&](const auto& logMessages) { ASSERT_THAT(logMessages.size(), Eq(0U)); });
+        iox::log::LogLevel::Error, [&](const auto& logMessages) { ASSERT_THAT(logMessages.size(), Eq(0U)); });
 }
 
 TEST_F(FileReader_test, errorInformMode)
@@ -153,7 +153,7 @@ TEST_F(FileReader_test, errorInformMode)
 
     const std::string expectedOutput = "Could not open file 'FileNotFound.abc' from path 'TheInfamousPath'.";
     iox::testing::TestingLogger::checkLogMessageIfLogLevelIsSupported(
-        iox::log::LogLevel::ERROR, [&](const auto& logMessages) {
+        iox::log::LogLevel::Error, [&](const auto& logMessages) {
             ASSERT_THAT(logMessages.size(), Eq(1U));
             EXPECT_THAT(logMessages[0], HasSubstr(expectedOutput));
         });
@@ -171,7 +171,7 @@ TEST_F(FileReader_test, errorTerminateMode)
 
     const std::string expectedOutput = "Could not open file 'ISaidNo!' from path 'InTheMiddleOfNowhere'!";
     iox::testing::TestingLogger::checkLogMessageIfLogLevelIsSupported(
-        iox::log::LogLevel::FATAL, [&](const auto& logMessages) {
+        iox::log::LogLevel::Fatal, [&](const auto& logMessages) {
             ASSERT_THAT(logMessages.size(), Gt(1U));
             EXPECT_THAT(logMessages[0], HasSubstr(expectedOutput));
         });

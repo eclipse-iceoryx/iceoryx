@@ -37,31 +37,31 @@ LogLevel logLevelFromEnvOr(const LogLevel logLevel) noexcept
     {
         if (equalStrings(logLevelString, "off"))
         {
-            specifiedLogLevel = LogLevel::OFF;
+            specifiedLogLevel = LogLevel::Off;
         }
         else if (equalStrings(logLevelString, "fatal"))
         {
-            specifiedLogLevel = LogLevel::FATAL;
+            specifiedLogLevel = LogLevel::Fatal;
         }
         else if (equalStrings(logLevelString, "error"))
         {
-            specifiedLogLevel = LogLevel::ERROR;
+            specifiedLogLevel = LogLevel::Error;
         }
         else if (equalStrings(logLevelString, "warn"))
         {
-            specifiedLogLevel = LogLevel::WARN;
+            specifiedLogLevel = LogLevel::Warn;
         }
         else if (equalStrings(logLevelString, "info"))
         {
-            specifiedLogLevel = LogLevel::INFO;
+            specifiedLogLevel = LogLevel::Info;
         }
         else if (equalStrings(logLevelString, "debug"))
         {
-            specifiedLogLevel = LogLevel::DEBUG;
+            specifiedLogLevel = LogLevel::Debug;
         }
         else if (equalStrings(logLevelString, "trace"))
         {
-            specifiedLogLevel = LogLevel::TRACE;
+            specifiedLogLevel = LogLevel::Trace;
         }
         else
         {

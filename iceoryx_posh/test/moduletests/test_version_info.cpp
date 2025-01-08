@@ -27,10 +27,10 @@ using namespace iox::version;
 class VersionInfo_test : public Test
 {
   public:
-    VersionInfo_test(){};
-    virtual ~VersionInfo_test(){};
-    virtual void SetUp(){};
-    virtual void TearDown(){};
+    VersionInfo_test() {};
+    virtual ~VersionInfo_test() {};
+    virtual void SetUp() {};
+    virtual void TearDown() {};
 };
 
 TEST_F(VersionInfo_test, SerializationWorkingOnOurVersion)

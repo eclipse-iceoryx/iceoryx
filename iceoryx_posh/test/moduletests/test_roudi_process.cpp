@@ -40,7 +40,7 @@ class IpcInterfaceUser_Mock : public iox::roudi::Process
   public:
     IpcInterfaceUser_Mock()
         : iox::roudi::Process(
-            "TestProcess", DEFAULT_DOMAIN_ID, 200, PosixUser("foo"), HeartbeatPool::Index::INVALID, 255)
+              "TestProcess", DEFAULT_DOMAIN_ID, 200, PosixUser("foo"), HeartbeatPool::Index::INVALID, 255)
     {
     }
     MOCK_METHOD1(sendViaIpcChannel, void(IpcMessage));

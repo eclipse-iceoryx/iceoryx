@@ -190,7 +190,7 @@ PosixCallEvaluator<ReturnType>::evaluate() const&& noexcept
 
     if (!m_details.hasSilentErrno)
     {
-        IOX_LOG(ERROR,
+        IOX_LOG(Error,
                 m_details.file << ":" << m_details.line << " { " << m_details.callingFunction << " -> "
                                << m_details.posixFunctionName << " }  :::  [ " << m_details.result.errnum << " ]  "
                                << m_details.result.getHumanReadableErrnum());

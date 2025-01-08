@@ -38,7 +38,7 @@ $(clang --version)"
 
 msg "building and installing dependencies"
 # tinfo library which is required by iceoryx_introspection isn't available in mac
-brew install ncurses wget
+brew install ncurses
 cd "${WORKSPACE}"
 
 msg "building sources"

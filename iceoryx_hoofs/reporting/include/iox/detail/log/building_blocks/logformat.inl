@@ -31,19 +31,19 @@ inline constexpr const char* logLevelDisplayColor(const LogLevel value) noexcept
 {
     switch (value)
     {
-    case LogLevel::OFF:
+    case LogLevel::Off:
         return ""; // nothing
-    case LogLevel::FATAL:
+    case LogLevel::Fatal:
         return "\033[0;1;97;41m"; // bold bright white on red
-    case LogLevel::ERROR:
+    case LogLevel::Error:
         return "\033[0;1;31;103m"; // bold red on light yellow
-    case LogLevel::WARN:
+    case LogLevel::Warn:
         return "\033[0;1;93m"; // bold bright yellow
-    case LogLevel::INFO:
+    case LogLevel::Info:
         return "\033[0;1;92m"; // bold bright green
-    case LogLevel::DEBUG:
+    case LogLevel::Debug:
         return "\033[0;1;96m"; // bold bright cyan
-    case LogLevel::TRACE:
+    case LogLevel::Trace:
         return "\033[0;1;36m"; // bold cyan
     }
 
@@ -54,19 +54,19 @@ inline constexpr const char* logLevelDisplayText(const LogLevel value) noexcept
 {
     switch (value)
     {
-    case LogLevel::OFF:
+    case LogLevel::Off:
         return "[ Off ]";
-    case LogLevel::FATAL:
+    case LogLevel::Fatal:
         return "[Fatal]";
-    case LogLevel::ERROR:
+    case LogLevel::Error:
         return "[Error]";
-    case LogLevel::WARN:
+    case LogLevel::Warn:
         return "[Warn ]";
-    case LogLevel::INFO:
+    case LogLevel::Info:
         return "[Info ]";
-    case LogLevel::DEBUG:
+    case LogLevel::Debug:
         return "[Debug]";
-    case LogLevel::TRACE:
+    case LogLevel::Trace:
         return "[Trace]";
     }
 

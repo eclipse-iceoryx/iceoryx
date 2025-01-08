@@ -34,7 +34,7 @@ inline expected<void, ServerSendError> Response<T>::send() noexcept
     }
     else
     {
-        IOX_LOG(ERROR, "Tried to send empty Response! Might be an already sent or moved Response!");
+        IOX_LOG(Error, "Tried to send empty Response! Might be an already sent or moved Response!");
         IOX_REPORT(PoshError::POSH__SENDING_EMPTY_RESPONSE, iox::er::RUNTIME_ERROR);
         return err(ServerSendError::INVALID_RESPONSE);
     }

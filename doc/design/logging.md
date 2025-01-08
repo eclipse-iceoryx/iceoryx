@@ -23,14 +23,14 @@ variables, e.g. the log level.
 
 | LogLevel | Usage |
 |----------|-------|
-| FATAL    | For fatal and non-recoverable errors which essentially lead to termination of the program. |
-| ERROR    | For severe but recoverable errors. |
-| WARN     | For cases when something unintentional happens which is not considered a severe error. |
-| INFO     | Anything which could be relevant for the daily user. |
-| DEBUG    | Anything that is helpful for debugging, i.e. the info log level for the fellow developer. |
-| TRACE    | Anything that might be helpful for debugging in some cases but would be too verbose for debug log level. |
+| Fatal    | For fatal and non-recoverable errors which essentially lead to termination of the program. |
+| Error    | For severe but recoverable errors. |
+| Warn     | For cases when something unintentional happens which is not considered a severe error. |
+| Info     | Anything which could be relevant for the daily user. |
+| Debug    | Anything that is helpful for debugging, i.e. the info log level for the fellow developer. |
+| Trace    | Anything that might be helpful for debugging in some cases but would be too verbose for debug log level. |
 
-The log levels `FATAL`, `ERROR` and `WARN` should not be used independently but
+The log levels `Fatal`, `Error` and `Warn` should not be used independently but
 in combination with the error handler and vice versa.
 
 ## Design
@@ -146,14 +146,14 @@ logger, independent of the active log level.
 
 The `IOX_LOG_INTERNAL` calls `self()` on the `LogStream` instance to create an lvalue
 reference to the `LogStream` instance. This eases the implementation of logging
-support for custom types since `IOX_LOG(INFO, myType);` would require to implement
-an overload with a rvalue `LogStream` reference but `IOX_LOG(INFO, "#### " << myType);`
+support for custom types since `IOX_LOG(Info, myType);` would require to implement
+an overload with a rvalue `LogStream` reference but `IOX_LOG(Info, "#### " << myType);`
 requires a lvalue reference.
 
 #### Behavior before calling Logger::init
 
 In order to have log messages before `Logger::init` is called, the default logger
-is used with `LogLevel::INFO`. It is up to the implementation of the default
+is used with `LogLevel::Info`. It is up to the implementation of the default
 logger what to do with these messages. For iceoryx the default logger is the
 `ConsoleLogger` (this can be changed via the platform abstraction) which will
 print the log messages to the console.
@@ -269,11 +269,11 @@ This is the sequence diagram of the setup of the testing logger:
 The behavior of the logger can be altered via environment variables and the
 `Logger::init` function. Calling this function without arguments, it will check
 whether the environment variable `IOX_LOG_LEVEL` is set and use that value or
-`LogLevel::INFO` if the environment variable is not set. To have a different
+`LogLevel::Info` if the environment variable is not set. To have a different
 fallback log level, the `logLevelFromEnvOr` function can be used, e.g.
 
 ```cpp
-iox::log::Logger::init(iox::log::logLevelFromEnvOr(iox::log::LogLevel::DEBUG));
+iox::log::Logger::init(iox::log::logLevelFromEnvOr(iox::log::LogLevel::Debug));
 ```
 
 If the logger shall not be altered via environment variables, `Logger::init` must
@@ -303,9 +303,9 @@ re-implemented via the platform abstraction.
 
 int main()
 {
-    iox::log::Logger::init(iox::log::logLevelFromEnvOr(iox::log::LogLevel::DEBUG));
+    iox::log::Logger::init(iox::log::logLevelFromEnvOr(iox::log::LogLevel::Debug));
 
-    IOX_LOG(DEBUG, "Hello World");
+    IOX_LOG(Debug, "Hello World");
 
     return 0;
 }
@@ -333,7 +333,7 @@ iox::log::LogStream& operator<<(iox::log::LogStream& stream, const MyType& m)
 int main()
 {
     MyType m;
-    IOX_LOG(INFO,  m);
+    IOX_LOG(Info,  m);
 
     return 0;
 }
@@ -355,7 +355,7 @@ class MyLogger : public iox::log::Logger
     {
         static MyLogger myLogger;
         iox::log::Logger::setActiveLogger(myLogger);
-        iox::log::Logger::init(iox::log::logLevelFromEnvOr(iox::log::LogLevel::INFO));
+        iox::log::Logger::init(iox::log::logLevelFromEnvOr(iox::log::LogLevel::Info));
     }
 
   private:
@@ -366,22 +366,22 @@ class MyLogger : public iox::log::Logger
         iox::log::LogLevel logLevel) noexcept override
     {
         switch(logLevel) {
-            case iox::log::LogLevel::FATAL:
+            case iox::log::LogLevel::Fatal:
                 logString("💀: ");
                 break;
-            case iox::log::LogLevel::ERROR:
+            case iox::log::LogLevel::Error:
                 logString("🙈: ");
                 break;
-            case iox::log::LogLevel::WARN:
+            case iox::log::LogLevel::Warn:
                 logString("🙀: ");
                 break;
-            case iox::log::LogLevel::INFO:
+            case iox::log::LogLevel::Info:
                 logString("💘: ");
                 break;
-            case iox::log::LogLevel::DEBUG:
+            case iox::log::LogLevel::Debug:
                 logString("🐞: ");
                 break;
-            case iox::log::LogLevel::TRACE:
+            case iox::log::LogLevel::Trace:
                 logString("🐾: ");
                 break;
             default:
@@ -399,12 +399,12 @@ int main()
 {
     MyLogger::init();
 
-    IOX_LOG(FATAL, "Whoops ... look, over there is a dead seagull flying!");
-    IOX_LOG(ERROR, "Oh no!");
-    IOX_LOG(WARN, "It didn't happen!");
-    IOX_LOG(INFO, "All glory to the hypnotoad!");
-    IOX_LOG(DEBUG, "I didn't do it!");
-    IOX_LOG(TRACE, "Row row row your boat!");
+    IOX_LOG(Fatal, "Whoops ... look, over there is a dead seagull flying!");
+    IOX_LOG(Error, "Oh no!");
+    IOX_LOG(Warn, "It didn't happen!");
+    IOX_LOG(Info, "All glory to the hypnotoad!");
+    IOX_LOG(Debug, "I didn't do it!");
+    IOX_LOG(Trace, "Row row row your boat!");
 
     return 0;
 }
@@ -420,9 +420,9 @@ int main()
   log messages when the signal is raised? It might be necessary to wait for the
   error handling refactoring before this can be done
 - instead of having the `Logger::init()` static function with hidden default
-  parameter this could be replaced by `Logger::init(LogLevel::WARN)`,
-  `Logger::initFromEnvOr(LogLevel::WARN)` and a builder like
-  `Logger::customize().logLevelFromEnvOr(LogLevel::WARN).init()`
+  parameter this could be replaced by `Logger::init(LogLevel::Warn)`,
+  `Logger::initFromEnvOr(LogLevel::Warn)` and a builder like
+  `Logger::customize().logLevelFromEnvOr(LogLevel::Warn).init()`
 - wrap `__FILE__`, `__LINE__` and `__FUNCTION__` into a `source_location` struct
   - where should this struct be placed
   - could also be used by `IOX_EXPECTS`, `IOX_ENSURES`

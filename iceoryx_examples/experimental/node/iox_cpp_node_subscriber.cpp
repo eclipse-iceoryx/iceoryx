@@ -39,7 +39,7 @@ static void sigHandler(int sig [[maybe_unused]])
 
 int main()
 {
-    iox::log::Logger::init(iox::log::logLevelFromEnvOr(iox::log::LogLevel::INFO));
+    iox::log::Logger::init(iox::log::logLevelFromEnvOr(iox::log::LogLevel::Info));
 
     auto signalIntGuard =
         iox::registerSignalHandler(iox::PosixSignal::INT, sigHandler).expect("failed to register SIGINT");

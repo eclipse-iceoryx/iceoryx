@@ -159,10 +159,10 @@ class PublisherSubscriberCommunicationWithBigPayload_test : public PublisherSubs
   public:
     PublisherSubscriberCommunicationWithBigPayload_test()
         : PublisherSubscriberCommunication_test(
-            MinimalIceoryxConfigBuilder()
-                .payloadChunkSize(SIZE_LARGER_THAN_4GB + additionalSizeForUserHeader)
-                .payloadChunkCount(2)
-                .create())
+              MinimalIceoryxConfigBuilder()
+                  .payloadChunkSize(SIZE_LARGER_THAN_4GB + additionalSizeForUserHeader)
+                  .payloadChunkCount(2)
+                  .create())
     {
     }
 

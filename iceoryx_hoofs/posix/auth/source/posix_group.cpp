@@ -42,7 +42,7 @@ PosixGroup::PosixGroup(const PosixGroup::groupName_t& name) noexcept
     }
     else
     {
-        IOX_LOG(ERROR, "Error: Group name not found");
+        IOX_LOG(Error, "Error: Group name not found");
         m_id = std::numeric_limits<iox_gid_t>::max();
     }
 }
@@ -63,7 +63,7 @@ optional<iox_gid_t> PosixGroup::getGroupID(const PosixGroup::groupName_t& name) 
 
     if (getgrnamCall.has_error())
     {
-        IOX_LOG(ERROR, "Error: Could not find group '" << name << "'.");
+        IOX_LOG(Error, "Error: Could not find group '" << name << "'.");
         return nullopt_t();
     }
 
@@ -76,7 +76,7 @@ optional<PosixGroup::groupName_t> PosixGroup::getGroupName(iox_gid_t id) noexcep
 
     if (getgrgidCall.has_error())
     {
-        IOX_LOG(ERROR, "Error: Could not find group with id '" << id << "'.");
+        IOX_LOG(Error, "Error: Could not find group with id '" << id << "'.");
         return nullopt_t();
     }
 

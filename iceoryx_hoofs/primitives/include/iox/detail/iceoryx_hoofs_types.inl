@@ -32,20 +32,20 @@ inline constexpr const char* asStringLiteral(const LogLevel value) noexcept
 {
     switch (value)
     {
-    case LogLevel::OFF:
-        return "LogLevel::OFF";
-    case LogLevel::FATAL:
-        return "LogLevel::FATAL";
-    case LogLevel::ERROR:
-        return "LogLevel::ERROR";
-    case LogLevel::WARN:
-        return "LogLevel::WARN";
-    case LogLevel::INFO:
-        return "LogLevel::INFO";
-    case LogLevel::DEBUG:
-        return "LogLevel::DEBUG";
-    case LogLevel::TRACE:
-        return "LogLevel::TRACE";
+    case LogLevel::Off:
+        return "LogLevel::Off";
+    case LogLevel::Fatal:
+        return "LogLevel::Fatal";
+    case LogLevel::Error:
+        return "LogLevel::Error";
+    case LogLevel::Warn:
+        return "LogLevel::Warn";
+    case LogLevel::Info:
+        return "LogLevel::Info";
+    case LogLevel::Debug:
+        return "LogLevel::Debug";
+    case LogLevel::Trace:
+        return "LogLevel::Trace";
     }
 
     return "[Undefined LogLevel]";

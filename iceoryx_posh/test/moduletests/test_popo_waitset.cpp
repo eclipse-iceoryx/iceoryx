@@ -369,7 +369,7 @@ class WaitSet_test : public Test
         {
             return (m_isEventBased) ? iox::nullopt
                                     : iox::popo::WaitSetIsConditionSatisfiedCallback(
-                                        iox::in_place, *this, &SimpleEventClass::hasTriggered);
+                                          iox::in_place, *this, &SimpleEventClass::hasTriggered);
         }
 
         iox::popo::WaitSetIsConditionSatisfiedCallback
@@ -378,7 +378,7 @@ class WaitSet_test : public Test
             m_simpleState1TriggerCallback = state;
             return (m_isEventBased) ? iox::nullopt
                                     : iox::popo::WaitSetIsConditionSatisfiedCallback(
-                                        iox::in_place, *this, &SimpleEventClass::hasTriggered);
+                                          iox::in_place, *this, &SimpleEventClass::hasTriggered);
         }
 
         iox::popo::WaitSetIsConditionSatisfiedCallback
@@ -387,7 +387,7 @@ class WaitSet_test : public Test
             m_simpleState2TriggerCallback = state;
             return (m_isEventBased) ? iox::nullopt
                                     : iox::popo::WaitSetIsConditionSatisfiedCallback(
-                                        iox::in_place, *this, &SimpleEventClass::hasTriggered);
+                                          iox::in_place, *this, &SimpleEventClass::hasTriggered);
         }
 
         bool hasTriggered() const

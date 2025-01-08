@@ -56,7 +56,7 @@ static constexpr PeriodicTaskManualStart_t PeriodicTaskManualStart;
 /// {
 ///     using namespace iox::units::duration_literals;
 ///     iox::concurrent::detail::PeriodicTask<iox::function_ref<void()>> task{
-///         iox::concurrent::detail::PeriodicTaskAutoStart, 1_s, "MyTask", [] { IOX_LOG(INFO, "Hello World"; }});
+///         iox::concurrent::detail::PeriodicTaskAutoStart, 1_s, "MyTask", [] { IOX_LOG(Info, "Hello World"; }});
 ///
 ///         return 0;
 /// }

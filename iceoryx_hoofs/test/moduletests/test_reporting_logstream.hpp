@@ -29,7 +29,7 @@ class LogStreamSut : public iox::log::LogStream
 {
   public:
     explicit LogStreamSut(iox::log::Logger& logger)
-        : iox::log::LogStream(logger, "file", 42, "function", iox::log::LogLevel::TRACE)
+        : iox::log::LogStream(logger, "file", 42, "function", iox::log::LogLevel::Trace)
     {
     }
 };

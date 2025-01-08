@@ -53,8 +53,8 @@ class TypedMemPool_test : public Test
     {
     }
 
-    void SetUp(){};
-    void TearDown(){};
+    void SetUp() {};
+    void TearDown() {};
 
     alignas(MemPool::CHUNK_MEMORY_ALIGNMENT) uint8_t
         m_rawMemory[NumberOfChunks * ChunkSize + MpmcLoFFLiMemoryRequirement];

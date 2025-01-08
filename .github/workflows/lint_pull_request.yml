@@ -6,7 +6,7 @@ on:
 
 jobs:
   clang-tidy-review:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout
@@ -24,7 +24,7 @@ jobs:
         run: ./tools/scripts/clang_tidy_check.sh scan_list .clang-tidy-diff-scans.txt "${{ steps.changed_files.outputs.added_modified }}"
 
   check-for-todo:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout
@@ -36,7 +36,7 @@ jobs:
         run: ./tools/ci/todo-verificator.sh
 
   verify-links-in-markdown-documentation:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
 

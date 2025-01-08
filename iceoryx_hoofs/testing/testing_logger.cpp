@@ -36,7 +36,7 @@ void TestingLogger::init() noexcept
 {
     static TestingLogger logger;
     log::Logger::setActiveLogger(logger);
-    log::Logger::init(log::logLevelFromEnvOr(log::LogLevel::TRACE));
+    log::Logger::init(log::logLevelFromEnvOr(log::LogLevel::Trace));
     // disable logger output only after initializing the logger to get error messages from initialization
     // JUSTIFICATION getenv is required for the functionality of the testing logger and will be called only once in main
     // NOLINTNEXTLINE(concurrency-mt-unsafe)
@@ -130,8 +130,8 @@ static void sigHandler(int sig, siginfo_t*, void*)
 {
     constexpr const char* COLOR_RESET{"\033[m"};
 
-    std::cout << iox::log::logLevelDisplayColor(iox::log::LogLevel::WARN)
-              << "Catched signal: " << iox::log::logLevelDisplayColor(iox::log::LogLevel::FATAL);
+    std::cout << iox::log::logLevelDisplayColor(iox::log::LogLevel::Warn)
+              << "Catched signal: " << iox::log::logLevelDisplayColor(iox::log::LogLevel::Fatal);
     switch (sig)
     {
     case SIGSEGV:
@@ -153,7 +153,7 @@ static void sigHandler(int sig, siginfo_t*, void*)
     dynamic_cast<TestingLogger&>(log::Logger::get()).printLogBuffer();
 
     std::cout << "\n"
-              << iox::log::logLevelDisplayColor(iox::log::LogLevel::WARN)
+              << iox::log::logLevelDisplayColor(iox::log::LogLevel::Warn)
               << "Aborting execution by causing a SIGSEV with 'longjmp' to prevent triggering the signal handler again!"
               << COLOR_RESET << "\n"
               << std::flush;
@@ -167,7 +167,7 @@ static void sigHandler(int sig, siginfo_t*, void*)
 void LogPrinter::OnTestStart(const ::testing::TestInfo&)
 {
     dynamic_cast<TestingLogger&>(log::Logger::get()).clearLogBuffer();
-    TestingLogger::setLogLevel(log::LogLevel::TRACE);
+    TestingLogger::setLogLevel(log::LogLevel::Trace);
 
     std::set_terminate([]() {
         std::cout << "Terminate called\n" << std::flush;

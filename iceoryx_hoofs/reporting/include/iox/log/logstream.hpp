@@ -366,7 +366,7 @@ class LogStream
     /// @tparam[in] Callable with a signature 'iox::log::LogStream&(iox::log::LogStream&)'
     /// @param[in] c is the callable which receives a LogStream object for the actual logging
     /// @code
-    /// IOX_LOG(INFO, [] (auto& stream) -> auto& {
+    /// IOX_LOG(Info, [] (auto& stream) -> auto& {
     ///     for(const auto& num: {13, 37, 42, 73}) {
     ///         stream << num << " ";
     ///     }

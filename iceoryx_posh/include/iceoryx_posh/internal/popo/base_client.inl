@@ -108,7 +108,7 @@ inline void BaseClient<PortT, TriggerHandleT>::enableState(TriggerHandleT&& trig
         if (m_trigger)
         {
             IOX_LOG(
-                WARN,
+                Warn,
                 "The client is already attached with either the ClientState::HAS_RESPONSE or "
                 "ClientEvent::RESPONSE_RECEIVED to a WaitSet/Listener. Detaching it from previous one and "
                 "attaching it to the new one with ClientState::HAS_RESPONSE. Best practice is to call detach first.");
@@ -157,7 +157,7 @@ inline void BaseClient<PortT, TriggerHandleT>::enableEvent(TriggerHandleT&& trig
     case ClientEvent::RESPONSE_RECEIVED:
         if (m_trigger)
         {
-            IOX_LOG(WARN,
+            IOX_LOG(Warn,
                     "The client is already attached with either the ClientState::HAS_RESPONSE or "
                     "ClientEvent::RESPONSE_RECEIVED to a WaitSet/Listener. Detaching it from previous one and "
                     "attaching it to the new one with ClientEvent::RESPONSE_RECEIVED. Best practice is to call detach "

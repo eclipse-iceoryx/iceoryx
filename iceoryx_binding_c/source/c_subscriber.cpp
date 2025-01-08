@@ -50,7 +50,7 @@ void iox_sub_options_init(iox_sub_options_t* options)
 {
     if (options == nullptr)
     {
-        IOX_LOG(WARN, "subscriber options initialization skipped - null pointer provided");
+        IOX_LOG(Warn, "subscriber options initialization skipped - null pointer provided");
         return;
     }
 
@@ -78,7 +78,7 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
 {
     if (self == nullptr)
     {
-        IOX_LOG(WARN, "subscriber initialization skipped - null pointer provided for iox_sub_storage_t");
+        IOX_LOG(Warn, "subscriber initialization skipped - null pointer provided for iox_sub_storage_t");
         return nullptr;
     }
 
@@ -91,7 +91,7 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
         {
             // note that they may have been initialized but the initCheck
             // pattern overwritten afterwards, we cannot be sure but it is a misuse
-            IOX_LOG(FATAL, "subscriber options may not have been initialized with iox_sub_init");
+            IOX_LOG(Fatal, "subscriber options may not have been initialized with iox_sub_init");
             IOX_REPORT_FATAL(CBindingError::BINDING_C__SUBSCRIBER_OPTIONS_NOT_INITIALIZED);
         }
         subscriberOptions.queueCapacity = options->queueCapacity;

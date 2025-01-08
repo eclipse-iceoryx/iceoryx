@@ -44,12 +44,12 @@ struct StubbedIceoryxTerminal
     struct Options
     {
     };
-    StubbedIceoryxTerminal(const iox::capro::ServiceDescription&, const Options&){};
+    StubbedIceoryxTerminal(const iox::capro::ServiceDescription&, const Options&) {};
 };
 
 struct StubbedExternalTerminal
 {
-    StubbedExternalTerminal(IdString_t, IdString_t, IdString_t){};
+    StubbedExternalTerminal(IdString_t, IdString_t, IdString_t) {};
 };
 
 using TestChannel = iox::gw::Channel<StubbedIceoryxTerminal, StubbedExternalTerminal>;
@@ -59,8 +59,8 @@ using TestGatewayGeneric = iox::gw::StubbedGatewayGeneric<TestChannel>;
 class GatewayGenericTest : public Test
 {
   public:
-    void SetUp(){};
-    void TearDown(){};
+    void SetUp() {};
+    void TearDown() {};
 
     std::unique_ptr<TestGatewayGeneric> sut{new TestGatewayGeneric{}};
 };

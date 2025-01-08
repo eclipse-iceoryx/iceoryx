@@ -35,7 +35,7 @@ expected<IpcRuntimeInterface, IpcRuntimeInterfaceError> IpcRuntimeInterface::cre
 {
     if (runtimeName.empty())
     {
-        IOX_LOG(DEBUG, "The runtime name must not be empty!");
+        IOX_LOG(Debug, "The runtime name must not be empty!");
         return err(IpcRuntimeInterfaceError::CANNOT_CREATE_APPLICATION_CHANNEL);
     }
 
@@ -68,7 +68,7 @@ expected<IpcRuntimeInterface, IpcRuntimeInterfaceError> IpcRuntimeInterface::cre
 
         if (!roudiIpcInterface.isInitialized() || !roudiIpcInterface.ipcChannelMapsToFile())
         {
-            IOX_LOG(DEBUG, "reopen RouDi's IPC channel!");
+            IOX_LOG(Debug, "reopen RouDi's IPC channel!");
             roudiIpcInterface.reopen();
             regState = RegState::WAIT_FOR_ROUDI;
         }
@@ -136,13 +136,13 @@ expected<IpcRuntimeInterface, IpcRuntimeInterfaceError> IpcRuntimeInterface::cre
     switch (regState)
     {
     case RegState::WAIT_FOR_ROUDI:
-        IOX_LOG(DEBUG, "Timeout while waiting for RouDi");
+        IOX_LOG(Debug, "Timeout while waiting for RouDi");
         return err(IpcRuntimeInterfaceError::TIMEOUT_WAITING_FOR_ROUDI);
     case RegState::SEND_REGISTER_REQUEST:
-        IOX_LOG(DEBUG, "Sending registration request to RouDi failed");
+        IOX_LOG(Debug, "Sending registration request to RouDi failed");
         return err(IpcRuntimeInterfaceError::SENDING_REQUEST_TO_ROUDI_FAILED);
     case RegState::WAIT_FOR_REGISTER_ACK:
-        IOX_LOG(DEBUG, "RouDi did not respond to the registration request");
+        IOX_LOG(Debug, "RouDi did not respond to the registration request");
         return err(IpcRuntimeInterfaceError::NO_RESPONSE_FROM_ROUDI);
         break;
     case RegState::FINISHED:
@@ -172,13 +172,13 @@ bool IpcRuntimeInterface::sendRequestToRouDi(const IpcMessage& msg, IpcMessage& 
 {
     if (!m_RoudiIpcInterface.send(msg))
     {
-        IOX_LOG(ERROR, "Could not send request via RouDi IPC channel interface.\n");
+        IOX_LOG(Error, "Could not send request via RouDi IPC channel interface.\n");
         return false;
     }
 
     if (!m_AppIpcInterface.receive(answer))
     {
-        IOX_LOG(ERROR, "Could not receive request via App IPC channel interface.\n");
+        IOX_LOG(Error, "Could not receive request via App IPC channel interface.\n");
         return false;
     }
 
@@ -201,13 +201,13 @@ void IpcRuntimeInterface::waitForRoudi(IpcInterfaceUser& roudiIpcInterface, dead
 
         if (roudiIpcInterface.isInitialized())
         {
-            IOX_LOG(DEBUG, "RouDi IPC Channel found!");
+            IOX_LOG(Debug, "RouDi IPC Channel found!");
             break;
         }
 
         if (printWaitingWarning)
         {
-            IOX_LOG(WARN, "RouDi not found - waiting ...");
+            IOX_LOG(Warn, "RouDi not found - waiting ...");
             printWaitingWarning = false;
             printFoundMessage = true;
         }
@@ -224,7 +224,7 @@ void IpcRuntimeInterface::waitForRoudi(IpcInterfaceUser& roudiIpcInterface, dead
 
     if (printFoundMessage && roudiIpcInterface.isInitialized())
     {
-        IOX_LOG(WARN, "... RouDi found.");
+        IOX_LOG(Warn, "... RouDi found.");
     }
 }
 
@@ -297,12 +297,12 @@ IpcRuntimeInterface::waitForRegAck(int64_t transmissionTimestamp,
                 }
                 else
                 {
-                    IOX_LOG(WARN, "Received a REG_ACK with an outdated timestamp!");
+                    IOX_LOG(Warn, "Received a REG_ACK with an outdated timestamp!");
                 }
             }
             else
             {
-                IOX_LOG(ERROR, "Wrong response received " << receiveBuffer.getMessage());
+                IOX_LOG(Error, "Wrong response received " << receiveBuffer.getMessage());
             }
         }
     }
