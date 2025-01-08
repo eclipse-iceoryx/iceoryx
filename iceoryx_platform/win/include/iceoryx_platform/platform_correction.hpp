@@ -39,4 +39,3 @@
 #undef min
 #undef interface
 #undef OPEN_EXISTING
-#undef OPTIONAL

@@ -40,7 +40,7 @@ inline bool OptionManager::extractOptionArgumentValue(const Arguments& arguments
                                                       const OptionName_t& name,
                                                       const OptionType optionType)
 {
-    if (optionType == OptionType::SWITCH)
+    if (optionType == OptionType::Switch)
     {
         return arguments.isSwitchSet(getLookupName(shortName, name));
     }

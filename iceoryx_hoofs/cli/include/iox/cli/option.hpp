@@ -90,7 +90,7 @@ struct OptionWithDetails : public Option // can this be melt together
     struct
     {
         OptionDescription_t description;
-        OptionType type = OptionType::SWITCH;
+        OptionType type = OptionType::Switch;
         TypeName_t typeName;
     } details;
 };

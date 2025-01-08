@@ -30,11 +30,11 @@ namespace cli
 enum class OptionType : uint8_t
 {
     /// @brief option when provided is true
-    SWITCH,
+    Switch,
     /// @brief option with value which has to be provided
-    REQUIRED,
+    Required,
     /// @brief option with value which can be provided
-    OPTIONAL
+    Optional
 };
 
 static constexpr uint64_t MAX_OPTION_NAME_LENGTH = 32;

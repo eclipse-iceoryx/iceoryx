@@ -217,7 +217,7 @@ CommandLineParser::parse(const OptionDefinition& optionSet, int argc, char** arg
             return m_optionValue;
         }
 
-        if (optionEntry->details.type == OptionType::SWITCH)
+        if (optionEntry->details.type == OptionType::Switch)
         {
             m_optionValue.m_arguments.emplace_back(*optionEntry);
             m_optionValue.m_arguments.back().value.clear();
@@ -271,7 +271,7 @@ void CommandLineParser::setDefaultValuesToUnsetOptions() noexcept // rename
 {
     for (const auto& availableOption : m_optionSet->m_availableOptions)
     {
-        if (availableOption.details.type != OptionType::OPTIONAL)
+        if (availableOption.details.type != OptionType::Optional)
         {
             continue;
         }
@@ -298,7 +298,7 @@ bool CommandLineParser::areAllRequiredValuesPresent() const noexcept
     bool areAllRequiredValuesPresent = true;
     for (const auto& availableOption : m_optionSet->m_availableOptions)
     {
-        if (availableOption.details.type == OptionType::REQUIRED)
+        if (availableOption.details.type == OptionType::Required)
         {
             bool isValuePresent = false;
             for (const auto& option : m_optionValue.m_arguments)
@@ -359,7 +359,7 @@ void CommandLineParser::printHelpAndExit() const noexcept
             outLength += 2 + option.longOption.size();
         }
 
-        if (option.details.type == OptionType::REQUIRED || option.details.type == OptionType::OPTIONAL)
+        if (option.details.type == OptionType::Required || option.details.type == OptionType::Optional)
         {
             std::cout << " [" << option.details.typeName << "]";
             outLength += 3 + option.details.typeName.size();
@@ -373,7 +373,7 @@ void CommandLineParser::printHelpAndExit() const noexcept
         }
         std::cout << option.details.description << std::endl;
 
-        if (option.details.type == OptionType::OPTIONAL)
+        if (option.details.type == OptionType::Optional)
         {
             for (uint64_t i = 0; i < OPTION_OUTPUT_WIDTH; ++i)
             {
