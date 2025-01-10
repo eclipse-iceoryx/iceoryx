@@ -42,8 +42,8 @@ constexpr char ASCII_UNDERSCORE{'_'};
 
 enum class RelativePathComponents : uint8_t
 {
-    REJECT,
-    ACCEPT
+    Reject,
+    Accept
 };
 
 /// @brief checks if the given string is a valid path entry. A path entry is the string between
@@ -93,22 +93,22 @@ bool doesEndWithPathSeparator(const string<StringCapacity>& name) noexcept;
 
 enum class AccessMode : uint8_t
 {
-    READ_ONLY = 0U,
-    READ_WRITE = 1U,
-    WRITE_ONLY = 2U
+    ReadOnly = 0U,
+    ReadWrite = 1U,
+    WriteOnly = 2U
 };
 
 /// @brief describes how the shared memory is opened or created
 enum class OpenMode : uint8_t
 {
     /// @brief creates the shared memory, if it exists already the construction will fail
-    EXCLUSIVE_CREATE = 0U,
+    ExclusiveCreate = 0U,
     /// @brief creates the shared memory, if it exists it will be deleted and recreated
-    PURGE_AND_CREATE = 1U,
+    PurgeAndCreate = 1U,
     /// @brief creates the shared memory, if it does not exist otherwise it opens it
-    OPEN_OR_CREATE = 2U,
+    OpenOrCreate = 2U,
     /// @brief opens the shared memory, if it does not exist it will fail
-    OPEN_EXISTING = 3U
+    OpenExisting = 3U
 };
 
 /// @brief converts OpenMode into a string literal

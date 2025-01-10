@@ -124,7 +124,7 @@ class PortPool
                   const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
     expected<popo::InterfacePortData*, PortPoolError> addInterfacePort(const RuntimeName_t& runtimeName,
-                                                                       const capro::Interfaces interface) noexcept;
+                                                                       const capro::Interfaces commInterface) noexcept;
 
     expected<popo::ConditionVariableData*, PortPoolError>
     addConditionVariableData(const RuntimeName_t& runtimeName) noexcept;

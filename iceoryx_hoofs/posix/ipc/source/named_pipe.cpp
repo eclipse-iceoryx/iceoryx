@@ -79,9 +79,8 @@ expected<NamedPipe, PosixIpcChannelError> NamedPipeBuilder::create() const noexc
         PosixSharedMemoryObjectBuilder()
             .name(namedPipeShmName)
             .memorySizeInBytes(sizeof(NamedPipe::NamedPipeData) + alignof(NamedPipe::NamedPipeData))
-            .accessMode(AccessMode::READ_WRITE)
-            .openMode((m_channelSide == PosixIpcChannelSide::SERVER) ? OpenMode::OPEN_OR_CREATE
-                                                                     : OpenMode::OPEN_EXISTING)
+            .accessMode(AccessMode::ReadWrite)
+            .openMode((m_channelSide == PosixIpcChannelSide::SERVER) ? OpenMode::OpenOrCreate : OpenMode::OpenExisting)
             .permissions(perms::owner_all | perms::group_all)
             .create();
 

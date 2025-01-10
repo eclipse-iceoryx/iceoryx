@@ -109,7 +109,7 @@ class PortManager
                           mepoo::MemoryManager* const payloadDataSegmentMemoryManager,
                           const PortConfigInfo& portConfigInfo) noexcept;
 
-    popo::InterfacePortData* acquireInterfacePortData(capro::Interfaces interface,
+    popo::InterfacePortData* acquireInterfacePortData(capro::Interfaces commInterface,
                                                       const RuntimeName_t& runtimeName) noexcept;
 
     expected<popo::ConditionVariableData*, PortPoolError>

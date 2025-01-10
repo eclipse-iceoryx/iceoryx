@@ -91,8 +91,8 @@ inline SharedMemoryObjectType MePooSegment<SharedMemoryObjectType, MemoryManager
                 return shmName;
             }())
             .memorySizeInBytes(MemoryManager::requiredChunkMemorySize(mempoolConfig))
-            .accessMode(AccessMode::READ_WRITE)
-            .openMode(OpenMode::PURGE_AND_CREATE)
+            .accessMode(AccessMode::ReadWrite)
+            .openMode(OpenMode::PurgeAndCreate)
             .permissions(SEGMENT_PERMISSIONS)
             .create()
             .and_then([this](auto& sharedMemoryObject) {

@@ -180,11 +180,11 @@ int convertToOflags(const AccessMode accessMode) noexcept
 {
     switch (accessMode)
     {
-    case AccessMode::READ_ONLY:
+    case AccessMode::ReadOnly:
         return O_RDONLY;
-    case AccessMode::READ_WRITE:
+    case AccessMode::ReadWrite:
         return O_RDWR;
-    case AccessMode::WRITE_ONLY:
+    case AccessMode::WriteOnly:
         return O_WRONLY;
     }
 
@@ -196,12 +196,12 @@ int convertToOflags(const OpenMode openMode) noexcept
 {
     switch (openMode)
     {
-    case OpenMode::OPEN_EXISTING:
+    case OpenMode::OpenExisting:
         return 0;
-    case OpenMode::OPEN_OR_CREATE:
+    case OpenMode::OpenOrCreate:
         return O_CREAT;
-    case OpenMode::EXCLUSIVE_CREATE:
-    case OpenMode::PURGE_AND_CREATE:
+    case OpenMode::ExclusiveCreate:
+    case OpenMode::PurgeAndCreate:
         // wrapped inside function so that the user does not have to use bitwise operations; operands have positive
         // values and result is within integer range
         // NOLINTNEXTLINE(hicpp-signed-bitwise)
@@ -216,12 +216,12 @@ int convertToProtFlags(const AccessMode accessMode) noexcept
 {
     switch (accessMode)
     {
-    case AccessMode::READ_ONLY:
+    case AccessMode::ReadOnly:
         return PROT_READ;
-    case AccessMode::READ_WRITE:
+    case AccessMode::ReadWrite:
         // NOLINTNEXTLINE(hicpp-signed-bitwise) enum type is defined by POSIX, no logical fault
         return PROT_READ | PROT_WRITE;
-    case AccessMode::WRITE_ONLY:
+    case AccessMode::WriteOnly:
         return PROT_WRITE;
     }
 

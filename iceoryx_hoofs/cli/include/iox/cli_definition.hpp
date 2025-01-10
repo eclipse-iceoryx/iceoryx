@@ -46,7 +46,7 @@
 /// @param[in] description a description of the optional value
 #define IOX_CLI_OPTIONAL(type, memberName, defaultValue, shortName, longName, description)                             \
     IOX_INTERNAL_CMD_LINE_VALUE(                                                                                       \
-        type, memberName, defaultValue, shortName, longName, description, iox::cli::OptionType::OPTIONAL)
+        type, memberName, defaultValue, shortName, longName, description, iox::cli::OptionType::Optional)
 
 /// @brief Adds a required value to the command line, if it is not provided the program will print the help and
 ///        terminate
@@ -57,7 +57,7 @@
 /// @param[in] description a description of the required value
 #define IOX_CLI_REQUIRED(type, memberName, shortName, longName, description)                                           \
     IOX_INTERNAL_CMD_LINE_VALUE(                                                                                       \
-        type, memberName, type(), shortName, longName, description, iox::cli::OptionType::REQUIRED)
+        type, memberName, type(), shortName, longName, description, iox::cli::OptionType::Required)
 
 /// @brief Adds a switch to the command line
 /// @param[in] memberName the name under which the switch is accessible
@@ -65,7 +65,7 @@
 /// @param[in] longName a long option name under which this can be accessed like '--some-name' for instance
 /// @param[in] description a description of the switch
 #define IOX_CLI_SWITCH(memberName, shortName, longName, description)                                                   \
-    IOX_INTERNAL_CMD_LINE_VALUE(bool, memberName, false, shortName, longName, description, iox::cli::OptionType::SWITCH)
+    IOX_INTERNAL_CMD_LINE_VALUE(bool, memberName, false, shortName, longName, description, iox::cli::OptionType::Switch)
 
 /// @brief Helper macro to create a struct with full command line parsing from argc, argv.
 /// @param[in] Name the name of the class/struct

@@ -81,7 +81,7 @@ enum class IpcMessageType : int32_t
     TERMINATION_ACK,
     PREPARE_APP_TERMINATION,
     PREPARE_APP_TERMINATION_ACK,
-    ERROR,
+    ERROR_RESPONSE,
     APP_WAIT,
     WAKEUP_TRIGGER,
     REPLAY,
@@ -90,7 +90,7 @@ enum class IpcMessageType : int32_t
     END,
 };
 
-/// If IpcMessageType::ERROR, this is the sub type for details about the error
+/// If IpcMessageType::ERROR_RESPONSE, this is the sub type for details about the error
 enum class IpcMessageErrorType : int32_t
 {
     BEGIN,

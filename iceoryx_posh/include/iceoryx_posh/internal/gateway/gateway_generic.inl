@@ -64,10 +64,10 @@ inline uint64_t GatewayGeneric<channel_t, gateway_t>::getNumberOfChannels() cons
 // ================================================== Protected ================================================== //
 
 template <typename channel_t, typename gateway_t>
-inline GatewayGeneric<channel_t, gateway_t>::GatewayGeneric(capro::Interfaces interface,
+inline GatewayGeneric<channel_t, gateway_t>::GatewayGeneric(capro::Interfaces commInterface,
                                                             units::Duration discoveryPeriod,
                                                             units::Duration forwardingPeriod) noexcept
-    : gateway_t(interface)
+    : gateway_t(commInterface)
     , m_discoveryPeriod(discoveryPeriod)
     , m_forwardingPeriod(forwardingPeriod)
 {

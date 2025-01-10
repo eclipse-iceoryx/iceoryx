@@ -255,7 +255,7 @@ PoshRuntimeImpl::requestPublisherFromRoudi(const IpcMessage& sendBuffer) noexcep
     {
         std::string IpcMessage1 = receiveBuffer.getElementAtIndex(0U);
         std::string IpcMessage2 = receiveBuffer.getElementAtIndex(1U);
-        if (stringToIpcMessageType(IpcMessage1.c_str()) == IpcMessageType::ERROR)
+        if (stringToIpcMessageType(IpcMessage1.c_str()) == IpcMessageType::ERROR_RESPONSE)
         {
             IOX_LOG(Error, "Request publisher received no valid publisher port from RouDi.");
             return err(stringToIpcMessageErrorType(IpcMessage2.c_str()));
@@ -373,7 +373,7 @@ PoshRuntimeImpl::requestSubscriberFromRoudi(const IpcMessage& sendBuffer) noexce
         std::string IpcMessage1 = receiveBuffer.getElementAtIndex(0U);
         std::string IpcMessage2 = receiveBuffer.getElementAtIndex(1U);
 
-        if (stringToIpcMessageType(IpcMessage1.c_str()) == IpcMessageType::ERROR)
+        if (stringToIpcMessageType(IpcMessage1.c_str()) == IpcMessageType::ERROR_RESPONSE)
         {
             IOX_LOG(Error, "Request subscriber received no valid subscriber port from RouDi.");
             return err(stringToIpcMessageErrorType(IpcMessage2.c_str()));
@@ -485,7 +485,7 @@ PoshRuntimeImpl::requestClientFromRoudi(const IpcMessage& sendBuffer) noexcept
     {
         std::string IpcMessage1 = receiveBuffer.getElementAtIndex(0U);
         std::string IpcMessage2 = receiveBuffer.getElementAtIndex(1U);
-        if (stringToIpcMessageType(IpcMessage1.c_str()) == IpcMessageType::ERROR)
+        if (stringToIpcMessageType(IpcMessage1.c_str()) == IpcMessageType::ERROR_RESPONSE)
         {
             IOX_LOG(Error, "Request client received no valid client port from RouDi.");
             return err(stringToIpcMessageErrorType(IpcMessage2.c_str()));
@@ -598,7 +598,7 @@ PoshRuntimeImpl::requestServerFromRoudi(const IpcMessage& sendBuffer) noexcept
     {
         std::string IpcMessage1 = receiveBuffer.getElementAtIndex(0U);
         std::string IpcMessage2 = receiveBuffer.getElementAtIndex(1U);
-        if (stringToIpcMessageType(IpcMessage1.c_str()) == IpcMessageType::ERROR)
+        if (stringToIpcMessageType(IpcMessage1.c_str()) == IpcMessageType::ERROR_RESPONSE)
         {
             IOX_LOG(Error, "Request server received no valid server port from RouDi.");
             return err(stringToIpcMessageErrorType(IpcMessage2.c_str()));
@@ -609,12 +609,12 @@ PoshRuntimeImpl::requestServerFromRoudi(const IpcMessage& sendBuffer) noexcept
     return err(IpcMessageErrorType::REQUEST_SERVER_WRONG_IPC_MESSAGE_RESPONSE);
 }
 
-popo::InterfacePortData* PoshRuntimeImpl::getMiddlewareInterface(const capro::Interfaces interface,
+popo::InterfacePortData* PoshRuntimeImpl::getMiddlewareInterface(const capro::Interfaces commInterface,
                                                                  const NodeName_t& nodeName) noexcept
 {
     IpcMessage sendBuffer;
     sendBuffer << IpcMessageTypeToString(IpcMessageType::CREATE_INTERFACE) << m_appName
-               << static_cast<uint32_t>(interface) << nodeName;
+               << static_cast<uint32_t>(commInterface) << nodeName;
 
     IpcMessage receiveBuffer;
 
@@ -681,7 +681,7 @@ PoshRuntimeImpl::requestConditionVariableFromRoudi(const IpcMessage& sendBuffer)
     {
         std::string IpcMessage1 = receiveBuffer.getElementAtIndex(0U);
         std::string IpcMessage2 = receiveBuffer.getElementAtIndex(1U);
-        if (stringToIpcMessageType(IpcMessage1.c_str()) == IpcMessageType::ERROR)
+        if (stringToIpcMessageType(IpcMessage1.c_str()) == IpcMessageType::ERROR_RESPONSE)
         {
             IOX_LOG(Error, "Request condition variable received no valid condition variable port from RouDi.");
             return err(stringToIpcMessageErrorType(IpcMessage2.c_str()));

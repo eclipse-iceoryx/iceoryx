@@ -47,7 +47,7 @@ struct OptionWithDetailsFactory
     using Type_t = OptionWithDetails;
     static Type_t createEmpty()
     {
-        return Type_t{{}, "", iox::cli::OptionType::SWITCH, ""};
+        return Type_t{{}, "", iox::cli::OptionType::Switch, ""};
     }
 };
 

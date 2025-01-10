@@ -101,9 +101,9 @@ class MePooSegment_test : public Test
 
         IOX_BUILDER_PARAMETER(uint64_t, memorySizeInBytes, 0U)
 
-        IOX_BUILDER_PARAMETER(AccessMode, accessMode, AccessMode::READ_ONLY)
+        IOX_BUILDER_PARAMETER(AccessMode, accessMode, AccessMode::ReadOnly)
 
-        IOX_BUILDER_PARAMETER(OpenMode, openMode, OpenMode::OPEN_EXISTING)
+        IOX_BUILDER_PARAMETER(OpenMode, openMode, OpenMode::OpenExisting)
 
         IOX_BUILDER_PARAMETER(iox::optional<const void*>, baseAddressHint, iox::nullopt)
 
@@ -166,8 +166,8 @@ TEST_F(MePooSegment_test, SharedMemoryCreationParameter)
         EXPECT_THAT(name,
                     Eq(detail::PosixSharedMemory::Name_t(concatenate(
                         iceoryxResourcePrefix(DEFAULT_DOMAIN_ID, ResourceType::USER_DEFINED), "iox_roudi_test2"))));
-        EXPECT_THAT(accessMode, Eq(iox::AccessMode::READ_WRITE));
-        EXPECT_THAT(openMode, Eq(iox::OpenMode::PURGE_AND_CREATE));
+        EXPECT_THAT(accessMode, Eq(iox::AccessMode::ReadWrite));
+        EXPECT_THAT(openMode, Eq(iox::OpenMode::PurgeAndCreate));
     };
     SUT sut{mepooConfig,
             DEFAULT_DOMAIN_ID,

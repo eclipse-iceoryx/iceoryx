@@ -65,8 +65,8 @@ class PosixShmMemoryProvider : public MemoryProvider
   private:
     ShmName_t m_shmName;
     const DomainId m_domainId;
-    AccessMode m_accessMode{AccessMode::READ_ONLY};
-    OpenMode m_openMode{OpenMode::OPEN_EXISTING};
+    AccessMode m_accessMode{AccessMode::ReadOnly};
+    OpenMode m_openMode{OpenMode::OpenExisting};
     optional<PosixSharedMemoryObject> m_shmObject;
 
     static constexpr access_rights SHM_MEMORY_PERMISSIONS =

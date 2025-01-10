@@ -36,9 +36,9 @@ class InterfacePort_test : public Test
     {
     }
 
-    capro::CaproMessage generateMessage(const capro::Interfaces interface) noexcept
+    capro::CaproMessage generateMessage(const capro::Interfaces commInterface) noexcept
     {
-        return {capro::CaproMessageType::ACK, {"Cheri", "Cheri", "Hypnotoad", {0U, 0U, 0U, 0U}, interface}};
+        return {capro::CaproMessageType::ACK, {"Cheri", "Cheri", "Hypnotoad", {0U, 0U, 0U, 0U}, commInterface}};
     }
 };
 
@@ -48,9 +48,10 @@ TEST_F(InterfacePort_test, EveryMessageCanBeDispatchedWhenInterfacePortIsInterna
     ::testing::Test::RecordProperty("TEST_ID", "a9700e7f-20cb-4cbe-baeb-c38701ce9ec4");
     InterfacePortData interfacePortData("", roudi::DEFAULT_UNIQUE_ROUDI_ID, capro::Interfaces::INTERNAL);
 
-    for (uint16_t interface = 0; interface < static_cast<uint16_t>(capro::Interfaces::INTERFACE_END); ++interface)
+    for (uint16_t commInterface = 0; commInterface < static_cast<uint16_t>(capro::Interfaces::INTERFACE_END);
+         ++commInterface)
     {
-        auto message = generateMessage(static_cast<capro::Interfaces>(interface));
+        auto message = generateMessage(static_cast<capro::Interfaces>(commInterface));
         InterfacePort(&interfacePortData).dispatchCaProMessage(message);
 
         auto maybeMessage = InterfacePort(&interfacePortData).tryGetCaProMessage();
@@ -72,11 +73,12 @@ TEST_F(InterfacePort_test, MessageDispatchedIfInterfacesDifferWhenInterfacePortI
         InterfacePortData interfacePortData(
             "", roudi::DEFAULT_UNIQUE_ROUDI_ID, static_cast<capro::Interfaces>(myInterface));
 
-        for (uint16_t interface = 0; interface < static_cast<uint16_t>(capro::Interfaces::INTERFACE_END); ++interface)
+        for (uint16_t otherInterface = 0; otherInterface < static_cast<uint16_t>(capro::Interfaces::INTERFACE_END);
+             ++otherInterface)
         {
-            if (interface != myInterface)
+            if (otherInterface != myInterface)
             {
-                auto message = generateMessage(static_cast<capro::Interfaces>(interface));
+                auto message = generateMessage(static_cast<capro::Interfaces>(otherInterface));
                 InterfacePort(&interfacePortData).dispatchCaProMessage(message);
 
                 auto maybeMessage = InterfacePort(&interfacePortData).tryGetCaProMessage();

@@ -103,10 +103,10 @@ class PosixSharedMemoryObjectBuilder
 
     /// @brief Defines if the memory should be mapped read only or with write access.
     ///        A read only memory section will cause a segmentation fault when written to.
-    IOX_BUILDER_PARAMETER(AccessMode, accessMode, AccessMode::READ_ONLY)
+    IOX_BUILDER_PARAMETER(AccessMode, accessMode, AccessMode::ReadOnly)
 
     /// @brief Defines how the shared memory is acquired
-    IOX_BUILDER_PARAMETER(OpenMode, openMode, OpenMode::OPEN_EXISTING)
+    IOX_BUILDER_PARAMETER(OpenMode, openMode, OpenMode::OpenExisting)
 
     /// @brief If this is set to a non null address create will try to map the shared
     ///        memory to the provided address. Since it is a hint, this mapping can

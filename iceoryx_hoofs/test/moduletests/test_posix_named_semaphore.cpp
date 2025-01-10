@@ -44,7 +44,7 @@ TEST_F(NamedSemaphoreTest, DefaultInitialValueIsZero)
     ::testing::Test::RecordProperty("TEST_ID", "71bf2c59-f0cd-4946-93ba-b578b99ac596");
     ASSERT_FALSE(NamedSemaphoreBuilder()
                      .name(sutName)
-                     .openMode(OpenMode::PURGE_AND_CREATE)
+                     .openMode(OpenMode::PurgeAndCreate)
                      .permissions(sutPermission)
                      .create(sut)
                      .has_error());
@@ -58,7 +58,7 @@ TEST_F(NamedSemaphoreTest, InitialValueIsSetOnCreation)
     constexpr uint32_t INITIAL_VALUE = 18739U;
     ASSERT_FALSE(NamedSemaphoreBuilder()
                      .name(sutName)
-                     .openMode(OpenMode::PURGE_AND_CREATE)
+                     .openMode(OpenMode::PurgeAndCreate)
                      .permissions(sutPermission)
                      .initialValue(INITIAL_VALUE)
                      .create(sut)
@@ -74,7 +74,7 @@ TEST_F(NamedSemaphoreTest, OpenExistingSemaphoreDoesNotOverrideInitialValue)
     constexpr uint32_t INITIAL_VALUE = 8812U;
     ASSERT_FALSE(NamedSemaphoreBuilder()
                      .name(sutName)
-                     .openMode(OpenMode::PURGE_AND_CREATE)
+                     .openMode(OpenMode::PurgeAndCreate)
                      .permissions(sutPermission)
                      .initialValue(INITIAL_VALUE)
                      .create(sut)
@@ -84,7 +84,7 @@ TEST_F(NamedSemaphoreTest, OpenExistingSemaphoreDoesNotOverrideInitialValue)
         iox::optional<NamedSemaphore> sut2;
         ASSERT_FALSE(NamedSemaphoreBuilder()
                          .name(sutName)
-                         .openMode(OpenMode::OPEN_EXISTING)
+                         .openMode(OpenMode::OpenExisting)
                          .initialValue(INITIAL_VALUE + 512)
                          .create(sut2)
                          .has_error());
@@ -99,7 +99,7 @@ TEST_F(NamedSemaphoreTest, OpenExistingSemaphoreWorksWithoutDestroyingItInTheDto
     constexpr uint32_t INITIAL_VALUE = 1872U;
     ASSERT_FALSE(NamedSemaphoreBuilder()
                      .name(sutName)
-                     .openMode(OpenMode::PURGE_AND_CREATE)
+                     .openMode(OpenMode::PurgeAndCreate)
                      .permissions(sutPermission)
                      .initialValue(INITIAL_VALUE)
                      .create(sut)
@@ -107,7 +107,7 @@ TEST_F(NamedSemaphoreTest, OpenExistingSemaphoreWorksWithoutDestroyingItInTheDto
 
     {
         iox::optional<NamedSemaphore> sut2;
-        ASSERT_FALSE(NamedSemaphoreBuilder().name(sutName).openMode(OpenMode::OPEN_EXISTING).create(sut2).has_error());
+        ASSERT_FALSE(NamedSemaphoreBuilder().name(sutName).openMode(OpenMode::OpenExisting).create(sut2).has_error());
         EXPECT_TRUE(setSemaphoreToZeroAndVerifyValue(*sut2, INITIAL_VALUE));
         ASSERT_TRUE(setSemaphoreValueTo(*sut2, INITIAL_VALUE));
     }
@@ -115,7 +115,7 @@ TEST_F(NamedSemaphoreTest, OpenExistingSemaphoreWorksWithoutDestroyingItInTheDto
     // if the dtor of sut2 unlinks the semaphore we should be unable to open it again
     {
         iox::optional<NamedSemaphore> sut2;
-        ASSERT_FALSE(NamedSemaphoreBuilder().name(sutName).openMode(OpenMode::OPEN_EXISTING).create(sut2).has_error());
+        ASSERT_FALSE(NamedSemaphoreBuilder().name(sutName).openMode(OpenMode::OpenExisting).create(sut2).has_error());
         EXPECT_TRUE(setSemaphoreToZeroAndVerifyValue(*sut2, INITIAL_VALUE));
         ASSERT_TRUE(setSemaphoreValueTo(*sut2, INITIAL_VALUE));
     }
@@ -129,7 +129,7 @@ TEST_F(NamedSemaphoreTest, OpenNonExistingSemaphoreFails)
     ::testing::Test::RecordProperty("TEST_ID", "ec124aaf-aad1-4375-a288-b3b06dbc6ac2");
 
     auto result =
-        NamedSemaphoreBuilder().name(sutName).openMode(OpenMode::OPEN_EXISTING).permissions(sutPermission).create(sut);
+        NamedSemaphoreBuilder().name(sutName).openMode(OpenMode::OpenExisting).permissions(sutPermission).create(sut);
 
     ASSERT_TRUE(result.has_error());
     EXPECT_THAT(result.error(), Eq(SemaphoreError::NO_SEMAPHORE_WITH_THAT_NAME_EXISTS));
@@ -141,7 +141,7 @@ TEST_F(NamedSemaphoreTest, ExclusiveCreateFailsWhenSemaphoreAlreadyExists)
 
     ASSERT_FALSE(NamedSemaphoreBuilder()
                      .name(sutName)
-                     .openMode(OpenMode::PURGE_AND_CREATE)
+                     .openMode(OpenMode::PurgeAndCreate)
                      .permissions(sutPermission)
                      .create(sut)
                      .has_error());
@@ -149,7 +149,7 @@ TEST_F(NamedSemaphoreTest, ExclusiveCreateFailsWhenSemaphoreAlreadyExists)
     iox::optional<NamedSemaphore> sut2;
     auto result = NamedSemaphoreBuilder()
                       .name(sutName)
-                      .openMode(OpenMode::EXCLUSIVE_CREATE)
+                      .openMode(OpenMode::ExclusiveCreate)
                       .permissions(sutPermission)
                       .create(sut2);
 
@@ -162,7 +162,7 @@ TEST_F(NamedSemaphoreTest, SemaphoreWithInvalidNameFails)
     ::testing::Test::RecordProperty("TEST_ID", "07ef3fdf-0e22-45f8-bb6b-68647f1211b6");
 
     auto result =
-        NamedSemaphoreBuilder().name("///").openMode(OpenMode::PURGE_AND_CREATE).permissions(sutPermission).create(sut);
+        NamedSemaphoreBuilder().name("///").openMode(OpenMode::PurgeAndCreate).permissions(sutPermission).create(sut);
     ASSERT_TRUE(result.has_error());
     EXPECT_THAT(result.error(), Eq(SemaphoreError::INVALID_NAME));
 }
@@ -174,7 +174,7 @@ TEST_F(NamedSemaphoreTest, OpenOrCreateOpensExistingSemaphoreWithoutDestroyingIt
     constexpr uint32_t INITIAL_VALUE = 655U;
     ASSERT_FALSE(NamedSemaphoreBuilder()
                      .name(sutName)
-                     .openMode(OpenMode::OPEN_OR_CREATE)
+                     .openMode(OpenMode::OpenOrCreate)
                      .permissions(sutPermission)
                      .initialValue(INITIAL_VALUE)
                      .create(sut)
@@ -185,7 +185,7 @@ TEST_F(NamedSemaphoreTest, OpenOrCreateOpensExistingSemaphoreWithoutDestroyingIt
         ASSERT_FALSE(NamedSemaphoreBuilder()
                          .name(sutName)
                          .initialValue(0U)
-                         .openMode(OpenMode::OPEN_OR_CREATE)
+                         .openMode(OpenMode::OpenOrCreate)
                          .create(sut2)
                          .has_error());
         // value should be INITIAL_VALUE since we opened an existing semaphore
@@ -199,7 +199,7 @@ TEST_F(NamedSemaphoreTest, OpenOrCreateOpensExistingSemaphoreWithoutDestroyingIt
         ASSERT_FALSE(NamedSemaphoreBuilder()
                          .name(sutName)
                          .initialValue(0U)
-                         .openMode(OpenMode::OPEN_OR_CREATE)
+                         .openMode(OpenMode::OpenOrCreate)
                          .create(sut2)
                          .has_error());
         // value should be INITIAL_VALUE since we opened an existing semaphore
@@ -217,7 +217,7 @@ TEST_F(NamedSemaphoreTest, OpenOrCreateRemovesSemaphoreWhenItHasTheOwnership)
 
     ASSERT_FALSE(NamedSemaphoreBuilder()
                      .name(sutName)
-                     .openMode(OpenMode::OPEN_OR_CREATE)
+                     .openMode(OpenMode::OpenOrCreate)
                      .permissions(sutPermission)
                      .create(sut)
                      .has_error());
@@ -225,7 +225,7 @@ TEST_F(NamedSemaphoreTest, OpenOrCreateRemovesSemaphoreWhenItHasTheOwnership)
     sut.reset();
 
     // should fail since the previous sut was deleted and had the ownership
-    auto result = NamedSemaphoreBuilder().name(sutName).initialValue(0U).openMode(OpenMode::OPEN_EXISTING).create(sut);
+    auto result = NamedSemaphoreBuilder().name(sutName).initialValue(0U).openMode(OpenMode::OpenExisting).create(sut);
     ASSERT_TRUE(result.has_error());
     EXPECT_THAT(result.error(), Eq(SemaphoreError::NO_SEMAPHORE_WITH_THAT_NAME_EXISTS));
 }
@@ -237,14 +237,14 @@ TEST_F(NamedSemaphoreTest, WhenOwningSemaphoreIsClosedBeforeOpenedSemaphoreTheOp
     constexpr uint32_t INITIAL_VALUE = 84U;
     ASSERT_FALSE(NamedSemaphoreBuilder()
                      .name(sutName)
-                     .openMode(OpenMode::EXCLUSIVE_CREATE)
+                     .openMode(OpenMode::ExclusiveCreate)
                      .permissions(sutPermission)
                      .initialValue(INITIAL_VALUE)
                      .create(sut)
                      .has_error());
 
     iox::optional<NamedSemaphore> sut2;
-    ASSERT_FALSE(NamedSemaphoreBuilder().name(sutName).openMode(OpenMode::OPEN_EXISTING).create(sut2).has_error());
+    ASSERT_FALSE(NamedSemaphoreBuilder().name(sutName).openMode(OpenMode::OpenExisting).create(sut2).has_error());
 
     sut.reset();
 
@@ -261,7 +261,7 @@ TEST_F(NamedSemaphoreTest, PurgeAndCreateCreatesNewSemaphore)
     constexpr uint32_t FIRST_INITIAL_VALUE = 891U;
     ASSERT_FALSE(NamedSemaphoreBuilder()
                      .name(sutName)
-                     .openMode(OpenMode::PURGE_AND_CREATE)
+                     .openMode(OpenMode::PurgeAndCreate)
                      .permissions(sutPermission)
                      .initialValue(FIRST_INITIAL_VALUE)
                      .create(sut)
@@ -271,7 +271,7 @@ TEST_F(NamedSemaphoreTest, PurgeAndCreateCreatesNewSemaphore)
     constexpr uint32_t INITIAL_VALUE = 97U;
     ASSERT_FALSE(NamedSemaphoreBuilder()
                      .name(sutName)
-                     .openMode(OpenMode::PURGE_AND_CREATE)
+                     .openMode(OpenMode::PurgeAndCreate)
                      .permissions(sutPermission)
                      .initialValue(INITIAL_VALUE)
                      .create(sut2)

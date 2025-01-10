@@ -56,7 +56,7 @@ expected<FileLock, FileLockError> FileLockBuilder::create() noexcept
     fileLockPath.unsafe_append(FileLock::LOCK_FILE_SUFFIX);
 
     auto openCall = IOX_POSIX_CALL(iox_ext_open)(fileLockPath.c_str(),
-                                                 convertToOflags(AccessMode::READ_ONLY, OpenMode::OPEN_OR_CREATE),
+                                                 convertToOflags(AccessMode::ReadOnly, OpenMode::OpenOrCreate),
                                                  m_permission.value())
                         .failureReturnValue(-1)
                         .evaluate();

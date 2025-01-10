@@ -175,7 +175,7 @@ NamedSemaphoreBuilder::create(optional<NamedSemaphore>& uninitializedSemaphore) 
         return err(SemaphoreError::SEMAPHORE_OVERFLOW);
     }
 
-    if (m_openMode == OpenMode::OPEN_EXISTING)
+    if (m_openMode == OpenMode::OpenExisting)
     {
         auto result = tryOpenExistingSemaphore(uninitializedSemaphore, m_name);
         if (result.has_error())
@@ -191,7 +191,7 @@ NamedSemaphoreBuilder::create(optional<NamedSemaphore>& uninitializedSemaphore) 
         return ok();
     }
 
-    if (m_openMode == OpenMode::OPEN_OR_CREATE)
+    if (m_openMode == OpenMode::OpenOrCreate)
     {
         auto result = tryOpenExistingSemaphore(uninitializedSemaphore, m_name);
         if (result.has_error())
@@ -207,12 +207,12 @@ NamedSemaphoreBuilder::create(optional<NamedSemaphore>& uninitializedSemaphore) 
         return createSemaphore(uninitializedSemaphore, m_name, m_openMode, m_permissions, m_initialValue);
     }
 
-    if (m_openMode == OpenMode::EXCLUSIVE_CREATE)
+    if (m_openMode == OpenMode::ExclusiveCreate)
     {
         return createSemaphore(uninitializedSemaphore, m_name, m_openMode, m_permissions, m_initialValue);
     }
 
-    // if OpenMode::PURGE_AND_CREATE, written outside of if statement to avoid no return value warning
+    // if OpenMode::PurgeAndCreate, written outside of if statement to avoid no return value warning
     auto result = unlink(m_name);
     if (result.has_error())
     {

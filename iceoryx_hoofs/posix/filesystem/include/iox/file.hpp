@@ -169,7 +169,7 @@ class File : public FileManagementInterface<File>
     static constexpr int INVALID_FILE_DESCRIPTOR{-1};
 
     int m_file_descriptor{INVALID_FILE_DESCRIPTOR};
-    AccessMode m_access_mode{AccessMode::READ_ONLY};
+    AccessMode m_access_mode{AccessMode::ReadOnly};
 };
 
 class FileBuilder
@@ -177,8 +177,8 @@ class FileBuilder
   private:
     IOX_BUILDER_PARAMETER(Ownership, owner, Ownership::from_process())
     IOX_BUILDER_PARAMETER(access_rights, permissions, perms::owner_read)
-    IOX_BUILDER_PARAMETER(AccessMode, access_mode, AccessMode::READ_ONLY)
-    IOX_BUILDER_PARAMETER(OpenMode, open_mode, OpenMode::OPEN_EXISTING)
+    IOX_BUILDER_PARAMETER(AccessMode, access_mode, AccessMode::ReadOnly)
+    IOX_BUILDER_PARAMETER(OpenMode, open_mode, OpenMode::OpenExisting)
 
   public:
     expected<File, FileCreationError> create(const FilePath& name) noexcept;

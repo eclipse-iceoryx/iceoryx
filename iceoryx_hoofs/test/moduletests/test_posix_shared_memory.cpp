@@ -52,7 +52,7 @@ class PosixSharedMemory_Test : public Test
     {
         return PosixSharedMemoryBuilder()
             .name(name)
-            .accessMode(iox::AccessMode::READ_WRITE)
+            .accessMode(iox::AccessMode::ReadWrite)
             .openMode(openMode)
             .filePermissions(perms::owner_all)
             .size(128)
@@ -98,21 +98,21 @@ constexpr const char PosixSharedMemory_Test::SUT_SHM_NAME[];
 TEST_F(PosixSharedMemory_Test, CTorWithValidArguments)
 {
     ::testing::Test::RecordProperty("TEST_ID", "158f1ee6-cc8c-4e80-a288-6e23a74cd66e");
-    auto sut = createSut(SUT_SHM_NAME, iox::OpenMode::PURGE_AND_CREATE);
+    auto sut = createSut(SUT_SHM_NAME, iox::OpenMode::PurgeAndCreate);
     EXPECT_THAT(sut.has_error(), Eq(false));
 }
 
 TEST_F(PosixSharedMemory_Test, CTorWithInvalidMessageQueueNames)
 {
     ::testing::Test::RecordProperty("TEST_ID", "76ed82b1-eef7-4a5a-8794-b333c679e726");
-    EXPECT_THAT(createSut("", iox::OpenMode::PURGE_AND_CREATE).has_error(), Eq(true));
-    EXPECT_THAT(createSut("/ignatz", iox::OpenMode::PURGE_AND_CREATE).has_error(), Eq(true));
+    EXPECT_THAT(createSut("", iox::OpenMode::PurgeAndCreate).has_error(), Eq(true));
+    EXPECT_THAT(createSut("/ignatz", iox::OpenMode::PurgeAndCreate).has_error(), Eq(true));
 }
 
 TEST_F(PosixSharedMemory_Test, CTorWithInvalidArguments)
 {
     ::testing::Test::RecordProperty("TEST_ID", "53c66249-4f3a-4220-9cc0-001be53546d3");
-    auto sut = createSut("/schlomo", iox::OpenMode::OPEN_EXISTING);
+    auto sut = createSut("/schlomo", iox::OpenMode::OpenExisting);
     EXPECT_THAT(sut.has_error(), Eq(true));
 }
 
@@ -120,7 +120,7 @@ TEST_F(PosixSharedMemory_Test, MoveCTorWithValidValues)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2844c9c5-856e-4b51-890d-1418f79f1a80");
 
-    auto sut = createSut(SUT_SHM_NAME, iox::OpenMode::PURGE_AND_CREATE);
+    auto sut = createSut(SUT_SHM_NAME, iox::OpenMode::PurgeAndCreate);
     ASSERT_FALSE(sut.has_error());
     int handle = sut->getHandle();
     {
@@ -132,7 +132,7 @@ TEST_F(PosixSharedMemory_Test, MoveCTorWithValidValues)
 TEST_F(PosixSharedMemory_Test, getHandleOfValidObject)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1fec2518-70f7-412b-8be2-3174e6ada050");
-    auto sut = createSut(SUT_SHM_NAME, iox::OpenMode::PURGE_AND_CREATE);
+    auto sut = createSut(SUT_SHM_NAME, iox::OpenMode::PurgeAndCreate);
     ASSERT_FALSE(sut.has_error());
     EXPECT_THAT(sut->getHandle(), Ne(PosixSharedMemory::INVALID_HANDLE));
 }
@@ -164,7 +164,7 @@ TEST_F(PosixSharedMemory_Test, UnlinkExistingShmWorks)
 TEST_F(PosixSharedMemory_Test, ExclusiveCreateWorksWhenShmDoesNotExist)
 {
     ::testing::Test::RecordProperty("TEST_ID", "bfc44656-ef23-49ef-be96-0d4bfb592030");
-    auto sut = createSut(SUT_SHM_NAME, OpenMode::EXCLUSIVE_CREATE);
+    auto sut = createSut(SUT_SHM_NAME, OpenMode::ExclusiveCreate);
     ASSERT_FALSE(sut.has_error());
     EXPECT_TRUE(sut->hasOwnership());
     EXPECT_THAT(sut->getHandle(), Ne(PosixSharedMemory::INVALID_HANDLE));
@@ -176,14 +176,14 @@ TEST_F(PosixSharedMemory_Test, ExclusiveCreateFailsWhenShmExists)
     auto rawSharedMemory = createRawSharedMemory(SUT_SHM_NAME);
     ASSERT_TRUE(static_cast<bool>(rawSharedMemory));
 
-    auto sut = createSut(SUT_SHM_NAME, OpenMode::EXCLUSIVE_CREATE);
+    auto sut = createSut(SUT_SHM_NAME, OpenMode::ExclusiveCreate);
     ASSERT_TRUE(sut.has_error());
 }
 
 TEST_F(PosixSharedMemory_Test, PurgeAndCreateWorksWhenShmDoesNotExist)
 {
     ::testing::Test::RecordProperty("TEST_ID", "611694b6-d877-43a1-a6e3-dfef3f8a174b");
-    auto sut = createSut(SUT_SHM_NAME, OpenMode::PURGE_AND_CREATE);
+    auto sut = createSut(SUT_SHM_NAME, OpenMode::PurgeAndCreate);
     ASSERT_FALSE(sut.has_error());
     EXPECT_TRUE(sut->hasOwnership());
     EXPECT_THAT(sut->getHandle(), Ne(PosixSharedMemory::INVALID_HANDLE));
@@ -198,7 +198,7 @@ TEST_F(PosixSharedMemory_Test, PurgeAndCreateWorksWhenShmExists)
     auto rawSharedMemory = createRawSharedMemory(SUT_SHM_NAME);
     ASSERT_TRUE(static_cast<bool>(rawSharedMemory));
 
-    auto sut = createSut(SUT_SHM_NAME, OpenMode::PURGE_AND_CREATE);
+    auto sut = createSut(SUT_SHM_NAME, OpenMode::PurgeAndCreate);
     ASSERT_FALSE(sut.has_error());
     EXPECT_TRUE(sut->hasOwnership());
     EXPECT_THAT(sut->getHandle(), Ne(PosixSharedMemory::INVALID_HANDLE));
@@ -209,7 +209,7 @@ TEST_F(PosixSharedMemory_Test, CreateOrOpenCreatesShmWhenShmDoesNotExist)
 {
     ::testing::Test::RecordProperty("TEST_ID", "574b0b16-2458-49b0-8b37-3999e9b56072");
     {
-        auto sut = createSut(SUT_SHM_NAME, OpenMode::OPEN_OR_CREATE);
+        auto sut = createSut(SUT_SHM_NAME, OpenMode::OpenOrCreate);
         ASSERT_FALSE(sut.has_error());
         EXPECT_TRUE(sut->hasOwnership());
         EXPECT_THAT(sut->getHandle(), Ne(PosixSharedMemory::INVALID_HANDLE));
@@ -222,7 +222,7 @@ TEST_F(PosixSharedMemory_Test, CreateOrOpenOpensShmWhenShmDoesExist)
     auto rawSharedMemory = createRawSharedMemory(SUT_SHM_NAME);
     ASSERT_TRUE(static_cast<bool>(rawSharedMemory));
     {
-        auto sut = createSut(SUT_SHM_NAME, OpenMode::OPEN_OR_CREATE);
+        auto sut = createSut(SUT_SHM_NAME, OpenMode::OpenOrCreate);
         ASSERT_FALSE(sut.has_error());
         EXPECT_FALSE(sut->hasOwnership());
         EXPECT_THAT(sut->getHandle(), Ne(PosixSharedMemory::INVALID_HANDLE));
@@ -235,7 +235,7 @@ TEST_F(PosixSharedMemory_Test, OpenWorksWhenShmExist)
     auto rawSharedMemory = createRawSharedMemory(SUT_SHM_NAME);
     ASSERT_TRUE(static_cast<bool>(rawSharedMemory));
     {
-        auto sut = createSut(SUT_SHM_NAME, OpenMode::OPEN_EXISTING);
+        auto sut = createSut(SUT_SHM_NAME, OpenMode::OpenExisting);
         ASSERT_FALSE(sut.has_error());
         EXPECT_FALSE(sut->hasOwnership());
         EXPECT_THAT(sut->getHandle(), Ne(PosixSharedMemory::INVALID_HANDLE));
@@ -245,7 +245,7 @@ TEST_F(PosixSharedMemory_Test, OpenWorksWhenShmExist)
 TEST_F(PosixSharedMemory_Test, OpenFailsWhenShmDoesNotExist)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5b1878b9-d292-479c-bfe7-9826561152ee");
-    auto sut = createSut(SUT_SHM_NAME, OpenMode::OPEN_EXISTING);
+    auto sut = createSut(SUT_SHM_NAME, OpenMode::OpenExisting);
     ASSERT_TRUE(sut.has_error());
 }
 
@@ -255,8 +255,8 @@ TEST_F(PosixSharedMemory_Test, OpenFailsWhenCreatingShmInReadOnlyMode)
     auto sut = PosixSharedMemoryBuilder()
                    .name("readOnlyShmMem")
                    .size(100)
-                   .accessMode(iox::AccessMode::READ_ONLY)
-                   .openMode(iox::OpenMode::PURGE_AND_CREATE)
+                   .accessMode(iox::AccessMode::ReadOnly)
+                   .openMode(iox::OpenMode::PurgeAndCreate)
                    .create();
 
     ASSERT_TRUE(sut.has_error());

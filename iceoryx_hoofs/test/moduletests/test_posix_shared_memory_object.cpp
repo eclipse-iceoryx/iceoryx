@@ -44,8 +44,8 @@ TEST_F(SharedMemoryObject_Test, CTorWithValidArguments)
     auto sut = PosixSharedMemoryObjectBuilder()
                    .name("validShmMem")
                    .memorySizeInBytes(100)
-                   .accessMode(iox::AccessMode::READ_WRITE)
-                   .openMode(iox::OpenMode::PURGE_AND_CREATE)
+                   .accessMode(iox::AccessMode::ReadWrite)
+                   .openMode(iox::OpenMode::PurgeAndCreate)
                    .create();
 
     EXPECT_THAT(sut.has_error(), Eq(false));
@@ -57,8 +57,8 @@ TEST_F(SharedMemoryObject_Test, CTorOpenNonExistingSharedMemoryObject)
     auto sut = PosixSharedMemoryObjectBuilder()
                    .name("pummeluff")
                    .memorySizeInBytes(100)
-                   .accessMode(iox::AccessMode::READ_WRITE)
-                   .openMode(iox::OpenMode::OPEN_EXISTING)
+                   .accessMode(iox::AccessMode::ReadWrite)
+                   .openMode(iox::OpenMode::OpenExisting)
                    .create();
 
     EXPECT_THAT(sut.has_error(), Eq(true));
@@ -71,8 +71,8 @@ TEST_F(SharedMemoryObject_Test, AllocateMemoryInSharedMemoryAndReadIt)
     auto sut = PosixSharedMemoryObjectBuilder()
                    .name("shmAllocate")
                    .memorySizeInBytes(MEMORY_SIZE)
-                   .accessMode(iox::AccessMode::READ_WRITE)
-                   .openMode(iox::OpenMode::PURGE_AND_CREATE)
+                   .accessMode(iox::AccessMode::ReadWrite)
+                   .openMode(iox::OpenMode::PurgeAndCreate)
                    .permissions(perms::owner_all)
                    .create()
                    .expect("failed to create sut");
@@ -88,7 +88,7 @@ TEST_F(SharedMemoryObject_Test, AllocateMemoryInSharedMemoryAndReadIt)
     auto sut2 = PosixSharedMemoryObjectBuilder()
                     .name("shmAllocate")
                     .memorySizeInBytes(MEMORY_SIZE)
-                    .openMode(iox::OpenMode::OPEN_EXISTING)
+                    .openMode(iox::OpenMode::OpenExisting)
                     .create()
                     .expect("failed to create sut");
 
@@ -108,8 +108,8 @@ TEST_F(SharedMemoryObject_Test, OpenFailsWhenActualMemorySizeIsSmallerThanReques
     auto sut = PosixSharedMemoryObjectBuilder()
                    .name("shmAllocate")
                    .memorySizeInBytes(1)
-                   .accessMode(iox::AccessMode::READ_WRITE)
-                   .openMode(iox::OpenMode::PURGE_AND_CREATE)
+                   .accessMode(iox::AccessMode::ReadWrite)
+                   .openMode(iox::OpenMode::PurgeAndCreate)
                    .permissions(perms::owner_all)
                    .create()
                    .expect("failed to create sut");
@@ -117,7 +117,7 @@ TEST_F(SharedMemoryObject_Test, OpenFailsWhenActualMemorySizeIsSmallerThanReques
     auto sut2 = PosixSharedMemoryObjectBuilder()
                     .name("shmAllocate")
                     .memorySizeInBytes(MEMORY_SIZE)
-                    .openMode(iox::OpenMode::OPEN_EXISTING)
+                    .openMode(iox::OpenMode::OpenExisting)
                     .create();
 
     ASSERT_TRUE(sut2.has_error());
@@ -131,8 +131,8 @@ TEST_F(SharedMemoryObject_Test, OpenSutMapsAllMemoryIntoProcess)
     auto sut = PosixSharedMemoryObjectBuilder()
                    .name("shmAllocate")
                    .memorySizeInBytes(MEMORY_SIZE * sizeof(uint64_t))
-                   .accessMode(iox::AccessMode::READ_WRITE)
-                   .openMode(iox::OpenMode::PURGE_AND_CREATE)
+                   .accessMode(iox::AccessMode::ReadWrite)
+                   .openMode(iox::OpenMode::PurgeAndCreate)
                    .permissions(perms::owner_all)
                    .create()
                    .expect("failed to create sut");
@@ -148,7 +148,7 @@ TEST_F(SharedMemoryObject_Test, OpenSutMapsAllMemoryIntoProcess)
     auto sut2 = PosixSharedMemoryObjectBuilder()
                     .name("shmAllocate")
                     .memorySizeInBytes(1)
-                    .openMode(iox::OpenMode::OPEN_EXISTING)
+                    .openMode(iox::OpenMode::OpenExisting)
                     .create()
                     .expect("failed to create sut");
 
@@ -170,8 +170,8 @@ TEST_F(SharedMemoryObject_Test, AcquiringOwnerWorks)
     auto sut = PosixSharedMemoryObjectBuilder()
                    .name("shmAllocate")
                    .memorySizeInBytes(8)
-                   .accessMode(iox::AccessMode::READ_WRITE)
-                   .openMode(iox::OpenMode::PURGE_AND_CREATE)
+                   .accessMode(iox::AccessMode::ReadWrite)
+                   .openMode(iox::OpenMode::PurgeAndCreate)
                    .permissions(perms::owner_all)
                    .create();
 
@@ -189,8 +189,8 @@ TEST_F(SharedMemoryObject_Test, AcquiringPermissionsWorks)
     auto sut = PosixSharedMemoryObjectBuilder()
                    .name("shmAllocate")
                    .memorySizeInBytes(8)
-                   .accessMode(iox::AccessMode::READ_WRITE)
-                   .openMode(iox::OpenMode::PURGE_AND_CREATE)
+                   .accessMode(iox::AccessMode::ReadWrite)
+                   .openMode(iox::OpenMode::PurgeAndCreate)
                    .permissions(permissions)
                    .create();
 
@@ -205,8 +205,8 @@ TEST_F(SharedMemoryObject_Test, SettingOwnerWorks)
     auto sut = PosixSharedMemoryObjectBuilder()
                    .name("shmAllocate")
                    .memorySizeInBytes(8)
-                   .accessMode(iox::AccessMode::READ_WRITE)
-                   .openMode(iox::OpenMode::PURGE_AND_CREATE)
+                   .accessMode(iox::AccessMode::ReadWrite)
+                   .openMode(iox::OpenMode::PurgeAndCreate)
                    .permissions(perms::owner_all)
                    .create();
 
@@ -224,8 +224,8 @@ TEST_F(SharedMemoryObject_Test, SettingPermissionsWorks)
     auto sut = PosixSharedMemoryObjectBuilder()
                    .name("shmAllocate")
                    .memorySizeInBytes(8)
-                   .accessMode(iox::AccessMode::READ_WRITE)
-                   .openMode(iox::OpenMode::PURGE_AND_CREATE)
+                   .accessMode(iox::AccessMode::ReadWrite)
+                   .openMode(iox::OpenMode::PurgeAndCreate)
                    .permissions(perms::owner_all)
                    .create();
 

@@ -805,13 +805,13 @@ void PortManager::deletePortsOfProcess(const RuntimeName_t& runtimeName) noexcep
         }
     }
 
-    auto& interfacePorts = m_portPool->getInterfacePortDataList();
-    auto interfacePort = interfacePorts.begin();
-    while (interfacePort != interfacePorts.end())
+    auto& interfacePortDataPool = m_portPool->getInterfacePortDataList();
+    auto interfacePortData = interfacePortDataPool.begin();
+    while (interfacePortData != interfacePortDataPool.end())
     {
-        auto currentPort = interfacePort++;
-        popo::InterfacePort interface(currentPort.to_ptr());
-        if (runtimeName == interface.getRuntimeName())
+        auto currentPort = interfacePortData++;
+        popo::InterfacePort interfacePort(currentPort.to_ptr());
+        if (runtimeName == interfacePort.getRuntimeName())
         {
             IOX_LOG(Debug, "Deleted Interface of application " << runtimeName);
             m_portPool->removeInterfacePort(currentPort.to_ptr());
@@ -1073,10 +1073,10 @@ PortManager::acquireServerPortData(const capro::ServiceDescription& service,
 }
 
 /// @todo iox-#518 return a expected
-popo::InterfacePortData* PortManager::acquireInterfacePortData(capro::Interfaces interface,
+popo::InterfacePortData* PortManager::acquireInterfacePortData(capro::Interfaces commInterface,
                                                                const RuntimeName_t& runtimeName) noexcept
 {
-    auto result = m_portPool->addInterfacePort(runtimeName, interface);
+    auto result = m_portPool->addInterfacePort(runtimeName, commInterface);
     if (result.has_value())
     {
         return result.value();

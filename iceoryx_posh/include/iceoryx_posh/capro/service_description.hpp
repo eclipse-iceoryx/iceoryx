@@ -108,7 +108,7 @@ class ServiceDescription
                        const IdString_t& instance,
                        const IdString_t& event,
                        ClassHash m_classHash = {0U, 0U, 0U, 0U},
-                       Interfaces interfaceSource = Interfaces::INTERNAL) noexcept;
+                       Interfaces commInterface = Interfaces::INTERNAL) noexcept;
 
     /// @brief compare operator.
     bool operator==(const ServiceDescription& rhs) const noexcept;

@@ -83,7 +83,7 @@ class PosixMemoryMapBuilder
 
     /// @brief Defines if the memory should be mapped read only or with write access.
     ///        A read only memory section will cause a segmentation fault when written to.
-    IOX_BUILDER_PARAMETER(AccessMode, accessMode, AccessMode::READ_WRITE)
+    IOX_BUILDER_PARAMETER(AccessMode, accessMode, AccessMode::ReadWrite)
 
     /// @brief Sets the flags defining how the mapped data should be handled
     IOX_BUILDER_PARAMETER(PosixMemoryMapFlags, flags, PosixMemoryMapFlags::SHARE_CHANGES)

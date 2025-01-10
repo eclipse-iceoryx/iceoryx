@@ -69,10 +69,10 @@ expected<PosixSharedMemory, PosixSharedMemoryError> PosixSharedMemoryBuilder::cr
 
     auto nameWithLeadingSlash = addLeadingSlash(m_name);
 
-    bool hasOwnership = (m_openMode == OpenMode::EXCLUSIVE_CREATE || m_openMode == OpenMode::PURGE_AND_CREATE
-                         || m_openMode == OpenMode::OPEN_OR_CREATE);
+    bool hasOwnership = (m_openMode == OpenMode::ExclusiveCreate || m_openMode == OpenMode::PurgeAndCreate
+                         || m_openMode == OpenMode::OpenOrCreate);
 
-    if (hasOwnership && (m_accessMode == AccessMode::READ_ONLY))
+    if (hasOwnership && (m_accessMode == AccessMode::ReadOnly))
     {
         IOX_LOG(Error,
                 "Cannot create shared-memory file \"" << m_name << "\" in read-only mode. "
@@ -86,7 +86,7 @@ expected<PosixSharedMemory, PosixSharedMemoryError> PosixSharedMemoryBuilder::cr
     {
         ScopeGuard umaskGuard([&] { umask(umaskSaved); });
 
-        if (m_openMode == OpenMode::PURGE_AND_CREATE)
+        if (m_openMode == OpenMode::PurgeAndCreate)
         {
             IOX_DISCARD_RESULT(IOX_POSIX_CALL(iox_shm_unlink)(nameWithLeadingSlash.c_str())
                                    .failureReturnValue(PosixSharedMemory::INVALID_HANDLE)
@@ -98,20 +98,20 @@ expected<PosixSharedMemory, PosixSharedMemoryError> PosixSharedMemoryBuilder::cr
             IOX_POSIX_CALL(iox_shm_open)(
                 nameWithLeadingSlash.c_str(),
                 convertToOflags(m_accessMode,
-                                (m_openMode == OpenMode::OPEN_OR_CREATE) ? OpenMode::EXCLUSIVE_CREATE : m_openMode),
+                                (m_openMode == OpenMode::OpenOrCreate) ? OpenMode::ExclusiveCreate : m_openMode),
                 m_filePermissions.value())
                 .failureReturnValue(PosixSharedMemory::INVALID_HANDLE)
-                .suppressErrorMessagesForErrnos((m_openMode == OpenMode::OPEN_OR_CREATE) ? EEXIST : 0)
+                .suppressErrorMessagesForErrnos((m_openMode == OpenMode::OpenOrCreate) ? EEXIST : 0)
                 .evaluate();
         if (result.has_error())
         {
             // if it was not possible to create the shm exclusively someone else has the
             // ownership and we just try to open it
-            if (m_openMode == OpenMode::OPEN_OR_CREATE && result.error().errnum == EEXIST)
+            if (m_openMode == OpenMode::OpenOrCreate && result.error().errnum == EEXIST)
             {
                 hasOwnership = false;
                 result = IOX_POSIX_CALL(iox_shm_open)(nameWithLeadingSlash.c_str(),
-                                                      convertToOflags(m_accessMode, OpenMode::OPEN_EXISTING),
+                                                      convertToOflags(m_accessMode, OpenMode::OpenExisting),
                                                       m_filePermissions.value())
                              .failureReturnValue(PosixSharedMemory::INVALID_HANDLE)
                              .evaluate();
