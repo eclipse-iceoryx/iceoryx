@@ -66,7 +66,7 @@ class SpinLock : public LockInterface<SpinLock>
     const concurrent::Atomic<bool> m_recursive{false};
     concurrent::Atomic<pid_t> m_pid{0};
     concurrent::Atomic<uint64_t> m_recursive_count{0};
-    concurrent::Atomic<std::thread::id> m_tid{};
+    concurrent::Atomic<std::thread::id> m_tid{std::thread::id()};
 };
 
 class SpinLockBuilder
