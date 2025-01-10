@@ -18,6 +18,7 @@
 
 #include "iceoryx_posh/roudi/roudi_config_toml_file_provider.hpp"
 #include "iceoryx_platform/getopt.hpp"
+#include "iceoryx_platform/platform_settings.hpp"
 #include "iox/file_reader.hpp"
 #include "iox/into.hpp"
 #include "iox/logging.hpp"
@@ -43,11 +44,23 @@ TomlRouDiConfigFileProvider::TomlRouDiConfigFileProvider(config::CmdLineArgs_t& 
         m_roudiConfig = cmdLineArgs.roudiConfig;
         if (cmdLineArgs.configFilePath.empty())
         {
+            auto defaultConfigFilePath =
+                std::string(platform::IOX_DEFAULT_CONFIG_LOCATION) + defaultConfigFileRelativePath;
+
             FileReader configFile(defaultConfigFilePath, "", FileReader::ErrorMode::Ignore);
             if (configFile.isOpen())
             {
                 IOX_LOG(Info, "No config file provided. Using '" << defaultConfigFilePath << "'");
-                m_customConfigFilePath = defaultConfigFilePath;
+                into<optional<roudi::ConfigFilePathString_t>>(defaultConfigFilePath)
+                    .and_then([&](const auto& path) { m_customConfigFilePath = path; })
+                    .or_else([&] {
+                        IOX_LOG(Info,
+                                "The config file path is too long. Only "
+                                    << roudi::ConfigFilePathString_t::capacity()
+                                    << " characters are allowed but the provided path has "
+                                    << defaultConfigFilePath.length() << " characters: '" << defaultConfigFilePath
+                                    << "'");
+                    });
             }
             else
             {
