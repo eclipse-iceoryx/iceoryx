@@ -237,6 +237,7 @@
 - Fix new clang-tidy-18 warnings [#2274](https://github.com/eclipse-iceoryx/iceoryx/issues/2274)
 - Mistype in readme file [#2384](https://github.com/eclipse-iceoryx/iceoryx/issues/2384)
 - Typo in architecture.md [#2390](https://github.com/eclipse-iceoryx/iceoryx/issues/2390)
+- Make platform paths like config location configurable via cmake [#846](https://github.com/eclipse-iceoryx/iceoryx/issues/846)
 
 **Workflow:**
 

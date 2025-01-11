@@ -35,6 +35,11 @@ configure_option(
     DEFAULT_VALUE ""
 )
 
+configure_option(
+    NAME IOX_PLATFORM_DEFAULT_CONFIG_LOCATION
+    DEFAULT_VALUE "C:/ProgramData/"
+)
+
 option(IOX_PLATFORM_FEATURE_ACL "Use ACLs for access control" OFF)
 message(STATUS "[i] IOX_PLATFORM_FEATURE_ACL: ${IOX_PLATFORM_FEATURE_ACL}")
 
