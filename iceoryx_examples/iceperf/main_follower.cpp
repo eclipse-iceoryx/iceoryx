@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
             auto result = iox::convert::from_string<uint64_t>(optarg);
             if (!result.has_value())
             {
-                std::cerr << "Could not parse 'intensity' paramater!" << std::endl;
+                std::cerr << "Could not parse 'intensity' parameter!" << std::endl;
                 return EXIT_FAILURE;
             }
 
