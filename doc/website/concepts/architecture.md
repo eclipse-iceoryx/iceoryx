@@ -6,7 +6,7 @@ This article provides an overview of the Eclipse iceoryx architecture and explai
 
 The main packages which Eclipse iceoryx is composed of are depicted below.
 
-![Software layers](../images/iceoryx_software_layers_v2_0_0.svg)
+![Software layers](../images/iceoryx_software_layers_v3_0_0.svg)
 
 The next sections briefly describe the components and their libraries one by one.
 
@@ -14,7 +14,7 @@ The next sections briefly describe the components and their libraries one by one
 
 The different libraries and their namespaces are depicted below.
 
-![Component diagram](../images/iceoryx_components_diagram_v2_0_0.svg)
+![Component diagram](../images/iceoryx_components_diagram_v3_0_0.svg)
 
 ### iceoryx hoofs
 
