@@ -1,6 +1,6 @@
 # Configuration guide
 
-## CMake switches for configuring iceoryx_hoofs and iceoryx_posh build
+## :material-cog: CMake switches for configuring iceoryx_hoofs and iceoryx_posh build
 
 There are several configuration options set by default when iceoryx_hoofs
 and iceoryx_posh are build. These options adjust the minimal log level compiled
@@ -79,7 +79,7 @@ This way, the ACL feature is disabled across builds without needing to pass the 
 >
 > This ensures that the flag is applied to the correct target from the imported repository.
 
-## Configuring Mempools for RouDi
+## :material-memory: Configuring Mempools for RouDi
 
 RouDi supports several shared memory segments with different access rights, to
 limit the read and write access between different applications. Memory pools
