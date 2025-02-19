@@ -1,8 +1,8 @@
-# iceoryx vx.x.x
+# iceoryx v3.0.0 (UNRELEASED)
 
-## [vx.x.x](https://github.com/eclipse-iceoryx/iceoryx/tree/vx.x.x) (xxxx-xx-xx) <!--NOLINT remove this when tag is set-->
+## [v3.0.0](https://github.com/eclipse-iceoryx/iceoryx/tree/vx.x.x) (2025-03-16)
 
-[Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/vx.x.x...vx.x.x) <!--NOLINT remove this when tag is set-->
+[Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/vx.x.x...vx.x.x)
 
 **Notes**
 
@@ -10,6 +10,13 @@
 - The required C++ standard is now C++17
 - Experimental 32-bit support for all platforms supporting 64-bit atomic operations
 - Experimental support for communication between 32-bit and 64-bit applications
+
+**Major changes:**
+
+- Address clang-tidy and [AUTOSAR C++14 ruleset](https://www.autosar.org/fileadmin/standards/R22-11/AP/AUTOSAR_RS_CPP14Guidelines.pdf) warnings
+- Extensive quality work restructuring, reworking and bugfixing of `iceoryx_hoofs`
+- Introduction of the new package `iceoryx_platform` for better platform abstraction and portability
+- Add Bazel as a build system
 
 **Features:**
 
@@ -237,7 +244,6 @@
 - Fix new clang-tidy-18 warnings [#2274](https://github.com/eclipse-iceoryx/iceoryx/issues/2274)
 - Mistype in readme file [#2384](https://github.com/eclipse-iceoryx/iceoryx/issues/2384)
 - Typo in architecture.md [#2390](https://github.com/eclipse-iceoryx/iceoryx/issues/2390)
-- Make platform paths like config location configurable via cmake [#846](https://github.com/eclipse-iceoryx/iceoryx/issues/846)
 
 **Workflow:**
 
@@ -248,6 +254,8 @@
 - The default branch is now `main` [#2270](https://github.com/eclipse-iceoryx/iceoryx/issues/2270)
 
 **New API features:**
+
+- None
 
 **API Breaking Changes:**
 
@@ -310,7 +318,7 @@
     iox::optional<iox::NamedSemaphore> semaphore;
     auto result = iox::NamedSemaphoreBuilder()
                     .name("mySemaphoreName")
-                    .openMode(iox::OpenMode::OpenOrCreate)
+                    .openMode(iox::OpenMode::OPEN_OR_CREATE)
                     .permissions(iox::perms::owner_all)
                     .initialValue(0U)
                     .create(semaphore);
@@ -339,43 +347,43 @@
 6. It is not possible to delete a class which is derived from `FunctionalInterface`
    via a pointer to `FunctionalInterface`
 
-   ```cpp
-   iox::FunctionalInterface<iox::optional<MyClass>, MyClass, void>* soSmart =
-       new iox::optional<MyClass>{};
+    ```cpp
+    iox::FunctionalInterface<iox::optional<MyClass>, MyClass, void>* soSmart =
+        new iox::optional<MyClass>{};
 
-   delete soSmart; // <- not possible anymore
-   ```
+    delete soSmart; // <- not possible anymore
+    ```
 
 7. It is not possible to delete a class which is derived from `NewType` via a pointer to `NewType`
 
-   ```cpp
-   struct Foo : public iox::NewType<uint64_t, iox::newtype::ConstructByValueCopy>
-   {
-       using ThisType::ThisType;
-   };
+    ```cpp
+    struct Foo : public iox::NewType<uint64_t, iox::newtype::ConstructByValueCopy>
+    {
+        using ThisType::ThisType;
+    };
 
-   iox::NewType<uint64_t, iox::newtype::ConstructByValueCopy>* soSmart = new Foo{42};
+    iox::NewType<uint64_t, iox::newtype::ConstructByValueCopy>* soSmart = new Foo{42};
 
-   delete soSmart; // <- not possible anymore
-   ```
+    delete soSmart; // <- not possible anymore
+    ```
 
 8. It is not possible to use the `NewType` to create type aliases. This was not recommended and is now enforced
 
-   ```cpp
-   // before
-   // for the compiler Foo and Bar are the same type
-   using Foo = iox::NewType<uint64_t, iox::newtype::ConstructByValueCopy>;
-   using Bar = iox::NewType<uint64_t, iox::newtype::ConstructByValueCopy>;
+    ```cpp
+    // before
+    // for the compiler Foo and Bar are the same type
+    using Foo = iox::NewType<uint64_t, iox::newtype::ConstructByValueCopy>;
+    using Bar = iox::NewType<uint64_t, iox::newtype::ConstructByValueCopy>;
 
-   // after
-   // compile time error when Foo and Bar are mixed up
-   struct Foo : public iox::NewType<uint64_t, iox::newtype::ConstructByValueCopy>
-   {
-       using ThisType::ThisType;
-   };
-   // or with the IOX_NEW_TYPE macro
-   IOX_NEW_TYPE(Bar, uint64_t, iox::newtype::ConstructByValueCopy);
-   ```
+    // after
+    // compile time error when Foo and Bar are mixed up
+    struct Foo : public iox::NewType<uint64_t, iox::newtype::ConstructByValueCopy>
+    {
+        using ThisType::ThisType;
+    };
+    // or with the IOX_NEW_TYPE macro
+    IOX_NEW_TYPE(Bar, uint64_t, iox::newtype::ConstructByValueCopy);
+    ```
 
 9. `FileLock` uses the builder pattern. Path and permissions can now be set.
 
@@ -530,6 +538,7 @@
     ```
 
     Note: The recommended enum to string conversion pattern is as following
+
     ```cpp
     constexpr const char* asStringLiteral(const SOME_ENUM value) noexcept {
         switch (value) {
@@ -556,6 +565,7 @@
     ```
 
     Note: The recommended enum to string conversion pattern is as following
+
     ```cpp
     constexpr const char* asStringLiteral(const SOME_ENUM value) noexcept {
         switch (value) {
@@ -778,13 +788,13 @@
 
     | before     | after   |
     |:----------:|:-------:|
-    | `kOff`     | `Off`   |
-    | `kFatal`   | `Fatal` |
-    | `kError`   | `Error` |
-    | `kWarn`    | `Warn`  |
-    | `kInfo`    | `Info`  |
-    | `kDebug`   | `Debug` |
-    | `kVerbose` | `Trace` |
+    | `kOff`     | `OFF`   |
+    | `kFatal`   | `FATAL` |
+    | `kError`   | `ERROR` |
+    | `kWarn`    | `WARN`  |
+    | `kInfo`    | `INFO`  |
+    | `kDebug`   | `DEBUG` |
+    | `kVerbose` | `TRACE` |
 
     In the C binding the `Iceoryx_LogLevel_Verbose` changed to `Iceoryx_LogLevel_Trace`.
 
@@ -803,9 +813,9 @@
     // after
     #include "iox/logging.hpp"
 
-    iox::log::Logger::init(iox::log::LogLevel::Info);
+    iox::log::Logger::init(iox::log::LogLevel::INFO);
 
-    IOX_LOG(Info, "Hello World " << 42);
+    IOX_LOG(INFO, "Hello World " << 42);
     ```
 
 31. Setting the default log level changed
@@ -819,7 +829,7 @@
     // after
     #include "iox/logging.hpp"
 
-    iox::log::Logger::init(iox::log::LogLevel::Error);
+    iox::log::Logger::init(iox::log::LogLevel::ERROR);
     ```
 
     Please look at the logger design document for more details like setting the log level via environment variables.
@@ -831,7 +841,7 @@
     logger.SetLogLevel(); // directly on the instance
 
     // after
-    iox::log::Logger::setLogLevel(iox::log::LogLevel::Debug);
+    iox::log::Logger::setLogLevel(iox::log::LogLevel::DEBUG);
     ```
 
 33. Using the logger in libraries is massively simplified
@@ -891,7 +901,7 @@
     {
         void myFunc()
         {
-            IOX_LOG(Info, "Hello World " << 42);
+            IOX_LOG(INFO, "Hello World " << 42);
         }
     }
     ```
@@ -900,12 +910,12 @@
 
     | before                      | after                       |
     |:---------------------------:|:---------------------------:|
-    | `LogFatal() << "x" << 42`   | `IOX_LOG(Fatal, "x" << 42)` |
-    | `LogError() << "x" << 42`   | `IOX_LOG(Error, "x" << 42)` |
-    | `LogWarn() << "x" << 42`    | `IOX_LOG(Warn, "x" << 42)`  |
-    | `LogInfo() << "x" << 42`    | `IOX_LOG(Info, "x" << 42)`  |
-    | `LogDebug() << "x" << 42`   | `IOX_LOG(Debug, "x" << 42)` |
-    | `LogVerbose() << "x" << 42` | `IOX_LOG(Trace, "x" << 42)` |
+    | `LogFatal() << "x" << 42`   | `IOX_LOG(FATAL, "x" << 42)` |
+    | `LogError() << "x" << 42`   | `IOX_LOG(ERROR, "x" << 42)` |
+    | `LogWarn() << "x" << 42`    | `IOX_LOG(WARN, "x" << 42)`  |
+    | `LogInfo() << "x" << 42`    | `IOX_LOG(INFO, "x" << 42)`  |
+    | `LogDebug() << "x" << 42`   | `IOX_LOG(DEBUG, "x" << 42)` |
+    | `LogVerbose() << "x" << 42` | `IOX_LOG(TRACE, "x" << 42)` |
 
 35. Logger formatting changed
 
@@ -916,10 +926,10 @@
     LogInfo() << iox::log::RawBuffer(buf);
 
     // after
-    IOX_LOG(Info, iox::log::hex(42));
-    IOX_LOG(Info, iox::log::oct(37));
-    IOX_LOG(Info, iox::log::bin(73));
-    IOX_LOG(Info, iox::log::raw(buf));
+    IOX_LOG(INFO, iox::log::hex(42));
+    IOX_LOG(INFO, iox::log::oct(37));
+    IOX_LOG(INFO, iox::log::bin(73));
+    IOX_LOG(INFO, iox::log::raw(buf));
     ```
 
 36. Creating an instance of `LogStream` does not work anymore
@@ -936,7 +946,7 @@
     stream.Flush();
 
     // after
-    IOX_LOG(Info, [] (auto& stream) -> auto& {
+    IOX_LOG(INFO, [] (auto& stream) -> auto& {
         stream << "fibonacci: "
         for(auto fib : {1, 1, 2, 3, 5, 8})
         {
@@ -1006,7 +1016,7 @@
     #include "iceoryx_hoofs/testing/testing_logger.hpp"
 
     sut.methodCallWithLogOutput();
-    if (iox::testing::TestingLogger::doesLoggerSupportLogLevel(iox::log::LogLevel::Error))
+    if (iox::testing::TestingLogger::doesLoggerSupportLogLevel(iox::log::LogLevel::ERROR))
     {
         auto logMessages = iox::testing::TestingLogger::getLogMessages();
         ASSERT_THAT(logMessages.size(), Eq(1U));
@@ -1222,7 +1232,7 @@
     iox::access_rights foo { iox::perms::owner_all | iox::perms::group_read };
     ```
 
-47. Deprecating `byte_t` in favour of `std::byte`
+48. Deprecating `byte_t` in favour of `std::byte`
 
     ```cpp
     // before
@@ -1232,7 +1242,7 @@
     std::byte m_size;
     ```
 
-48. ~~Move conversion methods from `duration.hpp` to `iceoryx_dust`~~ They are still in `iceoryx_hoofs` but the include path changed nevertheless
+49. ~~Move conversion methods from `duration.hpp` to `iceoryx_dust`~~ They are still in `iceoryx_hoofs` but the include path changed nevertheless
 
     ```cpp
     // before
@@ -1246,7 +1256,7 @@
     iox::units::Duration ioxDuration{into<iox::units::Duration>(chronoDuration)};
     ```
 
-49. Replace error only `expected<E>` with `void` value type `expected<void, E>`
+50. Replace error only `expected<E>` with `void` value type `expected<void, E>`
 
     ```cpp
     // before
@@ -1256,7 +1266,7 @@
     iox::expected<void, MyCustomError> foo();
     ```
 
-50. `iox::success` and `iox::error` are deprecated in favour of `ok` and `err` free functions
+51. `iox::success` and `iox::error` are deprecated in favour of `ok` and `err` free functions
 
     ```cpp
     // before
@@ -1280,7 +1290,7 @@
     return iox::err(MyCustomError::ERROR_CODE);
     ```
 
-51. `expected::get_error` is deprecated in favour of `expected::error`
+52. `expected::get_error` is deprecated in favour of `expected::error`
 
     ```cpp
     // before
@@ -1290,7 +1300,7 @@
     auto e = exp.error();
     ```
 
-52. `UnixDomainSocket`, `MessageQueue` and `NamedPipe` are not default constructible anymore
+53. `UnixDomainSocket`, `MessageQueue` and `NamedPipe` are not default constructible anymore
 
     ```cpp
     // before
@@ -1309,9 +1319,10 @@
 
     ```
 
-53. `iox::roudi::RouDiEnvironment` is moved to `iox::roudi_env::RouDiEnv` and in a separate library
+54. `iox::roudi::RouDiEnvironment` is moved to `iox::roudi_env::RouDiEnv` and in a separate library
 
     There is still an alias on the old location with a deprecation warning. The API also changed a bit.
+
     ```cpp
     // before
     #include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
@@ -1339,7 +1350,7 @@
 
     It is now also possible to directly link to `iceoryx_posh::iceoryx_posh_roudi_env` which has no dependency to gTest.
 
-54. `Expects` and `Ensures` macros are replaced with `IOX_ENFORCE` from the new error handling concept
+55. `Expects` and `Ensures` macros are replaced with `IOX_ENFORCE` from the new error handling concept
 
     ```cpp
     // before
@@ -1354,12 +1365,12 @@
     IOX_ENFORCE(foo == true);
     ```
 
-55. `IOX_MAYBE_UNUSED`, `IOX_FALLTHROUGH` and `IOX_NO_DISCARD` are deprecated
+56. `IOX_MAYBE_UNUSED`, `IOX_FALLTHROUGH` and `IOX_NO_DISCARD` are deprecated
 
     With the switch to C++17 `[[maybe_unused]]`, `[[fallthrough]]` and `[[no_discard]]`
     are available and should be used instead of the macros.
 
-56. `posixCall` macro is renamed to `IOX_POSIX_CALL`
+57. `posixCall` macro is renamed to `IOX_POSIX_CALL`
 
     ```cpp
     // before
@@ -1369,9 +1380,9 @@
     IOX_POSIX_CALL(open)("/hypnotoad");
     ```
 
-57. `iox::posix::getSchedulerPriorityMinimum` and `iox::posix::getSchedulerPriorityMaximum` has become internal API
+58. `iox::posix::getSchedulerPriorityMinimum` and `iox::posix::getSchedulerPriorityMaximum` has become internal API
 
-58. The concurrent queues have gained a `Spsc` or `Mpsc` prefix
+59. The concurrent queues have gained a `Spsc` or `Mpsc` prefix
 
     ```cpp
     // before
@@ -1383,11 +1394,12 @@
     iox::concurrent::MpmcLockFreeQueue q;
     ```
 
-59. Payload Size for Memory Chunks is now `uin64_t`.
+60. Payload Size for Memory Chunks is now `uin64_t`.
     Hence the `ChunkHeader` (iceoryx_posh/mepoo/chunk_header.hpp) layout changes
     and `m_chunkHeaderVersion` is getting increased.
     Moreover many functions' signatures are also affected by this change.
-60. `iox::RouDiConfig_t` is renamed to `iox::IceoryxConfig` to prevent confusion with `iox::config::RouDiConfig` which is a part of `iox::RouDiConfig_t`
+
+61. `iox::RouDiConfig_t` is renamed to `iox::IceoryxConfig` to prevent confusion with `iox::config::RouDiConfig` which is a part of `iox::RouDiConfig_t`
 
     ```cpp
     // before
@@ -1397,7 +1409,7 @@
     iox::IceoryxConfig config;
     ```
 
-61. The `iox::roudi::RouDi` class takes a `iox::config::RouDiConfig` instead of a `iox::roudi::RouDi::RoudiStartupParameters` as ctor argument
+62. The `iox::roudi::RouDi` class takes a `iox::config::RouDiConfig` instead of a `iox::roudi::RouDi::RoudiStartupParameters` as ctor argument
 
     ```cpp
     // before
@@ -1425,10 +1437,11 @@
         roudi, m_rouDiComponents.value().rouDiMemoryManager, m_rouDiComponents.value().portManager, m_config);
     ```
 
-62. The `iox::config::CmdLineArgs_t` parameter is removed from the `iox::roudi::IceoryxRouDiApp` and `iox::roudi::RouDiApp` ctors
+63. The `iox::config::CmdLineArgs_t` parameter is removed from the `iox::roudi::IceoryxRouDiApp` and `iox::roudi::RouDiApp` ctors
 
     In case the config is created via the parsing of the config file, the `parse` function will add the
     parameter from the cmd line args to the config.
+
     ```cpp
     // before
     iox::config::TomlRouDiConfigFileProvider configFileProvider(cmdLineArgs.value());
@@ -1461,6 +1474,7 @@
     ```
 
     In case the config is created manually, the cmd line args also need to be copied manually to the config.
+
     ```cpp
     // before
     iox::RouDiConfig_t config = iox::RouDiConfig_t().setDefaults();
@@ -1472,7 +1486,7 @@
     iox::roudi::IceOryxRouDiApp roudi(config);
     ```
 
-63. The `iox::config::CmdLineArgs_t` now contains a single `iox::config::RouDiConfig` instead of multiple distinct fields
+64. The `iox::config::CmdLineArgs_t` now contains a single `iox::config::RouDiConfig` instead of multiple distinct fields
 
     ```cpp
     // before
@@ -1482,4 +1496,4 @@
     auto logLevel = cmdArgs.roudiConfig.logLevel;
     ```
 
-64. The non-functional `iox::popo::Node` was removed
+65. The non-functional `iox::popo::Node` was removed

@@ -1,10 +1,10 @@
-# Status
+# iceoryx on 32 bit architectures
 
 iceoryx works on 32-bit hardware, but only as technology preview and is not meant for production.
 
-See also https://github.com/eclipse-iceoryx/iceoryx/issues/2301 for more details and the limitations sections in this document.
+See also [here](https://github.com/eclipse-iceoryx/iceoryx/issues/2301) for more details and the limitations sections in this document.
 
-# Dependencies
+## Dependencies
 
 For 32-bit support, the following packages need to be installed on ubuntu
 
@@ -13,7 +13,7 @@ sudo dpkg --add-architecture i386
 sudo apt install libacl1-dev:i386 libc6-dev-i386 libc6-dev-i386-cross libstdc++6-i386-cross gcc-multilib g++-multilib
 ```
 
-# iceoryx as 32-bit library
+## iceoryx as 32-bit library
 
 ## Build steps
 
@@ -42,7 +42,7 @@ Furthermore, it is required for the 32-64 bit mix-mode to enforce the same data 
 An internal data structure, the `UsedChunkList`, might be left in a corrupt state when an application terminates abnormally when writing to this data structure.
 In order to detect torn-writes on 32-bit, the data structure needs to be refactored.
 
-# iceoryx for communication between 32-bit and 64-bit applications aka 32-64 bit mix-mode
+## iceoryx for communication between 32-bit and 64-bit applications aka 32-64 bit mix-mode
 
 ## Attention
 
@@ -65,7 +65,7 @@ If the layout differs, it can lead to unpredictable behavior and errors in the a
 
 The simplest way to fix this specific alignment issue, is to use the `-malign-double` flag, which enforces an 8 byte alignment boundary for 64-bit data types on 32-bit architectures.
 
-## Build steps
+### Build steps
 
 Similar to the 32-bit build, the simplest way to build for the 32-64 bit mix-mode is the `iceoryx_build_test.sh` script
 
@@ -102,7 +102,7 @@ build-64/iceoryx_examples/request_response/iox-cpp-request-response-listener-ser
 build-32/iceoryx_examples/request_response/iox-cpp-request-response-waitset-client
 ```
 
-## Limitations
+### Limitations
 
 In addition to the limitations of the 32-bit iceoryx, the mix-mode needs to ensure that all the data structures in shared memory have the same layout.
 While the `-malign-double` flag can be used for the iceoryx data types, it does not work for POSIX data structures like `sem_t`.

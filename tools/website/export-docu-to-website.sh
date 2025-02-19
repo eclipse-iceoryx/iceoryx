@@ -17,14 +17,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Necessary tools:
-# mkdocs-awesome-pages-plugin, v2.6.0
-# mkdocs-autolinks-plugin, v0.4.0 (with svg patch)
-# mkdocs-material, v8.1.3-insiders-4.5.0
-# markdown-include, v0.6.0
-# mkdocs, v1.2.3
+# mkdocs-awesome-pages-plugin, v2.10.1
+# mkdocs-autolinks-plugin, v0.7.1
+# mkdocs-material, v9.5.50
+# markdown-include, v0.8.1
+# mkdocs, v1.6.1
 # Doxygen, v1.9.1
 # doxybook2, v1.3.3
-# mike, v1.0.0
+# mike, v2.1.3
 
 set -e
 
