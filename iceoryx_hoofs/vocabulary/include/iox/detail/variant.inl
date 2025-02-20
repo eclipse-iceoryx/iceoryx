@@ -149,25 +149,21 @@ template <typename T>
 inline typename std::enable_if<!std::is_same<T, variant<Types...>&>::value, variant<Types...>>::type&
 variant<Types...>::operator=(T&& rhs) noexcept
 {
-    if (m_type_index == INVALID_VARIANT_INDEX)
+    if (m_type_index != internal::get_index_of_type<0, T, Types...>::index)
     {
+        call_element_destructor();
+        // NOLINTJUSTIFICATION clang-tidy suggests that std::move(rhs) might erroneously move an lvalue, but here rhs is already T&&, so it's safe.
+        // NOLINTNEXTLINE(bugprone-move-forwarding-reference)
+        new (&m_storage) T(std::move(rhs));
         m_type_index = internal::get_index_of_type<0, T, Types...>::index;
     }
-
-    if (!has_bad_variant_element_access<T>())
+    else
     {
         // AXIVION Next Construct AutosarC++19_03-M5.2.8: conversion to typed pointer is intentional, it is correctly aligned and points to sufficient memory for a T by design
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
         auto storage = reinterpret_cast<T*>(&m_storage);
         *storage = std::forward<T>(rhs);
     }
-    else
-    {
-        error_message(__PRETTY_FUNCTION__,
-                      "wrong variant type assignment, another type is already "
-                      "set in variant");
-    }
-
     return *this;
 }
 
