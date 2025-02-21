@@ -17,6 +17,8 @@
 
 #include "iceoryx_hoofs/platform/time.hpp"
 
+#include <chrono>
+
 static std::chrono::nanoseconds getNanoSeconds(const timespec& value)
 {
     static constexpr uint64_t NANOSECONDS = 1000000000u;
