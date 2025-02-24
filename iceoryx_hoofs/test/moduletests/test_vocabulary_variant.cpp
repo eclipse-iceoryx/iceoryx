@@ -467,13 +467,13 @@ TEST_F(variant_Test, DirectValueAssignmentResultsInCorrectIndex)
     EXPECT_THAT(schlomo.index(), Eq(0U));
 }
 
-TEST_F(variant_Test, DirectValueAssignmentWhenAlreadyAssignedWithDifferentType)
+TEST_F(variant_Test, DirectValueAssignmentWhenAlreadyAssignedWithDifferentTypeResultsInCorrectIndex)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "a058c173-497b-43ec-ba03-2702f3ba8190");
+    ::testing::Test::RecordProperty("TEST_ID", "f9f10061-b7f2-4e8f-a4b2-c04478046dcd");
     iox::variant<int, float> schlomo;
     schlomo = 123;
     schlomo = 123.01F;
-    EXPECT_THAT(schlomo.index(), Eq(0U));
+    EXPECT_THAT(schlomo.index(), Eq(1U));
 }
 
 TEST_F(variant_Test, HoldsAlternativeForCorrectType)
