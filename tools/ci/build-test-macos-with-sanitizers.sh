@@ -31,20 +31,14 @@ $(clang --version)"
 
 msg "building and installing dependencies"
 # tinfo library which is required by iceoryx_introspection isn't available in mac
-brew install ncurses wget
-mkdir -p bison_build
-cd bison_build
-wget https://ftp.gnu.org/gnu/bison/bison-3.5.1.tar.gz
-tar -xvf bison-3.5.1.tar.gz
-cd bison-3.5.1
-./configure
-make
-sudo make install
+brew install ncurses bison
 cd "${WORKSPACE}"
 
 msg "building sources"
-export LDFLAGS="-L/usr/local/opt/ncurses/lib"
-export CFLAGS="-I/usr/local/opt/ncurses/include"
+export PATH="$(brew --prefix bison)/bin:$PATH"
+export LDFLAGS="$LDFLAGS -L/usr/local/opt/bison/lib"
+export LDFLAGS="$LDFLAGS -L/usr/local/opt/ncurses/lib"
+export CFLAGS="$CFLAGS -I/usr/local/opt/ncurses/include"
 ./tools/iceoryx_build_test.sh build-strict build-all sanitize
 
 msg "running tests (excluding timing_tests)"
