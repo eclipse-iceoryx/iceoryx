@@ -11,13 +11,13 @@ on:
 
 jobs:
   pre-flight-check:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       - run: ./tools/scripts/clang_format.sh check
 
   build-test-ubuntu:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs: pre-flight-check
     steps:
       - uses: actions/checkout@v4
@@ -69,7 +69,7 @@ jobs:
       - run: ./tools/ci/run-integration-test.sh
 
   build-test-ubuntu-with-sanitizers-gcc-latest:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs: pre-flight-check
     steps:
       - uses: egor-tensin/setup-gcc@v1.3
@@ -80,7 +80,7 @@ jobs:
       - run: ./tools/ci/build-test-ubuntu-with-sanitizers.sh gcc
 
   build-test-ubuntu-with-sanitizers-clang-latest:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs: pre-flight-check
     steps:
       - uses: egor-tensin/setup-clang@v1
@@ -100,7 +100,7 @@ jobs:
       - run: ./tools/ci/build-test-macos-with-sanitizers.sh
 
   coverage-and-docs:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs: pre-flight-check
     steps:
       - uses: actions/checkout@v4
