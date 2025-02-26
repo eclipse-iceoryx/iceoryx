@@ -78,7 +78,10 @@ class UntypedServerImpl : public BaseServerT
     void releaseResponse(void* const responsePayload) noexcept;
 
   protected:
+    using PortType = typename BaseServerT::PortType;
     using BaseServerT::port;
+
+    explicit UntypedServerImpl(PortType&& port) noexcept;
 };
 } // namespace popo
 } // namespace iox

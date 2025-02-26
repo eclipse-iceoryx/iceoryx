@@ -19,6 +19,11 @@
 
 #include "iceoryx_posh/internal/popo/untyped_client_impl.hpp"
 
+namespace iox::posh::experimental
+{
+class ClientBuilder;
+}
+
 namespace iox
 {
 namespace popo
@@ -33,6 +38,14 @@ class UntypedClient : public UntypedClientImpl<>
     virtual ~UntypedClient() noexcept
     {
         Impl::m_trigger.reset();
+    }
+
+  private:
+    friend class iox::posh::experimental::ClientBuilder;
+
+    explicit UntypedClient(typename UntypedClientImpl<>::PortType&& port) noexcept
+        : UntypedClientImpl<>(std::move(port))
+    {
     }
 };
 

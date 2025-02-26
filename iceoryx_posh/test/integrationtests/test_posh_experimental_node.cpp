@@ -620,4 +620,73 @@ TEST(Node_test, MultipleNodeAndEndpointsAreRegisteredWithSeparateRouDiRunningInP
         .or_else([](const auto) { GTEST_SUCCEED() << "Successfully received no data"; });
 }
 
+TEST(Node_test, CreatingTypedServerAndClientConnect)
+{
+    struct Request {
+        uint32_t valueA;
+        uint32_t valueB;
+    };
+
+    struct Response {
+        uint32_t sum;
+    };
+
+    ::testing::Test::RecordProperty("TEST_ID", "24d93901-0bd5-4458-bb53-7d40e4fb2964");
+
+    RouDiEnv roudi(iox::DomainId(1));
+
+    auto node = RouDiEnvNodeBuilder("hypnotoad").domain_id(static_cast<iox::DomainId>(1)).create().expect("Creating a node should not fail!");
+
+    auto server = node.server({"all", "glory", "hypnotoad"}).offer_on_create(true).create().expect("Getting server");
+    auto client = node.client({"all", "glory", "hypnotoad"}).connect_on_create(true).create().expect("Getting client");
+
+    if (!server->hasClients())
+        GTEST_FAIL() << "Server has not connected client";
+
+    client->loan(sizeof(Request), alignof(Request))
+        .and_then([&](auto& requestPayload) {
+            GTEST_SUCCEED() << "Client: Successfully allocate request";
+            auto requestHeader = iox::popo::RequestHeader::fromPayload(requestPayload);
+            requestHeader->setSequenceId(1);
+            auto request = static_cast<Request*>(requestPayload);
+            request->valueA = 4;
+            request->valueB = 10;
+            client->send(request)
+                .or_else([&](auto& error) { GTEST_FAIL() << "Client: Could not send request, Error: " << error; });
+        })
+        .or_else([&](auto& error) {GTEST_FAIL() << "Client: Could not allocate data request, Error: " << error; });
+
+    GTEST_ASSERT_EQ(client->getConnectionState(), iox::ConnectionState::CONNECTED);
+
+    server->take().and_then([&](const auto& requestPayload) {
+        auto request = static_cast<const Request*>(requestPayload);
+        const iox::popo::RequestHeader* requestHeader = iox::popo::RequestHeader::fromPayload(requestPayload);
+
+        GTEST_ASSERT_EQ(requestHeader->getSequenceId(), 1);
+        server->loan(requestHeader, sizeof(Response), alignof(Response))
+            .and_then([&](auto& responsePayload) {
+                auto response = static_cast<Response*>(responsePayload);
+                response->sum = request->valueA + request->valueB;
+                server->send(response).or_else(
+                    [&](auto& error) {  GTEST_FAIL() << "Server: Could not send Response, Error: " << error << std::endl; });
+            })
+            .or_else([](auto& error) { GTEST_FAIL() << "Server: Could not allocate response, Error: " << error; });
+        //! [send response]
+    }).or_else([](iox::popo::ServerRequestResult result) {
+        GTEST_FAIL() << "Server: Could not get client request, Error: " << iox::popo::asStringLiteral(result);
+    });
+
+    GTEST_ASSERT_EQ(client->hasResponses(), true);
+
+    client->take().and_then([&](const auto& responsePayload) {
+        auto responseHeader = iox::popo::ResponseHeader::fromPayload(responsePayload);
+        GTEST_ASSERT_EQ(responseHeader->getSequenceId(), 1);
+        auto response = static_cast<const Response*>(responsePayload);
+        GTEST_ASSERT_EQ(response->sum, 14);
+        client->releaseResponse(responsePayload);
+    }).or_else([](iox::popo::ChunkReceiveResult result) {
+        GTEST_FAIL() << "Client: Could not get server response, Error: " << iox::popo::asStringLiteral(result);
+    });
+}
+
 } // namespace

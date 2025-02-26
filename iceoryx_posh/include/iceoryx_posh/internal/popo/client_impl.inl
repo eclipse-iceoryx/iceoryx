@@ -31,6 +31,12 @@ ClientImpl<Req, Res, BaseClientT>::ClientImpl(const capro::ServiceDescription& s
 }
 
 template <typename Req, typename Res, typename BaseClientT>
+ClientImpl<Req, Res, BaseClientT>::ClientImpl(PortType&& port) noexcept
+    : BaseClientT(std::move(port))
+{
+}
+
+template <typename Req, typename Res, typename BaseClientT>
 ClientImpl<Req, Res, BaseClientT>::~ClientImpl() noexcept
 {
     BaseClientT::m_trigger.reset();

@@ -20,6 +20,7 @@
 
 namespace iox::posh::experimental
 {
+
 NodeBuilder::NodeBuilder(const NodeName_t& name) noexcept
     : m_name(name)
 {
@@ -138,6 +139,8 @@ Node::Node(const NodeName_t& name,
                                        {std::move(runtime_interface), std::move(ipc_interface)}},
           [&](auto* const rt) { delete rt; }})
 {
+    // Node::s_nodeRuntime = m_runtime.get();
+    // iox::runtime::PoshRuntime::setRuntimeFactory(Node::GetNodeRuntime);
 }
 
 PublisherBuilder Node::publisher(const ServiceDescription& service_description) noexcept
@@ -148,6 +151,16 @@ PublisherBuilder Node::publisher(const ServiceDescription& service_description) 
 SubscriberBuilder Node::subscriber(const ServiceDescription& service_description) noexcept
 {
     return SubscriberBuilder{*m_runtime.get(), service_description};
+}
+
+ServerBuilder Node::server(const ServiceDescription& service_description) noexcept
+{
+    return ServerBuilder{*m_runtime.get(), service_description};
+}
+
+ClientBuilder Node::client(const ServiceDescription& service_description) noexcept
+{
+    return ClientBuilder{*m_runtime.get(), service_description};
 }
 
 WaitSetBuilder Node::wait_set() noexcept

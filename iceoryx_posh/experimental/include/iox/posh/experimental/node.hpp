@@ -28,6 +28,8 @@
 #include "iox/optional.hpp"
 #include "iox/posh/experimental/publisher.hpp"
 #include "iox/posh/experimental/subscriber.hpp"
+#include "iox/posh/experimental/server.hpp"
+#include "iox/posh/experimental/client.hpp"
 #include "iox/posh/experimental/wait_set.hpp"
 #include "iox/unique_ptr.hpp"
 
@@ -119,6 +121,14 @@ class Node
     /// @param[in] service_description for the subscriber
     SubscriberBuilder subscriber(const ServiceDescription& service_description) noexcept;
 
+    /// @brief Initiates a 'ServerBuilder'
+    /// @param[in] service_description for the server
+    ServerBuilder server(const ServiceDescription& service_description) noexcept;
+
+    /// @brief Initiates a 'ClientBuilder'
+    /// @param[in] service_description for the client
+    ClientBuilder client(const ServiceDescription& service_description) noexcept;
+
     /// @brief Initiates a 'WaitSetBuilder'
     WaitSetBuilder wait_set() noexcept;
 
@@ -128,8 +138,15 @@ class Node
          runtime::IpcRuntimeInterface&& runtime_interface,
          optional<runtime::SharedMemoryUser>&&) noexcept;
 
+    static iox::runtime::PoshRuntime& GetNodeRuntime([[maybe_unused]] optional<const RuntimeName_t*> name)
+    {
+        IOX_ASSERT(s_nodeRuntime, "Node Runtime has not been created");
+        return *Node::s_nodeRuntime;
+    }
+
   private:
     unique_ptr<runtime::PoshRuntime> m_runtime;
+    inline static runtime::PoshRuntime* s_nodeRuntime = nullptr;
 };
 
 } // namespace iox::posh::experimental

@@ -71,8 +71,10 @@ class ClientImpl : public BaseClientT, private RpcInterface<Request<Req>, Client
     expected<Response<const Res>, ChunkReceiveResult> take() noexcept;
 
   protected:
+    using PortType = typename BaseClientT::PortType;
     using BaseClientT::port;
 
+    explicit ClientImpl(PortType&& port) noexcept;
   private:
     expected<Request<Req>, AllocationError> loanUninitialized() noexcept;
 };
