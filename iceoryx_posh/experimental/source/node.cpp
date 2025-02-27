@@ -139,8 +139,12 @@ Node::Node(const NodeName_t& name,
                                        {std::move(runtime_interface), std::move(ipc_interface)}},
           [&](auto* const rt) { delete rt; }})
 {
-    // Node::s_nodeRuntime = m_runtime.get();
-    // iox::runtime::PoshRuntime::setRuntimeFactory(Node::GetNodeRuntime);
+}
+
+void Node::SetDefaultRuntime()
+{
+    Node::s_defaultRuntime = m_runtime.get();
+    iox::runtime::PoshRuntime::setRuntimeFactory(Node::GetNodeRuntime);
 }
 
 PublisherBuilder Node::publisher(const ServiceDescription& service_description) noexcept

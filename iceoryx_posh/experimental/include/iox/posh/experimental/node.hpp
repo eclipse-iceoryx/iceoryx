@@ -132,6 +132,9 @@ class Node
     /// @brief Initiates a 'WaitSetBuilder'
     WaitSetBuilder wait_set() noexcept;
 
+    /// @brief Set Node Runtime as default Runtime
+    void SetDefaultRuntime();
+
   private:
     friend class NodeBuilder;
     Node(const NodeName_t& name,
@@ -140,13 +143,13 @@ class Node
 
     static iox::runtime::PoshRuntime& GetNodeRuntime([[maybe_unused]] optional<const RuntimeName_t*> name)
     {
-        IOX_ASSERT(s_nodeRuntime, "Node Runtime has not been created");
-        return *Node::s_nodeRuntime;
+        IOX_ASSERT(s_defaultRuntime, "Node Default Runtime has not been created");
+        return *Node::s_defaultRuntime;
     }
 
   private:
     unique_ptr<runtime::PoshRuntime> m_runtime;
-    inline static runtime::PoshRuntime* s_nodeRuntime = nullptr;
+    inline static runtime::PoshRuntime* s_defaultRuntime = nullptr;
 };
 
 } // namespace iox::posh::experimental
