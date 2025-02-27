@@ -133,7 +133,7 @@ class Node
     WaitSetBuilder wait_set() noexcept;
 
     /// @brief Set Node Runtime as default Runtime
-    void SetDefaultRuntime();
+    void setDefaultRuntime();
 
   private:
     friend class NodeBuilder;
@@ -141,7 +141,7 @@ class Node
          runtime::IpcRuntimeInterface&& runtime_interface,
          optional<runtime::SharedMemoryUser>&&) noexcept;
 
-    static iox::runtime::PoshRuntime& GetNodeRuntime([[maybe_unused]] optional<const RuntimeName_t*> name)
+    static iox::runtime::PoshRuntime& getNodeRuntime([[maybe_unused]] optional<const RuntimeName_t*> name)
     {
         IOX_ASSERT(s_defaultRuntime, "Node Default Runtime has not been created");
         return *Node::s_defaultRuntime;

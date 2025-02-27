@@ -141,10 +141,10 @@ Node::Node(const NodeName_t& name,
 {
 }
 
-void Node::SetDefaultRuntime()
+void Node::setDefaultRuntime()
 {
     Node::s_defaultRuntime = m_runtime.get();
-    iox::runtime::PoshRuntime::setRuntimeFactory(Node::GetNodeRuntime);
+    iox::runtime::PoshRuntime::setRuntimeFactory(Node::getNodeRuntime);
 }
 
 PublisherBuilder Node::publisher(const ServiceDescription& service_description) noexcept
