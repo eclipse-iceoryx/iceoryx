@@ -622,6 +622,8 @@ TEST(Node_test, MultipleNodeAndEndpointsAreRegisteredWithSeparateRouDiRunningInP
 
 TEST(Node_test, CreatingUntypedServer)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8b4d600b-e194-451f-a0d4-4ef82bd1e0a8");
+
     auto domainId = iox::DomainId(1);
     RouDiEnv roudi(domainId);
 
@@ -633,6 +635,8 @@ TEST(Node_test, CreatingUntypedServer)
 
 TEST(Node_test, CreatingServer)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "e422d450-7e1b-4435-b9ff-d0b0530f8f45");
+
     struct Request {
         uint32_t valueA;
         uint32_t valueB;
@@ -652,6 +656,8 @@ TEST(Node_test, CreatingServer)
 
 TEST(Node_test, CreatingUntypedClient)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8a8519b3-cb36-4908-95df-84f198322882");
+
     auto domainId = iox::DomainId(1);
     RouDiEnv roudi(domainId);
 
@@ -663,6 +669,8 @@ TEST(Node_test, CreatingUntypedClient)
 
 TEST(Node_test, CreatingClient)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "290badda-a938-46b8-87ff-b4998ce43d95");
+
     struct Request {
         uint32_t valueA;
         uint32_t valueB;
@@ -683,6 +691,8 @@ TEST(Node_test, CreatingClient)
 
 TEST(Node_test, UntypedServerClientRequestResponse)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "38c02027-f2e5-47cf-9771-65868525647a");
+
     struct Request {
         uint32_t valueA;
         uint32_t valueB;
