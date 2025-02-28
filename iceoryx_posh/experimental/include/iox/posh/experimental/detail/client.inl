@@ -22,7 +22,7 @@
 namespace iox::posh::experimental
 {
 inline ClientBuilder::ClientBuilder(runtime::PoshRuntime& runtime,
-                                            const capro::ServiceDescription& service_description) noexcept
+                                    const capro::ServiceDescription& service_description) noexcept
     : m_runtime(runtime)
     , m_service_description(service_description)
 {
@@ -32,7 +32,8 @@ template <typename Req, typename Res>
 inline expected<unique_ptr<Client<Req, Res>>, ClientBuilderError> ClientBuilder::create() noexcept
 {
     auto* client_port_data = m_runtime.getMiddlewareClient(
-        m_service_description, {m_response_queue_capacity, "", m_connect_on_create, m_response_queue_full_policy, m_server_too_slow_policy});
+        m_service_description,
+        {m_response_queue_capacity, "", m_connect_on_create, m_response_queue_full_policy, m_server_too_slow_policy});
     if (client_port_data == nullptr)
     {
         return err(ClientBuilderError::OUT_OF_RESOURCES);
@@ -47,13 +48,15 @@ inline expected<unique_ptr<Client<Req, Res>>, ClientBuilderError> ClientBuilder:
 inline expected<unique_ptr<iox::popo::UntypedClient>, ClientBuilderError> ClientBuilder::create() noexcept
 {
     auto* client_port_data = m_runtime.getMiddlewareClient(
-        m_service_description, {m_response_queue_capacity, "", m_connect_on_create, m_response_queue_full_policy, m_server_too_slow_policy});
+        m_service_description,
+        {m_response_queue_capacity, "", m_connect_on_create, m_response_queue_full_policy, m_server_too_slow_policy});
     if (client_port_data == nullptr)
     {
         return err(ClientBuilderError::OUT_OF_RESOURCES);
     }
     return ok(unique_ptr<iox::popo::UntypedClient>{
-        new (std::nothrow) iox::popo::UntypedClient{iox::popo::ClientPortUser{*client_port_data}}, [&](auto* const client) {
+        new (std::nothrow) iox::popo::UntypedClient{iox::popo::ClientPortUser{*client_port_data}},
+        [&](auto* const client) {
             // NOLINTNEXTLINE(cppcoreguidelines-owning-memory) raw pointer is required by the unique_ptr API
             delete client;
         }});

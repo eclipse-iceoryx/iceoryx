@@ -22,7 +22,7 @@
 namespace iox::posh::experimental
 {
 inline ServerBuilder::ServerBuilder(runtime::PoshRuntime& runtime,
-                                            const capro::ServiceDescription& service_description) noexcept
+                                    const capro::ServiceDescription& service_description) noexcept
     : m_runtime(runtime)
     , m_service_description(service_description)
 {
@@ -33,7 +33,8 @@ template <typename Req, typename Res>
 inline expected<unique_ptr<Server<Req, Res>>, ServerBuilderError> ServerBuilder::create() noexcept
 {
     auto* server_port_data = m_runtime.getMiddlewareServer(
-        m_service_description, {m_request_queue_capacity, "", m_offer_on_create, m_request_queue_full_policy, m_client_too_slow_policy});
+        m_service_description,
+        {m_request_queue_capacity, "", m_offer_on_create, m_request_queue_full_policy, m_client_too_slow_policy});
     if (server_port_data == nullptr)
     {
         return err(ServerBuilderError::OUT_OF_RESOURCES);
@@ -48,16 +49,17 @@ inline expected<unique_ptr<Server<Req, Res>>, ServerBuilderError> ServerBuilder:
 inline expected<unique_ptr<UntypedServer>, ServerBuilderError> ServerBuilder::create() noexcept
 {
     auto* server_port_data = m_runtime.getMiddlewareServer(
-        m_service_description, {m_request_queue_capacity, "", m_offer_on_create, m_request_queue_full_policy, m_client_too_slow_policy});
+        m_service_description,
+        {m_request_queue_capacity, "", m_offer_on_create, m_request_queue_full_policy, m_client_too_slow_policy});
     if (server_port_data == nullptr)
     {
         return err(ServerBuilderError::OUT_OF_RESOURCES);
     }
-    return ok(unique_ptr<UntypedServer>{
-        new (std::nothrow) UntypedServer{iox::popo::ServerPortUser{*server_port_data}}, [&](auto* const server) {
-            // NOLINTNEXTLINE(cppcoreguidelines-owning-memory) raw pointer is required by the unique_ptr API
-            delete server;
-        }});
+    return ok(unique_ptr<UntypedServer>{new (std::nothrow) UntypedServer{iox::popo::ServerPortUser{*server_port_data}},
+                                        [&](auto* const server) {
+                                            // NOLINTNEXTLINE(cppcoreguidelines-owning-memory) raw pointer is required by the unique_ptr API
+                                            delete server;
+                                        }});
 }
 
 } // namespace iox::posh::experimental

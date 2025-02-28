@@ -627,7 +627,8 @@ TEST(Node_test, CreatingUntypedServer)
     auto domainId = iox::DomainId(1);
     RouDiEnv roudi(domainId);
 
-    auto node = RouDiEnvNodeBuilder("hypnotoad").domain_id(domainId).create().expect("Creating a node should not fail!");
+    auto node =
+        RouDiEnvNodeBuilder("hypnotoad").domain_id(domainId).create().expect("Creating a node should not fail!");
 
     auto server = node.server({"all", "glory", "hypnotoad"}).offer_on_create(true).create();
     ASSERT_FALSE(server.has_error());
@@ -637,19 +638,22 @@ TEST(Node_test, CreatingServer)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e422d450-7e1b-4435-b9ff-d0b0530f8f45");
 
-    struct Request {
+    struct Request
+    {
         uint32_t valueA;
         uint32_t valueB;
     };
 
-    struct Response {
+    struct Response
+    {
         uint32_t sum;
     };
 
     auto domainId = iox::DomainId(1);
     RouDiEnv roudi(domainId);
 
-    auto node = RouDiEnvNodeBuilder("hypnotoad").domain_id(domainId).create().expect("Creating a node should not fail!");
+    auto node =
+        RouDiEnvNodeBuilder("hypnotoad").domain_id(domainId).create().expect("Creating a node should not fail!");
     auto server = node.server({"all", "glory", "hypnotoad"}).offer_on_create(true).create<Request, Response>();
     ASSERT_FALSE(server.has_error());
 }
@@ -661,7 +665,8 @@ TEST(Node_test, CreatingUntypedClient)
     auto domainId = iox::DomainId(1);
     RouDiEnv roudi(domainId);
 
-    auto node = RouDiEnvNodeBuilder("hypnotoad").domain_id(domainId).create().expect("Creating a node should not fail!");
+    auto node =
+        RouDiEnvNodeBuilder("hypnotoad").domain_id(domainId).create().expect("Creating a node should not fail!");
 
     auto client = node.client({"all", "glory", "hypnotoad"}).connect_on_create(false).create();
     ASSERT_FALSE(client.has_error());
@@ -671,19 +676,22 @@ TEST(Node_test, CreatingClient)
 {
     ::testing::Test::RecordProperty("TEST_ID", "290badda-a938-46b8-87ff-b4998ce43d95");
 
-    struct Request {
+    struct Request
+    {
         uint32_t valueA;
         uint32_t valueB;
     };
 
-    struct Response {
+    struct Response
+    {
         uint32_t sum;
     };
 
     auto domainId = iox::DomainId(1);
     RouDiEnv roudi(domainId);
 
-    auto node = RouDiEnvNodeBuilder("hypnotoad").domain_id(domainId).create().expect("Creating a node should not fail!");
+    auto node =
+        RouDiEnvNodeBuilder("hypnotoad").domain_id(domainId).create().expect("Creating a node should not fail!");
 
     auto client = node.client({"all", "glory", "hypnotoad"}).connect_on_create(false).create<Request, Response>();
     ASSERT_FALSE(client.has_error());
@@ -693,12 +701,14 @@ TEST(Node_test, UntypedServerClientRequestResponse)
 {
     ::testing::Test::RecordProperty("TEST_ID", "38c02027-f2e5-47cf-9771-65868525647a");
 
-    struct Request {
+    struct Request
+    {
         uint32_t valueA;
         uint32_t valueB;
     };
 
-    struct Response {
+    struct Response
+    {
         uint32_t sum;
     };
 
@@ -720,41 +730,46 @@ TEST(Node_test, UntypedServerClientRequestResponse)
             auto request = static_cast<Request*>(requestPayload);
             request->valueA = 4;
             request->valueB = 10;
-            client->send(request)
-                .or_else([&](auto& error) { GTEST_FAIL() << "Client: Could not send request: " << error; });
+            client->send(request).or_else(
+                [&](auto& error) { GTEST_FAIL() << "Client: Could not send request: " << error; });
         })
-        .or_else([&](auto& error) {GTEST_FAIL() << "Client: Could not allocate data request: " << error; });
+        .or_else([&](auto& error) { GTEST_FAIL() << "Client: Could not allocate data request: " << error; });
 
     GTEST_ASSERT_EQ(client->getConnectionState(), iox::ConnectionState::CONNECTED);
 
-    server->take().and_then([&](const auto& requestPayload) {
-        auto request = static_cast<const Request*>(requestPayload);
-        const iox::popo::RequestHeader* requestHeader = iox::popo::RequestHeader::fromPayload(requestPayload);
+    server->take()
+        .and_then([&](const auto& requestPayload) {
+            auto request = static_cast<const Request*>(requestPayload);
+            const iox::popo::RequestHeader* requestHeader = iox::popo::RequestHeader::fromPayload(requestPayload);
 
-        GTEST_ASSERT_EQ(requestHeader->getSequenceId(), 1);
-        server->loan(requestHeader, sizeof(Response), alignof(Response))
-            .and_then([&](auto& responsePayload) {
-                auto response = static_cast<Response*>(responsePayload);
-                response->sum = request->valueA + request->valueB;
-                server->send(response).or_else(
-                    [&](auto& error) {  GTEST_FAIL() << "Server: Could not send Response: " << error << std::endl; });
-            })
-            .or_else([](auto& error) { GTEST_FAIL() << "Server: Could not allocate response: " << error; });
-    }).or_else([](iox::popo::ServerRequestResult result) {
-        GTEST_FAIL() << "Server: Could not get request: " << iox::popo::asStringLiteral(result);
-    });
+            GTEST_ASSERT_EQ(requestHeader->getSequenceId(), 1);
+            server->loan(requestHeader, sizeof(Response), alignof(Response))
+                .and_then([&](auto& responsePayload) {
+                    auto response = static_cast<Response*>(responsePayload);
+                    response->sum = request->valueA + request->valueB;
+                    server->send(response).or_else([&](auto& error) {
+                        GTEST_FAIL() << "Server: Could not send Response: " << error << std::endl;
+                    });
+                })
+                .or_else([](auto& error) { GTEST_FAIL() << "Server: Could not allocate response: " << error; });
+        })
+        .or_else([](iox::popo::ServerRequestResult result) {
+            GTEST_FAIL() << "Server: Could not get request: " << iox::popo::asStringLiteral(result);
+        });
 
     GTEST_ASSERT_EQ(client->hasResponses(), true);
 
-    client->take().and_then([&](const auto& responsePayload) {
-        auto responseHeader = iox::popo::ResponseHeader::fromPayload(responsePayload);
-        GTEST_ASSERT_EQ(responseHeader->getSequenceId(), 1);
-        auto response = static_cast<const Response*>(responsePayload);
-        GTEST_ASSERT_EQ(response->sum, 14);
-        client->releaseResponse(responsePayload);
-    }).or_else([](iox::popo::ChunkReceiveResult result) {
-        GTEST_FAIL() << "Client: Could not get response: " << iox::popo::asStringLiteral(result);
-    });
+    client->take()
+        .and_then([&](const auto& responsePayload) {
+            auto responseHeader = iox::popo::ResponseHeader::fromPayload(responsePayload);
+            GTEST_ASSERT_EQ(responseHeader->getSequenceId(), 1);
+            auto response = static_cast<const Response*>(responsePayload);
+            GTEST_ASSERT_EQ(response->sum, 14);
+            client->releaseResponse(responsePayload);
+        })
+        .or_else([](iox::popo::ChunkReceiveResult result) {
+            GTEST_FAIL() << "Client: Could not get response: " << iox::popo::asStringLiteral(result);
+        });
 }
 
 } // namespace

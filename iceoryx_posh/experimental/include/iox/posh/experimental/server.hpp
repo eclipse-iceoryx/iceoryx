@@ -20,18 +20,18 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/runtime/posh_runtime_impl.hpp"
 #include "iceoryx_posh/popo/server.hpp"
-#include <iceoryx_posh/popo/untyped_server.hpp>
 #include "iox/builder.hpp"
 #include "iox/expected.hpp"
 #include "iox/unique_ptr.hpp"
+#include <iceoryx_posh/popo/untyped_server.hpp>
 
 namespace iox::posh::experimental
 {
 
-using iox::popo::ServerChunkQueueData_t;
 using iox::popo::ConsumerTooSlowPolicy;
 using iox::popo::QueueFullPolicy;
 using iox::popo::Server;
+using iox::popo::ServerChunkQueueData_t;
 using iox::popo::UntypedServer;
 
 enum class ServerBuilderError : uint8_t
@@ -77,7 +77,7 @@ class ServerBuilder
   private:
     friend class Node;
     explicit ServerBuilder(runtime::PoshRuntime& runtime,
-                               const capro::ServiceDescription& service_description) noexcept;
+                           const capro::ServiceDescription& service_description) noexcept;
 
   private:
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members) Intentionally used since the ServerBuilder is not intended to be moved

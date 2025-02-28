@@ -19,8 +19,8 @@
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/runtime/posh_runtime_impl.hpp"
-#include <iceoryx_posh/popo/client.hpp>
-#include <iceoryx_posh/popo/untyped_client.hpp>
+#include "iceoryx_posh/popo/client.hpp"
+#include "iceoryx_posh/popo/untyped_client.hpp"
 #include "iox/builder.hpp"
 #include "iox/expected.hpp"
 #include "iox/unique_ptr.hpp"
@@ -28,11 +28,11 @@
 namespace iox::posh::experimental
 {
 
+using iox::popo::Client;
 using iox::popo::ClientChunkQueueData_t;
 using iox::popo::ConsumerTooSlowPolicy;
 using iox::popo::QueueFullPolicy;
 using iox::popo::UntypedClient;
-using iox::popo::Client;
 
 enum class ClientBuilderError : uint8_t
 {
@@ -78,7 +78,7 @@ class ClientBuilder
   private:
     friend class Node;
     explicit ClientBuilder(runtime::PoshRuntime& runtime,
-                               const capro::ServiceDescription& service_description) noexcept;
+                           const capro::ServiceDescription& service_description) noexcept;
 
   private:
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members) Intentionally used since the ClientBuilder is not intended to be moved

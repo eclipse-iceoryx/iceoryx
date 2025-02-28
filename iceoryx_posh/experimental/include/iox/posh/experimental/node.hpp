@@ -26,10 +26,10 @@
 #include "iox/builder.hpp"
 #include "iox/expected.hpp"
 #include "iox/optional.hpp"
-#include "iox/posh/experimental/publisher.hpp"
-#include "iox/posh/experimental/subscriber.hpp"
-#include "iox/posh/experimental/server.hpp"
 #include "iox/posh/experimental/client.hpp"
+#include "iox/posh/experimental/publisher.hpp"
+#include "iox/posh/experimental/server.hpp"
+#include "iox/posh/experimental/subscriber.hpp"
 #include "iox/posh/experimental/wait_set.hpp"
 #include "iox/unique_ptr.hpp"
 
@@ -141,11 +141,7 @@ class Node
          runtime::IpcRuntimeInterface&& runtime_interface,
          optional<runtime::SharedMemoryUser>&&) noexcept;
 
-    static iox::runtime::PoshRuntime& getNodeRuntime([[maybe_unused]] optional<const RuntimeName_t*> name)
-    {
-        IOX_ASSERT(s_defaultRuntime, "Node Default Runtime has not been created");
-        return *Node::s_defaultRuntime;
-    }
+    static iox::runtime::PoshRuntime& getNodeRuntime([[maybe_unused]] optional<const RuntimeName_t*> name);
 
   private:
     unique_ptr<runtime::PoshRuntime> m_runtime;
