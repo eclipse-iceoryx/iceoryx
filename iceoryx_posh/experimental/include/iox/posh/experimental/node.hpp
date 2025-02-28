@@ -27,6 +27,7 @@
 #include "iox/expected.hpp"
 #include "iox/optional.hpp"
 #include "iox/posh/experimental/client.hpp"
+#include "iox/posh/experimental/listener.hpp"
 #include "iox/posh/experimental/publisher.hpp"
 #include "iox/posh/experimental/server.hpp"
 #include "iox/posh/experimental/subscriber.hpp"
@@ -131,6 +132,9 @@ class Node
 
     /// @brief Initiates a 'WaitSetBuilder'
     WaitSetBuilder wait_set() noexcept;
+
+    /// @brief Initiates a 'Listener'
+    ListenerBuilder listener() noexcept;
 
     /// @brief Set Node Runtime as default Runtime
     void setDefaultRuntime();

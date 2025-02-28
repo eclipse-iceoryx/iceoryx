@@ -172,6 +172,11 @@ WaitSetBuilder Node::wait_set() noexcept
     return WaitSetBuilder{*m_runtime.get()};
 }
 
+ListenerBuilder Node::listener() noexcept
+{
+    return ListenerBuilder{*m_runtime.get()};
+}
+
 iox::runtime::PoshRuntime& Node::getNodeRuntime([[maybe_unused]] optional<const RuntimeName_t*> name)
 {
     IOX_ASSERT(s_defaultRuntime, "Node Default Runtime has not been created");
