@@ -1,3 +1,4 @@
+// Copyright (c) 2025 by Valour inc. All rights reserved.
 // Copyright (c) 2024 by ekxide IO GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
