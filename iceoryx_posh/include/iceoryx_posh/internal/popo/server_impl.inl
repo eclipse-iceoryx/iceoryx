@@ -31,6 +31,12 @@ inline ServerImpl<Req, Res, BaseServerT>::ServerImpl(const capro::ServiceDescrip
 }
 
 template <typename Req, typename Res, typename BaseServerT>
+ServerImpl<Req, Res, BaseServerT>::ServerImpl(PortType&& port) noexcept
+    : BaseServerT(std::move(port))
+{
+}
+
+template <typename Req, typename Res, typename BaseServerT>
 inline ServerImpl<Req, Res, BaseServerT>::~ServerImpl() noexcept
 {
     BaseServerT::m_trigger.reset();

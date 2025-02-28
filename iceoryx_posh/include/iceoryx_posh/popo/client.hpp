@@ -19,6 +19,11 @@
 
 #include "iceoryx_posh/internal/popo/client_impl.hpp"
 
+namespace iox::posh::experimental
+{
+class ClientBuilder;
+}
+
 namespace iox
 {
 namespace popo
@@ -37,6 +42,14 @@ class Client : public ClientImpl<Req, Res>
     virtual ~Client() noexcept
     {
         Impl::m_trigger.reset();
+    }
+
+  private:
+    friend class iox::posh::experimental::ClientBuilder;
+
+    explicit Client(typename ClientImpl<Req, Res>::PortType&& port) noexcept
+        : ClientImpl<Req, Res>(std::move(port))
+    {
     }
 };
 } // namespace popo

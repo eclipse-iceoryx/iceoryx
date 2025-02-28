@@ -50,7 +50,7 @@ template <typename IceoryxTerminal, typename ExternalTerminal>
 constexpr inline bool Channel<IceoryxTerminal, ExternalTerminal>::operator==(
     const Channel<IceoryxTerminal, ExternalTerminal>& rhs) const noexcept
 {
-    return m_service == rhs.getService();
+    return m_service == rhs.getServiceDescription();
 }
 
 template <typename IceoryxTerminal, typename ExternalTerminal>

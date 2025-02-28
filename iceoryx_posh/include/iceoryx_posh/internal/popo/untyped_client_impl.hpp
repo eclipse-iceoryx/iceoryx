@@ -76,7 +76,10 @@ class UntypedClientImpl : public BaseClientT
     void releaseResponse(const void* const responsePayload) noexcept;
 
   protected:
+    using PortType = typename BaseClientT::PortType;
     using BaseClientT::port;
+
+    explicit UntypedClientImpl(PortType&& port) noexcept;
 };
 } // namespace popo
 } // namespace iox

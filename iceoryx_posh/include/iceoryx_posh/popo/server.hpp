@@ -19,6 +19,11 @@
 
 #include "iceoryx_posh/internal/popo/server_impl.hpp"
 
+namespace iox::posh::experimental
+{
+class ServerBuilder;
+}
+
 namespace iox
 {
 namespace popo
@@ -37,6 +42,14 @@ class Server : public ServerImpl<Req, Res>
     virtual ~Server() noexcept
     {
         Impl::m_trigger.reset();
+    }
+
+  private:
+    friend class iox::posh::experimental::ServerBuilder;
+
+    explicit Server(typename ServerImpl<Req, Res>::PortType&& port) noexcept
+        : ServerImpl<Req, Res>(std::move(port))
+    {
     }
 };
 } // namespace popo
