@@ -75,6 +75,7 @@ class ClientImpl : public BaseClientT, private RpcInterface<Request<Req>, Client
     using BaseClientT::port;
 
     explicit ClientImpl(PortType&& port) noexcept;
+
   private:
     expected<Request<Req>, AllocationError> loanUninitialized() noexcept;
 };

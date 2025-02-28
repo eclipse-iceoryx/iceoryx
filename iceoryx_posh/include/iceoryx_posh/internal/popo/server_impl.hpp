@@ -76,6 +76,7 @@ class ServerImpl : public BaseServerT, private RpcInterface<Response<Res>, Serve
     using PortType = typename BaseServerT::PortType;
 
     explicit ServerImpl(PortType&& port) noexcept;
+
   private:
     expected<Response<Res>, AllocationError> loanUninitialized(const Request<const Req>& request) noexcept;
 };
