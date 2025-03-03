@@ -8,7 +8,7 @@
 
 **Bugfixes:**
 
-- Foo Bar [\#000](https://github.com/eclipse-iceoryx/iceoryx/issues/000)
+- Add missing header <chrono> [#2420](https://github.com/eclipse-iceorxy/iceoryx/issues/2420)
 
 **Refactoring:**
 
