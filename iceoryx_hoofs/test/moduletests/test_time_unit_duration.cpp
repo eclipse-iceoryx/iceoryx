@@ -20,6 +20,7 @@
 #include "iox/duration.hpp"
 #include "iox/posix_call.hpp"
 #include "test.hpp"
+#include <chrono>
 #include <ctime>
 #include <iostream>
 #include <limits>
@@ -102,7 +103,7 @@ TEST(Duration_test, ConstructDurationWithNanosecondsLessThanOneSecond)
     ::testing::Test::RecordProperty("TEST_ID", "7de47e88-c4b3-4655-bdeb-3c51f3b34d3e");
     constexpr uint64_t SECONDS{37U};
     constexpr uint64_t NANOSECONDS{73U};
-    constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{SECONDS * NANOSECS_PER_SECOND + NANOSECONDS};
+    constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{(SECONDS * NANOSECS_PER_SECOND) + NANOSECONDS};
 
     auto sut = createDuration(SECONDS, NANOSECONDS);
 
@@ -127,7 +128,7 @@ TEST(Duration_test, ConstructDurationWithNanosecondsMoreThanOneSecond)
     constexpr uint64_t SECONDS{37U};
     constexpr uint64_t NANOSECONDS{42U};
     constexpr uint64_t MORE_THAN_ONE_SECOND_NANOSECONDS{NANOSECS_PER_SECOND + NANOSECONDS};
-    constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{(SECONDS + 1U) * NANOSECS_PER_SECOND + NANOSECONDS};
+    constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{((SECONDS + 1U) * NANOSECS_PER_SECOND) + NANOSECONDS};
 
     auto sut = createDuration(SECONDS, MORE_THAN_ONE_SECOND_NANOSECONDS);
 
@@ -139,9 +140,10 @@ TEST(Duration_test, ConstructDurationWithNanosecondsMaxValue)
     ::testing::Test::RecordProperty("TEST_ID", "fe8152ca-cd14-4d99-aa68-0f56ab3007de");
     constexpr uint64_t SECONDS{37U};
     constexpr uint64_t MAX_NANOSECONDS_FOR_CTOR{std::numeric_limits<DurationAccessor::Nanoseconds_t>::max()};
-    constexpr uint64_t EXPECTED_SECONDS = SECONDS + MAX_NANOSECONDS_FOR_CTOR / NANOSECS_PER_SECOND;
+    constexpr uint64_t EXPECTED_SECONDS = SECONDS + (MAX_NANOSECONDS_FOR_CTOR / NANOSECS_PER_SECOND);
     constexpr uint64_t REMAINING_NANOSECONDS = MAX_NANOSECONDS_FOR_CTOR % NANOSECS_PER_SECOND;
-    constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{(EXPECTED_SECONDS)*NANOSECS_PER_SECOND + REMAINING_NANOSECONDS};
+    constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{((EXPECTED_SECONDS)*NANOSECS_PER_SECOND)
+                                                        + REMAINING_NANOSECONDS};
 
     auto sut = createDuration(SECONDS, MAX_NANOSECONDS_FOR_CTOR);
 
@@ -1156,7 +1158,7 @@ TEST(Duration_test, ConvertTimevalFromDurationWithLessThanOneSecond)
     constexpr int64_t MICROSECONDS{222};
     constexpr int64_t ROUND_OFF_NANOSECONDS{666};
 
-    auto duration = createDuration(SECONDS, MICROSECONDS * NANOSECS_PER_MICROSECOND + ROUND_OFF_NANOSECONDS);
+    auto duration = createDuration(SECONDS, (MICROSECONDS * NANOSECS_PER_MICROSECOND) + ROUND_OFF_NANOSECONDS);
 
     const timeval sut = duration.timeval();
 
@@ -1171,7 +1173,7 @@ TEST(Duration_test, ConvertTimevalFromDurationWithMoreThanOneSecond)
     constexpr int64_t MICROSECONDS{222};
     constexpr int64_t ROUND_OFF_NANOSECONDS{666};
 
-    auto duration = createDuration(SECONDS, MICROSECONDS * NANOSECS_PER_MICROSECOND + ROUND_OFF_NANOSECONDS);
+    auto duration = createDuration(SECONDS, (MICROSECONDS * NANOSECS_PER_MICROSECOND) + ROUND_OFF_NANOSECONDS);
 
     const timeval sut = duration.timeval();
 
@@ -1428,7 +1430,7 @@ TEST(Duration_test, AddDurationWithOneZeroDurationsResultsInNoneZeroDuration)
 TEST(Duration_test, AddDurationWithSumOfDurationsLessThanOneSecondsResultsInLessThanOneSecond)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b3704e3c-588a-4c1f-a09b-9244c210d853");
-    constexpr Duration EXPECTED_DURATION = createDuration(0U, 100 * NANOSECS_PER_MICROSECOND + 10U);
+    constexpr Duration EXPECTED_DURATION = createDuration(0U, (100 * NANOSECS_PER_MICROSECOND) + 10U);
     const auto duration1 = 100_us;
     const auto duration2 = 10_ns;
 
@@ -1981,7 +1983,7 @@ TEST(Duration_test, MultiplyDurationWithNegativMultiplicatorResultsInZero)
 TEST(Duration_test, MultiplyDurationLessThanOneSecondResultsInMoreNanosecondsThan64BitCanRepresent)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2f1bbcb3-3692-4895-a36f-38eed7775b6f");
-    constexpr uint64_t MULTIPLICATOR{(1ULL << 32U) * 42U + 73U};
+    constexpr uint64_t MULTIPLICATOR{((1ULL << 32U) * 42U) + 73U};
     constexpr Duration DURATION = 473_ms + 578_us + 511_ns;
     const auto EXPECTED_RESULT = createDuration(85428177141U, 573034055U);
 
