@@ -22,7 +22,6 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iox/expected.hpp"
 #include "iox/fixed_position_container.hpp"
-#include "iox/optional.hpp"
 
 #include <memory>
 

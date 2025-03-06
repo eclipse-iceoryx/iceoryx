@@ -62,4 +62,18 @@ TEST_F(ChannelTest, ReturnsErrorIfPoolExhausted)
     EXPECT_FALSE(channel.has_error());
 }
 
+TEST_F(ChannelTest, ComparisonWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "535de22b-575d-467c-810a-6beced4d4144");
+    auto channel1 = iox::gw::Channel<StubbedIceoryxTerminal, StubbedExternalTerminal>::create(
+        {"", "", ""}, StubbedIceoryxTerminal::Options());
+    ASSERT_FALSE(channel1.has_error());
+    EXPECT_TRUE(channel1 == channel1);
+
+    auto channel2 = iox::gw::Channel<StubbedIceoryxTerminal, StubbedExternalTerminal>::create(
+        {"Service", "", ""}, StubbedIceoryxTerminal::Options());
+    ASSERT_FALSE(channel2.has_error());
+    EXPECT_FALSE(channel1 == channel2);
+}
+
 } // namespace

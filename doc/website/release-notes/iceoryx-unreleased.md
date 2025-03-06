@@ -146,7 +146,7 @@
 - Fix span span constructor assert when using begin/end constructor [#2253](https://github.com/eclipse-iceoryx/iceoryx/issues/2253)
 - Listener examples need to take all samples in the callback [#2251](https://github.com/eclipse-iceoryx/iceoryx/issues/2251)
 - 'iox::string' tests can exceed the translation unit compilation timeout [#2278](https://github.com/eclipse-iceoryx/iceoryx/issues/2278)
--  Building iceoryx with bazel on Windows is broken [#2320](https://github.com/eclipse-iceoryx/iceoryx/issues/2320)
+- Building iceoryx with bazel on Windows is broken [#2320](https://github.com/eclipse-iceoryx/iceoryx/issues/2320)
 - Fix wrong memory orders in SpscSoFi [#2177](https://github.com/eclipse-iceoryx/iceoryx/issues/2177)
 - ssize_t: redefinition; different basic types [#2209](https://github.com/eclipse-iceoryx/iceoryx/issues/2209)
 - Fix bazel build on macos [#2345](https://github.com/eclipse-iceoryx/iceoryx/issues/2345)
@@ -155,6 +155,7 @@
 - Depend on @ncurses when building with Bazel [#2372](https://github.com/eclipse-iceoryx/iceoryx/issues/2372)
 - Fix windows performance issue [#2377](https://github.com/eclipse-iceoryx/iceoryx/issues/2377)
 - Max Client and Server cannot be configured independently of Max Publisher and Subscriber [#2394](https://github.com/eclipse-iceoryx/iceoryx/issues/2394)
+- Fix call to non-existing `getService` in channel.inl [#2426](https://github.com/eclipse-iceoryx/iceoryx/issues/2426)
 
 **Refactoring:**
 
