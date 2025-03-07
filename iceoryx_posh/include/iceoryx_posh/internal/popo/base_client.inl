@@ -35,6 +35,12 @@ inline BaseClient<PortT, TriggerHandleT>::BaseClient(const capro::ServiceDescrip
 }
 
 template <typename PortT, typename TriggerHandleT>
+inline BaseClient<PortT, TriggerHandleT>::BaseClient(PortT&& port) noexcept
+    : m_port(std::move(port))
+{
+}
+
+template <typename PortT, typename TriggerHandleT>
 inline BaseClient<PortT, TriggerHandleT>::~BaseClient() noexcept
 {
     m_port.destroy();

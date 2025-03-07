@@ -184,7 +184,7 @@ inline uint64_t ChunkDistributor<ChunkDistributorDataType>::deliverToAllStoredQu
             typename MemberType_t::LockGuard_t lock(*getMembers());
             QueueContainer remainingQueues;
             using QueueContainerValue = typename QueueContainer::value_type;
-            auto greaterThan = [](QueueContainerValue& a, QueueContainerValue& b) -> bool {
+            auto greaterThan = [](const QueueContainerValue& a, const QueueContainerValue& b) -> bool {
                 return reinterpret_cast<uint64_t>(a.get()) > reinterpret_cast<uint64_t>(b.get());
             };
             std::sort(getMembers()->m_queues.begin(), getMembers()->m_queues.end(), greaterThan);

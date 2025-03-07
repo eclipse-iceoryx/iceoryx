@@ -34,6 +34,11 @@
 #include "iox/optional.hpp"
 #include "iox/scope_guard.hpp"
 
+namespace iox::posh::experimental
+{
+class Node;
+}
+
 namespace iox
 {
 namespace roudi_env
@@ -151,6 +156,8 @@ class PoshRuntime
 
   protected:
     friend class roudi_env::RuntimeTestInterface;
+    friend class iox::posh::experimental::Node;
+
     using factory_t = PoshRuntime& (*)(optional<const RuntimeName_t*>);
 
     // Protected constructor for derived classes
