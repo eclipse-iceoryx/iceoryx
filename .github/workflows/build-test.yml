@@ -52,23 +52,13 @@ jobs:
   build-test-ubuntu:
     # prevent stuck jobs consuming runners for 6 hours
     timeout-minutes: 60
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     needs: pre-flight-check
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Install iceoryx dependencies and clang-tidy
         uses: ./.github/actions/install-iceoryx-deps-and-clang
-      - name: Setup GCC
-        uses: egor-tensin/setup-gcc@v1.3
-        with:
-          # gcc 8.3 is compiler used in QNX 7.1
-          version: 8
-          platform: x64
-      - name: Setup cmake
-        uses: jwlawson/actions-setup-cmake@v2.0
-        with:
-          cmake-version: '3.16.3' # version used in Ubuntu 20.04 LTS
       - run: ./tools/ci/build-test-ubuntu.sh
 
 
