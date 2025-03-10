@@ -19,6 +19,11 @@
 
 #include "iceoryx_posh/internal/popo/untyped_server_impl.hpp"
 
+namespace iox::posh::experimental
+{
+class ServerBuilder;
+}
+
 namespace iox
 {
 namespace popo
@@ -33,6 +38,14 @@ class UntypedServer : public UntypedServerImpl<>
     virtual ~UntypedServer() noexcept
     {
         Impl::m_trigger.reset();
+    }
+
+  private:
+    friend class iox::posh::experimental::ServerBuilder;
+
+    explicit UntypedServer(typename UntypedServerImpl<>::PortType&& port) noexcept
+        : UntypedServerImpl<>(std::move(port))
+    {
     }
 };
 

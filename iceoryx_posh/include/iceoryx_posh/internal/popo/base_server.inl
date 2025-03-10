@@ -28,7 +28,13 @@ namespace popo
 template <typename PortT, typename TriggerHandleT>
 inline BaseServer<PortT, TriggerHandleT>::BaseServer(const capro::ServiceDescription& service,
                                                      const ServerOptions& serverOptions) noexcept
-    : m_port(*iox::runtime::PoshRuntime::getInstance().getMiddlewareServer(service, serverOptions))
+    : BaseServer(PortT{*iox::runtime::PoshRuntime::getInstance().getMiddlewareServer(service, serverOptions)})
+{
+}
+
+template <typename PortT, typename TriggerHandleT>
+inline BaseServer<PortT, TriggerHandleT>::BaseServer(PortT&& port) noexcept
+    : m_port(std::move(port))
 {
 }
 

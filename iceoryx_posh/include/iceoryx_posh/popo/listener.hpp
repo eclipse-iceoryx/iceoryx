@@ -31,6 +31,11 @@
 
 #include <thread>
 
+namespace iox::posh::experimental
+{
+class ListenerBuilder;
+}
+
 namespace iox
 {
 namespace popo
@@ -168,6 +173,7 @@ class Listener
     uint64_t size() const noexcept;
 
   protected:
+    friend class iox::posh::experimental::ListenerBuilder;
     Listener(ConditionVariableData& conditionVariableData) noexcept;
 
   private:

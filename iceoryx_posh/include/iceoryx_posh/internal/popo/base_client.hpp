@@ -97,6 +97,7 @@ class BaseClient
     using PortType = PortT;
 
     BaseClient(const capro::ServiceDescription& service, const ClientOptions& clientOptions) noexcept;
+    BaseClient(PortT&& port) noexcept;
 
     /// @brief Only usable by the WaitSet/Listener, not for public use. Invalidates the internal triggerHandle.
     /// @param[in] uniqueTriggerId the id of the corresponding trigger
