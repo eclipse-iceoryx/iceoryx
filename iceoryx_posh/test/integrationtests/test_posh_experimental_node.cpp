@@ -1,5 +1,5 @@
-// Copyright (c) 2025 by Valour inc. All rights reserved.
 // Copyright (c) 2024 by ekxide IO GmbH. All rights reserved.
+// Copyright (c) 2025 by Valour inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -634,7 +634,7 @@ TEST(Node_test, MultipleNodeAndEndpointsAreRegisteredWithSeparateRouDiRunningInP
         .or_else([](const auto) { GTEST_SUCCEED() << "Successfully received no data"; });
 }
 
-TEST(Node_test, CreatingUntypedServer)
+TEST(Node_test, CreatingUntypedServerWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8b4d600b-e194-451f-a0d4-4ef82bd1e0a8");
 
@@ -648,7 +648,7 @@ TEST(Node_test, CreatingUntypedServer)
     ASSERT_FALSE(server.has_error());
 }
 
-TEST(Node_test, CreatingServer)
+TEST(Node_test, CreatingTypedServerWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e422d450-7e1b-4435-b9ff-d0b0530f8f45");
 
@@ -661,7 +661,7 @@ TEST(Node_test, CreatingServer)
     ASSERT_FALSE(server.has_error());
 }
 
-TEST(Node_test, CreatingUntypedClient)
+TEST(Node_test, CreatingUntypedClientWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8a8519b3-cb36-4908-95df-84f198322882");
 
@@ -675,7 +675,7 @@ TEST(Node_test, CreatingUntypedClient)
     ASSERT_FALSE(client.has_error());
 }
 
-TEST(Node_test, CreatingClient)
+TEST(Node_test, CreatingTypedClientWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "290badda-a938-46b8-87ff-b4998ce43d95");
 
@@ -705,7 +705,7 @@ TEST(Node_test, CreatingListenerWorks)
     EXPECT_TRUE((std::is_same_v<decltype(listener), iox::unique_ptr<iox::posh::experimental::Listener>>));
 }
 
-TEST(Node_test, ExhaustingServerClientLeadsToError)
+TEST(Node_test, ExhaustingUntypedServerUntypedClientClientLeadsToError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "19df3a60-1cc2-4172-aaf4-5877c0ed2f7e");
 
@@ -746,7 +746,7 @@ TEST(Node_test, ExhaustingServerClientLeadsToError)
     EXPECT_THAT(client_result.error(), Eq(ClientBuilderError::OUT_OF_RESOURCES));
 }
 
-TEST(Node_test, UntypedServerClientRequestResponse)
+TEST(Node_test, UntypedServerUntypedClientRequestResponseWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "38c02027-f2e5-47cf-9771-65868525647a");
 
@@ -810,7 +810,7 @@ TEST(Node_test, UntypedServerClientRequestResponse)
         });
 }
 
-TEST(Node_test, TypedServerClientRequestResponse)
+TEST(Node_test, TypedServerTypedClientRequestResponseWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "16fe3017-9801-4d58-9ef5-55c3480c07e6");
 
