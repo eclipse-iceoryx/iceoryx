@@ -156,7 +156,6 @@ class PoshRuntime
 
   protected:
     friend class roudi_env::RuntimeTestInterface;
-    friend class iox::posh::experimental::Node;
 
     using factory_t = PoshRuntime& (*)(optional<const RuntimeName_t*>);
 

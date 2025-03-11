@@ -137,20 +137,14 @@ class Node
     /// @brief Initiates a 'Listener'
     ListenerBuilder listener() noexcept;
 
-    /// @brief Set Node Runtime as default Runtime
-    void setDefaultRuntime();
-
   private:
     friend class NodeBuilder;
     Node(const NodeName_t& name,
          runtime::IpcRuntimeInterface&& runtime_interface,
          optional<runtime::SharedMemoryUser>&&) noexcept;
 
-    static iox::runtime::PoshRuntime& getNodeRuntime([[maybe_unused]] optional<const RuntimeName_t*> name);
-
   private:
     unique_ptr<runtime::PoshRuntime> m_runtime;
-    inline static runtime::PoshRuntime* s_defaultRuntime = nullptr;
 };
 
 } // namespace iox::posh::experimental
