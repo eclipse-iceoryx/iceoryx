@@ -151,6 +151,7 @@ class PoshRuntime
 
   protected:
     friend class roudi_env::RuntimeTestInterface;
+
     using factory_t = PoshRuntime& (*)(optional<const RuntimeName_t*>);
 
     // Protected constructor for derived classes

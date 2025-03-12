@@ -1,4 +1,5 @@
 // Copyright (c) 2024 by ekxide IO GmbH. All rights reserved.
+// Copyright (c) 2025 by Valour inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,7 +27,10 @@
 #include "iox/builder.hpp"
 #include "iox/expected.hpp"
 #include "iox/optional.hpp"
+#include "iox/posh/experimental/client.hpp"
+#include "iox/posh/experimental/listener.hpp"
 #include "iox/posh/experimental/publisher.hpp"
+#include "iox/posh/experimental/server.hpp"
 #include "iox/posh/experimental/subscriber.hpp"
 #include "iox/posh/experimental/wait_set.hpp"
 #include "iox/unique_ptr.hpp"
@@ -119,8 +123,19 @@ class Node
     /// @param[in] service_description for the subscriber
     SubscriberBuilder subscriber(const ServiceDescription& service_description) noexcept;
 
+    /// @brief Initiates a 'ServerBuilder'
+    /// @param[in] service_description for the server
+    ServerBuilder server(const ServiceDescription& service_description) noexcept;
+
+    /// @brief Initiates a 'ClientBuilder'
+    /// @param[in] service_description for the client
+    ClientBuilder client(const ServiceDescription& service_description) noexcept;
+
     /// @brief Initiates a 'WaitSetBuilder'
     WaitSetBuilder wait_set() noexcept;
+
+    /// @brief Initiates a 'Listener'
+    ListenerBuilder listener() noexcept;
 
   private:
     friend class NodeBuilder;

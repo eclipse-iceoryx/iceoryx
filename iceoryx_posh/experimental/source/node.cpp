@@ -1,4 +1,5 @@
 // Copyright (c) 2024 by ekxide IO GmbH. All rights reserved.
+// Copyright (c) 2025 by Valour inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,6 +21,7 @@
 
 namespace iox::posh::experimental
 {
+
 NodeBuilder::NodeBuilder(const NodeName_t& name) noexcept
     : m_name(name)
 {
@@ -150,9 +152,24 @@ SubscriberBuilder Node::subscriber(const ServiceDescription& service_description
     return SubscriberBuilder{*m_runtime.get(), service_description};
 }
 
+ServerBuilder Node::server(const ServiceDescription& service_description) noexcept
+{
+    return ServerBuilder{*m_runtime.get(), service_description};
+}
+
+ClientBuilder Node::client(const ServiceDescription& service_description) noexcept
+{
+    return ClientBuilder{*m_runtime.get(), service_description};
+}
+
 WaitSetBuilder Node::wait_set() noexcept
 {
     return WaitSetBuilder{*m_runtime.get()};
+}
+
+ListenerBuilder Node::listener() noexcept
+{
+    return ListenerBuilder{*m_runtime.get()};
 }
 
 } // namespace iox::posh::experimental

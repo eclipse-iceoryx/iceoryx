@@ -31,6 +31,12 @@ UntypedServerImpl<BaseServerT>::UntypedServerImpl(const capro::ServiceDescriptio
 }
 
 template <typename BaseServerT>
+UntypedServerImpl<BaseServerT>::UntypedServerImpl(PortType&& port) noexcept
+    : BaseServerT(std::move(port))
+{
+}
+
+template <typename BaseServerT>
 UntypedServerImpl<BaseServerT>::~UntypedServerImpl() noexcept
 {
     BaseServerT::m_trigger.reset();

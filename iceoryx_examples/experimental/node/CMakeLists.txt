@@ -40,3 +40,15 @@ iox_add_executable(
     FILES   ./iox_cpp_node_subscriber.cpp
     LIBS    iceoryx_posh::iceoryx_posh
 )
+
+iox_add_executable(
+    TARGET  iox-cpp-node-server
+    FILES   ./iox_cpp_node_server.cpp
+    LIBS    iceoryx_posh::iceoryx_posh
+)
+
+iox_add_executable(
+    TARGET  iox-cpp-node-client
+    FILES   ./iox_cpp_node_client.cpp
+    LIBS    iceoryx_posh::iceoryx_posh
+)

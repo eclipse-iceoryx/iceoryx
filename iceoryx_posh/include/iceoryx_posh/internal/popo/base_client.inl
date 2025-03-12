@@ -30,7 +30,14 @@ namespace popo
 template <typename PortT, typename TriggerHandleT>
 inline BaseClient<PortT, TriggerHandleT>::BaseClient(const capro::ServiceDescription& service,
                                                      const ClientOptions& clientOptions) noexcept
-    : m_port(*iox::runtime::PoshRuntime::getInstance().getMiddlewareClient(service, clientOptions))
+    : BaseClient(PortT{*iox::runtime::PoshRuntime::getInstance().getMiddlewareClient(service, clientOptions)})
+
+{
+}
+
+template <typename PortT, typename TriggerHandleT>
+inline BaseClient<PortT, TriggerHandleT>::BaseClient(PortT&& port) noexcept
+    : m_port(std::move(port))
 {
 }
 
