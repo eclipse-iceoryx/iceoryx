@@ -25,6 +25,12 @@
 #include <iostream>
 
 constexpr char APP_NAME[] = "iox-cpp-node-server";
+volatile bool keepRunning = {true};
+
+static void signalHandler(int sig [[maybe_unused]])
+{
+    keepRunning = false;
+}
 
 //! [request callback]
 void onRequestReceived(iox::popo::Server<AddRequest, AddResponse>* server)
@@ -52,16 +58,23 @@ void onRequestReceived(iox::popo::Server<AddRequest, AddResponse>* server)
 
 int main()
 {
+    auto sigTermGuard =
+        iox::registerSignalHandler(iox::PosixSignal::TERM, signalHandler).expect("failed to register SIGTERM");
+    auto sigIntGuard =
+        iox::registerSignalHandler(iox::PosixSignal::INT, signalHandler).expect("failed to register SIGINT");
     //! [create the node]
-    auto node_result = iox::posh::experimental::NodeBuilder(APP_NAME)
-                           .domain_id_from_env_or_default()
-                           .roudi_registration_timeout(iox::units::Duration::fromSeconds(1))
-                           .create();
-    if (node_result.has_error())
+    auto node_result = iox::posh::experimental::NodeBuilder(APP_NAME).domain_id_from_env_or_default().create();
+
+    while (keepRunning && node_result.has_error())
     {
         std::cout << "Could not create the node!" << std::endl;
-        return -1;
+
+        node_result = iox::posh::experimental::NodeBuilder(APP_NAME)
+                          .domain_id_from_env_or_default()
+                          .roudi_registration_timeout(iox::units::Duration::fromSeconds(1))
+                          .create();
     }
+
     auto node = std::move(node_result.value());
     //! [create the node]
 

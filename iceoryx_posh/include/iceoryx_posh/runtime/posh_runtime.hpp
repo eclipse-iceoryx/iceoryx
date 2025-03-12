@@ -34,11 +34,6 @@
 #include "iox/optional.hpp"
 #include "iox/scope_guard.hpp"
 
-namespace iox::posh::experimental
-{
-class Node;
-}
-
 namespace iox
 {
 namespace roudi_env
