@@ -21,7 +21,7 @@ The different libraries and their namespaces are depicted below.
 Handy Objects Optimized For Safety (hoofs) is a library and contains various building blocks like fixed size containers,
 concurrency classes and modern, next-gen C++ constructs from upcoming C++ standard releases.
 
-For more information about the components, refer to its [detailed description](../../../iceoryx_hoofs/README.md).
+For more information about the components, refer to its [detailed description](../advanced/iceoryx_hoofs.md).
 
 ### iceoryx posh
 

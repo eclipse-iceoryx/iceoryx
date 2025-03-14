@@ -54,7 +54,7 @@ The three most important settings are:
     2. Multiple publishers after the publisher called `stopOffer()` or is removed
     The last n samples will never be received since they vanished. An arbitrary number of samples or nothing is received.
 
-    For more information about the options see the corresponding example [`iceoptions`](../../../iceoryx_examples/iceoptions/README.md).
+    For more information about the options see the corresponding example [`iceoptions`](../examples/iceoptions.md).
 
 !!! info
     If the `PublisherOptions::historyCapacity` is larger than `SubscriberOptions::queueCapacity` and blocking behaviour
