@@ -40,20 +40,12 @@ cc_test(
         "//conditions:default": ["-ldl"],
     }),
     tags = ["exclusive"],
-    visibility = ["//visibility:private"],
     deps = ["//iceoryx_hoofs:iceoryx_hoofs_testing"],
 )
 
 cc_test(
     name = "hoofs_stresstests",
-    srcs = glob([
-        "*.cpp",
-        "*.hpp",
-    ]),
-    includes = [
-        ".",
-        "stresstests",
-    ],
+    srcs = glob(["*.cpp"]),
     linkopts = select({
         "//iceoryx_platform:linux": ["-ldl"],
         "//iceoryx_platform:mac": [],
@@ -63,6 +55,5 @@ cc_test(
         "//conditions:default": ["-ldl"],
     }),
     tags = ["exclusive"],
-    visibility = ["//visibility:private"],
     deps = ["//iceoryx_hoofs:iceoryx_hoofs_testing"],
 )

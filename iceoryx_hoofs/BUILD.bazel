@@ -31,30 +31,14 @@ configure_file(
 
 cc_library(
     name = "iceoryx_hoofs",
-    srcs = glob([
-        "cli/source/*.cpp",
-        "concurrent/buffer/source/*.cpp",
-        "concurrent/sync/source/*.cpp",
-        "design/source/*.cpp",
-        "filesystem/source/*.cpp",
-        "memory/source/*.cpp",
-        "posix/auth/source/*.cpp",
-        "posix/design/source/*.cpp",
-        "posix/filesystem/source/*.cpp",
-        "posix/ipc/source/*.cpp",
-        "posix/sync/source/*.cpp",
-        "posix/time/source/*.cpp",
-        "posix/utility/source/*.cpp",
-        "posix/vocabulary/source/*.cpp",
-        "primitives/source/*.cpp",
-        "reporting/source/*.cpp",
-        "time/source/*.cpp",
-        "utility/source/*.cpp",
-        "vocabulary/source/**/*.cpp",
-    ]),
-    hdrs = glob(["buffer/**"]) + glob(["cli/**"]) + glob(["concurrent/**"]) + glob(["container/**"]) + glob(["design/**"]) + glob(["filesystem/**"]) + glob(["functional/**"]) + glob(["legacy/**"]) + glob(["memory/**"]) + glob(["posix/**"]) + glob(["primitives/**"]) + glob(["reporting/**"]) + glob(["time/**"]) + glob(["utility/**"]) + glob(["vocabulary/**"]) + [
-        ":iceoryx_hoofs_deployment_hpp",
-    ],
+    srcs = glob(
+        [
+            "**/*.cpp",
+            "**/*.inl",
+        ],
+        exclude = ["testing/**/*"],
+    ),
+    hdrs = glob(["**/*.hpp"]) + [":iceoryx_hoofs_deployment_hpp"],
     includes = [
         "buffer/include/",
         "cli/include/",

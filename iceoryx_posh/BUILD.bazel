@@ -117,9 +117,7 @@ cc_library(
     name = "iceoryx_posh",
     srcs = glob(
         [
-            "source/log/**",
             "source/capro/**",
-            "source/error_handling/**",
             "source/mepoo/**",
             "source/popo/**",
             "source/version/**",
