@@ -14,17 +14,16 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-load("@bazel_skylib//rules:common_settings.bzl", "string_flag")
+load("@bazel_skylib//rules:common_settings.bzl", "bool_flag")
 load("@buildifier_prebuilt//:rules.bzl", "buildifier")
 
 exports_files(["LICENSE"])
 
 exports_files(["VERSION"])
 
-# values: auto, on, off
-string_flag(
+bool_flag(
     name = "feature_acl",
-    build_setting_default = "auto",
+    build_setting_default = False,
     visibility = ["//visibility:public"],
 )
 
