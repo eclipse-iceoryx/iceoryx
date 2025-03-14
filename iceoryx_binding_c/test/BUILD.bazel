@@ -14,21 +14,31 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-load("@rules_cc//cc:defs.bzl", "cc_test")
+load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
+
+cc_library(
+    name = "test",
+    testonly = True,
+    hdrs = ["test.hpp"],
+    includes = ["."],
+    deps = ["@googletest//:gtest"],
+)
+
+cc_library(
+    name = "mocks",
+    testonly = True,
+    hdrs = ["mocks/wait_set_mock.hpp"],
+    includes = ["mocks"],
+    deps = [
+        "//iceoryx_binding_c",
+        "//iceoryx_posh",
+    ],
+)
 
 cc_test(
     name = "binding_c_moduletests",
-    srcs = glob([
-        "moduletests/*.cpp",
-        "moduletests/*.hpp",
-        "mocks/*.hpp",
-        "*.hpp",
-    ]),
-    includes = [
-        ".",
-        "mocks",
-        "moduletests",
-    ],
+    srcs = glob(["moduletests/*"]),
+    includes = ["moduletests"],
     linkopts = select({
         "//iceoryx_platform:linux": ["-ldl"],
         "//iceoryx_platform:mac": ["-ldl"],
@@ -38,8 +48,9 @@ cc_test(
         "//conditions:default": ["-ldl"],
     }),
     tags = ["exclusive"],
-    visibility = ["//visibility:private"],
     deps = [
+        ":mocks",
+        ":test",
         "//iceoryx_binding_c",
         "//iceoryx_hoofs:iceoryx_hoofs_testing",
         "//iceoryx_posh",
@@ -50,17 +61,7 @@ cc_test(
 
 cc_test(
     name = "binding_c_integrationtests",
-    srcs = glob([
-        "integrationtests/*.cpp",
-        "integrationtests/*.hpp",
-        "mocks/*.hpp",
-        "*.hpp",
-    ]),
-    includes = [
-        ".",
-        "integrationtests",
-        "mocks",
-    ],
+    srcs = ["integrationtests/main_test_binding_c_integration.cpp"],
     linkopts = select({
         "//iceoryx_platform:linux": ["-ldl"],
         "//iceoryx_platform:mac": ["-ldl"],
@@ -70,8 +71,8 @@ cc_test(
         "//conditions:default": ["-ldl"],
     }),
     tags = ["exclusive"],
-    visibility = ["//visibility:private"],
     deps = [
+        ":test",
         "//iceoryx_binding_c",
         "//iceoryx_hoofs:iceoryx_hoofs_testing",
         "//iceoryx_posh",

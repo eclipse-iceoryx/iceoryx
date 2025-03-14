@@ -14,20 +14,19 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-load("@rules_cc//cc:defs.bzl", "cc_test")
+load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
+
+cc_library(
+    name = "test",
+    testonly = True,
+    hdrs = ["test.hpp"],
+    includes = ["."],
+    deps = ["@googletest//:gtest"],
+)
 
 cc_test(
     name = "platform_moduletests",
-    srcs = glob([
-        "moduletests/*.cpp",
-        "moduletests/*.hpp",
-        "*.hpp",
-    ]),
-    data = glob(["input/**"]),
-    includes = [
-        ".",
-        "moduletests",
-    ],
+    srcs = glob(["moduletests/*.cpp"]),
     linkopts = select({
         "//iceoryx_platform:linux": ["-ldl"],
         "//iceoryx_platform:mac": [],
@@ -37,37 +36,25 @@ cc_test(
         "//conditions:default": ["-ldl"],
     }),
     tags = ["exclusive"],
-    visibility = ["//visibility:private"],
     deps = [
+        ":test",
         "//iceoryx_platform",
-        "@googletest//:gtest",
     ],
 )
 
 cc_test(
     name = "platform_integrationtests",
-    srcs = glob([
-        "integrationtests/*.cpp",
-        "integrationtests/*.hpp",
-        "*.hpp",
-    ]),
-    data = glob(["input/**"]),
-    includes = [
-        ".",
-        "integrationtests",
-    ],
+    srcs = ["integrationtests/main_test_platform_integration.cpp"],
     linkopts = select({
         "//iceoryx_platform:linux": ["-ldl"],
-        "//iceoryx_platform:mac": [],
         "//iceoryx_platform:qnx": [],
         "//iceoryx_platform:unix": [],
         "//iceoryx_platform:win": [],
         "//conditions:default": ["-ldl"],
     }),
     tags = ["exclusive"],
-    visibility = ["//visibility:private"],
     deps = [
+        ":test",
         "//iceoryx_platform",
-        "@googletest//:gtest",
     ],
 )
