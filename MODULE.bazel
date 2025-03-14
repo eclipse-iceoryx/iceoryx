@@ -5,8 +5,8 @@ module(
 
 bazel_dep(name = "bazel_skylib", version = "1.7.1")
 bazel_dep(name = "cpptoml", version = "0.1.1")
-bazel_dep(name = "platforms", version = "0.0.10")
-bazel_dep(name = "rules_cc", version = "0.0.9")
+bazel_dep(name = "platforms", version = "0.0.11")
+bazel_dep(name = "rules_cc", version = "0.1.1")
 
 bazel_dep(
     name = "buildifier_prebuilt",
@@ -15,4 +15,4 @@ bazel_dep(
 )
 bazel_dep(name = "googletest", version = "1.15.2", dev_dependency = True)
 
-bazel_dep(name = "ncurses", version = "6.4.20221231")
+bazel_dep(name = "ncurses", version = "6.4.20221231.bcr.4")
