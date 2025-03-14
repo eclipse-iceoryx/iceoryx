@@ -23,6 +23,13 @@ jobs:
       - name: diff scan, clang-tidy for all files which are in `.clang-tidy-diff-scans.txt`
         run: ./tools/scripts/clang_tidy_check.sh scan_list .clang-tidy-diff-scans.txt "${{ steps.changed_files.outputs.added_modified }}"
 
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+      - uses: pre-commit/action@v3.0.1
+
   check-for-todo:
     runs-on: ubuntu-24.04
 

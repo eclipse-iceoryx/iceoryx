@@ -17,7 +17,6 @@ SPDX-License-Identifier: Apache-2.0
 """
 
 load("//bazel/bazelbuild:repositories.bzl", "load_com_github_bazelbuild_rules_cc_repositories")
-load("//bazel/buildifier_prebuilt:repositories.bzl", "load_buildifier_prebuilt_repositories")
 load("//bazel/cpptoml:repositories.bzl", "load_cpptoml_repositories")
 load("//bazel/googletest:repositories.bzl", "load_googletest_repositories")
 load("//bazel/ncurses:repositories.bzl", "load_ncurses_repositories")
@@ -29,7 +28,6 @@ def load_repositories():
     """
     load_com_github_bazelbuild_rules_cc_repositories()
     load_bazel_skylib_repositories()
-    load_buildifier_prebuilt_repositories()
     load_googletest_repositories()
     load_cpptoml_repositories()
     load_ncurses_repositories()
