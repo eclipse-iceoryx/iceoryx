@@ -1,5 +1,6 @@
 // Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2025 by Latitude AI. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -71,6 +72,10 @@ class MemoryManager
     /// @param[in] chunkSettings for the requested chunk
     /// @return a SharedChunk if successful, otherwise a MemoryManager::Error
     expected<SharedChunk, Error> getChunk(const ChunkSettings& chunkSettings) noexcept;
+
+    /// @brief Release a chunk back to the mempools
+    /// @param[in] chunkManagement Management for the chunk
+    static void freeChunk(ChunkManagement& chunkManagement) noexcept;
 
     uint32_t getNumberOfMemPools() const noexcept;
 
