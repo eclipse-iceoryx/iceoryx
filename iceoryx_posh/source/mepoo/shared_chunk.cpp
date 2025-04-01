@@ -1,5 +1,6 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2025 by Latitude AI. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +17,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
+#include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 
 namespace iox
 {
@@ -54,15 +56,9 @@ void SharedChunk::decrementReferenceCounter() noexcept
     if ((m_chunkManagement != nullptr)
         && (m_chunkManagement->m_referenceCounter.fetch_sub(1U, std::memory_order_relaxed) == 1U))
     {
-        freeChunk();
+        MemoryManager::freeChunk(*m_chunkManagement);
+        m_chunkManagement = nullptr;
     }
-}
-
-void SharedChunk::freeChunk() noexcept
-{
-    m_chunkManagement->m_mempool->freeChunk(static_cast<void*>(m_chunkManagement->m_chunkHeader.get()));
-    m_chunkManagement->m_chunkManagementPool->freeChunk(m_chunkManagement);
-    m_chunkManagement = nullptr;
 }
 
 SharedChunk& SharedChunk::operator=(const SharedChunk& rhs) noexcept

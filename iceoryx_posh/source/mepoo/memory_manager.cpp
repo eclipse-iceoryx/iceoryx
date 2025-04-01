@@ -1,5 +1,6 @@
 // Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2025 by Latitude AI. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -204,6 +205,19 @@ expected<SharedChunk, MemoryManager::Error> MemoryManager::getChunk(const ChunkS
             ChunkManagement(chunkHeader, memPoolPointer, &m_chunkManagementPool.front());
         return ok(SharedChunk(chunkManagement));
     }
+}
+
+void MemoryManager::freeChunk(ChunkManagement& chunkManagement) noexcept
+{
+    const auto* chunkHeader = static_cast<void*>(chunkManagement.m_chunkHeader.get());
+    const auto mempool = chunkManagement.m_mempool;
+
+    // Here the chunk management must be freed before the chunk itself to maintain
+    // the invariant that there are always at least as many chunk management chunks available as payload chunks
+    chunkManagement.m_chunkManagementPool->freeChunk(&chunkManagement);
+    // NOTE: chunkManagement is a dangling reference from here on out
+
+    mempool->freeChunk(chunkHeader);
 }
 
 std::ostream& operator<<(std::ostream& stream, const MemoryManager::Error value) noexcept

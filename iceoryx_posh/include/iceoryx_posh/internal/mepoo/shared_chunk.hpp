@@ -1,5 +1,6 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2025 by Latitude AI. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -64,7 +65,6 @@ class SharedChunk
   private:
     void decrementReferenceCounter() noexcept;
     void incrementReferenceCounter() noexcept;
-    void freeChunk() noexcept;
 
   private:
     ChunkManagement* m_chunkManagement{nullptr};
