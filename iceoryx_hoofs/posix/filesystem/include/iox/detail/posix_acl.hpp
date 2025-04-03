@@ -54,7 +54,11 @@ class PosixAcl
 
 /// @brief identifier for a permission entry (user, group, others, ...)
 #if defined(QNX) || defined(QNX__) || defined(__QNX__)
+    #if IOX_FEATURE_ACL
     enum class Category : std::underlying_type<acl_tag_t>::type
+    #else
+    enum class Category : acl_tag_t
+    #endif
 #else
     // NOLINTNEXTLINE(performance-enum-size) required for compatibility with ACL API
     enum class Category : acl_tag_t
@@ -71,7 +75,11 @@ class PosixAcl
 
 /// @brief access right for a permission entry
 #if defined(QNX) || defined(QNX__) || defined(__QNX__)
+    #if IOX_FEATURE_ACL
     enum class Permission : std::underlying_type<acl_perm_t>::type
+    #else
+    enum class Permission : acl_perm_t
+    #endif
 #else
     // NOLINTNEXTLINE(performance-enum-size) required for compatibility with ACL API
     enum class Permission : acl_perm_t

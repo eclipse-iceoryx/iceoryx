@@ -75,7 +75,9 @@ file ( GLOB_RECURSE ICEORYX_PLATFORM_FILES
 
 if(IOX_PLATFORM_FEATURE_ACL)
     set(IOX_CFG_FEATURE_ACL "1")
-    set(ACL_LIB acl)
+    if(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
+        set(ACL_LIB acl)
+    endif()
 else()
     set(IOX_CFG_FEATURE_ACL "0")
     set(ACL_LIB)
