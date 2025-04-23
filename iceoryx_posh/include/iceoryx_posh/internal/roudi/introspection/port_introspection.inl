@@ -552,6 +552,7 @@ PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(PortInt
                 publisherData.m_publisherPortID = static_cast<uint64_t>(port.getUniqueID());
                 publisherData.m_sourceInterface = publisherInfo->service.getSourceInterface();
                 publisherData.m_name = publisherInfo->process;
+                publisherData.m_publisherOptions = publisherInfo->options;
 
                 publisherData.m_caproInstanceID = publisherInfo->service.getInstanceIDString();
                 publisherData.m_caproServiceID = publisherInfo->service.getServiceIDString();
@@ -576,6 +577,7 @@ PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(PortInt
                 auto& subscriberInfo = connection->subscriberInfo;
 
                 subscriberData.m_name = subscriberInfo.process;
+                subscriberData.m_subscriberOptions = subscriberInfo.options;
 
                 subscriberData.m_caproInstanceID = subscriberInfo.service.getInstanceIDString();
                 subscriberData.m_caproServiceID = subscriberInfo.service.getServiceIDString();
