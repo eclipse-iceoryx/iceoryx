@@ -17,6 +17,7 @@
 
 #include "iceoryx_posh/internal/roudi/introspection/port_introspection.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iceoryx_posh/popo/subscriber_options.hpp"
 #include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
 #include "iox/std_string_support.hpp"
 #include "mocks/publisher_mock.hpp"
@@ -96,6 +97,10 @@ class PortIntrospection_test : public Test
         {
             return false;
         }
+        if (!comparePortOptions(a.m_subscriberOptions, b.m_subscriberOptions))
+        {
+            return false;
+        }
 
         return true;
     }
@@ -121,9 +126,72 @@ class PortIntrospection_test : public Test
         {
             return false;
         }
+        if (!comparePortOptions(a.m_publisherOptions, b.m_publisherOptions))
+        {
+            return false;
+        }
 
         return true;
     }
+
+    bool comparePortOptions(const iox::popo::SubscriberOptions& a, const iox::popo::SubscriberOptions& b)
+    {
+        auto nameA = iox::into<std::string>(a.nodeName);
+        auto nameB = iox::into<std::string>(b.nodeName);
+
+        if (nameA.compare(nameB) != 0)
+        {
+            return false;
+        }
+        if (a.requiresPublisherHistorySupport != b.requiresPublisherHistorySupport)
+        {
+            return false;
+        }
+        if (a.subscribeOnCreate != b.subscribeOnCreate)
+        {
+            return false;
+        }
+        if (a.historyRequest != b.historyRequest)
+        {
+            return false;
+        }
+        if (a.queueCapacity != b.queueCapacity)
+        {
+            return false;
+        }
+        if (a.queueFullPolicy != b.queueFullPolicy)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    bool comparePortOptions(const iox::popo::PublisherOptions& a, const iox::popo::PublisherOptions& b)
+    {
+        auto nameA = iox::into<std::string>(a.nodeName);
+        auto nameB = iox::into<std::string>(b.nodeName);
+
+        if (nameA.compare(nameB) != 0)
+        {
+            return false;
+        }
+        if (a.offerOnCreate != b.offerOnCreate)
+        {
+            return false;
+        }
+        if (a.historyCapacity != b.historyCapacity)
+        {
+            return false;
+        }
+        if (a.subscriberTooSlowPolicy != b.subscriberTooSlowPolicy)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
 
     MockPublisherPortUser m_mockPublisherPortUserIntrospection;
     MockPublisherPortUser m_mockPublisherPortUserIntrospection2;
@@ -189,12 +257,14 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
     expected1.m_caproInstanceID = "1";
     expected1.m_caproServiceID = "2";
     expected1.m_caproEventMethodID = "3";
+    expected1.m_publisherOptions.nodeName = "4";
 
     PortData expected2;
     expected2.m_name = runtimeName2;
     expected2.m_caproInstanceID = "abc";
     expected2.m_caproServiceID = "def";
     expected2.m_caproEventMethodID = "ghi";
+    expected2.m_publisherOptions.nodeName = "jkl";
 
     // prepare inputs
     iox::capro::ServiceDescription service1(
@@ -203,8 +273,8 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
         expected2.m_caproServiceID, expected2.m_caproInstanceID, expected2.m_caproEventMethodID);
 
     iox::mepoo::MemoryManager memoryManager;
-    iox::popo::PublisherOptions publisherOptions1;
-    iox::popo::PublisherOptions publisherOptions2;
+    iox::popo::PublisherOptions publisherOptions1 = expected1.m_publisherOptions;
+    iox::popo::PublisherOptions publisherOptions2 = expected2.m_publisherOptions;
     iox::popo::PublisherPortData portData1(
         service1, runtimeName1, iox::roudi::DEFAULT_UNIQUE_ROUDI_ID, &memoryManager, publisherOptions1);
     iox::popo::PublisherPortData portData2(
@@ -318,12 +388,14 @@ TEST_F(PortIntrospection_test, addAndRemoveSubscriber)
     expected1.m_caproInstanceID = "1";
     expected1.m_caproServiceID = "2";
     expected1.m_caproEventMethodID = "3";
+    expected1.m_subscriberOptions.nodeName = nodeName1;
 
     PortData expected2;
     expected2.m_name = runtimeName2;
     expected2.m_caproInstanceID = "4";
     expected2.m_caproServiceID = "5";
     expected2.m_caproEventMethodID = "6";
+    expected2.m_subscriberOptions.nodeName = nodeName2;
 
     // prepare inputs
     iox::capro::ServiceDescription service1(
@@ -332,9 +404,9 @@ TEST_F(PortIntrospection_test, addAndRemoveSubscriber)
         expected2.m_caproServiceID, expected2.m_caproInstanceID, expected2.m_caproEventMethodID);
 
     iox::popo::SubscriberOptions subscriberOptions1;
-    subscriberOptions1.nodeName = nodeName1;
+    subscriberOptions1 = expected1.m_subscriberOptions;
     iox::popo::SubscriberOptions subscriberOptions2;
-    subscriberOptions2.nodeName = nodeName2;
+    subscriberOptions2 = expected2.m_subscriberOptions;
 
     // test adding of ports
     // remark: duplicate subscriber insertions are not possible
