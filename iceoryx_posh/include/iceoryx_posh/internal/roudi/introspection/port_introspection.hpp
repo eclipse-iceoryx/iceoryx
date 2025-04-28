@@ -19,6 +19,8 @@
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_data.hpp"
+#include "iceoryx_posh/popo/publisher_options.hpp"
+#include "iceoryx_posh/popo/subscriber_options.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iox/assertions.hpp"
 #include "iox/atomic.hpp"
@@ -76,12 +78,14 @@ class PortIntrospection
                 : portData(&portData)
                 , process(portData.m_runtimeName)
                 , service(portData.m_serviceDescription)
+                , options(portData.m_options)
             {
             }
 
             typename PublisherPort::MemberType_t* portData{nullptr};
             RuntimeName_t process;
             capro::ServiceDescription service;
+            popo::PublisherOptions options;
 
             /// map from indices to ConnectionContainer indices
             std::map<int, ConnectionContainerIndexType> connectionMap;
@@ -96,12 +100,14 @@ class PortIntrospection
                 : portData(&portData)
                 , process(portData.m_runtimeName)
                 , service(portData.m_serviceDescription)
+                , options(portData.m_options)
             {
             }
 
             typename SubscriberPort::MemberType_t* portData{nullptr};
             RuntimeName_t process;
             capro::ServiceDescription service;
+            popo::SubscriberOptions options;
         };
 
         struct ConnectionInfo
