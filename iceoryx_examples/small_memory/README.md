@@ -5,7 +5,7 @@
 In some cases, it is needed to run iceoryx on systems with limited memory
 availability. For such cases, it is possible to configure the resource
 management limits as documented in the
-[configuration guide](../../doc/website/advanced/configuration-guide.md).
+[configuration guide](../advanced/configuration-guide.md).
 
 This configuration has two parts:
 * The resource limits set in cmake during configuration with options in the
