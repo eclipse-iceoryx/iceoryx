@@ -145,6 +145,11 @@ configure_option(
     DEFAULT_VALUE "iox1"
 )
 
+configure_option(
+    NAME IOX_ROUDI_DEFAULT_MONITORING
+    DEFAULT_VALUE false
+)
+
 if(IOX_EXPERIMENTAL_POSH)
      set(IOX_EXPERIMENTAL_POSH_FLAG true)
 else()

@@ -299,8 +299,8 @@ constexpr units::Duration DISCOVERY_INTERVAL = 100_ms;
 /// OFF - no process is monitored
 enum class MonitoringMode
 {
-    ON,
-    OFF
+    OFF,
+    ON
 };
 
 iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const MonitoringMode& mode) noexcept;

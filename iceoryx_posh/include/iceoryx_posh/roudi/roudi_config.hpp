@@ -37,7 +37,7 @@ struct RouDiConfig
     /// @brief the log level used by RouDi
     iox::log::LogLevel logLevel{iox::log::LogLevel::Info};
     /// @brief Specifies whether RouDi monitors the process for abnormal termination
-    roudi::MonitoringMode monitoringMode{roudi::MonitoringMode::OFF};
+    roudi::MonitoringMode monitoringMode{static_cast<roudi::MonitoringMode>(build::IOX_ROUDI_DEFAULT_MONITORING)};
     /// @brief Specifies to which level the compatibility of applications trying to register with RouDi should be
     /// checked
     version::CompatibilityCheckLevel compatibilityCheckLevel{version::CompatibilityCheckLevel::PATCH};
