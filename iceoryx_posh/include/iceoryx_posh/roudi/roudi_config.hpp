@@ -16,6 +16,7 @@
 #ifndef IOX_POSH_ROUDI_ROUDI_CONFIG_HPP
 #define IOX_POSH_ROUDI_ROUDI_CONFIG_HPP
 
+#include "iceoryx_posh/iceoryx_posh_deployment.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
 
@@ -37,7 +38,8 @@ struct RouDiConfig
     /// @brief the log level used by RouDi
     iox::log::LogLevel logLevel{iox::log::LogLevel::Info};
     /// @brief Specifies whether RouDi monitors the process for abnormal termination
-    roudi::MonitoringMode monitoringMode{roudi::MonitoringMode::OFF};
+    roudi::MonitoringMode monitoringMode{
+        (build::IOX_ROUDI_DEFAULT_MONITORING_MODE_ON ? roudi::MonitoringMode::ON : roudi::MonitoringMode::OFF)};
     /// @brief Specifies to which level the compatibility of applications trying to register with RouDi should be
     /// checked
     version::CompatibilityCheckLevel compatibilityCheckLevel{version::CompatibilityCheckLevel::PATCH};

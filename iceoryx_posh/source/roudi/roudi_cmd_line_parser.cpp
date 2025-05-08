@@ -61,7 +61,8 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             std::cout << "                                  <UINT> 0..65535" << std::endl;
             std::cout << "-m, --monitoring-mode <MODE>      Set process alive monitoring mode." << std::endl;
             std::cout << "                                  <MODE> {on, off}" << std::endl;
-            std::cout << "                                  default = 'off'" << std::endl;
+            std::cout << "                                  default = "
+                      << (build::IOX_ROUDI_DEFAULT_MONITORING_MODE_ON ? "'on'" : "'off'") << std::endl;
             std::cout << "                                  on: enables monitoring for all processes" << std::endl;
             std::cout << "                                  off: disables monitoring for all processes" << std::endl;
             std::cout << "-l, --log-level <LEVEL>           Set log level." << std::endl;

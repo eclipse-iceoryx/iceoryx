@@ -57,6 +57,7 @@ configure_file(
             "IOX_MAX_SHM_SEGMENTS": "100",
             "IOX_MAX_SUBSCRIBERS": "1024",
             "IOX_MAX_SUBSCRIBERS_PER_PUBLISHER": "256",
+            "IOX_ROUDI_DEFAULT_MONITORING_MODE_ON": "false",
         },
         "//conditions:default": {
             "IOX_COMMUNICATION_POLICY": "ManyToManyPolicy",
@@ -88,6 +89,7 @@ configure_file(
             "IOX_MAX_SHM_SEGMENTS": "100",
             "IOX_MAX_SUBSCRIBERS": "1024",
             "IOX_MAX_SUBSCRIBERS_PER_PUBLISHER": "256",
+            "IOX_ROUDI_DEFAULT_MONITORING_MODE_ON": "false",
         },
     }),
 )
