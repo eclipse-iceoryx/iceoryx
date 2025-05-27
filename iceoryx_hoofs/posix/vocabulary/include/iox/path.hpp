@@ -22,21 +22,21 @@
 
 namespace iox
 {
-namespace details
+namespace detail
 {
 bool path_does_contain_invalid_content(const string<platform::IOX_MAX_PATH_LENGTH>& value) noexcept;
-} // namespace details
+} // namespace detail
 
 /// @brief Represents a path to a file or a directory.
 class Path : public SemanticString<Path,
                                    platform::IOX_MAX_PATH_LENGTH,
-                                   details::path_does_contain_invalid_content,
-                                   details::file_path_does_contain_invalid_characters>
+                                   detail::path_does_contain_invalid_content,
+                                   detail::file_path_does_contain_invalid_characters>
 {
     using Parent = SemanticString<Path,
                                   platform::IOX_MAX_PATH_LENGTH,
-                                  details::path_does_contain_invalid_content,
-                                  details::file_path_does_contain_invalid_characters>;
+                                  detail::path_does_contain_invalid_content,
+                                  detail::file_path_does_contain_invalid_characters>;
     using Parent::Parent;
 };
 } // namespace iox

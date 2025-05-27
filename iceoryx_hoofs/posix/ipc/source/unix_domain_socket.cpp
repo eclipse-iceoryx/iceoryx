@@ -19,6 +19,7 @@
 #include "iox/unix_domain_socket.hpp"
 #include "iceoryx_platform/socket.hpp"
 #include "iceoryx_platform/unistd.hpp"
+#include "iox/detail/path_and_file_verifier.hpp"
 #include "iox/logging.hpp"
 #include "iox/posix_call.hpp"
 #include "iox/scope_guard.hpp"
@@ -34,7 +35,7 @@ constexpr uint64_t UnixDomainSocket::NULL_TERMINATOR_SIZE;
 
 expected<UnixDomainSocket, PosixIpcChannelError> UnixDomainSocketBuilder::create() const noexcept
 {
-    if (isValidPathToFile(m_name))
+    if (detail::isValidPathToFile(m_name))
     {
         auto udsName =
             UnixDomainSocket::UdsName_t(platform::IOX_UDS_SOCKET_PATH_PREFIX).append(iox::TruncateToCapacity, m_name);
@@ -57,7 +58,7 @@ expected<UnixDomainSocket, PosixIpcChannelError> UnixDomainSocketBuilder::create
 
 expected<UnixDomainSocket, PosixIpcChannelError> UnixDomainSocketBuilderNoPathPrefix::create() const noexcept
 {
-    if (!isValidPathToFile(m_name))
+    if (!detail::isValidPathToFile(m_name))
     {
         return err(PosixIpcChannelError::INVALID_CHANNEL_NAME);
     }
@@ -194,7 +195,7 @@ UnixDomainSocket& UnixDomainSocket::operator=(UnixDomainSocket&& other) noexcept
 
 expected<bool, PosixIpcChannelError> UnixDomainSocket::unlinkIfExists(const UdsName_t& name) noexcept
 {
-    if (!isValidPathToFile(name))
+    if (!detail::isValidPathToFile(name))
     {
         return err(PosixIpcChannelError::INVALID_CHANNEL_NAME);
     }
@@ -211,7 +212,7 @@ expected<bool, PosixIpcChannelError> UnixDomainSocket::unlinkIfExists(const UdsN
 expected<bool, PosixIpcChannelError> UnixDomainSocket::unlinkIfExists(const NoPathPrefix_t,
                                                                       const UdsName_t& name) noexcept
 {
-    if (!isValidPathToFile(name))
+    if (!detail::isValidPathToFile(name))
     {
         return err(PosixIpcChannelError::INVALID_CHANNEL_NAME);
     }

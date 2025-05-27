@@ -15,12 +15,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_platform/platform_settings.hpp"
-#include "iox/filesystem.hpp"
+#include "iox/detail/path_and_file_verifier.hpp"
 #include "iox/string.hpp"
 
 namespace iox
 {
-namespace details
+namespace detail
 {
 bool group_name_does_contain_invalid_characters(const string<platform::MAX_GROUP_NAME_LENGTH>& value) noexcept
 {
@@ -29,9 +29,9 @@ bool group_name_does_contain_invalid_characters(const string<platform::MAX_GROUP
         // AXIVION Next Construct AutosarC++19_03-A3.9.1: Not used as an integer but as actual character
         const char c{value.unchecked_at(i)};
 
-        const bool contains_a_to_z = internal::ASCII_A <= c && c <= internal::ASCII_Z;
-        const bool contains_0_to_9 = internal::ASCII_0 <= c && c <= internal::ASCII_9;
-        const bool contains_dash = c == internal::ASCII_DASH;
+        const bool contains_a_to_z = detail::ASCII_A <= c && c <= detail::ASCII_Z;
+        const bool contains_0_to_9 = detail::ASCII_0 <= c && c <= detail::ASCII_9;
+        const bool contains_dash = c == detail::ASCII_DASH;
 
         if (!contains_a_to_z && !contains_0_to_9 && !contains_dash)
         {
@@ -53,7 +53,7 @@ bool group_name_does_contain_invalid_content(const string<platform::MAX_GROUP_NA
     // AXIVION Next Construct AutosarC++19_03-A3.9.1: Not used as an integer but as actual character
     const char c{value.unchecked_at(0)};
     // a group name is not allowed to start with a number or dash
-    return (c == internal::ASCII_DASH || (internal::ASCII_0 <= c && c <= internal::ASCII_9));
+    return (c == detail::ASCII_DASH || (detail::ASCII_0 <= c && c <= detail::ASCII_9));
 }
-} // namespace details
+} // namespace detail
 } // namespace iox

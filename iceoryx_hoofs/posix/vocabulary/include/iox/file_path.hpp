@@ -21,24 +21,24 @@
 
 namespace iox
 {
-namespace details
+namespace detail
 {
 bool file_path_does_contain_invalid_characters(const string<platform::IOX_MAX_PATH_LENGTH>& value) noexcept;
 bool file_path_does_contain_invalid_content(const string<platform::IOX_MAX_PATH_LENGTH>& value) noexcept;
-} // namespace details
+} // namespace detail
 
 /// @brief Represents a path to a file. It is not allowed to end with a path separator
 ///        since this would then be a path to a directory. A valid file path is for
 ///        instance "path/to/file" but not "path/to/file/".
 class FilePath : public SemanticString<FilePath,
                                        platform::IOX_MAX_PATH_LENGTH,
-                                       details::file_path_does_contain_invalid_content,
-                                       details::file_path_does_contain_invalid_characters>
+                                       detail::file_path_does_contain_invalid_content,
+                                       detail::file_path_does_contain_invalid_characters>
 {
     using Parent = SemanticString<FilePath,
                                   platform::IOX_MAX_PATH_LENGTH,
-                                  details::file_path_does_contain_invalid_content,
-                                  details::file_path_does_contain_invalid_characters>;
+                                  detail::file_path_does_contain_invalid_content,
+                                  detail::file_path_does_contain_invalid_characters>;
     using Parent::Parent;
 };
 } // namespace iox

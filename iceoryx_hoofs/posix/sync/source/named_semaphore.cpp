@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iox/named_semaphore.hpp"
+#include "iox/detail/path_and_file_verifier.hpp"
 #include "iox/detail/semaphore_helper.hpp"
 #include "iox/logging.hpp"
 #include "iox/posix_call.hpp"
@@ -161,7 +162,7 @@ expected<void, SemaphoreError>
 // NOLINTNEXTLINE(readability-function-size,readability-function-cognitive-complexity)
 NamedSemaphoreBuilder::create(optional<NamedSemaphore>& uninitializedSemaphore) const noexcept
 {
-    if (!isValidFileName(m_name))
+    if (!detail::isValidFileName(m_name))
     {
         IOX_LOG(Error, "The name \"" << m_name << "\" is not a valid semaphore name.");
         return err(SemaphoreError::INVALID_NAME);

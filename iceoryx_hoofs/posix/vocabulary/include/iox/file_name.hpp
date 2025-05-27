@@ -21,23 +21,23 @@
 
 namespace iox
 {
-namespace details
+namespace detail
 {
 bool file_name_does_contain_invalid_characters(const string<platform::IOX_MAX_FILENAME_LENGTH>& value) noexcept;
 bool file_name_does_contain_invalid_content(const string<platform::IOX_MAX_FILENAME_LENGTH>& value) noexcept;
-} // namespace details
+} // namespace detail
 
 /// @brief Represents a single file name. It is not allowed to contain any path elements
 ///        like "./some_file" or "path/to/file". Just a plain old simple "my_file.bla".
 class FileName : public SemanticString<FileName,
                                        platform::IOX_MAX_FILENAME_LENGTH,
-                                       details::file_name_does_contain_invalid_content,
-                                       details::file_name_does_contain_invalid_characters>
+                                       detail::file_name_does_contain_invalid_content,
+                                       detail::file_name_does_contain_invalid_characters>
 {
     using Parent = SemanticString<FileName,
                                   platform::IOX_MAX_FILENAME_LENGTH,
-                                  details::file_name_does_contain_invalid_content,
-                                  details::file_name_does_contain_invalid_characters>;
+                                  detail::file_name_does_contain_invalid_content,
+                                  detail::file_name_does_contain_invalid_characters>;
     using Parent::Parent;
 };
 } // namespace iox

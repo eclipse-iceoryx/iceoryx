@@ -19,6 +19,7 @@
 #include "iceoryx_platform/fcntl.hpp"
 #include "iceoryx_platform/stat.hpp"
 #include "iceoryx_platform/unistd.hpp"
+#include "iox/detail/path_and_file_verifier.hpp"
 #include "iox/filesystem.hpp"
 #include "iox/logging.hpp"
 #include "iox/posix_call.hpp"
@@ -33,13 +34,13 @@ constexpr const char FileLock::LOCK_FILE_SUFFIX[];
 
 expected<FileLock, FileLockError> FileLockBuilder::create() noexcept
 {
-    if (!isValidFileName(m_name))
+    if (!detail::isValidFileName(m_name))
     {
         IOX_LOG(Error, "Unable to create FileLock since the name \"" << m_name << "\" is not a valid file name.");
         return err(FileLockError::INVALID_FILE_NAME);
     }
 
-    if (!isValidPathToDirectory(m_path))
+    if (!detail::isValidPathToDirectory(m_path))
     {
         IOX_LOG(Error, "Unable to create FileLock since the path \"" << m_path << "\" is not a valid path.");
         return err(FileLockError::INVALID_PATH);
@@ -47,7 +48,7 @@ expected<FileLock, FileLockError> FileLockBuilder::create() noexcept
 
     FileLock::FilePath_t fileLockPath = m_path;
 
-    if (!doesEndWithPathSeparator(fileLockPath))
+    if (!detail::doesEndWithPathSeparator(fileLockPath))
     {
         fileLockPath.unsafe_append(iox::platform::IOX_PATH_SEPARATORS[0]);
     }

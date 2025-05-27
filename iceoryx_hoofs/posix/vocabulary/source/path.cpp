@@ -19,11 +19,11 @@
 
 namespace iox
 {
-namespace details
+namespace detail
 {
 bool path_does_contain_invalid_content(const string<platform::IOX_MAX_PATH_LENGTH>&) noexcept
 {
     return false;
 }
-} // namespace details
+} // namespace detail
 } // namespace iox

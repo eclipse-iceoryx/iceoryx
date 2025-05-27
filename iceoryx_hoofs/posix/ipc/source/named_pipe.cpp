@@ -18,6 +18,7 @@
 #include "iox/named_pipe.hpp"
 #include "iox/bump_allocator.hpp"
 #include "iox/deadline_timer.hpp"
+#include "iox/detail/path_and_file_verifier.hpp"
 #include "iox/filesystem.hpp"
 #include "iox/into.hpp"
 #include "iox/logging.hpp"
@@ -47,10 +48,11 @@ expected<NamedPipe, PosixIpcChannelError> NamedPipeBuilder::create() const noexc
     }
 
     // leading slash is allowed even though it is not a valid file name
-    bool isValidPipeName = isValidFileName(m_name)
-                           // name is checked for emptiness, so it's ok to get a first member
-                           // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-                           || (!m_name.empty() && m_name.c_str()[0] == '/' && isValidFileName(*m_name.substr(1)));
+    bool isValidPipeName =
+        detail::isValidFileName(m_name)
+        // name is checked for emptiness, so it's ok to get a first member
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        || (!m_name.empty() && m_name.c_str()[0] == '/' && detail::isValidFileName(*m_name.substr(1)));
     if (!isValidPipeName)
     {
         IOX_LOG(Error, "The named pipe name: '" << m_name << "' is not a valid file path name.");

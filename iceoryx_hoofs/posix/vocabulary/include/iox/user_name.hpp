@@ -21,22 +21,22 @@
 
 namespace iox
 {
-namespace details
+namespace detail
 {
 bool user_name_does_contain_invalid_characters(const string<platform::MAX_USER_NAME_LENGTH>& value) noexcept;
 bool user_name_does_contain_invalid_content(const string<platform::MAX_USER_NAME_LENGTH>& value) noexcept;
-} // namespace details
+} // namespace detail
 
 /// @brief Represents a POSIX user name
 class UserName : public SemanticString<UserName,
                                        platform::MAX_USER_NAME_LENGTH,
-                                       details::user_name_does_contain_invalid_content,
-                                       details::user_name_does_contain_invalid_characters>
+                                       detail::user_name_does_contain_invalid_content,
+                                       detail::user_name_does_contain_invalid_characters>
 {
     using Parent = SemanticString<UserName,
                                   platform::MAX_USER_NAME_LENGTH,
-                                  details::user_name_does_contain_invalid_content,
-                                  details::user_name_does_contain_invalid_characters>;
+                                  detail::user_name_does_contain_invalid_content,
+                                  detail::user_name_does_contain_invalid_characters>;
     using Parent::Parent;
 };
 } // namespace iox
