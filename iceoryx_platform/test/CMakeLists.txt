@@ -26,7 +26,15 @@ endif(BUILD_TEST AND NOT GTest_FOUND)
 
 set(PROJECT_PREFIX "platform")
 
-file(GLOB_RECURSE MODULETESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/moduletests/*.cpp")
+set(MODULETESTS_SRC "")
+list(APPEND MODULETESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/moduletests/main_test_platform_modules.cpp")
+list(APPEND MODULETESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/moduletests/test_platform_atomic.cpp")
+list(APPEND MODULETESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/moduletests/test_platform_logging.cpp")
+list(APPEND MODULETESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/moduletests/test_platform_string.cpp")
+if(NOT IOX_PLATFORM_MINIMAL_POSIX)
+    list(APPEND MODULETESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/moduletests/test_platform_stdlib.cpp")
+endif()
+
 file(GLOB_RECURSE INTEGRATIONTESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/integrationtests/*.cpp")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_PREFIX}/test)

@@ -17,7 +17,6 @@
 
 #include "iox/log/building_blocks/console_logger.hpp"
 
-#include "iceoryx_platform/fcntl.hpp"
 #include "iox/logging.hpp"
 #include "test.hpp"
 
