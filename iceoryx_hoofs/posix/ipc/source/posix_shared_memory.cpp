@@ -21,6 +21,7 @@
 #include "iceoryx_platform/stat.hpp"
 #include "iceoryx_platform/types.hpp"
 #include "iceoryx_platform/unistd.hpp"
+#include "iox/detail/path_and_file_verifier.hpp"
 #include "iox/filesystem.hpp"
 #include "iox/logging.hpp"
 #include "iox/posix_call.hpp"
@@ -59,7 +60,7 @@ expected<PosixSharedMemory, PosixSharedMemoryError> PosixSharedMemoryBuilder::cr
         return err(PosixSharedMemoryError::EMPTY_NAME);
     }
 
-    if (!isValidFileName(m_name))
+    if (!detail::isValidFileName(m_name))
     {
         IOX_LOG(Error,
                 "Shared memory requires a valid file name (not path) as name and \"" << m_name

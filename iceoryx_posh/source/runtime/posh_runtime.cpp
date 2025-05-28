@@ -19,6 +19,7 @@
 #include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iceoryx_posh/internal/runtime/posh_runtime_impl.hpp"
 #include "iox/atomic.hpp"
+#include "iox/detail/path_and_file_verifier.hpp"
 #include "iox/detail/system_configuration.hpp"
 #include "iox/filesystem.hpp"
 #include "iox/logging.hpp"
@@ -134,7 +135,7 @@ const RuntimeName_t& PoshRuntime::verifyInstanceName(optional<const RuntimeName_
         IOX_LOG(Fatal, "Cannot initialize runtime. Application name has not been specified!");
         IOX_REPORT_FATAL(PoshError::POSH__RUNTIME_NO_NAME_PROVIDED);
     }
-    else if (!isValidFileName(**name))
+    else if (!detail::isValidFileName(**name))
     {
         IOX_LOG(Fatal,
                 "Cannot initialize runtime. The application name \""

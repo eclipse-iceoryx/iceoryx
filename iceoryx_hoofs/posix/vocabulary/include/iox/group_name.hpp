@@ -22,22 +22,22 @@
 
 namespace iox
 {
-namespace details
+namespace detail
 {
 bool group_name_does_contain_invalid_characters(const string<platform::MAX_GROUP_NAME_LENGTH>& value) noexcept;
 bool group_name_does_contain_invalid_content(const string<platform::MAX_GROUP_NAME_LENGTH>& value) noexcept;
-} // namespace details
+} // namespace detail
 
 /// @brief Represents a POSIX group name
 class GroupName : public SemanticString<GroupName,
                                         platform::MAX_GROUP_NAME_LENGTH,
-                                        details::group_name_does_contain_invalid_content,
-                                        details::group_name_does_contain_invalid_characters>
+                                        detail::group_name_does_contain_invalid_content,
+                                        detail::group_name_does_contain_invalid_characters>
 {
     using Parent = SemanticString<GroupName,
                                   platform::MAX_GROUP_NAME_LENGTH,
-                                  details::group_name_does_contain_invalid_content,
-                                  details::group_name_does_contain_invalid_characters>;
+                                  detail::group_name_does_contain_invalid_content,
+                                  detail::group_name_does_contain_invalid_characters>;
     using Parent::Parent;
 };
 } // namespace iox
