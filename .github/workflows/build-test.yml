@@ -203,6 +203,18 @@ jobs:
         uses: ./.github/actions/install-iceoryx-deps-and-clang
       - run: ./tools/ci/build-test-32-64-bit-mix-mode.sh
 
+  build-test-ubuntu-hoofs-subset:
+    # prevent stuck jobs consuming runners for 6 hours
+    timeout-minutes: 60
+    runs-on: ubuntu-24.04
+    needs: pre-flight-check
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install iceoryx dependencies and clang-tidy
+        uses: ./.github/actions/install-iceoryx-deps-and-clang
+      - run: ./tools/ci/build-test-hoofs-subset.sh
+
   # Bazel sanity check
   build-test-ubuntu-bazel:
     # prevent stuck jobs consuming runners for 6 hours
