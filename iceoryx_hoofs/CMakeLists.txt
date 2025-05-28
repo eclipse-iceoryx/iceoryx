@@ -50,7 +50,6 @@ iox_add_library(
                                 ${PROJECT_SOURCE_DIR}/concurrent/sync/include
                                 ${PROJECT_SOURCE_DIR}/container/include
                                 ${PROJECT_SOURCE_DIR}/design/include
-                                ${PROJECT_SOURCE_DIR}/filesystem/include
                                 ${PROJECT_SOURCE_DIR}/functional/include
                                 ${PROJECT_SOURCE_DIR}/memory/include
                                 ${PROJECT_SOURCE_DIR}/primitives/include
@@ -59,26 +58,17 @@ iox_add_library(
                                 ${PROJECT_SOURCE_DIR}/utility/include
                                 ${PROJECT_SOURCE_DIR}/vocabulary/include
 
-                                ${PROJECT_SOURCE_DIR}/posix/auth/include
                                 ${PROJECT_SOURCE_DIR}/posix/design/include
-                                ${PROJECT_SOURCE_DIR}/posix/ipc/include
-                                ${PROJECT_SOURCE_DIR}/posix/filesystem/include
-                                ${PROJECT_SOURCE_DIR}/posix/sync/include
-                                ${PROJECT_SOURCE_DIR}/posix/time/include
-                                ${PROJECT_SOURCE_DIR}/posix/utility/include
                                 ${PROJECT_SOURCE_DIR}/posix/vocabulary/include
 
                                 ${CMAKE_BINARY_DIR}/generated/iceoryx_hoofs/include
-
-                                ${PROJECT_SOURCE_DIR}/legacy/include
     INSTALL_INTERFACE           include/${PREFIX}
     EXPORT_INCLUDE_DIRS         buffer/include/
                                 cli/include/
-                                concurrent/buffer/include/
                                 concurrent/sync/include/
+                                concurrent/buffer/include/
                                 container/include/
                                 design/include/
-                                filesystem/include/
                                 functional/include/
                                 memory/include/
                                 primitives/include/
@@ -87,27 +77,14 @@ iox_add_library(
                                 utility/include/
                                 vocabulary/include/
 
-                                posix/auth/include/
                                 posix/design/include/
-                                posix/ipc/include/
-                                posix/filesystem/include/
-                                posix/sync/include/
-                                posix/time/include/
-                                posix/utility/include/
                                 posix/vocabulary/include/
-
-                                legacy/include/
     FILES
         cli/source/arguments.cpp
         cli/source/command_line_parser.cpp
         cli/source/option.cpp
         cli/source/option_definition.cpp
         cli/source/option_manager.cpp
-        concurrent/buffer/source/mpmc_loffli.cpp
-        concurrent/sync/source/spin_lock.cpp
-        concurrent/sync/source/spin_semaphore.cpp
-        filesystem/source/file_reader.cpp
-        filesystem/source/filesystem.cpp
         memory/source/bump_allocator.cpp
         memory/source/memory.cpp
         memory/source/relative_pointer_data.cpp
@@ -119,6 +96,23 @@ iox_add_library(
         reporting/source/logging.cpp
         time/source/duration.cpp
         utility/source/unique_id.cpp
+
+        posix/vocabulary/source/file_name.cpp
+        posix/vocabulary/source/file_path.cpp
+        posix/vocabulary/source/group_name.cpp
+        posix/vocabulary/source/path.cpp
+        posix/vocabulary/source/user_name.cpp
+)
+
+if(NOT IOX_USE_HOOFS_SUBSET_ONLY)
+    target_sources(
+        iceoryx_hoofs
+        PRIVATE
+        concurrent/buffer/source/mpmc_loffli.cpp
+        concurrent/sync_extended/source/spin_lock.cpp
+        concurrent/sync_extended/source/spin_semaphore.cpp
+        filesystem/source/file_reader.cpp
+        filesystem/source/filesystem.cpp
 
         posix/auth/source/posix_group.cpp
         posix/auth/source/posix_user.cpp
@@ -143,12 +137,36 @@ iox_add_library(
         posix/time/source/deadline_timer.cpp
         posix/utility/source/posix_scheduler.cpp
         posix/utility/source/system_configuration.cpp
-        posix/vocabulary/source/file_name.cpp
-        posix/vocabulary/source/file_path.cpp
-        posix/vocabulary/source/group_name.cpp
-        posix/vocabulary/source/path.cpp
-        posix/vocabulary/source/user_name.cpp
-)
+    )
+
+    target_include_directories(
+        iceoryx_hoofs
+        PUBLIC
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/concurrent/sync_extended/include>
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/filesystem/include>
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/posix/auth/include>
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/posix/ipc/include>
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/posix/filesystem/include>
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/posix/sync/include>
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/posix/time/include>
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/posix/utility/include>
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/legacy/include>
+    )
+
+    install(
+        DIRECTORY   concurrent/sync_extended/include/
+                    filesystem/include/
+                    posix/auth/include/
+                    posix/ipc/include/
+                    posix/filesystem/include/
+                    posix/sync/include/
+                    posix/time/include/
+                    posix/utility/include/
+                    legacy/include/
+        DESTINATION include/${PREFIX}
+        COMPONENT dev
+    )
+endif()
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/iceoryx_hoofs_deployment.hpp.in"
   "${CMAKE_BINARY_DIR}/generated/iceoryx_hoofs/include/iox/iceoryx_hoofs_deployment.hpp" @ONLY)

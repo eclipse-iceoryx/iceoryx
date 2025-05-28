@@ -16,7 +16,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #if !defined(_WIN32) && !defined(__APPLE__)
-#include "iceoryx_hoofs/testing/mocks/time_mock.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_message.hpp"
 #include "test.hpp"
 
@@ -28,18 +27,6 @@ using iox::runtime::IpcMessage;
 
 class IpcMessage_test : public Test
 {
-  protected:
-    void SetUp() override
-    {
-        time_MOCK::doUseMock = true;
-        time_MOCK::mock.reset(new NiceMock<time_MOCK>());
-    }
-
-    void TearDown() override
-    {
-        time_MOCK::mock.reset();
-        time_MOCK::doUseMock = false;
-    }
 };
 
 TEST_F(IpcMessage_test, DefaultCTor)
