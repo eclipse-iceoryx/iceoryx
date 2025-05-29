@@ -39,6 +39,39 @@ With that change, the footprint of the management segment is reduced to ~52.7 MB
 For larger use cases you can increase the value to avoid that samples are dropped
 on the subscriber side (see also [#615](https://github.com/eclipse-iceoryx/iceoryx/issues/615)).
 
+## How to build a minimal iceoryx_hoofs subset for iceoryx2
+
+iceoryx2 uses iceoryx_hoofs for the C++ bindings. In order to minimize the porting effort of iceoryx2
+to new platforms that are not or not fully supported by iceoryx classic, it is possible to build
+iceoryx_hoofs only with a minimal subset which is required by iceoryx2.
+
+Build and install a minimal iceoryx_platform:
+
+```bash
+cmake -S iceoryx_platform \
+      -B build/platform \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_INSTALL_PREFIX=build/install \
+      -DIOX_PLATFORM_MINIMAL_POSIX=ON
+cmake --build build/platform
+cmake --install build/platform
+```
+
+Build and install the iceoryx_hoofs subset:
+
+```bash
+cmake -S iceoryx_hoofs \
+      -B build/hoofs \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_INSTALL_PREFIX=build/install \
+      -DCMAKE_PREFIX_PATH="$( pwd )/build/install" \
+      -DIOX_USE_HOOFS_SUBSET_ONLY=ON
+cmake --build build/hoofs
+cmake --install build/hoofs
+```
+
+This is currently only available for CMake builds.
+
 ## ACL Feature Flag
 
 The ACL (Access Control List) feature is enabled by default on Linux and QNX platforms.
