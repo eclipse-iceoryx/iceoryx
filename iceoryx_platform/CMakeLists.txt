@@ -32,22 +32,29 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux OR CMAKE_SYSTEM_NAME MATCHES Darwin)
     option(BUILD_SHARED_LIBS "Create shared libraries by default" ON)
 endif()
 
+set(PUBLIC_LIBS)
+set(PRIVATE_LIBS)
+
 if(IOX_PLATFORM_PATH)
     set(ICEORYX_PLATFORM ${IOX_PLATFORM_PATH})
 elseif(IOX_PLATFORM_MINIMAL_POSIX)
-    set(ICEORYX_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/minimal_posix//)
+    set(ICEORYX_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/minimal_posix/)
 elseif(LINUX)
     set(ICEORYX_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/linux/)
+    set(PUBLIC_LIBS atomic rt pthread)
 elseif(QNX)
     set(ICEORYX_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/qnx/)
+    set(PRIVATE_LIBS socket)
 elseif(APPLE)
     set(ICEORYX_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/mac/)
 elseif(WIN32)
     set(ICEORYX_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/win/)
 elseif(UNIX)
     set(ICEORYX_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/unix/)
+    set(PUBLIC_LIBS rt pthread)
 elseif(FREERTOS)
     set(ICEORYX_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/freertos/)
+    set(PUBLIC_LIBS freertos_sdk::FreeRTOS_POSIX)
 else()
     set(ICEORYX_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/unix/)
     message(WARNING "Could not detect supported platform, but I'm feeling lucky today. Maybe its Unix." )
@@ -89,12 +96,10 @@ iox_add_library(
     PROJECT_PREFIX              ${PREFIX}
     EXPORT_INCLUDE_DIRS         generic/include/
                                 ${ICEORYX_PLATFORM}/include/
-    PUBLIC_LIBS                 ${ACL_LIB}
-    PUBLIC_LIBS_LINUX           atomic rt pthread
-    PUBLIC_LIBS_UNIX            rt pthread
-    PRIVATE_LIBS_QNX            socket
-    PUBLIC_LIBS_FREERTOS        freertos_sdk::FreeRTOS_POSIX
-    PRIVATE_LIBS                ${ICEORYX_SANITIZER_FLAGS}
+    PUBLIC_LIBS                 ${PUBLIC_LIBS}
+                                ${ACL_LIB}
+    PRIVATE_LIBS                ${PRIVATE_LIBS}
+                                ${ICEORYX_SANITIZER_FLAGS}
                                 ${ICEORYX_GRCOV_FLAGS}
     BUILD_INTERFACE             ${PROJECT_SOURCE_DIR}/generic/include/
                                 ${ICEORYX_PLATFORM}/include/

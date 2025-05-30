@@ -49,7 +49,7 @@ set(TEST_LINK_LIBS
 iox_add_executable( TARGET                  ${PROJECT_PREFIX}_moduletests
                     INCLUDE_DIRECTORIES     .
                     LIBS                    ${TEST_LINK_LIBS}
-                    LIBS_LINUX              acl dl pthread rt
+                    LIBS_LINUX              dl
                     FILES                   ${MODULETESTS_SRC}
 )
 
@@ -57,7 +57,7 @@ iox_add_executable( TARGET                  ${PROJECT_PREFIX}_moduletests
 iox_add_executable( TARGET                  ${PROJECT_PREFIX}_integrationtests
                     INCLUDE_DIRECTORIES     .
                     LIBS                    ${TEST_LINK_LIBS}
-                    LIBS_LINUX              acl dl pthread rt
+                    LIBS_LINUX              dl
                     FILES                   ${INTEGRATIONTESTS_SRC}
 )
 

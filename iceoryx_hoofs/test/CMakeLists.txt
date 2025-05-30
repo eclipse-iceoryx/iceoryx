@@ -144,35 +144,35 @@ set(TEST_LINK_LIBS
 iox_add_executable( TARGET                  ${PROJECT_PREFIX}_moduletests
                     INCLUDE_DIRECTORIES     .
                     LIBS                    ${TEST_LINK_LIBS}
-                    LIBS_LINUX              acl dl pthread rt
+                    LIBS_LINUX              dl
                     FILES                   ${MODULETESTS_SRC}
 )
 
 iox_add_executable( TARGET                  ${PROJECT_PREFIX}_mocktests
                     INCLUDE_DIRECTORIES     .
                     LIBS                    ${TEST_LINK_LIBS}
-                    LIBS_LINUX              acl dl pthread rt
+                    LIBS_LINUX              dl
                     FILES                   ${MOCKTESTS_SRC}
 )
 
 iox_add_executable( TARGET                  ${PROJECT_PREFIX}_integrationtests
                     INCLUDE_DIRECTORIES     .
                     LIBS                    ${TEST_LINK_LIBS}
-                    LIBS_LINUX              acl dl pthread rt
+                    LIBS_LINUX              dl
                     FILES                   ${INTEGRATIONTESTS_SRC}
 )
 
 iox_add_executable( TARGET                  ${PROJECT_PREFIX}_stresstests
                     INCLUDE_DIRECTORIES     .
                     LIBS                    ${TEST_LINK_LIBS}
-                    LIBS_LINUX              acl dl pthread rt
+                    LIBS_LINUX              dl
                     FILES                   ${STRESSTESTS_SRC}
 )
 
 iox_add_executable( TARGET                  test_stress_spsc_sofi
                     INCLUDE_DIRECTORIES     .
                     LIBS                    ${TEST_LINK_LIBS}
-                    LIBS_LINUX              acl dl pthread rt
+                    LIBS_LINUX              dl
                     FILES                   stresstests/sofi/test_stress_spsc_sofi.cpp
 )
 

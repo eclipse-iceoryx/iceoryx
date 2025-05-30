@@ -26,7 +26,6 @@ iox_add_library(
     PRIVATE_LIBS            ${CODE_COVERAGE_LIBS}
                             iceoryx_hoofs
                             ${CMAKE_DL_LIBS}
-    PRIVATE_LIBS_LINUX      rt
     BUILD_INTERFACE         ${CMAKE_CURRENT_SOURCE_DIR}/include
     INSTALL_INTERFACE       include/${PREFIX}
     EXPORT_INCLUDE_DIRS     include/
