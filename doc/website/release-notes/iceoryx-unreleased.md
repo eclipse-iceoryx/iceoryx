@@ -155,6 +155,7 @@
 - Depend on @ncurses when building with Bazel [#2372](https://github.com/eclipse-iceoryx/iceoryx/issues/2372)
 - Fix windows performance issue [#2377](https://github.com/eclipse-iceoryx/iceoryx/issues/2377)
 - Max Client and Server cannot be configured independently of Max Publisher and Subscriber [#2394](https://github.com/eclipse-iceoryx/iceoryx/issues/2394)
+- fix build failure - attempt to use a deleted function [#2464](https://github.com/eclipse-iceoryx/iceoryx/issues/2464)
 
 **Refactoring:**
 
