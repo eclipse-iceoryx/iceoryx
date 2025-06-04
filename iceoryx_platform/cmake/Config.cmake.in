@@ -19,5 +19,8 @@
 include(CMakeFindDependencyMacro)
 
 include("${CMAKE_CURRENT_LIST_DIR}/@TARGETS_EXPORT_NAME@.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/IceoryxPackageHelper.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/IceoryxPlatform.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/IceoryxPlatformSettings.cmake")
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
 check_required_components("@PROJECT_NAME@")

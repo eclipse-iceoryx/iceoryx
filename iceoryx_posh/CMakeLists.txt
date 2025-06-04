@@ -36,9 +36,6 @@ if(TOML_CONFIG)
     find_package(cpptoml REQUIRED)
 endif()
 
-include(IceoryxPackageHelper)
-include(IceoryxPlatform)
-include(IceoryxPlatformSettings)
 
 include(cmake/IceoryxPoshDeployment.cmake)
 

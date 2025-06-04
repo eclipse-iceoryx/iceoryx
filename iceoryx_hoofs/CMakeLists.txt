@@ -23,10 +23,6 @@ project(iceoryx_hoofs VERSION ${IOX_VERSION_STRING})
 
 find_package(iceoryx_platform REQUIRED)
 
-include(IceoryxPackageHelper)
-include(IceoryxPlatform)
-include(IceoryxPlatformSettings)
-
 include(cmake/IceoryxHoofsDeployment.cmake)
 
 if(CMAKE_SYSTEM_NAME MATCHES Linux OR CMAKE_SYSTEM_NAME MATCHES Darwin)
