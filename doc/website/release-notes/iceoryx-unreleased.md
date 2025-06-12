@@ -158,6 +158,7 @@
 - Max Client and Server cannot be configured independently of Max Publisher and Subscriber [#2394](https://github.com/eclipse-iceoryx/iceoryx/issues/2394)
 - Fix call to non-existing `getService` in channel.inl [#2426](https://github.com/eclipse-iceoryx/iceoryx/issues/2426)
 - Fix chunk management race condition causing failed management allocation [#2440](https://github.com/eclipse-iceoryx/iceoryx/issues/2440)
+- fix build failure - attempt to use a deleted function [#2464](https://github.com/eclipse-iceoryx/iceoryx/issues/2464)
 
 **Refactoring:**
 
