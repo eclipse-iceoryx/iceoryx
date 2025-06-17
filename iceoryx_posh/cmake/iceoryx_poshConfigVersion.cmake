@@ -18,7 +18,7 @@
 ########## dummyConfig.cmake to be able to use find_package with a specific version with the source tree ##########
 #
 
-set(IOX_VERSION_STRING "2.95.4")
+set(IOX_VERSION_STRING "2.95.5")
 set(PACKAGE_VERSION ${IOX_VERSION_STRING})
 
 if(PACKAGE_VERSION VERSION_LESS PACKAGE_FIND_VERSION)
