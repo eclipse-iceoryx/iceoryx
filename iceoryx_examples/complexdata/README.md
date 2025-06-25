@@ -4,8 +4,8 @@
 
 To implement zero-copy data transfer we use a shared memory approach. This requires that every data structure needs to be entirely
 contained in the shared memory and must not internally use pointers or references. The complete list of restrictions can be found
-[here](../../doc/website/getting-started/overview.md#restrictions). Therefore, most of the STL types cannot be used, but we
-reimplemented some [constructs](../../iceoryx_hoofs/README.md#cxx). This example shows how
+[here](../getting-started/overview.md#restrictions). Therefore, most of the STL types cannot be used, but we
+reimplemented some [constructs](../advanced/iceoryx_hoofs.md#cxx). This example shows how
 to send/receive a iox::vector and how to send/receive a complex data structure containing some of our STL container surrogates.
 
 ## Expected Output
@@ -63,7 +63,7 @@ for (const auto& entry : *sample)
 
 In this example our publisher will send a more complex data structure. It contains some of the STL containers that are reimplemented
 in iceoryx. A list of all reimplemented containers can be found
-[here](../../iceoryx_hoofs/README.md#cxx).
+[here](../advanced/iceoryx_hoofs.md#cxx).
 
 <!--[geoffrey][iceoryx_examples/complexdata/topic_data.hpp][complexdata type]-->
 ```cpp
@@ -116,7 +116,7 @@ handleInsertionReturnVal(sample->optionalList.push_front(iox::nullopt));
 
 !!! note
     If you're not familiar with `optional`, please have a look at
-    [How optional and error values are returned in iceoryx](../../doc/website/concepts/how-optional-and-error-values-are-returned-in-iceoryx.md#optional).
+    [How optional and error values are returned in iceoryx](../concepts/how-optional-and-error-values-are-returned-in-iceoryx.md#optional).
 
 Now we fill the stack
 
