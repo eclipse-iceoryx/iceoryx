@@ -36,7 +36,7 @@ void iox_runtime_init(const char* const name)
 
 uint64_t iox_runtime_get_instance_name(char* const name, const uint64_t nameLength)
 {
-    if (name == nullptr)
+    if (name == nullptr || nameLength == 0U)
     {
         return 0U;
     }

@@ -70,6 +70,12 @@ expected<void, RouDiMemoryManagerError> RouDiMemoryManager::createAndAnnounceMem
 
     for (auto memoryProvider : m_memoryProvider)
     {
+        if (memoryProvider == nullptr)
+        {
+            IOX_LOG(Error, "Null memory provider detected");
+            return err(RouDiMemoryManagerError::MEMORY_CREATION_FAILED);
+        }
+        
         auto result = memoryProvider->create();
         if (result.has_error())
         {

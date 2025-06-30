@@ -21,6 +21,6 @@ namespace iox::roudi_env
 RouDiEnvNodeBuilder::RouDiEnvNodeBuilder(const NodeName_t& name) noexcept
     : NodeBuilder(name)
 {
-    std::move(*this).shares_address_space_with_roudi(true);
+    m_shares_address_space_with_roudi = true;
 }
 } // namespace iox::roudi_env
