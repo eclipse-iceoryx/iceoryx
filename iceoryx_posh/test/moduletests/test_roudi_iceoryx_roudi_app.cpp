@@ -17,6 +17,7 @@
 
 #include "iceoryx_hoofs/testing/testing_logger.hpp"
 #include "iceoryx_platform/getopt.hpp"
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/unique_port_id.hpp"
 #include "iceoryx_posh/internal/posh_error_reporting.hpp"
 #include "iceoryx_posh/roudi/iceoryx_roudi_app.hpp"
@@ -106,7 +107,7 @@ TEST_F(IceoryxRoudiApp_test, VerifyConstructorIsSuccessful)
 
     EXPECT_TRUE(roudi.getVariableRun());
     EXPECT_EQ(roudi.getLogLevel(), iox::log::LogLevel::Info);
-    EXPECT_EQ(roudi.getMonitoringMode(), roudi::MonitoringMode::OFF);
+    EXPECT_EQ(roudi.getMonitoringMode(), static_cast<roudi::MonitoringMode>(build::IOX_ROUDI_DEFAULT_MONITORING));
 }
 
 TEST_F(IceoryxRoudiApp_test, CreateTwoRoudiAppIsSuccessful)
