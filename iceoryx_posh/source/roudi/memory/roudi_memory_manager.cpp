@@ -1,5 +1,6 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2025 by LG Electronics Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +19,7 @@
 #include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
 
 #include "iceoryx_posh/roudi/memory/memory_provider.hpp"
+#include "iox/assertions.hpp"
 #include "iox/logging.hpp"
 
 namespace iox
@@ -70,6 +72,8 @@ expected<void, RouDiMemoryManagerError> RouDiMemoryManager::createAndAnnounceMem
 
     for (auto memoryProvider : m_memoryProvider)
     {
+        IOX_ASSERT(memoryProvider != nullptr, "Null memory provider detected - this should never happen");
+
         auto result = memoryProvider->create();
         if (result.has_error())
         {

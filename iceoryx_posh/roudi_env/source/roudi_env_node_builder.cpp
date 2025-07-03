@@ -1,4 +1,5 @@
 // Copyright (c) 2024 by ekxide IO GmbH. All rights reserved.
+// Copyright (c) 2025 by LG Electronics Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,6 +22,6 @@ namespace iox::roudi_env
 RouDiEnvNodeBuilder::RouDiEnvNodeBuilder(const NodeName_t& name) noexcept
     : NodeBuilder(name)
 {
-    std::move(*this).shares_address_space_with_roudi(true);
+    m_shares_address_space_with_roudi = true;
 }
 } // namespace iox::roudi_env

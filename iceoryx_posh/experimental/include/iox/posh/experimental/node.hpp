@@ -1,5 +1,6 @@
 // Copyright (c) 2024 by ekxide IO GmbH. All rights reserved.
 // Copyright (c) 2025 by Valour inc. All rights reserved.
+// Copyright (c) 2025 by LG Electronics Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -62,13 +63,17 @@ class NodeBuilder
     explicit NodeBuilder(const NodeName_t& name) noexcept;
 
     /// @brief Determines the time to wait for registration at RouDi
-    IOX_BUILDER_PARAMETER(units::Duration, roudi_registration_timeout, units::Duration::zero())
+    /// @param[in] timeout the duration to wait for registration
+    NodeBuilder&& roudi_registration_timeout(const units::Duration& timeout) && noexcept;
 
-    /// @brief Indicates whether the node shares the address space with 'RouDi', e.g. in single process applications or
-    /// tests
-    IOX_BUILDER_PARAMETER(bool, shares_address_space_with_roudi, false)
+  protected:
+    bool m_shares_address_space_with_roudi{false};
 
   public:
+    /// @brief Indicates whether the node shares the address space with 'RouDi', e.g. in single process applications or
+    /// tests
+    /// @param[in] value to set the property
+    NodeBuilder&& shares_address_space_with_roudi(const bool value) && noexcept;
     /// @brief Determines which domain to use to register to a RouDi instance
     /// @param[in] domain_id to be used as domain ID
     NodeBuilder&& domain_id(const DomainId domainId) && noexcept;
@@ -109,6 +114,7 @@ class NodeBuilder
   private:
     NodeName_t m_name;
     optional<DomainId> m_domain_id{DEFAULT_DOMAIN_ID};
+    units::Duration m_roudi_registration_timeout{units::Duration::zero()};
 };
 
 /// @brief Entry point to create publisher, subscriber, wait sets, etc.
