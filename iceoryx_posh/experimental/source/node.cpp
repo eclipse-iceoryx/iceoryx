@@ -1,5 +1,6 @@
 // Copyright (c) 2024 by ekxide IO GmbH. All rights reserved.
 // Copyright (c) 2025 by Valour inc. All rights reserved.
+// Copyright (c) 2025 by LG Electronics Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,6 +26,12 @@ namespace iox::posh::experimental
 NodeBuilder::NodeBuilder(const NodeName_t& name) noexcept
     : m_name(name)
 {
+}
+
+NodeBuilder&& NodeBuilder::roudi_registration_timeout(const units::Duration& timeout) && noexcept
+{
+    m_roudi_registration_timeout = timeout;
+    return std::move(*this);
 }
 
 NodeBuilder&& NodeBuilder::domain_id(const DomainId domainId) && noexcept
@@ -91,6 +98,12 @@ NodeBuilder&& NodeBuilder::domain_id_from_env_or(const DomainId domainId) && noe
 NodeBuilder&& NodeBuilder::domain_id_from_env_or_default() && noexcept
 {
     return std::move(*this).domain_id_from_env_or(DEFAULT_DOMAIN_ID);
+}
+
+NodeBuilder&& NodeBuilder::shares_address_space_with_roudi(const bool value) && noexcept
+{
+    m_shares_address_space_with_roudi = value;
+    return std::move(*this);
 }
 
 expected<Node, NodeBuilderError> NodeBuilder::create() noexcept
