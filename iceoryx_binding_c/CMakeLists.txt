@@ -114,6 +114,15 @@ endif()
 
 target_compile_options(${PROJECT_NAME} PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
+# Ensure dependent dylibs can be found via @rpath on macOS
+if(APPLE)
+  set_target_properties(iceoryx_binding_c PROPERTIES
+    INSTALL_RPATH "@loader_path/../lib"
+    BUILD_WITH_INSTALL_RPATH TRUE
+    MACOSX_RPATH ON
+  )
+endif()
+
 #
 ########## build test executables ##########
 #

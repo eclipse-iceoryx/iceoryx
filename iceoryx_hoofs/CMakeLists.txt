@@ -241,6 +241,35 @@ install(
     DESTINATION ${DESTINATION_CONFIGDIR}
 )
 
+# Add after existing install() commands
+install(EXPORT iceoryx_platformTargets
+  FILE iceoryx_platformTargets.cmake
+  NAMESPACE iceoryx::
+  DESTINATION lib/cmake/iceoryx_platform
+)
+
+include(CMakePackageConfigHelpers)
+# Add this before configure_package_config_file
+get_filename_component(ICEORYX_PLATFORM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/platform/include" ABSOLUTE)
+configure_package_config_file(
+  cmake/iceoryx_platformConfig.cmake.in
+  iceoryx_platformConfig.cmake
+  INSTALL_DESTINATION lib/cmake/iceoryx_platform
+  PATH_VARS ICEORYX_PLATFORM_INCLUDE_DIRS
+)
+
+write_basic_package_version_file(
+  iceoryx_platformConfigVersion.cmake
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY SameMajorVersion
+)
+
+install(FILES
+  "${CMAKE_CURRENT_BINARY_DIR}/iceoryx_platformConfig.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/iceoryx_platformConfigVersion.cmake"
+  DESTINATION lib/cmake/iceoryx_platform
+)
+
 if(BUILD_TEST)
     add_subdirectory(test)
 endif(BUILD_TEST)
