@@ -83,6 +83,7 @@ constexpr uint32_t IOX_MAX_CLIENTS_PER_SERVER = static_cast<uint32_t>(@IOX_MAX_C
 constexpr uint32_t IOX_MAX_REQUESTS_PROCESSED_SIMULTANEOUSLY = static_cast<uint32_t>(@IOX_MAX_REQUESTS_PROCESSED_SIMULTANEOUSLY@);
 constexpr const char IOX_DEFAULT_RESOURCE_PREFIX[] = "@IOX_DEFAULT_RESOURCE_PREFIX@";
 constexpr bool IOX_EXPERIMENTAL_POSH_FLAG = @IOX_EXPERIMENTAL_POSH_FLAG@;
+constexpr bool IOX_ROUDI_DEFAULT_MONITORING_MODE_ON = @IOX_ROUDI_DEFAULT_MONITORING_MODE_ON@;
 // clang-format on
 } // namespace build
 } // namespace iox

@@ -39,6 +39,7 @@ option(TOML_CONFIG "TOML support for RouDi with dynamic configuration" ON)
 option(IOX_EXPERIMENTAL_32_64_BIT_MIX_MODE "Enable experimental 32<->64 bit mix mode zero-copy communication" OFF)
 option(IOX_EXPERIMENTAL_POSH "Export experimental posh features (no guarantees)" OFF)
 option(IOX_REPRODUCIBLE_BUILD "Create reproducible builds by omit setting the build timestamp in the version header" ON)
+option(IOX_ROUDI_DEFAULT_MONITORING_MODE "Enable roudi monitoring mode by default" OFF)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # "Create compile_commands.json file"
 
@@ -99,4 +100,5 @@ function(show_config_options)
   message("          IOX_EXPERIMENTAL_32_64_BIT_MIX_MODE..: " ${IOX_EXPERIMENTAL_32_64_BIT_MIX_MODE})
   message("          IOX_EXPERIMENTAL_POSH................: " ${IOX_EXPERIMENTAL_POSH})
   message("          IOX_REPRODUCIBLE_BUILD...............: " ${IOX_REPRODUCIBLE_BUILD})
+  message("          IOX_ROUDI_DEFAULT_MONITORING_MODE....: " ${IOX_ROUDI_DEFAULT_MONITORING_MODE})
 endfunction()
