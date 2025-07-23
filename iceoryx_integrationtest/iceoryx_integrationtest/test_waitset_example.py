@@ -77,7 +77,7 @@ def generate_test_description():
 class TestWaitSetExample(unittest.TestCase):
     def test_roudi_ready(self, proc_output):
         proc_output.assertWaitFor(
-            'RouDi is ready for clients', timeout=45, stream='stdout')
+            'RouDi is ready for clients', timeout=45, stream='stderr')
 
     def test_waitset_publisher(self, proc_output):
         proc_output.assertWaitFor(
