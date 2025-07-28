@@ -23,7 +23,7 @@ namespace er
 {
 struct SourceLocation
 {
-    SourceLocation(const char* file, int line, const char* function)
+    constexpr SourceLocation(const char* file, int line, const char* function)
         : file(file)
         , line(line)
         , function(function)
