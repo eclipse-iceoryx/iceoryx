@@ -48,19 +48,13 @@ namespace detail
 {
 // workaround for gcc 8 bug
 // see also https://github.com/eclipse-iceoryx/iceoryx2/issues/855
-template <typename T, typename Message>
-[[noreturn]] constexpr inline void unreachable_wrapped(T t1, T t2, const SourceLocation& location, Message&& msg)
+template <typename T1, typename T2, typename Message>
+[[noreturn]] constexpr inline void unreachable_wrapped(const SourceLocation& location, Message&& msg)
 {
-#if (defined(__GNUC__) && (__GNUC__ >= 8 && __GNUC__ <= 8) && !defined(__clang__))
-    if (t1 == t2)
+    if (std::is_same<T1, T2>::value)
     {
         forwardPanic(location, std::forward<Message>(msg));
     }
-#else
-    static_cast<void>(t1);
-    static_cast<void>(t2);
-    forwardPanic(location, std::forward<Message>(msg));
-#endif
 }
 } // namespace detail
 
