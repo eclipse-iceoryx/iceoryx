@@ -44,6 +44,20 @@ template <typename Message>
     abort();
 }
 
+namespace detail
+{
+// workaround for gcc 8 bug
+// see also https://github.com/eclipse-iceoryx/iceoryx2/issues/855
+template <typename T1, typename T2, typename Message>
+[[noreturn]] constexpr inline void unreachable_wrapped(const SourceLocation& location, Message&& msg)
+{
+    if (std::is_same<T1, T2>::value)
+    {
+        forwardPanic(location, std::forward<Message>(msg));
+    }
+}
+} // namespace detail
+
 /// @brief Forwards a fatal error and does not return.
 /// @param error the error
 /// @param kind the kind of error (category)

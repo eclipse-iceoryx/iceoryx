@@ -80,7 +80,8 @@
 
 /// @brief panic if control flow reaches this code at runtime
 #define IOX_UNREACHABLE()                                                                                              \
-    iox::er::forwardPanic(IOX_CURRENT_SOURCE_LOCATION, "Reached code that was supposed to be unreachable.")
+    iox::er::detail::unreachable_wrapped<void, void>(IOX_CURRENT_SOURCE_LOCATION,                                      \
+                                                     "Reached code that was supposed to be unreachable.")
 
 // NOLINTEND(cppcoreguidelines-macro-usage)
 
