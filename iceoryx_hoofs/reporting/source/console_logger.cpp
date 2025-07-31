@@ -171,7 +171,7 @@ void ConsoleLogger::flush() noexcept
     data.buffer[data.bufferWriteIndex] = '\n'; // overwrite null-termination with line ending
     constexpr uint32_t LINE_ENDING_SIZE{1};
 
-    if (iox_write(STDOUT_FILENO, &data.buffer[0], data.bufferWriteIndex + LINE_ENDING_SIZE) < 0)
+    if (iox_write(STDERR_FILENO, &data.buffer[0], data.bufferWriteIndex + LINE_ENDING_SIZE) < 0)
     {
         /// @todo iox-#1755 printing to the console failed; call the error handler after the error handler refactoring
         /// was merged

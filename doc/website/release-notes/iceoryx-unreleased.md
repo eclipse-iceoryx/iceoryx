@@ -251,6 +251,7 @@
 - Mistype in readme file [#2384](https://github.com/eclipse-iceoryx/iceoryx/issues/2384)
 - Typo in architecture.md [#2390](https://github.com/eclipse-iceoryx/iceoryx/issues/2390)
 - Add option to build an iceoryx_hoofs subset for iceoryx2 [#2457](https://github.com/eclipse-iceoryx/iceoryx/issues/2457)
+- Console Logs should be output to stderr [#2478](https://github.com/eclipse-iceoryx/iceoryx/issues/2478)
 
 **Workflow:**
 
