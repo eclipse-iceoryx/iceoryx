@@ -110,7 +110,12 @@ cxx::expected<SemaphoreError> Semaphore::post() noexcept
 
 cxx::expected<SemaphoreWaitState, SemaphoreError> Semaphore::timedWait(const units::Duration abs_timeout) noexcept
 {
+#ifdef IOX_HAS_SEM_CLOCKWAIT
+    const struct timespec timeout = abs_timeout.timespec(units::TimeSpecReference::Monotonic);
+#else
     const struct timespec timeout = abs_timeout.timespec(units::TimeSpecReference::Epoch);
+#endif
+
     auto call =
         posixCall(iox_sem_timedwait)(getHandle(), &timeout).failureReturnValue(-1).ignoreErrnos(ETIMEDOUT).evaluate();
 
