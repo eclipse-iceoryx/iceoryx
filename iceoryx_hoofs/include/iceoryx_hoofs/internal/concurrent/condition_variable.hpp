@@ -1,4 +1,16 @@
-// add by juntuan.lu
+/*
+ * ConditionVariable implementation to fix monotonic_clock.
+ *
+ * There is a problem with std::condition_variable in lower versions of gcc,
+ * which actually uses std::chrono::system_clock instead of std::chrono::steady_clock.
+ * Bug 41861 (DR887) - [DR887][C++0x] <condition_variable> does not use monotonic_clock
+ *
+ * Since new versions of gcc cannot be used, stdext::condition_variable can only be
+ * manually implemented instead of C++11's std::condition_variable.
+ *
+ * This problem is mainly solved by using the POSIX function pthread_condattr_setclock to
+ * set the attribute of the condition variable to CLOCK_MONOTONIC.
+ */
 
 #pragma once
 
@@ -18,132 +30,48 @@ class ConditionVariable final {
  public:
   using native_handle_type = pthread_cond_t*;
 
-  /**
-   * @brief Deleted copy constructor to ensure the class is non-copyable.
-   */
   ConditionVariable(const ConditionVariable&) noexcept = delete;
 
-  /**
-   * @brief Deleted copy assignment operator to ensure the class is non-assignable.
-   */
   ConditionVariable& operator=(const ConditionVariable&) noexcept = delete;
 
-  /**
-   * @brief Constructs a new condition variable object.
-   */
   ConditionVariable() noexcept;
 
-  /**
-   * @brief Destroys the condition variable object.
-   */
   ~ConditionVariable() noexcept;
 
-  /**
-   * @brief Unblocks one of the threads that are waiting on the condition variable.
-   */
   void notify_one() noexcept;
 
-  /**
-   * @brief Unblocks all of the threads that are waiting on the condition variable.
-   */
   void notify_all() noexcept;
 
-  /**
-   * @brief Blocks the calling thread, waiting for the condition variable to be notified.
-   *
-   * @param lock The unique lock associated with the condition variable.
-   */
   void wait(std::unique_lock<std::mutex>& lock) noexcept;
 
-  /**
-   * @brief Blocks the calling thread, waiting for the condition variable to be notified and a predicate to be true.
-   *
-   * @param lock The unique lock associated with the condition variable.
-   * @param p The predicate to be evaluated.
-   */
   template <typename PredicateT>
   void wait(std::unique_lock<std::mutex>& lock, PredicateT p) noexcept;
 
-  /**
-   * @brief Blocks the calling thread, waiting for the condition variable to be notified or a specific time point to be
-   * reached.
-   *
-   * @param lock The unique lock associated with the condition variable.
-   * @param atime The time point to wait until.
-   * @return `std::cv_status::no_timeout` if the condition variable was notified, `std::cv_status::timeout` otherwise.
-   */
   template <typename DurationT>
   std::cv_status wait_until(std::unique_lock<std::mutex>& lock,
                             const std::chrono::time_point<std::chrono::steady_clock, DurationT>& atime) noexcept;
 
-  /**
-   * @brief Blocks the calling thread, waiting for the condition variable to be notified or a specific time point to be
-   * reached.
-   *
-   * @param lock The unique lock associated with the condition variable.
-   * @param atime The time point to wait until.
-   * @return `std::cv_status::no_timeout` if the condition variable was notified, `std::cv_status::timeout` otherwise.
-   */
   template <typename DurationT>
   std::cv_status wait_until(std::unique_lock<std::mutex>& lock,
                             const std::chrono::time_point<std::chrono::system_clock, DurationT>& atime) noexcept;
 
-  /**
-   * @brief Blocks the calling thread, waiting for the condition variable to be notified or a specific time point to be
-   * reached.
-   *
-   * @param lock The unique lock associated with the condition variable.
-   * @param atime The time point to wait until.
-   * @return `std::cv_status::no_timeout` if the condition variable was notified, `std::cv_status::timeout` otherwise.
-   */
   template <typename ClockT, typename DurationT>
   std::cv_status wait_until(std::unique_lock<std::mutex>& lock,
                             const std::chrono::time_point<ClockT, DurationT>& atime) noexcept;
 
-  /**
-   * @brief Blocks the calling thread, waiting for the condition variable to be notified or a specific time point to be
-   * reached, and a predicate to be true.
-   *
-   * @param lock The unique lock associated with the condition variable.
-   * @param atime The time point to wait until.
-   * @param p The predicate to be evaluated.
-   * @return `true` if the predicate was satisfied before the time point was reached, `false` otherwise.
-   */
   template <typename ClockT, typename DurationT, typename PredicateT>
   bool wait_until(std::unique_lock<std::mutex>& lock, const std::chrono::time_point<ClockT, DurationT>& atime,
                   PredicateT p) noexcept;
 
-  /**
-   * @brief Blocks the calling thread, waiting for the condition variable to be notified or a specific duration to
-   * elapse.
-   *
-   * @param lock The unique lock associated with the condition variable.
-   * @param rtime The duration to wait for.
-   * @return `std::cv_status::no_timeout` if the condition variable was notified, `std::cv_status::timeout` otherwise.
-   */
   template <typename RepT, typename PeriodT>
   std::cv_status wait_for(std::unique_lock<std::mutex>& lock,
                           const std::chrono::duration<RepT, PeriodT>& rtime) noexcept;
 
-  /**
-   * @brief Blocks the calling thread, waiting for the condition variable to be notified or a specific duration to
-   * elapse, and a predicate to be true.
-   *
-   * @param lock The unique lock associated with the condition variable.
-   * @param rtime The duration to wait for.
-   * @param p The predicate to be evaluated.
-   * @return `true` if the predicate was satisfied before the time duration was reached, `false` otherwise.
-   */
   template <typename RepT, typename PeriodT, typename PredicateT>
   bool wait_for(std::unique_lock<std::mutex>& lock, const std::chrono::duration<RepT, PeriodT>& rtime,
                 PredicateT p) noexcept;
 
-  /**
-   * @brief Retrieves the native handle of the condition variable.
-   *
-   * @return The native handle of the condition variable.
-   */
-  [[nodiscard]] native_handle_type native_handle() noexcept;
+  native_handle_type native_handle() noexcept;
 
  private:
   template <typename ToDurT, typename RepT, typename PeriodT>
