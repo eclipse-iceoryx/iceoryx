@@ -52,6 +52,7 @@ template <typename T>
 inline void PeriodicTask<T>::start(const units::Duration interval) noexcept
 {
     stop();
+    m_running_flag.store(true);
     m_interval = interval;
     m_taskExecutor = std::thread(&PeriodicTask::run, this);
     posix::setThreadName(m_taskExecutor.native_handle(), m_taskName);
@@ -60,6 +61,12 @@ inline void PeriodicTask<T>::start(const units::Duration interval) noexcept
 template <typename T>
 inline void PeriodicTask<T>::stop() noexcept
 {
+    if(m_running_flag.load()) {
+        std::unique_lock<std::mutex> lock(m_mtx);
+        m_running_flag.store(false);
+        m_cv.notify_one();
+    }
+
     if (m_taskExecutor.joinable())
     {
         cxx::Expects(!m_stop.post().has_error());
@@ -76,17 +83,26 @@ inline bool PeriodicTask<T>::isActive() const noexcept
 template <typename T>
 inline void PeriodicTask<T>::run() noexcept
 {
-    posix::SemaphoreWaitState waitState = posix::SemaphoreWaitState::NO_TIMEOUT;
-    do
-    {
+    // posix::SemaphoreWaitState waitState = posix::SemaphoreWaitState::NO_TIMEOUT;
+    // do
+    // {
+    //     IOX_DISCARD_RESULT(m_callable());
+
+    //     /// @todo use a refactored posix::Timer::wait method returning TIMER_TICK and TIMER_STOPPED once available
+    //     auto waitResult = m_stop.timedWait(m_interval);
+    //     cxx::Expects(!waitResult.has_error());
+
+    //     waitState = waitResult.value();
+    // } while (waitState == posix::SemaphoreWaitState::TIMEOUT);
+
+    std::unique_lock<std::mutex> lock(m_mtx);
+    for(;;) {
         IOX_DISCARD_RESULT(m_callable());
-
-        /// @todo use a refactored posix::Timer::wait method returning TIMER_TICK and TIMER_STOPPED once available
-        auto waitResult = m_stop.timedWait(m_interval);
-        cxx::Expects(!waitResult.has_error());
-
-        waitState = waitResult.value();
-    } while (waitState == posix::SemaphoreWaitState::TIMEOUT);
+        bool ret = m_cv.wait_for(lock, std::chrono::milliseconds(m_interval.toMilliseconds()), [this]() -> bool { return !m_running_flag.load(); });
+        if (ret) {
+            break;
+        }
+    }
 }
 
 } // namespace concurrent

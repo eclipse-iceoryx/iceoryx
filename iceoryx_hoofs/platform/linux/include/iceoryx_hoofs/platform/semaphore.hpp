@@ -18,6 +18,21 @@
 #define IOX_HOOFS_LINUX_PLATFORM_SEMAPHORE_HPP
 
 #include <semaphore.h>
+#include <time.h>
+
+#ifndef _XOPEN_SOURCE
+#define _XOPEN_SOURCE 600
+#endif
+
+#if defined(__USE_XOPEN2K)
+#ifndef IOX_HAS_SEM_CLOCKWAIT
+#define IOX_HAS_SEM_CLOCKWAIT
+#endif
+#endif
+
+#ifndef IOX_HAS_SEM_CLOCKWAIT
+#warning "Not support sem_clockwait!"
+#endif
 
 using iox_sem_t = sem_t;
 
@@ -43,7 +58,11 @@ inline int iox_sem_trywait(iox_sem_t* sem)
 
 inline int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
 {
+#ifdef IOX_HAS_SEM_CLOCKWAIT
+    return sem_clockwait(sem, CLOCK_MONOTONIC, abs_timeout);
+#else
     return sem_timedwait(sem, abs_timeout);
+#endif
 }
 
 inline int iox_sem_close(iox_sem_t* sem)

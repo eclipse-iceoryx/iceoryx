@@ -23,8 +23,11 @@
 #include "iceoryx_hoofs/posix_wrapper/thread.hpp"
 
 #include <thread>
-
+#include <atomic>
+#include <mutex>
 #include <iostream>
+
+#include "./condition_variable.hpp"
 
 namespace iox
 {
@@ -124,6 +127,9 @@ class PeriodicTask
     /// @todo use a refactored posix::Timer object once available
     posix::Semaphore m_stop{posix::Semaphore::create(posix::CreateUnnamedSingleProcessSemaphore, 0U).value()};
     std::thread m_taskExecutor;
+    std::atomic_bool m_running_flag{false};
+    std::mutex m_mtx;
+    stdext::condition_variable m_cv;
 };
 
 } // namespace concurrent
