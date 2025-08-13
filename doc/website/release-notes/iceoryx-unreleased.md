@@ -160,6 +160,7 @@
 - Fix call to non-existing `getService` in channel.inl [#2426](https://github.com/eclipse-iceoryx/iceoryx/issues/2426)
 - Fix chunk management race condition causing failed management allocation [#2440](https://github.com/eclipse-iceoryx/iceoryx/issues/2440)
 - Fix compile error with GCC 8 [#2480](https://github.com/eclipse-iceoryx/iceoryx/issues/2480)
+- Fix cmake cache inconsistency [#2485](https://github.com/eclipse-iceoryx/iceoryx/issues/2485)
 
 **Refactoring:**
 
