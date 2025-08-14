@@ -17,7 +17,7 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-set(IOX_VERSION_STRING "2.95.6")
+set(IOX_VERSION_STRING "2.95.7")
 
 project(iceoryx_hoofs VERSION ${IOX_VERSION_STRING})
 
@@ -87,7 +87,6 @@ iox_add_library(
         cli/source/option_manager.cpp
         memory/source/bump_allocator.cpp
         memory/source/memory.cpp
-        memory/source/relative_pointer_data.cpp
         primitives/source/type_traits.cpp
         reporting/source/default_error_handler.cpp
         reporting/source/hoofs_error_reporting.cpp
@@ -113,6 +112,7 @@ if(NOT IOX_USE_HOOFS_SUBSET_ONLY)
         concurrent/sync_extended/source/spin_semaphore.cpp
         filesystem/source/file_reader.cpp
         filesystem/source/filesystem.cpp
+        memory/source/relative_pointer_data.cpp
 
         posix/auth/source/posix_group.cpp
         posix/auth/source/posix_user.cpp
