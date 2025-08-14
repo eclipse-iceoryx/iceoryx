@@ -14,7 +14,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-load("@bazel_skylib//lib:selects.bzl", "selects")
 load("@rules_cc//cc:defs.bzl", "cc_library")
 load("//bazel:configure_file.bzl", "configure_file")
 load("//bazel:configure_version.bzl", "configure_version")
@@ -67,42 +66,8 @@ configure_version(
 )
 
 config_setting(
-    name = "acl_auto",
-    flag_values = {
-        "//:feature_acl": "auto",
-    },
-)
-
-config_setting(
-    name = "acl_enabled",
-    flag_values = {
-        "//:feature_acl": "on",
-    },
-)
-
-selects.config_setting_group(
-    name = "acl_linux_enabled",
-    match_all = [
-        ":linux",
-        ":acl_auto",
-    ],
-)
-
-selects.config_setting_group(
-    name = "acl_qnx_enabled",
-    match_all = [
-        ":qnx",
-        ":acl_auto",
-    ],
-)
-
-selects.config_setting_group(
     name = "cfg_feature_acl",
-    match_any = [
-        ":acl_enabled",
-        ":acl_linux_enabled",
-        ":acl_qnx_enabled",
-    ],
+    flag_values = {"//:feature_acl": "True"},
 )
 
 configure_file(

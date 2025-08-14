@@ -45,6 +45,6 @@ build --noenable_bzlmod
 # feature flags
 #
 
-# value [auto, on, off]
-# 'auto' is platform dependent ('on' on Linux and QNX, 'off' on other OS) and the default value if the flag is not set
-#build --//:feature_acl=off
+# value [True, False]. Default: False.
+# Here we turn on the setting for Linux in this repo. Downstream consumers are unaffected.
+build:linux --//:feature_acl=True
