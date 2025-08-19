@@ -154,8 +154,8 @@ The module structure is a logical grouping. It is replicated for `concurrent` an
 
 ### Reporting (reporting)
 
-The error handler is a central instance for collecting all errors and react to them. The `error-handling.hpp` contains a list of all error enum values. The error handler has different error levels, for more information see [error-handling.md](../doc/design/error-handling.md)
-For information about how to use the logger API see [error-handling.md](../doc/design/error-handling.md).
+The error handler is a central instance for collecting all errors and react to them. The `error-handling.hpp` contains a list of all error enum values. The error handler has different error levels, for more information see [error-handling.md](https://github.com/eclipse-iceoryx/iceoryx/blob/v3.0.0/doc/design/error-handling.md)
+For information about how to use the logger API see [error-handling.md](https://github.com/eclipse-iceoryx/iceoryx/blob/v3.0.0/doc/design/error-handling.md).
 
 | class                   | internal | description                                                                                                             |
 |:-----------------------:|:--------:|:------------------------------------------------------------------------------------------------------------------------|

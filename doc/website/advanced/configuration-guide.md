@@ -1,6 +1,6 @@
 # Configuration guide
 
-## CMake switches for configuring iceoryx_hoofs and iceoryx_posh build
+## :material-cog: CMake switches for configuring iceoryx_hoofs and iceoryx_posh build
 
 There are several configuration options set by default when iceoryx_hoofs
 and iceoryx_posh are build. These options adjust the minimal log level compiled
@@ -21,8 +21,8 @@ in the shared memory segment called `iceoryx_mgmt` when RouDi is started.
  | `IOX_MAX_INTERFACE_NUMBER` | Maximum number of interface ports which are used by gateways |
  | `IOX_MAX_REQUESTS_PROCESSED_SIMULTANEOUSLY` | Maximum number of server can process request in parallel |
 
-Have a look at [IceoryxHoofsDeployment.cmake](../../../iceoryx_hoofs/cmake/IceoryxHoofsDeployment.cmake) and
-[IceoryxPoshDeployment.cmake](../../../iceoryx_posh/cmake/IceoryxPoshDeployment.cmake) for the default values of the constants.
+Have a look at [IceoryxHoofsDeployment.cmake](https://github.com/eclipse-iceoryx/iceoryx/blob/v3.0.0/iceoryx_hoofs/cmake/IceoryxHoofsDeployment.cmake) and
+[IceoryxPoshDeployment.cmake](https://github.com/eclipse-iceoryx/iceoryx/blob/v3.0.0/iceoryx_posh/cmake/IceoryxPoshDeployment.cmake) for the default values of the constants.
 
 !!! hint
     With the default values set, the size of `iceoryx_mgmt` is ~64.5 MByte. You
@@ -112,7 +112,7 @@ This way, the ACL feature is disabled across builds without needing to pass the 
 >
 > This ensures that the flag is applied to the correct target from the imported repository.
 
-## Configuring Mempools for RouDi
+## :material-memory: Configuring Mempools for RouDi
 
 RouDi supports several shared memory segments with different access rights, to
 limit the read and write access between different applications. Memory pools
@@ -126,7 +126,7 @@ for communication.
     user-payload will be smaller than the configured chunk-payload since some
     space is needed for the other functionality.
     Please have a look at the
-    [chunk_header.md](../../design/chunk_header.md)
+    [chunk_header.md](https://github.com/eclipse-iceoryx/iceoryx/blob/v3.0.0/doc/design/chunk_header.md)
     design document for a formula how to determine the necessary chunk-payload
     size with user-header and extended user-payload alignment.
 
@@ -245,7 +245,7 @@ count = 100
 ```
 
 When no configuration file is specified a hard-coded version similar to the
-[default config](../../../iceoryx_posh/etc/iceoryx/roudi_config_example.toml)
+[default config](https://github.com/eclipse-iceoryx/iceoryx/blob/v3.0.0/iceoryx_posh/etc/iceoryx/roudi_config_example.toml)
 will be used.
 
 ### Static configuration
@@ -287,4 +287,4 @@ int main(int argc, char* argv[])
 ```
 
 A working example of a static config can be found
-[here](../../../iceoryx_examples/iceperf/roudi_main_static_config.cpp).
+[here](https://github.com/eclipse-iceoryx/iceoryx/blob/v3.0.0/iceoryx_examples/iceperf/roudi_main_static_config.cpp).
