@@ -83,14 +83,21 @@ class convert
     static typename std::enable_if<std::is_convertible<Source, std::string>::value, std::string>::type
     toString(const Source& t) noexcept;
 
-    /// @brief  convert the input based on the 'Destination', allowing only 'iox::string' and numeric types as valid
+    /// @brief  convert the input based on the 'TargetType', allowing only 'iox::string' and numeric types as valid
     /// destination types
-    /// @note   for the 'Destination' equal to 'std::string,' please include 'iox/std_string_support.hpp'
-    /// @tparam Destination the desired target type for converting text
+    /// @note   for the 'TargetType' equal to 'std::string,' please include 'iox/std_string_support.hpp'
+    /// @tparam TargetType the desired target type for converting text
     /// @param v the input string in c type
-    /// @return an iox::optional<Destination> where, if the return value is iox::nullopt, it indicates a failed
+    /// @return an iox::optional<TargetType> where, if the return value is iox::nullopt, it indicates a failed
     /// conversion process
-    template <typename TargetType>
+    template <typename TargetType, typename std::enable_if_t<is_iox_string<TargetType>::value, int> = 0>
+    static iox::optional<TargetType> from_string(const char* v) noexcept;
+
+    /// @brief  for non iox::string TargetTypes
+    /// @note   for the 'TargetType' equal to 'std::string,' please include 'iox/std_string_support.hpp'
+    /// @tparam TargetType the desired target type for converting text
+    /// @param v the input string in c type
+    template <typename TargetType, typename std::enable_if_t<!is_iox_string<TargetType>::value, int> = 0>
     static iox::optional<TargetType> from_string(const char* v) noexcept;
 
   private:

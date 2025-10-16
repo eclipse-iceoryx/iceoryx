@@ -16,7 +16,11 @@
 
 #include "iox/logging.hpp"
 
-namespace iox::log::internal
+namespace iox
+{
+namespace log
+{
+namespace internal
 {
 // NOLINTJUSTIFICATION Not used directly but as a function pointer to set the backend
 // NOLINTNEXTLINE(readability-function-size)
@@ -52,4 +56,6 @@ void platform_log_backend(
     }
     IOX_LOG_INTERNAL(file, line, function, level, msg);
 }
-} // namespace iox::log::internal
+} // namespace internal
+} // namespace log
+} // namespace iox

@@ -59,24 +59,23 @@ convert::toString(const Source& t) noexcept
     return t;
 }
 
-template <typename TargetType>
+template <typename TargetType, typename std::enable_if_t<is_iox_string<TargetType>::value, int>>
 inline iox::optional<TargetType> convert::from_string(const char* v) noexcept
 {
-    if constexpr (is_iox_string<TargetType>::value)
+    using IoxString = TargetType;
+    if (strlen(v) > IoxString::capacity())
     {
-        using IoxString = TargetType;
-        if (strlen(v) > IoxString::capacity())
-        {
-            return iox::nullopt;
-        }
-        return iox::optional<IoxString>(IoxString(TruncateToCapacity, v));
+        return iox::nullopt;
     }
-    else
-    {
-        static_assert(always_false_v<TargetType>,
-                      "For a conversion to 'std::string' please include 'iox/std_string_support.hpp'!\nConversion not "
-                      "supported!");
-    }
+    return iox::optional<IoxString>(IoxString(TruncateToCapacity, v));
+}
+
+template <typename TargetType, typename std::enable_if_t<!is_iox_string<TargetType>::value, int>>
+inline iox::optional<TargetType> convert::from_string(const char* v) noexcept
+{
+    static_assert(always_false_v<TargetType>,
+                  "For a conversion to 'std::string' please include 'iox/std_string_support.hpp'!\nConversion not "
+                  "supported!");
 }
 
 template <>
@@ -359,11 +358,11 @@ inline bool convert::is_valid_input(const char* end_ptr, const char* v, const So
 template <typename TargetType, typename SourceType>
 inline bool convert::is_within_range(const SourceType& source_val) noexcept
 {
-    if constexpr (std::is_arithmetic_v<TargetType> == false)
+    if (!std::is_arithmetic<TargetType>::value)
     {
         return true;
     }
-    if constexpr (std::is_floating_point_v<SourceType>)
+    if (std::is_floating_point<SourceType>::value)
     {
         // special cases for floating point
         // can be nan or inf

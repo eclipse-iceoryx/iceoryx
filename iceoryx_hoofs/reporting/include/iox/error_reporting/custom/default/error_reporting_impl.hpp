@@ -137,6 +137,7 @@ report(const SourceLocation& location, Kind kind, const Error& error, const char
 {
     auto code = toCode(error);
     auto module = toModule(error);
+#if __cplusplus >= 201703L
     if constexpr (std::is_same<NoMessage, Message>::value)
     {
         IOX_ERROR_INTERNAL_LOG_FATAL(location,
@@ -153,6 +154,13 @@ report(const SourceLocation& location, Kind kind, const Error& error, const char
                                      } << "["
                                        << kind.name << "] " << std::forward<Message>(msg));
     }
+#else
+    IOX_ERROR_INTERNAL_LOG_FATAL(location,
+                                 [stringifiedCondition](auto& stream) -> auto& {
+                                     return detail::logStringifiedCondition(stream, stringifiedCondition);
+                                 } << "["
+                                   << kind.name << "] " << std::forward<Message>(msg));
+#endif
     auto& h = ErrorHandler::get();
     h.onReportViolation(ErrorDescriptor(location, code, module));
 }
