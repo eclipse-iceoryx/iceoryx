@@ -16,8 +16,6 @@
 
 #include "iceoryx_platform/stdlib.hpp"
 
-#ifndef IOX_PLATFORM_OVERRIDE_STDLIB_ALL
-
 #include <cerrno>
 #include <cstring>
 #include <mutex>
@@ -30,8 +28,6 @@ std::mutex& env_mutex()
     return mtx;
 }
 } // namespace
-
-#ifndef IOX_PLATFORM_OVERRIDE_STDLIB_GETENV_S
 
 int iox_getenv_s(size_t* actual_size_with_null, char* buffer, size_t buffer_capacity, const char* name)
 {
@@ -88,11 +84,6 @@ int iox_getenv_s(size_t* actual_size_with_null, char* buffer, size_t buffer_capa
     return 0;
 }
 
-#endif // IOX_PLATFORM_OVERRIDE_STDLIB_GETENV_S
-
-
-#ifndef IOX_PLATFORM_OVERRIDE_STDLIB_SETENV
-
 int iox_setenv(const char* name, const char* value, int overwrite)
 {
     std::lock_guard<std::mutex> lock(env_mutex());
@@ -112,11 +103,6 @@ int iox_setenv(const char* name, const char* value, int overwrite)
     return setenv(name, value, overwrite);
 }
 
-#endif // IOX_PLATFORM_OVERRIDE_STDLIB_SETENV
-
-
-#ifndef IOX_PLATFORM_OVERRIDE_STDLIB_UNSETENV
-
 int iox_unsetenv(const char* name)
 {
     std::lock_guard<std::mutex> lock(env_mutex());
@@ -129,8 +115,3 @@ int iox_unsetenv(const char* name)
 
     return unsetenv(name);
 }
-
-#endif // IOX_PLATFORM_OVERRIDE_STDLIB_UNSETENV
-
-
-#endif // IOX_PLATFORM_OVERRIDE_STDLIB_ALL

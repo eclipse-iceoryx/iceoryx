@@ -14,13 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_GENERIC_PLATFORM_STDLIB_HPP
-#define IOX_HOOFS_GENERIC_PLATFORM_STDLIB_HPP
+#ifndef IOX_HOOFS_MAC_PLATFORM_STDLIB_HPP
+#define IOX_HOOFS_MAC_PLATFORM_STDLIB_HPP
 
 #include <cstdlib>
-
-// NOTE: The functions can be individually overwritten by setting the corresponding 'IOX_PLATFORM_OVERRIDE_*' define in
-// the respective platform specific 'override/*.h' header
 
 /// @brief Implementation of 'getenv_s'
 /// @param[out] actual_size_with_null of the value of the env variable including null-termination or 0 if the
@@ -49,4 +46,4 @@ int iox_setenv(const char* name, const char* value, int overwrite);
 /// 'getenv', 'setenv', 'unsetenv' and 'putenv' directly
 int iox_unsetenv(const char* name);
 
-#endif // IOX_HOOFS_GENERIC_PLATFORM_STDLIB_HPP
+#endif // IOX_HOOFS_MAC_PLATFORM_STDLIB_HPP

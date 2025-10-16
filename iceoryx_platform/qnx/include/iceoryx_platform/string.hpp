@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_PLATFORM_GENERIC_STRING_HPP
-#define IOX_PLATFORM_GENERIC_STRING_HPP
+#ifndef IOX_HOOFS_QNX_PLATFORM_STRING_HPP
+#define IOX_HOOFS_QNX_PLATFORM_STRING_HPP
 
 #include <cstring>
 
@@ -28,4 +28,4 @@
 /// or the provided buffer
 char* iox_gnu_strerror_r(int errnum, char* buf, size_t buflen);
 
-#endif // IOX_PLATFORM_GENERIC_STRING_HPP
+#endif // IOX_HOOFS_QNX_PLATFORM_STRING_HPP
