@@ -22,7 +22,6 @@
 #include "iox/detail/variant_internal.hpp"
 #include "iox/iceoryx_hoofs_types.hpp"
 
-#include <cstddef>
 #include <cstdint>
 #include <iostream>
 #include <limits>
@@ -287,7 +286,7 @@ class variant final
         // AXIVION Next Construct AutosarC++19_03-M0.1.3 : data provides the actual storage and is accessed via m_storage since &m_storage.data = &m_storage
         // AXIVION Next Construct AutosarC++19_03-A18.1.1 : safe access is guaranteed since the c-array is wrapped inside the variant class
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays)
-        std::byte data[TYPE_SIZE];
+        byte data[TYPE_SIZE];
     };
     storage_t m_storage{};
     uint64_t m_type_index{INVALID_VARIANT_INDEX};
