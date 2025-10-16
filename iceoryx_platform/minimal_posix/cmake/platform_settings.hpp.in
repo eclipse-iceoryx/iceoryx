@@ -19,6 +19,7 @@
 
 #include <cstdint>
 #include <limits.h>
+#include <type_traits>
 
 #define IOX_FEATURE_ACL 0
 
@@ -36,6 +37,14 @@ constexpr const char IOX_PATH_SEPARATORS[IOX_NUMBER_OF_PATH_SEPARATORS] = {'/'};
 
 constexpr uint64_t MAX_USER_NAME_LENGTH = 32;
 constexpr uint64_t MAX_GROUP_NAME_LENGTH = 32;
+
+#if __cplusplus >= 201703L
+template <typename C, typename... Cargs>
+using invoke_result = std::invoke_result<C, Cargs...>;
+#else
+template <typename C, typename... Cargs>
+using invoke_result = std::result_of<C(Cargs...)>;
+#endif
 
 } // namespace platform
 } // namespace iox
