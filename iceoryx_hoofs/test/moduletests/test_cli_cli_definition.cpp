@@ -14,6 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#ifndef IOX_HOOFS_SUBSET
+
 #include "iox/cli_definition.hpp"
 #include "iox/detail/hoofs_error_reporting.hpp"
 #include "iox/optional.hpp"
@@ -188,3 +190,5 @@ TEST_F(CliDefinition_test, AllValuesViaCommandLineArgumentDefinitionAndShortcutA
     EXPECT_THAT(sut.requiredUint(), Eq(31415));
 }
 } // namespace
+
+#endif

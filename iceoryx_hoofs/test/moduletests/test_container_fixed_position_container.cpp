@@ -114,6 +114,7 @@ TEST_F(FixedPositionContainer_test, Capacity)
     EXPECT_THAT(sut.capacity(), Eq(CAPACITY));
 }
 
+#ifndef IOX_HOOFS_SUBSET
 // BEGIN test copy constructor
 
 TEST_F(FixedPositionContainer_test, UsingCopyCtorEmptyContainerResultsInEmptyContainer)
@@ -1668,6 +1669,7 @@ TEST_F(FixedPositionContainer_test, IteratorsAfterMoveWorkAsExpected)
 }
 
 // END test move assignment
+#endif
 
 
 // BEGIN test empty

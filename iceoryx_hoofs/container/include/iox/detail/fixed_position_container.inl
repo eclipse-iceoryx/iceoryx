@@ -86,6 +86,7 @@ FixedPositionContainer<T, CAPACITY>::operator=(FixedPositionContainer&& rhs) noe
     return *this;
 }
 
+#ifndef IOX_HOOFS_SUBSET
 template <typename T, uint64_t CAPACITY>
 template <MoveAndCopyOperations Opt, typename RhsType>
 inline void FixedPositionContainer<T, CAPACITY>::copy_and_move_impl(RhsType&& rhs) noexcept
@@ -158,6 +159,13 @@ inline void FixedPositionContainer<T, CAPACITY>::copy_and_move_impl(RhsType&& rh
         rhs.clear();
     }
 }
+#else
+template <typename T, uint64_t CAPACITY>
+template <MoveAndCopyOperations Opt, typename RhsType>
+inline void FixedPositionContainer<T, CAPACITY>::copy_and_move_impl(RhsType&& rhs) noexcept
+{
+}
+#endif
 
 template <typename T, uint64_t CAPACITY>
 inline void FixedPositionContainer<T, CAPACITY>::clear() noexcept

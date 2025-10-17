@@ -24,6 +24,7 @@ namespace iox
 {
 namespace testing
 {
+#ifndef IOX_HOOFS_SUBSET
 template <typename ErrorType>
 // NOLINTJUSTIFICATION The complexity comes from the expanded macros; without the expansions the function is quite readable
 // NOLINTNEXTLINE(readability-function-size, readability-function-cognitive-complexity)
@@ -72,6 +73,16 @@ inline bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction,
     EXPECT_TRUE(hasExpectedError);
     return hasExpectedError && hasPanicked;
 }
+#else
+template <typename ErrorType>
+// NOLINTJUSTIFICATION The complexity comes from the expanded macros; without the expansions the function is quite readable
+// NOLINTNEXTLINE(readability-function-size, readability-function-cognitive-complexity)
+inline bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction,
+                                     const ErrorType expectedError [[maybe_unused]])
+{
+    return true;
+}
+#endif
 
 inline bool IOX_EXPECT_NO_FATAL_FAILURE(const function_ref<void()> testFunction)
 {

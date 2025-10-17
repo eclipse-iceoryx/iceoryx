@@ -103,6 +103,10 @@ iox_add_library(
         posix/vocabulary/source/user_name.cpp
 )
 
+if(IOX_USE_HOOFS_SUBSET_ONLY)
+    target_compile_definitions(iceoryx_hoofs PUBLIC IOX_HOOFS_SUBSET)
+endif(IOX_USE_HOOFS_SUBSET_ONLY)
+
 if(NOT IOX_USE_HOOFS_SUBSET_ONLY)
     target_sources(
         iceoryx_hoofs

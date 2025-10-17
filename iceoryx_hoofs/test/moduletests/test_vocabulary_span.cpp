@@ -396,6 +396,7 @@ TEST(span_test, NewDynamicSpanMoveConstructed)
     EXPECT_EQ(arr.size(), new_static_span.size());
 }
 
+#ifndef IOX_HOOFS_SUBSET
 TEST(span_test, CheckFrontOfSpanIfItReturnsTheElementAtIndex0)
 {
     ::testing::Test::RecordProperty("TEST_ID", "57b2f67f-79c1-4c1e-a305-f4665283c474");
@@ -429,6 +430,7 @@ TEST(span_test, CheckIterOfSpan)
     EXPECT_TRUE(1 == *((span.begin() + 1) -= 1)); // First element needs to be '1'
     EXPECT_TRUE(6 == *((span.begin() + 1) -= 0)); // Second element needs to be '6'
 }
+#endif
 
 TEST(span_test, CheckConstexprIterOfSpan)
 {

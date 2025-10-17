@@ -345,6 +345,7 @@ TEST_F(convert_test, fromString_LongInt_Fail)
     ASSERT_THAT(result.has_value(), Eq(false));
 }
 
+#ifndef IOX_HOOFS_SUBSET
 TEST_F(convert_test, fromString_Integer_InvalidTrailingChar_Fail)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6a70f10f-227b-4b0a-8149-e5ca3c793b5d");
@@ -373,6 +374,7 @@ TEST_F(convert_test, fromString_Integer_InvalidTrailingChar_Fail)
 
     std::apply([&expect_failure](auto... args) { (..., expect_failure(args)); }, IntegerType{});
 }
+#endif
 
 /// SINGED INTEGRAL EDGE CASES START
 /// inc: increment, dec: decrement

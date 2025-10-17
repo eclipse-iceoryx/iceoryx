@@ -355,10 +355,51 @@ inline bool convert::is_valid_input(const char* end_ptr, const char* v, const So
     return true;
 }
 
+#ifndef IOX_HOOFS_SUBSET
 template <typename TargetType, typename SourceType>
 inline bool convert::is_within_range(const SourceType& source_val) noexcept
 {
-    if (!std::is_arithmetic<TargetType>::value)
+    if constexpr (std::is_arithmetic_v<TargetType> == false)
+    {
+        return true;
+    }
+    if constexpr (std::is_floating_point_v<SourceType>)
+    {
+        // special cases for floating point
+        // can be nan or inf
+        if (std::isnan(source_val) || std::isinf(source_val))
+        {
+            return true;
+        }
+        // should be normal or zero
+        if (!std::isnormal(source_val) && (source_val != 0.0))
+        {
+            return false;
+        }
+    }
+    // out of range (upper bound)
+    if (source_val > std::numeric_limits<TargetType>::max())
+    {
+        IOX_LOG(Debug,
+                source_val << " is out of range (upper bound), should be less than "
+                           << std::numeric_limits<TargetType>::max());
+        return false;
+    }
+    // out of range (lower bound)
+    if (source_val < std::numeric_limits<TargetType>::lowest())
+    {
+        IOX_LOG(Debug,
+                source_val << " is out of range (lower bound), should be larger than "
+                           << std::numeric_limits<TargetType>::lowest());
+        return false;
+    }
+    return true;
+}
+#else
+template <typename TargetType, typename SourceType>
+inline bool convert::is_within_range(const SourceType& source_val) noexcept
+{
+    if (std::is_arithmetic<TargetType>::value == false)
     {
         return true;
     }
@@ -394,6 +435,7 @@ inline bool convert::is_within_range(const SourceType& source_val) noexcept
     }
     return true;
 }
+#endif
 
 inline bool convert::start_with_neg_sign(const char* v) noexcept
 {
