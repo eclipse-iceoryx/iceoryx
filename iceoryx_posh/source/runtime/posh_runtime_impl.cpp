@@ -125,7 +125,7 @@ PoshRuntimeImpl::~PoshRuntimeImpl() noexcept
     sendBuffer << IpcMessageTypeToString(IpcMessageType::TERMINATION) << m_appName;
     IpcMessage receiveBuffer;
 
-    if (m_ipcChannelInterface->sendRequestToRouDi(sendBuffer, receiveBuffer)
+    if (m_ipcChannelInterface->sendRequestToRouDi(sendBuffer, receiveBuffer, 3_s)
         && (1U == receiveBuffer.getNumberOfElements()))
     {
         std::string IpcMessage = receiveBuffer.getElementAtIndex(0U);
@@ -732,7 +732,7 @@ bool PoshRuntimeImpl::sendRequestToRouDi(const IpcMessage& msg,
                                          IpcMessage& answer,
                                          iox::optional<iox::units::Duration> timeout) noexcept
 {
-    return m_ipcChannelInterface->sendRequestToRouDi(msg, answer);
+    return m_ipcChannelInterface->sendRequestToRouDi(msg, answer, timeout);
 }
 
 // this is the callback for the m_keepAliveTimer
