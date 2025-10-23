@@ -77,7 +77,9 @@ class PoshRuntimeMock : public iox::runtime::PoshRuntime
     MOCK_METHOD(iox::popo::ConditionVariableData*, getMiddlewareConditionVariable, (), (noexcept, override));
     MOCK_METHOD(bool,
                 sendRequestToRouDi,
-                (const iox::runtime::IpcMessage&, iox::runtime::IpcMessage&),
+                (const iox::runtime::IpcMessage&,
+                 iox::runtime::IpcMessage&,
+                 iox::optional<iox::units::Duration> timeout),
                 (noexcept, override));
 
   private:

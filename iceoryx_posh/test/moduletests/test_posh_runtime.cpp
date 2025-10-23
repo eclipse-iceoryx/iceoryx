@@ -251,6 +251,30 @@ TEST_F(PoshRuntime_test, SendRequestToRouDiInvalidMessage)
     EXPECT_FALSE(successfullySent);
 }
 
+TEST_F(PoshRuntime_test, SendRequestToRouDiTimedValidMessage)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "c21a20a3-fa1b-4527-8d7c-d0aa2ed7fe9a");
+    m_sendBuffer << IpcMessageTypeToString(IpcMessageType::CREATE_INTERFACE) << m_runtimeName
+                 << static_cast<uint32_t>(iox::capro::Interfaces::INTERNAL) << m_nodeName;
+
+    const auto successfullySent = m_runtime->sendRequestToRouDi(m_sendBuffer, m_receiveBuffer, 1_s);
+
+    EXPECT_TRUE(m_receiveBuffer.isValid());
+    EXPECT_TRUE(successfullySent);
+}
+
+
+TEST_F(PoshRuntime_test, SendRequestToRouDiTimedInvalidMessage)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "4c96acbc-c882-4f36-9476-cc18e9d2af16");
+    m_sendBuffer << IpcMessageTypeToString(IpcMessageType::CREATE_INTERFACE) << m_runtimeName
+                 << static_cast<uint32_t>(iox::capro::Interfaces::INTERNAL) << m_invalidNodeName;
+
+    const auto successfullySent = m_runtime->sendRequestToRouDi(m_sendBuffer, m_receiveBuffer, 1_s);
+
+    EXPECT_FALSE(successfullySent);
+}
+
 TEST_F(PoshRuntime_test, GetMiddlewarePublisherIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2cb2e64b-8f21-4049-a35a-dbd7a1d6cbf4");

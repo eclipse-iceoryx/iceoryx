@@ -728,7 +728,9 @@ popo::ConditionVariableData* PoshRuntimeImpl::getMiddlewareConditionVariable() n
     return maybeConditionVariable.value();
 }
 
-bool PoshRuntimeImpl::sendRequestToRouDi(const IpcMessage& msg, IpcMessage& answer) noexcept
+bool PoshRuntimeImpl::sendRequestToRouDi(const IpcMessage& msg,
+                                         IpcMessage& answer,
+                                         iox::optional<iox::units::Duration> timeout) noexcept
 {
     return m_ipcChannelInterface->sendRequestToRouDi(msg, answer);
 }

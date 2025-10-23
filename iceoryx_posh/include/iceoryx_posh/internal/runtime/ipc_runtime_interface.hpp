@@ -58,8 +58,11 @@ class IpcRuntimeInterface
     /// @brief send a request to the RouDi daemon
     /// @param[in] msg request to RouDi
     /// @param[out] answer response from RouDi
+    /// @param[in] timeout receive timeout, default disabled
     /// @return true if communication was successful, false if not
-    bool sendRequestToRouDi(const IpcMessage& msg, IpcMessage& answer) noexcept;
+    bool sendRequestToRouDi(const IpcMessage& msg,
+                            IpcMessage& answer,
+                            iox::optional<iox::units::Duration> timeout = iox::nullopt) noexcept;
 
     /// @brief get the adress offset of the segment manager
     /// @return address offset as iox::RelativePointer::offset_t

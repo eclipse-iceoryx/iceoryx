@@ -83,7 +83,9 @@ class PoshRuntimeImpl : public PoshRuntime
     popo::ConditionVariableData* getMiddlewareConditionVariable() noexcept override;
 
     /// @copydoc PoshRuntime::sendRequestToRouDi
-    bool sendRequestToRouDi(const IpcMessage& msg, IpcMessage& answer) noexcept override;
+    bool sendRequestToRouDi(const IpcMessage& msg,
+                            IpcMessage& answer,
+                            iox::optional<iox::units::Duration> timeout = iox::nullopt) noexcept override;
 
   protected:
     friend class PoshRuntime;
