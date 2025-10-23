@@ -24,12 +24,14 @@ namespace iox
 {
 namespace testing
 {
-#ifndef IOX_HOOFS_SUBSET
-template <typename ErrorType>
+#if (defined(__GNUC__))
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
+template <typename ErrorType, std::enable_if_t<std::is_same<ErrorType, iox::er::FatalKind>::value, bool>>
 // NOLINTJUSTIFICATION The complexity comes from the expanded macros; without the expansions the function is quite readable
 // NOLINTNEXTLINE(readability-function-size, readability-function-cognitive-complexity)
-inline bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction,
-                                     const ErrorType expectedError [[maybe_unused]])
+inline bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction, const ErrorType expectedError)
 {
     iox::testing::ErrorHandler::instance().reset();
     runInTestThread([&] { testFunction(); });
@@ -37,58 +39,105 @@ inline bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction,
     auto hasPanicked = iox::testing::hasPanicked();
 
     auto hasExpectedError{false};
-    if constexpr (std::is_same_v<ErrorType, iox::er::FatalKind>)
+    hasExpectedError = hasPanicked;
+    if (!hasExpectedError)
     {
-        hasExpectedError = hasPanicked;
-        if (!hasExpectedError)
-        {
-            IOX_LOG(Error, "Expected '" << iox::er::FatalKind::name << "' but it did not happen!");
-        }
-    }
-    else if constexpr (std::is_same_v<ErrorType, iox::er::EnforceViolationKind>)
-    {
-        hasExpectedError = iox::testing::hasEnforceViolation();
-        if (!hasExpectedError)
-        {
-            IOX_LOG(Error, "Expected '" << iox::er::EnforceViolationKind::name << "' but it did not happen!");
-        }
-    }
-    else if constexpr (std::is_same_v<ErrorType, iox::er::AssertViolationKind>)
-    {
-        hasExpectedError = iox::testing::hasAssertViolation();
-        if (!hasExpectedError)
-        {
-            IOX_LOG(Error, "Expected '" << iox::er::AssertViolationKind::name << "' but it did not happen!");
-        }
-    }
-    else
-    {
-        hasExpectedError = iox::testing::hasError(expectedError);
-        if (!hasExpectedError)
-        {
-            IOX_LOG(Error, "Expected an '" << expectedError << "' error but it did not happen!");
-        }
+        IOX_LOG(Error, "Expected '" << iox::er::FatalKind::name << "' but it did not happen!");
     }
 
     EXPECT_TRUE(hasExpectedError);
     return hasExpectedError && hasPanicked;
 }
-#else
-template <typename ErrorType>
-// NOLINTJUSTIFICATION The complexity comes from the expanded macros; without the expansions the function is quite readable
-// NOLINTNEXTLINE(readability-function-size, readability-function-cognitive-complexity)
+#if (defined(__GNUC__))
+#pragma GCC diagnostic pop
+#endif
+
 #if (defined(__GNUC__))
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
+template <typename ErrorType, std::enable_if_t<std::is_same<ErrorType, iox::er::EnforceViolationKind>::value, bool>>
+// NOLINTJUSTIFICATION The complexity comes from the expanded macros; without the expansions the function is quite readable
+// NOLINTNEXTLINE(readability-function-size, readability-function-cognitive-complexity)
 inline bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction, const ErrorType expectedError)
+{
+    iox::testing::ErrorHandler::instance().reset();
+    runInTestThread([&] { testFunction(); });
+    IOX_TESTING_EXPECT_PANIC();
+    auto hasPanicked = iox::testing::hasPanicked();
+
+    auto hasExpectedError{false};
+    hasExpectedError = iox::testing::hasEnforceViolation();
+    if (!hasExpectedError)
+    {
+        IOX_LOG(Error, "Expected '" << iox::er::EnforceViolationKind::name << "' but it did not happen!");
+    }
+
+    EXPECT_TRUE(hasExpectedError);
+    return hasExpectedError && hasPanicked;
+}
 #if (defined(__GNUC__))
 #pragma GCC diagnostic pop
 #endif
+
+#if (defined(__GNUC__))
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
+template <typename ErrorType, std::enable_if_t<std::is_same<ErrorType, iox::er::AssertViolationKind>::value, bool>>
+// NOLINTJUSTIFICATION The complexity comes from the expanded macros; without the expansions the function is quite readable
+// NOLINTNEXTLINE(readability-function-size, readability-function-cognitive-complexity)
+inline bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction, const ErrorType expectedError)
 {
-    // TODO
-    return true;
+    iox::testing::ErrorHandler::instance().reset();
+    runInTestThread([&] { testFunction(); });
+    IOX_TESTING_EXPECT_PANIC();
+    auto hasPanicked = iox::testing::hasPanicked();
+
+    auto hasExpectedError{false};
+    hasExpectedError = iox::testing::hasAssertViolation();
+    if (!hasExpectedError)
+    {
+        IOX_LOG(Error, "Expected '" << iox::er::AssertViolationKind::name << "' but it did not happen!");
+    }
+
+    EXPECT_TRUE(hasExpectedError);
+    return hasExpectedError && hasPanicked;
 }
+#if (defined(__GNUC__))
+#pragma GCC diagnostic pop
+#endif
+
+#if (defined(__GNUC__))
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
+template <typename ErrorType,
+          std::enable_if_t<!std::is_same<ErrorType, iox::er::FatalKind>::value
+                               && !std::is_same<ErrorType, iox::er::EnforceViolationKind>::value
+                               && !std::is_same<ErrorType, iox::er::AssertViolationKind>::value,
+                           bool>>
+// NOLINTJUSTIFICATION The complexity comes from the expanded macros; without the expansions the function is quite readable
+// NOLINTNEXTLINE(readability-function-size, readability-function-cognitive-complexity)
+inline bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction, const ErrorType expectedError)
+{
+    iox::testing::ErrorHandler::instance().reset();
+    runInTestThread([&] { testFunction(); });
+    IOX_TESTING_EXPECT_PANIC();
+    auto hasPanicked = iox::testing::hasPanicked();
+
+    auto hasExpectedError{false};
+    hasExpectedError = iox::testing::hasError(expectedError);
+    if (!hasExpectedError)
+    {
+        IOX_LOG(Error, "Expected an '" << expectedError << "' error but it did not happen!");
+    }
+
+    EXPECT_TRUE(hasExpectedError);
+    return hasExpectedError && hasPanicked;
+}
+#if (defined(__GNUC__))
+#pragma GCC diagnostic pop
 #endif
 
 inline bool IOX_EXPECT_NO_FATAL_FAILURE(const function_ref<void()> testFunction)

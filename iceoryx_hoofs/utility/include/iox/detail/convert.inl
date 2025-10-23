@@ -71,7 +71,7 @@ inline iox::optional<TargetType> convert::from_string(const char* v) noexcept
 }
 
 template <typename TargetType, typename std::enable_if_t<!is_iox_string<TargetType>::value, int>>
-inline iox::optional<TargetType> convert::from_string(const char* v) noexcept
+inline iox::optional<TargetType> convert::from_string(const char* v IOX_MAYBE_UNUSED) noexcept
 {
     static_assert(always_false_v<TargetType>,
                   "For a conversion to 'std::string' please include 'iox/std_string_support.hpp'!\nConversion not "
@@ -411,11 +411,18 @@ inline bool convert::is_within_range(const SourceType& source_val) noexcept
         {
             return true;
         }
+#if (defined(__clang__))
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wimplicit-int-float-conversion"
+#endif
         // should be normal or zero
         if (!std::isnormal(source_val) && (source_val != 0.0))
         {
             return false;
         }
+#if (defined(__clang__))
+#pragma GCC diagnostic pop
+#endif
     }
     // out of range (upper bound)
     if (source_val > std::numeric_limits<TargetType>::max())

@@ -75,19 +75,7 @@ template <MoveAndCopyOperations Opt>
 template <typename T, typename V>
 inline void MoveAndCopyHelper<Opt>::create_new(T& dest, V&& src) noexcept
 {
-    if (is_move)
-    {
-        static_assert(std::is_rvalue_reference<decltype(src)>::value, "src should be rvalue reference");
-        static_assert(std::is_convertible<V, T>::value, "src type is not convertible to dest type");
-        new (&dest) T(std::forward<V>(src));
-    }
-    else
-    {
-        static_assert(std::is_lvalue_reference<decltype(src)>::value, "src should be lvalue reference");
-        static_assert(std::is_const<std::remove_reference_t<decltype(src)>>::value, "src should have 'const' modifier");
-        static_assert(std::is_convertible<V, T>::value, "src type is not convertible to dest type");
-        new (&dest) T(src);
-    }
+    new (&dest) T(std::forward<V>(src));
 }
 #endif
 
@@ -113,17 +101,7 @@ template <MoveAndCopyOperations Opt>
 template <typename T, typename V>
 inline void MoveAndCopyHelper<Opt>::assign(T& dest, V&& src) noexcept
 {
-    if (is_move)
-    {
-        static_assert(std::is_rvalue_reference<decltype(src)>::value, "src should be rvalue reference");
-        dest = std::forward<V>(src);
-    }
-    else
-    {
-        static_assert(std::is_lvalue_reference<decltype(src)>::value, "src should be lvalue reference");
-        static_assert(std::is_const<std::remove_reference_t<decltype(src)>>::value, "src should have 'const' modifier");
-        dest = src;
-    }
+    dest = std::forward<V>(src);
 }
 #endif
 } // namespace iox

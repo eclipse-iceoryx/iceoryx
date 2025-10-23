@@ -83,12 +83,12 @@ TYPED_TEST(stringTyped_test, UnsafeRawAccessCStringOfSizeCapaResultsInSizeCapa)
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     std::vector<char> testCharstring(STRINGCAP, 'M');
-#if (defined(__GNUC__))
+#if (defined(__GNUC__) && __GNUC__ >= 7 && !defined(__clang__))
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
     testCharstring.emplace_back('\0');
-#if (defined(__GNUC__))
+#if (defined(__GNUC__) && __GNUC__ >= 7 && !defined(__clang__))
 #pragma GCC diagnostic pop
 #endif
     this->testSubject.unsafe_raw_access([&](char* str, const auto) -> uint64_t {

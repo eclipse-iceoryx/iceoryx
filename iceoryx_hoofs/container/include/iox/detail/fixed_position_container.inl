@@ -164,6 +164,73 @@ template <typename T, uint64_t CAPACITY>
 template <MoveAndCopyOperations Opt, typename RhsType>
 inline void FixedPositionContainer<T, CAPACITY>::copy_and_move_impl(RhsType&& rhs) noexcept
 {
+    // alias helper struct
+    using Helper = MoveAndCopyHelper<Opt>;
+
+    constexpr bool is_ctor = Helper::is_ctor;
+    constexpr bool is_move = Helper::is_move;
+
+    // status array is not yet initialized for constructor creation
+    if (is_ctor)
+    {
+        for (IndexType i = 0; i < CAPACITY; ++i)
+        {
+            m_status[i] = SlotStatus::FREE;
+        }
+    }
+
+    IndexType i{Index::FIRST};
+    auto rhs_it = (std::forward<RhsType>(rhs)).begin();
+
+    for (; rhs_it.to_index() != Index::INVALID; ++i, ++rhs_it)
+    {
+        if (m_status[i] == SlotStatus::USED)
+        {
+            // When the slot is in the 'USED' state, it is safe to proceed with either construction (ctor) or assignment
+            // operation. Therefore, creation can be carried out according to the option specified by Opt.
+            Helper::transfer(m_data[i], Helper::move_or_copy_it(rhs_it));
+        }
+        else
+        {
+            // When the slot is in the 'FREE' state, it is unsafe to proceed with assignment operation.
+            // Therefore, we need to force helper to use ctor create to make sure that the 'FREE' slots get initialized.
+            Helper::create_new(m_data[i], Helper::move_or_copy_it(rhs_it));
+        }
+
+        m_status[i] = SlotStatus::USED;
+        m_next[i] = static_cast<IndexType>(i + 1U);
+    }
+
+    // reset rest
+    for (; i < CAPACITY; ++i)
+    {
+        if (m_status[i] == SlotStatus::USED)
+        {
+            m_data[i].~T();
+        }
+
+        m_status[i] = SlotStatus::FREE;
+
+        auto next = static_cast<IndexType>(i + 1U);
+        m_next[i] = next;
+    }
+
+    // correct m_next
+    m_next[Index::LAST] = Index::INVALID;
+    if (!rhs.empty())
+    {
+        m_next[rhs.m_size - 1] = Index::INVALID;
+    }
+
+    m_begin_free = static_cast<IndexType>(rhs.m_size);
+    m_begin_used = rhs.empty() ? Index::INVALID : Index::FIRST;
+    m_size = rhs.m_size;
+
+    // reset rhs if is_move is true
+    if (is_move)
+    {
+        rhs.clear();
+    }
 }
 #endif
 
