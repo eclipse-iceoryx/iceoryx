@@ -2988,9 +2988,9 @@ TEST_F(FixedPositionContainer_test, DereferencingEndIteratorCallsErrorHandler)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f2ccf248-97f8-4265-9bb4-9c8e7cb79e67");
 
-    IOX_EXPECT_FATAL_FAILURE([&] { auto _ [[maybe_unused]] = *sut.end(); }, iox::er::ENFORCE_VIOLATION);
+    IOX_EXPECT_FATAL_FAILURE([&] { auto _ IOX_MAYBE_UNUSED = *sut.end(); }, iox::er::ENFORCE_VIOLATION);
 
-    IOX_EXPECT_FATAL_FAILURE([&] { auto _ [[maybe_unused]] = *sut.cend(); }, iox::er::ENFORCE_VIOLATION);
+    IOX_EXPECT_FATAL_FAILURE([&] { auto _ IOX_MAYBE_UNUSED = *sut.cend(); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(FixedPositionContainer_test, DereferencingInvalidIteratorCallsErrorHandler)
@@ -3000,7 +3000,7 @@ TEST_F(FixedPositionContainer_test, DereferencingInvalidIteratorCallsErrorHandle
     auto it = sut.emplace(135U);
     sut.erase(it);
 
-    IOX_EXPECT_FATAL_FAILURE([&] { auto _ [[maybe_unused]] = *it; }, iox::er::ENFORCE_VIOLATION);
+    IOX_EXPECT_FATAL_FAILURE([&] { auto _ IOX_MAYBE_UNUSED = *it; }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(FixedPositionContainer_test, ArrowOperatorOnNonConstItertorLeadsToNonConstPointer)
@@ -3117,9 +3117,9 @@ TEST_F(FixedPositionContainer_test, ToPtrOnEndIteratorCallsErrorHandler)
 {
     ::testing::Test::RecordProperty("TEST_ID", "51b76d04-6c8c-486e-88c9-8b6b760c41d4");
 
-    IOX_EXPECT_FATAL_FAILURE([&] { auto* _ [[maybe_unused]] = sut.end().to_ptr(); }, iox::er::ENFORCE_VIOLATION);
+    IOX_EXPECT_FATAL_FAILURE([&] { auto* _ IOX_MAYBE_UNUSED = sut.end().to_ptr(); }, iox::er::ENFORCE_VIOLATION);
 
-    IOX_EXPECT_FATAL_FAILURE([&] { const auto* _ [[maybe_unused]] = sut.cend().to_ptr(); }, iox::er::ENFORCE_VIOLATION);
+    IOX_EXPECT_FATAL_FAILURE([&] { const auto* _ IOX_MAYBE_UNUSED = sut.cend().to_ptr(); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(FixedPositionContainer_test, ToPtrOnInvalidIteratorCallsErrorHandler)
@@ -3129,7 +3129,7 @@ TEST_F(FixedPositionContainer_test, ToPtrOnInvalidIteratorCallsErrorHandler)
     auto it = sut.emplace(135U);
     sut.erase(it);
 
-    IOX_EXPECT_FATAL_FAILURE([&] { auto* _ [[maybe_unused]] = it.to_ptr(); }, iox::er::ENFORCE_VIOLATION);
+    IOX_EXPECT_FATAL_FAILURE([&] { auto* _ IOX_MAYBE_UNUSED = it.to_ptr(); }, iox::er::ENFORCE_VIOLATION);
 }
 
 TEST_F(FixedPositionContainer_test, ToIndexOnIteratorReturnsCorrespondingIndex)
@@ -3267,8 +3267,8 @@ TEST_F(FixedPositionContainer_test, IteratorDestructorDoesNotDestroyObjectItPoin
     fillSutComplex();
 
     {
-        auto it [[maybe_unused]] = sut_complex.begin();
-        auto cit [[maybe_unused]] = sut_complex.cbegin();
+        auto it IOX_MAYBE_UNUSED = sut_complex.begin();
+        auto cit IOX_MAYBE_UNUSED = sut_complex.cbegin();
     }
 
     EXPECT_THAT(stats.dTor, Eq(0));

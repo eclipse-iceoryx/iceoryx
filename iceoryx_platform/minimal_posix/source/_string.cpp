@@ -18,17 +18,18 @@
 // clang-tidy assumes it to be the translation unit for 'iox/string.hpp' and tries to check that header with the wrong
 // translation unit which leads to an error not finding the includes from 'iox/string.hpp' and 'iox/detail/string.inl'
 
+#include "iceoryx_platform/attributes.hpp"
 #include "iceoryx_platform/string.hpp"
 #include <cerrno>
 
 namespace
 {
-[[maybe_unused]] char* strerror_r_gnu_xsi_unificaton(const int returnCode [[maybe_unused]], char* buf)
+IOX_MAYBE_UNUSED char* strerror_r_gnu_xsi_unificaton(const int returnCode IOX_MAYBE_UNUSED, char* buf)
 {
     return buf;
 }
 
-[[maybe_unused]] char* strerror_r_gnu_xsi_unificaton(char* msg, char* buf [[maybe_unused]])
+IOX_MAYBE_UNUSED char* strerror_r_gnu_xsi_unificaton(char* msg, char* buf IOX_MAYBE_UNUSED)
 {
     return msg;
 }

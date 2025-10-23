@@ -77,8 +77,14 @@ inline bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction,
 template <typename ErrorType>
 // NOLINTJUSTIFICATION The complexity comes from the expanded macros; without the expansions the function is quite readable
 // NOLINTNEXTLINE(readability-function-size, readability-function-cognitive-complexity)
-inline bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction [[maybe_unused]],
-                                     const ErrorType expectedError [[maybe_unused]])
+#if (defined(__GNUC__))
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
+inline bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction, const ErrorType expectedError)
+#if (defined(__GNUC__))
+#pragma GCC diagnostic pop
+#endif
 {
     // TODO
     return true;

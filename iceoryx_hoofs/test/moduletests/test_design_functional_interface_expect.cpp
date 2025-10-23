@@ -121,7 +121,7 @@ template <>
 struct ExpectReturnsValueWhenValid<TYPE_HAS_NO_VALUE_METHOD>
 {
     template <typename TestFactory, typename ExpectCall>
-    static void performTest(const ExpectCall& callExpect [[maybe_unused]])
+    static void performTest(const ExpectCall& callExpect IOX_MAYBE_UNUSED)
     {
     }
 };

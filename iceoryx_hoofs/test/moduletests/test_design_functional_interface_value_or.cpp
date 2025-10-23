@@ -42,7 +42,7 @@ template <>
 struct ValueOrReturnsValueWhenValid<TYPE_HAS_NO_VALUE_METHOD>
 {
     template <typename TestFactory, typename ValueOrCall>
-    static void performTest(const ValueOrCall& callValueOr [[maybe_unused]])
+    static void performTest(const ValueOrCall& callValueOr IOX_MAYBE_UNUSED)
     {
     }
 };
@@ -77,7 +77,7 @@ template <>
 struct ValueOrReturnsArgumentWhenInalid<TYPE_HAS_NO_VALUE_METHOD>
 {
     template <typename TestFactory, typename ValueOrCall>
-    static void performTest(const ValueOrCall& callValueOr [[maybe_unused]])
+    static void performTest(const ValueOrCall& callValueOr IOX_MAYBE_UNUSED)
     {
     }
 };
