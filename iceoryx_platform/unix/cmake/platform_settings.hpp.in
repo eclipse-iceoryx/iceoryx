@@ -18,6 +18,7 @@
 
 #include <cstdint>
 #include <limits.h>
+#include <type_traits>
 
 #define IOX_FEATURE_ACL @IOX_CFG_FEATURE_ACL@
 

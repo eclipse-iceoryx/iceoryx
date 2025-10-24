@@ -104,7 +104,7 @@ endMacro()
 # of package version and config file and also export the package
 
 Macro(install_package_files_and_export)
-   # package files
+    # package files
     install(
     FILES ${PACKAGE_VERSION_FILE} ${PACKAGE_CONFIG_FILE}
     DESTINATION ${DESTINATION_CONFIGDIR}

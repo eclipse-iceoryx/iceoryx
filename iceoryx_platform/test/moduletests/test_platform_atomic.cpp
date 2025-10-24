@@ -58,6 +58,7 @@ using Implementations = Types<IoxAtomic, StdAtomic>;
 
 TYPED_TEST_SUITE(Atomic_test, Implementations, );
 
+#if __cplusplus >= 201703L
 TYPED_TEST(Atomic_test, IsAlwaysLockFree)
 {
     ::testing::Test::RecordProperty("TEST_ID", "28ac9afb-14a1-4970-b461-ec523f712d6b");
@@ -72,6 +73,7 @@ TYPED_TEST(Atomic_test, IsAlwaysLockFree)
     EXPECT_THAT(SutPtr::is_always_lock_free, Eq(true));
     EXPECT_THAT(SutStruct::is_always_lock_free, Eq(true));
 }
+#endif
 
 TYPED_TEST(Atomic_test, DefaultCtorWorks)
 {
@@ -87,7 +89,7 @@ TYPED_TEST(Atomic_test, DefaultCtorWorks)
     SutPtr sut_ptr;
     SutStruct sut_struct;
 
-    if (std::is_same_v<SutInt, std::atomic<uint64_t>>)
+    if (std::is_same<SutInt, std::atomic<uint64_t>>::value)
     {
         GTEST_SKIP() << "Default CTor test skipped for std::atomic since the iox::Atomic always initialized the value!";
     }
