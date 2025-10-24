@@ -168,7 +168,9 @@ UntypedRelativePointer::offset_t IpcRuntimeInterface::getSegmentManagerAddressOf
     return m_mgmtShmCharacteristics.segmentManagerAddressOffset;
 }
 
-bool IpcRuntimeInterface::sendRequestToRouDi(const IpcMessage& msg, IpcMessage& answer) noexcept
+bool IpcRuntimeInterface::sendRequestToRouDi(const IpcMessage& msg,
+                                             IpcMessage& answer,
+                                             iox::optional<iox::units::Duration> timeout) noexcept
 {
     if (!m_RoudiIpcInterface.send(msg))
     {
@@ -176,10 +178,21 @@ bool IpcRuntimeInterface::sendRequestToRouDi(const IpcMessage& msg, IpcMessage& 
         return false;
     }
 
-    if (!m_AppIpcInterface.receive(answer))
+    if (timeout)
     {
-        IOX_LOG(Error, "Could not receive request via App IPC channel interface.\n");
-        return false;
+        if (!m_AppIpcInterface.timedReceive(*timeout, answer))
+        {
+            IOX_LOG(Error, "Could not receive request via App IPC channel interface.\n");
+            return false;
+        }
+    }
+    else
+    {
+        if (!m_AppIpcInterface.receive(answer))
+        {
+            IOX_LOG(Error, "Could not receive request via App IPC channel interface.\n");
+            return false;
+        }
     }
 
     return true;

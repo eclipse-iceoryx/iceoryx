@@ -146,8 +146,11 @@ class PoshRuntime
     ///        currently each request is followed by a response
     /// @param[in] msg request message to send
     /// @param[out] response from the RouDi daemon
+    /// @param[in] timeout receive timeout, default disabled
     /// @return true if sucessful request/response, false on error
-    virtual bool sendRequestToRouDi(const IpcMessage& msg, IpcMessage& answer) noexcept = 0;
+    virtual bool sendRequestToRouDi(const IpcMessage& msg,
+                                    IpcMessage& answer,
+                                    iox::optional<iox::units::Duration> timeout = iox::nullopt) noexcept = 0;
 
   protected:
     friend class roudi_env::RuntimeTestInterface;

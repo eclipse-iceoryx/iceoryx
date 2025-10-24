@@ -1506,3 +1506,7 @@
     ```
 
 65. The non-functional `iox::popo::Node` was removed
+
+66. add optional timeout parameter in sendRequestToRouDi 
+
+67. add timeout in terminator request
