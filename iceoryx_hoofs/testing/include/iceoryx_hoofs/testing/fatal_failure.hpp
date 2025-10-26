@@ -17,6 +17,7 @@
 #ifndef IOX_HOOFS_TESTING_FATAL_FAILURE_HPP
 #define IOX_HOOFS_TESTING_FATAL_FAILURE_HPP
 
+#include "iox/attributes.hpp"
 #include "iox/error_reporting/error_kind.hpp"
 #include "iox/error_reporting/types.hpp"
 #include "iox/function_ref.hpp"
@@ -46,7 +47,22 @@ namespace testing
 /// @param[in] testFunction This function will be executed as SUT and is expected to call the error handler
 /// @param[in] expectedError The error value which triggered the fatal failure
 /// @return true if a fatal failure occurs, false otherwise
-template <typename ErrorType>
+template <typename ErrorType,
+          std::enable_if_t<!std::is_same<ErrorType, iox::er::FatalKind>::value
+                               && !std::is_same<ErrorType, iox::er::EnforceViolationKind>::value
+                               && !std::is_same<ErrorType, iox::er::AssertViolationKind>::value,
+                           bool> = true>
+bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction, const ErrorType expectedError);
+
+template <typename ErrorType, std::enable_if_t<std::is_same<ErrorType, iox::er::FatalKind>::value, bool> = true>
+bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction, const ErrorType expectedError);
+
+template <typename ErrorType,
+          std::enable_if_t<std::is_same<ErrorType, iox::er::EnforceViolationKind>::value, bool> = true>
+bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction, const ErrorType expectedError);
+
+template <typename ErrorType,
+          std::enable_if_t<std::is_same<ErrorType, iox::er::AssertViolationKind>::value, bool> = true>
 bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction, const ErrorType expectedError);
 
 /// @brief This function is used in cases no fatal failure is expected but could potentially occur. The function only

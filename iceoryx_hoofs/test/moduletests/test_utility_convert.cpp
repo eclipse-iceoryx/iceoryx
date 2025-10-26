@@ -345,33 +345,32 @@ TEST_F(convert_test, fromString_LongInt_Fail)
     ASSERT_THAT(result.has_value(), Eq(false));
 }
 
+template <typename T>
+void expect_failure(std::vector<std::string>& invalid_input)
+{
+    for (const auto& v : invalid_input)
+    {
+        auto invalid_ret = iox::convert::from_string<T>(v.c_str());
+        ASSERT_THAT(invalid_ret.has_value(), Eq(false));
+    }
+}
+
 TEST_F(convert_test, fromString_Integer_InvalidTrailingChar_Fail)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6a70f10f-227b-4b0a-8149-e5ca3c793b5d");
 
-    using IntegerType = std::tuple<signed char,
-                                   short,
-                                   int,
-                                   long,
-                                   long long,
-                                   unsigned char,
-                                   unsigned short,
-                                   unsigned int,
-                                   unsigned long,
-                                   unsigned long long>;
     std::vector<std::string> invalid_input = {"42a", "74 ", "-52-"};
 
-    // a lambda to iterate all invalid_input cases converting to type decltype(dummy)
-    auto expect_failure = [&invalid_input](auto dummy) {
-        using T = decltype(dummy);
-        for (const auto& v : invalid_input)
-        {
-            auto invalid_ret = iox::convert::from_string<T>(v.c_str());
-            ASSERT_THAT(invalid_ret.has_value(), Eq(false));
-        }
-    };
-
-    std::apply([&expect_failure](auto... args) { (..., expect_failure(args)); }, IntegerType{});
+    expect_failure<signed char>(invalid_input);
+    expect_failure<short>(invalid_input);
+    expect_failure<int>(invalid_input);
+    expect_failure<long>(invalid_input);
+    expect_failure<long long>(invalid_input);
+    expect_failure<unsigned char>(invalid_input);
+    expect_failure<unsigned short>(invalid_input);
+    expect_failure<unsigned int>(invalid_input);
+    expect_failure<unsigned long>(invalid_input);
+    expect_failure<unsigned long long>(invalid_input);
 }
 
 /// SINGED INTEGRAL EDGE CASES START

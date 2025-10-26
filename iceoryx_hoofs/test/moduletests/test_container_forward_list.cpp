@@ -876,7 +876,7 @@ TEST_F(forward_list_test, InsertAfterSomeElementsListLValue)
     }
     sut.insert_after(iter, a);
 
-    for (auto& x [[maybe_unused]] : sut)
+    for (auto& x IOX_MAYBE_UNUSED : sut)
     {
         ++loopCounter;
     }
@@ -1146,7 +1146,7 @@ TEST_F(forward_list_test, IteratorTraitsGetValueType)
 TEST_F(forward_list_test, IteratorTraitsCheckIteratorCategoryOnConstIterator)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ffbb06eb-5267-45e0-91e4-6172a27a3489");
-    auto iter [[maybe_unused]] = sut.cbefore_begin();
+    auto iter IOX_MAYBE_UNUSED = sut.cbefore_begin();
     ASSERT_NE(typeid(std::iterator_traits<decltype(iter)>::iterator_category), typeid(std::random_access_iterator_tag));
     EXPECT_EQ(typeid(std::iterator_traits<decltype(iter)>::iterator_category), typeid(std::forward_iterator_tag));
 }

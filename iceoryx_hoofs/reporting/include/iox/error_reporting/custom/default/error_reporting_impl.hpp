@@ -126,9 +126,21 @@ report(const SourceLocation& location, iox::er::FatalKind kind, const Error& err
 
 namespace detail
 {
-enum class NoMessage
+template <class Kind, class Error>
+inline void
+// NOLINTNEXTLINE(readability-function-size) Not used directly but via a macro which hides the number of parameter away
+report(const SourceLocation& location, Kind kind, const Error& error, const char* stringifiedCondition)
 {
-};
+    auto code = toCode(error);
+    auto module = toModule(error);
+    IOX_ERROR_INTERNAL_LOG_FATAL(location,
+                                 [stringifiedCondition](auto& stream) -> auto& {
+                                     return detail::logStringifiedCondition(stream, stringifiedCondition);
+                                 } << "["
+                                   << kind.name << "]");
+    auto& h = ErrorHandler::get();
+    h.onReportViolation(ErrorDescriptor(location, code, module));
+}
 
 template <class Kind, class Error, class Message>
 inline void
@@ -137,22 +149,11 @@ report(const SourceLocation& location, Kind kind, const Error& error, const char
 {
     auto code = toCode(error);
     auto module = toModule(error);
-    if constexpr (std::is_same<NoMessage, Message>::value)
-    {
-        IOX_ERROR_INTERNAL_LOG_FATAL(location,
-                                     [stringifiedCondition](auto& stream) -> auto& {
-                                         return detail::logStringifiedCondition(stream, stringifiedCondition);
-                                     } << "["
-                                       << kind.name << "]");
-    }
-    else
-    {
-        IOX_ERROR_INTERNAL_LOG_FATAL(location,
-                                     [stringifiedCondition](auto& stream) -> auto& {
-                                         return detail::logStringifiedCondition(stream, stringifiedCondition);
-                                     } << "["
-                                       << kind.name << "] " << std::forward<Message>(msg));
-    }
+    IOX_ERROR_INTERNAL_LOG_FATAL(location,
+                                 [stringifiedCondition](auto& stream) -> auto& {
+                                     return detail::logStringifiedCondition(stream, stringifiedCondition);
+                                 } << "["
+                                   << kind.name << "] " << std::forward<Message>(msg));
     auto& h = ErrorHandler::get();
     h.onReportViolation(ErrorDescriptor(location, code, module));
 }
@@ -164,7 +165,7 @@ inline void report(const SourceLocation& location,
                    const Error& error,
                    const char* stringifiedCondition)
 {
-    detail::report(location, kind, error, stringifiedCondition, detail::NoMessage{});
+    detail::report(location, kind, error, stringifiedCondition);
 }
 
 template <class Error>
@@ -173,7 +174,7 @@ inline void report(const SourceLocation& location,
                    const Error& error,
                    const char* stringifiedCondition)
 {
-    detail::report(location, kind, error, stringifiedCondition, detail::NoMessage{});
+    detail::report(location, kind, error, stringifiedCondition);
 }
 
 template <class Error, class Message>

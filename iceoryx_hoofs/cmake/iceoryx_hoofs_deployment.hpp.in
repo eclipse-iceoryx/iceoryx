@@ -19,6 +19,8 @@
 
 #include "iox/iceoryx_hoofs_types.hpp"
 
+#define IOX_HOOFS_SUBSET @IOX_HOOFS_SUBSET@
+
 namespace iox
 {
 namespace build

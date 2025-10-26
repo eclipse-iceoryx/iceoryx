@@ -1,4 +1,4 @@
-// Copyright (c) 2025 by ekxide IO GmbH. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,9 +14,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_PLATFORM_MINIMAL_POSIX_ACL_HPP
-#define IOX_PLATFORM_MINIMAL_POSIX_ACL_HPP
+#ifndef IOX_HOOFS_WIN_PLATFORM_ATTRIBUTES_HPP
+#define IOX_HOOFS_WIN_PLATFORM_ATTRIBUTES_HPP
 
-#define IOX_PLATFORM_OVERRIDE_ACL_ALL
+#define IOX_NO_DISCARD [[nodiscard]]
 
-#endif // IOX_PLATFORM_MINIMAL_POSIX_ACL_HPP
+#define IOX_FALLTHROUGH [[fallthrough]]
+
+#define IOX_MAYBE_UNUSED [[maybe_unused]]
+
+#endif // IOX_HOOFS_WIN_PLATFORM_ATTRIBUTES_HPP

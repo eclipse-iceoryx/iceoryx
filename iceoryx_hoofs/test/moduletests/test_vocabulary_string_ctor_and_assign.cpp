@@ -727,7 +727,15 @@ TYPED_TEST(stringTyped_test, UnsafeAssignCStringOfSizeCapaResultsInSizeCapa)
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     std::vector<char> testCharstring(STRINGCAP, 'M');
+#if (defined(__GNUC__) && __GNUC__ >= 7 && !defined(__clang__))
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
+#endif
     testCharstring.emplace_back('\0');
+#if (defined(__GNUC__) && __GNUC__ >= 7 && !defined(__clang__))
+#pragma GCC diagnostic pop
+#endif
     EXPECT_THAT(this->testSubject.unsafe_assign(testCharstring.data()), Eq(true));
     EXPECT_THAT(this->testSubject.size(), Eq(STRINGCAP));
 }
@@ -738,7 +746,15 @@ TYPED_TEST(stringTyped_test, UnsafeAssignCStringOfSizeGreaterCapaResultsInSize0)
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     std::vector<char> testCharstring(STRINGCAP + 1U, 'M');
+#if (defined(__GNUC__) && __GNUC__ >= 7 && !defined(__clang__))
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
+#endif
     testCharstring.emplace_back('\0');
+#if (defined(__GNUC__) && __GNUC__ >= 7 && !defined(__clang__))
+#pragma GCC diagnostic pop
+#endif
     EXPECT_THAT(this->testSubject.unsafe_assign(testCharstring.data()), Eq(false));
     EXPECT_THAT(this->testSubject.size(), Eq(0U));
     EXPECT_THAT(this->testSubject.c_str(), StrEq(""));
@@ -752,7 +768,15 @@ TYPED_TEST(stringTyped_test, UnsafeAssignOfInvalidCStringFails)
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     std::vector<char> testCharstring(STRINGCAP + 1U, 'M');
+#if (defined(__GNUC__) && __GNUC__ >= 7 && !defined(__clang__))
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
+#endif
     testCharstring.emplace_back('\0');
+#if (defined(__GNUC__) && __GNUC__ >= 7 && !defined(__clang__))
+#pragma GCC diagnostic pop
+#endif
 
     EXPECT_THAT(this->testSubject.unsafe_assign(testCharstring.data()), Eq(false));
     EXPECT_THAT(this->testSubject.size(), Eq(1U));

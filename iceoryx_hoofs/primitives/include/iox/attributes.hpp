@@ -17,6 +17,8 @@
 #ifndef IOX_HOOFS_PRIMITIVES_ATTRIBUTES_HPP
 #define IOX_HOOFS_PRIMITIVES_ATTRIBUTES_HPP
 
+#include "iceoryx_platform/attributes.hpp"
+
 namespace iox
 {
 namespace internal

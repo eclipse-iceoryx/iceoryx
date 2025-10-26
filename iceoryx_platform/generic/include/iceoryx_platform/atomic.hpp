@@ -18,9 +18,13 @@
 #define IOX_PLATFORM_ATOMIC_HPP
 
 #include <atomic>
+#include <cstdlib>
+#include <iostream>
 #include <type_traits>
 
-namespace iox::concurrent
+namespace iox
+{
+namespace concurrent
 {
 /// @brief An alias to the std::atomic_flag
 using AtomicFlag = std::atomic_flag;
@@ -33,26 +37,36 @@ class Atomic
 {
   private:
     template <typename U>
-    using enable_if_integral_t = std::enable_if_t<std::is_same_v<T, U> && std::is_integral_v<U>, T>;
+    using enable_if_integral_t = std::enable_if_t<std::is_same<T, U>::value && std::is_integral<U>::value, T>;
 
     template <typename U>
-    using enable_if_pointer_t = std::enable_if_t<std::is_same_v<T, U> && std::is_pointer_v<U>, T>;
+    using enable_if_pointer_t = std::enable_if_t<std::is_same<T, U>::value && std::is_pointer<U>::value, T>;
 
     template <typename U>
     using enable_if_integral_or_pointer_t =
-        std::enable_if_t<std::is_same_v<T, U> && (std::is_integral_v<U> || std::is_pointer_v<U>), T>;
+        std::enable_if_t<std::is_same<T, U>::value && (std::is_integral<U>::value || std::is_pointer<U>::value), T>;
 
   public:
+#if __cplusplus >= 201703L
     static_assert(std::atomic<T>::is_always_lock_free,
                   "The 'iox::Atomic' must work across process boundaries and must therefore be always lock-free!");
 
     /// @brief This is always 'true' for 'iox::Atomic'
     static constexpr bool is_always_lock_free = std::atomic<T>::is_always_lock_free;
+#endif
 
     /// @brief Constructs a new 'iox::Atomic' with a default value
     constexpr Atomic() noexcept
         : m_value{T()}
     {
+#if __cplusplus < 201703L
+        if (!std::atomic_is_lock_free(&m_value))
+        {
+            std::cerr << "The 'iox::Atomic' must work across process boundaries and must therefore be always lock-free!"
+                      << std::endl;
+            std::abort();
+        }
+#endif
     }
 
     /// @brief Constructs a new 'iox::Atomic' with the given value
@@ -513,6 +527,7 @@ class Atomic
   private:
     std::atomic<T> m_value;
 };
-} // namespace iox::concurrent
+} // namespace concurrent
+} // namespace iox
 
 #endif // IOX_PLATFORM_ATOMIC_HPP

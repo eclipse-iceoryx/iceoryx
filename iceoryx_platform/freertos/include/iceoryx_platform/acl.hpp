@@ -15,17 +15,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_GENERIC_PLATFORM_ACL_HPP
-#define IOX_HOOFS_GENERIC_PLATFORM_ACL_HPP
+#ifndef IOX_HOOFS_FREERTOS_PLATFORM_ACL_HPP
+#define IOX_HOOFS_FREERTOS_PLATFORM_ACL_HPP
 
 #include "iceoryx_platform/platform_settings.hpp"
 #include "iceoryx_platform/types.hpp"
-
-// NOTE: The functions can be individually overwritten by setting the corresponding 'IOX_PLATFORM_OVERRIDE_*' define in
-// the respective platform specific 'override/*.h' header
-
-
-#ifndef IOX_PLATFORM_OVERRIDE_ACL_ALL
 
 #if IOX_FEATURE_ACL
 
@@ -58,8 +52,6 @@ using acl_tag_t = int;
 
 #endif // IOX_FEATURE_ACL
 
-#endif // IOX_PLATFORM_OVERRIDE_ACL_ALL
-
 int iox_acl_valid(acl_t /*acl*/);
 
 int iox_acl_set_fd(int /*fd*/, acl_t /*acl*/);
@@ -84,4 +76,4 @@ acl_t iox_acl_from_text(const char* /*buf_p*/);
 
 acl_t iox_acl_get_fd(int /*fd*/);
 
-#endif // IOX_HOOFS_GENERIC_PLATFORM_ACL_HPP
+#endif // IOX_HOOFS_FREERTOS_PLATFORM_ACL_HPP

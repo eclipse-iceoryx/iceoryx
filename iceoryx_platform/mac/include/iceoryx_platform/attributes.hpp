@@ -1,4 +1,4 @@
-// Copyright (c) 2024 by ekxide IO GmbH. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,11 +14,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_WIN_PLATFORM_STDLIB_HPP
-#define IOX_HOOFS_WIN_PLATFORM_STDLIB_HPP
+#ifndef IOX_HOOFS_MAC_PLATFORM_ATTRIBUTES_HPP
+#define IOX_HOOFS_MAC_PLATFORM_ATTRIBUTES_HPP
 
-#define IOX_PLATFORM_OVERRIDE_STDLIB_ALL
+#define IOX_NO_DISCARD [[nodiscard]]
 
-#include "iceoryx_platform/generic/stdlib.hpp"
+#define IOX_FALLTHROUGH [[fallthrough]]
 
-#endif // IOX_HOOFS_WIN_PLATFORM_STDLIB_HPP
+#define IOX_MAYBE_UNUSED [[maybe_unused]]
+
+#endif // IOX_HOOFS_MAC_PLATFORM_ATTRIBUTES_HPP

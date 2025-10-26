@@ -17,8 +17,6 @@
 
 #include "iceoryx_platform/acl.hpp"
 
-#ifndef IOX_PLATFORM_OVERRIDE_ACL_ALL
-
 #if IOX_FEATURE_ACL
 
 int iox_acl_valid(acl_t acl)
@@ -82,5 +80,3 @@ acl_t iox_acl_get_fd(int fd)
 }
 
 #endif // IOX_FEATURE_ACL
-
-#endif // IOX_PLATFORM_OVERRIDE_ACL_ALL

@@ -37,7 +37,7 @@ struct CmdArgs
         {
             // NOLINTJUSTIFICATION required for test
             // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-            argv[i] = (*contents)[i].data();
+            argv[i] = const_cast<char*>((*contents)[i].data());
         }
     }
 

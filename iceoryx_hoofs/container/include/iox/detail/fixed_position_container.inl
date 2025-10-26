@@ -19,6 +19,7 @@
 #define IOX_HOOFS_CONTAINER_DETAIL_FIXED_POSITION_CONTAINER_INL
 
 #include "iox/fixed_position_container.hpp"
+#include "iox/iceoryx_hoofs_deployment.hpp"
 
 namespace iox
 {
@@ -97,7 +98,11 @@ inline void FixedPositionContainer<T, CAPACITY>::copy_and_move_impl(RhsType&& rh
     constexpr bool is_move = Helper::is_move;
 
     // status array is not yet initialized for constructor creation
+#if IOX_HOOFS_SUBSET
+    if (is_ctor)
+#else
     if constexpr (is_ctor)
+#endif
     {
         for (IndexType i = 0; i < CAPACITY; ++i)
         {
@@ -153,7 +158,11 @@ inline void FixedPositionContainer<T, CAPACITY>::copy_and_move_impl(RhsType&& rh
     m_size = rhs.m_size;
 
     // reset rhs if is_move is true
+#if IOX_HOOFS_SUBSET
+    if (is_move)
+#else
     if constexpr (is_move)
+#endif
     {
         rhs.clear();
     }

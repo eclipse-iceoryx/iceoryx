@@ -68,8 +68,8 @@ inline std::pair<uint64_t, uint64_t> SpscSofi<ValueType, CapacityValue>::getRead
 template <class ValueType, uint64_t CapacityValue>
 inline uint64_t SpscSofi<ValueType, CapacityValue>::size() const noexcept
 {
-    auto [readPosition, writePosition] = getReadWritePositions();
-    return writePosition - readPosition;
+    auto positions = getReadWritePositions();
+    return std::get<1>(positions) - std::get<0>(positions);
 }
 
 template <class ValueType, uint64_t CapacityValue>
@@ -92,8 +92,8 @@ inline bool SpscSofi<ValueType, CapacityValue>::setCapacity(const uint64_t newSi
 template <class ValueType, uint64_t CapacityValue>
 inline bool SpscSofi<ValueType, CapacityValue>::empty() const noexcept
 {
-    auto [readPosition, writePosition] = getReadWritePositions();
-    return readPosition == writePosition;
+    auto positions = getReadWritePositions();
+    return std::get<0>(positions) == std::get<1>(positions);
 }
 
 template <class ValueType, uint64_t CapacityValue>

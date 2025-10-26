@@ -18,6 +18,7 @@
 #define IOX_HOOFS_CONTAINER_VECTOR_INL
 
 #include "iox/assertions.hpp"
+#include "iox/iceoryx_hoofs_deployment.hpp"
 #include "iox/vector.hpp"
 
 #include <cstring> // std::memcpy, std::memmove
@@ -88,12 +89,14 @@ inline vector<T, Capacity>& vector<T, Capacity>::operator=(const vector& rhs) no
         uint64_t i{0U};
         const uint64_t rhsSize{rhs.size()};
 
+#if not IOX_HOOFS_SUBSET
         if constexpr (std::is_trivially_copyable<T>::value)
         {
             std::memcpy(data(), rhs.data(), static_cast<size_t>(rhsSize) * sizeof(T));
             i = rhsSize;
         }
         else
+#endif
         {
             const uint64_t minSize{algorithm::minVal(m_size, rhsSize)};
 
@@ -127,12 +130,14 @@ inline vector<T, Capacity>& vector<T, Capacity>::operator=(vector&& rhs) noexcep
         uint64_t i{0U};
         const uint64_t rhsSize{rhs.size()};
 
+#if not IOX_HOOFS_SUBSET
         if constexpr (std::is_trivially_copyable<T>::value)
         {
             std::memcpy(data(), rhs.data(), static_cast<size_t>(rhsSize) * sizeof(T));
             i = rhsSize;
         }
         else
+#endif
         {
             const uint64_t minSize{algorithm::minVal(m_size, rhsSize)};
 
@@ -189,7 +194,11 @@ inline bool vector<T, Capacity>::emplace_back(Targs&&... args) noexcept
 {
     if (m_size < Capacity)
     {
+#if IOX_HOOFS_SUBSET
+        if (std::is_trivial<T>::value)
+#else
         if constexpr (std::is_trivial<T>::value)
+#endif
         {
             at_unchecked(m_size++) = T{std::forward<Targs>(args)...};
         }
@@ -217,6 +226,8 @@ inline bool vector<T, Capacity>::emplace(const uint64_t position, Targs&&... arg
     {
         return emplace_back(std::forward<Targs>(args)...);
     }
+
+#if not IOX_HOOFS_SUBSET
     if constexpr (std::is_trivial<T>::value)
     {
         resize(size() + 1U);
@@ -225,13 +236,18 @@ inline bool vector<T, Capacity>::emplace(const uint64_t position, Targs&&... arg
         at_unchecked(position) = T{std::forward<Targs>(args)...};
     }
     else
+#endif
     {
         IOX_DISCARD_RESULT(emplace_back(std::move(at_unchecked(sizeBeforeEmplace - 1U))));
         for (uint64_t i{sizeBeforeEmplace - 1U}; i > position; --i)
         {
             at_unchecked(i) = std::move(at_unchecked(i - 1U));
         }
+#if IOX_HOOFS_SUBSET
+        if (!std::is_trivially_destructible<T>::value)
+#else
         if constexpr (!std::is_trivially_destructible<T>::value)
+#endif
         {
             at_unchecked(position).~T();
         }
@@ -259,7 +275,11 @@ inline bool vector<T, Capacity>::pop_back() noexcept
 {
     if (m_size > 0U)
     {
+#if IOX_HOOFS_SUBSET
+        if (std::is_trivial<T>::value)
+#else
         if constexpr (std::is_trivial<T>::value)
+#endif
         {
             m_size--;
         }
@@ -407,6 +427,7 @@ inline bool vector<T, Capacity>::erase(iterator position) noexcept
         // AXIVION Next Line AutosarC++19_03-M5.0.9 : False positive. Pointer arithmetic occurs here.
         uint64_t index{static_cast<uint64_t>(position - begin())};
         uint64_t n{index};
+#if not IOX_HOOFS_SUBSET
         if constexpr (std::is_trivially_copyable<T>::value)
         {
             if constexpr (!(std::is_trivially_destructible<T>::value))
@@ -417,6 +438,7 @@ inline bool vector<T, Capacity>::erase(iterator position) noexcept
             std::memmove(data() + n, data() + n + 1U, static_cast<size_t>(dataLen) * sizeof(T));
         }
         else
+#endif
         {
             while ((n + 1U) < size())
             {
@@ -452,7 +474,11 @@ inline const T& vector<T, Capacity>::at_unchecked(const uint64_t index) const no
 template <typename T, uint64_t Capacity>
 inline void vector<T, Capacity>::clearFrom(const uint64_t startPosition) noexcept
 {
+#if IOX_HOOFS_SUBSET
+    if (std::is_trivially_destructible<T>::value)
+#else
     if constexpr (std::is_trivially_destructible<T>::value)
+#endif
     {
         m_size = startPosition;
     }

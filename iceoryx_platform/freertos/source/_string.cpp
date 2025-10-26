@@ -19,12 +19,7 @@
 // translation unit which leads to an error not finding the includes from 'iox/string.hpp' and 'iox/detail/string.inl'
 
 #include "iceoryx_platform/string.hpp"
-
-#ifndef IOX_PLATFORM_OVERRIDE_STRING_ALL
-
 #include <cerrno>
-
-#ifndef IOX_PLATFORM_OVERRIDE_STRING_STRERROR_R
 
 namespace
 {
@@ -44,7 +39,3 @@ char* iox_gnu_strerror_r(int errnum, char* buf, size_t buflen)
 {
     return strerror_r_gnu_xsi_unificaton(strerror_r(errnum, buf, buflen), buf);
 }
-
-#endif
-
-#endif

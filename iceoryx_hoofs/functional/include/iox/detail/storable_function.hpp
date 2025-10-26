@@ -20,7 +20,6 @@
 #include "iox/iceoryx_hoofs_types.hpp"
 #include "iox/type_traits.hpp"
 
-#include <cstddef>
 #include <iostream>
 #include <utility>
 
@@ -155,7 +154,7 @@ class storable_function<Capacity, signature<ReturnType, Args...>> final
 
     // AXIVION Next Construct AutosarC++19_03-A18.1.1 : safe access is guaranteed since the c-array is wrapped inside the storable_function
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
-    std::byte m_storage[Capacity];                      // storage for the callable
+    byte m_storage[Capacity];                           // storage for the callable
     void* m_callable{nullptr};                          // pointer to stored type-erased callable
     ReturnType (*m_invoker)(void*, Args&&...){nullptr}; // indirection to invoke the stored callable,
                                                         // nullptr if no callable is stored

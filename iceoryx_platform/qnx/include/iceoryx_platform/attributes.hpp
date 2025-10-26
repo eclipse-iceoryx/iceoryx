@@ -1,4 +1,4 @@
-// Copyright (c) 2024 by ekxide IO GmbH. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,13 +14,26 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_PLATFORM_STDLIB_HPP
-#define IOX_PLATFORM_STDLIB_HPP
+#ifndef IOX_HOOFS_QNX_PLATFORM_ATTRIBUTES_HPP
+#define IOX_HOOFS_QNX_PLATFORM_ATTRIBUTES_HPP
 
-#if __has_include("iceoryx_platform/override/stdlib.hpp")
-#include "iceoryx_platform/override/stdlib.hpp"
+/// @todo iox-#638 Are any of the below flags available with C++14 on QCC?
+#if __cplusplus >= 201703L
+#define IOX_NO_DISCARD [[nodiscard]]
 #else
-#include "iceoryx_platform/generic/stdlib.hpp"
-#endif // __has_include
+#define IOX_NO_DISCARD
+#endif
 
-#endif // IOX_PLATFORM_STDLIB_HPP
+#if __cplusplus >= 201703L
+#define IOX_FALLTHROUGH [[fallthrough]]
+#else
+#define IOX_FALLTHROUGH
+#endif
+
+#if __cplusplus >= 201703L
+#define IOX_MAYBE_UNUSED [[maybe_unused]]
+#else
+#define IOX_MAYBE_UNUSED [[gnu::unused]]
+#endif
+
+#endif // IOX_HOOFS_QNX_PLATFORM_ATTRIBUTES_HPP

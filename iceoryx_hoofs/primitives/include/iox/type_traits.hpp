@@ -65,7 +65,7 @@ struct is_invocable
 {
     // This variant is chosen when Callable(ArgTypes) successfully resolves to a valid type, i.e. is invocable.
     template <typename C, typename... As>
-    static constexpr std::true_type test(typename std::invoke_result<C, As...>::type*) noexcept
+    static constexpr std::true_type test(typename platform::invoke_result<C, As...>::type*) noexcept
     {
         return {};
     }
@@ -94,8 +94,9 @@ template <typename ReturnType, typename Callable, typename... ArgTypes>
 struct is_invocable_r
 {
     template <typename C, typename... As>
-    static constexpr std::true_type test(
-        std::enable_if_t<std::is_convertible<typename std::invoke_result<C, As...>::type, ReturnType>::value>*) noexcept
+    static constexpr std::true_type
+    test(std::enable_if_t<
+         std::is_convertible<typename platform::invoke_result<C, As...>::type, ReturnType>::value>*) noexcept
     {
         return {};
     }

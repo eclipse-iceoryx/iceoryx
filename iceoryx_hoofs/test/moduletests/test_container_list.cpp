@@ -1160,7 +1160,7 @@ TEST_F(list_test, InsertSomeElementsListLValue)
     }
     sut.insert(iter, a);
 
-    for (auto& x [[maybe_unused]] : sut)
+    for (auto& x IOX_MAYBE_UNUSED : sut)
     {
         ++loopCounter;
     }
@@ -1478,7 +1478,7 @@ TEST_F(list_test, IteratorTraitsGetValueType)
 TEST_F(list_test, IteratorTraitsCheckIteratorCategoryOnConstIterator)
 {
     ::testing::Test::RecordProperty("TEST_ID", "295e6406-93bc-4a12-9b03-33e5d494b2c2");
-    auto iter [[maybe_unused]] = sut.cbegin();
+    auto iter IOX_MAYBE_UNUSED = sut.cbegin();
     ASSERT_NE(typeid(std::iterator_traits<decltype(iter)>::iterator_category), typeid(std::random_access_iterator_tag));
     EXPECT_EQ(typeid(std::iterator_traits<decltype(iter)>::iterator_category), typeid(std::bidirectional_iterator_tag));
 }
@@ -2259,7 +2259,7 @@ TEST_F(list_test, invalidIteratorComparison)
 
     auto iter = sut.cbegin();
     ++iter;
-    auto iter2 [[maybe_unused]] = sut.erase(iter);
+    auto iter2 IOX_MAYBE_UNUSED = sut.erase(iter);
 
 
     IOX_EXPECT_FATAL_FAILURE([&] { IOX_DISCARD_RESULT(sut.cbegin() == iter); }, iox::er::ENFORCE_VIOLATION);
@@ -2293,7 +2293,7 @@ TEST_F(list_test, invalidIteratorDereferencing)
 
     auto iter = sut.cbegin();
     ++iter;
-    auto iter2 [[maybe_unused]] = sut.erase(iter);
+    auto iter2 IOX_MAYBE_UNUSED = sut.erase(iter);
 
     IOX_EXPECT_FATAL_FAILURE([&] { IOX_DISCARD_RESULT((*iter).value); }, iox::er::ENFORCE_VIOLATION);
 }
@@ -2309,7 +2309,7 @@ TEST_F(list_test, invalidIteratorAddressOfOperator)
 
     auto iter = sut.cbegin();
     ++iter;
-    auto iter2 [[maybe_unused]] = sut.erase(iter);
+    auto iter2 IOX_MAYBE_UNUSED = sut.erase(iter);
 
     IOX_EXPECT_FATAL_FAILURE([&] { IOX_DISCARD_RESULT(iter->value == 12U); }, iox::er::ENFORCE_VIOLATION);
 }

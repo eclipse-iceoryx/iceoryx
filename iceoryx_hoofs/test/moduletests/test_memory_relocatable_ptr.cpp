@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iox/attributes.hpp"
 #include "iox/relocatable_ptr.hpp"
-
 #include "test.hpp"
 
 #include <cstring>
@@ -36,14 +36,14 @@ inline T* nonNullPtr()
 }
 
 template <>
-[[maybe_unused]] inline void* nonNullPtr<void>()
+IOX_MAYBE_UNUSED inline void* nonNullPtr<void>()
 {
     static int t;
     return &t;
 }
 
 template <>
-[[maybe_unused]] inline const void* nonNullPtr<const void>()
+IOX_MAYBE_UNUSED inline const void* nonNullPtr<const void>()
 {
     static int t;
     return &t;
@@ -57,14 +57,14 @@ inline T* otherNonNullPtr()
 }
 
 template <>
-[[maybe_unused]] inline void* otherNonNullPtr<void>()
+IOX_MAYBE_UNUSED inline void* otherNonNullPtr<void>()
 {
     static int t;
     return &t;
 }
 
 template <>
-[[maybe_unused]] inline const void* otherNonNullPtr<const void>()
+IOX_MAYBE_UNUSED inline const void* otherNonNullPtr<const void>()
 {
     static int t;
     return &t;

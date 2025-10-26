@@ -22,6 +22,7 @@
 
 #include "iox/detail/convert.hpp"
 #include "iox/detail/string_type_traits.hpp"
+#include "iox/iceoryx_hoofs_deployment.hpp"
 #include "iox/logging.hpp"
 
 namespace iox
@@ -59,24 +60,23 @@ convert::toString(const Source& t) noexcept
     return t;
 }
 
-template <typename TargetType>
+template <typename TargetType, typename std::enable_if_t<is_iox_string<TargetType>::value, int>>
 inline iox::optional<TargetType> convert::from_string(const char* v) noexcept
 {
-    if constexpr (is_iox_string<TargetType>::value)
+    using IoxString = TargetType;
+    if (strlen(v) > IoxString::capacity())
     {
-        using IoxString = TargetType;
-        if (strlen(v) > IoxString::capacity())
-        {
-            return iox::nullopt;
-        }
-        return iox::optional<IoxString>(IoxString(TruncateToCapacity, v));
+        return iox::nullopt;
     }
-    else
-    {
-        static_assert(always_false_v<TargetType>,
-                      "For a conversion to 'std::string' please include 'iox/std_string_support.hpp'!\nConversion not "
-                      "supported!");
-    }
+    return iox::optional<IoxString>(IoxString(TruncateToCapacity, v));
+}
+
+template <typename TargetType, typename std::enable_if_t<!is_iox_string<TargetType>::value, int>>
+inline iox::optional<TargetType> convert::from_string(const char* v IOX_MAYBE_UNUSED) noexcept
+{
+    static_assert(always_false_v<TargetType>,
+                  "For a conversion to 'std::string' please include 'iox/std_string_support.hpp'!\nConversion not "
+                  "supported!");
 }
 
 template <>
@@ -359,12 +359,24 @@ inline bool convert::is_valid_input(const char* end_ptr, const char* v, const So
 template <typename TargetType, typename SourceType>
 inline bool convert::is_within_range(const SourceType& source_val) noexcept
 {
+#if IOX_HOOFS_SUBSET
+    if (std::is_arithmetic<TargetType>::value == false)
+#else
     if constexpr (std::is_arithmetic_v<TargetType> == false)
+#endif
     {
         return true;
     }
+
+#if IOX_HOOFS_SUBSET
+    if (std::is_floating_point<SourceType>::value)
+    {
+        auto source_val_fp = static_cast<double>(source_val);
+#else
     if constexpr (std::is_floating_point_v<SourceType>)
     {
+        auto source_val_fp = source_val;
+#endif
         // special cases for floating point
         // can be nan or inf
         if (std::isnan(source_val) || std::isinf(source_val))
@@ -372,7 +384,7 @@ inline bool convert::is_within_range(const SourceType& source_val) noexcept
             return true;
         }
         // should be normal or zero
-        if (!std::isnormal(source_val) && (source_val != 0.0))
+        if (!std::isnormal(source_val) && (source_val_fp != 0.0F))
         {
             return false;
         }
