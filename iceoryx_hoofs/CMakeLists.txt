@@ -104,8 +104,10 @@ iox_add_library(
 )
 
 if(IOX_USE_HOOFS_SUBSET_ONLY)
-    target_compile_definitions(iceoryx_hoofs PUBLIC IOX_HOOFS_SUBSET)
-endif(IOX_USE_HOOFS_SUBSET_ONLY)
+    set(IOX_HOOFS_SUBSET 1)
+else()
+    set(IOX_HOOFS_SUBSET 0)
+endif()
 
 if(NOT IOX_USE_HOOFS_SUBSET_ONLY)
     target_sources(

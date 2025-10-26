@@ -22,6 +22,7 @@ configure_file(
     src = "cmake/iceoryx_hoofs_deployment.hpp.in",
     out = "generated/include/iox/iceoryx_hoofs_deployment.hpp",
     config_constants = {
+        "IOX_HOOFS_SUBSET": "0",
         "IOX_MAX_NAMED_PIPE_MESSAGE_SIZE": "4096",
         "IOX_MAX_NAMED_PIPE_NUMBER_OF_MESSAGES": "10",
         # FIXME: for values see "iceoryx_hoofs/cmake/IceoryxHoofsDeployment.cmake" ... for now some nice defaults

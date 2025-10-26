@@ -17,6 +17,7 @@
 #ifndef IOX_HOOFS_TESTING_FATAL_FAILURE_HPP
 #define IOX_HOOFS_TESTING_FATAL_FAILURE_HPP
 
+#include "iox/attributes.hpp"
 #include "iox/error_reporting/error_kind.hpp"
 #include "iox/error_reporting/types.hpp"
 #include "iox/function_ref.hpp"

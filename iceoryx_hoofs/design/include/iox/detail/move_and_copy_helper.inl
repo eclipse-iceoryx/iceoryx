@@ -17,30 +17,20 @@
 #ifndef IOX_HOOFS_DESIGN_MOVE_AND_COPY_HELPER_INL
 #define IOX_HOOFS_DESIGN_MOVE_AND_COPY_HELPER_INL
 
+#include "iox/iceoryx_hoofs_deployment.hpp"
 #include "iox/move_and_copy_helper.hpp"
 
 namespace iox
 {
-#ifndef IOX_HOOFS_SUBSET
 template <MoveAndCopyOperations Opt>
 template <typename T, typename V>
 inline void MoveAndCopyHelper<Opt>::transfer(T& dest, V&& src) noexcept
 {
-    if constexpr (is_ctor)
-    {
-        create_new(dest, std::forward<V>(src));
-    }
-    else
-    {
-        assign(dest, std::forward<V>(src));
-    }
-}
-#else
-template <MoveAndCopyOperations Opt>
-template <typename T, typename V>
-inline void MoveAndCopyHelper<Opt>::transfer(T& dest, V&& src) noexcept
-{
+#if IOX_HOOFS_SUBSET
     if (is_ctor)
+#else
+    if constexpr (is_ctor)
+#endif
     {
         create_new(dest, std::forward<V>(src));
     }
@@ -49,13 +39,14 @@ inline void MoveAndCopyHelper<Opt>::transfer(T& dest, V&& src) noexcept
         assign(dest, std::forward<V>(src));
     }
 }
-#endif
 
-#ifndef IOX_HOOFS_SUBSET
 template <MoveAndCopyOperations Opt>
 template <typename T, typename V>
 inline void MoveAndCopyHelper<Opt>::create_new(T& dest, V&& src) noexcept
 {
+#if IOX_HOOFS_SUBSET
+    new (&dest) T(std::forward<V>(src));
+#else
     if constexpr (is_move)
     {
         static_assert(std::is_rvalue_reference_v<decltype(src)>, "src should be rvalue reference");
@@ -69,21 +60,16 @@ inline void MoveAndCopyHelper<Opt>::create_new(T& dest, V&& src) noexcept
         static_assert(std::is_convertible_v<V, T>, "src type is not convertible to dest type");
         new (&dest) T(src);
     }
-}
-#else
-template <MoveAndCopyOperations Opt>
-template <typename T, typename V>
-inline void MoveAndCopyHelper<Opt>::create_new(T& dest, V&& src) noexcept
-{
-    new (&dest) T(std::forward<V>(src));
-}
 #endif
+}
 
-#ifndef IOX_HOOFS_SUBSET
 template <MoveAndCopyOperations Opt>
 template <typename T, typename V>
 inline void MoveAndCopyHelper<Opt>::assign(T& dest, V&& src) noexcept
 {
+#if IOX_HOOFS_SUBSET
+    dest = std::forward<V>(src);
+#else
     if constexpr (is_move)
     {
         static_assert(std::is_rvalue_reference_v<decltype(src)>, "src should be rvalue reference");
@@ -95,14 +81,7 @@ inline void MoveAndCopyHelper<Opt>::assign(T& dest, V&& src) noexcept
         static_assert(std::is_const_v<std::remove_reference_t<decltype(src)>>, "src should have 'const' modifier");
         dest = src;
     }
-}
-#else
-template <MoveAndCopyOperations Opt>
-template <typename T, typename V>
-inline void MoveAndCopyHelper<Opt>::assign(T& dest, V&& src) noexcept
-{
-    dest = std::forward<V>(src);
-}
 #endif
+}
 } // namespace iox
 #endif

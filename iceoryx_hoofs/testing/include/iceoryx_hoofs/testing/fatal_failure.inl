@@ -24,14 +24,11 @@ namespace iox
 {
 namespace testing
 {
-#if (defined(__GNUC__))
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#endif
 template <typename ErrorType, std::enable_if_t<std::is_same<ErrorType, iox::er::FatalKind>::value, bool>>
 // NOLINTJUSTIFICATION The complexity comes from the expanded macros; without the expansions the function is quite readable
 // NOLINTNEXTLINE(readability-function-size, readability-function-cognitive-complexity)
-inline bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction, const ErrorType expectedError)
+inline bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction,
+                                     const ErrorType expectedError IOX_MAYBE_UNUSED)
 {
     iox::testing::ErrorHandler::instance().reset();
     runInTestThread([&] { testFunction(); });
@@ -48,18 +45,12 @@ inline bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction, co
     EXPECT_TRUE(hasExpectedError);
     return hasExpectedError && hasPanicked;
 }
-#if (defined(__GNUC__))
-#pragma GCC diagnostic pop
-#endif
 
-#if (defined(__GNUC__))
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#endif
 template <typename ErrorType, std::enable_if_t<std::is_same<ErrorType, iox::er::EnforceViolationKind>::value, bool>>
 // NOLINTJUSTIFICATION The complexity comes from the expanded macros; without the expansions the function is quite readable
 // NOLINTNEXTLINE(readability-function-size, readability-function-cognitive-complexity)
-inline bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction, const ErrorType expectedError)
+inline bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction,
+                                     const ErrorType expectedError IOX_MAYBE_UNUSED)
 {
     iox::testing::ErrorHandler::instance().reset();
     runInTestThread([&] { testFunction(); });
@@ -76,18 +67,12 @@ inline bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction, co
     EXPECT_TRUE(hasExpectedError);
     return hasExpectedError && hasPanicked;
 }
-#if (defined(__GNUC__))
-#pragma GCC diagnostic pop
-#endif
 
-#if (defined(__GNUC__))
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#endif
 template <typename ErrorType, std::enable_if_t<std::is_same<ErrorType, iox::er::AssertViolationKind>::value, bool>>
 // NOLINTJUSTIFICATION The complexity comes from the expanded macros; without the expansions the function is quite readable
 // NOLINTNEXTLINE(readability-function-size, readability-function-cognitive-complexity)
-inline bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction, const ErrorType expectedError)
+inline bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction,
+                                     const ErrorType expectedError IOX_MAYBE_UNUSED)
 {
     iox::testing::ErrorHandler::instance().reset();
     runInTestThread([&] { testFunction(); });
@@ -104,14 +89,7 @@ inline bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction, co
     EXPECT_TRUE(hasExpectedError);
     return hasExpectedError && hasPanicked;
 }
-#if (defined(__GNUC__))
-#pragma GCC diagnostic pop
-#endif
 
-#if (defined(__GNUC__))
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#endif
 template <typename ErrorType,
           std::enable_if_t<!std::is_same<ErrorType, iox::er::FatalKind>::value
                                && !std::is_same<ErrorType, iox::er::EnforceViolationKind>::value
@@ -136,9 +114,6 @@ inline bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction, co
     EXPECT_TRUE(hasExpectedError);
     return hasExpectedError && hasPanicked;
 }
-#if (defined(__GNUC__))
-#pragma GCC diagnostic pop
-#endif
 
 inline bool IOX_EXPECT_NO_FATAL_FAILURE(const function_ref<void()> testFunction)
 {

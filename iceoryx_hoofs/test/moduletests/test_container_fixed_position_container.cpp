@@ -20,6 +20,7 @@
 
 #include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "iceoryx_hoofs/testing/lifetime_and_assignment_tracker.hpp"
+#include "iox/iceoryx_hoofs_deployment.hpp"
 #include "test.hpp"
 
 namespace
@@ -114,7 +115,7 @@ TEST_F(FixedPositionContainer_test, Capacity)
     EXPECT_THAT(sut.capacity(), Eq(CAPACITY));
 }
 
-#ifndef IOX_HOOFS_SUBSET
+#if not IOX_HOOFS_SUBSET
 // BEGIN test copy constructor
 
 TEST_F(FixedPositionContainer_test, UsingCopyCtorEmptyContainerResultsInEmptyContainer)

@@ -18,6 +18,7 @@
 #define IOX_HOOFS_CONTAINER_VECTOR_INL
 
 #include "iox/assertions.hpp"
+#include "iox/iceoryx_hoofs_deployment.hpp"
 #include "iox/vector.hpp"
 
 #include <cstring> // std::memcpy, std::memmove
@@ -80,7 +81,6 @@ inline vector<T, Capacity>::~vector() noexcept
     clear();
 }
 
-#ifndef IOX_HOOFS_SUBSET
 template <typename T, uint64_t Capacity>
 inline vector<T, Capacity>& vector<T, Capacity>::operator=(const vector& rhs) noexcept
 {
@@ -89,12 +89,14 @@ inline vector<T, Capacity>& vector<T, Capacity>::operator=(const vector& rhs) no
         uint64_t i{0U};
         const uint64_t rhsSize{rhs.size()};
 
+#if not IOX_HOOFS_SUBSET
         if constexpr (std::is_trivially_copyable<T>::value)
         {
             std::memcpy(data(), rhs.data(), static_cast<size_t>(rhsSize) * sizeof(T));
             i = rhsSize;
         }
         else
+#endif
         {
             const uint64_t minSize{algorithm::minVal(m_size, rhsSize)};
 
@@ -119,40 +121,7 @@ inline vector<T, Capacity>& vector<T, Capacity>::operator=(const vector& rhs) no
     }
     return *this;
 }
-#else
-template <typename T, uint64_t Capacity>
-inline vector<T, Capacity>& vector<T, Capacity>::operator=(const vector& rhs) noexcept
-{
-    if (this != &rhs)
-    {
-        uint64_t i{0U};
-        const uint64_t rhsSize{rhs.size()};
 
-        const uint64_t minSize{algorithm::minVal(m_size, rhsSize)};
-
-        // copy using copy assignment
-        for (; i < minSize; ++i)
-        {
-            // AXIVION Next Line AutosarC++19_03-A5.0.1 : Expands to basic variable assignment. Evaluation order is inconsequential.
-            at(i) = rhs.at(i);
-        }
-
-        // copy using copy ctor
-        for (; i < rhsSize; ++i)
-        {
-            IOX_DISCARD_RESULT(emplace_back(rhs.at(i)));
-        }
-
-        // delete remaining elements
-        clearFrom(i);
-
-        m_size = rhsSize;
-    }
-    return *this;
-}
-#endif
-
-#ifndef IOX_HOOFS_SUBSET
 template <typename T, uint64_t Capacity>
 inline vector<T, Capacity>& vector<T, Capacity>::operator=(vector&& rhs) noexcept
 {
@@ -161,12 +130,14 @@ inline vector<T, Capacity>& vector<T, Capacity>::operator=(vector&& rhs) noexcep
         uint64_t i{0U};
         const uint64_t rhsSize{rhs.size()};
 
+#if not IOX_HOOFS_SUBSET
         if constexpr (std::is_trivially_copyable<T>::value)
         {
             std::memcpy(data(), rhs.data(), static_cast<size_t>(rhsSize) * sizeof(T));
             i = rhsSize;
         }
         else
+#endif
         {
             const uint64_t minSize{algorithm::minVal(m_size, rhsSize)};
 
@@ -192,39 +163,6 @@ inline vector<T, Capacity>& vector<T, Capacity>::operator=(vector&& rhs) noexcep
     }
     return *this;
 }
-#else
-template <typename T, uint64_t Capacity>
-inline vector<T, Capacity>& vector<T, Capacity>::operator=(vector&& rhs) noexcept
-{
-    if (this != &rhs)
-    {
-        uint64_t i{0U};
-        const uint64_t rhsSize{rhs.size()};
-
-        const uint64_t minSize{algorithm::minVal(m_size, rhsSize)};
-
-        // move using move assignment
-        for (; i < minSize; ++i)
-        {
-            // AXIVION Next Line AutosarC++19_03-A5.0.1 : Expands to basic variable assignment. Evaluation order is inconsequential.
-            at(i) = std::move(rhs.at(i));
-        }
-
-        // move using move ctor
-        for (; i < rhsSize; ++i)
-        {
-            IOX_DISCARD_RESULT(emplace_back(std::move(rhs.at(i))));
-        }
-
-        // delete remaining elements
-        clearFrom(i);
-
-        m_size = rhsSize;
-        rhs.clear();
-    }
-    return *this;
-}
-#endif
 
 template <typename T, uint64_t Capacity>
 inline bool vector<T, Capacity>::empty() const noexcept
@@ -250,14 +188,17 @@ inline void vector<T, Capacity>::clear() noexcept
     clearFrom(0);
 }
 
-#ifndef IOX_HOOFS_SUBSET
 template <typename T, uint64_t Capacity>
 template <typename... Targs>
 inline bool vector<T, Capacity>::emplace_back(Targs&&... args) noexcept
 {
     if (m_size < Capacity)
     {
+#if IOX_HOOFS_SUBSET
+        if (std::is_trivial<T>::value)
+#else
         if constexpr (std::is_trivial<T>::value)
+#endif
         {
             at_unchecked(m_size++) = T{std::forward<Targs>(args)...};
         }
@@ -270,22 +211,7 @@ inline bool vector<T, Capacity>::emplace_back(Targs&&... args) noexcept
     }
     return false;
 }
-#else
-template <typename T, uint64_t Capacity>
-template <typename... Targs>
-inline bool vector<T, Capacity>::emplace_back(Targs&&... args) noexcept
-{
-    if (m_size < Capacity)
-    {
-        // AXIVION Next Line AutosarC++19_03-A5.0.1, FaultDetection-IndirectAssignmentOverflow: Size guaranteed by T. Evaluation order is inconsequential.
-        new (&at_unchecked(m_size++)) T{std::forward<Targs>(args)...};
-        return true;
-    }
-    return false;
-}
-#endif
 
-#ifndef IOX_HOOFS_SUBSET
 template <typename T, uint64_t Capacity>
 template <typename... Targs>
 inline bool vector<T, Capacity>::emplace(const uint64_t position, Targs&&... args) noexcept
@@ -301,6 +227,7 @@ inline bool vector<T, Capacity>::emplace(const uint64_t position, Targs&&... arg
         return emplace_back(std::forward<Targs>(args)...);
     }
 
+#if not IOX_HOOFS_SUBSET
     if constexpr (std::is_trivial<T>::value)
     {
         resize(size() + 1U);
@@ -309,13 +236,18 @@ inline bool vector<T, Capacity>::emplace(const uint64_t position, Targs&&... arg
         at_unchecked(position) = T{std::forward<Targs>(args)...};
     }
     else
+#endif
     {
         IOX_DISCARD_RESULT(emplace_back(std::move(at_unchecked(sizeBeforeEmplace - 1U))));
         for (uint64_t i{sizeBeforeEmplace - 1U}; i > position; --i)
         {
             at_unchecked(i) = std::move(at_unchecked(i - 1U));
         }
+#if IOX_HOOFS_SUBSET
+        if (!std::is_trivially_destructible<T>::value)
+#else
         if constexpr (!std::is_trivially_destructible<T>::value)
+#endif
         {
             at_unchecked(position).~T();
         }
@@ -323,32 +255,6 @@ inline bool vector<T, Capacity>::emplace(const uint64_t position, Targs&&... arg
     }
     return true;
 }
-#else
-template <typename T, uint64_t Capacity>
-template <typename... Targs>
-inline bool vector<T, Capacity>::emplace(const uint64_t position, Targs&&... args) noexcept
-{
-    const uint64_t sizeBeforeEmplace{m_size};
-    if ((m_size >= Capacity) || ((position >= Capacity) || (position > sizeBeforeEmplace)))
-    {
-        return false;
-    }
-
-    if (position == sizeBeforeEmplace)
-    {
-        return emplace_back(std::forward<Targs>(args)...);
-    }
-
-    IOX_DISCARD_RESULT(emplace_back(std::move(at_unchecked(sizeBeforeEmplace - 1U))));
-    for (uint64_t i{sizeBeforeEmplace - 1U}; i > position; --i)
-    {
-        at_unchecked(i) = std::move(at_unchecked(i - 1U));
-    }
-    at(position).~T();
-    new (&at_unchecked(position)) T(std::forward<Targs>(args)...);
-    return true;
-}
-#endif
 
 template <typename T, uint64_t Capacity>
 inline bool vector<T, Capacity>::push_back(const T& value) noexcept
@@ -364,13 +270,16 @@ inline bool vector<T, Capacity>::push_back(T&& value) noexcept
     return emplace_back(std::forward<T>(value));
 }
 
-#ifndef IOX_HOOFS_SUBSET
 template <typename T, uint64_t Capacity>
 inline bool vector<T, Capacity>::pop_back() noexcept
 {
     if (m_size > 0U)
     {
+#if IOX_HOOFS_SUBSET
+        if (std::is_trivial<T>::value)
+#else
         if constexpr (std::is_trivial<T>::value)
+#endif
         {
             m_size--;
         }
@@ -382,18 +291,6 @@ inline bool vector<T, Capacity>::pop_back() noexcept
     }
     return false;
 }
-#else
-template <typename T, uint64_t Capacity>
-inline bool vector<T, Capacity>::pop_back() noexcept
-{
-    if (m_size > 0U)
-    {
-        at_unchecked(--m_size).~T();
-        return true;
-    }
-    return false;
-}
-#endif
 
 template <typename T, uint64_t Capacity>
 template <typename... Targs>
@@ -522,7 +419,6 @@ inline typename vector<T, Capacity>::const_iterator vector<T, Capacity>::end() c
     return reinterpret_cast<const_iterator>(&(at_unchecked(0)) + m_size);
 }
 
-#ifndef IOX_HOOFS_SUBSET
 template <typename T, uint64_t Capacity>
 inline bool vector<T, Capacity>::erase(iterator position) noexcept
 {
@@ -531,6 +427,7 @@ inline bool vector<T, Capacity>::erase(iterator position) noexcept
         // AXIVION Next Line AutosarC++19_03-M5.0.9 : False positive. Pointer arithmetic occurs here.
         uint64_t index{static_cast<uint64_t>(position - begin())};
         uint64_t n{index};
+#if not IOX_HOOFS_SUBSET
         if constexpr (std::is_trivially_copyable<T>::value)
         {
             if constexpr (!(std::is_trivially_destructible<T>::value))
@@ -541,6 +438,7 @@ inline bool vector<T, Capacity>::erase(iterator position) noexcept
             std::memmove(data() + n, data() + n + 1U, static_cast<size_t>(dataLen) * sizeof(T));
         }
         else
+#endif
         {
             while ((n + 1U) < size())
             {
@@ -556,29 +454,6 @@ inline bool vector<T, Capacity>::erase(iterator position) noexcept
     }
     return false;
 }
-#else
-template <typename T, uint64_t Capacity>
-inline bool vector<T, Capacity>::erase(iterator position) noexcept
-{
-    if ((begin() <= position) && (position < end()))
-    {
-        // AXIVION Next Line AutosarC++19_03-M5.0.9 : False positive. Pointer arithmetic occurs here.
-        uint64_t index{static_cast<uint64_t>(position - begin())};
-        uint64_t n{index};
-        while ((n + 1U) < size())
-        {
-            // AXIVION Next Line AutosarC++19_03-A5.0.1 : Expands to basic variable assignment. Evaluation order is inconsequential.
-            at_unchecked(n) = std::move(at(n + 1U));
-            ++n;
-        }
-        at_unchecked(n).~T();
-
-        m_size--;
-        return true;
-    }
-    return false;
-}
-#endif
 
 template <typename T, uint64_t Capacity>
 inline T& vector<T, Capacity>::at_unchecked(const uint64_t index) noexcept
@@ -596,11 +471,14 @@ inline const T& vector<T, Capacity>::at_unchecked(const uint64_t index) const no
     return *reinterpret_cast<const T*>(&m_data[index]);
 }
 
-#ifndef IOX_HOOFS_SUBSET
 template <typename T, uint64_t Capacity>
 inline void vector<T, Capacity>::clearFrom(const uint64_t startPosition) noexcept
 {
+#if IOX_HOOFS_SUBSET
+    if (std::is_trivially_destructible<T>::value)
+#else
     if constexpr (std::is_trivially_destructible<T>::value)
+#endif
     {
         m_size = startPosition;
     }
@@ -612,16 +490,6 @@ inline void vector<T, Capacity>::clearFrom(const uint64_t startPosition) noexcep
         }
     }
 }
-#else
-template <typename T, uint64_t Capacity>
-inline void vector<T, Capacity>::clearFrom(const uint64_t startPosition) noexcept
-{
-    while (m_size > startPosition)
-    {
-        at_unchecked(--m_size).~T();
-    }
-}
-#endif
 
 // AXIVION Next Construct AutosarC++19_03-A13.5.5 : intentional implementation with different parameters to enable
 // comparison of vectors with different capacity

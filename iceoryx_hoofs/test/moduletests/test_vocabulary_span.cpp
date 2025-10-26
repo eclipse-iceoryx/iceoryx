@@ -14,6 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iox/iceoryx_hoofs_deployment.hpp"
 #include "iox/span.hpp"
 #include "iox/vector.hpp"
 #include "test.hpp"
