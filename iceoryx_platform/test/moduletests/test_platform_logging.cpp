@@ -131,7 +131,9 @@ TEST(Logging_test, SettingCustomBackendWorks)
     constexpr const char* MESSAGE{"Who will rock you?"};
     IOX_PLATFORM_LOG(IOX_PLATFORM_LOG_LEVEL_INFO, MESSAGE);
 
-    auto [log_level, log_msg] = last_log_output.get();
+    auto log_level{IceoryxPlatformLogLevel::IOX_PLATFORM_LOG_LEVEL_OFF};
+    std::string log_msg;
+    std::tie(log_level, log_msg) = last_log_output.get();
     EXPECT_THAT(log_level, Eq(IOX_PLATFORM_LOG_LEVEL_INFO));
     EXPECT_THAT(log_msg, StrEq(MESSAGE));
 }
