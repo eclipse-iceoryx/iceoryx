@@ -5,6 +5,7 @@ build:freebsd --cxxopt="-std=c++17"
 build:macos --cxxopt="-std=c++17"
 build:qnx --cxxopt="-std=c++17"
 build:windows --cxxopt="/std:c++17"
+build --noincompatible_disallow_empty_glob
 
 # For using clang
 build:clang --action_env=BAZEL_COMPILER=clang
@@ -38,13 +39,10 @@ build:tsan --linkopt="-fsanitize=thread"
 # tsan clang
 build:clang_tsan --config=clang --config=tsan
 
-# do not use bzlmod for now
-build --noenable_bzlmod
-
 #
 # feature flags
 #
 
 # value [auto, on, off]
 # 'auto' is platform dependent ('on' on Linux and QNX, 'off' on other OS) and the default value if the flag is not set
-#build --//:feature_acl=off
+build --//:feature_acl=off
