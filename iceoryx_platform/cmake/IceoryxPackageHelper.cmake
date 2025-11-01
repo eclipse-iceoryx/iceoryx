@@ -379,6 +379,22 @@ Macro(iox_add_library)
         )
     endif()
 
+    if ( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE-APACHE )
+        install(
+            FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE-APACHE
+            DESTINATION share/doc/${IOX_TARGET}
+            COMPONENT dev
+        )
+    endif()
+
+    if ( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE-MIT )
+        install(
+            FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE-MIT
+            DESTINATION share/doc/${IOX_TARGET}
+            COMPONENT dev
+        )
+    endif()
+
     if ( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/doc/3rd_party_licenses )
         install(
           DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doc/3rd_party_licenses
