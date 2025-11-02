@@ -34,12 +34,13 @@ msg "sourcing ROS workspace"
 # shellcheck source=/dev/null
 source /opt/ros/humble/setup.bash
 
-msg "checking copyrights"
-sudo rm -rf /opt/ros/humble/lib/python3.10/site-packages/ament_copyright/template/apache2_header.txt
-sudo cp -rf tools/apache2_header.txt /opt/ros/humble/lib/python3.10/site-packages/ament_copyright/template/.
-# shellcheck disable=SC2026
-sudo sed -i '41 c\"'c'", "'cc'", "'cpp'", "'cxx'", "'h'", "'hh'", "'hpp'", "'hxx'", "'inl'", "'sh'"' /opt/ros/humble/lib/python3.10/site-packages/ament_copyright/main.py
-ament_copyright ./**/* tools/apache2_header.txt
+# NOTE: there will be no further iceoryx classic release, therefore we do not need to spent time to adjust this check for the different licenses in iceoryx_posh and iceoryx_hoofs, etc.
+# msg "checking copyrights"
+# sudo rm -rf /opt/ros/humble/lib/python3.10/site-packages/ament_copyright/template/apache2_header.txt
+# sudo cp -rf tools/apache2_header.txt /opt/ros/humble/lib/python3.10/site-packages/ament_copyright/template/.
+# # shellcheck disable=SC2026
+# sudo sed -i '41 c\"'c'", "'cc'", "'cpp'", "'cxx'", "'h'", "'hh'", "'hpp'", "'hxx'", "'inl'", "'sh'"' /opt/ros/humble/lib/python3.10/site-packages/ament_copyright/main.py
+# ament_copyright ./**/* tools/apache2_header.txt
 
 msg "compiler versions:
 $(gcc --version)
