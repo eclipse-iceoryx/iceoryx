@@ -1,6 +1,6 @@
 module(
     name = "iceoryx",
-    version = "2.95.7",
+    version = "2.95.8",
 )
 
 bazel_dep(name = "bazel_skylib", version = "1.7.1")
