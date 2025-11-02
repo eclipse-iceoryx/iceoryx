@@ -379,7 +379,7 @@ class Foo
 
 All files are licensed as Apache-2.0. In addition, the files in
 `iceoryx_platform`, `iceoryx_hoofs`, `tools/ci`, `tools/git-hoods` and
-`tools/scripts` are licensed as Apache-2.0 or MIT.
+`tools/scripts` are dual-licensed as Apache-2.0 or MIT.
 
 Each source file needs to have one of these header, depending on their location.
 

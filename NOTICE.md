@@ -22,8 +22,8 @@ of the Apache License, Version 2.0 which is available at
 
 > SPDX-License-Identifier: Apache-2.0
 
-Some of the files are also made available under the terms of the MIT License
-which is available at <https://opensource.org/licenses/MIT>.
+Some of the files are dual-licensed and also made available under the terms of
+the MIT License which is available at <https://opensource.org/licenses/MIT>.
 
 > SPDX-License-Identifier: Apache-2.0 OR MIT
 
