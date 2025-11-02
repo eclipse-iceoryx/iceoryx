@@ -262,6 +262,10 @@
 - Document workaround for documentation in internal headers [#1293](https://github.com/eclipse-iceoryx/iceoryx/issues/1293)
 - The default branch is now `main` [#2270](https://github.com/eclipse-iceoryx/iceoryx/issues/2270)
 
+**License changes**
+
+- Relicense iceoryx_hoofs, iceoryx_platform, scripts, CI setup and git hooks from "Apache-2.0" to "Apache-2.0 or MIT" (dual license) [#2491](https://github.com/eclipse-iceoryx/iceoryx/issues/2491)
+
 **New API features:**
 
 - None
@@ -1507,6 +1511,6 @@
 
 65. The non-functional `iox::popo::Node` was removed
 
-66. add optional timeout parameter in sendRequestToRouDi 
+66. add optional timeout parameter in sendRequestToRouDi
 
 67. add timeout in terminator request
