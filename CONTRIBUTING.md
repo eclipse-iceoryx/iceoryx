@@ -377,7 +377,13 @@ class Foo
 
 ### Header
 
-Each source file needs to have this header:
+All files are licensed as Apache-2.0. In addition, the files in
+`iceoryx_platform`, `iceoryx_hoofs`, `tools/ci`, `tools/git-hoods` and
+`tools/scripts` are dual-licensed as Apache-2.0 or MIT.
+
+Each source file needs to have one of these header, depending on their location.
+
+Apache-2.0:
 
 ```cpp
 // Copyright (c) [YEAR OF INITIAL CONTRIBUTION] - [YEAR LAST CONTRIBUTION] by [CONTRIBUTOR]. All rights reserved.
@@ -395,6 +401,25 @@ Each source file needs to have this header:
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
+```
+
+Apache-2.0 or MIT:
+
+```cpp
+// Copyright (c) [YEAR OF INITIAL CONTRIBUTION] - [YEAR LAST CONTRIBUTION] by [CONTRIBUTOR]. All rights reserved.
+//
+// This program and the accompanying materials are made available under the
+// terms of the Apache Software License 2.0 which is available at
+// https://www.apache.org/licenses/LICENSE-2.0, or the MIT license
+// which is available at https://opensource.org/licenses/MIT.
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0 OR MIT
 ```
 
 **_NOTE:_** The date is either a year or a range of years with the first and last years of the range separated by a dash.
