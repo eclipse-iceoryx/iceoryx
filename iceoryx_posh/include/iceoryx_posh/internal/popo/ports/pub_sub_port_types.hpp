@@ -17,19 +17,44 @@
 #define IOX_POSH_POPO_PORTS_PUB_SUB_PORT_TYPES_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver_data.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_sender_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
+#include "iceoryx_posh/popo/enum_trigger_type.hpp"
 
 namespace iox
 {
 namespace popo
 {
-/// @todo iox-#1051 move definitions for publish subscribe communication here
+// ==================== Subscriber types ====================
 
 using SubscriberChunkQueueData_t = ChunkQueueData<DefaultChunkQueueConfig, ThreadSafePolicy>;
 
 using SubscriberChunkReceiverData_t =
     ChunkReceiverData<MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY, SubscriberChunkQueueData_t>;
+
+// ==================== Publisher types ====================
+
+using PublisherChunkQueueData_t = SubscriberChunkQueueData_t;
+
+using PublisherChunkDistributorData_t =
+    ChunkDistributorData<DefaultChunkDistributorConfig, ThreadSafePolicy, ChunkQueuePusher<PublisherChunkQueueData_t>>;
+
+using PublisherChunkSenderData_t =
+    ChunkSenderData<MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY, PublisherChunkDistributorData_t>;
+
+// ==================== Event and State enums ====================
+
+enum class SubscriberEvent : EventEnumIdentifier
+{
+    DATA_RECEIVED
+};
+
+enum class SubscriberState : StateEnumIdentifier
+{
+    HAS_DATA
+};
 
 } // namespace popo
 } // namespace iox

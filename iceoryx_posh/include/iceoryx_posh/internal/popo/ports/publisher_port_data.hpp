@@ -20,11 +20,8 @@
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor_data.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/chunk_sender_data.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
 #include "iceoryx_posh/internal/popo/ports/base_port_data.hpp"
-#include "iceoryx_posh/internal/popo/ports/subscriber_port_data.hpp"
+#include "iceoryx_posh/internal/popo/ports/pub_sub_port_types.hpp"
 #include "iceoryx_posh/mepoo/memory_info.hpp"
 #include "iceoryx_posh/popo/publisher_options.hpp"
 #include "iox/atomic.hpp"
@@ -44,11 +41,9 @@ struct PublisherPortData : public BasePortData
                       const PublisherOptions& publisherOptions,
                       const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
-    using ChunkQueueData_t = SubscriberPortData::ChunkQueueData_t;
-    using ChunkDistributorData_t =
-        ChunkDistributorData<DefaultChunkDistributorConfig, ThreadSafePolicy, ChunkQueuePusher<ChunkQueueData_t>>;
-    using ChunkSenderData_t =
-        ChunkSenderData<MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY, ChunkDistributorData_t>;
+    using ChunkQueueData_t = PublisherChunkQueueData_t;
+    using ChunkDistributorData_t = PublisherChunkDistributorData_t;
+    using ChunkSenderData_t = PublisherChunkSenderData_t;
 
     ChunkSenderData_t m_chunkSenderData;
 
