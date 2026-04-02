@@ -38,7 +38,16 @@ configure_option(
     DEFAULT_VALUE "/etc/"
 )
 
-option(IOX_PLATFORM_FEATURE_ACL "Use ACLs for access control" ON)
+include(CheckIncludeFile)
+check_include_file("sys/acl.h" IOX_HAVE_SYS_ACL_H)
+if(IOX_HAVE_SYS_ACL_H)
+    set(IOX_PLATFORM_FEATURE_ACL_DEFAULT ON)
+else()
+    message(STATUS "[i] sys/acl.h not found - disabling ACL support (hermetic or minimal toolchain detected)")
+    set(IOX_PLATFORM_FEATURE_ACL_DEFAULT OFF)
+endif()
+
+option(IOX_PLATFORM_FEATURE_ACL "Use ACLs for access control" ${IOX_PLATFORM_FEATURE_ACL_DEFAULT})
 message(STATUS "[i] IOX_PLATFORM_FEATURE_ACL: ${IOX_PLATFORM_FEATURE_ACL}")
 
 message(STATUS "[i] <<<<<<<<<<<<<< End iceoryx_platform configuration: >>>>>>>>>>>>>>")
