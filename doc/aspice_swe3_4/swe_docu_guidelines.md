@@ -1,4 +1,4 @@
-# [ASPICE](http://www.automotivespice.com/) example [WIP]
+# [ASPICE](https://vda-qmc.de/en/automotive-spice/) example [WIP]
 
 ## Purpose
 

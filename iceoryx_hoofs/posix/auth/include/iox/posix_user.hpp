@@ -31,7 +31,13 @@ namespace iox
 class PosixUser
 {
   public:
-    static constexpr uint64_t MAX_NUMBER_OF_GROUPS = 888;
+    // Increase from 888 to 1024 to support systems with many supplementary groups
+    // (e.g. Nvidia Tegra boards where `id -G | wc -w` returns 1000+).
+    // When the group count exceeds MAX_NUMBER_OF_GROUPS, iox_getgrouplist fails
+    // with "Could not obtain group list", causing RouDi to deny the node a
+    // writable SHM segment, which crashes the node with:
+    //   POSH__RUNTIME_NO_WRITABLE_SHM_SEGMENT / EXPECTS_ENSURES_FAILED
+    static constexpr uint64_t MAX_NUMBER_OF_GROUPS = 1024;
     using groupVector_t = vector<PosixGroup, MAX_NUMBER_OF_GROUPS>;
 
     using userName_t = string<platform::MAX_USER_NAME_LENGTH>;

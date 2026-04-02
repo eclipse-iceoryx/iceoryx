@@ -161,6 +161,7 @@
 - Fix chunk management race condition causing failed management allocation [#2440](https://github.com/eclipse-iceoryx/iceoryx/issues/2440)
 - Fix compile error with GCC 8 [#2480](https://github.com/eclipse-iceoryx/iceoryx/issues/2480)
 - Fix cmake cache inconsistency [#2485](https://github.com/eclipse-iceoryx/iceoryx/issues/2485)
+- Increase `PosixUser::MAX_NUMBER_OF_GROUPS` from 888 to 1024 to support systems with many supplementary groups [#2513](https://github.com/eclipse-iceoryx/iceoryx/issues/2513)
 
 **Refactoring:**
 
