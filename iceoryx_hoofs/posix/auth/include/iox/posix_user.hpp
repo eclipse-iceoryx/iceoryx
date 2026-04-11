@@ -32,7 +32,7 @@ class PosixUser
 {
   public:
     // Increase from 888 to 1024 to support systems with many supplementary groups
-    // (e.g. Nvidia Tegra boards where `id -G | wc -w` returns 1000+).
+    // (e.g. Nvidia Tegra boards where 'id -G | wc -w' returns 1000+).
     // When the group count exceeds MAX_NUMBER_OF_GROUPS, iox_getgrouplist fails
     // with "Could not obtain group list", causing RouDi to deny the node a
     // writable SHM segment, which crashes the node with:
