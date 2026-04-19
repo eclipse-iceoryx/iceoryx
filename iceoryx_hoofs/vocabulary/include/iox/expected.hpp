@@ -207,11 +207,11 @@ class IOX_NO_DISCARD expected final : public FunctionalInterface<expected<ValueT
 
     // AXIVION Next Construct AutosarC++19_03-A13.5.3: Implementation is inspired from std::expected
     /// @brief  returns true if the expected contains a value type and false if it is an error type
-    /// @return bool which contains true if the expected contains an error
+    /// @return bool which contains true if the expected contains a value type and false if it is an error type
     explicit operator bool() const noexcept;
 
     /// @brief  returns true if the expected contains a value type and false if it is an error type
-    /// @return bool which contains true if the expected contains an error
+    /// @return bool which contains true if the expected contains a value type and false if it is an error type
     bool has_value() const noexcept;
 
     /// @brief  returns true if the expected contains an error otherwise false
