@@ -223,7 +223,7 @@ You just have to provide a reference to a value as additional argument in the `a
 which is then provided as argument in your callback. One of the use cases is to get access
 to members and methods of an object inside a static method which we demonstrate here.
 
-This example is identical to the [ice_callbacks_subscriber.cpp](#ice_callbacks_subscriber.cpp)
+This example is identical to the [ice_callbacks_subscriber.cpp](#ice_callbacks_subscribercpp)
 one, except that we left out the cyclic heartbeat trigger. The key difference is that
 the listener is now a class member and in every callback we would like to change
 some member variables. For this we require an additional pointer to the object

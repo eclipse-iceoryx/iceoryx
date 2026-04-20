@@ -49,7 +49,7 @@ It is included via:
 ```
 
 On that object we can call the method `findService` which expects the three
-service [string identifiers](../../doc/website/getting-started/overview.md#creating-service-descriptions-for-topics)
+service [string identifiers](../getting-started/overview.md#creating-service-descriptions-for-topics)
 and a callable which will be applied to all matching services.
 In addition, we have to specify whether we want to search for publishers (`MessagingPattern::PUB_SUB`)
 used in publish-subscribe communication or servers (`MessagingPattern::REQ_RES`) used in
