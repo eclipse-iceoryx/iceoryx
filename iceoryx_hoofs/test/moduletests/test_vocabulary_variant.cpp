@@ -1,5 +1,6 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2026 by ekxide IO GmbH. All rights reserved.
 //
 // This program and the accompanying materials are made available under the
 // terms of the Apache Software License 2.0 which is available at
@@ -727,6 +728,19 @@ TEST_F(variant_Test, TwoVariantsWithUnequalValueAreUnequal)
     iox::variant<std::string, float> sut2{floatNum};
     EXPECT_TRUE(sut1 != sut2);
     EXPECT_FALSE(sut1 == sut2);
+}
+
+TEST_F(variant_Test, VariantUsesMaxAlignment)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "f49bc937-0aca-4be7-bb40-b4e0d4cc50d0");
+
+    struct alignas(16) Foo
+    {
+    };
+
+    using SUT = iox::variant<char, Foo, bool>;
+
+    ASSERT_THAT(alignof(SUT), alignof(Foo));
 }
 
 } // namespace
