@@ -13,6 +13,7 @@
 **Refactoring:**
 
 - Silence warnings when building with GCC 13 [\#2011](https://github.com/eclipse-iceoryx/iceoryx/issues/2011)
+- Update maintainer in package.xml [#2521](https://github.com/eclipse-iceoryx/iceoryx/issues/2521)
 
 **New API features:**
 
