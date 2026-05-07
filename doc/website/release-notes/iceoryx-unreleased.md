@@ -8,12 +8,7 @@
 
 **Bugfixes:**
 
-- Add missing header <chrono> [#2420](https://github.com/eclipse-iceorxy/iceoryx/issues/2420)
-
 **Refactoring:**
-
-- Silence warnings when building with GCC 13 [\#2011](https://github.com/eclipse-iceoryx/iceoryx/issues/2011)
-- Update maintainer in package.xml [#2521](https://github.com/eclipse-iceoryx/iceoryx/issues/2521)
 
 **New API features:**
 
