@@ -77,11 +77,23 @@ if(BUILD_TEST)
             WORKING_DIRECTORY "${SOURCE_DIR}"
             RESULT_VARIABLE result)
         if(result)
-            message(WARNING "CMake step [patch] for googletest failed: ${result}! Build of gtest might fail")
+            message(WARNING "CMake step [patch 0001] for googletest failed: ${result}! Build of gtest might fail")
         endif()
     endif()
 
-    execute_process(COMMAND ${CMAKE_COMMAND} ${ENABLE_STATIC_DEBUG} -G "${CMAKE_GENERATOR}" "-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}" "${TOOLCHAIN_FILE}" "${EXTRA_CMAKE_ARGS}" "${SOURCE_DIR}"
+    if(NOT WIN32)
+        execute_process(
+            COMMAND git apply -p1 --ignore-space-change --whitespace=nowarn
+            INPUT_FILE "${CMAKE_CURRENT_LIST_DIR}/0002-add-cstdint-include.patch"
+            WORKING_DIRECTORY "${SOURCE_DIR}"
+            RESULT_VARIABLE result)
+        if(result)
+            message(WARNING "CMake step [patch 0002] for googletest failed: ${result}! Build of gtest might fail")
+        endif()
+    endif()
+
+    # Due to the macOS CI, we either have to set the policy version to 3.5 or update the gTest version, which would require too many changes in a patch release
+    execute_process(COMMAND ${CMAKE_COMMAND} -DCMAKE_POLICY_VERSION_MINIMUM=3.5 ${ENABLE_STATIC_DEBUG} -G "${CMAKE_GENERATOR}" "-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}" "${TOOLCHAIN_FILE}" "${EXTRA_CMAKE_ARGS}" "${SOURCE_DIR}"
         RESULT_VARIABLE result
         WORKING_DIRECTORY ${BUILD_DIR} )
     if(result)

@@ -18,6 +18,8 @@
 #include "iceoryx_hoofs/internal/cxx/reference_counter.hpp"
 #include "test.hpp"
 
+#include <cstdint>
+
 namespace
 {
 using namespace ::testing;
