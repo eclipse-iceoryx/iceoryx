@@ -256,6 +256,7 @@
 - Typo in architecture.md [#2390](https://github.com/eclipse-iceoryx/iceoryx/issues/2390)
 - Add option to build an iceoryx_hoofs subset for iceoryx2 [#2457](https://github.com/eclipse-iceoryx/iceoryx/issues/2457)
 - Console Logs should be output to stderr [#2478](https://github.com/eclipse-iceoryx/iceoryx/issues/2478)
+- Update maintainer in package.xml [#2521](https://github.com/eclipse-iceoryx/iceoryx/issues/2521)
 
 **Workflow:**
 
