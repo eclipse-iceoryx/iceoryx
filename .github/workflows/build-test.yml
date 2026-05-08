@@ -50,7 +50,7 @@ jobs:
          ./tools/ci/build-test-freebsd.sh
 
   build-test-windows:
-    runs-on: windows-2019
+    runs-on: windows-2025
     needs: pre-flight-check
     steps:
       - uses: actions/checkout@v4
