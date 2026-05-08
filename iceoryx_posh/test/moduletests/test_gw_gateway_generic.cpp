@@ -67,6 +67,7 @@ TEST_F(GatewayGenericTest, AddedChannelsAreStored)
 {
     ::testing::Test::RecordProperty("TEST_ID", "da5e4a66-4f88-48bb-a684-4d10a19684b5");
     // ===== Setup
+    EXPECT_CALL(*sut, getInterface()).WillRepeatedly(Return(iox::capro::Interfaces::INTERNAL));
     auto testService = iox::capro::ServiceDescription("service", "instance", "event");
 
     // ===== Test
@@ -79,6 +80,7 @@ TEST_F(GatewayGenericTest, DoesNotAddDuplicateChannels)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fdd568b4-b377-48a3-8d2a-7f131bf1bba6");
     // ===== Setup
+    EXPECT_CALL(*sut, getInterface()).WillRepeatedly(Return(iox::capro::Interfaces::INTERNAL));
     auto testService = iox::capro::ServiceDescription("service", "instance", "event");
 
     // ===== Test
@@ -115,6 +117,7 @@ TEST_F(GatewayGenericTest, ProperlyManagesMultipleChannels)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d6126772-9069-47c4-b8b0-4325eecba208");
     // ===== Setup
+    EXPECT_CALL(*sut, getInterface()).WillRepeatedly(Return(iox::capro::Interfaces::INTERNAL));
     auto serviceOne = iox::capro::ServiceDescription("serviceOne", "instanceOne", "eventOne");
     auto serviceTwo = iox::capro::ServiceDescription("serviceTwo", "instanceTwo", "eventTwo");
     auto serviceThree = iox::capro::ServiceDescription("serviceThree", "instanceThree", "eventThree");
@@ -138,6 +141,7 @@ TEST_F(GatewayGenericTest, HandlesMaxmimumChannelCapacity)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5b4385e8-c717-4368-8121-b7d526fd22ac");
     // ===== Setup
+    EXPECT_CALL(*sut, getInterface()).WillRepeatedly(Return(iox::capro::Interfaces::INTERNAL));
 
     // ===== Test
     for (auto i = 0U; i < iox::MAX_CHANNEL_NUMBER; i++)
@@ -158,6 +162,7 @@ TEST_F(GatewayGenericTest, ThrowsErrorWhenExceedingMaximumChannelCapaicity)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f73c1fe0-d5d3-4527-9acb-29692c5fd19f");
     // ===== Setup
+    EXPECT_CALL(*sut, getInterface()).WillRepeatedly(Return(iox::capro::Interfaces::INTERNAL));
 
     // ===== Test
     for (auto i = 0U; i < iox::MAX_CHANNEL_NUMBER; i++)
@@ -180,6 +185,7 @@ TEST_F(GatewayGenericTest, ThrowsErrorWhenAttemptingToRemoveNonexistantChannel)
 {
     ::testing::Test::RecordProperty("TEST_ID", "cd9f8279-5876-418a-9606-7413a9c2df35");
     // ===== Setup
+    EXPECT_CALL(*sut, getInterface()).WillRepeatedly(Return(iox::capro::Interfaces::INTERNAL));
     auto testServiceA = iox::capro::ServiceDescription("serviceA", "instanceA", "eventA");
     auto testServiceB = iox::capro::ServiceDescription("serviceB", "instanceB", "eventB");
     auto testServiceC = iox::capro::ServiceDescription("serviceC", "instanceC", "eventC");
@@ -198,6 +204,7 @@ TEST_F(GatewayGenericTest, DiscardedChannelsAreNotStored)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b9f4cfcc-210d-4a61-83bf-d12da0ff7480");
     // ===== Setup
+    EXPECT_CALL(*sut, getInterface()).WillRepeatedly(Return(iox::capro::Interfaces::INTERNAL));
     auto testService = iox::capro::ServiceDescription("service", "instance", "event");
 
     // ===== Test
@@ -212,6 +219,7 @@ TEST_F(GatewayGenericTest, FindChannelReturnsCopyOfFoundChannel)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3c97dd37-cdd4-4e93-b202-36cdcf3c1029");
     // ===== Setup
+    EXPECT_CALL(*sut, getInterface()).WillRepeatedly(Return(iox::capro::Interfaces::INTERNAL));
     auto testService = iox::capro::ServiceDescription("service", "instance", "event");
 
     // ===== Test
@@ -228,6 +236,7 @@ TEST_F(GatewayGenericTest, FindChannelGivesEmptyOptionalIfNoneFound)
 {
     ::testing::Test::RecordProperty("TEST_ID", "83cccfe0-68e6-4a35-b098-35c6c49c7743");
     // ===== Setup
+    EXPECT_CALL(*sut, getInterface()).WillRepeatedly(Return(iox::capro::Interfaces::INTERNAL));
     auto storedChannelService = iox::capro::ServiceDescription("service", "instance", "event");
     auto notStoredChannelService = iox::capro::ServiceDescription("otherService", "otherInstance", "otherEvent");
 
@@ -241,6 +250,7 @@ TEST_F(GatewayGenericTest, ForEachChannelExecutesGivenFunctionForAllStoredChanne
 {
     ::testing::Test::RecordProperty("TEST_ID", "df23a642-f247-42c8-8df3-4daba32bc397");
     // ===== Setup
+    EXPECT_CALL(*sut, getInterface()).WillRepeatedly(Return(iox::capro::Interfaces::INTERNAL));
     auto testServiceA = iox::capro::ServiceDescription("serviceA", "instanceA", "eventA");
     auto testServiceB = iox::capro::ServiceDescription("serviceB", "instanceB", "eventB");
     auto testServiceC = iox::capro::ServiceDescription("serviceC", "instanceC", "eventC");
