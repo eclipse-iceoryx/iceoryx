@@ -91,7 +91,7 @@ jobs:
       - run: ./tools/ci/build-test-ubuntu-with-sanitizers.sh clang
 
   build-test-macos-with-sanitizers:
-    runs-on: macos-latest
+    runs-on: macos-14
     # prevent stuck jobs consuming macos runners for 6 hours
     timeout-minutes: 60
     needs: pre-flight-check
