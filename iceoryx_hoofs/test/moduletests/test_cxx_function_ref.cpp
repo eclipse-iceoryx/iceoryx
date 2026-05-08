@@ -19,6 +19,7 @@
 #include "iceoryx_hoofs/cxx/function_ref.hpp"
 #include "test.hpp"
 
+#include <cstdint>
 
 namespace
 {
