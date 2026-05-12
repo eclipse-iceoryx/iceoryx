@@ -17,6 +17,7 @@
 #include "iceoryx_posh/version/version_info.hpp"
 
 #include <algorithm>
+#include <cstring>
 
 namespace iox
 {
@@ -108,7 +109,7 @@ bool VersionInfo::isValid() noexcept
 VersionInfo VersionInfo::getCurrentVersion() noexcept
 {
     BuildDateString_t buildDateStringCxx(ICEORYX_BUILDDATE);
-    CommitIdString_t shortCommitIdString(TruncateToCapacity, ICEORYX_SHA1, COMMIT_ID_STRING_SIZE);
+    CommitIdString_t shortCommitIdString(TruncateToCapacity, ICEORYX_SHA1, strnlen(ICEORYX_SHA1, COMMIT_ID_STRING_SIZE));
 
     return VersionInfo(static_cast<uint16_t>(ICEORYX_VERSION_MAJOR),
                        static_cast<uint16_t>(ICEORYX_VERSION_MINOR),

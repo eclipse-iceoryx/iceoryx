@@ -19,10 +19,15 @@
 #include "iceoryx_versions.hpp"
 #include "test.hpp"
 
+#include <cstring>
+
 namespace
 {
 using namespace ::testing;
 using namespace iox::version;
+using iox::TruncateToCapacity;
+using iox::COMMIT_ID_STRING_SIZE;
+using iox::CommitIdString_t;
 
 class VersionInfo_test : public Test
 {
@@ -188,6 +193,37 @@ TEST_F(VersionInfo_test, ComparesVersionsDifferInBuildDate)
     EXPECT_TRUE(versionInfo.checkCompatibility(versionInfoWithUnequalBuildDate, CompatibilityCheckLevel::PATCH));
     EXPECT_TRUE(versionInfo.checkCompatibility(versionInfoWithUnequalBuildDate, CompatibilityCheckLevel::COMMIT_ID));
     EXPECT_FALSE(versionInfo.checkCompatibility(versionInfoWithUnequalBuildDate, CompatibilityCheckLevel::BUILD_DATE));
+}
+
+// Regression test for the global-buffer-overflow that occurred when iceoryx is
+// built from a release tarball (no .git/), because git describe in
+// iceoryxversions.cmake fails silently and ICEORYX_SHA1 expands to "" — a
+// 1-byte literal. The TruncateToCapacity ctor was unconditionally memcpy'ing
+// COMMIT_ID_STRING_SIZE (=12) bytes from that 1-byte source, which AddressSanitizer
+// flagged as a global-buffer-overflow during PoshRuntime initialization.
+TEST_F(VersionInfo_test, GetCurrentVersionDoesNotReadPastEndOfShortCommitId)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "c1b3d8e2-1f1a-4b6e-9c0a-1e2c4d5f6789");
+    // The mere act of calling getCurrentVersion() under -fsanitize=address with
+    // ICEORYX_SHA1 shorter than COMMIT_ID_STRING_SIZE (the empty-string case in
+    // tarball builds) used to abort the process with a global-buffer-overflow.
+    // Calling it here exercises the same code path the ROS 2 / cyclonedds-iceoryx
+    // stack hits via rmw_create_node -> iceoryx_init -> iox::PoshRuntime.
+    VersionInfo currentVersion = VersionInfo::getCurrentVersion();
+    EXPECT_TRUE(currentVersion.isValid());
+}
+
+// Direct test of the underlying invariant: the TruncateToCapacity ctor of
+// CommitIdString_t (string<12>) must not read past the end of a source literal
+// shorter than the requested count. This mirrors what getCurrentVersion() does
+// when ICEORYX_SHA1 is "".
+TEST_F(VersionInfo_test, CommitIdStringTruncateToCapacityHandlesShortSourceLiteral)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "d2c4e9f3-202b-5c7f-a01b-2f3d5e607890");
+    const char* const shortSource = "";
+    const auto safeCount = strnlen(shortSource, COMMIT_ID_STRING_SIZE);
+    CommitIdString_t shortCommitIdString(TruncateToCapacity, shortSource, safeCount);
+    EXPECT_EQ(shortCommitIdString.size(), 0U);
 }
 
 } // namespace
