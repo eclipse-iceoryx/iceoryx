@@ -164,6 +164,7 @@
 - Increase `PosixUser::MAX_NUMBER_OF_GROUPS` from 888 to 1024 to support systems with many supplementary groups [#2513](https://github.com/eclipse-iceoryx/iceoryx/issues/2513)
 - Fix documentation of `expected` [#2492](https://github.com/eclipse-iceoryx/iceoryx/issues/2492)
 - Fix alignment of the `variant` alternatives [#2516](https://github.com/eclipse-iceoryx/iceoryx/issues/2516)
+- Fix global-buffer-overflow in `VersionInfo::getCurrentVersion` under ASan when built from release tarball [#2526](https://github.com/eclipse-iceoryx/iceoryx/issues/2526)
 
 **Refactoring:**
 

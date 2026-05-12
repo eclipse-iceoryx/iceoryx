@@ -190,4 +190,13 @@ TEST_F(VersionInfo_test, ComparesVersionsDifferInBuildDate)
     EXPECT_FALSE(versionInfo.checkCompatibility(versionInfoWithUnequalBuildDate, CompatibilityCheckLevel::BUILD_DATE));
 }
 
+// Regression: under ASan, getCurrentVersion() used to overrun ICEORYX_SHA1
+// when built from a release tarball (no .git -> SHA1 = "").
+TEST_F(VersionInfo_test, GetCurrentVersionDoesNotReadPastEndOfShortCommitId)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "c1b3d8e2-1f1a-4b6e-9c0a-1e2c4d5f6789");
+    VersionInfo currentVersion = VersionInfo::getCurrentVersion();
+    EXPECT_TRUE(currentVersion.isValid());
+}
+
 } // namespace
