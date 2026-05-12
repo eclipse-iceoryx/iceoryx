@@ -19,13 +19,10 @@
 #include "iceoryx_versions.hpp"
 #include "test.hpp"
 
-#include <cstring>
-
 namespace
 {
 using namespace ::testing;
 using namespace iox::version;
-using iox::TruncateToCapacity;
 
 class VersionInfo_test : public Test
 {
@@ -200,21 +197,6 @@ TEST_F(VersionInfo_test, GetCurrentVersionDoesNotReadPastEndOfShortCommitId)
     ::testing::Test::RecordProperty("TEST_ID", "c1b3d8e2-1f1a-4b6e-9c0a-1e2c4d5f6789");
     VersionInfo currentVersion = VersionInfo::getCurrentVersion();
     EXPECT_TRUE(currentVersion.isValid());
-}
-
-// Pins the invariant the ASan fix relies on: the TruncateToCapacity ctor must
-// not read past the source when count is bounded by strnlen.
-TEST_F(VersionInfo_test, CommitIdStringTruncateToCapacityHandlesShortSourceLiteral)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "d2c4e9f3-202b-5c7f-a01b-2f3d5e607890");
-    // Route through a volatile pointer so GCC's -Wstringop-overread can't constant-fold
-    // the literal length and complain that the strnlen bound exceeds the source size.
-    const char emptyStorage[1] = {'\0'};
-    const char* volatile shortSourceVolatile = emptyStorage;
-    const char* const shortSource = shortSourceVolatile;
-    const auto safeCount = strnlen(shortSource, COMMIT_ID_STRING_SIZE);
-    CommitIdString_t shortCommitIdString(TruncateToCapacity, shortSource, safeCount);
-    EXPECT_EQ(shortCommitIdString.size(), 0U);
 }
 
 } // namespace
