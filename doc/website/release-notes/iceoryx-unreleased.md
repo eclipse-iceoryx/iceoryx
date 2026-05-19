@@ -8,6 +8,7 @@
 
 **Bugfixes:**
 
+- Fix global-buffer-overflow in `VersionInfo::getCurrentVersion` under ASan when built from release tarball [#2526](https://github.com/eclipse-iceoryx/iceoryx/issues/2526)
 **Refactoring:**
 
 **New API features:**
