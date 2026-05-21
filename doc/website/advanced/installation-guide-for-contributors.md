@@ -156,27 +156,25 @@ When working with Bazel, additional tools can help the developer to maintain
 a consistent codebase similar to the Clang Tools (clang-format and clang-tidy) for C++.
 The [Buildifier Tool](https://github.com/bazelbuild/buildtools/blob/master/buildifier/README.md)
 offers formatting and linting for Bazel files.
-
-The formatting is based on rules given by Buildifier and the linting is based on
-a list of [warnings](https://github.com/bazelbuild/buildtools/blob/master/WARNINGS.md).
-
-To check formatting of the Bazel files the following command needs to run in the iceoryx
-workspace.
+It is integrated via [pre-commit](https://pre-commit.com/).
+You may install pre-commit with the following command:
 
 ```bash
-cd iceoryx
-bazel run //:buildifier
+pip install -U pre-commit identify
 ```
 
-Buildifier automatically reformat the code.
-
-For formatting and linting this command will do the job:
+You can invoke pre-commit manually (inside the repository) on all changed files:
 
 ```bash
-cd iceoryx
-bazel run //:buildifier_lint
+pre-commit
 ```
 
-The CI will check for the correct formatting and linting.
-See the `BUILD.bazel` file
-in iceoryx workspace for available commands.
+or you can install it as a git hook which will automatically run before every commit:
+
+```bash
+pre-commit install
+```
+
+pre-commit runs a list of checks that check for the correct formatting and linting.
+
+There is a CI job that runs pre-commit on all changes files in a pull request.

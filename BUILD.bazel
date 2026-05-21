@@ -15,7 +15,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 load("@bazel_skylib//rules:common_settings.bzl", "string_flag")
-load("@buildifier_prebuilt//:rules.bzl", "buildifier")
 
 exports_files(["LICENSE"])
 
@@ -56,34 +55,4 @@ alias(
     name = "roudi",
     actual = "//iceoryx_posh:iox-roudi",
     visibility = ["//visibility:public"],
-)
-
-# Execute `bazel run //:buildifier` to fix formating of all starlark files in the workspace
-buildifier(
-    name = "buildifier",
-    verbose = True,
-)
-
-# Execute `bazel run //:buildifier_test` to check all starlark files for correctness
-buildifier(
-    name = "buildifier_test",
-    mode = "check",
-    verbose = True,
-)
-
-# Execute `bazel run //:buildifier_lint` to reformat and run the linter on all starlark files
-buildifier(
-    name = "buildifier_lint",
-    lint_mode = "fix",
-    lint_warnings = ["all"],
-    verbose = True,
-)
-
-# Execute `bazel run //:buildifier_lint_check` to reformat and run the linter on all starlark files
-buildifier(
-    name = "buildifier_lint_check",
-    lint_mode = "warn",
-    lint_warnings = ["all"],
-    mode = "check",
-    verbose = True,
 )
