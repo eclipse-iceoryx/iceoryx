@@ -52,6 +52,31 @@ set_target_properties(iceoryx_platform PROPERTIES
 
 target_link_libraries(iceoryx_platform PRIVATE ${ICEORYX_SANITIZER_FLAGS})
 
+# Add right after target_link_libraries(iceoryx_platform PRIVATE ${ICEORYX_SANITIZER_FLAGS})
+
+# Add installation rules for all platforms
+install(TARGETS iceoryx_platform
+  EXPORT iceoryx_platformTargets
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES DESTINATION include
+)
+
+# Add platform-specific installation for headers
+install(DIRECTORY ${ICEORYX_PLATFORM}/include/
+  DESTINATION include/iceoryx_hoofs/platform
+)
+
+# macOS-specific RPATH handling
+if(APPLE)
+  set_target_properties(iceoryx_platform PROPERTIES
+    INSTALL_RPATH "@loader_path/../lib;@loader_path/../../iceoryx_hoofs/lib"
+    MACOSX_RPATH ON
+    BUILD_WITH_INSTALL_RPATH TRUE
+  )
+endif()
+
 target_compile_options(iceoryx_platform PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 if(LINUX)
