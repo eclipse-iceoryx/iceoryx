@@ -165,6 +165,7 @@
 - Fix documentation of `expected` [#2492](https://github.com/eclipse-iceoryx/iceoryx/issues/2492)
 - Fix alignment of the `variant` alternatives [#2516](https://github.com/eclipse-iceoryx/iceoryx/issues/2516)
 - Fix global-buffer-overflow in `VersionInfo::getCurrentVersion` under ASan when built from release tarball [#2526](https://github.com/eclipse-iceoryx/iceoryx/issues/2526)
+- Fix whitespace in literal operation declaration warning [#2532](https://github.com/eclipse-iceoryx/iceoryx/issues/2532)
 
 **Refactoring:**
 
