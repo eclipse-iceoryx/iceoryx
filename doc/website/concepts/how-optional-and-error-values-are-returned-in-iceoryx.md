@@ -69,7 +69,7 @@ result = iox::nullopt;
 ```
 
 For a complete list of available functions see
-[`optional.hpp`](../../../iceoryx_hoofs/vocabulary/include/iox/optional.hpp).
+[`optional.hpp`](https://github.com/eclipse-iceoryx/iceoryx/blob/v3.0.0/iceoryx_hoofs/vocabulary/include/iox/optional.hpp).
 
 
 ## Expected
@@ -80,7 +80,7 @@ the 'either monad'. It is usually used to pass a value of type `T` or an error t
 error type.
 
 For more information on how it is used for error handling see
-[error-handling.md](../../design/error-handling.md).
+[error-handling.md](https://github.com/eclipse-iceoryx/iceoryx/blob/v3.0.0/doc/design/error-handling.md).
 
 Assume we have `E` as an error type, then we can create a value
 
@@ -121,7 +121,7 @@ result.and_then(handleValue).or_else(handleError);
 
 There are more convenience functions such as `value_or` which provides the value or an alternative specified by the
 user. These can be found in
-[`expected.hpp`](../../../iceoryx_hoofs/vocabulary/include/iox/expected.hpp).
+[`expected.hpp`](https://github.com/eclipse-iceoryx/iceoryx/blob/v3.0.0/iceoryx_hoofs/vocabulary/include/iox/expected.hpp).
 
 Note that when we move an `expected`, the origin contains a moved `T` or `E`, depending on the content before the move.
 This reflects the behavior of moving the content out of the `iox::expected` as in

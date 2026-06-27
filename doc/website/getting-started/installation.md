@@ -4,7 +4,7 @@ All iceoryx libraries are deployed as independent CMake packages. Posh is using 
 
 ## Prerequisites
 
-### Dependencies
+### :octicons-package-dependencies-16: Dependencies
 
 - 64-bit hardware (e.g. x86_64 or aarch64; 32-bit hardware works, but only as technology preview and not meant for production)
 - [CMake](https://cmake.org), 3.16 or later
@@ -15,7 +15,7 @@ All iceoryx libraries are deployed as independent CMake packages. Posh is using 
 - [libacl](http://download.savannah.gnu.org/releases/acl/), 2.2 or later. Only for Linux & QNX.
 - optional, [ncurses](https://invisible-island.net/ncurses/), 6.2 or later. Required by introspection tool (only for Linux, QNX and MacOS).
 
-### Mac OS
+### :material-apple: Mac OS
 
 Before installing iceoryx you need to install XCode and git. Optionally, ncurses library is required for
 the introspection client. To install ncurses locally into your build folder follow these steps
@@ -33,7 +33,7 @@ make -j12
 make install
 ```
 
-### Linux
+### :fontawesome-brands-linux: Linux
 
 Although we strive to be fully POSIX-compliant, we recommend using Ubuntu 20.04 and at least GCC 8.3 for development.
 
@@ -52,12 +52,12 @@ sudo apt install libacl1-dev:i386 libc6-dev-i386 libc6-dev-i386-cross libstdc++6
 
 Additionally, there is an optional dependency to the [cpptoml](https://github.com/skystrife/cpptoml) library, which is used to parse the RouDi config file containing mempool configuration.
 
-### QNX
+### :fontawesome-brands-blackberry: QNX
 
 QNX SDP 7.1 is supported (shipping with gcc 8.3 respectively).
 
 The easiest way to build iceoryx on QNX is by using the build script and providing a toolchain file.
-We provide generic QNX SDP 7.0 toolchain files for ARM_64 and X86_64 in `./tools/toolchains/qnx` ([Direct Link](../../../tools/toolchains/qnx)).
+We provide generic QNX SDP 7.0 toolchain files for ARM_64 and X86_64 in `./tools/toolchains/qnx` ([Direct Link](https://github.com/eclipse-iceoryx/iceoryx/tree/v3.0.0/tools/toolchains/qnx)).
 
 ARM_64:
 
@@ -74,7 +74,7 @@ X86_64:
 !!! attention
     Please ensure that the folder `/var/lock` exist and the filesystem supports file locking.
 
-### Windows
+### :octicons-package-dependencies-16: Windows
 
 In case you do not have a Windows installation, Microsoft provides free developer images from [here](https://developer.microsoft.com/en-us/windows/downloads/virtual-machines/).
 
@@ -87,7 +87,7 @@ choco install -y cmake --installargs 'ADD_CMAKE_TO_PATH=System'
 ```
 Additional packages can be found [here](https://community.chocolatey.org/packages).
 
-#### Setup for MSVC
+#### :material-microsoft-visual-studio: Setup for MSVC
 
 If the developer image from Microsoft is used, Visual Studio Community 2022 is already installed, else it can be found [here](https://visualstudio.microsoft.com/de/downloads/).
 
@@ -100,7 +100,7 @@ Alternatively, `C:\Program Files (x86)\Microsoft Visual Studio\2022\Community\VC
 !!! attention
     A Windows SDK Version of at least `10.0.18362.0` is required.
 
-#### Setup for MinGW
+#### :simple-mingww64: Setup for MinGW
 
 `MinGW` can also be used to build iceoryx on Windows. The easist way to do this is to use `chocolatey`.
 
@@ -113,7 +113,7 @@ The `MinGW` library path needs to be added to the `Path` environment variable.
 $env:Path += 'C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin'
 ```
 
-## Build with CMake
+## :material-triangle: Build with CMake
 
 !!! note
     Building with CMake is the preferred way, for more complex actions like a coverage scan
@@ -181,10 +181,10 @@ The `CMakeLists.txt` from `iceoryx_meta` can be used to easily develop iceoryx w
 
 ### Build options
 
-Please take a look at the CMake file [build_options.cmake](../../../iceoryx_meta/build_options.cmake)
+Please take a look at the CMake file [build_options.cmake](https://github.com/eclipse-iceoryx/iceoryx/blob/v3.0.0/iceoryx_meta/build_options.cmake)
 to get an overview of the available build options for enabling additional features.
 
-## Build with script
+## :material-powershell: Build with script
 
 As an alternative, we provide a build-test script which we use to integrate iceoryx into our infrastructure.
 The intention of the script goes beyond building iceoryx, it is also used for the code coverage scan or the address-sanitizer runs on the CI.
@@ -215,7 +215,7 @@ You can use the `help` argument for getting an overview of the available options
 !!! tip
     The examples can be built with `-DEXAMPLES=ON` with iceoryx_meta or by providing the `examples` argument to the build script.
 
-## Build with colcon
+## :material-robot: Build with colcon
 
 Alternatively, iceoryx can be built with [colcon](https://colcon.readthedocs.io/en/released/user/installation.html#using-debian-packages) to provide a smooth integration for ROS 2 developers.
 To build the iceoryx_integrationtest package one requires a minimal [ROS 2 installation](https://docs.ros.org/en/foxy/Installation/Linux-Install-Debians.html).
@@ -246,7 +246,7 @@ colcon build
 
 This build method makes the most sense in combination with [rmw_iceoryx](https://github.com/ros2/rmw_iceoryx.git)
 
-## Build with Bazel
+## :simple-bazel: Build with Bazel
 
 A second option is to build iceoryx with [Bazel](https://bazel.build/) as an alternative build and test tool.
 In comparison to CMake it offers an easier syntax with better performance and a hermetic build mode for reproducible builds.

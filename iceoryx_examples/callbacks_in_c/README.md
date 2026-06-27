@@ -219,7 +219,7 @@ within the callback. To facilitate this we provide the functions called
 additional void pointer for the callback as second argument.
 
 The following example is a simplified version of the
-[ice_c_callbacks_subscriber.c](#ice_c_callbacks_subscriber.c) example where we
+[ice_c_callbacks_subscriber.c](#ice_c_callbacks_subscriberc) example where we
 removed the cyclic heartbeat trigger. The key difference is that we have
 a local variable called `counterService` in which we store the `leftCache`
 and `rightCache` and we let the callback update that variable directly.

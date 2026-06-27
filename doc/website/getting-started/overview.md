@@ -66,8 +66,8 @@ iox::popo::Subscriber<CounterTopic> subscriber({"Group", "Instance", "CounterTop
 ```
 
 Now we can use the subscriber to receive data. For simplicity, we assume that we periodically check for new data. It
-is also possible to explicitly wait for data using the [WaitSet](../../../iceoryx_examples/waitset/README.md) or
-the [Listener](../../../iceoryx_examples/callbacks/README.md). The code to receive the data is the same, the only difference is the way we wake up before checking for data.
+is also possible to explicitly wait for data using the [WaitSet](../examples/waitset.md) or
+the [Listener](../examples/callbacks.md). The code to receive the data is the same, the only difference is the way we wake up before checking for data.
 
 ```cpp
 while (keepRunning)
@@ -94,7 +94,7 @@ while (keepRunning)
 By calling `take` we get an `expected` and hence we have to handle the potential error.
 
 And that's it. We have created our first simple iceoryx example.
-[Here](../../../iceoryx_examples/README.md) you can find further examples
+[Here](../examples/index.md) you can find further examples
 which demonstrate how iceoryx can be used and describe our API in more detail.
 
 Now that we have applications capable of sending and receiving data, we can run the complete iceoryx system.
@@ -148,7 +148,7 @@ Shared memory is physical memory that is made accessible to multiple processes v
 virtual address spaces.
 
 For further information have a look at our
-[shared memory concept article](../../shared-memory-communication.md).
+[shared memory concept article](https://github.com/eclipse-iceoryx/iceoryx/blob/v3.0.0/doc/shared-memory-communication.md).
 
 ### Runtime
 
@@ -235,7 +235,7 @@ to process local constructs, no dynamic allocators
 
 !!! info
     Most of the STL types cannot be used, but some are reimplemented to meet the conditions above.
-    You can find an overview [here](../../../iceoryx_hoofs/README.md#cxx).
+    You can find an overview [here](../advanced/iceoryx_hoofs.md#cxx).
 
 ### Publisher
 
@@ -304,7 +304,7 @@ The WaitSet uses the [reactor pattern](https://en.wikipedia.org/wiki/Reactor_pat
 strategy that one of the attached events occured at which it informs the user.
 
 For more information on how to use the WaitSet see our
-[WaitSet examples](../../../iceoryx_examples/waitset).
+[WaitSet examples](../examples/waitset.md).
 
 ### Listener
 
@@ -326,13 +326,13 @@ connected callback that creates and sends a response, is executed.
 Like the WaitSet, the Listener uses the reactor pattern.
 
 For more information about the Listener see our
-[callbacks example](../../../iceoryx_examples/callbacks).
+[callbacks example](../examples/callbacks.md).
 
 ## API
 
 The API is offered in two languages, C++ and C. Detailed information can be found in the
-[C++ example](../../../iceoryx_examples/icedelivery) and
-[C example](../../../iceoryx_examples/icedelivery_in_c).
+[C++ example](../examples/icedelivery.md) and
+[C example](../examples/icedelivery_in_c.md).
 
 Many parts of the C++ API follow a functional programming approach which is less error-prone. This requires using
 the monadic types `iox::expected` and `iox::optional` which are introduced
