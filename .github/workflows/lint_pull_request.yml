@@ -37,6 +37,7 @@ jobs:
 
   verify-links-in-markdown-documentation:
     runs-on: ubuntu-24.04
+    if: false # the link checker started to fail quite often, potentially due to AI scraper causing a stricter bot detection
     steps:
       - uses: actions/checkout@v4
 
