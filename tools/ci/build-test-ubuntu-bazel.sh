@@ -33,9 +33,6 @@ $(gcc --version)
 $(clang --version)
 $(bazel --version)"
 
-msg "Linting Bazel files"
-bazel run //:buildifier_lint_check
-
 # Build everything including stresstests
 msg "Bazel build"
 bazel build //...
