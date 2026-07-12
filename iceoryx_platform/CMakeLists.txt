@@ -60,6 +60,7 @@ else()
 endif()
 
 set(PREFIX iceoryx/v${CMAKE_PROJECT_VERSION})
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxConfigureOptionMacro.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/iceoryxversions.cmake")
 
@@ -83,7 +84,8 @@ file ( GLOB_RECURSE ICEORYX_PLATFORM_FILES
 
 if(IOX_PLATFORM_FEATURE_ACL)
     set(IOX_CFG_FEATURE_ACL "1")
-    set(ACL_LIB acl)
+    find_package(acl REQUIRED)
+    set(ACL_LIB acl::libacl)
 else()
     set(IOX_CFG_FEATURE_ACL "0")
     set(ACL_LIB)
