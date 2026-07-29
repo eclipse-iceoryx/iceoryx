@@ -52,13 +52,13 @@
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define IOX_BUILDER_PARAMETER(type, name, defaultValue)                                                                \
   public:                                                                                                              \
-    decltype(auto) name(type const& value)&& noexcept                                                                  \
+    decltype(auto) name(type const& value) && noexcept                                                                 \
     {                                                                                                                  \
         m_##name = value;                                                                                              \
         return std::move(*this);                                                                                       \
     }                                                                                                                  \
                                                                                                                        \
-    decltype(auto) name(type&& value)&& noexcept                                                                       \
+    decltype(auto) name(type&& value) && noexcept                                                                      \
     {                                                                                                                  \
         m_##name = std::move(value);                                                                                   \
         return std::move(*this);                                                                                       \

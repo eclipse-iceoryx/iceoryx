@@ -45,7 +45,8 @@ struct PeriodicTaskManualStart_t
 static constexpr PeriodicTaskManualStart_t PeriodicTaskManualStart;
 
 /// @brief This class periodically executes a callable specified by the template parameter.
-///        This can be a struct with a 'operator()()' overload, a 'iox::function_ref<void()>' or 'std::function<void()>'.
+///        This can be a struct with a 'operator()()' overload, a 'iox::function_ref<void()>' or
+///        'std::function<void()>'.
 /// @code
 /// #include <iox/detail//periodic_task.hpp>
 /// #include <iox/duration.hpp>

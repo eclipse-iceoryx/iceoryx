@@ -27,7 +27,7 @@ ServiceRegistry::ServiceDescriptionEntry::ServiceDescriptionEntry(const capro::S
 }
 
 expected<void, ServiceRegistry::Error> ServiceRegistry::add(const capro::ServiceDescription& serviceDescription,
-                                                            ReferenceCounter_t ServiceDescriptionEntry::*count)
+                                                            ReferenceCounter_t ServiceDescriptionEntry::* count)
 {
     auto index = findIndex(serviceDescription);
     if (index != NO_INDEX)

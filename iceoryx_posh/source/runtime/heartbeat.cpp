@@ -49,9 +49,7 @@ void Heartbeat::beat() noexcept
 
 uint64_t Heartbeat::milliseconds_since_epoch() noexcept
 {
-    struct timespec timepoint
-    {
-    };
+    struct timespec timepoint{};
 
     IOX_ENFORCE(
         !IOX_POSIX_CALL(iox_clock_gettime)(CLOCK_MONOTONIC, &timepoint).failureReturnValue(-1).evaluate().has_error(),

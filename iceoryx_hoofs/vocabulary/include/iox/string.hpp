@@ -472,8 +472,8 @@ class string final
     /// string
     optional<string<Capacity>> substr(const uint64_t pos = 0U) const noexcept;
 
-    /// @brief finds the first occurrence of the given character sequence; returns the position of the first character of
-    /// the found substring, returns iox::nullopt if no substring is found or if pos is greater than this' size
+    /// @brief finds the first occurrence of the given character sequence; returns the position of the first character
+    /// of the found substring, returns iox::nullopt if no substring is found or if pos is greater than this' size
     ///
     /// @param [in] str is the character sequence to search for; must be a iox::string, string literal or custom string
     /// @param [in] pos is the position at which to start the search

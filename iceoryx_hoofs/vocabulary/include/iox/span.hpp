@@ -283,8 +283,7 @@ class span final : public detail::span_storage<Extent>
     /// @param array uninitialized array used to create the span
     template <typename U,
               uint64_t N,
-              template <typename, uint64_t>
-              class Buffer,
+              template <typename, uint64_t> class Buffer,
               typename = detail::enable_if_compatible_array_t<iox::UninitializedArray<U, N, Buffer>&, T, Extent>>
     constexpr explicit span(iox::UninitializedArray<U, N, Buffer>& array) noexcept;
 
@@ -295,8 +294,7 @@ class span final : public detail::span_storage<Extent>
     /// @param array const uninitialized array used to create the span
     template <typename U,
               uint64_t N,
-              template <typename, uint64_t>
-              class Buffer,
+              template <typename, uint64_t> class Buffer,
               typename = detail::enable_if_compatible_array_t<const iox::UninitializedArray<U, N, Buffer>&, T, Extent>>
     constexpr explicit span(const iox::UninitializedArray<U, N, Buffer>& array) noexcept;
 

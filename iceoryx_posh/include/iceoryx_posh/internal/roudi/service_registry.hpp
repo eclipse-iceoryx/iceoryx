@@ -120,7 +120,7 @@ class ServiceRegistry
 
 
     expected<void, Error> add(const capro::ServiceDescription& serviceDescription,
-                              ReferenceCounter_t ServiceDescriptionEntry::*count);
+                              ReferenceCounter_t ServiceDescriptionEntry::* count);
 };
 
 } // namespace roudi

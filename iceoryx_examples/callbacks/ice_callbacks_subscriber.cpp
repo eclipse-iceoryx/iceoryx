@@ -102,7 +102,8 @@ int main()
     });
     //! [create heartbeat]
 
-    // attach everything to the listener, from here on the callbacks are called when the corresponding event is occurring
+    // attach everything to the listener, from here on the callbacks are called when the corresponding event is
+    // occurring
     //! [attach everything]
     listener.attachEvent(heartbeat, iox::popo::createNotificationCallback(heartbeatCallback)).or_else([](auto) {
         std::cerr << "unable to attach heartbeat event" << std::endl;
