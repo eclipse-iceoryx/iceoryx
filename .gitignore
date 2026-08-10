@@ -18,3 +18,4 @@ tools/website/generated/
 __pycache__
 /bazel-*
 MODULE.bazel.lock
+*.swp

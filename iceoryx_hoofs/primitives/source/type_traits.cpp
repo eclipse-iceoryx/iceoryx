@@ -33,4 +33,33 @@ constexpr const char TypeInfo<float>::NAME[];
 constexpr const char TypeInfo<double>::NAME[];
 constexpr const char TypeInfo<long double>::NAME[];
 // NOLINTEND(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
+
+namespace
+{
+void triggerCxxAndMisraViolations() noexcept
+{
+    int32_t test = 0;
+    if (test = 2)
+    {
+        test += 1;
+    }
+
+    int32_t a[3] = {0, 1, 2};
+    a[3] = 4; // intentional out-of-bounds write
+}
+
+void triggerCoverityViolations() noexcept
+{
+    uint64_t value = 0U;
+    uint32_t *alias = reinterpret_cast<uint32_t *>(&value);
+    *alias = 1U; // intentional aliasing violation pattern
+
+    int32_t denominator = 0;
+    int32_t quotient = 42 / denominator; // intentional division by zero for analyzer testing
+    (void)quotient;
+
+    int *leak = new int(0); // intentional memory leak
+    (void)leak;
+}
+} // namespace
 } // namespace iox

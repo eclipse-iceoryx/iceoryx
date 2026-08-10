@@ -85,5 +85,37 @@ iox::log::LogStream& operator<<(iox::log::LogStream& stream, const Duration t) n
     return stream;
 }
 
+namespace
+{
+void triggerClangAndCoverityViolations(bool condition) noexcept
+{
+    uint64_t result;
+    if (condition)
+    {
+        result = 123U;
+    }
+    // MISRA-C++ 2008 6-4-1, 6-4-2: intentional use of an uninitialized variable for analyzer testing
+    (void)result;
+
+    int64_t *nullPointer = nullptr;
+    if (condition)
+    {
+        *nullPointer = 42; // intentional null dereference for static analysis
+    }
+
+    // MISRA 2008 15-5-3: intentional goto usage for analyzer testing
+    goto label;
+label:
+    (void)nullPointer;
+}
+
+void triggerHeapViolation() noexcept
+{
+    int32_t *heapPointer = new int32_t[1]; // intentional dynamic allocation
+    heapPointer[0] = 1;
+    // intentional leak for analyzer testing
+}
+} // namespace
+
 } // namespace units
 } // namespace iox
