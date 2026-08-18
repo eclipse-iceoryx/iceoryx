@@ -76,6 +76,7 @@
 - Make iceoryx resource prefix a compile time option [#2272](https://github.com/eclipse-iceoryx/iceoryx/issues/2272)
 - Improve introspection-client interface by adding the number of ports in parentheses [#2299](https://github.com/eclipse-iceoryx/iceoryx/issues/2299)
 - Add std::atomic abstraction [#2329](https://github.com/eclipse-iceoryx/iceoryx/issues/2329)
+- Add Findacl.cmake module for ACL library detection [#2343](https://github.com/eclipse-iceoryx/iceoryx/issues/2343)
 - Port iceoryx to bzlmod [#2325](https://github.com/eclipse-iceoryx/iceoryx/issues/2325)
 - Make ACL support optional [#1176](https://github.com/eclipse-iceoryx/iceoryx/issues/1176)
 - Implement subscriber/publisher options in introspection [#2076](https://github.com/eclipse-iceoryx/iceoryx/issues/2076)
