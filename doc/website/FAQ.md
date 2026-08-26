@@ -4,7 +4,7 @@ In this document are tips and hints documented which can help for troubleshootin
 
 ## Does iceoryx run in a docker environment?
 
-Yes. Take a look at the [icedocker example](../../iceoryx_examples/icedocker/)
+Yes. Take a look at the [icedocker example](examples/icedocker.md)
 
 ## iceoryx crashes with SIGABRT when reserving shared memory in a docker envirnonment
 
@@ -33,7 +33,7 @@ Either
 
 or
 
-* Use the [blocking publisher feature](../../iceoryx_examples/iceoptions/)
+* Use the [blocking publisher feature](examples/iceoptions.md)
 
 !!! caution
     The usage of the blocking publisher feature needs to be considered carefully as other subscribers will not receive
@@ -62,7 +62,7 @@ Possible solutions are one of the following:
 1. Increase [memory configuration of RouDi](advanced/configuration-guide.md)
 1. Make sure that the receiving frequency is higher than the publishing one
 1. Reduce `SubscriberOptions::queueCapacity` to hold less samples in the mempool on the subscriber side
-1. Consider using the [blocking publisher feature](../../iceoryx_examples/iceoptions/). The usage needs to be
+1. Consider using the [blocking publisher feature](examples/iceoptions.md). The usage needs to be
 considered carefully as other subscribers will not receive samples while the publisher is blocked.
 
 !!! caution
@@ -162,13 +162,13 @@ docker run -it --shm-size="2g" ubuntu
 To avoid undefined behavior of iceoryx posh it is recommended to terminate RouDi and the corresponding middleware
 processes with SIGINT or SIGTERM. In RouDi, we have integrated a sighandler that catches the signals and gives RouDi
 the chance to exit and clean-up everything. This also applies for processes. Therefore, we recommend adding a signalhandler
-to your process (see [this example](../../iceoryx_examples/icedelivery/iox_publisher_untyped.cpp)).
+to your process (see [this example](https://github.com/eclipse-iceoryx/iceoryx/blob/v3.0.0/iceoryx_examples/icedelivery/iox_publisher_untyped.cpp)).
 
 ## How to use iceoryx as external dependency with bazel
 
 Define iceoryx repository information in your [WORKSPACE](https://bazel.build/concepts/build-ref#workspace)
-then calling bazel macro from [load_repositories.bzl](https://github.com/eclipse-iceoryx/iceoryx/blob/main/bazel/load_repositories.bzl)
-and [setup_repositories.bzl](https://github.com/eclipse-iceoryx/iceoryx/blob/main/bazel/setup_repositories.bzl) for loading transitive dependencies.
+then calling bazel macro from [load_repositories.bzl](https://github.com/eclipse-iceoryx/iceoryx/blob/v3.0.0/bazel/load_repositories.bzl)
+and [setup_repositories.bzl](https://github.com/eclipse-iceoryx/iceoryx/blob/v3.0.0/bazel/setup_repositories.bzl) for loading transitive dependencies.
 
 ```
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
@@ -188,5 +188,4 @@ load("@eclipse_iceoryx//bazel:load_repositories.bzl", "load_repositories")
 load("@eclipse_iceoryx//bazel:setup_repositories.bzl", "setup_repositories")
 load_repositories()
 setup_repositories()
-
 ```

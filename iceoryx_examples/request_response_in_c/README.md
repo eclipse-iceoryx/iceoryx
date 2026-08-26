@@ -1,7 +1,7 @@
 # Request response in C
 
 You can find a more detailed description of the C API in the
-[iceoryx_binding_c README.md](../../iceoryx_binding_c/README.md).
+[iceoryx_binding_c README.md](https://github.com/eclipse-iceoryx/iceoryx/blob/v3.0.0/iceoryx_binding_c/README.md).
 
 ## Introduction
 
