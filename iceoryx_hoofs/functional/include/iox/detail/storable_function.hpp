@@ -48,16 +48,19 @@ class storable_function<Capacity, signature<ReturnType, Args...>> final
     using signature_t = signature<ReturnType, Args...>;
 
     /// @brief construct from functor (including lambdas)
+    /// @note The functor is moved into the storage if an rvalue is passed and copied if an lvalue is passed.
+    ///       Hence move-only functors (e.g. a lambda capturing a std::unique_ptr) are supported.
     template <typename Functor,
-              typename = typename std::enable_if<std::is_class<Functor>::value
-                                                     && is_invocable_r<ReturnType, Functor, Args...>::value,
-                                                 void>::type>
+              typename = typename std::enable_if<
+                  std::is_class<typename std::decay<Functor>::type>::value
+                      && !std::is_same<typename std::decay<Functor>::type, storable_function>::value
+                      && is_invocable_r<ReturnType, typename std::decay<Functor>::type, Args...>::value,
+                  void>::type>
     // AXIVION Next Construct AutosarC++19_03-A12.1.4: implicit conversion of functors is intentional,
     // the storable function should implicitly behave like any generic constructor, adding
-    // explicit would require a static_cast. Furthermore, the storable_functor stores a copy
-    // which avoids implicit misbehaviors or ownership problems caused by implicit conversion.
+    // explicit would require a static_cast.
     // NOLINTNEXTLINE(hicpp-explicit-conversions)
-    storable_function(const Functor& functor) noexcept;
+    storable_function(Functor&& functor) noexcept;
 
     /// @brief construct from function pointer (including static functions)
     // NOLINTJUSTIFICATION the storable function should implicitly behave like any generic constructor, adding
@@ -164,10 +167,11 @@ class storable_function<Capacity, signature<ReturnType, Args...>> final
     ///       at compile time and we call terminate at runtime if the functor could not be stored.
 
     template <typename Functor,
-              typename = typename std::enable_if<std::is_class<Functor>::value
-                                                     && is_invocable_r<ReturnType, Functor, Args...>::value,
-                                                 void>::type>
-    void storeFunctor(const Functor& functor) noexcept;
+              typename = typename std::enable_if<
+                  std::is_class<typename std::decay<Functor>::type>::value
+                      && is_invocable_r<ReturnType, typename std::decay<Functor>::type, Args...>::value,
+                  void>::type>
+    void storeFunctor(Functor&& functor) noexcept;
 
     // we need these templates to preserve the actual CallableType for the underlying call
     template <typename CallableType>

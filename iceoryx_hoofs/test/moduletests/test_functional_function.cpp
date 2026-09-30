@@ -197,6 +197,17 @@ TEST_F(function_test, ConstructionFromLambdaIsCallable)
     EXPECT_EQ(sut(1), lambda(1));
 }
 
+TEST_F(function_test, ConstructionFromMoveOnlyLambdaIsCallable)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "a5966ba9-89d4-49fd-99ca-928be5ad3d1c");
+    constexpr int32_t INITIAL = 42;
+    auto unique_int = std::make_unique<int32_t>(INITIAL);
+    auto lambda = [unique_int = std::move(unique_int)](int32_t n) { return *unique_int + n; };
+    test_function sut(std::move(lambda));
+
+    EXPECT_EQ(sut(1), INITIAL + 1);
+}
+
 TEST_F(function_test, ConstructionFromFreeFunctionIsCallable)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2d808b65-182b-44b0-a501-c9b6ab3c80e7");

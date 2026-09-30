@@ -26,9 +26,9 @@ namespace iox
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
 template <uint64_t Capacity, typename ReturnType, typename... Args>
 template <typename Functor, typename>
-inline storable_function<Capacity, signature<ReturnType, Args...>>::storable_function(const Functor& functor) noexcept
+inline storable_function<Capacity, signature<ReturnType, Args...>>::storable_function(Functor&& functor) noexcept
 {
-    storeFunctor(functor);
+    storeFunctor(std::forward<Functor>(functor));
 }
 
 // AXIVION Next Construct AutosarC++19_03-A12.1.5: constructor delegation is not feasible here due
@@ -203,17 +203,21 @@ storable_function<Capacity, signature<ReturnType, Args...>>::safeAlign(void* sta
 
 template <uint64_t Capacity, typename ReturnType, typename... Args>
 template <typename Functor, typename>
-inline void storable_function<Capacity, signature<ReturnType, Args...>>::storeFunctor(const Functor& functor) noexcept
+inline void storable_function<Capacity, signature<ReturnType, Args...>>::storeFunctor(Functor&& functor) noexcept
 {
     using StoredType = typename std::remove_reference<Functor>::type;
     m_callable = safeAlign<StoredType>(&m_storage[0]);
 
-    // erase the functor type and store as reference to the call in storage
+    // erase the functor type and store it in the storage, moving rvalues
+    // (move-only functors are supported) and copying lvalues
     // AXIVION Next Construct AutosarC++19_03-A18.5.10: False positive! 'safeAlign' takes care of proper alignment and size
-    new (m_callable) StoredType(functor);
+    new (m_callable) StoredType(std::forward<Functor>(functor));
 
     m_invoker = &invoke<StoredType>;
-    m_operations.copyFunction = &copy<StoredType>;
+    if constexpr (std::is_copy_constructible<StoredType>::value)
+    {
+        m_operations.copyFunction = &copy<StoredType>;
+    }
     m_operations.moveFunction = &move<StoredType>;
     m_operations.destroyFunction = &destroy<StoredType>;
 }

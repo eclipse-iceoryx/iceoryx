@@ -30,6 +30,10 @@ constexpr uint64_t DEFAULT_FUNCTION_CAPACITY{128U};
 ///        They also support copy and move semantics in natural way
 ///        by copying or moving the underlying callable.
 ///
+///        Move-only callables (e.g. a lambda capturing a std::unique_ptr) are supported;
+///        note that a function holding a move-only callable is itself move-only and must
+///        not be copied.
+///
 ///        Similarly to std::function, they cannot be stored in Shared Memory
 ///        to be invoked in a different process.
 ///
